@@ -8,13 +8,15 @@ import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.*
+import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.EditableFactory
+import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.command.command
+import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
-import org.nikok.hextant.core.expr.editable.*
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
-import org.nikok.hextant.prop.CorePermissions.Public
+import org.nikok.hextant.core.impl.scene
 import org.nikok.reaktive.value.now
 
 class InspectionGuiTest : Application() {

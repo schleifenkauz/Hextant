@@ -10,13 +10,14 @@ import javafx.scene.layout.HBox
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.*
+import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.command.Data.Receiver
 import org.nikok.hextant.core.command.line.CommandLine
 import org.nikok.hextant.core.command.line.FXCommandLineView
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
-import org.nikok.hextant.prop.CorePermissions.Public
+import org.nikok.hextant.core.impl.scene
 
 class CommandLineGuiTest : Application() {
     override fun start(stage: Stage) {

@@ -8,10 +8,10 @@ import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.expr.editable.ExpandableExpr
-import org.nikok.hextant.core.scene
-import org.nikok.hextant.prop.CorePermissions.Public
+import org.nikok.hextant.core.impl.scene
 
 class ExprEditorViewTest : Application() {
     override fun start(stage: Stage) {

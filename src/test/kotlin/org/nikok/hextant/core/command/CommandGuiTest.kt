@@ -13,6 +13,7 @@ import javafx.scene.input.*
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.command.Command.Category
@@ -21,7 +22,6 @@ import org.nikok.hextant.core.command.gui.commandMenuBar
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
-import org.nikok.hextant.prop.CorePermissions.Public
 
 internal class CommandGuiTest : Application() {
     override fun start(stage: Stage) {

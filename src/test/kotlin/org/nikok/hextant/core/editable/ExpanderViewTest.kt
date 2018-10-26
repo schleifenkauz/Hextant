@@ -8,14 +8,15 @@ import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.*
-import org.nikok.hextant.core.expr.editable.EditableIntLiteral
-import org.nikok.hextant.core.expr.editable.ExpandableExpr
+import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.EditorViewFactory
+import org.nikok.hextant.core.configure
+import org.nikok.hextant.core.expr.editable.*
 import org.nikok.hextant.core.expr.editor.ExprExpander
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
+import org.nikok.hextant.core.expr.view.FXTextEditorView
+import org.nikok.hextant.core.impl.scene
 import org.nikok.hextant.core.view.FXExpanderView
-import org.nikok.hextant.core.view.FXTextEditorView
-import org.nikok.hextant.prop.CorePermissions.Public
 
 class ExpanderViewTest : Application() {
     override fun start(stage: Stage) {

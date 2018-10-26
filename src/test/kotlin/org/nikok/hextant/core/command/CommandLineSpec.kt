@@ -12,8 +12,8 @@ import org.jetbrains.spek.api.dsl.*
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.command.line.CommandLine
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingName
-import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
+import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.reaktive.value.now
 
 internal object CommandLineSpec: Spek({

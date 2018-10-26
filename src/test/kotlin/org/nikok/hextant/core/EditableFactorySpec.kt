@@ -9,8 +9,8 @@ import com.natpryce.hamkrest.throws
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import org.nikok.hextant.Editable
-import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
+import org.nikok.hextant.core.expr.edited.IntLiteral
 import java.math.BigDecimal
 
 internal object EditableFactorySpec: Spek({

@@ -5,6 +5,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import org.nikok.hextant.Editor
+import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.mocks.MockEditor
 
 internal object SelectionDistributorSpec: Spek({
