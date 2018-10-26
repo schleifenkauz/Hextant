@@ -1,0 +1,12 @@
+.text-editor {
+    -fx-text-fill: green !important;
+}
+
+.decimal-editor {
+    -fx-text-fill: red !important;
+}
+
+.decimal-editor:selected {
+    -fx-effect: dropshadow(gaussian, red, 10, 10, 0, 0);
+    -fx-text-fill: white;
+}
