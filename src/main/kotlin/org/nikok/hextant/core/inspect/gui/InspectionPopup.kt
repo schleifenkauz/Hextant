@@ -7,15 +7,13 @@ package org.nikok.hextant.core.inspect.gui
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.control.Button
-import javafx.scene.control.Label
 import javafx.scene.input.KeyCode.ENTER
 import javafx.scene.input.KeyCodeCombination
-import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import javafx.stage.Popup
-import org.nikok.hextant.core.Stylesheets
 import org.nikok.hextant.core.fx.registerShortcut
 import org.nikok.hextant.core.fx.show
+import org.nikok.hextant.core.impl.Stylesheets
 import org.nikok.hextant.core.inspect.Problem
 import org.nikok.hextant.core.inspect.ProblemFix
 

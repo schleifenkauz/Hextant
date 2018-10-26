@@ -8,9 +8,9 @@ import javafx.scene.Node
 import javafx.scene.layout.VBox
 import org.nikok.hextant.Editable
 import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.fx.FXEditorView
-import org.nikok.hextant.prop.CorePermissions.Public
 
 class FXListEditorView(private val viewFactory: EditorViewFactory = HextantPlatform[Public, EditorViewFactory]) :
         ListEditorView,

@@ -7,11 +7,11 @@ package org.nikok.hextant.core.expr.view
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.expr.editable.EditableOperatorApplication
 import org.nikok.hextant.core.expr.editor.OperatorApplicationEditor
 import org.nikok.hextant.core.fx.*
-import org.nikok.hextant.prop.CorePermissions.Public
 
 class FXOperatorApplicationEditorView(editable: EditableOperatorApplication) : FXEditorView, HBox() {
     private val op1View: FXEditorView
