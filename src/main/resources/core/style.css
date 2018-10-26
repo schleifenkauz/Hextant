@@ -1,0 +1,105 @@
+/*The style of the root of the scene*/
+.root {
+    /*The base color*/
+    -fx-base: #000000;
+}
+
+/*Style class for text components in Hextant*/
+.hextant-text {
+    -fx-text-fill: beige;
+    -fx-font-size: 12;
+    -fx-background-color: black;
+    -fx-background-radius: 0;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-padding: 0;
+}
+
+.hextant-text:error {
+    -fx-border-color: red;
+}
+
+.utility-dialog-pane {
+    -fx-border-width: 0.5;
+    -fx-border-color: blue;
+    -fx-graphic: "M 0.0 0.0 Z";
+}
+
+
+.problem-list {
+    -fx-border-color: blue;
+    -fx-border-width: 1;
+}
+
+.problem {
+    -fx-background-color: #212121;
+}
+
+.problem:hover {
+    -fx-background-color: #05437B;
+}
+
+.warning {
+    -fx-graphic: url(icon/warning.png);
+}
+
+.error {
+    -fx-graphic: url(icon/error.png);
+}
+
+.fix-list {
+    -fx-border-color: blue;
+    -fx-border-width: 1;
+}
+
+.completions {
+    -fx-border-color: blue;
+    -fx-border-width: 1;
+}
+
+.completion {
+    -fx-background-color: gray;
+}
+
+.completion:focused {
+    -fx-background-color: #212121;
+}
+
+.command-history-cell:focused {
+    -fx-background-color: #212121;
+}
+
+:error {
+    -fx-border-width: 1;
+    -fx-border-color: red;
+    -fx-border-insets: 0 1 0 0;
+    -fx-border-style: dotted;
+}
+
+:warning {
+    -fx-border-width: 1;
+    -fx-border-color: yellow;
+    -fx-border-insets: 0 1 0 0;
+    -fx-border-style: dotted;
+}
+
+.scroll-bar {
+	 -fx-background-radius: 0em;
+}
+
+.scroll-bar .thumb {
+	-fx-background-insets: 0, 0, 0;
+	-fx-background-radius: 0em;
+}
+
+
+.scroll-bar .decrement-arrow,
+.scroll-bar .increment-arrow {
+    -fx-shape: "M 0.0 0.0 Z";
+}
+
+:focus-requested {
+    -fx-border-color: red;
+    -fx-border-width: 1;
+    -fx-background-color: gray;
+}
