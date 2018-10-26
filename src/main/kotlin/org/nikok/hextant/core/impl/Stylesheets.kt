@@ -2,7 +2,7 @@ package org.nikok.hextant.core.impl
 
 import javafx.scene.Scene
 
-object Stylesheets {
+internal object Stylesheets {
     private val cssFiles = Resources.allCSS()
 
     private val stringified by lazy { cssFiles.map { it.toUri().toURL().toString() } }
