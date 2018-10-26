@@ -1,4 +1,4 @@
-package org.nikok.hextant.core
+package org.nikok.hextant.core.impl
 
 import java.nio.file.Path
 import java.nio.file.Paths

@@ -1,4 +1,4 @@
-package org.nikok.hextant.core
+package org.nikok.hextant.core.impl
 
 import javafx.scene.Scene
 
