@@ -1,6 +1,20 @@
 package org.nikok.hextant.prop
 
+/**
+ * Represents a version of the Hextant platform
+ * @constructor
+ * @property big in 1.234 it would be 1
+ * @property iteration in 1.234 it would be 234
+ * @property isSnapshot specifies whether this version is a snapshot version
+*/
+//TODO(find better name for big)
 class Version private constructor(val big: Int, val iteration: Int, val isSnapshot: Boolean): Comparable<Version> {
+    /**
+     * Decide whether this or the [other] Version is later
+     * Version(1, 345) > Version(1, 23)
+     * Version(2, 345) < Version(5, 1)
+     * Version(2, 345, isSnapshot = true) < Version(2, 345, isSnapshot = false)
+    */
     override fun compareTo(other: Version): Int {
         return when {
             big != other.big                -> big - other.big
@@ -8,10 +22,6 @@ class Version private constructor(val big: Int, val iteration: Int, val isSnapsh
             isSnapshot && !other.isSnapshot -> -1
             else                            -> 1
         }
-    }
-
-    companion object {
-        val current: Version = Version(1, 0, isSnapshot = true)
     }
 
     override fun equals(other: Any?): Boolean {
