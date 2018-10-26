@@ -9,23 +9,44 @@ package org.nikok.hextant.prop
 import org.nikok.hextant.prop.PropertyHolder.Impl.Value.*
 import kotlin.properties.ReadOnlyProperty
 
+/**
+ * A Property Holder is used to get and set properties
+*/
 interface PropertyHolder {
+    /**
+     * Get the value of the specified [property] in this [PropertyHolder].
+     * You need to pass the [Read] [Permission]
+     * @throws NoSuchElementException if the specified [property] was not set before
+    */
     operator fun <T : Any, Read : Permission> get(
         permission: Read,
         property: Property<out T, Read, *>
     ): T
 
+    /**
+     * Set the value of the specified [property] to the constant [value] in this [PropertyHolder].
+     * Calls of `get(permission, property)` will return this [value] until a new value is set
+     * You need to pass the [Write] [Permission]
+    */
     fun <T : Any, Write : Permission> set(
         permission: Write, property: Property<in T, *, Write>,
         value: T
     )
 
+    /**
+     * Set a factory for the specified [property] in this [PropertyHolder].
+     * Calls of `get(permission, property) will call [factory] and return the result until a new value is set`
+    */
     fun <T : Any, Write : Permission> setFactory(
         permission: Write,
         property: Property<in T, *, Write>,
         factory: () -> T
     )
 
+    /**
+     * Set a delegate for the specified [property] in this [PropertyHolder].
+     * Calls of `get(permission, property) will delegate to the specified [delegate]`
+    */
     fun <T: Any, Write: Permission> setBy(
         permission: Write,
         property: Property<in T, *, Write>,
@@ -78,6 +99,9 @@ interface PropertyHolder {
     }
 
     companion object {
+        /**
+         * @return a new [PropertyHolder]
+        */
         fun newInstance(): PropertyHolder = Impl()
     }
 }
