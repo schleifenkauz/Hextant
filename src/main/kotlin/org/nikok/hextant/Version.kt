@@ -1,4 +1,4 @@
-package org.nikok.hextant.prop
+package org.nikok.hextant
 
 /**
  * Represents a version of the Hextant platform
