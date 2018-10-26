@@ -1,25 +1,73 @@
+buildscript {
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
+    }
+}
+
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.2.71'
 }
 
-group 'org.nikok'
-version '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
+static String kotlin(Object dep) {
+    return "org.jetbrains.kotlin:kotlin-$dep:1.2.71"
 }
 
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+static String spek(Object dep) {
+    return "org.jetbrains.spek:spek-$dep:1.1.5"
 }
 
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+apply plugin: 'org.junit.platform.gradle.plugin'
+
+junitPlatform {
+    filters {
+        engines {
+            include 'spek'
+        }
+    }
 }
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+
+test {
+    useJUnitPlatform()
+}
+
+
+static String nikok(Object dep, Object version) {
+    return "org.nikok:$dep:$version"
+}
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'kotlin'
+
+    group 'org.nikok'
+    version '1.0-SNAPSHOT'
+
+    sourceCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        implementation kotlin("stdlib")
+        testImplementation(spek("api")) {
+            exclude group: "org.jetbrains.kotlin"
+        }
+        testImplementation(spek("junit-platform-engine")) {
+            exclude group: "org.jetbrains.kotlin"
+        }
+        testImplementation "com.natpryce:hamkrest:1.5.0.0"
+        implementation kotlin("reflect")
+        implementation nikok("kref", "1.0.0")
+        implementation nikok("reaktive", "1.1-SNAPSHOT")
+    }
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
 }
