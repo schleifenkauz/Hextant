@@ -41,7 +41,9 @@ internal interface SelectionDistributor {
             val now = selectedEditors.now
             val alreadySelected = editor in now
             if (now.size == 1 && alreadySelected) return
-            else if (alreadySelected) { removeAllExcept(editor, isSelected) }
+            else if (alreadySelected) {
+                removeAllExcept(editor, isSelected)
+            }
             else {
                 clearSelection()
                 addSelection(editor, isSelected)
@@ -49,7 +51,7 @@ internal interface SelectionDistributor {
         }
 
         private fun clearSelection() {
-            selectedEditors.now.forEach { isEditorSelected.remove(it)!!.set(false) }
+            selectedEditors.now.forEach { isEditorSelected.remove(it)?.set(false) }
             selectedEditors.now.clear()
         }
 
