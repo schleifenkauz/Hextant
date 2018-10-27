@@ -18,7 +18,14 @@ interface FXEditorView: EditorView {
     val node: Node
 
     override fun select(isSelected: Boolean) {
-        node.pseudoClassStateChanged(PseudoClasses.SELECTED, isSelected)
+        if (isSelected) {
+            println("select $this, with node $node")
+            node.style = "-fx-background-color: #292929"
+        } else {
+            println("deselect $this, with node $node")
+            node.style = null
+        }
+        /*node.pseudoClassStateChanged(PseudoClasses.SELECTED, isSelected)*/
     }
 
     override fun error(isError: Boolean) {
