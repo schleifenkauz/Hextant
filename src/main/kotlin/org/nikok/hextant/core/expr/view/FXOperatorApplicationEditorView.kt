@@ -4,7 +4,6 @@
 
 package org.nikok.hextant.core.expr.view
 
-import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Public
@@ -20,15 +19,27 @@ class FXOperatorApplicationEditorView(editable: EditableOperatorApplication) : F
 
     private val op2View: FXEditorView
 
+    private val editor = OperatorApplicationEditor(editable, this)
+
+
     init {
         val views = HextantPlatform[Public, EditorViewFactory]
         op1View = views.getFXView(editable.editableOp1)
         operatorView = views.getFXView(editable.editableOperator)
         op2View = views.getFXView(editable.editableOp2)
-        children.addAll(Label("("), op1View.node, operatorView.node, op2View.node, Label(")"))
-        val editor = OperatorApplicationEditor(editable, this)
+        children.addAll(parenLabel("("), op1View.node, operatorView.node, op2View.node, parenLabel(")"))
         activateInspections(editable)
         activateContextMenu(editor)
+    }
+
+    private fun parenLabel(paren: String) = OperatorLabel(paren).apply {
+        setOnMouseClicked {
+            if (isControlDown) {
+                editor.toggleSelection()
+            } else {
+                editor.select()
+            }
+        }
     }
 
     override fun requestFocus() {
