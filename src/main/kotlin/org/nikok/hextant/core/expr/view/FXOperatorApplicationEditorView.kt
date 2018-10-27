@@ -26,9 +26,9 @@ class FXOperatorApplicationEditorView(editable: EditableOperatorApplication) : F
         operatorView = views.getFXView(editable.editableOperator)
         op2View = views.getFXView(editable.editableOp2)
         children.addAll(Label("("), op1View.node, operatorView.node, op2View.node, Label(")"))
+        val editor = OperatorApplicationEditor(editable, this)
         activateInspections(editable)
-        activateContextMenu(editable)
-        OperatorApplicationEditor(editable, this)
+        activateContextMenu(editor)
     }
 
     override fun requestFocus() {

@@ -1,7 +1,7 @@
 package org.nikok.hextant.core.expr.view
 
 import javafx.scene.control.Control
-import org.nikok.hextant.core.expr.editable.*
+import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.editor.IntEditor
 import org.nikok.hextant.core.fx.*
 import org.nikok.reaktive.value.now
@@ -12,7 +12,7 @@ class FXIntLiteralEditorView(
     private val editor = IntEditor(editableInt, this)
 
     init {
-        activateContextMenu(editableInt)
+        activateContextMenu(editor)
         activateInspections(editableInt)
         initSelection(editor)
         styleClass.add(0, "decimal-editor")

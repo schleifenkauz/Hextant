@@ -19,8 +19,9 @@ class FXOperatorEditorView(editable: EditableOperator): FXEditorView {
         val views = HextantPlatform[Public, EditorViewFactory]
         val view = views.getFXView(editable.editableText)
         node = view.node
-        node.activateContextMenu(editable)
         node.activateInspections(editable)
-        OperatorEditor(editable, this)
+        val editor = OperatorEditor(editable, this)
+        node.activateContextMenu(editor)
+        initSelection(editor)
     }
 }
