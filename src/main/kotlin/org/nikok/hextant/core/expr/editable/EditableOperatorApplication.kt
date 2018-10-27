@@ -23,7 +23,7 @@ class EditableOperatorApplication() : Editable<OperatorApplication> {
     override val edited: ReactiveValue<OperatorApplication?> =
             binding<OperatorApplication?>(
                 "operator application",
-                dependencies(editableOp1.editable, editableOp2.editable, editableOperator.edited)
+                dependencies(editableOp1.edited, editableOp2.edited, editableOperator.edited)
             ) {
                 val operator = editableOperator.edited.now ?: return@binding null
                 val op1 = editableOp1.edited.now ?: return@binding null
