@@ -5,9 +5,10 @@
 package org.nikok.hextant.core.expr
 
 import javafx.application.Application
+import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.Parent
-import javafx.scene.control.Button
-import javafx.scene.layout.VBox
+import javafx.scene.Scene
+import javafx.scene.control.*
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Public
@@ -18,16 +19,18 @@ import org.nikok.hextant.core.command.line.FXCommandLineView
 import org.nikok.hextant.core.command.register
 import org.nikok.hextant.core.expr.editable.ExpandableExpr
 import org.nikok.hextant.core.expr.editor.ExprEditor
+import org.nikok.hextant.core.fx.lastShortcutLabel
 import org.nikok.hextant.core.fx.scene
 
 class ExprEditorViewTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = scene(createContent())
+        stage.scene = scene(Label())
+        stage.scene.root = createContent(stage.scene)
         stage.show()
     }
 
     companion object {
-        private fun createContent(): Parent {
+        private fun createContent(scene: Scene): Parent {
             val views = HextantPlatform[Public, EditorViewFactory]
             val expandable = ExpandableExpr()
             val commands = HextantPlatform[Public, Commands]
@@ -49,7 +52,9 @@ class ExprEditorViewTest : Application() {
             val debugButton = Button("Debug").apply { setOnAction {
                 println("Debug")
             } }
-            return VBox(expandableView.node, clView)
+            val split = SplitPane(expandableView.node, clView, lastShortcutLabel(scene))
+            split.orientation = VERTICAL
+            return split
         }
 
         @JvmStatic fun main(args: Array<String>) {
