@@ -14,6 +14,8 @@ import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.command.gui.argumentEditor
@@ -22,9 +24,13 @@ import org.nikok.hextant.core.completion.gui.CompletionPopup
 import org.nikok.hextant.core.fx.*
 import org.nikok.reaktive.event.subscribe
 
-internal class FXCommandLineView internal constructor(commandLine: CommandLine, viewFactory: EditorViewFactory) : VBox(),
-                                                                                    CommandLineView {
+internal class FXCommandLineView internal constructor(
+    commandLine: CommandLine,
+    viewFactory: EditorViewFactory = HextantPlatform[Public, EditorViewFactory]
+) : VBox(),
+    CommandLineView {
     private val historyView = ListView<CommandApplication<Any>>().apply {
+        styleClass.add("history-view")
         prefHeight = 0.0
         prefWidth = 1000.0
         fixedCellSize = ROW_HEIGHT.toDouble()
