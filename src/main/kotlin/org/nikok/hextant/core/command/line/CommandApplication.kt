@@ -10,7 +10,7 @@ import java.util.*
 /**
  * A command application that applies [command] to the given [args]
 */
-class CommandApplication<T>(val command: Command<T, *>, val args: Array<Any>) {
+class CommandApplication<T>(val command: Command<T, *>, val args: Array<Any>, private val results: List<Any?>) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -37,5 +37,7 @@ class CommandApplication<T>(val command: Command<T, *>, val args: Array<Any>) {
             append(": ")
             append(a)
         }
+        append(" -> ")
+        results.joinTo(this)
     }
 }

@@ -155,10 +155,8 @@ class CommandLine(
     }
 
     private fun execute(c: Command<Any, *>, targets: Set<Any>, arguments: Array<Any>) {
-        for (t in targets) {
-            c.execute(t, *arguments)
-        }
-        val application = CommandApplication(c, arguments)
+        val results = targets.map { c.execute(it, *arguments) }
+        val application = CommandApplication(c, arguments, results)
         execute.fire(application)
         reset()
     }
@@ -210,8 +208,14 @@ class CommandLine(
         fun forSelectedEditors(): CommandLine {
             val dist = HextantPlatform[Internal, SelectionDistributor]
             val commands = HextantPlatform[Public, Commands]
-            val targets = { dist.selectedEditors.now }
-            val commandsFactory = { dist.selectedEditors.now.flatMapTo(mutableSetOf()) { commands.applicableOn(it) } }
+            val targets = {
+                dist.selectedEditors.now.also(::println)
+            }
+            val commandsFactory = {
+                dist.selectedEditors.now.asSequence().map {
+                    commands.applicableOn(it)
+                }.reduce { acc, s -> acc + s }
+            }
             return CommandLine(commandsFactory, targets)
         }
     }
