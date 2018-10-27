@@ -44,15 +44,13 @@ private fun displayShortcuts(scene: Scene) {
     p.content.add(shortcutDisplay)
     var currentHiderThread: Thread? = null
     scene.addEventFilter(KeyEvent.KEY_RELEASED) { e ->
-        if (e.isShortcut()) {
-            currentHiderThread?.stop()
-            shortcutDisplay.text = e.getShortcutString()
-            p.show(scene.root)
-            currentHiderThread = thread(start = true) {
-                Thread.sleep(2000)
-                Platform.runLater(p::hide)
-                currentHiderThread = null
-            }
+        currentHiderThread?.stop()
+        shortcutDisplay.text = e.getShortcutString()
+        p.show(scene.root)
+        currentHiderThread = thread(start = true) {
+            Thread.sleep(2000)
+            Platform.runLater(p::hide)
+            currentHiderThread = null
         }
     }
 }
