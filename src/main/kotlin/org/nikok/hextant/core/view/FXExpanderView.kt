@@ -22,21 +22,30 @@ class FXExpanderView<E : Editable<*>, Ex : Expandable<*, E>>(
     private val expandable: Ex,
     createExpander: (FXExpanderView<E, Ex>) -> Expander<E>
 ) : ExpanderView, FXEditorView, Control() {
-    private val textField = createExpanderTextField(expandable.text.now)
-
-    init {
-        styleClass.add("expander")
-        textField.textProperty().addListener { _, _, new -> expandable.setText(new) }
-    }
-
     private val views = HextantPlatform[Public, EditorViewFactory]
 
     private var view: FXEditorView? = null
 
+    private val textField = createExpanderTextField(expandable.text.now)
+
     private val expander: Expander<*> = createExpander(this)
+
+    init {
+        styleClass.add("expander")
+        textField.initSelection(expander)
+    }
+
+    override fun select(isSelected: Boolean) {
+        if (isSelected) {
+            textField.style = "-fx-background-color: #292929;"
+        } else {
+            textField.style = null
+        }
+    }
 
     private fun createExpanderTextField(text: String?): TextField = HextantTextField(text).apply {
         setOnAction { expander.expand() }
+        textProperty().addListener { _, _, new -> expandable.setText(new) }
     }
 
     override fun textChanged(newText: String) {
