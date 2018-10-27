@@ -20,10 +20,11 @@ internal object Resources {
     val root: Path = getResourcesRoot()
 
     private fun getResourcesRoot(): Path {
-        val cls = this.javaClass
+        /*val cls = this.javaClass
         val url = cls.getResource("resource")
         val path = Paths.get(url.toURI())
         val nc = path.nameCount
-        return path.root.resolve(path.subpath(0, nc - 5))
+        return path.root.resolve(path.subpath(0, nc - 6))*/
+        return Paths.get("D:\\Bibliotheken\\Aktive Projekte\\Hextant\\src\\test\\resources")
     }
 }
