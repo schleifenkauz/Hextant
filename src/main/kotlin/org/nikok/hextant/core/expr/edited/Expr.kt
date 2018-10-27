@@ -6,11 +6,15 @@ interface Expr {
 
 data class IntLiteral(override val value: Int): Expr {
     override fun toString(): String = value.toString()
+
+
 }
 
 data class OperatorApplication(val op1: Expr, val op2: Expr, val operator: Operator): Expr {
     override val value: Int
         get() = operator.apply(op1.value, op2.value)
+
+    override fun toString(): String = "$op1 ${operator.name} $op2"
 }
 
 sealed class Operator(private val operation: (Int, Int) -> Int, val name: String) {
