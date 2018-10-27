@@ -21,7 +21,7 @@ class ExprEditorViewTest : Application() {
 
     companion object {
         private fun createContent(): Parent {
-            val views = HextantPlatform.get(Public, EditorViewFactory)
+            val views = HextantPlatform[Public, EditorViewFactory]
             val expandable = ExpandableExpr()
             return views.getFXView(expandable).node as Parent
         }
