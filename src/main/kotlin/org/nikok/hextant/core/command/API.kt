@@ -41,8 +41,8 @@ inline fun parameters(block: ParametersBuilder.() -> Unit) = ParametersBuilder()
 /**
  * @return all [Command]s applicable on the specified [receiver]
  */
-inline fun <reified R : Any> Commands.applicableOn(receiver: R): Set<Command<R, Any?>> {
-    val reg = of<R>()
+fun <R : Any> Commands.applicableOn(receiver: R): Set<Command<R, Any?>> {
+    val reg = of(receiver::class)
     return reg.commandsFor(receiver)
 }
 
