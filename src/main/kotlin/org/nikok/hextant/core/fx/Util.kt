@@ -123,9 +123,17 @@ internal fun Node.focusPrevious() {
     Event.fireEvent(this, event)
 }
 
-internal fun FXEditorView.initSelection(editor: Editor<*>) {
-    node.addEventHandler(MouseEvent.MOUSE_CLICKED) { e ->
-        editor.select()
+internal fun Node.initSelection(editor: Editor<*>) {
+    focusedProperty().addListener { _, _, isFocused ->
+        if (isFocused) {
+            if (isControlDown) {
+                println("Focused $this, toggling selection of $editor")
+                editor.toggleSelection()
+            } else {
+                println("Focused $this, selecting $editor")
+                editor.select()
+            }
+        }
     }
 }
 
