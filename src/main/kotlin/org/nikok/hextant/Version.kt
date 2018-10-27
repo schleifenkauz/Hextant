@@ -12,7 +12,7 @@ import org.nikok.hextant.prop.Property
  * @property isSnapshot specifies whether this version is a snapshot version
 */
 //TODO(find better name for big)
-class Version private constructor(val big: Int, val iteration: Int, val isSnapshot: Boolean): Comparable<Version> {
+class Version internal constructor(val big: Int, val iteration: Int, val isSnapshot: Boolean): Comparable<Version> {
     /**
      * Decide whether this or the [other] Version is later
      * Version(1, 345) > Version(1, 23)
