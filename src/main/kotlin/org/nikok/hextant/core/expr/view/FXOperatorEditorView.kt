@@ -22,6 +22,5 @@ class FXOperatorEditorView(editable: EditableOperator): FXEditorView {
         node.activateInspections(editable)
         val editor = OperatorEditor(editable, this)
         node.activateContextMenu(editor)
-        initSelection(editor)
     }
 }
