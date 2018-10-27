@@ -17,7 +17,7 @@ import org.nikok.hextant.core.command.line.FXCommandLineView
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
-import org.nikok.hextant.core.impl.scene
+import org.nikok.hextant.core.fx.scene
 
 class CommandLineGuiTest : Application() {
     override fun start(stage: Stage) {

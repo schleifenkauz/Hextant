@@ -15,7 +15,7 @@ import org.nikok.hextant.core.expr.editable.*
 import org.nikok.hextant.core.expr.editor.ExprExpander
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
 import org.nikok.hextant.core.expr.view.FXTextEditorView
-import org.nikok.hextant.core.impl.scene
+import org.nikok.hextant.core.fx.scene
 import org.nikok.hextant.core.view.FXExpanderView
 
 class ExpanderViewTest : Application() {

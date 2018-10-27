@@ -16,7 +16,7 @@ import org.nikok.hextant.core.command.command
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
-import org.nikok.hextant.core.impl.scene
+import org.nikok.hextant.core.fx.scene
 import org.nikok.reaktive.value.now
 
 class InspectionGuiTest : Application() {
