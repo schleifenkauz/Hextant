@@ -1,5 +1,9 @@
 package org.nikok.hextant
 
+import org.nikok.hextant.core.CorePermissions.Internal
+import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.prop.Property
+
 /**
  * Represents a version of the Hextant platform
  * @constructor
@@ -43,4 +47,6 @@ class Version private constructor(val big: Int, val iteration: Int, val isSnapsh
         result = 31 * result + isSnapshot.hashCode()
         return result
     }
+
+    companion object: Property<Version, Public, Internal>("version")
 }
