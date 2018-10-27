@@ -25,6 +25,6 @@ internal object Resources {
         val path = Paths.get(url.toURI())
         val nc = path.nameCount
         return path.root.resolve(path.subpath(0, nc - 6))*/
-        return Paths.get("D:\\Bibliotheken\\Aktive Projekte\\Hextant\\src\\test\\resources")
+        return Paths.get("D:\\Bibliotheken\\Aktive Projekte\\Hextant\\src\\main\\resources")
     }
 }
