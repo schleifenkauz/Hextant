@@ -8,7 +8,7 @@ import javafx.application.Platform
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Label
-import javafx.scene.input.KeyCode.CONTROL
+import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent
 import javafx.stage.Popup
 import org.nikok.hextant.core.impl.Stylesheets
@@ -44,13 +44,15 @@ private fun displayShortcuts(scene: Scene) {
     p.content.add(shortcutDisplay)
     var currentHiderThread: Thread? = null
     scene.addEventFilter(KeyEvent.KEY_RELEASED) { e ->
-        currentHiderThread?.stop()
-        shortcutDisplay.text = e.getShortcutString()
-        p.show(scene.root)
-        currentHiderThread = thread(start = true) {
-            Thread.sleep(2000)
-            Platform.runLater(p::hide)
-            currentHiderThread = null
+        if (e.isShortcut() || e.code == ENTER || e.code == TAB) {
+            currentHiderThread?.stop()
+            shortcutDisplay.text = e.getShortcutString()
+            p.show(scene.root)
+            currentHiderThread = thread(start = true) {
+                Thread.sleep(2000)
+                Platform.runLater(p::hide)
+                currentHiderThread = null
+            }
         }
     }
 }
