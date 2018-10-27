@@ -15,7 +15,7 @@ class FXTextEditorView(editable: EditableText) : FXEditorView, TextEditorView {
 
     init {
         displayText(editable.text.now)
-        initSelection(editor)
+        node.initSelection(editor)
         node.activateInspections(editable)
         node.activateContextMenu(editor)
     }
