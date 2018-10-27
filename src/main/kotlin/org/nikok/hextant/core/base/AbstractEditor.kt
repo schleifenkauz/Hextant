@@ -34,7 +34,7 @@ abstract class AbstractEditor<E : Editable<*>>(
         private var value = false
 
         override val description: String
-            get() = "Is $this selected"
+            get() = "Is ${this@AbstractEditor} selected"
 
         override fun doSet(value: Boolean) {
             this.value = value
