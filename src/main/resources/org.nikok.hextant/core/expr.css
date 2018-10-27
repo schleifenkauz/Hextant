@@ -1,0 +1,7 @@
+.text-editor {
+    -fx-text-fill: green !important;
+}
+
+.decimal-editor {
+    -fx-text-fill: red !important;
+}

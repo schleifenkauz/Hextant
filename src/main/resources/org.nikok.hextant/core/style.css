@@ -2,13 +2,14 @@
 .root {
     /*The base color*/
     -fx-base: #000000;
+    -fx-background-color: black;
 }
 
 /*Style class for text components in Hextant*/
 .hextant-text {
     -fx-text-fill: beige;
     -fx-font-size: 12;
-    -fx-background-color: black;
+    -fx-background-color: transparent;
     -fx-background-radius: 0;
     -fx-border-color: black;
     -fx-border-width: 1;
@@ -17,6 +18,10 @@
 
 .hextant-text:error {
     -fx-border-color: red;
+}
+
+hextant-text:selected {
+    -fx-background-color: gray !important;
 }
 
 .utility-dialog-pane {
@@ -58,15 +63,22 @@
 }
 
 .completion {
-    -fx-background-color: gray;
+    -fx-background-color: #292929;
 }
 
 .completion:focused {
     -fx-background-color: #212121;
 }
 
+.history-view {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+
 .command-history-cell:focused {
-    -fx-background-color: #212121;
+    -fx-background-color: #434343;
+    -fx-border-width: 0;
 }
 
 :error {
