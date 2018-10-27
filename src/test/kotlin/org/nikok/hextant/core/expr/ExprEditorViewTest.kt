@@ -49,7 +49,7 @@ class ExprEditorViewTest : Application() {
             val debugButton = Button("Debug").apply { setOnAction {
                 println("Debug")
             } }
-            return VBox(expandableView.node, clView, debugButton)
+            return VBox(expandableView.node, clView)
         }
 
         @JvmStatic fun main(args: Array<String>) {
