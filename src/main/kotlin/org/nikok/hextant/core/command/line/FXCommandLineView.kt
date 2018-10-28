@@ -6,6 +6,7 @@ package org.nikok.hextant.core.command.line
 
 import javafx.application.Platform
 import javafx.beans.Observable
+import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyCodeCombination
@@ -27,8 +28,10 @@ import org.nikok.reaktive.event.subscribe
 internal class FXCommandLineView internal constructor(
     commandLine: CommandLine,
     viewFactory: EditorViewFactory = HextantPlatform[Public, EditorViewFactory]
-) : VBox(),
-    CommandLineView {
+) : VBox(), CommandLineView, FXEditorView {
+    override val node: Node
+        get() = this
+
     private val historyView = ListView<CommandApplication<Any>>().apply {
         styleClass.add("history-view")
         prefHeight = 0.0
@@ -119,8 +122,11 @@ internal class FXCommandLineView internal constructor(
         }
     }
 
+    private val controller = CommandLineController(commandLine, this, viewFactory)
+
     init {
         children.addAll(historyView, currentCommand)
+        controller.addView(this)
     }
 
     private val completionsPopup = CompletionPopup()
@@ -144,8 +150,6 @@ internal class FXCommandLineView internal constructor(
     fun dispose() {
         completionsSubscription.cancel()
     }
-
-    private val controller = CommandLineController(commandLine, this, viewFactory)
 
 
     override fun editingArgs(

@@ -7,6 +7,7 @@ package org.nikok.hextant.core.command.line
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorViewFactory
+import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.command.line.CommandLine.State
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingArgs
 import org.nikok.reaktive.event.subscribe
@@ -24,7 +25,7 @@ class CommandLineController(
     val commandLine: CommandLine,
     view: CommandLineView,
     private val viewFactory: EditorViewFactory = HextantPlatform[Public, EditorViewFactory]
-) {
+): AbstractEditor<CommandLine, CommandLineView>(commandLine) {
     private val completer = CommandCompleter
 
     private val stateObserver = commandLine.state.observe("Observe state of $commandLine") { newState ->

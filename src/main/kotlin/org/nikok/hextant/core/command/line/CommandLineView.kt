@@ -4,11 +4,12 @@
 
 package org.nikok.hextant.core.command.line
 
+import org.nikok.hextant.EditorView
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.completion.Completion
 import org.nikok.hextant.core.fx.FXEditorView
 
-interface CommandLineView {
+interface CommandLineView: EditorView {
     /**
      * Called when the associated [CommandLine]s state switched to "editing args"
      * @param name the name of the expanded command
