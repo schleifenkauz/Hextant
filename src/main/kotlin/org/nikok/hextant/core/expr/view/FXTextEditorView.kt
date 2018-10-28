@@ -19,6 +19,6 @@ class FXTextEditorView(editable: EditableText) : FXEditorView, TextEditorView {
     }
 
     override fun displayText(t: String) {
-        node.text = t
+        node.smartSetText(t)
     }
 }

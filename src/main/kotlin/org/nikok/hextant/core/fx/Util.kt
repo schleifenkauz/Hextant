@@ -149,3 +149,13 @@ internal fun <T: Any> Node.activateContextMenu(target: T) {
     val contextMenu = target.commandContextMenu(registrar)
     setOnContextMenuRequested { contextMenu.show(this, Side.BOTTOM, 0.0, 0.0) }
 }
+
+internal fun TextField.smartSetText(new: String) {
+    val previous = text
+    if (previous != new) {
+        text = new
+        if (previous.isEmpty()) {
+            positionCaret(new.length)
+        }
+    }
+}

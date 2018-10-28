@@ -23,6 +23,6 @@ class FXIntLiteralEditorView(
         get() = this
 
     override fun textChanged(new: String) {
-        text = new
+        smartSetText(new)
     }
 }
