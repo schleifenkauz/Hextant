@@ -6,12 +6,13 @@
 
 package org.nikok.hextant.core.fx
 
-import javafx.event.Event
+import com.sun.javafx.scene.traversal.Direction.NEXT
+import com.sun.javafx.scene.traversal.Direction.PREVIOUS
 import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.*
-import javafx.scene.input.KeyCode.*
+import javafx.scene.input.KeyCode.ENTER
 import javafx.stage.PopupWindow
 import org.nikok.hextant.Editor
 import org.nikok.hextant.HextantPlatform
@@ -56,71 +57,17 @@ internal inline fun Node.registerShortcut(s: KeyCombination, crossinline action:
     }
 }
 
-private val ALT_LEFT = KeyCodeCombination(LEFT, KeyCombination.ALT_DOWN)
-
-private val ALT_RIGHT = KeyCodeCombination(RIGHT, KeyCombination.ALT_DOWN)
-
-internal fun TextField.setLeft(node: () -> Node) {
-    addEventHandler(KeyEvent.KEY_RELEASED) { k ->
-        if (ALT_LEFT.match(k) || k.code == LEFT && caretPosition == 0) {
-            node().requestFocus()
-            k.consume()
-        }
-    }
-}
-
-internal fun TextField.setRight(node: () -> Node) {
-    addEventHandler(KeyEvent.KEY_RELEASED) { k ->
-        if (ALT_RIGHT.match(k) || k.code == RIGHT && caretPosition == 0) {
-            node().requestFocus()
-            k.consume()
-        }
-    }
-}
-
-internal fun Node.setUp(node: () -> Node) {
-    registerShortcut(KeyCodeCombination(UP)) { node().requestFocus() }
-}
-
-internal fun Node.setDown(node: () -> Node) {
-    registerShortcut(KeyCodeCombination(DOWN)) { node().requestFocus() }
-}
-
 internal fun PopupWindow.show(node: Node) {
     val p = node.localToScreen(0.0, node.prefHeight(-1.0))
     show(node, p.x, p.y)
 }
 
 internal fun Node.focusNext() {
-    val event = KeyEvent(
-        this,
-        this,
-        KeyEvent.KEY_RELEASED,
-        "\t",
-        "TAB",
-        KeyCode.TAB,
-        false,
-        false,
-        false,
-        false
-    )
-    Event.fireEvent(this, event)
+    impl_traverse(NEXT)
 }
 
 internal fun Node.focusPrevious() {
-    val event = KeyEvent(
-        this,
-        this,
-        KeyEvent.KEY_RELEASED,
-        "\t",
-        "TAB",
-        KeyCode.TAB,
-        true,
-        false,
-        false,
-        false
-    )
-    Event.fireEvent(this, event)
+    impl_traverse(PREVIOUS)
 }
 
 internal fun Node.initSelection(editor: Editor<*>) {
