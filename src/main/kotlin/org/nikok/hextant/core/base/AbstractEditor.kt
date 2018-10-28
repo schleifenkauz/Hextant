@@ -10,6 +10,7 @@ import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.reaktive.value.Variable
 import org.nikok.reaktive.value.base.AbstractVariable
 import org.nikok.reaktive.value.observe
+import java.util.logging.Logger
 
 /**
  * The base class of all [Editor]s
@@ -23,6 +24,7 @@ abstract class AbstractEditor<E : Editable<*>>(
     final override val editable: E, final override val view: EditorView
 ) : Editor<E> {
     private val isOkObserver = editable.isOk.observe("Observe isOk") { isOk ->
+        logger.info("$editable is ok = $isOk")
         view.error(isError = !isOk)
     }
 
@@ -38,6 +40,7 @@ abstract class AbstractEditor<E : Editable<*>>(
 
         override fun doSet(value: Boolean) {
             this.value = value
+            logger.info("$this is selected = $value")
             view.select(value)
         }
 
@@ -45,10 +48,16 @@ abstract class AbstractEditor<E : Editable<*>>(
     }
 
     override fun select() {
+        logger.info("selecting $this")
         selectionDistributor.select(this, isSelectedVar)
     }
 
     override fun toggleSelection() {
+        logger.info("toggling selection for $this")
         selectionDistributor.toggleSelection(this, isSelectedVar)
+    }
+
+    companion object {
+        val logger = Logger.getLogger(AbstractEditor::class.qualifiedName)
     }
 }
