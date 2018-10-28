@@ -29,6 +29,7 @@ class ExprEditorViewTest : Application() {
     override fun start(stage: Stage) {
         stage.scene = scene(Label())
         stage.scene.root = createContent(stage.scene)
+        stage.setOnCloseRequest { System.exit(0) }
         stage.show()
     }
 
