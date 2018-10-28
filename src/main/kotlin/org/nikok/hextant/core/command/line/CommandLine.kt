@@ -16,6 +16,7 @@ import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.impl.myLogger
 import org.nikok.reaktive.event.event
 import org.nikok.reaktive.value.*
+import org.nikok.reaktive.value.binding.impl.notNull
 
 /**
  * The model of a Command line
@@ -34,7 +35,7 @@ class CommandLine(
     private val commandsFactory: () -> Set<Command<*, *>>,
     private val targets: () -> Set<Any>,
     private val editableFactory: EditableFactory = HextantPlatform[Public, EditableFactory]
-) {
+): Editable<CommandApplication<*>> {
     /*
      * The current state
     */
@@ -78,6 +79,12 @@ class CommandLine(
      * The name of the command being searched
     */
     val text: ReactiveValue<String> get() = mutableText
+
+    private val mutableEdited = reactiveVariable<CommandApplication<*>?>("command application of command line", null)
+
+    override val edited: ReactiveValue<CommandApplication<*>?> get() = mutableEdited
+
+    override val isOk: ReactiveBoolean = edited.notNull()
 
     /**
      * Set the name of the command being searched to [new]
