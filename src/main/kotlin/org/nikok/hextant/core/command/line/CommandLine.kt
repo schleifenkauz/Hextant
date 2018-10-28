@@ -13,6 +13,7 @@ import org.nikok.hextant.core.command.*
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingArgs
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingName
 import org.nikok.hextant.core.impl.SelectionDistributor
+import org.nikok.hextant.core.impl.myLogger
 import org.nikok.reaktive.event.event
 import org.nikok.reaktive.value.*
 
@@ -84,6 +85,7 @@ class CommandLine(
     */
     fun setText(new: String) {
         check(new == text.now || state.now == EditingName) { "Cannot set text while editing args" }
+        logger.info("Set text to $new")
         mutableText.set(new)
     }
 
@@ -121,7 +123,9 @@ class CommandLine(
      * * Else it will just do nothing
     */
     fun executeOrExpand() {
+        logger.info("Executing or expanding")
         val targets = targets()
+        logger.fine { "targets = $targets" }
         when (state.now) {
             EditingName -> executeOrExpandEditingName(targets)
             EditingArgs -> tryExecute(targets)
@@ -143,19 +147,28 @@ class CommandLine(
     @Suppress("UNCHECKED_CAST") private fun executeOrExpandEditingName(
         targets: Set<Any>
     ) {
+        logger.fine { "Commandline is editing name" }
         val commands = commands() as Set<Command<Any, *>>
+        logger.fine {"Commands = $commands" }
         val c = commands.findCommand(targets) ?: return
+        logger.fine { "Found command $c" }
         if (c.parameters.isEmpty()) {
-            execute(c, targets, emptyArray())
+            logger.fine("parameters are empty, just executing")
+            val res = execute(c, targets, emptyArray())
+            logger.fine { "Result = $res" }
         } else {
             editableArgs = c.parameters.map { p -> editableFactory.getEditable(p.type) }
+            logger.fine { "args are now $editableArgs" }
             editedCommand = c
+            logger.fine { "editedCommand = $c" }
             mutableState.set(EditingArgs)
+            logger.fine { "state = $EditingArgs" }
         }
     }
 
     private fun execute(c: Command<Any, *>, targets: Set<Any>, arguments: Array<Any>) {
         val results = targets.map { c.execute(it, *arguments) }
+        logger.fine { "results = $results" }
         val application = CommandApplication(c, arguments, results)
         execute.fire(application)
         reset()
@@ -165,8 +178,9 @@ class CommandLine(
      * Reset the command line by
      * * Setting the state to "editing name"
      * * Setting the text to and empty string
-    */
+     */
     fun reset() {
+        logger.info { "resetting" }
         editableArgs = null
         editedCommand = null
         mutableText.set("")
@@ -181,8 +195,12 @@ class CommandLine(
      * * If the arguments are not empty setting the editable args to the arguments of the [application] and setting the state to "editing args"
      */
     fun resume(application: CommandApplication<Any>) {
+        logger.info { "Resuming to $application" }
         val c = application.command
-        if (targets().any { !c.isApplicableOn(it) }) return
+        if (targets().any { !c.isApplicableOn(it) }) {
+            logger.fine { "Cannot execute command on all targets" }
+            return
+        }
         val name = c.shortName!!
         val args = application.args
         mutableText.set(name)
@@ -226,5 +244,7 @@ class CommandLine(
             }
             return CommandLine(commandsFactory, targets)
         }
+
+        val logger by myLogger()
     }
 }
