@@ -38,12 +38,12 @@ class CommandLine(
     /*
      * The current state
     */
-    private val mutableState = reactiveVariable("state of $this", EditingName)
+    private val mutableState = reactiveVariable("state", EditingName)
 
     /*
      * Is fired when a command was executed by this command line
     */
-    private val execute = event<CommandApplication<Any>>("Execute a command with $this")
+    private val execute = event<CommandApplication<Any>>("Execute a command")
 
     /**
      * An event stream emitting [CommandApplication]s when a command was executed by this command line
@@ -72,7 +72,7 @@ class CommandLine(
     /*
      * The name of the command being searched
     */
-    private val mutableText = reactiveVariable("Text for $this", "")
+    private val mutableText = reactiveVariable("Text", "")
 
     /**
      * The name of the command being searched
