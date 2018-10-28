@@ -16,7 +16,6 @@ import org.nikok.hextant.core.view.FXExpanderView
 import org.nikok.hextant.prop.Property
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.isSuperclassOf
 
 /**
  * Used to manage the views of [Editable]s
@@ -72,23 +71,20 @@ interface EditorViewFactory {
             val expanderCls = expanderCls(expandableCls, expandable)
             expanderCls ?: return null
             expandable as Expandable<*, Editable<*>>
-            return FXExpanderView(expandable) { v: FXExpanderView<*, *> -> createExpander(expanderCls, expandable, expandableCls, v) }
+            val expander = createExpander(expanderCls, expandable, expandableCls)
+            return FXExpanderView(expandable, expander)
         }
 
         private fun createExpander(
             expanderCls: KClass<Expander<*>>,
             expandable: Expandable<*, *>,
-            expandableCls: KClass<*>,
-            v: FXExpanderView<*, *>
+            expandableCls: KClass<*>
         ): Expander<*> {
             val constructor = expanderCls.constructors.find {
-                val viewParam = it.parameters[1].type.classifier
-                it.parameters.size == 2 &&
-                it.parameters[0].type.classifier == expandableCls &&
-                viewParam is KClass<*> &&
-                viewParam.isSuperclassOf(v::class)
+                it.parameters.size == 1 &&
+                it.parameters[0].type.classifier == expandableCls
             } ?: throw NoSuchElementException("Could not find constructor for $expanderCls")
-            return constructor.call(expandable, v)
+            return constructor.call(expandable)
         }
 
         private fun expanderCls(cls: KClass<*>, expandable: Expandable<*, *>): KClass<Expander<*>>? {
