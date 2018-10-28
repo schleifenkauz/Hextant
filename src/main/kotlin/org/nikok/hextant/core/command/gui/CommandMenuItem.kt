@@ -18,7 +18,7 @@ internal class CommandMenuItem<T : Any>(target: T, command: Command<T, *>, regis
         text = getText(command, registrar)
         logger.fine("Set text to $text")
         if (!command.isApplicableOn(target)) {
-            logger.fine("Disabling because command is not applicable")
+            logger.fine { "Disabling because command is not applicable" }
             isDisable = true
         }
         setOnAction {

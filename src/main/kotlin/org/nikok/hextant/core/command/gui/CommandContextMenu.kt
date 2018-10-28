@@ -22,7 +22,7 @@ internal class CommandContextMenu<T : Any> internal constructor(
         logger.info("updating")
         items.clear()
         for (c in commandRegistrar.commands) {
-            logger.finest("Showing command $c")
+            logger.finest { "Showing command $c" }
             val item = CommandMenuItem(target, c, commandRegistrar)
             items.add(item)
         }

@@ -36,7 +36,7 @@ internal class CommandMenuBar<T : Any> private constructor(
     private fun addMenu(
         registrar: CommandRegistrar<T>, newCategory: Category
     ) = menus.add(CommandMenu(target, registrar, newCategory)).also {
-        logger.fine("added menu $newCategory")
+        logger.fine { "added menu $newCategory" }
     }
 
     companion object {
@@ -61,7 +61,7 @@ internal class CommandMenuBar<T : Any> private constructor(
             for (c in commandRegistrar.commands) {
                 if (c.category == category) {
                     val item = CommandMenuItem(target, c, commandRegistrar)
-                    logger.fine("Add menu item for $c")
+                    logger.fine { "Add menu item for $c" }
                     items.add(item)
                 }
             }

@@ -40,7 +40,7 @@ abstract class AbstractEditor<E : Editable<*>>(
 
         override fun doSet(value: Boolean) {
             this.value = value
-            logger.info("$this is selected = $value")
+            logger.fine { "$this is selected = $value" }
             view.select(value)
         }
 
