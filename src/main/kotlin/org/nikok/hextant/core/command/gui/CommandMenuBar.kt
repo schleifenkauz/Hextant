@@ -8,6 +8,7 @@ import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
 import org.nikok.hextant.core.command.Command.Category
 import org.nikok.hextant.core.command.CommandRegistrar
+import org.nikok.hextant.core.impl.myLogger
 import org.nikok.reaktive.event.subscribe
 
 internal class CommandMenuBar<T : Any> private constructor(
@@ -19,6 +20,7 @@ internal class CommandMenuBar<T : Any> private constructor(
     }
 
     private fun initialize(registrar: CommandRegistrar<T>) {
+        logger.info("Initializing command menu bar")
         val categories = registrar.categories
         for (c in categories) {
             addMenu(registrar, c)
@@ -33,11 +35,15 @@ internal class CommandMenuBar<T : Any> private constructor(
 
     private fun addMenu(
         registrar: CommandRegistrar<T>, newCategory: Category
-    ) = menus.add(CommandMenu(target, registrar, newCategory))
+    ) = menus.add(CommandMenu(target, registrar, newCategory)).also {
+        logger.fine("added menu $newCategory")
+    }
 
     companion object {
         internal fun <T : Any> newInstance(target: T, registrar: CommandRegistrar<T>): MenuBar =
                 CommandMenuBar(target, registrar)
+
+        val logger by myLogger()
     }
 
     private class CommandMenu<T : Any>(
@@ -50,14 +56,15 @@ internal class CommandMenuBar<T : Any> private constructor(
         }
 
         private fun update() {
+            logger.info("Updating $this")
             items.clear()
             for (c in commandRegistrar.commands) {
                 if (c.category == category) {
                     val item = CommandMenuItem(target, c, commandRegistrar)
+                    logger.fine("Add menu item for $c")
                     items.add(item)
                 }
             }
         }
-
     }
 }
