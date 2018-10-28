@@ -31,7 +31,7 @@ class ExpanderViewTest : Application() {
                 registerFX(EditableText::class) { FXTextEditorView(it) }
             }
             val ex = ExpandableExpr()
-            return FXExpanderView(ex) { v -> ExprExpander(ex, v) }
+            return FXExpanderView(ex, ExprExpander(ex))
         }
 
         @JvmStatic fun main(args: Array<String>) {

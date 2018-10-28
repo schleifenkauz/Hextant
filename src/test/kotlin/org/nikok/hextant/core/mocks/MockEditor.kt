@@ -5,6 +5,5 @@ import org.nikok.hextant.EditorView
 import org.nikok.hextant.core.base.AbstractEditor
 
 internal class MockEditor(
-    editable: Editable<Unit> = MockEditable(),
-    view: EditorView = MockEditorView()
-) : AbstractEditor<Editable<Unit>>(editable, view)
+    editable: Editable<Unit> = MockEditable()
+) : AbstractEditor<Editable<Unit>, EditorView>(editable)
