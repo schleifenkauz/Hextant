@@ -12,28 +12,28 @@ import org.nikok.reaktive.value.now
 import org.nikok.reaktive.value.observe
 
 abstract class Expander<out E : Editable<*>>(
-    view: ExpanderView, editable: Expandable<*, E>
-) : AbstractEditor<Expandable<*, @UnsafeVariance E>>(editable, view) {
+    editable: Expandable<*, E>
+) : AbstractEditor<Expandable<*, @UnsafeVariance E>, ExpanderView>(editable) {
     init {
-        handleState(editable.isExpanded.now, view, editable)
+        handleState(editable.isExpanded.now, editable)
     }
 
     private val isExpandedObserver = editable.isExpanded.observe("Observe if $editable is expanded") { expanded ->
-        handleState(expanded, view, editable)
+        handleState(expanded, editable)
     }
 
     private fun handleState(
-        expanded: Boolean, view: ExpanderView, expandable: Expandable<*, E>
+        expanded: Boolean, expandable: Expandable<*, E>
     ) {
         if (expanded) {
-            view.expanded(expandable.editable.now!!)
+            views { expanded(expandable.editable.now!!) }
         } else {
-            view.reset()
+            views { reset() }
         }
     }
 
     private val textObserver = editable.text.observe("Observe text of $editable") { t ->
-        view.textChanged(t)
+        views { textChanged(t) }
     }
 
     protected abstract fun expand(text: String): E?
