@@ -27,9 +27,12 @@ class FXOperatorApplicationEditorView(editable: EditableOperatorApplication) : F
         op1View = views.getFXView(editable.editableOp1)
         operatorView = views.getFXView(editable.editableOperator)
         op2View = views.getFXView(editable.editableOp2)
-        children.addAll(parenLabel("("), op1View.node, operatorView.node, op2View.node, parenLabel(")"))
+        val openingParen = parenLabel("(")
+        val closingParen = parenLabel(")")
+        children.addAll(openingParen, op1View.node, operatorView.node, op2View.node, closingParen)
         activateInspections(editable)
         activateContextMenu(editor)
+        editor.addView(this)
     }
 
     private fun parenLabel(paren: String) = OperatorLabel(paren).apply {
