@@ -7,10 +7,10 @@ package org.nikok.hextant.core.base
 import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.impl.SelectionDistributor
+import org.nikok.hextant.core.impl.myLogger
 import org.nikok.reaktive.value.Variable
 import org.nikok.reaktive.value.base.AbstractVariable
 import org.nikok.reaktive.value.observe
-import java.util.logging.Logger
 
 /**
  * The base class of all [Editor]s
@@ -58,6 +58,6 @@ abstract class AbstractEditor<E : Editable<*>>(
     }
 
     companion object {
-        val logger = Logger.getLogger(AbstractEditor::class.qualifiedName)
+        val logger by myLogger()
     }
 }
