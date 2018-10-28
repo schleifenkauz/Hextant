@@ -29,6 +29,7 @@ class FXExpanderView<E : Editable<*>, Ex : Expandable<*, E>>(
     private val textField = createExpanderTextField(expandable.text.now)
 
     init {
+        setRoot(textField)
         styleClass.add("expander")
         textField.initSelection(expander)
         expander.addView(this)
