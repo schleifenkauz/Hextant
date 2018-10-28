@@ -45,6 +45,7 @@ abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
 
     fun addView(view: V) {
         mutableViews.add(WeakReference(view))
+        viewAdded(view)
     }
 
     protected open fun viewAdded(view: V) {  }
