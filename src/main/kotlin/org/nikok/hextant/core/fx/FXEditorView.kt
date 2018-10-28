@@ -11,11 +11,11 @@ import org.nikok.hextant.EditorView
 
 /**
  * An [EditorView] showing its content with a [Node]
-*/
-interface FXEditorView: EditorView {
+ */
+interface FXEditorView : EditorView {
     /**
      * The visual content of this [EditorView]
-    */
+     */
     val node: Node
 
     override fun select(isSelected: Boolean) {
@@ -43,6 +43,8 @@ interface FXEditorView: EditorView {
     }
 
     override fun onGuiThread(action: () -> Unit) {
-        Platform.runLater(action)
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater(action)
+        } else action()
     }
 }
