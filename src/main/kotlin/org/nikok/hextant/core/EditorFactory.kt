@@ -13,7 +13,8 @@ import java.util.*
 import java.util.logging.Logger
 import kotlin.NoSuchElementException
 import kotlin.reflect.KClass
-import kotlin.reflect.full.cast
+import kotlin.reflect.full.*
+import kotlin.reflect.jvm.isAccessible
 
 interface EditorFactory {
     fun <E : Editable<*>, Ed : Editor<E>> register(editableCls: KClass<E>, editorCls: KClass<Ed>, factory: (E) -> Ed)
@@ -43,9 +44,25 @@ interface EditorFactory {
                     val cls = editable::class
                     val factory =
                             factories[cls]?.get(editorCls)
+                            ?: resolveDefaultEditor(cls, editorCls)
                             ?: throw NoSuchElementException("No factory registered fo $cls")
                     factory(editable)
                 }.let { editorCls.cast(it) }
+
+        companion object {
+            private fun <E : Editable<*>, Ed : Editor<E>> resolveDefaultEditor(
+                cls: KClass<out E>,
+                editorCls: KClass<Ed>
+            ): ((E) -> Ed)? {
+                val constructor = editorCls.constructors
+                                          .find {
+                                              it.isAccessible &&
+                                              it.parameters.size == 1 &&
+                                              it.parameters.first().type.isSupertypeOf(cls.starProjectedType)
+                                          } ?: return null
+                return { editable -> constructor.call(editable) }
+            }
+        }
     }
 
     companion object : Property<EditorFactory, Public, Internal>("editor factory") {
@@ -55,6 +72,6 @@ interface EditorFactory {
     }
 }
 
-inline fun <reified E : Editable<*>, reified Ed: Editor<E>> EditorFactory.register(noinline factory: (E) -> Ed) {
+inline fun <reified E : Editable<*>, reified Ed : Editor<E>> EditorFactory.register(noinline factory: (E) -> Ed) {
     register(E::class, Ed::class, factory)
 }
