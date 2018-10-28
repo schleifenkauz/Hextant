@@ -204,6 +204,14 @@ class CommandLine(
         }
     }
 
+    override fun toString(): String = buildString {
+        appendln("Command Line")
+        append("state = $state")
+        append("text = ${text.now}")
+        if (editableArgs != null) append("editable arguments = $editableArgs")
+        if (editedCommand != null) append("edited command = $editedCommand")
+    }
+
     companion object {
         fun forSelectedEditors(): CommandLine {
             val dist = HextantPlatform[Internal, SelectionDistributor]
