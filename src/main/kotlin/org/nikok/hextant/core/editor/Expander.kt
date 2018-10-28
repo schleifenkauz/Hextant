@@ -10,7 +10,6 @@ import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.view.ExpanderView
 import org.nikok.reaktive.value.now
-import org.nikok.reaktive.value.observe
 
 abstract class Expander<out E : Editable<*>>(
     editable: Expandable<*, E>
@@ -24,11 +23,9 @@ abstract class Expander<out E : Editable<*>>(
     }
 
     override fun viewAdded(view: ExpanderView) {
-        view.onGuiThread { view.handleState() }
-    }
-
-    private val textObserver = editable.text.observe("Observe text of $editable") { t ->
-        views { textChanged(t) }
+        view.onGuiThread {
+            view.handleState()
+        }
     }
 
     protected abstract fun expand(text: String): E?
@@ -38,7 +35,9 @@ abstract class Expander<out E : Editable<*>>(
             check(!editable.isExpanded.now) { "Expander is already expanded" }
             val content = expand(editable.text.now) ?: return@runLater
             editable.setContent(content)
-            views { handleState() }
+            views {
+                handleState()
+            }
         }
     }
 
@@ -46,11 +45,18 @@ abstract class Expander<out E : Editable<*>>(
         HextantPlatform.runLater {
             check(editable.isExpanded.now) { "Expander is not expanded" }
             editable.setText("")
-            views { handleState() }
+            views {
+                handleState()
+            }
         }
     }
 
     fun setText(new: String) {
-        HextantPlatform.runLater { editable.setText(new) }
+        HextantPlatform.runLater {
+            editable.setText(new)
+            views {
+                textChanged(new)
+            }
+        }
     }
 }
