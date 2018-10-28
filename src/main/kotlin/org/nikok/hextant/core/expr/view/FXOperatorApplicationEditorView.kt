@@ -19,7 +19,7 @@ class FXOperatorApplicationEditorView(editable: EditableOperatorApplication) : F
 
     private val op2View: FXEditorView
 
-    private val editor = OperatorApplicationEditor(editable, this)
+    private val editor = OperatorApplicationEditor(editable)
 
 
     init {

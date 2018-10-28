@@ -4,11 +4,10 @@
 
 package org.nikok.hextant.core.expr.editor
 
-import org.nikok.hextant.EditorView
 import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.expr.editable.EditableOperator
+import org.nikok.hextant.core.expr.view.FXOperatorEditorView
 
 class OperatorEditor(
-    editable: EditableOperator,
-    view: EditorView
-) : AbstractEditor<EditableOperator>(editable, view)
+    editable: EditableOperator
+) : AbstractEditor<EditableOperator, FXOperatorEditorView>(editable)

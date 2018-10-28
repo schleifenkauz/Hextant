@@ -8,9 +8,8 @@ import org.nikok.hextant.Editable
 import org.nikok.hextant.core.base.AbstractEditor
 
 abstract class ListEditor<E : Editable<*>>(
-    private val list: EditableList<*, E>,
-    view: ListEditorView
-) : AbstractEditor<EditableList<*, E>>(list, view) {
+    private val list: EditableList<*, E>
+) : AbstractEditor<EditableList<*, E>, ListEditorView>(list) {
     protected abstract fun createNewEditable(): E
 
     fun add(idx: Int): E {

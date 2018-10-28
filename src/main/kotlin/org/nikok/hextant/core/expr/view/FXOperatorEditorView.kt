@@ -20,7 +20,7 @@ class FXOperatorEditorView(editable: EditableOperator): FXEditorView {
         val view = views.getFXView(editable.editableText)
         node = view.node
         node.activateInspections(editable)
-        val editor = OperatorEditor(editable, this)
+        val editor = OperatorEditor(editable)
         node.activateContextMenu(editor)
     }
 }
