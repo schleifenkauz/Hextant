@@ -48,7 +48,9 @@ class FXExpanderView<E : Editable<*>, Ex : Expandable<*, E>>(
     }
 
     override fun textChanged(newText: String) {
-        textField.text = newText
+        if (newText != textField.text) {
+            textField.text = newText
+        }
     }
 
     override fun reset() {
