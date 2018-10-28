@@ -7,7 +7,6 @@ package org.nikok.hextant.core.base
 import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.impl.SelectionDistributor
-import org.nikok.hextant.core.impl.myLogger
 import org.nikok.reaktive.value.Variable
 import org.nikok.reaktive.value.base.AbstractVariable
 import org.nikok.reaktive.value.observe
@@ -44,6 +43,14 @@ abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
         views.forEach { v -> v.onGuiThread { v.action() } }
     }
 
+    fun addView(view: V) {
+        mutableViews.add(WeakReference(view))
+    }
+
+    private val isOkObserver = editable.isOk.observe("Observe isOk") { isOk ->
+        views.forEach { v -> v.error(isError = !isOk) }
+    }
+
     private val selectionDistributor = HextantPlatform[Internal, SelectionDistributor]
 
     override val isSelected: Boolean get() = isSelectedVar.get()
@@ -56,7 +63,6 @@ abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
 
         override fun doSet(value: Boolean) {
             this.value = value
-            logger.fine { "$this is selected = $value" }
             views.forEach { it.select(isSelected = value) }
         }
 
@@ -64,16 +70,10 @@ abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
     }
 
     override fun select() {
-        logger.info("selecting $this")
         selectionDistributor.select(this, isSelectedVar)
     }
 
     override fun toggleSelection() {
-        logger.info("toggling selection for $this")
         selectionDistributor.toggleSelection(this, isSelectedVar)
-    }
-
-    companion object {
-        val logger by myLogger()
     }
 }
