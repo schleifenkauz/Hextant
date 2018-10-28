@@ -5,7 +5,6 @@
 package org.nikok.hextant
 
 import org.nikok.hextant.core.CorePermissions.Internal
-import org.nikok.hextant.core.CoreProperties.logger
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.command.Commands
@@ -14,7 +13,7 @@ import org.nikok.hextant.core.inspect.Inspections
 import org.nikok.hextant.prop.PropertyHolder
 import org.nikok.hextant.prop.invoke
 import java.util.concurrent.Executors
-import java.util.logging.Logger
+import java.util.concurrent.Future
 
 /**
  * The hextant platform, mainly functions as a [PropertyHolder] to manage properties of the hextant platform
@@ -23,14 +22,12 @@ interface HextantPlatform : PropertyHolder {
     /**
      * Enqueues the specified [action] in the Hextant main thread
     */
-    fun runLater(action: () -> Unit)
+    fun <T> runLater(action: () -> T): Future<T>
 
     companion object : HextantPlatform, PropertyHolder by PropertyHolder.newInstance() {
         private val executor = Executors.newSingleThreadExecutor()
 
-        override fun runLater(action: () -> Unit) {
-            executor.submit(action)
-        }
+        override fun <T> runLater(action: () -> T): Future<T> = executor.submit(action)
 
         init {
             Internal {
@@ -40,7 +37,6 @@ interface HextantPlatform : PropertyHolder {
                 HextantPlatform[EditableFactory] = EditableFactory.newInstance()
                 HextantPlatform[Commands] = Commands.newInstance()
                 HextantPlatform[Inspections] = Inspections.newInstance()
-                HextantPlatform[logger] = Logger.getLogger("org.nikok.hextant")
             }
         }
     }

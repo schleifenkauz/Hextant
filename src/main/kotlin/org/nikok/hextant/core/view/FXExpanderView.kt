@@ -20,7 +20,7 @@ import org.nikok.reaktive.value.now
 
 class FXExpanderView<E : Editable<*>, Ex : Expandable<*, E>>(
     private val expandable: Ex,
-    createExpander: (FXExpanderView<E, Ex>) -> Expander<E>
+    private val expander: Expander<E>
 ) : ExpanderView, FXEditorView, Control() {
     private val views = HextantPlatform[Public, EditorViewFactory]
 
@@ -28,11 +28,10 @@ class FXExpanderView<E : Editable<*>, Ex : Expandable<*, E>>(
 
     private val textField = createExpanderTextField(expandable.text.now)
 
-    private val expander: Expander<*> = createExpander(this)
-
     init {
         styleClass.add("expander")
         textField.initSelection(expander)
+        expander.addView(this)
     }
 
     override fun select(isSelected: Boolean) {
@@ -45,7 +44,7 @@ class FXExpanderView<E : Editable<*>, Ex : Expandable<*, E>>(
 
     private fun createExpanderTextField(text: String?): TextField = HextantTextField(text).apply {
         setOnAction { expander.expand() }
-        textProperty().addListener { _, _, new -> expandable.setText(new) }
+        textProperty().addListener { _, _, new -> expander.setText(new) }
     }
 
     override fun textChanged(newText: String) {
