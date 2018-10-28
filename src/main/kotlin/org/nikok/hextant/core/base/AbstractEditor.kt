@@ -11,6 +11,7 @@ import org.nikok.hextant.core.impl.myLogger
 import org.nikok.reaktive.value.Variable
 import org.nikok.reaktive.value.base.AbstractVariable
 import org.nikok.reaktive.value.observe
+import java.lang.ref.WeakReference
 
 /**
  * The base class of all [Editor]s
@@ -18,14 +19,29 @@ import org.nikok.reaktive.value.observe
  * @constructor
  * @param E the type of [Editable] edited by this [Editor]
  * @param editable the [Editable] edited by this [Editor]
- * @param view the view associated with this [Editor]
  */
-abstract class AbstractEditor<E : Editable<*>>(
-    final override val editable: E, final override val view: EditorView
+abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
+    final override val editable: E
 ) : Editor<E> {
-    private val isOkObserver = editable.isOk.observe("Observe isOk") { isOk ->
-        logger.info("$editable is ok = $isOk")
-        view.error(isError = !isOk)
+    private val mutableViews = mutableSetOf<WeakReference<V>>()
+
+    protected val views: Sequence<V> get() {
+        val itr = mutableViews.iterator()
+        tailrec fun next(): V? =
+                if (!itr.hasNext()) null
+                else {
+                    val nxt = itr.next()
+                    if (nxt.get() != null) nxt.get()
+                    else {
+                        itr.remove()
+                        next()
+                    }
+                }
+        return generateSequence(::next)
+    }
+
+    protected inline fun views(crossinline action: V.() -> Unit) {
+        views.forEach { v -> v.onGuiThread { v.action() } }
     }
 
     private val selectionDistributor = HextantPlatform[Internal, SelectionDistributor]
@@ -41,7 +57,7 @@ abstract class AbstractEditor<E : Editable<*>>(
         override fun doSet(value: Boolean) {
             this.value = value
             logger.fine { "$this is selected = $value" }
-            view.select(value)
+            views.forEach { it.select(isSelected = value) }
         }
 
         override fun get(): Boolean = value

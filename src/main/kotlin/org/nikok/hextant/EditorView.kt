@@ -17,4 +17,6 @@ interface EditorView {
     fun error(isError: Boolean)
 
     fun focus()
+
+    fun onGuiThread(action: () -> Unit)
 }
