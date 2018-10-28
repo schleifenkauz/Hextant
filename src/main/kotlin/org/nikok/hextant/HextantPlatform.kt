@@ -13,13 +13,25 @@ import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
 import org.nikok.hextant.prop.PropertyHolder
 import org.nikok.hextant.prop.invoke
+import java.util.concurrent.Executors
 import java.util.logging.Logger
 
 /**
  * The hextant platform, mainly functions as a [PropertyHolder] to manage properties of the hextant platform
-*/
+ */
 interface HextantPlatform : PropertyHolder {
+    /**
+     * Enqueues the specified [action] in the Hextant main thread
+    */
+    fun runLater(action: () -> Unit)
+
     companion object : HextantPlatform, PropertyHolder by PropertyHolder.newInstance() {
+        private val executor = Executors.newSingleThreadExecutor()
+
+        override fun runLater(action: () -> Unit) {
+            executor.submit(action)
+        }
+
         init {
             Internal {
                 HextantPlatform[Version] = Version(1, 0, isSnapshot = true)
@@ -31,6 +43,5 @@ interface HextantPlatform : PropertyHolder {
                 HextantPlatform[logger] = Logger.getLogger("org.nikok.hextant")
             }
         }
-
     }
 }
