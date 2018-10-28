@@ -9,11 +9,6 @@ package org.nikok.hextant
 */
 interface Editor<E: Editable<*>> {
     /**
-     * @return the view associated with this [Editor]
-    */
-    val view: EditorView
-
-    /**
      * @return the [Editable] edited by this [Editor]
     */
     val editable: E
