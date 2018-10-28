@@ -5,6 +5,9 @@
 package org.nikok.hextant.core.fx
 
 import javafx.scene.control.TextField
+import javafx.scene.input.KeyCode.LEFT
+import javafx.scene.input.KeyCode.RIGHT
+import javafx.scene.input.KeyEvent
 import javafx.scene.text.Font
 import javafx.scene.text.Text
 
@@ -26,6 +29,19 @@ open class HextantTextField(text: String? = "") : TextField(text) {
     init {
         styleClass.add(HextantTextField.STYLE_CLASS)
         autoSize()
+        letJumpWithArrows()
+    }
+
+    private fun letJumpWithArrows() {
+        addEventHandler(KeyEvent.KEY_RELEASED) { e ->
+            if (e.code == LEFT && (e.isAltDown || caretPosition == 0)) {
+                focusPrevious()
+                e.consume()
+            } else if (e.code == RIGHT && (e.isAltDown || caretPosition == text.length)) {
+                focusNext()
+                e.consume()
+            }
+        }
     }
 
     private fun autoSize() {
