@@ -4,6 +4,7 @@
 
 package org.nikok.hextant.core.fx
 
+import javafx.application.Platform
 import javafx.css.PseudoClass
 import javafx.scene.Node
 import org.nikok.hextant.EditorView
@@ -41,4 +42,7 @@ interface FXEditorView: EditorView {
         val REQUESTED_FOCUS: PseudoClass = PseudoClass.getPseudoClass("requested-focus")
     }
 
+    override fun onGuiThread(action: () -> Unit) {
+        Platform.runLater(action)
+    }
 }
