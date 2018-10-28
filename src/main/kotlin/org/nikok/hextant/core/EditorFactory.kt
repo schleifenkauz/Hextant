@@ -75,3 +75,6 @@ interface EditorFactory {
 inline fun <reified E : Editable<*>, reified Ed : Editor<E>> EditorFactory.register(noinline factory: (E) -> Ed) {
     register(E::class, Ed::class, factory)
 }
+
+inline fun <E : Editable<*>, reified Ed : Editor<E>> EditorFactory.getEditor(editable: E) =
+        getEditor(Ed::class, editable)
