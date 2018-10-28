@@ -32,6 +32,7 @@ class FXOperatorApplicationEditorView(editable: EditableOperatorApplication) : F
         children.addAll(openingParen, op1View.node, operatorView.node, op2View.node, closingParen)
         activateInspections(editable)
         activateContextMenu(editor)
+        activateSelectionExtension(editor)
         editor.addView(this)
     }
 

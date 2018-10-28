@@ -13,6 +13,8 @@ import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
+import javafx.scene.input.KeyCode.W
+import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
 import javafx.stage.PopupWindow
 import org.nikok.hextant.Editor
 import org.nikok.hextant.HextantPlatform
@@ -103,6 +105,17 @@ internal fun TextField.smartSetText(new: String) {
         text = new
         if (previous.isEmpty()) {
             positionCaret(new.length)
+        }
+    }
+}
+
+private val EXTEND_SELECTION = KeyCodeCombination(W, SHORTCUT_DOWN)
+
+internal fun FXEditorView.activateSelectionExtension(editor: Editor<*>) {
+    node.addEventHandler(KeyEvent.KEY_RELEASED) { k ->
+        if (EXTEND_SELECTION.match(k) && !editor.isSelected) {
+            editor.select()
+            k.consume()
         }
     }
 }
