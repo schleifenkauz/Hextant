@@ -47,6 +47,8 @@ abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
         mutableViews.add(WeakReference(view))
     }
 
+    protected open fun viewAdded(view: V) {  }
+
     private val isOkObserver = editable.isOk.observe("Observe isOk") { isOk ->
         views.forEach { v -> v.error(isError = !isOk) }
     }
