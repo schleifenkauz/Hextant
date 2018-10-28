@@ -3,7 +3,6 @@ package org.nikok.hextant.core.expr.view
 import org.nikok.hextant.core.editor.TextEditor
 import org.nikok.hextant.core.expr.editable.EditableText
 import org.nikok.hextant.core.fx.*
-import org.nikok.hextant.core.view.TextEditorView
 
 class FXTextEditorView(editable: EditableText) : FXEditorView, TextEditorView {
     override val node = HextantTextField().apply {

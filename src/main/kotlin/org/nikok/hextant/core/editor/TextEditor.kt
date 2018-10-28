@@ -7,7 +7,7 @@ package org.nikok.hextant.core.editor
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.expr.editable.EditableText
-import org.nikok.hextant.core.view.TextEditorView
+import org.nikok.hextant.core.expr.view.TextEditorView
 import org.nikok.reaktive.value.now
 
 class TextEditor(editableText: EditableText) : AbstractEditor<EditableText, TextEditorView>(editableText) {
