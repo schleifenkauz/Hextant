@@ -15,18 +15,14 @@ abstract class Expander<out E : Editable<*>>(
     editable: Expandable<*, E>
 ) : AbstractEditor<Expandable<*, @UnsafeVariance E>, ExpanderView>(editable) {
     init {
-        handleState(editable.isExpanded.now, editable)
-    }
-
-    private val isExpandedObserver = editable.isExpanded.observe("Observe if $editable is expanded") { expanded ->
-        handleState(expanded, editable)
+        handleState(editable.isExpanded.now)
     }
 
     private fun handleState(
-        expanded: Boolean, expandable: Expandable<*, E>
+        expanded: Boolean
     ) {
         if (expanded) {
-            views { expanded(expandable.editable.now!!) }
+            views { expanded(editable.editable.now!!) }
         } else {
             views { reset() }
         }
@@ -42,11 +38,13 @@ abstract class Expander<out E : Editable<*>>(
         check(!editable.isExpanded.now) { "Expander is already expanded" }
         val content = expand(editable.text.now) ?: return false
         editable.setContent(content)
+        handleState(expanded = true)
         return true
     }
 
     fun reset() {
         check(editable.isExpanded.now) { "Expander is not expanded" }
         editable.setText("")
+        handleState(expanded = false)
     }
 }
