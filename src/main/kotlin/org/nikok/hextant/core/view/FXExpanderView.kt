@@ -20,9 +20,9 @@ import org.nikok.reaktive.value.now
 
 class FXExpanderView<E : Editable<*>, Ex : Expandable<*, E>>(
     private val expandable: Ex,
-    private val expander: Expander<E>
+    private val expander: Expander<E>,
+    private val views: EditorViewFactory = HextantPlatform[Public, EditorViewFactory]
 ) : ExpanderView, FXEditorView, Control() {
-    private val views = HextantPlatform[Public, EditorViewFactory]
 
     private var view: FXEditorView? = null
 
