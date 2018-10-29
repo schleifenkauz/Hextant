@@ -35,6 +35,7 @@ abstract class Expandable<N, E: Editable<N>> : Editable<N?> {
         _text.set("")
         _editable.set(editable)
         _isExpanded.set(true)
+        bindObserver?.kill()
         bindObserver = _edited.bind(editable.edited)
     }
 
