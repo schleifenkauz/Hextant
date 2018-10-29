@@ -52,6 +52,7 @@ interface ExpanderFactory {
             )
         }
 
+        @Suppress("UNCHECKED_CAST")
         private fun <E : Editable<*>> tryCreateExpanderCls(name: String): KClass<Expander<E>>? {
             return try {
                 val cls = Class.forName(name)
