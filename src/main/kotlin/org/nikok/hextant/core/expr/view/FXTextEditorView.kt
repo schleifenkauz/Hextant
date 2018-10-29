@@ -1,15 +1,22 @@
 package org.nikok.hextant.core.expr.view
 
+import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.editor.TextEditor
 import org.nikok.hextant.core.expr.editable.EditableText
 import org.nikok.hextant.core.fx.*
+import org.nikok.hextant.core.getEditor
 
-class FXTextEditorView(editable: EditableText) : FXEditorView, TextEditorView {
+class FXTextEditorView(
+    editable: EditableText,
+    editorFactory: EditorFactory = HextantPlatform[Public, EditorFactory]
+) : FXEditorView, TextEditorView {
     override val node = HextantTextField().apply {
         textProperty().addListener { _, _, new -> editor.setText(new) }
     }
 
-    private val editor = TextEditor(editable)
+    private val editor: TextEditor = editorFactory.getEditor(editable)
 
     init {
         node.initSelection(editor)

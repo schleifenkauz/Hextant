@@ -67,12 +67,12 @@ interface EditorViewFactory {
             return constructor.call(editable)
         }
 
-        private fun expanderView(expandable: Expandable<*, *>, expandableCls: KClass<*>): FXEditorView? {
-            val expanderCls = expanderCls(expandableCls, expandable)
+        private fun expanderView(expandable: Expandable<*, *>, expandableCls: KClass<*>): FXExpanderView? {
+/*            val expanderCls = expanderCls(expandableCls, expandable)
             expanderCls ?: return null
             expandable as Expandable<*, Editable<*>>
-            val expander = createExpander(expanderCls, expandable, expandableCls)
-            return FXExpanderView(expandable, expander)
+            val expander: Expander<*> = createExpander(expanderCls, expandable, expandableCls)*/
+            return FXExpanderView(expandable)
         }
 
         private fun createExpander(
@@ -92,7 +92,7 @@ interface EditorViewFactory {
             val pkg = cls.java.`package`?.name ?: return null
             val expanderClsName = name.removePrefix("Expandable") + "Expander"
             val inSamePackage = "$pkg.$expandable"
-            val inEditorPackage = "$pkg.view.$expanderClsName"
+            val inEditorPackage = "$pkg.editor.$expanderClsName"
             val siblingEditorPkg = pkg.replaceAfterLast('.', "editor")
             val inSiblingEditorPkg = "$siblingEditorPkg.$expanderClsName"
             return tryCreateExpanderCls(inSamePackage) ?:
