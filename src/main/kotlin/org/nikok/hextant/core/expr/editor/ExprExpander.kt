@@ -14,12 +14,12 @@ import org.nikok.reaktive.value.now
 
 class ExprExpander(
     editable: ExpandableExpr
-) : ConfiguredExpander<Editable<Expr>>(config, editable), ExprEditor {
+) : ConfiguredExpander<Editable<Expr>, ExprExpander>(config, editable), ExprEditor {
     override val expr: Expr?
         get() = editable.editable.now?.edited?.now
 
     companion object {
-        val config = ExpanderConfig<Editable<Expr>>().apply {
+        val config = ExpanderConfig<Editable<Expr>, ExprExpander>().apply {
             registerConstant("dec") { EditableIntLiteral() }
             registerConstant("+") { EditableOperatorApplication(Plus) }
             registerConstant("-") { EditableOperatorApplication(Minus) }

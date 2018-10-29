@@ -7,9 +7,10 @@ package org.nikok.hextant.core.editor
 import org.nikok.hextant.Editable
 import org.nikok.hextant.core.editable.Expandable
 
-open class ConfiguredExpander<E : Editable<*>>(
-    private val config: ExpanderConfig<E>,
+open class ConfiguredExpander<E : Editable<*>, Ex: ConfiguredExpander<E, Ex>>(
+    private val config: ExpanderConfig<E, Ex>,
     edited: Expandable<*, E>
 ): Expander<E>(edited) {
-    override fun expand(text: String): E? = config.expand(text)
+    @Suppress("UNCHECKED_CAST")
+    override fun expand(text: String): E? = config.expand(text, this as Ex)
 }
