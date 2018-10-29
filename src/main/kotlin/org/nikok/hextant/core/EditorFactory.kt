@@ -16,7 +16,6 @@ import java.util.logging.Logger
 import kotlin.NoSuchElementException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.*
-import kotlin.reflect.jvm.isAccessible
 
 interface EditorFactory {
     fun <E : Editable<*>, Ed : Editor<E>> register(editableCls: KClass<E>, editorCls: KClass<Ed>, factory: (E) -> Ed)
@@ -58,7 +57,6 @@ interface EditorFactory {
             ): ((E) -> Ed)? {
                 val constructor = editorCls.constructors
                                           .find {
-                                              it.isAccessible &&
                                               it.parameters.size == 1 &&
                                               it.parameters.first().type.isSupertypeOf(cls.starProjectedType)
                                           } ?: return null
