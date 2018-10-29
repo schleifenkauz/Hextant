@@ -60,11 +60,12 @@ interface EditorViewFactory {
         private fun <E : Any> createDefault(editable: E, editableCls: KClass<out E>): FXEditorView? {
             val viewCls = resolveDefault(editableCls) ?: return null
             val constructor = viewCls.constructors.find { c ->
+                val editableParameter = c.parameters.first()
                 c.parameters.count { p -> !p.isOptional } == 1 &&
-                !c.parameters.first().isOptional &&
-                c.parameters.first().type.classifier == editableCls
+                !editableParameter.isOptional &&
+                editableParameter.type.classifier == editableCls
             } ?: throw NoSuchElementException("Could not find constructor for $viewCls")
-            return constructor.call(editable)
+            return constructor.callBy(mapOf(constructor.parameters.first() to editable))
         }
 
         private fun expanderView(expandable: Expandable<*, *>, expandableCls: KClass<*>): FXExpanderView? {
