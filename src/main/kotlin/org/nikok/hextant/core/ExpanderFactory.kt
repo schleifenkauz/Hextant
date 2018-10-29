@@ -16,8 +16,15 @@ import kotlin.reflect.full.isSubclassOf
 interface ExpanderFactory {
     fun <E : Editable<*>> getExpander(expandable: Expandable<*, E>): Expander<E>
 
+    @Suppress("UNCHECKED_CAST")
     private class Impl : ExpanderFactory {
+        private val cache = mutableMapOf<Expandable<*, *>, Expander<*>>()
+
         override fun <E : Editable<*>> getExpander(expandable: Expandable<*, E>): Expander<E> {
+            return cache.getOrPut(expandable) { createNewExpander(expandable) } as Expander<E>
+        }
+
+        private fun <E : Editable<*>> createNewExpander(expandable: Expandable<*, E>): Expander<E> {
             val expandableCls = expandable::class
             val cls =
                     expanderCls(expandable::class)
