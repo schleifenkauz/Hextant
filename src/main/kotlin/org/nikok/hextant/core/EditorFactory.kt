@@ -8,6 +8,8 @@ import org.nikok.hextant.Editable
 import org.nikok.hextant.Editor
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.editable.Expandable
+import org.nikok.hextant.core.editor.Expander
 import org.nikok.hextant.prop.Property
 import java.util.*
 import java.util.logging.Logger
@@ -45,7 +47,7 @@ interface EditorFactory {
                     val factory =
                             factories[cls]?.get(editorCls)
                             ?: resolveDefaultEditor(cls, editorCls)
-                            ?: throw NoSuchElementException("No factory registered fo $cls")
+                            ?: throw NoSuchElementException("No editor-factory registered fo $cls")
                     factory(editable)
                 }.let { editorCls.cast(it) }
 
@@ -78,3 +80,12 @@ inline fun <reified E : Editable<*>, reified Ed : Editor<E>> EditorFactory.regis
 
 inline fun <E : Editable<*>, reified Ed : Editor<E>> EditorFactory.getEditor(editable: E) =
         getEditor(Ed::class, editable)
+
+inline fun <E : Editable<*>, reified Ex : Expander<E>> EditorFactory.getExpander(expandable: Expandable<*, E>): Ex {
+    return getEditor(expandable)
+}
+
+inline fun <Ed : Editable<*>, reified E: Expandable<*, Ed>, reified Ex : Expander<Ed>> EditorFactory.registerExpander(noinline factory: (E) -> Ex) {
+    @Suppress("UNCHECKED_CAST")
+    register(E::class, Ex::class as KClass<Editor<E>>, factory as (E) -> Editor<E>)
+}

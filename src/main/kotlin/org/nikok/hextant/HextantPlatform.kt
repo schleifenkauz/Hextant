@@ -40,6 +40,7 @@ interface HextantPlatform : PropertyHolder {
                 HextantPlatform[Inspections] = Inspections.newInstance()
                 HextantPlatform[EditorFactory] = EditorFactory.newInstance()
                 HextantPlatform[logger] = Logger.getLogger("org.nikok.hextant")
+                HextantPlatform[ExpanderFactory] = ExpanderFactory.newInstance()
             }
         }
     }

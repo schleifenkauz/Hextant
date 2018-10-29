@@ -17,13 +17,13 @@ data class OperatorApplication(val op1: Expr, val op2: Expr, val operator: Opera
     override fun toString(): String = "$op1 ${operator.name} $op2"
 }
 
-sealed class Operator(private val operation: (Int, Int) -> Int, val name: String) {
+sealed class Operator(private val operation: (Int, Int) -> Int, val name: String, val isCommutative: Boolean) {
     fun apply(op1: Int, op2: Int) = operation(op1, op2)
 
-    object Plus: Operator(Int::plus, "+")
-    object Minus: Operator(Int::minus, "-")
-    object Times: Operator(Int::times, "*")
-    object Div: Operator(Int::div, "/")
+    object Plus: Operator(Int::plus, "+", isCommutative = true)
+    object Minus: Operator(Int::minus, "-", isCommutative = false)
+    object Times: Operator(Int::times, "*", isCommutative = true)
+    object Div: Operator(Int::div, "/", isCommutative = false)
 
     companion object {
         fun of(text: String) = when(text) {
