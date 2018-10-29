@@ -52,7 +52,6 @@ class ExprEditorViewTest : Application() {
                     v
                 }
             }
-            val editorFactory = HextantPlatform[Public, EditorFactory]
             val expanderFactory = HextantPlatform[Public, ExpanderFactory]
             commands.of<OperatorApplicationEditor>().register<OperatorApplicationEditor, Unit> {
                 name = "Flip operands"
@@ -72,6 +71,7 @@ class ExprEditorViewTest : Application() {
                     expander1.setContent(editableOp2)
                     val expander2 = expanderFactory.getExpander(expandableOp2)
                     expander2.setContent(editableOp1)
+                    if (!editor.isSelected) editor.toggleSelection()
                 }
             }
             val expandableView = views.getFXView(expandable)
