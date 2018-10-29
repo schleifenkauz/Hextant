@@ -13,16 +13,18 @@ import org.nikok.hextant.Editable
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorViewFactory
+import org.nikok.hextant.core.ExpanderFactory
 import org.nikok.hextant.core.editable.Expandable
-import org.nikok.hextant.core.editor.Expander
 import org.nikok.hextant.core.fx.*
 import org.nikok.reaktive.value.now
 
-class FXExpanderView<E : Editable<*>, Ex : Expandable<*, E>>(
-    private val expandable: Ex,
-    private val expander: Expander<E>,
+class FXExpanderView(
+    private val expandable: Expandable<*, *>,
+    expanderFactory: ExpanderFactory = HextantPlatform[Public, ExpanderFactory],
     private val views: EditorViewFactory = HextantPlatform[Public, EditorViewFactory]
 ) : ExpanderView, FXEditorView, Control() {
+
+    private val expander = expanderFactory.getExpander(expandable)
 
     private var view: FXEditorView? = null
 

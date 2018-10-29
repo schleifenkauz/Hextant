@@ -12,7 +12,6 @@ import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.configure
 import org.nikok.hextant.core.expr.editable.*
-import org.nikok.hextant.core.expr.editor.ExprExpander
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
 import org.nikok.hextant.core.expr.view.FXTextEditorView
 import org.nikok.hextant.core.fx.scene
@@ -31,7 +30,7 @@ class ExpanderViewTest : Application() {
                 registerFX(EditableText::class) { FXTextEditorView(it) }
             }
             val ex = ExpandableExpr()
-            return FXExpanderView(ex, ExprExpander(ex))
+            return FXExpanderView(ex)
         }
 
         @JvmStatic fun main(args: Array<String>) {

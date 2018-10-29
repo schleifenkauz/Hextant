@@ -1,14 +1,18 @@
 package org.nikok.hextant.core.expr.view
 
 import javafx.scene.control.Control
+import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.editor.IntLiteralEditor
 import org.nikok.hextant.core.fx.*
+import org.nikok.hextant.core.getEditor
 
 class FXIntLiteralEditorView(
-    editableInt: EditableIntLiteral
+    editableInt: EditableIntLiteral, editorFactory: EditorFactory = HextantPlatform[Public, EditorFactory]
 ) : FXEditorView, HextantTextField(), IntLiteralEditorView {
-    private val editor = IntLiteralEditor(editableInt)
+    private val editor: IntLiteralEditor = editorFactory.getEditor(editableInt)
 
     init {
         editor.addView(this)

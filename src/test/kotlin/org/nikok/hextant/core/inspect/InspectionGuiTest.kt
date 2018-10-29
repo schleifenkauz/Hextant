@@ -10,7 +10,6 @@ import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditableFactory
-import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.command.command
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
@@ -70,8 +69,6 @@ class InspectionGuiTest : Application() {
             }
             val editableFactory = HextantPlatform[Public, EditableFactory]
             editableFactory.register(IntLiteral::class) { -> EditableIntLiteral() }
-            val viewFactory = HextantPlatform[Public, EditorViewFactory]
-            viewFactory.registerFX(EditableIntLiteral::class, ::FXIntLiteralEditorView)
             val e = EditableIntLiteral()
             return FXIntLiteralEditorView(e)
         }

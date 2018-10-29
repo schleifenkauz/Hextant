@@ -15,13 +15,11 @@ import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditableFactory
-import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.command.Command.Category
 import org.nikok.hextant.core.command.gui.commandContextMenu
 import org.nikok.hextant.core.command.gui.commandMenuBar
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
-import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
 
 internal class CommandGuiTest : Application() {
     override fun start(stage: Stage) {
@@ -35,10 +33,6 @@ internal class CommandGuiTest : Application() {
             val editableFactory = HextantPlatform[Public, EditableFactory]
             editableFactory.apply {
                 register(IntLiteral::class) { -> EditableIntLiteral() }
-            }
-            val viewFactory = HextantPlatform[Public, EditorViewFactory]
-            viewFactory.apply {
-                registerFX(EditableIntLiteral::class, ::FXIntLiteralEditorView)
             }
             val commands = Commands.newInstance()
             val registrar = commands.of<Receiver>().apply {

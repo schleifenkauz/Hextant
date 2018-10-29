@@ -8,13 +8,14 @@ import org.nikok.hextant.Editable
 import org.nikok.hextant.Editor
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.editable.Expandable
+import org.nikok.hextant.core.editor.Expander
 import org.nikok.hextant.prop.Property
-import java.lang.reflect.Constructor
 import java.util.*
 import java.util.logging.Logger
 import kotlin.NoSuchElementException
 import kotlin.reflect.KClass
-import kotlin.reflect.full.cast
+import kotlin.reflect.full.*
 
 interface EditorFactory {
     fun <E : Editable<*>, Ed : Editor<E>> register(editableCls: KClass<E>, editorCls: KClass<Ed>, factory: (E) -> Ed)
@@ -44,28 +45,22 @@ interface EditorFactory {
                     val cls = editable::class
                     val factory =
                             factories[cls]?.get(editorCls)
-                            ?: resolveDefaultEditor(cls)
-                            ?: throw NoSuchElementException("No factory registered fo $cls")
+                            ?: resolveDefaultEditor(cls, editorCls)
+                            ?: throw NoSuchElementException("No editor-factory registered fo $cls")
                     factory(editable)
                 }.let { editorCls.cast(it) }
 
         companion object {
-            private fun <E : Editable<*>> resolveDefaultEditor(cls: KClass<out E>): ((E) -> Editor<E>)? {
-                val qualifiedName = cls.qualifiedName ?: return null
-                val clsName = cls.simpleName ?: return null
-                val pkg = qualifiedName.removeSuffix(clsName)
-                val editorClsName = clsName.removeSuffix("Editable") + "Editor"
-                val editorPkg = pkg.removeSuffix("editable.") + "editor."
-                val editorCls = Class.forName("$editorPkg$editorClsName")
-                if (!Editor::class.java.isAssignableFrom(editorCls)) return null
+            private fun <E : Editable<*>, Ed : Editor<E>> resolveDefaultEditor(
+                cls: KClass<out E>,
+                editorCls: KClass<Ed>
+            ): ((E) -> Ed)? {
                 val constructor = editorCls.constructors
                                           .find {
-                                              it.isAccessible &&
-                                              it.parameterCount == 1 &&
-                                              it.parameters.first().type.isAssignableFrom(cls.java)
+                                              it.parameters.size == 1 &&
+                                              it.parameters.first().type.isSupertypeOf(cls.starProjectedType)
                                           } ?: return null
-                constructor as Constructor<Editor<E>>
-                return { editable -> constructor.newInstance(editable) }
+                return { editable -> constructor.call(editable) }
             }
         }
     }
@@ -79,4 +74,16 @@ interface EditorFactory {
 
 inline fun <reified E : Editable<*>, reified Ed : Editor<E>> EditorFactory.register(noinline factory: (E) -> Ed) {
     register(E::class, Ed::class, factory)
+}
+
+inline fun <E : Editable<*>, reified Ed : Editor<E>> EditorFactory.getEditor(editable: E) =
+        getEditor(Ed::class, editable)
+
+inline fun <E : Editable<*>, reified Ex : Expander<E>> EditorFactory.getExpander(expandable: Expandable<*, E>): Ex {
+    return getEditor(expandable)
+}
+
+inline fun <Ed : Editable<*>, reified E: Expandable<*, Ed>, reified Ex : Expander<Ed>> EditorFactory.registerExpander(noinline factory: (E) -> Ex) {
+    @Suppress("UNCHECKED_CAST")
+    register(E::class, Ex::class as KClass<Editor<E>>, factory as (E) -> Editor<E>)
 }
