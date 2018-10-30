@@ -6,6 +6,8 @@ package org.nikok.hextant.core.base
 
 import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
+import org.nikok.hextant.core.EditorFactory
+import org.nikok.hextant.core.getEditor
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.reaktive.value.Variable
 import org.nikok.reaktive.value.base.AbstractVariable
@@ -19,25 +21,27 @@ import java.lang.ref.WeakReference
  * @param E the type of [Editable] edited by this [Editor]
  * @param editable the [Editable] edited by this [Editor]
  */
-abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
-    final override val editable: E
+abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
+    final override val editable: E,
+    private val editorFactory: EditorFactory
 ) : Editor<E> {
     private val mutableViews = mutableSetOf<WeakReference<V>>()
 
-    protected val views: Sequence<V> get() {
-        val itr = mutableViews.iterator()
-        tailrec fun next(): V? =
-                if (!itr.hasNext()) null
-                else {
-                    val nxt = itr.next()
-                    if (nxt.get() != null) nxt.get()
+    protected val views: Sequence<V>
+        get() {
+            val itr = mutableViews.iterator()
+            tailrec fun next(): V? =
+                    if (!itr.hasNext()) null
                     else {
-                        itr.remove()
-                        next()
+                        val nxt = itr.next()
+                        if (nxt.get() != null) nxt.get()
+                        else {
+                            itr.remove()
+                            next()
+                        }
                     }
-                }
-        return generateSequence(::next)
-    }
+            return generateSequence(::next)
+        }
 
     protected inline fun views(crossinline action: V.() -> Unit) {
         views.forEach { v -> v.onGuiThread { v.action() } }
@@ -48,7 +52,7 @@ abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
         viewAdded(view)
     }
 
-    protected open fun viewAdded(view: V) {  }
+    protected open fun viewAdded(view: V) {}
 
     private val isOkObserver = editable.isOk.observe("Observe isOk") { isOk ->
         views.forEach { v -> v.error(isError = !isOk) }
@@ -79,4 +83,9 @@ abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
     final override fun toggleSelection() {
         selectionDistributor.toggleSelection(this, isSelectedVar)
     }
+
+    override val parent: Editor<*>?
+        get() = editable.parent?.let { p -> editorFactory.getEditor(p) }
+    override val children: Collection<Editor<*>>?
+        get() = editable.children?.map { editorFactory.getEditor(editable) }
 }
