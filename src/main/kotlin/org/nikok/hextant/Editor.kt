@@ -35,6 +35,10 @@ interface Editor<E: Editable<*>> {
 
     /**
      * @return whether this editor is selected currently
-    */
+     */
     val isSelected: Boolean
+
+    val parent: Editor<*>? get() = null
+
+    val children: Collection<Editor<*>>? get() = null
 }
