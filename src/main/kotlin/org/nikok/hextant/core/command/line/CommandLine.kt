@@ -253,7 +253,7 @@ class CommandLine(
                 selectedEditors.flatMapTo(mutableSetOf()) { it.parentChain() }
             }
             val commandsFactory = {
-                dist.selectedEditors.now.asSequence().map {
+                targets().asSequence().map {
                     commands.applicableOn(it)
                 }.reduce { acc, s -> acc.union(s) }
             }
