@@ -45,4 +45,7 @@ abstract class Expandable<N, E: Editable<N>> : Editable<N?> {
 
     final override val edited: ReactiveValue<N?>
         get() = _edited
+
+    override val children: Collection<Editable<*>>?
+        get() = editable.now?.let { listOf(it) }
 }
