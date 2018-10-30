@@ -247,7 +247,7 @@ class CommandLine(
             val commandsFactory = {
                 dist.selectedEditors.now.asSequence().map {
                     commands.applicableOn(it)
-                }.reduce { acc, s -> acc + s }
+                }.reduce { acc, s -> acc.intersect(s) }
             }
             return CommandLine(commandsFactory, targets)
         }
