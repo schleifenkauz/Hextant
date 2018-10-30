@@ -16,11 +16,11 @@ class EditableOperatorApplication(override val parent: Editable<*>? = null) : Ed
         editableOperator.editableText.text.set(operator.name)
     }
 
-    val editableOperator = EditableOperator()
+    val editableOperator = EditableOperator(parent = this)
 
-    val editableOp1 = ExpandableExpr()
+    val editableOp1 = ExpandableExpr(parent = this)
 
-    val editableOp2 = ExpandableExpr()
+    val editableOp2 = ExpandableExpr(parent = this)
 
     override val children: Collection<Editable<*>>?
         get() = listOf(editableOp1, editableOperator, editableOp2)
