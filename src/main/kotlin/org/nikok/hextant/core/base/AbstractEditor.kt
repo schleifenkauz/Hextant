@@ -6,6 +6,7 @@ package org.nikok.hextant.core.base
 
 import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
+import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.getEditor
 import org.nikok.hextant.core.impl.SelectionDistributor
@@ -23,7 +24,7 @@ import java.lang.ref.WeakReference
  */
 abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     final override val editable: E,
-    private val editorFactory: EditorFactory
+    private val editorFactory: EditorFactory = HextantPlatform[Public, EditorFactory]
 ) : Editor<E> {
     private val mutableViews = mutableSetOf<WeakReference<V>>()
 
