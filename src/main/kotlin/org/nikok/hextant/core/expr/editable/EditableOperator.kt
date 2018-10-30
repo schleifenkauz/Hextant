@@ -5,8 +5,8 @@ import org.nikok.hextant.core.expr.edited.Operator
 import org.nikok.reaktive.value.ReactiveBoolean
 import org.nikok.reaktive.value.ReactiveValue
 
-class EditableOperator() : Editable<Operator> {
-    constructor(initial: Operator): this() {
+class EditableOperator(override val parent: Editable<*>? = null) : Editable<Operator> {
+    constructor(initial: Operator, parent: Editable<*>? = null): this(parent) {
         editableText.text.set(initial.name)
     }
 
