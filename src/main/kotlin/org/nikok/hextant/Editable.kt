@@ -18,4 +18,8 @@ interface Editable<out E> {
     val edited: ReactiveValue<E?>
 
     val isOk: ReactiveBoolean
+
+    val parent: Editable<*>? get() = null
+
+    val children: Collection<Editable<*>>? get() = null
 }
