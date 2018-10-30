@@ -24,6 +24,7 @@ import org.nikok.hextant.core.fx.lastShortcutLabel
 import org.nikok.hextant.core.fx.scene
 import org.nikok.reaktive.value.now
 import java.util.logging.Level
+import java.util.logging.Level.FINEST
 
 class ExprEditorViewTest : Application() {
     override fun start(stage: Stage) {
@@ -39,8 +40,6 @@ class ExprEditorViewTest : Application() {
             val expandable = ExpandableExpr()
             val commands = HextantPlatform[Public, Commands]
             val registrar = commands.of<ExprEditor>()
-            val editors = HextantPlatform[Public, EditorFactory]
-            editors.registerExpander { e: ExpandableExpr -> ExprExpander(e) }
             registrar.register<ExprEditor, Int> {
                 name = "Evaluate Expression"
                 shortName = "eval"
@@ -53,27 +52,29 @@ class ExprEditorViewTest : Application() {
                 }
             }
             val expanderFactory = HextantPlatform[Public, ExpanderFactory]
-            commands.of<OperatorApplicationEditor>().register<OperatorApplicationEditor, Unit> {
+            commands.of<OperatorEditor>().register<OperatorEditor, Unit> {
                 name = "Flip operands"
                 shortName = "flip_op"
-                applicableIf { oae ->
+                description = "Flips the both operands in this operator application"
+                applicableIf { oe ->
+                    val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
                     oae.editable.editableOperator.edited.now?.isCommutative ?: false &&
                     oae.editable.editableOp1.editable.now != null &&
                     oae.editable.editableOp2.editable.now != null
                 }
-                description = "Flips the both operands in this operator application"
-                executing { editor, _ ->
-                    val expandableOp1 = editor.editable.editableOp1
+                executing { oe, _ ->
+                    val oae = oe.parent as OperatorApplicationEditor
+                    val expandableOp1 = oae.editable.editableOp1
                     val editableOp1 = expandableOp1.editable.now!!
-                    val expandableOp2 = editor.editable.editableOp2
+                    val expandableOp2 = oae.editable.editableOp2
                     val editableOp2 = expandableOp2.editable.now!!
                     val expander1 = expanderFactory.getExpander(expandableOp1)
                     expander1.setContent(editableOp2)
                     val expander2 = expanderFactory.getExpander(expandableOp2)
                     expander2.setContent(editableOp1)
-                    if (!editor.isSelected) editor.toggleSelection()
                 }
             }
+            CommandLine.logger.level = FINEST
             val expandableView = views.getFXView(expandable)
             val cl = CommandLine.forSelectedEditors()
             val clView = FXCommandLineView(cl)

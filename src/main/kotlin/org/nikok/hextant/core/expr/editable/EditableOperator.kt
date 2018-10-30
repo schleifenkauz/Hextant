@@ -10,7 +10,7 @@ class EditableOperator(override val parent: Editable<*>? = null) : Editable<Oper
         editableText.text.set(initial.name)
     }
 
-    val editableText = EditableText()
+    val editableText = EditableText(parent = this)
 
     override val edited: ReactiveValue<Operator?> = editableText.text.map("operator of $this") {
         Operator.of(it)

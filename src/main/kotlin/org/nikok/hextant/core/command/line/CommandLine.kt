@@ -4,8 +4,7 @@
 
 package org.nikok.hextant.core.command.line
 
-import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditableFactory
@@ -174,7 +173,7 @@ class CommandLine(
     }
 
     private fun execute(c: Command<Any, *>, targets: Set<Any>, arguments: Array<Any>) {
-        val results = targets.map { c.execute(it, *arguments) }
+        val results = targets.asSequence().filter { c.isApplicableOn(it)}.map { c.execute(it, *arguments) }.toList()
         logger.fine { "results = $results" }
         val application = CommandApplication(c, arguments, results)
         execute.fire(application)
@@ -204,7 +203,7 @@ class CommandLine(
     fun resume(application: CommandApplication<Any>) {
         logger.info { "Resuming to $application" }
         val c = application.command
-        if (targets().any { !c.isApplicableOn(it) }) {
+        if (targets().none { c.isApplicableOn(it) }) {
             logger.fine { "Cannot execute command on all targets" }
             return
         }
@@ -223,7 +222,7 @@ class CommandLine(
 
     private fun Set<Command<Any, *>>.findCommand(targets: Set<Any>): Command<Any, *>? {
         return find { c ->
-            c.shortName == text.now && targets.all { t ->
+            c.shortName == text.now && targets.any { t ->
                 c.isApplicableOn(t)
             }
         }
@@ -238,16 +237,25 @@ class CommandLine(
     }
 
     companion object {
+        private tailrec fun Editor<*>.parentChain(acc: MutableSet<Editor<*>> = mutableSetOf()): Set<Editor<*>> {
+            if (acc.none { it.javaClass.isAssignableFrom(this.javaClass) }) {
+                acc.add(this)
+            }
+            return if (parent != null) parent!!.parentChain(acc)
+            else acc
+        }
+
         fun forSelectedEditors(): CommandLine {
             val dist = HextantPlatform[Internal, SelectionDistributor]
             val commands = HextantPlatform[Public, Commands]
             val targets = {
-                dist.selectedEditors.now.also(::println)
+                val selectedEditors = dist.selectedEditors.now
+                selectedEditors.flatMapTo(mutableSetOf()) { it.parentChain() }
             }
             val commandsFactory = {
                 dist.selectedEditors.now.asSequence().map {
                     commands.applicableOn(it)
-                }.reduce { acc, s -> acc.intersect(s) }
+                }.reduce { acc, s -> acc.union(s) }
             }
             return CommandLine(commandsFactory, targets)
         }
