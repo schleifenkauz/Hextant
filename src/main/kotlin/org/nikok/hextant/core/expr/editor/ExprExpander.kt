@@ -20,14 +20,14 @@ class ExprExpander(
 
     companion object {
         val config = ExpanderConfig<Editable<Expr>, ExprExpander>().apply {
-            registerConstant("dec") { EditableIntLiteral() }
-            registerConstant("+") { EditableOperatorApplication(Plus) }
-            registerConstant("-") { EditableOperatorApplication(Minus) }
-            registerConstant("*") { EditableOperatorApplication(Times) }
-            registerConstant("/") { EditableOperatorApplication(Div) }
+            registerConstant("dec") { EditableIntLiteral(parent = editable) }
+            registerConstant("+") { EditableOperatorApplication(Plus, parent = editable) }
+            registerConstant("-") { EditableOperatorApplication(Minus, parent = editable) }
+            registerConstant("*") { EditableOperatorApplication(Times, parent = editable) }
+            registerConstant("/") { EditableOperatorApplication(Div, parent = editable) }
             registerInterceptor {
                 val int = it.toIntOrNull()
-                if (int != null) EditableIntLiteral(int)
+                if (int != null) EditableIntLiteral(int, parent = editable)
                 else null
             }
         }
