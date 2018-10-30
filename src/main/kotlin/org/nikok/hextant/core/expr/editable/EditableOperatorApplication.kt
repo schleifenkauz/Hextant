@@ -22,6 +22,9 @@ class EditableOperatorApplication(override val parent: Editable<*>? = null) : Ed
 
     val editableOp2 = ExpandableExpr()
 
+    override val children: Collection<Editable<*>>?
+        get() = listOf(editableOp1, editableOperator, editableOp2)
+
     override val edited: ReactiveValue<OperatorApplication?> =
             binding<OperatorApplication?>(
                 "operator application",
