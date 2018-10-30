@@ -8,7 +8,6 @@ import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorFactory
-import org.nikok.hextant.core.getEditor
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.reaktive.value.Variable
 import org.nikok.reaktive.value.base.AbstractVariable
@@ -86,7 +85,7 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     }
 
     override val parent: Editor<*>?
-        get() = editable.parent?.let { p -> editorFactory.getEditor(p) }
+        get() = editable.parent?.let { p -> editorFactory.resolveEditor(p) }
     override val children: Collection<Editor<*>>?
-        get() = editable.children?.map { editorFactory.getEditor(editable) }
+        get() = editable.children?.map { child -> editorFactory.resolveEditor(child) }
 }
