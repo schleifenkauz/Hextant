@@ -10,6 +10,8 @@ import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.prop.Property
+import sun.reflect.CallerSensitive
+import sun.reflect.Reflection
 import java.util.*
 import java.util.logging.Logger
 import kotlin.NoSuchElementException
@@ -25,7 +27,10 @@ interface EditorFactory {
 
     fun <E : Editable<*>> resolveEditor(editable: E): Editor<E>
     @Suppress("UNCHECKED_CAST")
-    private class Impl(private val expanderFactory: ExpanderFactory) : EditorFactory {
+    private class Impl(
+        private val expanderFactory: ExpanderFactory,
+        private val classLoader: ClassLoader
+    ) : EditorFactory {
 
         private val factories =
                 mutableMapOf<KClass<*>, MutableMap<KClass<*>, (Editable<*>) -> Editor<*>>>()
@@ -67,7 +72,7 @@ interface EditorFactory {
         }
 
 
-        override fun <E: Editable<*>> resolveEditor(editable: E): Editor<E> {
+        override fun <E : Editable<*>> resolveEditor(editable: E): Editor<E> {
             if (editable is Expandable<*, *>) return expanderFactory.getExpander(editable) as Editor<E>
             val editorCls = getEditorClass(editable::class)
             return getEditor(editorCls, editable)
@@ -83,8 +88,32 @@ interface EditorFactory {
                 return cls
             }
         }
-        companion object {
 
+        private fun <E : Editable<*>, Ed : Editor<E>> resolveEditorClass(editableCls: KClass<E>): KClass<Ed>? {
+            val name = editableCls.simpleName ?: return null
+            val pkg = editableCls.java.`package`?.name ?: return null
+            val editorClsName = name.removePrefix("Editable") + "Editor"
+            val inSamePackage = "$pkg.$editorClsName"
+            val inEditorPackage = "$pkg.editor.$editorClsName"
+            val siblingEditorPkg = pkg.replaceAfterLast('.', "editor")
+            val inSiblingEditorPkg = "$siblingEditorPkg.$editorClsName"
+            return tryCreateEditorCls(inSamePackage)
+                   ?: tryCreateEditorCls(inEditorPackage)
+                   ?: tryCreateEditorCls(inSiblingEditorPkg)
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        private fun <Ed : Editor<*>> tryCreateEditorCls(name: String): KClass<Ed>? {
+            return try {
+                val cls = classLoader.loadClass(name)
+                val k = cls.kotlin
+                k.takeIf { it.isSubclassOf(Editor::class) } as KClass<Ed>?
+            } catch (cnf: ClassNotFoundException) {
+                null
+            }
+        }
+
+        companion object {
             private fun <E : Editable<*>, Ed : Editor<E>> resolveConstructor(
                 cls: KClass<out E>,
                 editorCls: KClass<Ed>
@@ -97,37 +126,18 @@ interface EditorFactory {
                                   ?: throw NoSuchElementException("No constructor valid found for $editorCls")
                 return { editable -> constructor.callBy(mapOf(constructor.parameters.first() to editable)) }
             }
-
-            private fun <E : Editable<*>, Ed : Editor<E>> resolveEditorClass(editableCls: KClass<E>): KClass<Ed>? {
-                val name = editableCls.simpleName ?: return null
-                val pkg = editableCls.java.`package`?.name ?: return null
-                val editorClsName = name.removePrefix("Editable") + "Editor"
-                val inSamePackage = "$pkg.$editorClsName"
-                val inEditorPackage = "$pkg.editor.$editorClsName"
-                val siblingEditorPkg = pkg.replaceAfterLast('.', "editor")
-                val inSiblingEditorPkg = "$siblingEditorPkg.$editorClsName"
-                return tryCreateEditorCls(inSamePackage)
-                       ?: tryCreateEditorCls(inEditorPackage)
-                       ?: tryCreateEditorCls(inSiblingEditorPkg)
-            }
-            @Suppress("UNCHECKED_CAST")
-            private fun <Ed : Editor<*>> tryCreateEditorCls(name: String): KClass<Ed>? {
-                return try {
-                    val cls = Class.forName(name)
-                    val k = cls.kotlin
-                    k.takeIf { it.isSubclassOf(Editor::class) } as KClass<Ed>?
-                } catch (cnf: ClassNotFoundException) {
-                    null
-                }
-            }
         }
 
     }
-    companion object : Property<EditorFactory, Public, Internal>("editor factory") {
 
+    companion object : Property<EditorFactory, Public, Internal>("editor factory") {
         val logger = Logger.getLogger(EditorFactory::class.qualifiedName)
-        fun newInstance(expanderFactory: ExpanderFactory): EditorFactory =
-                Impl(expanderFactory)
+        fun newInstance(expanderFactory: ExpanderFactory, classLoader: ClassLoader): EditorFactory =
+                Impl(expanderFactory, classLoader)
+
+        @CallerSensitive
+        fun newInstance(expanderFactory: ExpanderFactory) =
+                newInstance(expanderFactory, Reflection.getCallerClass().classLoader)
 
     }
 }
