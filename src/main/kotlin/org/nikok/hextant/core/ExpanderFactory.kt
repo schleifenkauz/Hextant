@@ -10,6 +10,8 @@ import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.editor.Expander
 import org.nikok.hextant.prop.Property
+import sun.reflect.CallerSensitive
+import sun.reflect.Reflection
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -17,7 +19,7 @@ interface ExpanderFactory {
     fun <E : Editable<*>> getExpander(expandable: Expandable<*, E>): Expander<E>
 
     @Suppress("UNCHECKED_CAST")
-    private class Impl : ExpanderFactory {
+    private class Impl(private val classLoader: ClassLoader) : ExpanderFactory {
         private val cache = mutableMapOf<Expandable<*, *>, Expander<*>>()
 
         override fun <E : Editable<*>> getExpander(expandable: Expandable<*, E>): Expander<E> {
@@ -31,9 +33,7 @@ interface ExpanderFactory {
                     ?: throw NoSuchElementException("No expander class found for $expandableCls")
             return createExpander(cls, expandable, expandableCls)
         }
-    }
 
-    companion object: Property<ExpanderFactory, Public, Internal>("expander factory") {
         private fun <E : Editable<*>> createExpander(
             expanderCls: KClass<Expander<E>>,
             expandable: Expandable<*, E>,
@@ -62,14 +62,19 @@ interface ExpanderFactory {
         @Suppress("UNCHECKED_CAST")
         private fun <E : Editable<*>> tryCreateExpanderCls(name: String): KClass<Expander<E>>? {
             return try {
-                val cls = Class.forName(name)
+                val cls = classLoader.loadClass(name)
                 val k = cls.kotlin
                 k.takeIf { it.isSubclassOf(Expander::class) } as KClass<Expander<E>>?
             } catch (cnf: ClassNotFoundException) {
                 null
             }
         }
+    }
 
-        fun newInstance(): ExpanderFactory = Impl()
+    companion object : Property<ExpanderFactory, Public, Internal>("expander factory") {
+        fun newInstance(classLoader: ClassLoader): ExpanderFactory = Impl(classLoader)
+
+        @CallerSensitive
+        fun newInstance(): ExpanderFactory = newInstance(Reflection.getCallerClass().classLoader)
     }
 }
