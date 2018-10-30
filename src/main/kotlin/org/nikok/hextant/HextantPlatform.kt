@@ -38,9 +38,10 @@ interface HextantPlatform : PropertyHolder {
                 HextantPlatform[EditableFactory] = EditableFactory.newInstance()
                 HextantPlatform[Commands] = Commands.newInstance()
                 HextantPlatform[Inspections] = Inspections.newInstance()
-                HextantPlatform[EditorFactory] = EditorFactory.newInstance()
+                val expanderFactory = ExpanderFactory.newInstance()
+                HextantPlatform[ExpanderFactory] = expanderFactory
+                HextantPlatform[EditorFactory] = EditorFactory.newInstance(expanderFactory)
                 HextantPlatform[logger] = Logger.getLogger("org.nikok.hextant")
-                HextantPlatform[ExpanderFactory] = ExpanderFactory.newInstance()
             }
         }
     }
