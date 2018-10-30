@@ -8,8 +8,8 @@ import org.nikok.hextant.Editable
 import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.reaktive.value.*
 
-class EditableIntLiteral() : Editable<IntLiteral> {
-    constructor(v: Int) : this() {
+class EditableIntLiteral(override val parent: Editable<*>? = null) : Editable<IntLiteral> {
+    constructor(v: Int, parent: Editable<*>? = null) : this(parent) {
         text.set(v.toString())
     }
 
