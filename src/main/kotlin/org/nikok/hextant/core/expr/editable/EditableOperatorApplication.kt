@@ -11,8 +11,10 @@ import org.nikok.reaktive.dependencies
 import org.nikok.reaktive.value.*
 import org.nikok.reaktive.value.binding.binding
 
-class EditableOperatorApplication() : Editable<OperatorApplication> {
-    constructor(operator: Operator): this() { editableOperator.editableText.text.set(operator.name) }
+class EditableOperatorApplication(override val parent: Editable<*>? = null) : Editable<OperatorApplication> {
+    constructor(operator: Operator, parent: Editable<*>? = null) : this(parent) {
+        editableOperator.editableText.text.set(operator.name)
+    }
 
     val editableOperator = EditableOperator()
 
