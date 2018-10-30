@@ -56,7 +56,7 @@ abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
 
     private val selectionDistributor = HextantPlatform[Internal, SelectionDistributor]
 
-    override val isSelected: Boolean get() = isSelectedVar.get()
+    final override val isSelected: Boolean get() = isSelectedVar.get()
 
     private val isSelectedVar: Variable<Boolean> = object : AbstractVariable<Boolean>() {
         private var value = false
@@ -72,11 +72,11 @@ abstract class AbstractEditor<E : Editable<*>, V: EditorView>(
         override fun get(): Boolean = value
     }
 
-    override fun select() {
+    final override fun select() {
         selectionDistributor.select(this, isSelectedVar)
     }
 
-    override fun toggleSelection() {
+    final override fun toggleSelection() {
         selectionDistributor.toggleSelection(this, isSelectedVar)
     }
 }
