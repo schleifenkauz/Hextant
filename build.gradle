@@ -96,6 +96,7 @@ allprojects {
         implementation kotlin("reflect")
         implementation nikok("kref", "1.0.0")
         implementation nikok("reaktive", "1.1-SNAPSHOT")
+        testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
     }
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
