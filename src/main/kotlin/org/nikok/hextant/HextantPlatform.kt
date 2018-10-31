@@ -25,6 +25,9 @@ interface HextantPlatform : PropertyHolder {
     */
     fun <T> runLater(action: () -> T): Future<T>
 
+    /**
+     * The default instance of the [HextantPlatform]
+    */
     companion object : HextantPlatform, PropertyHolder by PropertyHolder.newInstance() {
         private val executor = Executors.newSingleThreadExecutor()
 
