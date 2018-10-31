@@ -7,10 +7,9 @@
 package org.nikok.hextant.core
 
 import org.nikok.hextant.Editable
-import org.nikok.hextant.core.editable.map
-import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.prop.Property
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -27,10 +26,6 @@ interface EditableFactory {
 
     fun <T : Any> getEditable(edited: T): Editable<T>
 
-    fun <T : Any, F : Any> registerConversion(tCls: KClass<T>, fCls: KClass<F>, convert: (T?) -> F?)
-
-    fun <T : Any, F : Any> registerConversionNotNull(tCls: KClass<T>, fCls: KClass<F>, convert: (T) -> F)
-
     companion object: Property<EditableFactory, Public, Internal>("editable factory") {
         /**
          * @return a new [EditableFactory]
@@ -39,51 +34,19 @@ interface EditableFactory {
     }
 
     private class Impl : EditableFactory {
-        /*
-         * Maps the class of the produced values to a pair of the converted class
-         * and a function taking the converted class and producing the target
-         * Could be read as Map<KClass<TargetType>, Pair<KClass<SourceType>, (SourceType) -> TargetType>>
-        */
-        private val conversions = ClassMap.invariant<MutableSet<Pair<KClass<*>, (Any?) -> Any?>>>()
-
-        override fun <T : Any, F : Any> registerConversion(tCls: KClass<T>, fCls: KClass<F>, convert: (T?) -> F?) {
-            val conversion = tCls to convert as (Any?) -> (F?)
-            val existingConversions = conversions[fCls]
-            if (existingConversions != null) existingConversions.add(conversion)
-            else conversions[fCls] = mutableSetOf(conversion)
-        }
-
-        override fun <T : Any, F : Any> registerConversionNotNull(tCls: KClass<T>, fCls: KClass<F>, convert: (T) -> F) {
-            registerConversion(tCls, fCls) { it?.let(convert) }
-        }
-
         private val oneArgFactories = ClassMap.covariant<(Any) -> Editable<Any>>()
 
         override fun <T : Any> register(editedCls: KClass<T>, factory: (T) -> Editable<T>) {
             oneArgFactories[editedCls] = factory as (Any) -> Editable<Any>
         }
 
-        private fun <T : Any> getEditable(edited: T, forbiddenSources: Set<KClass<*>>): Pair<Editable<T>?, Int> {
+        override fun <T : Any> getEditable(edited: T): Editable<T> {
             val editedCls = edited::class
             val factory = oneArgFactories[editedCls]
-            if (factory != null) return factory(edited) as Editable<T> to 0
+            if (factory != null) return factory(edited) as Editable<T>
             val default = getDefaultEditable(edited)
-            if (default != null) return default to 0
-            return getConvertedEditable(edited, editedCls, forbiddenSources)
-        }
-
-        override fun <T : Any> getEditable(edited: T): Editable<T> {
-            val (e, _) = getEditable(edited, forbiddenSources = emptySet())
-            if (e != null) return e
-            else throw NoSuchElementException("No one-arg factory configured for ${edited.javaClass}")
-        }
-
-        private fun <T : Any> getConvertedEditable(
-            edited: T, cls: KClass<out T>, forbiddenSources: Set<KClass<*>>
-        ): Pair<Editable<T>?, Int> {
-            val conversions = conversions[cls] ?: return null to -1
-            TODO()
-
+            if (default != null) return default
+            else throw NoSuchElementException("No one-arg factory found for ${edited.javaClass}")
         }
 
         private val noArgFactories = ClassMap.contravariant<() -> Editable<*>>()
@@ -92,38 +55,14 @@ interface EditableFactory {
             noArgFactories[editedCls] = factory
         }
 
-        private fun <T : Any> getConvertedEditable(
-            cls: KClass<T>, forbiddenSources: Set<KClass<*>>
-        ): Pair<Editable<T>?, Int> {
-            val conversions = conversions[cls] ?: return null to -1
-            val srcAndConverterAndConversionCount = conversions.mapNotNull { (srcCls, c) ->
-                if (srcCls in forbiddenSources) null
-                else {
-                    val (src, conversionCount) = getEditable(srcCls, forbiddenSources + cls)
-                    if (src == null) null
-                    else Triple(src, c, conversionCount)
-                }
-            }
-            val (src, converter, conversionCount) = srcAndConverterAndConversionCount.minBy { (_, _, conversionCount) -> conversionCount }
-                                                    ?: return null to -1
-            val converted = src.map(converter) as Editable<T>
-            return converted to conversionCount + 1
-        }
-
-        private fun <T : Any> getEditable(
-            editedCls: KClass<T>, forbiddenSources: Set<KClass<*>>
-        ): Pair<Editable<T>?, Int> {
+        override fun <T : Any> getEditable(
+            editedCls: KClass<T>
+        ): Editable<T> {
             val factory = noArgFactories[editedCls]
-            if (factory != null) return factory() as Editable<T> to 0
+            if (factory != null) return factory() as Editable<T>
             val default = getDefaultEditable(editedCls)
-            if (default != null) return default to 0
-            return getConvertedEditable(editedCls, forbiddenSources)
-        }
-
-        override fun <T : Any> getEditable(editedCls: KClass<T>): Editable<T> {
-            val (editable, _) = getEditable(editedCls, forbiddenSources = emptySet())
-            if (editable == null) throw NoSuchElementException("Cannot create editable for $editedCls")
-            return editable
+            if (default != null) return default
+            throw NoSuchElementException("No no-arg factory found for $editedCls")
         }
 
         @Suppress("FunctionName") private companion object {
