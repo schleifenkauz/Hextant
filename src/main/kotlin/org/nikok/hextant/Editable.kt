@@ -17,9 +17,21 @@ interface Editable<out E> {
     */
     val edited: ReactiveValue<E?>
 
+    /**
+     * A [ReactiveValue] holding `true` if this editable and all children are ok
+    */
     val isOk: ReactiveBoolean
 
+    /**
+     * @return the parent of this [Editable], defaults to null
+     * * When [parent] returns `null` this indicates that this [Editable] is the root
+    */
     val parent: Editable<*>? get() = null
 
+    /**
+     * @return the children of this [Editable] defaults to null
+     * * When [children] return `null` this indicates that this [Editable] is a leaf
+     * * When a empty collection is returned this indicates that this [Editable] could have children but at the moment doesn't have any
+    */
     val children: Collection<Editable<*>>? get() = null
 }
