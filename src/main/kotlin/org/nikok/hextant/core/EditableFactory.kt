@@ -95,7 +95,7 @@ interface EditableFactory {
         ): Editable<T> {
             val factory = noArgFactories[editedCls]
             if (factory != null) return factory() as Editable<T>
-            val default = getDefaultEditable(editedCls)
+            val default = getNoArgConstructor(editedCls)
             if (default != null) return default()
             throw NoSuchElementException("No no-arg factory found for $editedCls")
         }
@@ -104,7 +104,7 @@ interface EditableFactory {
             pkgName: String, name: String
         ): KClass<Editable<T>>? {
             return if (pkgName.endsWith("edited")) {
-                val editedRange = pkgName.length - "edited".length..pkgName.length
+                val editedRange = pkgName.length - "edited".length until pkgName.length
                 val editablePkg = pkgName.replaceRange(editedRange, "editable")
                 tryFindCls("$editablePkg.Editable$name")
             } else {
@@ -131,7 +131,7 @@ interface EditableFactory {
 
         private fun <T : Any> tryFindCls(editableClsName: String): KClass<Editable<T>>? {
             try {
-                val editableCls: KClass<*> = clsLoader.loadClass(editableClsName).kotlin
+                val editableCls: KClass<*> = clsLoader.loadClass(editableClsName)?.kotlin ?: return null
                 if (!editableCls.isSubclassOf(Editable::class)) return null
                 return editableCls as KClass<Editable<T>>
             } catch (notFound: ClassNotFoundException) {
@@ -139,22 +139,21 @@ interface EditableFactory {
             }
         }
 
-        private fun <T : Any> getDefaultEditable(editedCls: KClass<T>): (() -> Editable<T>)? {
+        private fun <T : Any> getNoArgConstructor(editedCls: KClass<T>): (() -> Editable<T>)? {
             val cls = resolveEditableCls(editedCls) ?: return null
             val noArgConstructor =
                     cls.constructors.find { c -> c.parameters.all { p -> p.isOptional } } ?: return null
-            return { noArgConstructor.call() }
+            return { noArgConstructor.callBy(emptyMap()) }
         }
 
         private fun <T : Any> getOneArgConstructor(editedCls: KClass<out T>): ((T) -> Editable<T>)? {
             val cls = resolveEditableCls(editedCls) ?: return null
             val oneArgConstructor = cls.constructors.find { c ->
-                c.parameters.count { !it.isOptional } == 1 &&
-                !c.parameters.first().isOptional &&
+                c.parameters.drop(1).count { !it.isOptional } == 0 &&
                 c.parameters.first().type.isSupertypeOf(editedCls.starProjectedType) &&
                 c.visibility == PUBLIC
-            } ?: return null
-            return { edited -> oneArgConstructor.call(edited) }
+            } ?: throw NoSuchElementException("Could not find constructor for $editedCls")
+            return { edited -> oneArgConstructor.callBy(mapOf(oneArgConstructor.parameters.first() to edited)) }
         }
     }
 }

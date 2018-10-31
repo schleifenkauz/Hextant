@@ -38,7 +38,7 @@ interface HextantPlatform : PropertyHolder {
                 HextantPlatform[Version] = Version(1, 0, isSnapshot = true)
                 HextantPlatform[SelectionDistributor] = SelectionDistributor.newInstance()
                 HextantPlatform[EditorViewFactory] = EditorViewFactory.newInstance()
-                HextantPlatform[EditableFactory] = EditableFactory.newInstance()
+                HextantPlatform[EditableFactory] = EditableFactory.newInstance(HextantPlatform::class.java.classLoader)
                 HextantPlatform[Commands] = Commands.newInstance()
                 HextantPlatform[Inspections] = Inspections.newInstance()
                 val expanderFactory = ExpanderFactory.newInstance()
