@@ -1,12 +1,14 @@
 buildscript {
     dependencies {
         classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
+        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.17'
     }
 }
 
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.2.71'
+    id 'maven-publish'
 }
 
 
@@ -19,6 +21,17 @@ static String spek(Object dep) {
 }
 
 apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'org.jetbrains.dokka'
+
+dokka {
+    outputFormat = "markdown"
+    outputDirectory = "$buildDir/docs"
+    samples = ['src/test/kotlin']
+    includeNonPublic = false
+    reportUndocumented = true
+    impliedPlatforms = ["JVM"]
+
+}
 
 junitPlatform {
     filters {
@@ -30,6 +43,26 @@ junitPlatform {
 
 test {
     useJUnitPlatform()
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
 }
 
 
