@@ -38,7 +38,13 @@ interface Editor<E: Editable<*>> {
      */
     val isSelected: Boolean
 
+    /**
+     * @return the parent of this editor, typically this is the editor of the parent of editable of this editor
+    */
     val parent: Editor<*>? get() = null
 
+    /**
+     * @return the children of this editor, typically this are the editors of the children of the editable of this editor
+     */
     val children: Collection<Editor<*>>? get() = null
 }
