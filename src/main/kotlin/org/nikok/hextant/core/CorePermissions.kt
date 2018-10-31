@@ -10,7 +10,10 @@ object CorePermissions {
      * Internal permission only usable from the core module
     */
     sealed class Internal : Permission() {
-        companion object : Internal()
+        /**
+         * Only instance of the [Internal] permission
+        */
+        internal companion object : Internal()
     }
 
     /**
