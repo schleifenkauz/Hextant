@@ -6,19 +6,23 @@ package org.nikok.hextant.core
 
 import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
-import org.nikok.hextant.Editable
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
-import java.math.BigDecimal
 
+internal typealias EditableInEditablePackage = org.nikok.hextant.core.mocks.editable.EditableEdited
+internal typealias EditableInSamePackage = org.nikok.hextant.core.mocks.EditableEdited
+
+@Suppress("UNUSED_PARAMETER")
 internal object EditableFactorySpec: Spek({
-    given("an editable factory") {
-        val ef = EditableFactory.newInstance()
+    describe("registering") {
+        val ef = EditableFactory.newInstance(EditableFactorySpec.javaClass.classLoader)
         on("registering a editable for a class") {
-            ef.register(IntLiteral::class) { il: IntLiteral -> EditableIntLiteral(il.value) }
-            ef.register(IntLiteral::class) { -> EditableIntLiteral() }
+            ef.register { il: IntLiteral -> EditableIntLiteral(il.value) }
+            ef.register { -> EditableIntLiteral() }
             it("should return the registered editable when getting an Editable for the registered class") {
                 ef.getEditable(IntLiteral::class) shouldMatch instanceOf<EditableIntLiteral>()
             }
@@ -26,32 +30,78 @@ internal object EditableFactorySpec: Spek({
                 ef.getEditable(IntLiteral(2)) shouldMatch instanceOf<EditableIntLiteral>()
             }
         }
-        on("registering a conversion for a source and a target") {
-            ef.registerConversion(IntLiteral::class, Int::class) { it?.value }
-            it("should convert when asking for a editable of the target class") {
-                ef.getEditable(Int::class) shouldMatch instanceOf<Editable<Int>>()
-            }
-            xit("should convert when asking for a editable of a value of the target class") {
-                ef.getEditable(1) shouldMatch instanceOf<Editable<Int>>()
-            }
-            it("should not override an already registered binding") {
-                ef.registerConversion(Int::class, IntLiteral::class) { it?.let(::IntLiteral) }
-                ef.getEditable(IntLiteral::class) shouldMatch instanceOf<EditableIntLiteral>()
-            }
-        }
-        on("registering conversions that would lead to a cycle") {
-            ef.registerConversion(Float::class, Double::class) { it?.toDouble() }
-            ef.registerConversion(BigDecimal::class, Float::class) { it?.toFloat() }
-            ef.registerConversion(Double::class, BigDecimal::class) { it?.toBigDecimal() }
-            it("should not cycle but throw an exception") {
-                val error = { ef.getEditable(Float::class); Unit }
-                error shouldMatch throws<NoSuchElementException>()
-            }
-        }
         on("asking for a editable of a subtype of a registered type") {
             val anyEditor = ef.getEditable(Any::class)
             it("should return an editable of the nearest registered subclass") {
                 anyEditor shouldMatch instanceOf<EditableIntLiteral>()
+            }
+        }
+        on("getting an editable for an unregistered class") {
+            val error = { ef.getEditable(Int::class); Unit }
+            it("should throw a NoSuchElementException") {
+                error shouldMatch throws<NoSuchElementException>()
+            }
+        }
+    }
+    group("conventions") {
+        describe("editable in same package") {
+            val clsLoader = mock<ClassLoader> {
+                on { loadClass(EditableInSamePackage::class.qualifiedName) } doReturn EditableInSamePackage::class.java
+            }
+            val ef = EditableFactory.newInstance(clsLoader)
+            on("getting an editable for a class") {
+                val cls = org.nikok.hextant.core.mocks.Edited::class
+                val editable = ef.getEditable(cls)
+                it("should find the Editable in the same package and call the right constructor") {
+                    editable shouldMatch instanceOf<EditableInSamePackage>()
+                }
+            }
+            on("getting an editable for an instance") {
+                val edited = org.nikok.hextant.core.mocks.Edited
+                val editable = ef.getEditable(edited)
+                it("should find the Editable in the same package and call the right constructor") {
+                    editable shouldMatch instanceOf<EditableInSamePackage>()
+                }
+            }
+        }
+        describe("Editable in child package named 'editable'") {
+            val clsLoader = mock<ClassLoader> {
+                on { loadClass(EditableInEditablePackage::class.qualifiedName) } doReturn EditableInEditablePackage::class.java
+            }
+            val ef = EditableFactory.newInstance(clsLoader)
+            on("getting an editable for a class") {
+                val cls = org.nikok.hextant.core.mocks.Edited::class
+                val editable = ef.getEditable(cls)
+                it("should find the Editable in the 'editable' package and call the right constructor") {
+                    editable shouldMatch instanceOf<EditableInEditablePackage>()
+                }
+            }
+            on("getting an editable for an edited that has a Editable in a child package named ''") {
+                val edited = org.nikok.hextant.core.mocks.Edited
+                val editable = ef.getEditable(edited)
+                it("should find the Editable in the 'editable' package and call the right constructor") {
+                    editable shouldMatch instanceOf<EditableInEditablePackage>()
+                }
+            }
+        }
+        describe("Editable in sibling package named 'editable'") {
+            val clsLoader = mock<ClassLoader> {
+                on { loadClass(EditableInEditablePackage::class.qualifiedName) } doReturn EditableInEditablePackage::class.java
+            }
+            val ef = EditableFactory.newInstance(clsLoader)
+            on("getting an editable for a class") {
+                val cls = org.nikok.hextant.core.mocks.edited.Edited::class
+                val editable = ef.getEditable(cls)
+                it("should find the Editable in the 'editable' package and call the right constructor") {
+                    editable shouldMatch instanceOf<EditableInEditablePackage>()
+                }
+            }
+            on("getting an editable for an edited that has a Editable in a child package named ''") {
+                val edited = org.nikok.hextant.core.mocks.edited.Edited
+                val editable = ef.getEditable(edited)
+                it("should find the Editable in the 'editable' package and call the right constructor") {
+                    editable shouldMatch instanceOf<EditableInEditablePackage>()
+                }
             }
         }
     }
