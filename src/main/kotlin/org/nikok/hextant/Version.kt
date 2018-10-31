@@ -28,6 +28,9 @@ class Version internal constructor(val big: Int, val iteration: Int, val isSnaps
         }
     }
 
+    /**
+     * @return `true` if the [big] version number the [iteration] are the same and both have the same [isSnapshot] flag
+    */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -48,5 +51,8 @@ class Version internal constructor(val big: Int, val iteration: Int, val isSnaps
         return result
     }
 
+    /**
+     * The version property
+    */
     companion object: Property<Version, Public, Internal>("version")
 }
