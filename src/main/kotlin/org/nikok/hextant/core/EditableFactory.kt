@@ -11,6 +11,8 @@ import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.prop.Property
+import sun.reflect.CallerSensitive
+import sun.reflect.Reflection
 import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility.PUBLIC
 import kotlin.reflect.full.*
@@ -62,12 +64,18 @@ interface EditableFactory {
     */
     companion object: Property<EditableFactory, Public, Internal>("editable factory") {
         /**
-         * @return a new [EditableFactory]
+         * @return a new [EditableFactory] using the specified [clsLoader]
         */
-        fun newInstance(): EditableFactory = Impl()
+        fun newInstance(clsLoader: ClassLoader): EditableFactory = Impl(clsLoader)
+
+        /**
+         * @return a new [EditableFactory] using the class loader of the calling class
+        */
+        @CallerSensitive
+        fun newInstance() = newInstance(Reflection.getCallerClass().classLoader)
     }
 
-    private class Impl : EditableFactory {
+    private class Impl(private val clsLoader: ClassLoader) : EditableFactory {
         private val oneArgFactories = ClassMap.covariant<(Any) -> Editable<Any>>()
 
         override fun <T : Any> register(editedCls: KClass<T>, factory: (T) -> Editable<T>) {
@@ -99,64 +107,61 @@ interface EditableFactory {
             throw NoSuchElementException("No no-arg factory found for $editedCls")
         }
 
-        @Suppress("FunctionName") private companion object {
-            fun <T : Any> `locate editable cls in "editable" package`(
-                pkgName: String, name: String
-            ): KClass<Editable<T>>? {
-                return if (pkgName.endsWith("edited")) {
-                    val editedRange = pkgName.length - "edited".length..pkgName.length
-                    val editablePkg = pkgName.replaceRange(editedRange, "editable")
-                    tryFindCls("$editablePkg.Editable$name")
-                } else {
-                    tryFindCls("$pkgName.editable.Editable$name")
-                }
+        private fun <T : Any> `locate editable cls in "editable" package`(
+            pkgName: String, name: String
+        ): KClass<Editable<T>>? {
+            return if (pkgName.endsWith("edited")) {
+                val editedRange = pkgName.length - "edited".length..pkgName.length
+                val editablePkg = pkgName.replaceRange(editedRange, "editable")
+                tryFindCls("$editablePkg.Editable$name")
+            } else {
+                tryFindCls("$pkgName.editable.Editable$name")
             }
+        }
 
-            fun <T : Any> resolveEditableCls(editedCls: KClass<T>): KClass<Editable<T>>? {
-                val java = editedCls.java
-                val pkg = java.`package` ?: return null
-                val name = editedCls.simpleName ?: return null
-                val pkgName = pkg.name
-                return `locate editable cls in "editable" package`(pkgName, name)
-                       ?: `editable class with "Editable" prefix`(name, pkgName)
+        private fun <T : Any> resolveEditableCls(editedCls: KClass<T>): KClass<Editable<T>>? {
+            val java = editedCls.java
+            val pkg = java.`package` ?: return null
+            val name = editedCls.simpleName ?: return null
+            val pkgName = pkg.name
+            return `locate editable cls in "editable" package`(pkgName, name)
+                   ?: `editable class with "Editable" prefix`(name, pkgName)
+        }
+
+        private fun <T : Any> `editable class with "Editable" prefix`(
+            name: String, pkgName: String?
+        ): KClass<Editable<T>>? {
+            val editableName = "Editable$name"
+            val editableClsName = "$pkgName.$editableName"
+            return tryFindCls(editableClsName)
+        }
+
+        private fun <T : Any> tryFindCls(editableClsName: String): KClass<Editable<T>>? {
+            try {
+                val editableCls: KClass<*> = clsLoader.loadClass(editableClsName).kotlin
+                if (!editableCls.isSubclassOf(Editable::class)) return null
+                return editableCls as KClass<Editable<T>>
+            } catch (notFound: ClassNotFoundException) {
+                return null
             }
+        }
 
-            fun <T : Any> `editable class with "Editable" prefix`(
-                name: String, pkgName: String?
-            ): KClass<Editable<T>>? {
-                val editableName = "Editable$name"
-                val editableClsName = "$pkgName.$editableName"
-                return tryFindCls(editableClsName)
-            }
+        private fun <T : Any> getDefaultEditable(editedCls: KClass<T>): (() -> Editable<T>)? {
+            val cls = resolveEditableCls(editedCls) ?: return null
+            val noArgConstructor =
+                    cls.constructors.find { c -> c.parameters.all { p -> p.isOptional } } ?: return null
+            return { noArgConstructor.call() }
+        }
 
-            fun <T : Any> tryFindCls(editableClsName: String): KClass<Editable<T>>? {
-                try {
-                    val editableCls: KClass<*> = Class.forName(editableClsName).kotlin
-                    if (!editableCls.isSubclassOf(Editable::class)) return null
-                    return editableCls as KClass<Editable<T>>
-                } catch (notFound: ClassNotFoundException) {
-                    return null
-                }
-            }
-
-            fun <T : Any> getDefaultEditable(editedCls: KClass<T>): (() -> Editable<T>)? {
-                val cls = resolveEditableCls(editedCls) ?: return null
-                val noArgConstructor =
-                        cls.constructors.find { c -> c.parameters.all { p -> p.isOptional } } ?: return null
-                return { noArgConstructor.call() }
-            }
-
-            fun <T : Any> getOneArgConstructor(editedCls: KClass<out T>): ((T) -> Editable<T>)? {
-                val cls = resolveEditableCls(editedCls) ?: return null
-                val oneArgConstructor = cls.constructors.find { c ->
-                    c.parameters.count { !it.isOptional } == 1 &&
-                    !c.parameters.first().isOptional &&
-                    c.parameters.first().type.isSupertypeOf(editedCls.starProjectedType) &&
-                    c.visibility == PUBLIC
-                } ?: return null
-                return { edited -> oneArgConstructor.call(edited) }
-            }
-
+        private fun <T : Any> getOneArgConstructor(editedCls: KClass<out T>): ((T) -> Editable<T>)? {
+            val cls = resolveEditableCls(editedCls) ?: return null
+            val oneArgConstructor = cls.constructors.find { c ->
+                c.parameters.count { !it.isOptional } == 1 &&
+                !c.parameters.first().isOptional &&
+                c.parameters.first().type.isSupertypeOf(editedCls.starProjectedType) &&
+                c.visibility == PUBLIC
+            } ?: return null
+            return { edited -> oneArgConstructor.call(edited) }
         }
     }
 }
