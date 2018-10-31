@@ -11,8 +11,6 @@ import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.prop.Property
-import sun.reflect.CallerSensitive
-import sun.reflect.Reflection
 import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility.PUBLIC
 import kotlin.reflect.full.*
@@ -25,6 +23,7 @@ import kotlin.reflect.full.*
  * and the editable class is searched in a class just prepending "Editable" is searched for in the new package.
  * * If the package doesn't end with ".edited" the same class is searched for in a child package with name "editable".
  * * If no class is found a class with the "Editable"-prefix is searched in the same package.
+ * @sample [org.nikok.hextant.core.EditableFactorySpec]
 */
 interface EditableFactory {
     /**
@@ -67,12 +66,6 @@ interface EditableFactory {
          * @return a new [EditableFactory] using the specified [clsLoader]
         */
         fun newInstance(clsLoader: ClassLoader): EditableFactory = Impl(clsLoader)
-
-        /**
-         * @return a new [EditableFactory] using the class loader of the calling class
-        */
-        @CallerSensitive
-        fun newInstance() = newInstance(Reflection.getCallerClass().classLoader)
     }
 
     private class Impl(private val clsLoader: ClassLoader) : EditableFactory {
