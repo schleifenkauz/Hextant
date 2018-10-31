@@ -5,13 +5,10 @@
 package org.nikok.hextant
 
 import org.nikok.hextant.core.*
-import org.nikok.hextant.core.CorePermissions.Internal
-import org.nikok.hextant.core.CoreProperties.logger
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
 import org.nikok.hextant.prop.PropertyHolder
-import org.nikok.hextant.prop.invoke
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.logging.Logger
@@ -22,30 +19,34 @@ import java.util.logging.Logger
 interface HextantPlatform : PropertyHolder {
     /**
      * Enqueues the specified [action] in the Hextant main thread
-    */
+     */
     fun <T> runLater(action: () -> T): Future<T>
 
     /**
      * The default instance of the [HextantPlatform]
-    */
-    companion object : HextantPlatform, PropertyHolder by PropertyHolder.newInstance() {
+     */
+    private class Impl(private val propertyHolder: PropertyHolder) : HextantPlatform, PropertyHolder by propertyHolder {
         private val executor = Executors.newSingleThreadExecutor()
 
         override fun <T> runLater(action: () -> T): Future<T> = executor.submit(action)
+    }
 
-        init {
-            Internal {
-                HextantPlatform[Version] = Version(1, 0, isSnapshot = true)
-                HextantPlatform[SelectionDistributor] = SelectionDistributor.newInstance()
-                HextantPlatform[EditorViewFactory] = EditorViewFactory.newInstance()
-                HextantPlatform[EditableFactory] = EditableFactory.newInstance(HextantPlatform::class.java.classLoader)
-                HextantPlatform[Commands] = Commands.newInstance()
-                HextantPlatform[Inspections] = Inspections.newInstance()
-                val expanderFactory = ExpanderFactory.newInstance()
-                HextantPlatform[ExpanderFactory] = expanderFactory
-                HextantPlatform[EditorFactory] = EditorFactory.newInstance(expanderFactory)
-                HextantPlatform[logger] = Logger.getLogger("org.nikok.hextant")
-            }
+    companion object {
+        val defaultPropertyHolder = PropertyHolder.newInstance {
+            set(Version, Version(1, 0, isSnapshot = true))
+            set(SelectionDistributor, SelectionDistributor.newInstance())
+            set(EditorViewFactory, EditorViewFactory.newInstance())
+            set(EditableFactory, EditableFactory.newInstance(HextantPlatform::class.java.classLoader))
+            set(Commands, Commands.newInstance())
+            set(Inspections, Inspections.newInstance())
+            val expanderFactory = ExpanderFactory.newInstance()
+            set(ExpanderFactory, expanderFactory)
+            set(EditorFactory, EditorFactory.newInstance(expanderFactory))
+            set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
         }
+
+        fun withPropertyHolder(propertyHolder: PropertyHolder): HextantPlatform = Impl(propertyHolder)
+
+        val INSTANCE = HextantPlatform.withPropertyHolder(defaultPropertyHolder)
     }
 }
