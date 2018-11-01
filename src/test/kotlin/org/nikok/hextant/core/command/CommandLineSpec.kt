@@ -33,14 +33,14 @@ internal object CommandLineSpec: Spek({
         }
         on("asking for the edited command") {
             val error = { cl.editedCommand(); Unit }
-            it("should throw a NPE") {
-                error shouldMatch throws<NullPointerException>()
+            it("should throw a ISE") {
+                error shouldMatch throws<IllegalStateException>()
             }
         }
         on("asking for the edited args") {
             val error = { cl.editableArgs(); Unit }
             it("should throw a NPE") {
-                error shouldMatch throws<NullPointerException>()
+                error shouldMatch throws<IllegalStateException>()
             }
         }
         test("the text should be an empty string") {
