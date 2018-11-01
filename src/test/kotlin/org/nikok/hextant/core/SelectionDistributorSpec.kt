@@ -5,19 +5,24 @@ import com.natpryce.hamkrest.should.shouldMatch
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import org.nikok.hextant.Editor
+import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.mocks.MockEditor
 
 internal object SelectionDistributorSpec: Spek({
-    val sut = SelectionDistributor.newInstance()
-    test(sut)
+    val platform = HextantPlatform.newInstance()
+    val sut = SelectionDistributor.newInstance(platform)
+    test(sut, platform)
 }) {
-    operator fun invoke(sut: SelectionDistributor): Spek {
-        return Spek.wrap { test(sut) }
+    operator fun invoke(
+        sut: SelectionDistributor,
+        platform: HextantPlatform
+    ): Spek {
+        return Spek.wrap { test(sut, platform) }
     }
 }
 
-private fun SpecBody.test(sut: SelectionDistributor) {
+private fun SpecBody.test(sut: SelectionDistributor, platform: HextantPlatform) {
     xgiven("a new selection distributor") {
         fun testSelectedEditorsEqual(vararg expected: Editor<*>) {
             sut.selectedEditors.now shouldMatch equalTo(expected.toSet())
@@ -25,7 +30,7 @@ private fun SpecBody.test(sut: SelectionDistributor) {
         it("should have no selected editors") {
             sut.selectedEditors.now shouldMatch equalTo(emptySet())
         }
-        val editor = MockEditor()
+        val editor = MockEditor(platform = platform)
         on("selecting an editor") {
             editor.select()
             test("the selected editor should be in the selected editors") {
@@ -38,7 +43,7 @@ private fun SpecBody.test(sut: SelectionDistributor) {
                 testSelectedEditorsEqual(editor)
             }
         }
-        val editor2 = MockEditor()
+        val editor2 = MockEditor(platform = platform)
         on("selecting another editor") {
             editor2.select()
             test("only the newly selected editor should be selected") {

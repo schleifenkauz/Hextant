@@ -13,7 +13,6 @@ import javafx.scene.control.SplitPane
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.*
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.command.line.CommandLine
 import org.nikok.hextant.core.command.line.FXCommandLineView
@@ -22,6 +21,7 @@ import org.nikok.hextant.core.expr.editable.ExpandableExpr
 import org.nikok.hextant.core.expr.editor.*
 import org.nikok.hextant.core.fx.lastShortcutLabel
 import org.nikok.hextant.core.fx.scene
+import org.nikok.hextant.get
 import org.nikok.reaktive.value.now
 import java.util.logging.Level
 import java.util.logging.Level.FINEST
@@ -36,9 +36,10 @@ class ExprEditorViewTest : Application() {
 
     companion object {
         private fun createContent(scene: Scene): Parent {
-            val views = HextantPlatform[Public, EditorViewFactory]
+            val platform = HextantPlatform.INSTANCE.copy { }
+            val views = platform[EditorViewFactory]
             val expandable = ExpandableExpr()
-            val commands = HextantPlatform[Public, Commands]
+            val commands = platform[Commands]
             val registrar = commands.of<ExprEditor>()
             registrar.register<ExprEditor, Int> {
                 name = "Evaluate Expression"
@@ -51,7 +52,7 @@ class ExprEditorViewTest : Application() {
                     v
                 }
             }
-            val expanderFactory = HextantPlatform[Public, ExpanderFactory]
+            val expanderFactory = platform[ExpanderFactory]
             commands.of<OperatorEditor>().register<OperatorEditor, Unit> {
                 name = "Flip operands"
                 shortName = "flip_op"
@@ -76,10 +77,10 @@ class ExprEditorViewTest : Application() {
             }
             CommandLine.logger.level = FINEST
             val expandableView = views.getFXView(expandable)
-            val cl = CommandLine.forSelectedEditors()
-            val clView = FXCommandLineView(cl)
+            val cl = CommandLine.forSelectedEditors(platform)
+            val clView = FXCommandLineView(cl, platform)
             val split = SplitPane(expandableView.node, clView, lastShortcutLabel(scene))
-            HextantPlatform[Public, CoreProperties.logger].level = Level.FINE
+            platform[CoreProperties.logger].level = Level.FINE
             split.orientation = VERTICAL
             return split
         }

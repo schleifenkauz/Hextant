@@ -13,13 +13,13 @@ import javafx.scene.input.*
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.command.Command.Category
 import org.nikok.hextant.core.command.gui.commandContextMenu
 import org.nikok.hextant.core.command.gui.commandMenuBar
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
+import org.nikok.hextant.get
 
 internal class CommandGuiTest : Application() {
     override fun start(stage: Stage) {
@@ -30,11 +30,12 @@ internal class CommandGuiTest : Application() {
     private object Receiver
     companion object {
         private fun createContent(): Parent {
-            val editableFactory = HextantPlatform[Public, EditableFactory]
+            val platform = HextantPlatform.INSTANCE.copy {  }
+            val editableFactory = platform[EditableFactory]
             editableFactory.apply {
                 register(IntLiteral::class) { -> EditableIntLiteral() }
             }
-            val commands = Commands.newInstance()
+            val commands = Commands.newInstance(platform)
             val registrar = commands.of<Receiver>().apply {
                 register(command<Receiver, Unit> {
                     executing { _, _ -> println("1") }
@@ -58,11 +59,11 @@ internal class CommandGuiTest : Application() {
                     }
                 }, shortcut = KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN))
             }
-            val menuBar = Receiver.commandMenuBar(registrar)
-            val contextMenu = Receiver.commandContextMenu(registrar)
+            val menuBar = Receiver.commandMenuBar(platform)
+            val contextMenu = Receiver.commandContextMenu(platform)
             val button = Button("Receiver")
             button.setOnContextMenuRequested { contextMenu.show(button, Side.RIGHT, 0.0, 0.0) }
-            registrar.listen(button, Receiver)
+            registrar.listen(button, Receiver, platform)
             return VBox(menuBar, button)
         }
 

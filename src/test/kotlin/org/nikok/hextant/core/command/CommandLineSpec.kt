@@ -9,6 +9,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
+import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.command.line.CommandLine
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingName
@@ -25,7 +26,8 @@ internal object CommandLineSpec: Spek({
         EditableFactory.newInstance().apply {
             register(IntLiteral::class) { -> EditableIntLiteral().also { editableInts.add(it) } }
         }
-        val cl = CommandLine({ possibleCommands }, { targets })
+        val platform = HextantPlatform.INSTANCE.copy {  }
+        val cl = CommandLine({ possibleCommands }, { targets }, platform)
         it("should be editing the name") {
             cl.state.now shouldMatch equalTo(EditingName)
         }

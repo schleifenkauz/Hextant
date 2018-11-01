@@ -10,7 +10,6 @@ import javafx.scene.layout.HBox
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.*
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.command.Data.Receiver
 import org.nikok.hextant.core.command.line.CommandLine
 import org.nikok.hextant.core.command.line.FXCommandLineView
@@ -18,6 +17,7 @@ import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
 import org.nikok.hextant.core.fx.scene
+import org.nikok.hextant.get
 
 class CommandLineGuiTest : Application() {
     override fun start(stage: Stage) {
@@ -31,17 +31,18 @@ class CommandLineGuiTest : Application() {
         private fun createContent(): Parent {
             val commands = Data.commands.toMutableSet()
             val targets = mutableSetOf(Receiver(true))
-            val editableFactory = HextantPlatform[Public, EditableFactory]
+            val platform = HextantPlatform.INSTANCE.copy {  }
+            val editableFactory = platform[EditableFactory]
             editableFactory.run {
                 register(IntLiteral::class) { -> EditableIntLiteral() }
                 register(IntLiteral::class) { v -> EditableIntLiteral(v.value) }
             }
-            val views = HextantPlatform[Public, EditorViewFactory]
+            val views = platform[EditorViewFactory]
             views.run {
-                registerFX { e: EditableIntLiteral -> FXIntLiteralEditorView(e) }
+                registerFX { e: EditableIntLiteral -> FXIntLiteralEditorView(e, platform) }
             }
-            val commandLine = CommandLine({ commands }, { targets })
-            val commandLineView = FXCommandLineView(commandLine, views)
+            val commandLine = CommandLine({ commands }, { targets }, platform)
+            val commandLineView = FXCommandLineView(commandLine, platform)
             val root = HBox(commandLineView)
             root.style = "-fx-background-color: black"
             return root

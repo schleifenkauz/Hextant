@@ -8,7 +8,6 @@ import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.command.command
@@ -16,6 +15,7 @@ import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
 import org.nikok.hextant.core.fx.scene
+import org.nikok.hextant.get
 import org.nikok.reaktive.value.now
 
 class InspectionGuiTest : Application() {
@@ -26,7 +26,8 @@ class InspectionGuiTest : Application() {
 
     companion object {
         private fun createContent(): Parent {
-            val inspections = HextantPlatform[Public, Inspections]
+            val platform = HextantPlatform.newInstance()
+            val inspections = platform[Inspections]
             inspections.of(EditableIntLiteral::class).apply {
                 register { literal ->
                     inspection(literal) {
@@ -48,7 +49,7 @@ class InspectionGuiTest : Application() {
                     }
                 }
             }
-            val commands = HextantPlatform[Public, Commands]
+            val commands = platform[Commands]
             commands.of<EditableIntLiteral>().apply {
                 register(command<EditableIntLiteral, Unit> {
                     description = "Multiply the integer value"
@@ -67,10 +68,10 @@ class InspectionGuiTest : Application() {
                     }
                 })
             }
-            val editableFactory = HextantPlatform[Public, EditableFactory]
+            val editableFactory = platform[EditableFactory]
             editableFactory.register(IntLiteral::class) { -> EditableIntLiteral() }
             val e = EditableIntLiteral()
-            return FXIntLiteralEditorView(e)
+            return FXIntLiteralEditorView(e, platform)
         }
 
         @JvmStatic fun main(args: Array<String>) {

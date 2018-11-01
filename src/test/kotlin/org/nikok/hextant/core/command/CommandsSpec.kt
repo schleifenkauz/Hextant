@@ -4,10 +4,12 @@ import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.should.shouldMatch
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
+import org.nikok.hextant.HextantPlatform
 
 internal object CommandsSpec: Spek({
     given("commands") {
-        val cs = Commands.newInstance()
+        val platform = HextantPlatform.newInstance()
+        val cs = Commands.newInstance(platform)
         val registrar = cs.of<ICommandTarget>()
         val command = command<ICommandTarget, Unit> {
             description = "another command"
