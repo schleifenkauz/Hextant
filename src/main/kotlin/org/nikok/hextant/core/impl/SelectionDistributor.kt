@@ -5,6 +5,7 @@
 package org.nikok.hextant.core.impl
 
 import org.nikok.hextant.Editor
+import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.prop.Property
 import org.nikok.reaktive.set.*
@@ -79,6 +80,6 @@ internal interface SelectionDistributor {
     }
 
     companion object: Property<SelectionDistributor, Internal, Internal>("Selection Distributor") {
-        fun newInstance(): SelectionDistributor = Impl()
+        fun newInstance(platform: HextantPlatform): SelectionDistributor = Impl()
     }
 }

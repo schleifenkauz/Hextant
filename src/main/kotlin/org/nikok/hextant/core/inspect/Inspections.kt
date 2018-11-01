@@ -4,6 +4,7 @@
 
 package org.nikok.hextant.core.inspect
 
+import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.prop.Property
@@ -27,6 +28,6 @@ class Inspections private constructor() {
     fun hasWarning(obj: Any): ReactiveBoolean = of(obj::class).hasWarning(obj)
 
     companion object: Property<Inspections, Public, Internal>("inspections") {
-        fun newInstance(): Inspections = Inspections()
+        fun newInstance(platform: HextantPlatform): Inspections = Inspections()
     }
 }

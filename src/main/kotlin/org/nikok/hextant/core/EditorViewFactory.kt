@@ -5,6 +5,7 @@
 package org.nikok.hextant.core
 
 import org.nikok.hextant.Editable
+import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.editable.ConvertedEditable
@@ -32,7 +33,7 @@ interface EditorViewFactory {
      */
     fun <E : Editable<*>> getFXView(editable: E): FXEditorView
 
-    @Suppress("UNCHECKED_CAST") private class Impl : EditorViewFactory {
+    @Suppress("UNCHECKED_CAST") private class Impl(private val platform: HextantPlatform) : EditorViewFactory {
         private val viewFactories = ClassMap.invariant<(Editable<*>) -> FXEditorView>()
 
         override fun <E : Editable<*>> registerFX(editableCls: KClass<out E>, viewFactory: (E) -> FXEditorView) {
@@ -73,7 +74,7 @@ interface EditorViewFactory {
             expanderCls ?: return null
             expandable as Expandable<*, Editable<*>>
             val expander: Expander<*> = createExpander(expanderCls, expandable, expandableCls)*/
-            return FXExpanderView(expandable)
+            return FXExpanderView(expandable, platform)
         }
 
         private fun resolveDefault(editableCls: KClass<*>): KClass<FXEditorView>? {
@@ -102,10 +103,13 @@ interface EditorViewFactory {
     }
 
     companion object: Property<EditorViewFactory, Public, Internal>("editor-view-factory") {
-        fun newInstance(): EditorViewFactory = Impl()
+        fun newInstance(platform: HextantPlatform): EditorViewFactory = Impl(platform)
 
-        inline fun newInstance(configure: EditorViewFactory.() -> Unit): EditorViewFactory =
-                newInstance().apply(configure)
+        inline fun newInstance(
+            configure: EditorViewFactory.() -> Unit,
+            platform: HextantPlatform
+        ): EditorViewFactory =
+                newInstance(platform).apply(configure)
     }
 }
 

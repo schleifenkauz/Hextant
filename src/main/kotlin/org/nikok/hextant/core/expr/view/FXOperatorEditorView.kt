@@ -6,21 +6,21 @@ package org.nikok.hextant.core.expr.view
 
 import javafx.scene.Node
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.expr.editable.EditableOperator
 import org.nikok.hextant.core.expr.editor.OperatorEditor
 import org.nikok.hextant.core.fx.*
+import org.nikok.hextant.get
 
-class FXOperatorEditorView(editable: EditableOperator): FXEditorView {
+class FXOperatorEditorView(editable: EditableOperator, platform: HextantPlatform) : FXEditorView {
     override val node: Node
 
     init {
-        val views = HextantPlatform[Public, EditorViewFactory]
+        val views = platform[EditorViewFactory]
         val view = views.getFXView(editable.editableText)
         node = view.node
-        node.activateInspections(editable)
-        val editor = OperatorEditor(editable)
-        node.activateContextMenu(editor)
+        node.activateInspections(editable, platform)
+        val editor = OperatorEditor(editable, platform)
+        node.activateContextMenu(editor, platform)
     }
 }

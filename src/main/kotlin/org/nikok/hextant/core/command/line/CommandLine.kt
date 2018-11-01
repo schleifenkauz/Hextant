@@ -6,7 +6,6 @@ package org.nikok.hextant.core.command.line
 
 import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.command.*
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingArgs
@@ -27,14 +26,15 @@ import org.nikok.reaktive.value.binding.impl.notNull
  * @constructor
  * @param commandsFactory is used to get the commands being applicable in this context
  * @param targets the targets that will be the receivers for a command when executed by this command line
- * @param editableFactory is used to get the [Editable]s for the arguments of the command,
  * defaults to the editable factory of the [HextantPlatform]
  */
 class CommandLine(
     private val commandsFactory: () -> Set<Command<*, *>>,
     private val targets: () -> Set<Any>,
-    private val editableFactory: EditableFactory = HextantPlatform[Public, EditableFactory]
+    platform: HextantPlatform
 ): Editable<CommandApplication<*>> {
+    private val editableFactory = platform[EditableFactory]
+
     /*
      * The current state
     */
@@ -245,9 +245,9 @@ class CommandLine(
             else acc
         }
 
-        fun forSelectedEditors(): CommandLine {
-            val dist = HextantPlatform[Internal, SelectionDistributor]
-            val commands = HextantPlatform[Public, Commands]
+        fun forSelectedEditors(platform: HextantPlatform): CommandLine {
+            val dist = platform[Internal, SelectionDistributor]
+            val commands = platform[Commands]
             val targets = {
                 val selectedEditors = dist.selectedEditors.now
                 selectedEditors.flatMapTo(mutableSetOf()) { it.parentChain() }
@@ -257,7 +257,7 @@ class CommandLine(
                     commands.applicableOn(it)
                 }.reduce { acc, s -> acc.union(s) }
             }
-            return CommandLine(commandsFactory, targets)
+            return CommandLine(commandsFactory, targets, platform)
         }
 
         val logger by myLogger()

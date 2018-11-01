@@ -4,6 +4,7 @@
 
 package org.nikok.hextant.core.command
 
+import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.prop.Property
@@ -40,6 +41,6 @@ class Commands private constructor() {
     operator fun <R : Any> get(cls: KClass<R>) = of(cls)
 
     companion object: Property<Commands, Public, Internal>("commands") {
-        fun newInstance(): Commands = Commands()
+        fun newInstance(platform: HextantPlatform): Commands = Commands()
     }
 }

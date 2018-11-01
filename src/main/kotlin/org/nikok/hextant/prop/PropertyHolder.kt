@@ -28,7 +28,7 @@ interface PropertyHolder {
      * Calls of `get(permission, property)` will return this [value] until a new value is set
      * You need to pass the [Write] [Permission]
      */
-    fun <T : Any, Write : Permission> set(
+    operator fun <T : Any, Write : Permission> set(
         permission: Write, property: Property<in T, *, Write>,
         value: T
     )

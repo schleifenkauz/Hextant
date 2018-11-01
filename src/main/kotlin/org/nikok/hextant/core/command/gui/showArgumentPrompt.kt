@@ -10,20 +10,24 @@ import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.layout.VBox
 import javafx.stage.Window
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.fx.FXEditorView
 import org.nikok.hextant.core.fx.UtilityDialog
+import org.nikok.hextant.get
 import org.nikok.reaktive.value.now
 
-fun showArgumentPrompt(ownerWindow: Window, command: Command<*, *>): List<Any?>? {
+fun showArgumentPrompt(
+    ownerWindow: Window,
+    command: Command<*, *>,
+    platform: HextantPlatform
+): List<Any?>? {
     val parameters = command.parameters
-    val editableFactory = HextantPlatform[Public, EditableFactory]
+    val editableFactory = platform[EditableFactory]
     val editableArguments = parameters.map { p -> p to editableFactory.getEditable(p.type) }
-    val viewFactory = HextantPlatform[Public, EditorViewFactory]
+    val viewFactory = platform[EditorViewFactory]
     val views = editableArguments.map { (p, e) -> p to viewFactory.getFXView(e) }
     val vbox = VBox()
     for ((p, v) in views) {
@@ -36,9 +40,9 @@ fun showArgumentPrompt(ownerWindow: Window, command: Command<*, *>): List<Any?>?
         owner = ownerWindow
     }
     return when (bt) {
-        null              -> null
+        null -> null
         ButtonType.CANCEL -> null
-        else              -> editableArguments.map { (_, e) -> e.edited.now }
+        else -> editableArguments.map { (_, e) -> e.edited.now }
     }
 }
 

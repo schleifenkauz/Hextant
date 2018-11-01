@@ -23,7 +23,7 @@ import java.lang.ref.WeakReference
  */
 abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     final override val editable: E,
-    platform: HextantPlatform = HextantPlatform.INSTANCE
+    platform: HextantPlatform
 ) : Editor<E> {
     private val mutableViews = mutableSetOf<WeakReference<V>>()
 

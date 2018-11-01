@@ -16,8 +16,6 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.CorePermissions.Public
-import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.command.gui.argumentEditor
 import org.nikok.hextant.core.completion.Completion
@@ -27,8 +25,9 @@ import org.nikok.reaktive.event.subscribe
 
 internal class FXCommandLineView internal constructor(
     commandLine: CommandLine,
-    viewFactory: EditorViewFactory = HextantPlatform[Public, EditorViewFactory]
+    platform: HextantPlatform
 ) : VBox(), CommandLineView, FXEditorView {
+
     override val node: Node
         get() = this
 
@@ -122,7 +121,7 @@ internal class FXCommandLineView internal constructor(
         }
     }
 
-    private val controller = CommandLineController(commandLine, this, viewFactory)
+    private val controller = CommandLineController(commandLine, this, platform)
 
     init {
         children.addAll(historyView, currentCommand)

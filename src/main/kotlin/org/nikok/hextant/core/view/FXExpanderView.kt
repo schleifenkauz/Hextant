@@ -9,9 +9,7 @@ import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode.R
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination.SHORTCUT_ANY
-import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.*
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.ExpanderFactory
 import org.nikok.hextant.core.editable.Expandable
@@ -20,11 +18,12 @@ import org.nikok.reaktive.value.now
 
 class FXExpanderView(
     private val expandable: Expandable<*, *>,
-    expanderFactory: ExpanderFactory = HextantPlatform[Public, ExpanderFactory],
-    private val views: EditorViewFactory = HextantPlatform[Public, EditorViewFactory]
+    platform: HextantPlatform
 ) : ExpanderView, FXEditorView, Control() {
 
-    private val expander = expanderFactory.getExpander(expandable)
+    private val expander = platform[ExpanderFactory].getExpander(expandable)
+
+    private val views = platform[EditorViewFactory]
 
     private var view: FXEditorView? = null
 

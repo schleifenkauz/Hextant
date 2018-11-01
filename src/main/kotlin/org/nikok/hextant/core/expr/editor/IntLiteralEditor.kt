@@ -12,8 +12,9 @@ import org.nikok.hextant.core.expr.view.IntLiteralEditorView
 import org.nikok.reaktive.value.now
 
 class IntLiteralEditor(
-    editable: EditableIntLiteral
-): AbstractEditor<EditableIntLiteral, IntLiteralEditorView>(editable), ExprEditor {
+    editable: EditableIntLiteral,
+    private val platform: HextantPlatform
+): AbstractEditor<EditableIntLiteral, IntLiteralEditorView>(editable, platform), ExprEditor {
     override val expr: Expr?
         get() = editable.edited.now
 
@@ -22,7 +23,7 @@ class IntLiteralEditor(
     }
 
     fun setValue(text: String) {
-        HextantPlatform.runLater { editable.text.set(text) }
+        platform.runLater { editable.text.set(text) }
         views { textChanged(text) }
     }
 }

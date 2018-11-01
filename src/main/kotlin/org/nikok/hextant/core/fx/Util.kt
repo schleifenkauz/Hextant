@@ -16,10 +16,7 @@ import javafx.scene.input.KeyCode.ENTER
 import javafx.scene.input.KeyCode.W
 import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
 import javafx.stage.PopupWindow
-import org.nikok.hextant.Editor
-import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.CorePermissions.Public
-import org.nikok.hextant.core.command.Commands
+import org.nikok.hextant.*
 import org.nikok.hextant.core.command.gui.commandContextMenu
 import org.nikok.hextant.core.inspect.Inspections
 import org.nikok.hextant.core.inspect.gui.InspectionPopup
@@ -86,16 +83,14 @@ internal fun Node.initSelection(editor: Editor<*>) {
     }
 }
 
-internal fun Node.activateInspections(inspected: Any) {
-    val inspections = HextantPlatform[Public, Inspections]
+internal fun Node.activateInspections(inspected: Any, platform: HextantPlatform) {
+    val inspections = platform[Inspections]
     val p = InspectionPopup(this) { inspections.getProblems(inspected) }
     registerShortcut(KeyCodeCombination(ENTER, KeyCombination.ALT_DOWN)) { p.show(this) }
 }
 
-internal fun <T: Any> Node.activateContextMenu(target: T) {
-    val commands = HextantPlatform[Public, Commands]
-    val registrar = commands.of(target::class)
-    val contextMenu = target.commandContextMenu(registrar)
+internal fun <T: Any> Node.activateContextMenu(target: T, platform: HextantPlatform) {
+    val contextMenu = target.commandContextMenu(platform)
     setOnContextMenuRequested { contextMenu.show(this, Side.BOTTOM, 0.0, 0.0) }
 }
 

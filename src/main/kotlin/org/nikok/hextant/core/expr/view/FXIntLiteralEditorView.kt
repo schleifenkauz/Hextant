@@ -2,22 +2,22 @@ package org.nikok.hextant.core.expr.view
 
 import javafx.scene.control.Control
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.editor.IntLiteralEditor
 import org.nikok.hextant.core.fx.*
 import org.nikok.hextant.core.getEditor
+import org.nikok.hextant.get
 
 class FXIntLiteralEditorView(
-    editableInt: EditableIntLiteral, editorFactory: EditorFactory = HextantPlatform[Public, EditorFactory]
+    editableInt: EditableIntLiteral, platform: HextantPlatform
 ) : FXEditorView, HextantTextField(), IntLiteralEditorView {
-    private val editor: IntLiteralEditor = editorFactory.getEditor(editableInt)
+    private val editor: IntLiteralEditor = platform[EditorFactory].getEditor(editableInt)
 
     init {
         editor.addView(this)
-        activateContextMenu(editor)
-        activateInspections(editableInt)
+        activateContextMenu(editor, platform)
+        activateInspections(editableInt, platform)
         initSelection(editor)
         styleClass.add(0, "decimal-editor")
         textProperty().addListener { _, _, new -> editor.setValue(new) }
