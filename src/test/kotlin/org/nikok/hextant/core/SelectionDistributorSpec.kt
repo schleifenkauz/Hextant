@@ -23,7 +23,7 @@ internal object SelectionDistributorSpec: Spek({
 }
 
 private fun SpecBody.test(sut: SelectionDistributor, platform: HextantPlatform) {
-    xgiven("a new selection distributor") {
+    given("a new selection distributor") {
         fun testSelectedEditorsEqual(vararg expected: Editor<*>) {
             sut.selectedEditors.now shouldMatch equalTo(expected.toSet())
         }
