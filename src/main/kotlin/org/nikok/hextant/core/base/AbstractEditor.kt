@@ -6,7 +6,6 @@ package org.nikok.hextant.core.base
 
 import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.reaktive.value.Variable
@@ -24,7 +23,7 @@ import java.lang.ref.WeakReference
  */
 abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     final override val editable: E,
-    private val editorFactory: EditorFactory = HextantPlatform[Public, EditorFactory]
+    platform: HextantPlatform = HextantPlatform.INSTANCE
 ) : Editor<E> {
     private val mutableViews = mutableSetOf<WeakReference<V>>()
 
@@ -72,7 +71,8 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
         views.forEach { v -> v.error(isError = !isOk) }
     }
 
-    private val selectionDistributor = HextantPlatform[Internal, SelectionDistributor]
+    private val selectionDistributor = platform[Internal, SelectionDistributor]
+    private val editorFactory = platform[EditorFactory]
 
     final override val isSelected: Boolean get() = isSelectedVar.get()
 
