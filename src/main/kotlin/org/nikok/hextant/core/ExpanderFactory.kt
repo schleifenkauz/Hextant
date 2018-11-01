@@ -11,41 +11,84 @@ import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.editor.Expander
 import org.nikok.hextant.prop.Property
+import java.util.*
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.KParameter
+import kotlin.reflect.full.*
 
 interface ExpanderFactory {
     fun <E : Editable<*>> getExpander(expandable: Expandable<*, E>): Expander<E>
 
+    fun <E : Editable<*>, Ex : Expandable<*, E>> register(
+        expandableCls: KClass<Ex>,
+        constructor: (Ex) -> Expander<E>
+    )
+
     @Suppress("UNCHECKED_CAST")
     private class Impl(
         private val classLoader: ClassLoader,
-        platform: HextantPlatform
+        private val platform: HextantPlatform
     ) : ExpanderFactory {
-        private val cache = mutableMapOf<Expandable<*, *>, Expander<*>>()
+        private val cache = WeakHashMap<Expandable<*, *>, Expander<*>>()
+
+        private val factories = mutableMapOf<KClass<Expandable<*, *>>, (Expandable<*, *>) -> Expander<*>>()
+
+        override fun <E : Editable<*>, Ex : Expandable<*, E>> register(
+            expandableCls: KClass<Ex>,
+            constructor: (Ex) -> Expander<E>
+        ) {
+            factories[expandableCls as KClass<Expandable<*, *>>] = constructor as (Expandable<*, *>) -> Expander<*>
+        }
 
         override fun <E : Editable<*>> getExpander(expandable: Expandable<*, E>): Expander<E> {
             return cache.getOrPut(expandable) { createNewExpander(expandable) } as Expander<E>
         }
 
-        private fun <E : Editable<*>> createNewExpander(expandable: Expandable<*, E>): Expander<E> {
+        private fun <E : Editable<*>> createNewExpander(expandable: Expandable<*, E>): Expander<*> {
             val expandableCls = expandable::class
+            val factory = factories[expandableCls as KClass<Expandable<*, *>>] as ((Expandable<*, E>) -> Expander<E>)?
+            if (factory != null) return factory(expandable)
+            val default = getDefaultFactory(expandable, expandableCls as KClass<out Expandable<*, E>>)
+            return default(expandable)
+        }
+
+        private fun <E : Editable<*>> getDefaultFactory(
+            expandable: Expandable<*, E>,
+            expandableCls: KClass<out Expandable<*, E>>
+        ): (Expandable<*, *>) -> Expander<E> {
             val cls =
                     expanderCls(expandable::class)
                     ?: throw NoSuchElementException("No expander class found for $expandableCls")
-            return createExpander(cls, expandable, expandableCls)
+            val constructor = getExpanderConstructor(cls, expandableCls)
+            register(expandableCls, constructor)
+            return constructor
         }
 
-        private fun <E : Editable<*>> createExpander(
+        private fun <E : Editable<*>> getExpanderConstructor(
             expanderCls: KClass<Expander<E>>,
-            expandable: Expandable<*, E>,
             expandableCls: KClass<out Expandable<*, E>>
-        ): Expander<E> {
-            val constructor = expanderCls.constructors.find {
-                it.parameters.size == 1 &&
-                it.parameters[0].type.classifier == expandableCls
+        ): (Expandable<*, *>) -> Expander<E> {
+            lateinit var platformParameter: KParameter
+            lateinit var expandableParameter: KParameter
+            val constructor = expanderCls.constructors.find { constructor ->
+                val parameters = constructor.parameters
+                platformParameter = parameters.find {
+                    it.type == HextantPlatform::class.starProjectedType
+                } ?: return@find false
+                expandableParameter = parameters.find {
+                    it.type.isSupertypeOf(expandableCls.starProjectedType)
+                } ?: return@find false
+                val otherParameters = parameters - setOf(platformParameter, expandableParameter)
+                otherParameters.count { !it.isOptional } == 0
             } ?: throw NoSuchElementException("Could not find constructor for $expanderCls")
-            return constructor.call(expandable)
+            return { expandable ->
+                constructor.callBy(
+                    mapOf(
+                        expandableParameter to expandable,
+                        platformParameter to platform
+                    )
+                )
+            }
         }
 
         private fun <E : Editable<*>> expanderCls(cls: KClass<out Expandable<*, E>>): KClass<Expander<E>>? {
@@ -71,6 +114,7 @@ interface ExpanderFactory {
                 null
             }
         }
+
     }
 
     companion object : Property<ExpanderFactory, Public, Internal>("expander factory") {
