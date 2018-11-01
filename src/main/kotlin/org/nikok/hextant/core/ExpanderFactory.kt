@@ -10,6 +10,7 @@ import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.editor.Expander
+import org.nikok.hextant.core.impl.DoubleWeakHashMap
 import org.nikok.hextant.prop.Property
 import java.util.*
 import kotlin.reflect.KClass
@@ -29,7 +30,7 @@ interface ExpanderFactory {
         private val classLoader: ClassLoader,
         private val platform: HextantPlatform
     ) : ExpanderFactory {
-        private val cache = WeakHashMap<Expandable<*, *>, Expander<*>>()
+        private val cache = DoubleWeakHashMap<Expandable<*, *>, Expander<*>>()
 
         private val factories = mutableMapOf<KClass<Expandable<*, *>>, (Expandable<*, *>) -> Expander<*>>()
 
@@ -69,25 +70,25 @@ interface ExpanderFactory {
             expandableCls: KClass<out Expandable<*, E>>
         ): (Expandable<*, *>) -> Expander<E> {
             lateinit var platformParameter: KParameter
-            lateinit var expandableParameter: KParameter
-            val constructor = expanderCls.constructors.find { constructor ->
-                val parameters = constructor.parameters
-                platformParameter = parameters.find {
-                    it.type == HextantPlatform::class.starProjectedType
-                } ?: return@find false
-                expandableParameter = parameters.find {
-                    it.type.isSupertypeOf(expandableCls.starProjectedType)
-                } ?: return@find false
-                val otherParameters = parameters - setOf(platformParameter, expandableParameter)
-                otherParameters.count { !it.isOptional } == 0
-            } ?: throw NoSuchElementException("Could not find constructor for $expanderCls")
-            return { expandable ->
-                constructor.callBy(
-                    mapOf(
-                        expandableParameter to expandable,
-                        platformParameter to platform
+                lateinit var expandableParameter: KParameter
+                val constructor = expanderCls.constructors.find { constructor ->
+                    val parameters = constructor.parameters
+                    platformParameter = parameters.find {
+                        it.type == HextantPlatform::class.starProjectedType
+                    } ?: return@find false
+                    expandableParameter = parameters.find {
+                        it.type.isSupertypeOf(expandableCls.starProjectedType)
+                    } ?: return@find false
+                    val otherParameters = parameters - setOf(platformParameter, expandableParameter)
+                    otherParameters.count { !it.isOptional } == 0
+                } ?: throw NoSuchElementException("Could not find constructor for $expanderCls")
+                return { expandable ->
+                    constructor.callBy(
+                        mapOf(
+                            expandableParameter to expandable,
+                            platformParameter to platform
+                        )
                     )
-                )
             }
         }
 

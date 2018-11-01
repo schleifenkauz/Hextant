@@ -4,18 +4,15 @@
 
 package org.nikok.hextant.core
 
-import org.nikok.hextant.Editable
-import org.nikok.hextant.Editor
+import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.editable.Expandable
+import org.nikok.hextant.core.impl.DoubleWeakHashMap
 import org.nikok.hextant.prop.Property
-import sun.reflect.CallerSensitive
-import sun.reflect.Reflection
-import java.util.*
 import java.util.logging.Logger
-import kotlin.NoSuchElementException
 import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.*
 
 interface EditorFactory {
@@ -28,14 +25,15 @@ interface EditorFactory {
     fun <E : Editable<*>> resolveEditor(editable: E): Editor<E>
     @Suppress("UNCHECKED_CAST")
     private class Impl(
-        private val expanderFactory: ExpanderFactory,
+        private val platform: HextantPlatform,
         private val classLoader: ClassLoader
     ) : EditorFactory {
+        private val expanderFactory by lazy { platform[ExpanderFactory] }
 
         private val factories =
                 mutableMapOf<KClass<*>, MutableMap<KClass<*>, (Editable<*>) -> Editor<*>>>()
 
-        private val cache = IdentityHashMap<Editable<*>, Editor<*>>()
+        private val cache = DoubleWeakHashMap<Editable<*>, Editor<*>>()
 
         override fun <E : Editable<*>, Ed : Editor<E>> register(
             editableCls: KClass<E>,
@@ -113,32 +111,41 @@ interface EditorFactory {
             }
         }
 
-        companion object {
-            private fun <E : Editable<*>, Ed : Editor<E>> resolveConstructor(
-                cls: KClass<out E>,
-                editorCls: KClass<Ed>
-            ): ((E) -> Ed)? {
-                val constructor = editorCls.constructors
-                                          .find {
-                                              it.parameters.count { p -> !p.isOptional } == 1 &&
-                                              it.parameters.first().type.isSupertypeOf(cls.starProjectedType)
-                                          }
-                                  ?: throw NoSuchElementException("No constructor valid found for $editorCls")
-                return { editable -> constructor.callBy(mapOf(constructor.parameters.first() to editable)) }
+        private fun <E : Editable<*>, Ed : Editor<E>> resolveConstructor(
+            cls: KClass<out E>,
+            editorCls: KClass<Ed>
+        ): ((E) -> Ed)? {
+            lateinit var platformParameter: KParameter
+            lateinit var editableParameter: KParameter
+            val constructor = editorCls.constructors.find { constructor ->
+                val parameters = constructor.parameters
+                platformParameter = parameters.find {
+                    it.type == HextantPlatform::class.starProjectedType
+                } ?: return@find false
+                editableParameter = parameters.find {
+                    it.type.isSupertypeOf(cls.starProjectedType)
+                } ?: return@find false
+                val otherParameters = parameters - setOf(platformParameter, editableParameter)
+                otherParameters.count { !it.isOptional } == 0
+            } ?: throw java.util.NoSuchElementException("Could not find constructor for $editorCls")
+            return { expandable ->
+                constructor.callBy(
+                    mapOf(
+                        editableParameter to expandable,
+                        platformParameter to platform
+                    )
+                )
             }
         }
-
     }
 
     companion object : Property<EditorFactory, Public, Internal>("editor factory") {
         val logger = Logger.getLogger(EditorFactory::class.qualifiedName)
-        fun newInstance(expanderFactory: ExpanderFactory, classLoader: ClassLoader): EditorFactory =
-                Impl(expanderFactory, classLoader)
-
-        @CallerSensitive
-        fun newInstance(expanderFactory: ExpanderFactory) =
-                newInstance(expanderFactory, Reflection.getCallerClass().classLoader)
-
+        fun newInstance(
+            classLoader: ClassLoader,
+            platform: HextantPlatform
+        ): EditorFactory =
+                Impl(platform, classLoader)
     }
 }
 

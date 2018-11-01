@@ -30,7 +30,7 @@ internal class CommandGuiTest : Application() {
     private object Receiver
     companion object {
         private fun createContent(): Parent {
-            val platform = HextantPlatform.INSTANCE.copy {  }
+            val platform = HextantPlatform.newInstance()
             val editableFactory = platform[EditableFactory]
             editableFactory.apply {
                 register(IntLiteral::class) { -> EditableIntLiteral() }

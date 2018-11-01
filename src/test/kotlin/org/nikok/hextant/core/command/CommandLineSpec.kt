@@ -26,7 +26,7 @@ internal object CommandLineSpec: Spek({
         EditableFactory.newInstance().apply {
             register(IntLiteral::class) { -> EditableIntLiteral().also { editableInts.add(it) } }
         }
-        val platform = HextantPlatform.INSTANCE.copy {  }
+        val platform = HextantPlatform.newInstance()
         val cl = CommandLine({ possibleCommands }, { targets }, platform)
         it("should be editing the name") {
             cl.state.now shouldMatch equalTo(EditingName)

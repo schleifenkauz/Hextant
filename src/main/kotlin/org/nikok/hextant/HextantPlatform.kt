@@ -74,14 +74,14 @@ interface HextantPlatform : PropertyHolder {
             val platform = this@defaultPropertyHolder
             set(Version, Version(1, 0, isSnapshot = true))
             set(SelectionDistributor, SelectionDistributor.newInstance(platform))
-            set(EditorViewFactory, EditorViewFactory.newInstance(platform))
             val cl = platform.javaClass.classLoader
+            set(EditorViewFactory, EditorViewFactory.newInstance(platform, cl))
             set(EditableFactory, EditableFactory.newInstance(cl))
             set(Commands, Commands.newInstance(platform))
             set(Inspections, Inspections.newInstance(platform))
             val expanderFactory = ExpanderFactory.newInstance(cl, platform)
             set(ExpanderFactory, expanderFactory)
-            set(EditorFactory, EditorFactory.newInstance(expanderFactory, cl))
+            set(EditorFactory, EditorFactory.newInstance(cl, platform))
             set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
         }
 

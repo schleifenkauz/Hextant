@@ -31,7 +31,7 @@ class CommandLineGuiTest : Application() {
         private fun createContent(): Parent {
             val commands = Data.commands.toMutableSet()
             val targets = mutableSetOf(Receiver(true))
-            val platform = HextantPlatform.INSTANCE.copy {  }
+            val platform = HextantPlatform.newInstance()
             val editableFactory = platform[EditableFactory]
             editableFactory.run {
                 register(IntLiteral::class) { -> EditableIntLiteral() }

@@ -15,7 +15,8 @@ import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.core.view.FXExpanderView
 import org.nikok.hextant.prop.Property
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.KParameter
+import kotlin.reflect.full.*
 
 /**
  * Used to manage the views of [Editable]s
@@ -33,7 +34,10 @@ interface EditorViewFactory {
      */
     fun <E : Editable<*>> getFXView(editable: E): FXEditorView
 
-    @Suppress("UNCHECKED_CAST") private class Impl(private val platform: HextantPlatform) : EditorViewFactory {
+    @Suppress("UNCHECKED_CAST") private class Impl(
+        private val platform: HextantPlatform,
+        private val classLoader: ClassLoader
+    ) : EditorViewFactory {
         private val viewFactories = ClassMap.invariant<(Editable<*>) -> FXEditorView>()
 
         override fun <E : Editable<*>> registerFX(editableCls: KClass<out E>, viewFactory: (E) -> FXEditorView) {
@@ -45,10 +49,10 @@ interface EditorViewFactory {
             val cls = editable::class
             when (editable) {
                 is ConvertedEditable<*, *> -> return getFXView(editable.source)
-                is Expandable<*, *>        -> return expanderView(editable, cls) ?: unresolvedView(cls)
+                is Expandable<*, *>        -> return FXExpanderView(editable, platform)
                 else                       -> {
                     viewFactories[cls]?.let { f -> return f(editable) }
-                    createDefault(editable, cls)?.let { return it }
+                    defaultFactory(cls)?.let { c -> return c(editable) }
                     unresolvedView(cls)
                 }
             }
@@ -58,23 +62,39 @@ interface EditorViewFactory {
             throw NoSuchElementException("Could not resolve view for $cls")
         }
 
-        private fun <E : Any> createDefault(editable: E, editableCls: KClass<out E>): FXEditorView? {
-            val viewCls = resolveDefault(editableCls) ?: return null
-            val constructor = viewCls.constructors.find { c ->
-                val editableParameter = c.parameters.first()
-                c.parameters.count { p -> !p.isOptional } == 1 &&
-                !editableParameter.isOptional &&
-                editableParameter.type.classifier == editableCls
-            } ?: throw NoSuchElementException("Could not find constructor for $viewCls")
-            return constructor.callBy(mapOf(constructor.parameters.first() to editable))
+        private fun defaultFactory(cls: KClass<out Editable<*>>): ((Editable<*>) -> FXEditorView)? {
+            val viewCls = resolveDefault(cls) ?: return null
+            val constructor = resolveConstructor(cls, viewCls)
+            registerFX(cls, constructor)
+            return constructor
         }
 
-        private fun expanderView(expandable: Expandable<*, *>, expandableCls: KClass<*>): FXExpanderView? {
-/*            val expanderCls = expanderCls(expandableCls, expandable)
-            expanderCls ?: return null
-            expandable as Expandable<*, Editable<*>>
-            val expander: Expander<*> = createExpander(expanderCls, expandable, expandableCls)*/
-            return FXExpanderView(expandable, platform)
+        private fun <E : Any> resolveConstructor(
+            editableCls: KClass<out E>,
+            viewCls: KClass<FXEditorView>
+        ): (Editable<*>) -> FXEditorView {
+            lateinit var platformParameter: KParameter
+            lateinit var editableParameter: KParameter
+            val constructor = viewCls.constructors.find { constructor ->
+                val parameters = constructor.parameters
+                platformParameter = parameters.find {
+                    it.type == HextantPlatform::class.starProjectedType
+                } ?: return@find false
+                editableParameter = parameters.find {
+                    it.type.isSupertypeOf(editableCls.starProjectedType)
+                } ?: return@find false
+                val otherParameters = parameters - setOf(platformParameter, editableParameter)
+                otherParameters.count { !it.isOptional } == 0
+            } ?: throw java.util.NoSuchElementException("Could not find constructor for $viewCls")
+            return { expandable ->
+                constructor.callBy(
+                    mapOf(
+                        editableParameter to expandable,
+                        platformParameter to platform
+                    )
+                )
+            }
+
         }
 
         private fun resolveDefault(editableCls: KClass<*>): KClass<FXEditorView>? {
@@ -86,14 +106,14 @@ interface EditorViewFactory {
             val inViewPackage = "$pkg.view.$viewClsName"
             val siblingViewPkg = pkg.replaceAfterLast('.', "view")
             val inSiblingViewPkg = "$siblingViewPkg.$viewClsName"
-            return tryCreateViewCls(inSamePackage) ?:
-                   tryCreateViewCls(inViewPackage) ?:
-                   tryCreateViewCls(inSiblingViewPkg)
+            return tryCreateViewCls(inSamePackage) ?: tryCreateViewCls(inViewPackage) ?: tryCreateViewCls(
+                inSiblingViewPkg
+            )
         }
 
         private fun tryCreateViewCls(name: String): KClass<FXEditorView>? {
             return try {
-                val cls = Class.forName(name)
+                val cls = classLoader.loadClass(name)
                 val k = cls.kotlin
                 k.takeIf { it.isSubclassOf(FXEditorView::class) } as KClass<FXEditorView>?
             } catch (cnf: ClassNotFoundException) {
@@ -102,14 +122,16 @@ interface EditorViewFactory {
         }
     }
 
-    companion object: Property<EditorViewFactory, Public, Internal>("editor-view-factory") {
-        fun newInstance(platform: HextantPlatform): EditorViewFactory = Impl(platform)
+    companion object : Property<EditorViewFactory, Public, Internal>("editor-view-factory") {
+        fun newInstance(platform: HextantPlatform, classLoader: ClassLoader): EditorViewFactory =
+                Impl(platform, classLoader)
 
         inline fun newInstance(
+            platform: HextantPlatform,
             configure: EditorViewFactory.() -> Unit,
-            platform: HextantPlatform
+            classLoader: ClassLoader
         ): EditorViewFactory =
-                newInstance(platform).apply(configure)
+                newInstance(platform, classLoader).apply(configure)
     }
 }
 
