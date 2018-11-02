@@ -23,7 +23,7 @@ internal object CommandLineSpec: Spek({
         val possibleCommands = mutableSetOf<Command<*, *>>()
         val targets = mutableSetOf<Target>()
         val editableInts = mutableListOf<EditableIntLiteral>()
-        EditableFactory.newInstance().apply {
+        EditableFactory.newInstance(CommandLineSpec.javaClass.classLoader).apply {
             register(IntLiteral::class) { -> EditableIntLiteral().also { editableInts.add(it) } }
         }
         val platform = HextantPlatform.newInstance()
