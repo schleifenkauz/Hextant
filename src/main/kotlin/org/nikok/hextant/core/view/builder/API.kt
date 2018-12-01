@@ -12,10 +12,10 @@ import org.nikok.hextant.core.view.builder.fx.FXVerticalEditorViewBuilder
 fun <E : Editable<*>> fxEditorView(
     platform: HextantPlatform,
     styleCls: String,
-    block: VerticalEditorViewBuilder.() -> Unit
+    block: VerticalEditorViewBuilder.(E) -> Unit
 ): (E) -> FXEditorView = { editable ->
     val builder = FXVerticalEditorViewBuilder(platform, editable)
-    builder.block()
+    builder.block(editable)
     builder.build().apply {
         node.styleClass.add(styleCls)
     }

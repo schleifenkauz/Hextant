@@ -13,13 +13,13 @@ import org.nikok.hextant.core.configure
 import org.nikok.hextant.core.expr.editable.*
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
 import org.nikok.hextant.core.expr.view.FXTextEditorView
-import org.nikok.hextant.core.fx.scene
+import org.nikok.hextant.core.fx.hextantScene
 import org.nikok.hextant.core.view.FXExpanderView
 import org.nikok.hextant.get
 
 class ExpanderViewTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = scene(createContent())
+        stage.scene = hextantScene(createContent())
         stage.show()
     }
 

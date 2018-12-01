@@ -10,7 +10,7 @@ import org.nikok.reaktive.list.reactiveList
 import org.nikok.reaktive.value.*
 import org.nikok.reaktive.value.binding.binding
 
-abstract class EditableList<N, E : Editable<N>> : Editable<List<E?>> {
+class EditableList<N, E : Editable<N>> : Editable<List<E?>> {
     val editableList = reactiveList<E>("editable list")
 
     val editedList = editableList.map("edited list") { it.edited.now }

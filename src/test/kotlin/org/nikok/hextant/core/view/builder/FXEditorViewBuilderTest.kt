@@ -13,7 +13,7 @@ import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.editable.EditableText
-import org.nikok.hextant.core.fx.scene
+import org.nikok.hextant.core.fx.hextantScene
 import org.nikok.reaktive.value.*
 
 class EditableWhile: Editable<Nothing> {
@@ -30,7 +30,7 @@ class WhileEditor(
 
 internal class FXEditorViewBuilderTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = scene(createContent())
+        stage.scene = hextantScene(createContent())
         stage.show()
     }
 
@@ -40,7 +40,7 @@ internal class FXEditorViewBuilderTest : Application() {
             val text = EditableText()
             val platform = HextantPlatform.newInstance()
             val views = platform[EditorViewFactory]
-            val editorView = fxEditorView(platform, EditableWhile(), "test") {
+            val editorView = fxEditorView<Editable<EditableWhile>>(platform, "style") {
                 line {
                     keyword("while")
                     space()
@@ -55,7 +55,7 @@ internal class FXEditorViewBuilderTest : Application() {
                         view(text)
                     }
                 }
-            }.node
+            }(EditableWhile()).node
             val another = EditableIntLiteral().let {
                 views.getFXView(it)
             }

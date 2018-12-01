@@ -19,8 +19,8 @@ import org.nikok.hextant.core.command.line.FXCommandLineView
 import org.nikok.hextant.core.command.register
 import org.nikok.hextant.core.expr.editable.ExpandableExpr
 import org.nikok.hextant.core.expr.editor.*
+import org.nikok.hextant.core.fx.hextantScene
 import org.nikok.hextant.core.fx.lastShortcutLabel
-import org.nikok.hextant.core.fx.scene
 import org.nikok.hextant.get
 import org.nikok.reaktive.value.now
 import java.util.logging.Level
@@ -28,7 +28,7 @@ import java.util.logging.Level.FINEST
 
 class ExprEditorViewTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = scene(Label())
+        stage.scene = hextantScene(Label())
         stage.scene.root = createContent(stage.scene)
         stage.setOnCloseRequest { System.exit(0) }
         stage.show()

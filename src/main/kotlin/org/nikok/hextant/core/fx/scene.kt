@@ -13,7 +13,7 @@ import org.nikok.hextant.core.impl.Stylesheets
 
 internal var isControlDown = false; private set
 
-internal fun scene(root: Parent): Scene {
+internal fun hextantScene(root: Parent): Scene {
     val scene = Scene(root)
     scene.addEventFilter(KeyEvent.KEY_PRESSED) {
         if (it.code == CONTROL) {

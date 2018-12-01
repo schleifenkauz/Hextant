@@ -12,7 +12,7 @@ import org.nikok.reaktive.value.*
 class EditableEditorViewLine : Editable<List<EditorViewPart?>> {
     private val editableList = EditableList<EditorViewPart, EditableEditorViewPart>()
 
-    override val edited by lazy { parts() }
+    override val edited = parts()
 
     private fun parts(): ReactiveValue<List<EditorViewPart?>> =
         editableList.edited.map("edited of $this") { it.map { part -> part?.edited?.now } }

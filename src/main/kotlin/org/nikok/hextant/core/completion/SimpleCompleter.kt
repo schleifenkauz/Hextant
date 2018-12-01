@@ -13,7 +13,7 @@ abstract class SimpleCompleter<T: Any>(private val completionStrategy: Completio
     */
     protected open fun T.getText(): String = toString()
 
-    override fun completions(element: String, completionPool: Set<T>): Set<Completion> {
+    override fun completions(element: String, completionPool: Collection<T>): Set<Completion> {
         return completionPool.asSequence()
                 .map { it.getText() }
                 .filter { completionStrategy.isCompletable(element, it) }

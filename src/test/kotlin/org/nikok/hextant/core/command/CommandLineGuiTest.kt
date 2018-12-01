@@ -16,12 +16,12 @@ import org.nikok.hextant.core.command.line.FXCommandLineView
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
-import org.nikok.hextant.core.fx.scene
+import org.nikok.hextant.core.fx.hextantScene
 import org.nikok.hextant.get
 
 class CommandLineGuiTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = scene(createContent())
+        stage.scene = hextantScene(createContent())
         stage.width = 1000.0
         stage.height = 1000.0
         stage.show()
