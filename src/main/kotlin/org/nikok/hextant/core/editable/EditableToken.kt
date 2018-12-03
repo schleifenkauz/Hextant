@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package org.nikok.hextant.core.base
+package org.nikok.hextant.core.editable
 
 import org.nikok.hextant.Editable
 import org.nikok.reaktive.value.*
@@ -47,7 +47,8 @@ abstract class EditableToken<out T : Any> : Editable<T> {
             override fun compile(tok: String): T = compile.invoke(tok)
         }
 
-        fun withRegex(regex: Regex): EditableToken<String> = withRegex(regex) { it }
+        fun withRegex(regex: Regex): EditableToken<String> =
+            withRegex(regex) { it }
 
         fun checking(pred: (String) -> Boolean) = object : EditableToken<String>() {
             override fun isValid(tok: String): Boolean = pred(tok)

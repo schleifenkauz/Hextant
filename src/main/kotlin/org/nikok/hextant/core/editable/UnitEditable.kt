@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package org.nikok.hextant.core.base
+package org.nikok.hextant.core.editable
 
 import org.nikok.hextant.Editable
 import org.nikok.reaktive.value.*
