@@ -37,7 +37,9 @@ class CommandApplication<T>(val command: Command<T, *>, val args: Array<Any>, pr
             append(": ")
             append(a)
         }
-        append(" -> ")
-        results.joinTo(this)
+        if (results.size == 1 && results.first() != Unit) {
+            append(" -> ")
+            append(results.first())
+        }
     }
 }
