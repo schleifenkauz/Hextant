@@ -5,6 +5,7 @@
 package org.nikok.hextant.sample.view
 
 import javafx.application.Application
+import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.Parent
 import javafx.scene.control.SplitPane
 import javafx.stage.Stage
@@ -29,7 +30,9 @@ class NameEditorGuiTest : Application() {
             val nameView = platform[EditorViewFactory].getFXView(editable)
             val cmd = CommandLine.forSelectedEditors(platform)
             val cmdView = FXCommandLineView(cmd, platform)
-            return SplitPane(nameView.node, cmdView)
+            return SplitPane(nameView.node, cmdView).apply {
+                orientation = VERTICAL
+            }
         }
 
         @JvmStatic

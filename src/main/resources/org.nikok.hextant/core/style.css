@@ -79,7 +79,7 @@ hextant-text:selected {
 
 
 .command-history-cell:focused {
-    -fx-background-color: #434343;
+    -fx-background-color: #0B0A06;
     -fx-border-width: 0;
 }
 
