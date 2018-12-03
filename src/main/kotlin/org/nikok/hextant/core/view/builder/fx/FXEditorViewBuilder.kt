@@ -30,6 +30,7 @@ open class FXEditorViewBuilder(
         val tf = HextantTextField(name)
         tf.isEditable = false
         tf.styleClass.add("keyword")
+        tf.isFocusTraversable = false
         tf.initSelection(editor)
         addChild(tf)
     }
@@ -38,6 +39,7 @@ open class FXEditorViewBuilder(
         val tf = HextantTextField(op)
         tf.isEditable = false
         tf.styleClass.add("operator")
+        tf.isFocusTraversable = false
         tf.initSelection(editor)
         addChild(tf)
     }

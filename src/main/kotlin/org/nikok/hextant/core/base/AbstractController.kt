@@ -27,12 +27,12 @@ open class AbstractController<V : Any> {
             return generateSequence { next() }
         }
 
-    protected open fun onGuiThread(view: V, action: V.() -> kotlin.Unit) {
+    protected open fun onGuiThread(view: V, action: V.() -> Unit) {
         action(view)
     }
 
     protected inline fun views(crossinline action: V.() -> Unit) {
-        views.forEach { v -> onGuiThread(v) { v.action() } }
+        views.forEach { v -> onGuiThread(v) { action() } }
     }
 
     /**

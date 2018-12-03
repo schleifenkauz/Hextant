@@ -73,7 +73,6 @@ static String nikok(Object dep, Object version) {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'kotlin'
-
     group 'org.nikok'
     version '1.0-SNAPSHOT'
 
@@ -98,6 +97,8 @@ allprojects {
         implementation nikok("reaktive", "1.1-SNAPSHOT")
         testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
         implementation "org.controlsfx:controlsfx:8.40.14"
+        implementation fileTree(dir: 'lib', include: ['*.jar'])
+        implementation 'com.google.guava:guava:27.0.1-jre'
     }
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"

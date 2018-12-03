@@ -43,11 +43,9 @@ internal class FXEditorViewBuilderTest : Application() {
             val editorView = fxEditorView<Editable<EditableWhile>>(platform, "style") {
                 line {
                     keyword("while")
-                    space()
                     operator("(")
                     view(editableIntLiteral)
                     operator(")")
-                    space()
                     operator("{")
                 }
                 indented {

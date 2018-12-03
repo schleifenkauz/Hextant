@@ -11,7 +11,10 @@ import javafx.scene.control.Label
  * A simple completion
  * @constructor
  * @param completed the completed text
-*/
-class SimpleCompletion(override val completed: String): Completion {
-    override fun createNode(): Control = Label(completed).apply { styleClass.add("completion") }
+ */
+class SimpleCompletion<T>(
+    override val completed: T,
+    override val text: String
+) : Completion<T> {
+    override fun createNode(): Control = Label(text).apply { styleClass.add("completion") }
 }

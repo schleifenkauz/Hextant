@@ -7,9 +7,9 @@ package org.nikok.hextant.core.completion
 import javafx.scene.control.Label
 import javafx.scene.control.Tooltip
 
-class TextCompletion(
-    override val completed: String, private val text: String, private val tooltipText: String
-) : Completion {
+class TextCompletion<out T>(
+    override val completed: T, override val text: String, private val tooltipText: String
+) : Completion<T> {
     override fun createNode() = Label(text).apply {
         isFocusTraversable = true
         tooltip = Tooltip(tooltipText)

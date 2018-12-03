@@ -64,6 +64,8 @@ hextant-text:selected {
 
 .completion {
     -fx-background-color: #292929;
+    -fx-border-color: #212121;
+    -fx-border-width: 5;
 }
 
 .completion:focused {

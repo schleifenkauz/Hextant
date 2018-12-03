@@ -10,7 +10,7 @@ package org.nikok.hextant.core.completion
  * @param strategy the used [CompletionStrategy]
  * @param factory the used [CompletionFactory]
 */
-open class ConfiguredCompleter<in T : Any>(
+open class ConfiguredCompleter<T : Any>(
     private val strategy: CompletionStrategy, private val factory: CompletionFactory<T>
 ) : Completer<T> {
     /**
@@ -18,7 +18,7 @@ open class ConfiguredCompleter<in T : Any>(
     */
     protected open fun T.getText(): String = toString()
 
-    override fun completions(element: String, completionPool: Collection<T>): Set<Completion> {
+    override fun completions(element: String, completionPool: Collection<T>): Set<Completion<T>> {
         val completions = completionPool.asSequence().filter {
             strategy.isCompletable(element, it.getText())
         }.map { factory.getCompletion(it) }

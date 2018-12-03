@@ -5,6 +5,7 @@
 package org.nikok.hextant.core.command.line
 
 import org.nikok.hextant.EditorView
+import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.completion.Completion
 import org.nikok.hextant.core.fx.FXEditorView
@@ -36,7 +37,7 @@ interface CommandLineView: EditorView {
     /**
      * Show the given [completions] on this view
     */
-    fun showCompletions(completions: Set<Completion>)
+    fun showCompletions(completions: Set<Completion<Command<*, *>>>)
 
     /**
      * Called when the associated [CommandLine] executed the given command application [appl]

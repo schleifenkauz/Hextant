@@ -7,15 +7,20 @@ package org.nikok.hextant.core.gui
 import org.nikok.hextant.core.base.AbstractController
 import org.nikok.hextant.core.completion.*
 import org.nikok.hextant.core.impl.myLogger
+import org.nikok.reaktive.event.event
 import kotlin.properties.Delegates.observable
 
 class SearchableListController<E : Any>(
     private val source: Collection<E>,
-    private val completer: Completer<E> = DEFAULT_COMPLETER,
-    private val maxItems: Int = 100,
+    private val completer: Completer<E> = defaultCompleter(),
+    private val maxItems: Int = 10,
     initialText: String = ""
-) : AbstractController<SearchableListView>() {
-    private var mostRecentCompletions: Collection<Completion> = emptySet()
+) : AbstractController<SearchableListView<E>>() {
+    private var mostRecentCompletions: Collection<Completion<E>> = emptySet()
+
+    private val selectItem = event<E>("Select item")
+
+    val selectedItem = selectItem.stream
 
     var text by observable(initialText) { _, old, new ->
         if (old != new) {
@@ -28,21 +33,21 @@ class SearchableListController<E : Any>(
 
     private fun updateViews(new: String) {
         logger.finest { "updating views" }
-        views.forEach { v ->
-            v.displaySearchText(new)
+        views {
+            displaySearchText(new)
             logger.finest { "displaying search text $new" }
             val completions = mostRecentCompletions
             if (completions.isEmpty()) {
                 logger.finest { "displaying no completions" }
-                v.displayNoCompletions()
+                displayNoCompletions()
             } else {
-                v.displayCompletions(completions)
+                displayCompletions(completions)
                 logger.finest { "displaying completions" }
             }
         }
     }
 
-    override fun viewAdded(view: SearchableListView) {
+    override fun viewAdded(view: SearchableListView<E>) {
         view.displaySearchText(text)
         if (mostRecentCompletions.isEmpty()) {
             view.displayNoCompletions()
@@ -51,16 +56,26 @@ class SearchableListController<E : Any>(
         }
     }
 
-    private fun getCompletions(): Collection<Completion> = completer.completions(text, source.take(maxItems))
+    fun selectCompletion(completion: Completion<E>) {
+        logger.info { "${completion.text} was selected" }
+        selectItem.fire(completion.completed)
+        views {
+            logger.fine { "closing view" }
+            close()
+        }
+    }
+
+    private fun getCompletions(): Collection<Completion<E>> = completer.completions(text, source).take(maxItems)
 
     companion object {
-        private val DEFAULT_COMPLETION_FACTORY = CompletionFactory<Any> { SimpleCompletion(it.toString()) }
-        private val DEFAULT_COMPLETION_STRATEGY = CompletionStrategy.simple
-        private val DEFAULT_COMPLETER = ConfiguredCompleter(
-            DEFAULT_COMPLETION_STRATEGY,
-            DEFAULT_COMPLETION_FACTORY
-        )
 
         val logger by myLogger()
+        private fun <E : Any> defaultCompleter(): ConfiguredCompleter<E> {
+            return ConfiguredCompleter(
+                CompletionStrategy.simple,
+                CompletionFactory.simple<E>()
+            )
+        }
     }
+
 }

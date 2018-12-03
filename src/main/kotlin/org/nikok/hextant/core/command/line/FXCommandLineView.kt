@@ -2,6 +2,8 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("RedundantLambdaArrow")
+
 package org.nikok.hextant.core.command.line
 
 import javafx.application.Platform
@@ -16,6 +18,7 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.command.gui.argumentEditor
 import org.nikok.hextant.core.completion.Completion
@@ -128,10 +131,10 @@ internal class FXCommandLineView internal constructor(
         controller.addView(this)
     }
 
-    private val completionsPopup = CompletionPopup()
+    private val completionsPopup = CompletionPopup<Command<*, *>>()
 
     private val completionsSubscription = completionsPopup.completionChosen.subscribe("On completion chosen") { c ->
-        controller.commandLine.setText(c.completed)
+        controller.commandLine.setText(c.completed.shortName!!)
         controller.commandLine.executeOrExpand()
     }
 
@@ -171,7 +174,7 @@ internal class FXCommandLineView internal constructor(
         requestFocus()
     }
 
-    override fun showCompletions(completions: Set<Completion>) {
+    override fun showCompletions(completions: Set<Completion<Command<*, *>>>) {
         completionsPopup.setCompletions(completions)
         completionsPopup.show(textField)
     }

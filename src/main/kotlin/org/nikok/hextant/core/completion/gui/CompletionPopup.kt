@@ -10,15 +10,15 @@ import javafx.stage.Popup
 import org.nikok.hextant.core.completion.Completion
 import org.nikok.reaktive.event.event
 
-class CompletionPopup : Popup() {
-    private val choose = event<Completion>("Choose completion")
+class CompletionPopup<C> : Popup() {
+    private val choose = event<Completion<C>>("Choose completion")
     val completionChosen = choose.stream
 
     init {
         isAutoHide = true
     }
 
-    fun setCompletions(completions: Set<Completion>) {
+    fun setCompletions(completions: Set<Completion<C>>) {
         val vbox = VBox()
         vbox.styleClass.add("completions")
         for (c in completions) {
@@ -27,7 +27,7 @@ class CompletionPopup : Popup() {
         scene.root = vbox
     }
 
-    private fun addChoice(c: Completion, vbox: VBox) {
+    private fun addChoice(c: Completion<C>, vbox: VBox) {
         val n = c.createNode()
         vbox.children.add(n)
         n.setOnKeyPressed {
@@ -44,7 +44,7 @@ class CompletionPopup : Popup() {
         }
     }
 
-    private fun choose(c: Completion) {
+    private fun choose(c: Completion<C>) {
         choose.fire(c)
         ownerNode.requestFocus()
     }

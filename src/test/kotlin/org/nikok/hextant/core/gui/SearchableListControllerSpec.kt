@@ -16,7 +16,7 @@ class SearchableListControllerSpec : Spek({
         logger.addHandler(handler)
         val source = listOf(12, 12, 13, 14)
         val c = SearchableListController(source, maxItems = 3, initialText = "initial")
-        val viewMock = mock<SearchableListView>()
+        val viewMock = mock<SearchableListView<Int>>()
         on("adding a view") {
             c.addView(viewMock)
             it("should update the search text of the view") {

@@ -18,7 +18,7 @@ internal object ResourcesSpec: Spek({
             Resources.root.toString() shouldMatch equalTo(resourcesRoot)
         }
         test("all found resources should exist") {
-            Resources.all().forEach { Files.exists(it) shouldMatch equalTo(true) }
+            Resources.all.forEach { Files.exists(it) shouldMatch equalTo(true) }
         }
     }
 })

@@ -15,20 +15,24 @@ internal var isControlDown = false; private set
 
 internal fun hextantScene(root: Parent): Scene {
     val scene = Scene(root)
-    scene.addEventFilter(KeyEvent.KEY_PRESSED) {
+    scene.initHextantScene()
+    return scene
+}
+
+fun Scene.initHextantScene() {
+    addEventFilter(KeyEvent.KEY_PRESSED) {
         if (it.code == CONTROL) {
             isControlDown = true
             println("Control is down")
         }
     }
-    scene.addEventFilter(KeyEvent.KEY_RELEASED) {
+    addEventFilter(KeyEvent.KEY_RELEASED) {
         if (it.code == CONTROL) {
             isControlDown = false
             println("Control is up")
         }
     }
-    Stylesheets.apply(scene.stylesheets)
-    return scene
+    Stylesheets.apply(this)
 }
 
 fun lastShortcutLabel(scene: Scene): Label {

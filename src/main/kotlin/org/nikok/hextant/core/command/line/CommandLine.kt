@@ -237,20 +237,11 @@ class CommandLine(
     }
 
     companion object {
-        private tailrec fun Editor<*>.parentChain(acc: MutableSet<Editor<*>> = mutableSetOf()): Set<Editor<*>> {
-            if (acc.none { it.javaClass.isAssignableFrom(this.javaClass) }) {
-                acc.add(this)
-            }
-            return if (parent != null) parent!!.parentChain(acc)
-            else acc
-        }
-
         fun forSelectedEditors(platform: HextantPlatform): CommandLine {
             val dist = platform[Internal, SelectionDistributor]
             val commands = platform[Commands]
             val targets = {
-                val selectedEditors = dist.selectedEditors.now
-                selectedEditors.flatMapTo(mutableSetOf()) { it.parentChain() }
+                dist.selectedEditors.now
             }
             val commandsFactory = {
                 targets().asSequence().map {
