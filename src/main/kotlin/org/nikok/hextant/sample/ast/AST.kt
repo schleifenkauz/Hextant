@@ -236,16 +236,26 @@ data class Parameter(val name: Name, val type: Type)
 /**
  * A function definition
  */
-sealed class FunctionDefinition : TopLevel {
+sealed class FunctionDefinition : Named, TopLevel {
     /**
      * @return the name of this function
      */
-    abstract val name: Name
+    abstract override val name: Name
 
     /**
      * @return the declared parameters of this function
      */
     abstract val parameters: List<Parameter>
+}
+
+/**
+ * A named element
+ */
+interface Named {
+    /**
+     * @return the name of this element
+     */
+    val name: Name
 }
 
 /**
