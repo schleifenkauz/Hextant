@@ -6,7 +6,7 @@ package org.nikok.hextant.core.view.builder.gui.editable
 
 import org.nikok.hextant.Editable
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.base.UnitEditable
+import org.nikok.hextant.core.editable.UnitEditable
 import org.nikok.hextant.core.expr.editable.EditableText
 import org.nikok.hextant.core.fx.FXEditorView
 import org.nikok.hextant.core.list.EditableList
