@@ -109,6 +109,15 @@ enum class IntOperator(private val op: (Int, Int) -> Int) {
      * Combine the two operands [left] and [right]
      */
     fun operate(left: Int, right: Int) = op(left, right)
+
+    companion object {
+        val operatorMap = mapOf(
+            "+" to Plus,
+            "-" to Minus,
+            "*" to Times,
+            "/" to Div
+        )
+    }
 }
 
 /**
