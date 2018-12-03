@@ -8,7 +8,7 @@ import org.nikok.hextant.Editable
 import org.nikok.reaktive.value.*
 
 /**
- * An editable token the atomic part of the ast editor
+ * An editable token is the atomic part of the ast editor
  * * In a view it would be typically represented by a text field
  * @param T the type of the token being compiled
  */
