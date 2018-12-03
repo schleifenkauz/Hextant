@@ -31,7 +31,7 @@ interface EditorFactory {
         private val expanderFactory by lazy { platform[ExpanderFactory] }
 
         private val factories =
-                mutableMapOf<KClass<*>, MutableMap<KClass<*>, (Editable<*>) -> Editor<*>>>()
+            mutableMapOf<KClass<*>, MutableMap<KClass<*>, (Editable<*>) -> Editor<*>>>()
 
         private val cache = DoubleWeakHashMap<Editable<*>, Editor<*>>()
 
@@ -47,18 +47,18 @@ interface EditorFactory {
         }
 
         private fun <E : Editable<*>> getFactories(editableCls: KClass<E>) =
-                factories.getOrPut(editableCls) { mutableMapOf() }
+            factories.getOrPut(editableCls) { mutableMapOf() }
 
         override fun <E : Editable<*>, Ed : Editor<E>> getEditor(editorCls: KClass<Ed>, editable: E): Ed =
-                if (editable is Expandable<*, *>) expanderFactory.getExpander(editable) as Ed
-                else cache.getOrPut(editable) {
-                    val cls = editable::class
-                    val factory =
-                            getFactories(cls).getOrPut(editorCls) {
-                                resolveConstructor(cls, editorCls) as ((Editable<*>) -> Editor<*>)
-                            }
-                    factory(editable)
-                }.let { editorCls.cast(it) }
+            if (editable is Expandable<*, *>) expanderFactory.getExpander(editable) as Ed
+            else cache.getOrPut(editable) {
+                val cls = editable::class
+                val factory =
+                    getFactories(cls).getOrPut(editorCls) {
+                        resolveConstructor(cls, editorCls) as ((Editable<*>) -> Editor<*>)
+                    }
+                factory(editable)
+            }.let { editorCls.cast(it) }
 
         private val editorClasses = mutableMapOf<KClass<Editable<*>>, KClass<Editor<*>>>()
 
@@ -81,7 +81,7 @@ interface EditorFactory {
             return if (userSpecified != null) userSpecified as KClass<Ed>
             else {
                 val cls = resolveEditorClass<E, Ed>(editableCls as KClass<E>)
-                          ?: throw NoSuchElementException("Could not find editor class for $editableCls")
+                    ?: throw NoSuchElementException("Could not find editor class for $editableCls")
                 registerEditorClass(editableCls, cls as KClass<Editor<Editable<*>>>)
                 return cls
             }
@@ -96,8 +96,8 @@ interface EditorFactory {
             val siblingEditorPkg = pkg.replaceAfterLast('.', "editor")
             val inSiblingEditorPkg = "$siblingEditorPkg.$editorClsName"
             return tryCreateEditorCls(inSamePackage)
-                   ?: tryCreateEditorCls(inEditorPackage)
-                   ?: tryCreateEditorCls(inSiblingEditorPkg)
+                ?: tryCreateEditorCls(inEditorPackage)
+                ?: tryCreateEditorCls(inSiblingEditorPkg)
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -124,14 +124,16 @@ interface EditorFactory {
                 } ?: return@find false
                 editableParameter = parameters.find {
                     it.type.isSupertypeOf(cls.starProjectedType)
+                            || it.type.classifier == cls
+                            || (it.type.classifier as? KClass<*>)?.isSuperclassOf(cls) ?: false
                 } ?: return@find false
                 val otherParameters = parameters - setOf(platformParameter, editableParameter)
                 otherParameters.count { !it.isOptional } == 0
-            } ?: throw java.util.NoSuchElementException("Could not find constructor for $editorCls")
-            return { expandable ->
+            } ?: throw NoSuchElementException("Could not find constructor for $editorCls")
+            return { editable ->
                 constructor.callBy(
                     mapOf(
-                        editableParameter to expandable,
+                        editableParameter to editable,
                         platformParameter to platform
                     )
                 )
@@ -145,7 +147,7 @@ interface EditorFactory {
             classLoader: ClassLoader,
             platform: HextantPlatform
         ): EditorFactory =
-                Impl(platform, classLoader)
+            Impl(platform, classLoader)
     }
 }
 
@@ -154,4 +156,4 @@ inline fun <reified E : Editable<*>, reified Ed : Editor<E>> EditorFactory.regis
 }
 
 inline fun <E : Editable<*>, reified Ed : Editor<E>> EditorFactory.getEditor(editable: E) =
-        getEditor(Ed::class, editable)
+    getEditor(Ed::class, editable)
