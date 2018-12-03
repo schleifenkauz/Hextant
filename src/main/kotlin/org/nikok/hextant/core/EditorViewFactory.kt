@@ -78,7 +78,7 @@ interface EditorViewFactory {
             val constructor = viewCls.constructors.find { constructor ->
                 val parameters = constructor.parameters
                 platformParameter = parameters.find {
-                    it.type == HextantPlatform::class.starProjectedType
+                    it.type.classifier == HextantPlatform::class
                 } ?: return@find false
                 editableParameter = parameters.find {
                     it.type.isSupertypeOf(editableCls.starProjectedType)
@@ -124,14 +124,14 @@ interface EditorViewFactory {
 
     companion object : Property<EditorViewFactory, Public, Internal>("editor-view-factory") {
         fun newInstance(platform: HextantPlatform, classLoader: ClassLoader): EditorViewFactory =
-                Impl(platform, classLoader)
+            Impl(platform, classLoader)
 
         inline fun newInstance(
             platform: HextantPlatform,
             configure: EditorViewFactory.() -> Unit,
             classLoader: ClassLoader
         ): EditorViewFactory =
-                newInstance(platform, classLoader).apply(configure)
+            newInstance(platform, classLoader).apply(configure)
     }
 }
 
