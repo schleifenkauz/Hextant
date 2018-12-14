@@ -43,7 +43,7 @@ abstract class EditableToken<out T : Any> : Editable<T>, Serializable {
     }
 
     override fun serialize(output: Output, context: SerialContext) {
-        output.writeObject(text.get(), context)
+        output.writeString(text.get())
     }
 
     companion object {
