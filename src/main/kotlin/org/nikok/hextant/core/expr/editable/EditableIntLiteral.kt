@@ -4,29 +4,17 @@
 
 package org.nikok.hextant.core.expr.editable
 
-import kserial.*
+import kserial.Serializable
 import org.nikok.hextant.Editable
+import org.nikok.hextant.core.editable.EditableToken
 import org.nikok.hextant.core.expr.edited.IntLiteral
-import org.nikok.reaktive.value.*
 
-class EditableIntLiteral(override val parent: Editable<*>? = null) : Editable<IntLiteral>, Serializable {
+class EditableIntLiteral(override val parent: Editable<*>? = null) : EditableToken<IntLiteral>(), Serializable {
     constructor(v: Int, parent: Editable<*>? = null) : this(parent) {
         text.set(v.toString())
     }
 
-    val text = reactiveVariable("Text", "")
+    override fun isValid(tok: String): Boolean = tok.toIntOrNull() != null
 
-    override val edited: ReactiveValue<IntLiteral?> =
-            text.map("Text converted to int") { it.toIntOrNull()?.let(::IntLiteral) }
-
-    override val isOk: ReactiveBoolean
-        get() = edited.map("$this is isOk") { it != null }
-
-    override fun deserialize(input: Input, context: SerialContext) {
-        text.set(input.readString())
-    }
-
-    override fun serialize(output: Output, context: SerialContext) {
-        output.writeString(text.get())
-    }
+    override fun compile(tok: String): IntLiteral = IntLiteral(tok.toInt())
 }
