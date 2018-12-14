@@ -4,6 +4,7 @@
 
 package org.nikok.hextant.core.editable
 
+import kserial.*
 import org.nikok.hextant.Editable
 import org.nikok.reaktive.value.*
 
@@ -12,7 +13,7 @@ import org.nikok.reaktive.value.*
  * * In a view it would be typically represented by a text field
  * @param T the type of the token being compiled
  */
-abstract class EditableToken<out T : Any> : Editable<T> {
+abstract class EditableToken<out T : Any> : Editable<T>, Serializable {
     /**
      * @return whether the passed [tok] is valid or not
      */
@@ -35,6 +36,14 @@ abstract class EditableToken<out T : Any> : Editable<T> {
     override val edited: ReactiveValue<T?> = text.map("compiled text") { t ->
         if (isOk.now) compile(t)
         else null
+    }
+
+    override fun deserialize(input: Input, context: SerialContext) {
+        text.set(input.readString())
+    }
+
+    override fun serialize(output: Output, context: SerialContext) {
+        output.writeObject(text.get(), context)
     }
 
     companion object {

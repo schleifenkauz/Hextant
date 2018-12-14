@@ -40,6 +40,8 @@ internal abstract class KClassMock: KClass<Nothing> {
         get() = emptyList()
     override val visibility: KVisibility?
         get() = PUBLIC
+    override val sealedSubclasses: List<KClass<out Nothing>>
+        get() = emptyList()
 
     override fun equals(other: Any?): Boolean = this === other
 
