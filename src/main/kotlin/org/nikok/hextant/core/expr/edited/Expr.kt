@@ -26,15 +26,17 @@ sealed class Operator(private val operation: (Int, Int) -> Int, val name: String
     object Div: Operator(Int::div, "/", isCommutative = false)
 
     companion object {
-        fun of(text: String) = map[text] ?: throw NoSuchElementException("No such operator $text")
+        fun of(text: String) = map[text] ?: throw NoSuchElementException("No such operator '$text'")
 
-        fun isValid(text: String) = text in map
+        fun isValid(text: String) = map.containsKey(text)
 
-        private val map = mapOf(
+        private val map by lazy {
+            mapOf(
             "+" to Plus,
             "-" to Minus,
             "*" to Times,
             "/" to Div
-        )
+            )
+        }
     }
 }

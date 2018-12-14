@@ -9,15 +9,15 @@ import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.base.DefaultRegistration
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.command.register
-import org.nikok.hextant.core.editable.EditableToken
 import org.nikok.hextant.core.editor.TokenEditor
-import org.nikok.hextant.sample.ast.Name
+import org.nikok.hextant.core.expr.view.TextEditorView
+import org.nikok.hextant.sample.editable.EditableName
 import org.nikok.reaktive.value.now
 
 class NameEditor(
-    editable: EditableToken<Name>,
+    editable: EditableName,
     platform: HextantPlatform
-) : TokenEditor<Name>(editable, platform) {
+) : TokenEditor<EditableName, TextEditorView>(editable, platform) {
     init {
         registerDefault(platform)
     }

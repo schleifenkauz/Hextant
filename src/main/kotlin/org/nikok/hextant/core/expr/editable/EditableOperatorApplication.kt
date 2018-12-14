@@ -20,7 +20,7 @@ class EditableOperatorApplication(
     val editableOp2: ExpandableExpr = ExpandableExpr()
 ) : Editable<OperatorApplication> {
     constructor(operator: Operator, parent: Editable<*>? = null) : this(parent) {
-        editableOperator.editableText.text.set(operator.name)
+        editableOperator.text.set(operator.name)
     }
 
     override val children: Collection<Editable<*>>?

@@ -9,7 +9,6 @@ import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.Parent
 import javafx.scene.control.*
 import javafx.scene.input.*
-import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import kserial.*
@@ -81,11 +80,11 @@ class ExprEditorViewTest : Application() {
         val expandableView = views.getFXView(expandable)
         val cl = CommandLine.forSelectedEditors(platform)
         val clView = FXCommandLineView(cl, platform)
-        val split = SplitPane(expandableView.node, clView)
+        val menuBar = createMenuBar(expander)
+        val split = SplitPane(menuBar, expandableView.node, clView)
         platform[CoreProperties.logger].level = Level.FINE
         split.orientation = VERTICAL
-        val menuBar = createMenuBar(expander)
-        return VBox(menuBar, split)
+        return split
     }
 
     private fun createMenuBar(parent: ExprExpander): MenuBar {
