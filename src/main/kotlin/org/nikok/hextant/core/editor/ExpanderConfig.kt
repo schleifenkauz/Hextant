@@ -7,23 +7,23 @@ package org.nikok.hextant.core.editor
 import org.nikok.hextant.Editable
 import java.util.*
 
-class ExpanderConfig<E : Editable<*>, Ex: Expander<E>> {
-    private val constant = mutableMapOf<String, Ex.() -> E>()
-    private val interceptors = LinkedList<Ex.(String) -> E?>()
+class ExpanderConfig<E : Editable<*>> {
+    private val constant = mutableMapOf<String, () -> E>()
+    private val interceptors = LinkedList<(String) -> E?>()
 
-    fun registerConstant(text: String, create: Ex.() -> E) {
+    fun registerConstant(text: String, create: () -> E) {
         constant[text] = create
     }
 
-    fun registerInterceptor(interceptor: Ex.(String) -> E?) {
+    fun registerInterceptor(interceptor: (text: String) -> E?) {
         interceptors.add(interceptor)
     }
 
-    fun expand(text: String, expander: Ex): E? {
+    fun expand(text: String): E? {
         val constant = constant[text]
-        if (constant != null) return constant(expander)
+        if (constant != null) return constant()
         for (i in interceptors) {
-            val e = i(expander, text)
+            val e = i(text)
             if (e != null) return e
         }
         return null

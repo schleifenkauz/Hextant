@@ -4,7 +4,7 @@
 
 package org.nikok.hextant.core.editable
 
-import org.nikok.hextant.Editable
+import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.reaktive.value.*
 
 /**
@@ -12,7 +12,7 @@ import org.nikok.reaktive.value.*
  * * In a view it would be typically represented by a text field
  * @param T the type of the token being compiled
  */
-abstract class EditableToken<out T : Any> : Editable<T> {
+abstract class EditableToken<out T : Any> : AbstractEditable<T>() {
     /**
      * @return whether the passed [tok] is valid or not
      */

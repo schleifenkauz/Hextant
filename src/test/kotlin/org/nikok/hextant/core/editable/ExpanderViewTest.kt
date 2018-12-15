@@ -20,6 +20,7 @@ import org.nikok.hextant.get
 class ExpanderViewTest : Application() {
     override fun start(stage: Stage) {
         stage.scene = hextantScene(createContent())
+        stage.setOnHidden { System.exit(0) }
         stage.show()
     }
 

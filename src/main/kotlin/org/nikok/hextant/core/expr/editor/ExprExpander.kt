@@ -16,20 +16,20 @@ import org.nikok.reaktive.value.now
 class ExprExpander(
     editable: ExpandableExpr,
     platform: HextantPlatform
-) : ConfiguredExpander<Editable<Expr>, ExprExpander>(config, editable, platform), ExprEditor {
+) : ConfiguredExpander<Editable<Expr>>(config, editable, platform), ExprEditor {
     override val expr: Expr?
         get() = editable.editable.now?.edited?.now
 
     companion object {
-        val config = ExpanderConfig<Editable<Expr>, ExprExpander>().apply {
-            registerConstant("dec") { EditableIntLiteral(parent = editable) }
-            registerConstant("+") { EditableOperatorApplication(Plus, parent = editable) }
-            registerConstant("-") { EditableOperatorApplication(Minus, parent = editable) }
-            registerConstant("*") { EditableOperatorApplication(Times, parent = editable) }
-            registerConstant("/") { EditableOperatorApplication(Div, parent = editable) }
-            registerInterceptor {
+        val config = ExpanderConfig<Editable<Expr>>().apply {
+            registerConstant("dec") { EditableIntLiteral() }
+            registerConstant("+") { EditableOperatorApplication(Plus) }
+            registerConstant("-") { EditableOperatorApplication(Minus) }
+            registerConstant("*") { EditableOperatorApplication(Times) }
+            registerConstant("/") { EditableOperatorApplication(Div) }
+            registerInterceptor { it ->
                 val int = it.toIntOrNull()
-                if (int != null) EditableIntLiteral(int, parent = editable)
+                if (int != null) EditableIntLiteral(int)
                 else null
             }
         }

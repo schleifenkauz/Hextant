@@ -20,6 +20,7 @@ import org.nikok.hextant.sample.editable.EditableName
 class NameEditorGuiTest : Application() {
     override fun start(stage: Stage) {
         stage.scene = hextantScene(createContent())
+        stage.setOnHidden { System.exit(0) }
         stage.show()
     }
 

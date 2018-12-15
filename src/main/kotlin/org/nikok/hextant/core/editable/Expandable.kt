@@ -7,10 +7,11 @@
 package org.nikok.hextant.core.editable
 
 import org.nikok.hextant.Editable
+import org.nikok.hextant.ParentEditable
 import org.nikok.reaktive.Observer
 import org.nikok.reaktive.value.*
 
-abstract class Expandable<N, E: Editable<N>> : Editable<N?> {
+abstract class Expandable<N, E : Editable<N>> : ParentEditable<N, E>() {
     final override val isOk: ReactiveBoolean = reactiveValue("isOk", true)
     private val _edited: ReactiveVariable<N?> = reactiveVariable("Edited of $this", null)
     private val _editable: ReactiveVariable<E?> = reactiveVariable("content of $this", null)
@@ -37,6 +38,7 @@ abstract class Expandable<N, E: Editable<N>> : Editable<N?> {
         _isExpanded.set(true)
         bindObserver?.kill()
         bindObserver = _edited.bind(editable.edited)
+        editable.moveTo(this)
     }
 
     val text: ReactiveVariable<String> get() = _text
@@ -46,6 +48,9 @@ abstract class Expandable<N, E: Editable<N>> : Editable<N?> {
     final override val edited: ReactiveValue<N?>
         get() = _edited
 
-    override val children: Collection<Editable<*>>?
-        get() = editable.now?.let { listOf(it) }
+    override val children: Collection<E>
+        get() {
+            val content = editable.now ?: return emptyList()
+            return listOf(content)
+        }
 }

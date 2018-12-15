@@ -24,6 +24,7 @@ import org.nikok.hextant.get
 internal class CommandGuiTest : Application() {
     override fun start(stage: Stage) {
         stage.scene = Scene(createContent())
+        stage.setOnHidden { System.exit(0) }
         stage.show()
     }
 

@@ -5,15 +5,16 @@
 package org.nikok.hextant.sample.editable
 
 import org.nikok.hextant.Editable
+import org.nikok.hextant.ParentEditable
 import org.nikok.hextant.sample.ast.IntExpr
 import org.nikok.hextant.sample.ast.IntOperatorApplication
-import org.nikok.reaktive.value.*
-import org.nikok.reaktive.value.binding.impl.notNull
+import org.nikok.reaktive.value.ReactiveValue
+import org.nikok.reaktive.value.reactiveValue
 
-class EditableIntOperatorApplication : Editable<IntOperatorApplication> {
-    val left: Editable<IntExpr> = TODO()
-    val op: EditableIntOperator = EditableIntOperator()
-    val right: Editable<IntExpr> = TODO()
+class EditableIntOperatorApplication : ParentEditable<IntOperatorApplication, Editable<*>>() {
+    val left: Editable<IntExpr> = ExpandableIntExpr()
+    val op = EditableIntOperator()
+    val right: Editable<IntExpr> = ExpandableIntExpr()
 
     override val edited: ReactiveValue<IntOperatorApplication?> = left.edited.flatMap("map left") { l ->
         if (l == null) reactiveValue("edited", null)
@@ -25,5 +26,8 @@ class EditableIntOperatorApplication : Editable<IntOperatorApplication> {
             }
         }
     }
-    override val isOk: ReactiveBoolean = edited.notNull()
+
+    override fun accepts(child: Editable<*>): Boolean {
+        return child is EditableIntOperator || child is EditableIntExpr
+    }
 }
