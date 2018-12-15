@@ -20,13 +20,14 @@ import org.nikok.reaktive.value.now
 internal object CommandLineSpec: Spek({
     data class Target(val isApplicable: Boolean)
     given("a command line") {
+        val platform = HextantPlatform.newInstance()
+        afterGroup { platform.exit() }
         val possibleCommands = mutableSetOf<Command<*, *>>()
         val targets = mutableSetOf<Target>()
         val editableInts = mutableListOf<EditableIntLiteral>()
         EditableFactory.newInstance(CommandLineSpec.javaClass.classLoader).apply {
             register(IntLiteral::class) { -> EditableIntLiteral().also { editableInts.add(it) } }
         }
-        val platform = HextantPlatform.newInstance()
         val cl = CommandLine({ possibleCommands }, { targets }, platform)
         it("should be editing the name") {
             cl.state.now shouldMatch equalTo(EditingName)

@@ -8,6 +8,7 @@ package org.nikok.hextant.core.editable
 
 import kserial.*
 import org.nikok.hextant.Editable
+import org.nikok.hextant.ParentEditable
 import org.nikok.reaktive.Observer
 import org.nikok.reaktive.value.*
 
@@ -38,6 +39,7 @@ abstract class Expandable<N, E : Editable<N>> : Editable<N?>, Serializable {
         _isExpanded.set(true)
         bindObserver?.kill()
         bindObserver = _edited.bind(editable.edited)
+        editable.moveTo(this)
     }
 
     val text: ReactiveVariable<String> get() = _text
@@ -47,6 +49,11 @@ abstract class Expandable<N, E : Editable<N>> : Editable<N?>, Serializable {
     final override val edited: ReactiveValue<N?>
         get() = _edited
 
+    override val children: Collection<E>
+        get() {
+            val content = editable.now ?: return emptyList()
+            return listOf(content)
+        }
     override val children: Collection<Editable<*>>?
         get() = editable.now?.let { listOf(it) }
 

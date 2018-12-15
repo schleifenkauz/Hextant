@@ -25,6 +25,8 @@ interface HextantPlatform : PropertyHolder {
      */
     fun <T> runLater(action: () -> T): Future<T>
 
+    fun exit()
+
     override fun copy(init: PropertyHolder.Init.() -> Unit): HextantPlatform
 
     /**
@@ -36,6 +38,10 @@ interface HextantPlatform : PropertyHolder {
         private val propertyHolder = propertyHolder(this)
 
         override fun <T> runLater(action: () -> T): Future<T> = executor.submit(action)
+
+        override fun exit() {
+            executor.shutdown()
+        }
 
         override fun copy(init: Init.() -> Unit): HextantPlatform {
             return HextantPlatform.withPropertyHolder { propertyHolder.copy(init) }
@@ -70,8 +76,8 @@ interface HextantPlatform : PropertyHolder {
     }
 
     companion object {
-        fun HextantPlatform.defaultPropertyHolder(): PropertyHolder = PropertyHolder.newInstance {
-            val platform = this@defaultPropertyHolder
+        fun HextantPlatform.initDefaultProperties(): PropertyHolder = PropertyHolder.newInstance {
+            val platform = this@initDefaultProperties
             set(Version, Version(1, 0, isSnapshot = true))
             set(SelectionDistributor, SelectionDistributor.newInstance(platform))
             val cl = platform.javaClass.classLoader
@@ -91,7 +97,7 @@ interface HextantPlatform : PropertyHolder {
         val INSTANCE = newInstance()
 
         fun newInstance(init: Init.() -> Unit = {}) =
-                HextantPlatform.withPropertyHolder { defaultPropertyHolder().copy(init) }
+            HextantPlatform.withPropertyHolder { initDefaultProperties().copy(init) }
     }
 }
 

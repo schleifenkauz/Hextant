@@ -13,9 +13,9 @@ import org.nikok.hextant.core.view.builder.gui.editable.EditableEditorViewPart
 class EditorViewPartExpander(
     editable: Expandable<*, EditableEditorViewPart>,
     platform: HextantPlatform
-) : ConfiguredExpander<EditableEditorViewPart, EditorViewPartExpander>(config, editable, platform) {
+) : ConfiguredExpander<EditableEditorViewPart>(config, editable, platform) {
     companion object {
-        val config = ExpanderConfig<EditableEditorViewPart, EditorViewPartExpander>().apply {
+        val config = ExpanderConfig<EditableEditorViewPart>().apply {
             registerConstant("space") { TODO() }
             registerConstant("keyword") { TODO() }
             registerConstant("operator") { TODO() }

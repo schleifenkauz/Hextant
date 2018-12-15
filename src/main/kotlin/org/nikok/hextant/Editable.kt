@@ -23,15 +23,17 @@ interface Editable<out E> {
     val isOk: ReactiveBoolean
 
     /**
-     * @return the parent of this [Editable], defaults to null
+     * @return the parent of this [Editable]
      * * When [parent] returns `null` this indicates that this [Editable] is the root
     */
-    val parent: Editable<*>? get() = null
+    val parent: Editable<*>?
 
     /**
-     * @return the children of this [Editable] defaults to null
-     * * When [children] return `null` this indicates that this [Editable] is a leaf
-     * * When a empty collection is returned this indicates that this [Editable] could have children but at the moment doesn't have any
-    */
-    val children: Collection<Editable<*>>? get() = null
+     * Move this [Editable] to its specified [newParent] by
+     * * Setting the newParent of this [Editable] to [newParent]
+     * * And adding this [Editable] to the children of [newParent]
+     * @throws IllegalStateException when this child is already a child of [newParent]
+     * @throws IllegalArgumentException if [newParent] doesn't accept this [Editable] as a child
+     */
+    fun moveTo(newParent: ParentEditable<*, *>)
 }
