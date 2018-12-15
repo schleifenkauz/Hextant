@@ -6,8 +6,6 @@ interface Expr {
 
 data class IntLiteral(override val value: Int): Expr {
     override fun toString(): String = value.toString()
-
-
 }
 
 data class OperatorApplication(val op1: Expr, val op2: Expr, val operator: Operator): Expr {
