@@ -4,18 +4,16 @@
 
 package org.nikok.hextant.core.editable
 
-import org.nikok.hextant.core.base.AbstractEditable
 import kserial.*
-import org.nikok.hextant.Editable
+import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.reaktive.value.*
 
 /**
- * An editable token is the atomic part of the ast editor
+ * An editable token the atomic part of the ast editor
  * * In a view it would be typically represented by a text field
  * @param T the type of the token being compiled
  */
-abstract class EditableToken<out T : Any> : Editable<T>, Serializable {
-abstract class EditableToken<out T : Any> : AbstractEditable<T>() {
+abstract class EditableToken<out T : Any> : AbstractEditable<T>(), Serializable {
     /**
      * @return whether the passed [tok] is valid or not
      */

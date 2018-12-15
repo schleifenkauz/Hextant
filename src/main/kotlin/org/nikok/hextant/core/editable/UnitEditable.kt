@@ -4,15 +4,19 @@
 
 package org.nikok.hextant.core.editable
 
-import org.nikok.hextant.Editable
+import org.nikok.hextant.ParentEditable
+import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.reaktive.value.*
 
-open class UnitEditable : Editable<Unit> {
-
+open class UnitEditable : AbstractEditable<Unit>() {
     override val edited: ReactiveValue<Unit?>
         get() = unitValue
     override val isOk: ReactiveBoolean
         get() = ALWAYS_OK
+
+    override fun moveTo(newParent: ParentEditable<*, *>) {
+        TODO("not implemented")
+    }
 
     companion object {
         private val unitValue = reactiveValue("unit", Unit)

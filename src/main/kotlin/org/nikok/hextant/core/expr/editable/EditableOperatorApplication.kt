@@ -6,6 +6,7 @@ package org.nikok.hextant.core.expr.editable
 
 import kserial.*
 import org.nikok.hextant.Editable
+import org.nikok.hextant.ParentEditable
 import org.nikok.hextant.core.expr.edited.Operator
 import org.nikok.hextant.core.expr.edited.OperatorApplication
 import org.nikok.reaktive.dependencies
@@ -14,17 +15,19 @@ import org.nikok.reaktive.value.binding.binding
 
 @SerializableWith(EditableOperatorApplication.Serial::class)
 class EditableOperatorApplication(
-    override val parent: Editable<*>? = null,
     val editableOperator: EditableOperator = EditableOperator(),
     val editableOp1: ExpandableExpr = ExpandableExpr(),
     val editableOp2: ExpandableExpr = ExpandableExpr()
-) : Editable<OperatorApplication> {
-    constructor(operator: Operator, parent: Editable<*>? = null) : this(parent) {
+) : ParentEditable<OperatorApplication, Editable<*>>() {
+    constructor(operator: Operator) : this() {
         editableOperator.text.set(operator.name)
     }
 
-    override val children: Collection<Editable<*>>?
-        get() = listOf(editableOp1, editableOperator, editableOp2)
+    init {
+        editableOp1.moveTo(this)
+        editableOperator.moveTo(this)
+        editableOp2.moveTo(this)
+    }
 
     override val edited: ReactiveValue<OperatorApplication?> =
         binding<OperatorApplication?>(
@@ -38,6 +41,8 @@ class EditableOperatorApplication(
         }
 
     override val isOk: ReactiveBoolean = edited.map("is $this ok") { it != null }
+
+    override fun accepts(child: Editable<*>): Boolean = true
 
     object Serial : Serializer<EditableOperatorApplication> {
         override fun serialize(obj: EditableOperatorApplication, output: Output, context: SerialContext) {
@@ -54,7 +59,6 @@ class EditableOperatorApplication(
             context: SerialContext
         ): EditableOperatorApplication = with(input) {
             EditableOperatorApplication(
-                null,
                 readTyped(context)!!,
                 readTyped(context)!!,
                 readTyped(context)!!

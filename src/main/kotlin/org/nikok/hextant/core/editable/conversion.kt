@@ -5,6 +5,7 @@
 package org.nikok.hextant.core.editable
 
 import org.nikok.hextant.Editable
+import org.nikok.hextant.ParentEditable
 import org.nikok.reaktive.value.ReactiveBoolean
 import org.nikok.reaktive.value.ReactiveValue
 import kotlin.reflect.KClass
@@ -17,6 +18,12 @@ import kotlin.reflect.KClass
     override val isOk: ReactiveBoolean
         get() = source.isOk
 
+    override val parent: Editable<*>?
+        get() = source.parent
+
+    override fun moveTo(newParent: ParentEditable<*, *>) {
+        source.moveTo(newParent)
+    }
 }
 
 /**

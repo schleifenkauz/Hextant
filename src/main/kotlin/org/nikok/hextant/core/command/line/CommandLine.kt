@@ -7,6 +7,7 @@ package org.nikok.hextant.core.command.line
 import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.EditableFactory
+import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.hextant.core.command.*
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingArgs
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingName
@@ -32,7 +33,7 @@ class CommandLine(
     private val commandsFactory: () -> Set<Command<*, *>>,
     private val targets: () -> Set<Any>,
     platform: HextantPlatform
-): Editable<CommandApplication<*>> {
+) : AbstractEditable<CommandApplication<*>>() {
     private val editableFactory = platform[EditableFactory]
 
     /*

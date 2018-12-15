@@ -4,22 +4,11 @@
 
 package org.nikok.hextant.core.expr.editable
 
-import kserial.*
-import org.nikok.hextant.Editable
-import org.nikok.reaktive.value.*
+import kserial.Serializable
+import org.nikok.hextant.core.editable.EditableToken
 
-class EditableText(override val parent: Editable<*>? = null) : Editable<String>, Serializable {
-    val text = reactiveVariable("text of $this", "")
+class EditableText : EditableToken<String>(), Serializable {
+    override fun isValid(tok: String): Boolean = true
 
-    override val edited: ReactiveVariable<String> get() = text
-
-    override val isOk: ReactiveBoolean = reactiveValue("is $this ok", true)
-
-    override fun deserialize(input: Input, context: SerialContext) {
-        text.set(input.readString())
-    }
-
-    override fun serialize(output: Output, context: SerialContext) {
-        output.writeString(text.get())
-    }
+    override fun compile(tok: String): String = tok
 }
