@@ -8,7 +8,6 @@ package org.nikok.hextant.core.command.line
 
 import javafx.application.Platform
 import javafx.beans.Observable
-import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyCodeCombination
@@ -18,6 +17,7 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.command.gui.argumentEditor
@@ -29,11 +29,7 @@ import org.nikok.reaktive.event.subscribe
 internal class FXCommandLineView internal constructor(
     commandLine: CommandLine,
     platform: HextantPlatform
-) : VBox(), CommandLineView, FXEditorView {
-
-    override val node: Node
-        get() = this
-
+) : EditorControl<VBox>(), CommandLineView {
     private val historyView = ListView<CommandApplication<Any>>().apply {
         styleClass.add("history-view")
         prefHeight = 0.0
@@ -101,8 +97,6 @@ internal class FXCommandLineView internal constructor(
 
     private val argEditors = HBox()
 
-    private val currentCommand = createCurrentCommand()
-
     private fun createCurrentCommand(): HBox {
         return HBox(textField, argEditors).apply {
             addEventHandler(KeyEvent.KEY_RELEASED) { e ->
@@ -126,9 +120,14 @@ internal class FXCommandLineView internal constructor(
 
     private val controller = CommandLineController(commandLine, this, platform)
 
+    override fun createDefaultRoot(): VBox {
+        val currentCommand = createCurrentCommand()
+        return VBox(historyView, currentCommand)
+    }
+
     init {
-        children.addAll(historyView, currentCommand)
         controller.addView(this)
+        initialize(commandLine, controller, platform)
     }
 
     private val completionsPopup = CompletionPopup<Command<*, *>>()
@@ -154,9 +153,7 @@ internal class FXCommandLineView internal constructor(
     }
 
 
-    override fun editingArgs(
-        name: String, parameters: List<Parameter>, views: List<FXEditorView>
-    ) {
+    override fun editingArgs(name: String, parameters: List<Parameter>, views: List<EditorControl<*>>) {
         textField.isEditable = false
         val nodes = views.zip(parameters) { v, p -> argumentEditor(p, v) }
         argEditors.children.addAll(nodes)

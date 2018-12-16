@@ -4,7 +4,7 @@
 
 package org.nikok.hextant.core.view
 
-import javafx.scene.control.Control
+import javafx.scene.Node
 import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode.R
 import javafx.scene.input.KeyCodeCombination
@@ -12,28 +12,29 @@ import javafx.scene.input.KeyCombination.SHORTCUT_ANY
 import org.nikok.hextant.*
 import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.ExpanderFactory
+import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.editable.Expandable
-import org.nikok.hextant.core.fx.*
+import org.nikok.hextant.core.fx.HextantTextField
+import org.nikok.hextant.core.fx.registerShortcut
 import org.nikok.reaktive.value.now
 
 class FXExpanderView(
     private val expandable: Expandable<*, *>,
     platform: HextantPlatform
-) : ExpanderView, FXEditorView, Control() {
+) : ExpanderView, EditorControl<Node>() {
 
     private val expander = platform[ExpanderFactory].getExpander(expandable)
 
     private val views = platform[EditorViewFactory]
 
-    private var view: FXEditorView? = null
+    private var view: EditorControl<*>? = null
 
     private val textField = createExpanderTextField(expandable.text.now)
 
+    override fun createDefaultRoot(): Node = textField
+
     init {
-        setRoot(textField)
-        styleClass.add("expander")
-        textField.initSelection(expander)
-        expander.addView(this)
+        initialize(expandable, expander, platform)
     }
 
     override fun select(isSelected: Boolean) {
@@ -57,20 +58,17 @@ class FXExpanderView(
 
     override fun reset() {
         view = null
-        setRoot(textField)
+        root = textField
         textField.requestFocus()
     }
 
     override fun expanded(newContent: Editable<*>) {
         val v = views.getFXView(newContent)
         view = v
-        v.node.registerShortcut(RESET_SHORTCUT) { expander.reset() }
-        setRoot(v.node)
+        v.root.registerShortcut(RESET_SHORTCUT) { expander.reset() }
+        root = v.root
         v.focus()
     }
-
-    override val node: Control
-        get() = this
 
     override fun requestFocus() {
         if (expandable.isExpanded.now) view!!.focus()

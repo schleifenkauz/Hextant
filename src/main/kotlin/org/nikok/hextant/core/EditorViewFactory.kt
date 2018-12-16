@@ -8,9 +8,9 @@ import org.nikok.hextant.Editable
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.editable.ConvertedEditable
 import org.nikok.hextant.core.editable.Expandable
-import org.nikok.hextant.core.fx.FXEditorView
 import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.core.view.FXExpanderView
 import org.nikok.hextant.prop.Property
@@ -26,26 +26,26 @@ interface EditorViewFactory {
      * Register the specified [viewFactory] to the given [editableCls].
      * From now all calls of [getFXView] with an argument of type [E] will use the [viewFactory]
      */
-    fun <E : Editable<*>> registerFX(editableCls: KClass<out E>, viewFactory: (E) -> FXEditorView)
+    fun <E : Editable<*>> registerFX(editableCls: KClass<out E>, viewFactory: (E) -> EditorControl<*>)
 
     /**
-     * @return the [FXEditorView] associated with the type of the specified [editable]
-     * @throws NoSuchElementException if there is no [FXEditorView] registered with this [editable]
+     * @return the [EditorControl<*>] associated with the type of the specified [editable]
+     * @throws NoSuchElementException if there is no [EditorControl<*>] registered with this [editable]
      */
-    fun <E : Editable<*>> getFXView(editable: E): FXEditorView
+    fun <E : Editable<*>> getFXView(editable: E): EditorControl<*>
 
     @Suppress("UNCHECKED_CAST") private class Impl(
         private val platform: HextantPlatform,
         private val classLoader: ClassLoader
     ) : EditorViewFactory {
-        private val viewFactories = ClassMap.invariant<(Editable<*>) -> FXEditorView>()
+        private val viewFactories = ClassMap.invariant<(Editable<*>) -> EditorControl<*>>()
 
-        override fun <E : Editable<*>> registerFX(editableCls: KClass<out E>, viewFactory: (E) -> FXEditorView) {
-            @Suppress("UNCHECKED_CAST") val cast = viewFactory as (Editable<*>) -> FXEditorView
+        override fun <E : Editable<*>> registerFX(editableCls: KClass<out E>, viewFactory: (E) -> EditorControl<*>) {
+            @Suppress("UNCHECKED_CAST") val cast = viewFactory as (Editable<*>) -> EditorControl<*>
             viewFactories[editableCls] = cast
         }
 
-        override fun <E : Editable<*>> getFXView(editable: E): FXEditorView {
+        override fun <E : Editable<*>> getFXView(editable: E): EditorControl<*> {
             val cls = editable::class
             when (editable) {
                 is ConvertedEditable<*, *> -> return getFXView(editable.source)
@@ -62,7 +62,7 @@ interface EditorViewFactory {
             throw NoSuchElementException("Could not resolve view for $cls")
         }
 
-        private fun defaultFactory(cls: KClass<out Editable<*>>): ((Editable<*>) -> FXEditorView)? {
+        private fun defaultFactory(cls: KClass<out Editable<*>>): ((Editable<*>) -> EditorControl<*>)? {
             val viewCls = resolveDefault(cls) ?: return null
             val constructor = resolveConstructor(cls, viewCls)
             registerFX(cls, constructor)
@@ -71,8 +71,8 @@ interface EditorViewFactory {
 
         private fun <E : Any> resolveConstructor(
             editableCls: KClass<out E>,
-            viewCls: KClass<FXEditorView>
-        ): (Editable<*>) -> FXEditorView {
+            viewCls: KClass<EditorControl<*>>
+        ): (Editable<*>) -> EditorControl<*> {
             lateinit var platformParameter: KParameter
             lateinit var editableParameter: KParameter
             val constructor = viewCls.constructors.find { constructor ->
@@ -85,7 +85,7 @@ interface EditorViewFactory {
                 } ?: return@find false
                 val otherParameters = parameters - setOf(platformParameter, editableParameter)
                 otherParameters.count { !it.isOptional } == 0
-            } ?: throw java.util.NoSuchElementException("Could not find constructor for $viewCls")
+            } ?: throw NoSuchElementException("Could not find constructor for $viewCls")
             return { expandable ->
                 constructor.callBy(
                     mapOf(
@@ -97,7 +97,7 @@ interface EditorViewFactory {
 
         }
 
-        private fun resolveDefault(editableCls: KClass<*>): KClass<FXEditorView>? {
+        private fun resolveDefault(editableCls: KClass<*>): KClass<EditorControl<*>>? {
             val name = editableCls.simpleName ?: return null
             val pkg = editableCls.java.`package`?.name ?: return null
             if (!name.startsWith("Editable")) return null
@@ -111,11 +111,11 @@ interface EditorViewFactory {
             )
         }
 
-        private fun tryCreateViewCls(name: String): KClass<FXEditorView>? {
+        private fun tryCreateViewCls(name: String): KClass<EditorControl<*>>? {
             return try {
                 val cls = classLoader.loadClass(name)
                 val k = cls.kotlin
-                k.takeIf { it.isSubclassOf(FXEditorView::class) } as KClass<FXEditorView>?
+                k.takeIf { it.isSubclassOf(EditorControl::class) } as KClass<EditorControl<*>>?
             } catch (cnf: ClassNotFoundException) {
                 null
             }
@@ -135,7 +135,7 @@ interface EditorViewFactory {
     }
 }
 
-inline fun <reified E : Editable<*>> EditorViewFactory.registerFX(noinline viewFactory: (E) -> FXEditorView) {
+inline fun <reified E : Editable<*>> EditorViewFactory.registerFX(noinline viewFactory: (E) -> EditorControl<*>) {
     registerFX(E::class, viewFactory)
 }
 

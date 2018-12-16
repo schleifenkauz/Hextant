@@ -5,6 +5,7 @@
 package org.nikok.hextant.core.command.line
 
 import org.nikok.hextant.EditorView
+import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.completion.Completion
@@ -20,7 +21,7 @@ interface CommandLineView: EditorView {
     fun editingArgs(
         name: String,
         parameters: List<Parameter>,
-        views: List<FXEditorView>
+        views: List<EditorControl<*>>
     )
 
     /**

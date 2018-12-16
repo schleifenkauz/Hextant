@@ -2,6 +2,7 @@
  * @author Nikolaus Knop
  */
 
+/*
 package org.nikok.hextant.core.gui
 
 import javafx.application.Application
@@ -58,3 +59,4 @@ class SearchableListControllerPopupTest : Application() {
         }
     }
 }
+*/

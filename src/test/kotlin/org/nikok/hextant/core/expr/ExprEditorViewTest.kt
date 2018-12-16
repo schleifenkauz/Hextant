@@ -82,10 +82,10 @@ class ExprEditorViewTest : Application() {
         val cl = CommandLine.forSelectedEditors(platform)
         val clView = FXCommandLineView(cl, platform)
         val menuBar = createMenuBar(expander)
-        val split = SplitPane(menuBar, expandableView.node, clView)
+        val split = SplitPane(menuBar, expandableView.root, clView)
         platform[CoreProperties.logger].level = Level.FINE
         split.orientation = VERTICAL
-        return BorderPane(expandableView.node, menuBar, null, clView, null)
+        return BorderPane(expandableView.root, menuBar, null, clView, null)
     }
 
     private fun createMenuBar(parent: ExprExpander): MenuBar {

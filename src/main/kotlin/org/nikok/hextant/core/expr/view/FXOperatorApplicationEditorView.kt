@@ -10,18 +10,19 @@ import org.nikok.hextant.core.*
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.expr.editable.EditableOperatorApplication
 import org.nikok.hextant.core.expr.editor.OperatorApplicationEditor
-import org.nikok.hextant.core.fx.*
+import org.nikok.hextant.core.fx.OperatorLabel
+import org.nikok.hextant.core.fx.isControlDown
 import org.nikok.hextant.get
 
 class FXOperatorApplicationEditorView(
     editable: EditableOperatorApplication,
     platform: HextantPlatform
 ) : EditorControl<HBox>() {
-    private val op1View: FXEditorView
+    private val op1View: EditorControl<*>
 
-    private val operatorView: FXEditorView
+    private val operatorView: EditorControl<*>
 
-    private val op2View: FXEditorView
+    private val op2View: EditorControl<*>
 
     private val editorFactory = platform[EditorFactory]
 
@@ -30,7 +31,7 @@ class FXOperatorApplicationEditorView(
     override fun createDefaultRoot(): HBox {
         val openingParen = parenLabel("(")
         val closingParen = parenLabel(")")
-        return HBox(openingParen, op1View.node, operatorView.node, op2View.node, closingParen)
+        return HBox(openingParen, op1View.root, operatorView.root, op2View.root, closingParen)
     }
 
     init {

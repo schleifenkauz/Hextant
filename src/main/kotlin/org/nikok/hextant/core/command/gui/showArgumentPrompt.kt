@@ -12,9 +12,9 @@ import javafx.stage.Window
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.EditorViewFactory
+import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Command.Parameter
-import org.nikok.hextant.core.fx.FXEditorView
 import org.nikok.hextant.core.fx.UtilityDialog
 import org.nikok.hextant.get
 import org.nikok.reaktive.value.now
@@ -46,8 +46,8 @@ fun showArgumentPrompt(
     }
 }
 
-internal fun argumentEditor(parameter: Parameter, view: FXEditorView): Node =
-        Label("${parameter.name}: ", view.node).apply {
+internal fun argumentEditor(parameter: Parameter, view: EditorControl<*>): Node =
+    Label("${parameter.name}: ", view.root).apply {
             tooltip = Tooltip(parameter.toString())
             contentDisplay = RIGHT
         }
