@@ -66,8 +66,8 @@ class FXExpanderView(
     override fun expanded(newContent: Editable<*>) {
         val v = views.getFXView(newContent)
         view = v
-        v.root.registerShortcut(RESET_SHORTCUT) { expander.reset() }
-        root = v.root
+        v.registerShortcut(RESET_SHORTCUT) { expander.reset() }
+        root = v
         v.focus()
     }
 
