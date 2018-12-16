@@ -10,13 +10,14 @@ import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.nikok.hextant.*
 import org.nikok.hextant.core.EditorViewFactory
+import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.editable.EditableText
 import org.nikok.hextant.core.fx.hextantScene
 import org.nikok.reaktive.value.*
 
-class EditableWhile: Editable<Nothing> {
+class EditableWhile : AbstractEditable<Nothing>() {
     override val edited: ReactiveValue<Nothing?> = reactiveValue("nothing", null)
     override val isOk: ReactiveBoolean
         get() = reactiveValue("always ok", true)

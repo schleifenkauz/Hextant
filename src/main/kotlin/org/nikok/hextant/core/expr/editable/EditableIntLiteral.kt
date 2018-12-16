@@ -4,12 +4,12 @@
 
 package org.nikok.hextant.core.expr.editable
 
-import org.nikok.hextant.Editable
+import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.hextant.core.expr.edited.IntLiteral
 import org.nikok.reaktive.value.*
 
-class EditableIntLiteral(override val parent: Editable<*>? = null) : Editable<IntLiteral> {
-    constructor(v: Int, parent: Editable<*>? = null) : this(parent) {
+class EditableIntLiteral() : AbstractEditable<IntLiteral>() {
+    constructor(v: Int) : this() {
         text.set(v.toString())
     }
 

@@ -1,16 +1,16 @@
 package org.nikok.hextant.core.expr.editable
 
-import org.nikok.hextant.Editable
+import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.hextant.core.expr.edited.Operator
 import org.nikok.reaktive.value.ReactiveBoolean
 import org.nikok.reaktive.value.ReactiveValue
 
-class EditableOperator(override val parent: Editable<*>? = null) : Editable<Operator> {
-    constructor(initial: Operator, parent: Editable<*>? = null): this(parent) {
+class EditableOperator() : AbstractEditable<Operator>() {
+    constructor(initial: Operator) : this() {
         editableText.text.set(initial.name)
     }
 
-    val editableText = EditableText(parent = this)
+    val editableText = EditableText()
 
     override val edited: ReactiveValue<Operator?> = editableText.text.map("operator of $this") {
         Operator.of(it)

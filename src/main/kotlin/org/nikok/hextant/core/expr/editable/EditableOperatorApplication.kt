@@ -5,25 +5,28 @@
 package org.nikok.hextant.core.expr.editable
 
 import org.nikok.hextant.Editable
+import org.nikok.hextant.ParentEditable
 import org.nikok.hextant.core.expr.edited.Operator
 import org.nikok.hextant.core.expr.edited.OperatorApplication
 import org.nikok.reaktive.dependencies
 import org.nikok.reaktive.value.*
 import org.nikok.reaktive.value.binding.binding
 
-class EditableOperatorApplication(override val parent: Editable<*>? = null) : Editable<OperatorApplication> {
-    constructor(operator: Operator, parent: Editable<*>? = null) : this(parent) {
+class EditableOperatorApplication() : ParentEditable<OperatorApplication, Editable<*>>() {
+    constructor(operator: Operator) : this() {
         editableOperator.editableText.text.set(operator.name)
     }
 
-    val editableOperator = EditableOperator(parent = this)
+    val editableOperator = EditableOperator()
 
-    val editableOp1 = ExpandableExpr(parent = this)
+    val editableOp1 = ExpandableExpr()
 
-    val editableOp2 = ExpandableExpr(parent = this)
+    val editableOp2 = ExpandableExpr()
 
-    override val children: Collection<Editable<*>>?
+    override val children: Collection<Editable<*>>
         get() = listOf(editableOp1, editableOperator, editableOp2)
+
+    override fun accepts(child: Editable<*>): Boolean = true
 
     override val edited: ReactiveValue<OperatorApplication?> =
             binding<OperatorApplication?>(

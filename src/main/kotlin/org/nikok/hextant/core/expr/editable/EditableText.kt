@@ -4,10 +4,10 @@
 
 package org.nikok.hextant.core.expr.editable
 
-import org.nikok.hextant.Editable
+import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.reaktive.value.*
 
-class EditableText(override val parent: Editable<*>? = null): Editable<String> {
+class EditableText : AbstractEditable<String>() {
     val text = reactiveVariable("text of $this", "")
 
     override val edited: ReactiveVariable<String> get() = text

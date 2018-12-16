@@ -4,10 +4,10 @@
 
 package org.nikok.hextant.core.editable
 
-import org.nikok.hextant.Editable
+import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.reaktive.value.*
 
-open class UnitEditable : Editable<Unit> {
+open class UnitEditable : AbstractEditable<Unit>() {
 
     override val edited: ReactiveValue<Unit?>
         get() = unitValue

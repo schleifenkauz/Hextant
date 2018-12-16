@@ -35,8 +35,7 @@ abstract class Expander<E : Editable<*>>(
         platform.runLater {
             check(!editable.isExpanded.now) { "Expander is already expanded" }
             val content = expand(editable.text.now) ?: return@runLater
-            editable.setContent(content)
-            notifyViews()
+            setContent(content)
         }
     }
 

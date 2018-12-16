@@ -62,6 +62,7 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
 
     override val parent: Editor<*>?
         get() = editable.parent?.let { p -> editorFactory.resolveEditor(p) }
+
     override val children: Collection<Editor<*>>?
-        get() = editable.children?.map { child -> editorFactory.resolveEditor(child) }
+        get() = TODO()
 }

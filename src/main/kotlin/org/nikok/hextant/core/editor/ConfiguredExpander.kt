@@ -14,5 +14,5 @@ open class ConfiguredExpander<E : Editable<*>>(
     platform: HextantPlatform
 ): Expander<E>(edited, platform) {
     @Suppress("UNCHECKED_CAST")
-    override fun expand(text: String): E? = config.expand(text, this)
+    override fun expand(text: String): E? = config.expand(text)
 }
