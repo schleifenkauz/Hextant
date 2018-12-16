@@ -31,8 +31,7 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
         get() = _root ?: throw IllegalStateException("root not yet initialized")
         protected set(newRoot) {
             _root = newRoot
-            skin = null
-            skin = skin(this, newRoot)
+            setRoot(newRoot)
         }
 
     /**
