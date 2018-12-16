@@ -34,6 +34,7 @@ class FXExpanderView(
     override fun createDefaultRoot(): Node = textField
 
     init {
+        expander.addView(this)
         initialize(expandable, expander, platform)
     }
 
