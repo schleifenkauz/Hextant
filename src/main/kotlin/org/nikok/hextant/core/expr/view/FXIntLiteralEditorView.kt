@@ -7,6 +7,6 @@ class FXIntLiteralEditorView(
     editableInt: EditableIntLiteral, platform: HextantPlatform
 ) : FXTokenEditorView(editableInt, platform) {
     init {
-        styleClass.add("decimal-editor")
+        root.styleClass.add("decimal-editor")
     }
 }
