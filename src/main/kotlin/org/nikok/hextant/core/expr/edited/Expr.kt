@@ -6,8 +6,6 @@ interface Expr {
 
 data class IntLiteral(override val value: Int): Expr {
     override fun toString(): String = value.toString()
-
-
 }
 
 data class OperatorApplication(val op1: Expr, val op2: Expr, val operator: Operator): Expr {
@@ -26,12 +24,17 @@ sealed class Operator(private val operation: (Int, Int) -> Int, val name: String
     object Div: Operator(Int::div, "/", isCommutative = false)
 
     companion object {
-        fun of(text: String) = when(text) {
-            "+", "plus" -> Plus
-            "-", "minus" -> Minus
-            "*", "times" -> Times
-            "/", "div" -> Div
-            else -> null
+        fun of(text: String) = map[text] ?: throw NoSuchElementException("No such operator '$text'")
+
+        fun isValid(text: String) = map.containsKey(text)
+
+        private val map by lazy {
+            mapOf(
+                "+" to Plus,
+                "-" to Minus,
+                "*" to Times,
+                "/" to Div
+            )
         }
     }
 }

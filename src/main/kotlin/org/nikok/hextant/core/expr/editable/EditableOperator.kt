@@ -1,21 +1,15 @@
 package org.nikok.hextant.core.expr.editable
 
-import org.nikok.hextant.core.base.AbstractEditable
+import kserial.Serializable
+import org.nikok.hextant.core.editable.EditableToken
 import org.nikok.hextant.core.expr.edited.Operator
-import org.nikok.reaktive.value.ReactiveBoolean
-import org.nikok.reaktive.value.ReactiveValue
 
-class EditableOperator() : AbstractEditable<Operator>() {
+class EditableOperator() : EditableToken<Operator>(), Serializable {
     constructor(initial: Operator) : this() {
-        editableText.text.set(initial.name)
+        text.set(initial.name)
     }
 
-    val editableText = EditableText()
+    override fun isValid(tok: String): Boolean = Operator.isValid(tok)
 
-    override val edited: ReactiveValue<Operator?> = editableText.text.map("operator of $this") {
-        Operator.of(it)
-    }
-    override val isOk: ReactiveBoolean = edited.map("$this is ok") {
-        it != null
-    }
+    override fun compile(tok: String): Operator = Operator.of(tok)
 }

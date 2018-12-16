@@ -16,7 +16,7 @@ abstract class AbstractEditable<out E> : Editable<E> {
     override val isOk: ReactiveBoolean by lazy { edited.notNull() }
 
     override fun moveTo(newParent: ParentEditable<*, *>) {
-        check(this !in newParent.children) { "$this is already a child of $newParent" }
+        if (parent == newParent) return
         newParent.accept(this)
         parent = newParent
     }

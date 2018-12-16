@@ -13,4 +13,6 @@ internal class EditableEdited(val arg: Edited = Edited, val otherArg: Int = 0) :
         get() = throw AssertionError()
     override val isOk: ReactiveBoolean
         get() = throw AssertionError()
+
+
 }

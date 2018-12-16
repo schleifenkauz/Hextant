@@ -14,7 +14,9 @@ abstract class ParentEditable<out E, out C : Editable<*>> : AbstractEditable<E>(
 
     @Suppress("UNCHECKED_CAST")
     internal open fun accept(child: Editable<*>) {
-        require(accepts(child)) { "$this does not accept $child as a child" }
+        if (!accepts(child)) {
+            throw IllegalArgumentException("$this does not accept $child as a child")
+        }
         mutableChildren.add(child as C)
     }
 

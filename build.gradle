@@ -2,23 +2,16 @@ buildscript {
     dependencies {
         classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
         classpath 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.17'
+        classpath "org.jetbrains.kotlin:kotlin-serialization:1.3.0"
     }
 }
 
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.2.71'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.0'
     id 'maven-publish'
 }
 
-
-static String kotlin(Object dep) {
-    return "org.jetbrains.kotlin:kotlin-$dep:1.2.71"
-}
-
-static String spek(Object dep) {
-    return "org.jetbrains.spek:spek-$dep:1.1.5"
-}
 
 apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'org.jetbrains.dokka'
@@ -70,9 +63,18 @@ static String nikok(Object dep, Object version) {
     return "org.nikok:$dep:$version"
 }
 
+static String kotlin(Object dep) {
+    return "org.jetbrains.kotlin:kotlin-$dep:1.3.0"
+}
+
+static String spek(Object dep) {
+    return "org.jetbrains.spek:spek-$dep:1.1.5"
+}
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'kotlin'
+    apply plugin: 'kotlinx-serialization'
     group 'org.nikok'
     version '1.0-SNAPSHOT'
 
@@ -80,6 +82,8 @@ allprojects {
 
     repositories {
         mavenCentral()
+        jcenter()
+        maven { url "https://kotlin.bintray.com/kotlinx" }
         mavenLocal()
     }
 
@@ -95,6 +99,7 @@ allprojects {
         implementation kotlin("reflect")
         implementation nikok("kref", "1.0.0")
         implementation nikok("reaktive", "1.1-SNAPSHOT")
+        implementation nikok("kserial", "1.1.1")
         testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
         implementation "org.controlsfx:controlsfx:8.40.14"
         implementation fileTree(dir: 'lib', include: ['*.jar'])

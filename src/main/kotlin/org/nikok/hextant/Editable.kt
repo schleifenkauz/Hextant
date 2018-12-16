@@ -32,7 +32,7 @@ interface Editable<out E> {
      * Move this [Editable] to its specified [newParent] by
      * * Setting the newParent of this [Editable] to [newParent]
      * * And adding this [Editable] to the children of [newParent]
-     * @throws IllegalStateException when this child is already a child of [newParent]
+     * If this [Editable] is already a child of [newParent] this method has no effect
      * @throws IllegalArgumentException if [newParent] doesn't accept this [Editable] as a child
      */
     fun moveTo(newParent: ParentEditable<*, *>)

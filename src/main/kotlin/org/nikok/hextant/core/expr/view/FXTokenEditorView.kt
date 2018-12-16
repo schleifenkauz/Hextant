@@ -19,7 +19,8 @@ open class FXTokenEditorView(
         textProperty().addListener { _, _, new -> editor.setText(new) }
     }
 
-    private val editor = platform[EditorFactory].resolveEditor(editable) as TokenEditor<Any>
+    @Suppress("UNCHECKED_CAST")
+    private val editor = platform[EditorFactory].resolveEditor(editable) as TokenEditor<*, TextEditorView>
 
     init {
         node.initSelection(editor)

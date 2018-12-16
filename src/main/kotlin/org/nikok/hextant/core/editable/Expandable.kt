@@ -6,12 +6,13 @@
 
 package org.nikok.hextant.core.editable
 
+import kserial.*
 import org.nikok.hextant.Editable
 import org.nikok.hextant.ParentEditable
 import org.nikok.reaktive.Observer
 import org.nikok.reaktive.value.*
 
-abstract class Expandable<N, E : Editable<N>> : ParentEditable<N, E>() {
+abstract class Expandable<N, E : Editable<N>> : ParentEditable<N, E>(), Serializable {
     final override val isOk: ReactiveBoolean = reactiveValue("isOk", true)
     private val _edited: ReactiveVariable<N?> = reactiveVariable("Edited of $this", null)
     private val _editable: ReactiveVariable<E?> = reactiveVariable("content of $this", null)
@@ -53,4 +54,24 @@ abstract class Expandable<N, E : Editable<N>> : ParentEditable<N, E>() {
             val content = editable.now ?: return emptyList()
             return listOf(content)
         }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun deserialize(input: Input, context: SerialContext) {
+        val expanded = input.readBoolean()
+        if (expanded) {
+            setContent(input.readObject(context) as E)
+        } else {
+            setText(input.readString())
+        }
+    }
+
+    override fun serialize(output: Output, context: SerialContext) {
+        val expanded = isExpanded.now
+        output.writeBoolean(expanded)
+        if (expanded) {
+            output.writeObject(editable.now!!, context)
+        } else {
+            output.writeString(text.now)
+        }
+    }
 }

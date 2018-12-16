@@ -13,11 +13,11 @@ import org.nikok.reaktive.value.now
 /**
  * An editor for tokens
  */
-abstract class TokenEditor<T : Any>(
-    editable: EditableToken<T>,
+abstract class TokenEditor<E : EditableToken<*>, V : TextEditorView>(
+    editable: E,
     private val platform: HextantPlatform
-) : AbstractEditor<EditableToken<T>, TextEditorView>(editable, platform) {
-    override fun viewAdded(view: TextEditorView) {
+) : AbstractEditor<E, V>(editable, platform) {
+    override fun viewAdded(view: V) {
         view.onGuiThread { view.displayText(editable.text.now) }
     }
 

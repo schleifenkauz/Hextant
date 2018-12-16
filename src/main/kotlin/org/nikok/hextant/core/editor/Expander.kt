@@ -58,7 +58,9 @@ abstract class Expander<E : Editable<*>>(
 
     fun setContent(new: E) {
         editable.setContent(new)
+        println("Notifying views")
         notifyViews()
+        println("Notified views")
     }
 
     private fun notifyViews() {

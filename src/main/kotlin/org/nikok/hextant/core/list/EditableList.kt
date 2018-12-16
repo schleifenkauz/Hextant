@@ -21,5 +21,6 @@ abstract class EditableList<N, E : Editable<N>> : ParentEditable<List<E?>, E>() 
 
     override val edited: ReactiveValue<List<E?>> =
             binding<List<E?>>("edited", dependencies(editedList)) { editableList.now }
+
     override val isOk: ReactiveBoolean = TODO()
 }

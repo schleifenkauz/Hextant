@@ -71,7 +71,7 @@ class InspectionGuiTest : Application() {
             val editableFactory = platform[EditableFactory]
             editableFactory.register(IntLiteral::class) { -> EditableIntLiteral() }
             val e = EditableIntLiteral()
-            return FXIntLiteralEditorView(e, platform)
+            return FXIntLiteralEditorView(e, platform).node
         }
 
         @JvmStatic fun main(args: Array<String>) {
