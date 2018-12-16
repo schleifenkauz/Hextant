@@ -29,8 +29,16 @@ class FXOperatorApplicationEditorView(
     private val editor: OperatorApplicationEditor = editorFactory.getEditor(editable)
 
     override fun createDefaultRoot(): HBox {
-        val openingParen = parenLabel("(")
-        val closingParen = parenLabel(")")
+        val openingParen = parenLabel("(").apply {
+            setOnMouseClicked {
+                editor.select()
+            }
+        }
+        val closingParen = parenLabel(")").apply {
+            setOnMouseClicked {
+                editor.select()
+            }
+        }
         return HBox(openingParen, op1View, operatorView, op2View, closingParen)
     }
 

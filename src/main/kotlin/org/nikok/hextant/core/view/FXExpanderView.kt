@@ -38,14 +38,6 @@ class FXExpanderView(
         expander.addView(this)
     }
 
-    override fun select(isSelected: Boolean) {
-        if (isSelected) {
-            textField.style = "-fx-background-color: #292929;"
-        } else {
-            textField.style = null
-        }
-    }
-
     private fun createExpanderTextField(text: String?): TextField = HextantTextField(text).apply {
         setOnAction { expander.expand() }
         textProperty().addListener { _, _, new -> expander.setText(new) }
