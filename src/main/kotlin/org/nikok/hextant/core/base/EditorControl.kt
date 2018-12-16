@@ -41,6 +41,10 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
             setRoot(newRoot)
         }
 
+    override fun requestFocus() {
+        root.requestFocus()
+    }
+
     /**
      * Initialize this [EditorControl]
      * * Must be called exactly once after constructor logic, otherwise behaviour is undefined
