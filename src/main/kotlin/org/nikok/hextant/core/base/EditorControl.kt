@@ -16,7 +16,7 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
 
     protected abstract fun createDefaultRoot(): R
 
-    protected var root: R
+    var root: R
         get() {
             val r = _root
             return if (r != null) r
@@ -26,7 +26,7 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
                 defaultRoot
             }
         }
-        set(newRoot) {
+        protected set(newRoot) {
             _root = newRoot
             skin = skin(this, newRoot)
         }
