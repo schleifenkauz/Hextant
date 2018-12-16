@@ -26,7 +26,7 @@ interface Editable<out E> {
      * @return the parent of this [Editable]
      * * When [parent] returns `null` this indicates that this [Editable] is the root
     */
-    val parent: Editable<*>?
+    val parent: ParentEditable<*, *>?
 
     /**
      * Move this [Editable] to its specified [newParent] by
