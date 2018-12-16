@@ -23,8 +23,17 @@ abstract class ParentEditable<out E, out C : Editable<*>> : AbstractEditable<E>(
     private val mutableChildren: MutableCollection<C> = mutableSetOf()
 
     /**
-     * @return the children of this [Editable]
+     * @return the direct children of this [Editable]
      */
     open val children: Collection<C> get() = mutableChildren
+
+    /**
+     * Return all recursive children of this editable
+     */
+    val allChildren: Sequence<Editable<*>>
+        get() = children.asSequence().flatMap { c ->
+            if (c is ParentEditable<*, *>) c.allChildren
+            else emptySequence()
+        }
 }
 
