@@ -11,9 +11,12 @@ import matchers.shouldBe
 import matchers.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
+import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.fx.PseudoClasses.ERROR
 import org.nikok.hextant.core.fx.PseudoClasses.SELECTED
 import org.nikok.hextant.core.instanceOf
+import org.nikok.hextant.core.mocks.MockEditable
+import org.nikok.hextant.core.mocks.MockEditor
 
 internal object EditorControlSpec : Spek({
     PlatformImpl.startup { }
@@ -77,6 +80,12 @@ internal object EditorControlSpec : Spek({
 
         fun setRoot(new: Label) {
             root = new
+        }
+
+        init {
+            val platform = HextantPlatform.newInstance()
+            val editable = MockEditable()
+            initialize(editable, MockEditor(editable, platform), platform)
         }
     }
 }
