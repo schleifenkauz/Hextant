@@ -58,4 +58,10 @@ interface Editor<E: Editable<*>> {
      * @return the children of this editor, typically this are the editors of the children of the editable of this editor
      */
     val children: Collection<Editor<*>>? get() = null
+
+    /**
+     * @return all recursive children of this editor
+     * * a `null` return value indicates that the underlying editable is not a parent
+     */
+    val allChildren: Sequence<Editor<*>>?
 }
