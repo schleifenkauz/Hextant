@@ -11,11 +11,23 @@ import org.nikok.hextant.EditorView
 import org.nikok.hextant.core.fx.PseudoClasses
 import org.nikok.hextant.core.fx.skin
 
+/**
+ * An [EditorView] represented as a [javafx.scene.control.Control]
+ * @param R the type of the root-[Node] of this control
+ */
 abstract class EditorControl<R : Node> : Control(), EditorView {
     private var _root: R? = null
 
+    /**
+     * Creates the default root for this control
+     */
     protected abstract fun createDefaultRoot(): R
 
+    /**
+     * The current root of this control
+     * * Initially it has the value of [createDefaultRoot]
+     * * Setting it updates the look of this control
+     */
     var root: R
         get() {
             val r = _root
