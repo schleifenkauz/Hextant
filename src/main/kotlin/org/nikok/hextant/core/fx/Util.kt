@@ -34,7 +34,7 @@ internal fun Control.setRoot(node: Node) {
     skin = skin(this, node)
 }
 
-private fun skin(control: Control, node: Node): Skin<Control> = SimpleSkin(control, node)
+internal fun skin(control: Control, node: Node): Skin<Control> = SimpleSkin(control, node)
 
 
 private class SimpleSkin(
