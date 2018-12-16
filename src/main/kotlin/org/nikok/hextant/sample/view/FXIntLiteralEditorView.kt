@@ -13,6 +13,6 @@ class FXIntLiteralEditorView(
     platform: HextantPlatform
 ) : FXTokenEditorView(editable, platform) {
     init {
-        root.styleClass.add("int-literal-editor")
+        styleClass.add("int-literal-editor")
     }
 }

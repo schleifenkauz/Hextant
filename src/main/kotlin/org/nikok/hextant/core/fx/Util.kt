@@ -8,19 +8,12 @@ package org.nikok.hextant.core.fx
 
 import com.sun.javafx.scene.traversal.Direction.NEXT
 import com.sun.javafx.scene.traversal.Direction.PREVIOUS
-import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.control.*
-import javafx.scene.input.*
-import javafx.scene.input.KeyCode.ENTER
-import javafx.scene.input.KeyCode.W
-import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
+import javafx.scene.input.KeyCombination
+import javafx.scene.input.KeyEvent
 import javafx.stage.PopupWindow
-import org.nikok.hextant.*
-import org.nikok.hextant.core.base.EditorControl
-import org.nikok.hextant.core.command.gui.commandContextMenu
-import org.nikok.hextant.core.inspect.Inspections
-import org.nikok.hextant.core.inspect.gui.InspectionPopup
+import org.nikok.hextant.Editor
 
 internal fun control(skin: Skin<out Control>): Control {
     return object : Control() {
@@ -85,17 +78,6 @@ internal fun Node.initSelection(editor: Editor<*>) {
     }
 }
 
-internal fun Node.activateInspections(inspected: Any, platform: HextantPlatform) {
-    val inspections = platform[Inspections]
-    val p = InspectionPopup(this) { inspections.getProblems(inspected) }
-    registerShortcut(KeyCodeCombination(ENTER, KeyCombination.ALT_DOWN)) { p.show(this) }
-}
-
-internal fun <T: Any> Node.activateContextMenu(target: T, platform: HextantPlatform) {
-    val contextMenu = target.commandContextMenu(platform)
-    setOnContextMenuRequested { contextMenu.show(this, Side.BOTTOM, 0.0, 0.0) }
-}
-
 internal fun TextField.smartSetText(new: String) {
     val previous = text
     if (previous != new) {
@@ -106,17 +88,6 @@ internal fun TextField.smartSetText(new: String) {
     }
 }
 
-private val EXTEND_SELECTION = KeyCodeCombination(W, SHORTCUT_DOWN)
-
 fun keyword(name: String) = Label(name).also { it.styleClass.add("keyword") }
 
 fun operator(name: String) = Label(name).also { it.styleClass.add("operator") }
-
-internal fun EditorControl<out Node>.activateSelectionExtension(editor: Editor<*>) {
-    root.addEventHandler(KeyEvent.KEY_RELEASED) { k ->
-        if (EXTEND_SELECTION.match(k) && !editor.isSelected) {
-            editor.select()
-            k.consume()
-        }
-    }
-}

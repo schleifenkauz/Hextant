@@ -31,7 +31,7 @@ class FXOperatorApplicationEditorView(
     override fun createDefaultRoot(): HBox {
         val openingParen = parenLabel("(")
         val closingParen = parenLabel(")")
-        return HBox(openingParen, op1View.root, operatorView.root, op2View.root, closingParen)
+        return HBox(openingParen, op1View, operatorView, op2View, closingParen)
     }
 
     init {

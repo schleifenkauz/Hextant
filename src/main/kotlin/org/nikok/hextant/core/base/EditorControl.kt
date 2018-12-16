@@ -5,10 +5,17 @@
 package org.nikok.hextant.core.base
 
 import javafx.application.Platform
+import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.control.Control
+import javafx.scene.input.*
+import javafx.scene.input.KeyCode.ENTER
+import javafx.scene.input.KeyCode.W
 import org.nikok.hextant.*
+import org.nikok.hextant.core.command.gui.commandContextMenu
 import org.nikok.hextant.core.fx.*
+import org.nikok.hextant.core.inspect.Inspections
+import org.nikok.hextant.core.inspect.gui.InspectionPopup
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -50,6 +57,27 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
         initialized = true
     }
 
+    private fun activateSelectionExtension(editor: Editor<*>) {
+        addEventHandler(KeyEvent.KEY_RELEASED) { k ->
+            if (EXTEND_SELECTION.match(k) && !editor.isSelected) {
+                editor.select()
+                k.consume()
+            }
+        }
+    }
+
+
+    private fun activateInspections(inspected: Any, platform: HextantPlatform) {
+        val inspections = platform[Inspections]
+        val p = InspectionPopup(this) { inspections.getProblems(inspected) }
+        registerShortcut(KeyCodeCombination(ENTER, KeyCombination.ALT_DOWN)) { p.show(this) }
+    }
+
+    private fun <T : Any> activateContextMenu(target: T, platform: HextantPlatform) {
+        val contextMenu = target.commandContextMenu(platform)
+        setOnContextMenuRequested { contextMenu.show(this, Side.BOTTOM, 0.0, 0.0) }
+    }
+
     private var initialized = false
 
     override fun select(isSelected: Boolean) {
@@ -74,5 +102,9 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
         if (!Platform.isFxApplicationThread()) {
             Platform.runLater(action)
         } else action()
+    }
+
+    companion object {
+        private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
     }
 }
