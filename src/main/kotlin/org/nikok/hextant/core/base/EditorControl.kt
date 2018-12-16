@@ -68,8 +68,10 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
     private fun activateSelectionExtension(editor: Editor<*>) {
         addEventHandler(KeyEvent.KEY_RELEASED) { k ->
             if (EXTEND_SELECTION.match(k) && editor.isSelected) {
-                editor.parent?.select()
+                editor.parent?.extendSelection(editor)
                 k.consume()
+            } else if (SHRIN_SELECTION.match(k) && editor.isSelected) {
+                editor.shrinkSelection()
             }
         }
     }
@@ -127,5 +129,7 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
 
     companion object {
         private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
+
+        private val SHRIN_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
     }
 }
