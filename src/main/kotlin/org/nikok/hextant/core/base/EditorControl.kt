@@ -28,6 +28,7 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
         }
         protected set(newRoot) {
             _root = newRoot
+            skin = null
             skin = skin(this, newRoot)
         }
 
