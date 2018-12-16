@@ -17,6 +17,7 @@ import javafx.scene.input.KeyCode.W
 import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
 import javafx.stage.PopupWindow
 import org.nikok.hextant.*
+import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.command.gui.commandContextMenu
 import org.nikok.hextant.core.inspect.Inspections
 import org.nikok.hextant.core.inspect.gui.InspectionPopup
@@ -109,6 +110,15 @@ private val EXTEND_SELECTION = KeyCodeCombination(W, SHORTCUT_DOWN)
 
 internal fun FXEditorView.activateSelectionExtension(editor: Editor<*>) {
     node.addEventHandler(KeyEvent.KEY_RELEASED) { k ->
+        if (EXTEND_SELECTION.match(k) && !editor.isSelected) {
+            editor.select()
+            k.consume()
+        }
+    }
+}
+
+internal fun EditorControl<out Node>.activateSelectionExtension(editor: Editor<*>) {
+    root.addEventHandler(KeyEvent.KEY_RELEASED) { k ->
         if (EXTEND_SELECTION.match(k) && !editor.isSelected) {
             editor.select()
             k.consume()
