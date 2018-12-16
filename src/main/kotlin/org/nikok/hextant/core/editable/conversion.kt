@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
     override val isOk: ReactiveBoolean
         get() = source.isOk
 
-    override val parent: Editable<*>?
+    override val parent: ParentEditable<*, *>?
         get() = source.parent
 
     override fun moveTo(newParent: ParentEditable<*, *>) {
