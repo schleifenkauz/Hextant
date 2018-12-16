@@ -21,7 +21,7 @@
 }
 
 :selected {
-    -fx-background-color: gray !important;
+    -fx-background-color: #292929 !important;
 }
 
 .utility-dialog-pane {
