@@ -61,6 +61,10 @@ abstract class Expander<E : Editable<*>>(
         notifyViews()
     }
 
+    override fun select() {
+        parent?.select()
+    }
+
     private fun notifyViews() {
         views {
             handleState()

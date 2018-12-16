@@ -52,7 +52,7 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
         override fun get(): Boolean = value
     }
 
-    final override fun select() {
+    override fun select() {
         selectionDistributor.select(this, isSelectedVar)
     }
 
