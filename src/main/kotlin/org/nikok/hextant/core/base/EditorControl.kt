@@ -70,7 +70,7 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
             if (EXTEND_SELECTION.match(k) && editor.isSelected) {
                 editor.parent?.extendSelection(editor)
                 k.consume()
-            } else if (SHRIN_SELECTION.match(k) && editor.isSelected) {
+            } else if (SHRINK_SELECTION.match(k) && editor.isSelected) {
                 editor.shrinkSelection()
             }
         }
@@ -130,6 +130,6 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
     companion object {
         private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
 
-        private val SHRIN_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
+        private val SHRINK_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
     }
 }
