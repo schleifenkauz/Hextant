@@ -39,17 +39,20 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     final override val isSelected: Boolean get() = isSelectedVar.get()
 
     private val isSelectedVar: Variable<Boolean> = object : AbstractVariable<Boolean>() {
-        private var value = false
+        private var isSelected = false
 
         override val description: String
             get() = "Is ${this@AbstractEditor} selected"
 
         override fun doSet(value: Boolean) {
-            this.value = value
+            if (!value) {
+                lastExtendingChild = null
+            }
+            isSelected = value
             views.forEach { it.select(isSelected = value) }
         }
 
-        override fun get(): Boolean = value
+        override fun get(): Boolean = isSelected
     }
 
     override fun select() {
@@ -58,6 +61,27 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
 
     final override fun toggleSelection() {
         selectionDistributor.toggleSelection(this, isSelectedVar)
+    }
+
+    private var lastExtendingChild: Editor<*>? = null
+
+    override fun extendSelection(child: Editor<*>) {
+        if (editable is ParentEditable<*, *>) {
+            require(child.editable in editable.children) { "child is not a child of this editable" }
+            require(child.isSelected) { "Child is not selected" }
+            child.toggleSelection()
+            lastExtendingChild = child
+            toggleSelection()
+        } else throw IllegalStateException("Cannot extend selection for a non-parent editor")
+    }
+
+    override fun shrinkSelection() {
+        require(isSelected) { "Shrinking parent is not selected" }
+        if (editable is ParentEditable<*, *>) {
+            val c = lastExtendingChild ?: children!!.first()
+            if (!c.isSelected) c.toggleSelection()
+            toggleSelection()
+        }
     }
 
     override val parent: Editor<*>?

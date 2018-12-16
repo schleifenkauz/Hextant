@@ -34,6 +34,17 @@ interface Editor<E: Editable<*>> {
     fun toggleSelection()
 
     /**
+     * Add selection for this [Editor] and deselect the [child]
+     * * Calls of [shrinkSelection] will focus the specified [child]
+     */
+    fun extendSelection(child: Editor<*>)
+
+    /**
+     * Focus the last child that expanded selection on this editor
+     */
+    fun shrinkSelection()
+
+    /**
      * @return whether this editor is selected currently
      */
     val isSelected: Boolean
