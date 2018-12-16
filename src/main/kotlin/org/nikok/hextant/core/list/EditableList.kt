@@ -10,8 +10,10 @@ import org.nikok.reaktive.dependencies
 import org.nikok.reaktive.list.reactiveList
 import org.nikok.reaktive.value.*
 import org.nikok.reaktive.value.binding.binding
+import kotlin.reflect.KClass
 
-abstract class EditableList<N, E : Editable<N>> : ParentEditable<List<E?>, E>() {
+class EditableList<N, E : Editable<N>>(private val elementCls: KClass<E>) :
+    ParentEditable<List<E?>, E>() {
     val editableList = reactiveList<E>("editable list")
 
     val editedList = editableList.map("edited list") { it.edited.now }
@@ -20,7 +22,13 @@ abstract class EditableList<N, E : Editable<N>> : ParentEditable<List<E?>, E>() 
         get() = editableList.now
 
     override val edited: ReactiveValue<List<E?>> =
-            binding<List<E?>>("edited", dependencies(editedList)) { editableList.now }
+        binding<List<E?>>("edited", dependencies(editedList)) { editableList.now }
 
-    override val isOk: ReactiveBoolean = TODO()
+    override val isOk: ReactiveBoolean get() = TODO()
+
+    override fun accepts(child: Editable<*>): Boolean = elementCls.isInstance(child)
+
+    companion object {
+        inline fun <N, reified E : Editable<N>> newInstance() = EditableList(E::class)
+    }
 }
