@@ -13,6 +13,6 @@ class FXNameEditorView(
     platform: HextantPlatform
 ) : FXTokenEditorView(editable, platform) {
     init {
-        node.styleClass.add("identifier-editor")
+        root.styleClass.add("identifier-editor")
     }
 }

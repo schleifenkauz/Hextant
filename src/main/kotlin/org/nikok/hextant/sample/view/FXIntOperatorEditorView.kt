@@ -13,6 +13,6 @@ class FXIntOperatorEditorView(
     platform: HextantPlatform
 ) : FXTokenEditorView(editable, platform) {
     init {
-        node.styleClass.add("int-operator-editor")
+        root.styleClass.add("int-operator-editor")
     }
 }
