@@ -13,7 +13,6 @@ import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.KeyEvent
 import javafx.stage.PopupWindow
-import org.nikok.hextant.Editor
 
 internal fun control(skin: Skin<out Control>): Control {
     return object : Control() {
@@ -62,20 +61,6 @@ internal fun Node.focusNext() {
 
 internal fun Node.focusPrevious() {
     impl_traverse(PREVIOUS)
-}
-
-internal fun Node.initSelection(editor: Editor<*>) {
-    focusedProperty().addListener { _, _, isFocused ->
-        if (isFocused) {
-            if (isControlDown) {
-                println("Focused $this, toggling selection of $editor")
-                editor.toggleSelection()
-            } else {
-                println("Focused $this, selecting $editor")
-                editor.select()
-            }
-        }
-    }
 }
 
 internal fun TextField.smartSetText(new: String) {

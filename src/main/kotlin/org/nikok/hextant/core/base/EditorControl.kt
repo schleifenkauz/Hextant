@@ -24,6 +24,8 @@ import org.nikok.hextant.core.inspect.gui.InspectionPopup
 abstract class EditorControl<R : Node> : Control(), EditorView {
     private var _root: R? = null
 
+    private lateinit var editor: Editor<*>
+
     /**
      * Creates the default root for this control
      */
@@ -38,6 +40,7 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
         get() = _root ?: throw IllegalStateException("root not yet initialized")
         protected set(newRoot) {
             _root = newRoot
+            activateSelection(editor)
             setRoot(newRoot)
         }
 
@@ -54,6 +57,7 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
      */
     protected fun initialize(editable: Editable<*>, editor: Editor<*>, platform: HextantPlatform) {
         check(!initialized) { "already initialized" }
+        this.editor = editor
         root = createDefaultRoot()
         activateContextMenu(editable, platform)
         activateInspections(editable, platform)
@@ -66,6 +70,19 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
             if (EXTEND_SELECTION.match(k) && !editor.isSelected) {
                 editor.select()
                 k.consume()
+            }
+        }
+    }
+
+
+    private fun activateSelection(editor: Editor<*>) {
+        root.focusedProperty().addListener { _, _, isFocused ->
+            if (isFocused) {
+                if (isControlDown) {
+                    editor.toggleSelection()
+                } else {
+                    editor.select()
+                }
             }
         }
     }
