@@ -108,14 +108,9 @@ internal fun TextField.smartSetText(new: String) {
 
 private val EXTEND_SELECTION = KeyCodeCombination(W, SHORTCUT_DOWN)
 
-internal fun FXEditorView.activateSelectionExtension(editor: Editor<*>) {
-    node.addEventHandler(KeyEvent.KEY_RELEASED) { k ->
-        if (EXTEND_SELECTION.match(k) && !editor.isSelected) {
-            editor.select()
-            k.consume()
-        }
-    }
-}
+fun keyword(name: String) = Label(name).also { it.styleClass.add("keyword") }
+
+fun operator(name: String) = Label(name).also { it.styleClass.add("operator") }
 
 internal fun EditorControl<out Node>.activateSelectionExtension(editor: Editor<*>) {
     root.addEventHandler(KeyEvent.KEY_RELEASED) { k ->
