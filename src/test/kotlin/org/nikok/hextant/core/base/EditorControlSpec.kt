@@ -8,14 +8,13 @@ import com.sun.javafx.application.PlatformImpl
 import javafx.scene.Scene
 import javafx.scene.control.Label
 import matchers.shouldBe
-import matchers.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.fx.PseudoClasses.ERROR
 import org.nikok.hextant.core.fx.PseudoClasses.SELECTED
 import org.nikok.hextant.core.instanceOf
-import org.nikok.hextant.core.mocks.MockEditable
+import org.nikok.hextant.core.mocks.EditableMock
 import org.nikok.hextant.core.mocks.MockEditor
 
 internal object EditorControlSpec : Spek({
@@ -41,12 +40,6 @@ internal object EditorControlSpec : Spek({
             }
         }
         context("view actions") {
-            on("focus") {
-                ec.focus()
-                it("should be the focus owner") {
-                    scene.focusOwner shouldEqual ec
-                }
-            }
             on("select") {
                 ec.select(true)
                 it("should have the selected pseudo class") {
@@ -84,7 +77,7 @@ internal object EditorControlSpec : Spek({
 
         init {
             val platform = HextantPlatform.newInstance()
-            val editable = MockEditable()
+            val editable = EditableMock()
             initialize(editable, MockEditor(editable, platform), platform)
         }
     }
