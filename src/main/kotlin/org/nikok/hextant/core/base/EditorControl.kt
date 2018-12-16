@@ -67,8 +67,8 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
 
     private fun activateSelectionExtension(editor: Editor<*>) {
         addEventHandler(KeyEvent.KEY_RELEASED) { k ->
-            if (EXTEND_SELECTION.match(k) && !editor.isSelected) {
-                editor.select()
+            if (EXTEND_SELECTION.match(k)) {
+                editor.parent?.select()
                 k.consume()
             }
         }
