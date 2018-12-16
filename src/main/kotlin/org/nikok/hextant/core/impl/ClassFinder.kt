@@ -2,9 +2,8 @@
  *@author Nikolaus Knop
  */
 
-package org.nikok.hextant.core.view.builder.gui.impl
+package org.nikok.hextant.core.impl
 
-import org.nikok.hextant.core.impl.myLogger
 import java.nio.file.*
 import java.util.*
 import kotlin.reflect.KClass
@@ -77,6 +76,10 @@ class ClassFinder private constructor(private val classLoader: ClassLoader) {
 
         private val cache = IdentityHashMap<ClassLoader, ClassFinder>()
 
-        fun get(classLoader: ClassLoader) = cache.getOrPut(classLoader) { ClassFinder(classLoader) }!!
+        fun get(classLoader: ClassLoader) = cache.getOrPut(classLoader) {
+            ClassFinder(
+                classLoader
+            )
+        }!!
     }
 }
