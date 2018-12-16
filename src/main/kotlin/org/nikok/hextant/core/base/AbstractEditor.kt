@@ -69,9 +69,9 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
         if (editable is ParentEditable<*, *>) {
             require(child.editable in editable.children) { "child is not a child of this editable" }
             require(child.isSelected) { "Child is not selected" }
+            toggleSelection()
             child.toggleSelection()
             lastExtendingChild = child
-            toggleSelection()
         } else throw IllegalStateException("Cannot extend selection for a non-parent editor")
     }
 
