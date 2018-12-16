@@ -11,6 +11,21 @@ infix fun <T> T.shouldBe(matcher: Matcher<T>) = shouldMatch(matcher)
 
 infix fun <T> Described<T>.shouldBe(matcher: Matcher<T>) = shouldMatch(matcher)
 
+infix fun <T> T.shouldEqual(value: T) = this shouldBe equalTo(value)
+
+inline infix fun <reified E : Throwable> (() -> Unit).shouldThrow(exceptionMatcher: Matcher<E>?) {
+    { this(); Unit } shouldMatch throws<E>(exceptionMatcher)
+}
+
+inline fun <reified E : Throwable> (() -> Unit).shouldThrow(): Unit = shouldThrow<E>(null)
+
+@JvmName("shouldThrowAny")
+inline infix fun <reified E : Throwable> (() -> Any?).shouldThrow(exceptionMatcher: Matcher<E>?): Unit =
+    { this(); Unit } shouldThrow (exceptionMatcher)
+
+@JvmName("shouldThrowAny")
+inline fun <reified E : Throwable> (() -> Any?).shouldThrow(): Unit = shouldThrow<E>(null)
+
 val `null` = Matcher<Any?>("is null") { it == null }
 
 val `false` = equalTo(false)
