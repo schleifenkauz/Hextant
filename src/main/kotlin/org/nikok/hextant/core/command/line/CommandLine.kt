@@ -174,7 +174,8 @@ class CommandLine(
     }
 
     private fun execute(c: Command<Any, *>, targets: Set<Any>, arguments: Array<Any>) {
-        val results = targets.asSequence().filter { c.isApplicableOn(it)}.map { c.execute(it, *arguments) }.toList()
+        val applicableTargets = targets.filter { c.isApplicableOn(it) }
+        val results = applicableTargets.map { c.execute(it, *arguments) }
         logger.fine { "results = $results" }
         val application = CommandApplication(c, arguments, results)
         execute.fire(application)
