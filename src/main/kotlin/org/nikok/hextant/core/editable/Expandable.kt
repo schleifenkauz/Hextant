@@ -39,7 +39,7 @@ abstract class Expandable<N, E : Editable<N>> : ParentEditable<N, E>(), Serializ
         _isExpanded.set(true)
         bindObserver?.kill()
         bindObserver = _edited.bind(editable.edited)
-        editable.moveTo(this)
+        if (parent != null) editable.moveTo(parent!!)
     }
 
     val text: ReactiveVariable<String> get() = _text
