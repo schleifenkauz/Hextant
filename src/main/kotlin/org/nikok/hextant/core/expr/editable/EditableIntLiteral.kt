@@ -8,7 +8,7 @@ import kserial.Serializable
 import org.nikok.hextant.core.editable.EditableToken
 import org.nikok.hextant.core.expr.edited.IntLiteral
 
-class EditableIntLiteral() : EditableToken<IntLiteral>(), Serializable {
+class EditableIntLiteral() : EditableToken<IntLiteral>(), Serializable, EditableExpr<IntLiteral> {
     constructor(v: Int) : this() {
         text.set(v.toString())
     }
