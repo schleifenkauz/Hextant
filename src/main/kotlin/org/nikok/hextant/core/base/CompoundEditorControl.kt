@@ -50,7 +50,7 @@ abstract class CompoundEditorControl(
         }
 
         fun indented(build: Vertical.() -> Unit) {
-            val indent = Label()
+            val indent = Label("  ")
             val v = Vertical().apply(build)
             val indented = HBox(indent, v)
             children.add(indented)
