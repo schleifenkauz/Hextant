@@ -74,7 +74,6 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
 
     override fun extendSelection(child: Editor<*>) {
         if (editable is ParentEditable<*, *>) {
-            require(child.editable in editable.children) { "child is not a child of this editable" }
             require(child.isSelected) { "Child is not selected" }
             toggleSelection()
             child.toggleSelection()

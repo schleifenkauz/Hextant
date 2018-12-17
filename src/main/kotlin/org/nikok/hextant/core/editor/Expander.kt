@@ -4,8 +4,7 @@
 
 package org.nikok.hextant.core.editor
 
-import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.*
 import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.view.ExpanderView
@@ -59,6 +58,10 @@ abstract class Expander<E : Editable<*>>(
     fun setContent(new: E) {
         editable.setContent(new)
         notifyViews()
+    }
+
+    override fun extendSelection(child: Editor<*>) {
+        parent?.extendSelection(child)
     }
 
     private fun notifyViews() {
