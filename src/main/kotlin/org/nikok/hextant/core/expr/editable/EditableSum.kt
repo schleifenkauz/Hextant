@@ -14,7 +14,7 @@ import org.nikok.hextant.core.list.EditableList
 import org.nikok.reaktive.value.ReactiveValue
 import org.nikok.reaktive.value.now
 
-class EditableSum : ParentEditable<Sum, Editable<Expr>>() {
+class EditableSum : ParentEditable<Sum, Editable<Expr>>(), EditableExpr<Sum> {
     override fun accepts(child: Editable<*>): Boolean = child is EditableExpr<*>
 
     val expressions = EditableList.newInstance<Expr, Editable<Expr>>()
