@@ -11,8 +11,7 @@ import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
 import org.nikok.hextant.prop.*
 import org.nikok.hextant.prop.PropertyHolder.Init
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
+import java.util.concurrent.*
 import java.util.logging.Logger
 import kotlin.properties.ReadOnlyProperty
 
@@ -37,7 +36,10 @@ interface HextantPlatform : PropertyHolder {
 
         private val propertyHolder = propertyHolder(this)
 
-        override fun <T> runLater(action: () -> T): Future<T> = executor.submit(action)
+        override fun <T> runLater(action: () -> T): Future<T> {
+            val future = executor.submit(action)
+            return CompletableFuture.supplyAsync { future.get() }.exceptionally { it.printStackTrace(); throw it }
+        }
 
         override fun exit() {
             executor.shutdown()
@@ -48,7 +50,7 @@ interface HextantPlatform : PropertyHolder {
         }
 
         override fun <T : Any, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T =
-                propertyHolder[permission, property]
+            propertyHolder[permission, property]
 
         override fun <T : Any, Write : Permission> set(
             permission: Write,
@@ -92,7 +94,7 @@ interface HextantPlatform : PropertyHolder {
         }
 
         fun withPropertyHolder(propertyHolder: HextantPlatform.() -> PropertyHolder): HextantPlatform =
-                Impl(propertyHolder)
+            Impl(propertyHolder)
 
         val INSTANCE = newInstance()
 
