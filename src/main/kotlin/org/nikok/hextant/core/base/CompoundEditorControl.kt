@@ -19,60 +19,47 @@ abstract class CompoundEditorControl(
     override fun createDefaultRoot(): VBox = Vertical().also(build)
 
     interface Compound {
-        fun view(editable: Editable<*>)
+        fun view(editable: Editable<*>): EditorControl<*>
 
-        fun space()
+        fun space(): Label
 
-        fun keyword(name: String)
+        fun keyword(name: String): Label
 
-        fun operator(str: String)
+        fun operator(str: String): Label
     }
 
     inner class Vertical : VBox(), Compound {
-        override fun view(editable: Editable<*>) {
-            view(editable, this, platform)
+        override fun view(editable: Editable<*>) = view(editable, this, platform)
+
+        override fun space() = space(this)
+
+        override fun keyword(name: String): Label = keyword(name, this)
+
+        override fun operator(str: String): Label = operator(str, this)
+
+        fun line(build: Horizontal.() -> Unit): Horizontal {
+            val horizontal = Horizontal().apply(build)
+            children.add(horizontal)
+            return horizontal
         }
 
-        override fun space() {
-            space(this)
-        }
-
-        override fun keyword(name: String) {
-            keyword(name, this)
-        }
-
-        override fun operator(str: String) {
-            operator(str, this)
-        }
-
-        fun line(build: Horizontal.() -> Unit) {
-            children.add(Horizontal().apply(build))
-        }
-
-        fun indented(build: Vertical.() -> Unit) {
+        fun indented(build: Vertical.() -> Unit): HBox {
             val indent = Label("  ")
             val v = Vertical().apply(build)
             val indented = HBox(indent, v)
             children.add(indented)
+            return indented
         }
     }
 
     inner class Horizontal : HBox(), Compound {
-        override fun view(editable: Editable<*>) {
-            view(editable, this, platform)
-        }
+        override fun view(editable: Editable<*>): EditorControl<*> = view(editable, this, platform)
 
-        override fun space() {
-            space(this)
-        }
+        override fun space() = space(this)
 
-        override fun keyword(name: String) {
-            keyword(name, this)
-        }
+        override fun keyword(name: String): Label = keyword(name, this)
 
-        override fun operator(str: String) {
-            operator(str, this)
-        }
+        override fun operator(str: String): Label = operator(str, this)
     }
 
     companion object {
@@ -80,23 +67,28 @@ abstract class CompoundEditorControl(
             editable: Editable<*>,
             pane: Pane,
             platform: HextantPlatform
-        ) {
+        ): EditorControl<*> {
             val c = platform[Public, EditorViewFactory].getFXView(editable)
             pane.children.add(c)
+            return c
         }
 
-        private fun keyword(name: String, pane: Pane) {
+        private fun keyword(name: String, pane: Pane): Label {
             val l = keyword(name)
             pane.children.add(l)
+            return l
         }
 
-        private fun operator(name: String, pane: Pane) {
+        private fun operator(name: String, pane: Pane): Label {
             val l = operator(name)
             pane.children.add(l)
+            return l
         }
 
-        private fun space(pane: Pane) {
-            pane.children.add(Label())
+        private fun space(pane: Pane): Label {
+            val l = Label(" ")
+            pane.children.add(l)
+            return l
         }
 
         operator fun invoke(
