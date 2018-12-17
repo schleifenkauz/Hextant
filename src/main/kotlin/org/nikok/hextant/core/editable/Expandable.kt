@@ -9,14 +9,12 @@ package org.nikok.hextant.core.editable
 import kserial.*
 import org.nikok.hextant.Editable
 import org.nikok.hextant.ParentEditable
-import org.nikok.reaktive.Observer
 import org.nikok.reaktive.value.*
 
 abstract class Expandable<N, E : Editable<N>> : ParentEditable<N, E>(), Serializable {
     final override val isOk: ReactiveBoolean = reactiveValue("isOk", true)
-    private val _edited: ReactiveVariable<N?> = reactiveVariable("Edited of $this", null)
+
     private val _editable: ReactiveVariable<E?> = reactiveVariable("content of $this", null)
-    private var bindObserver: Observer? = null
 
     private val _text: ReactiveVariable<String> = reactiveVariable("Text of $this", "")
 
@@ -25,10 +23,7 @@ abstract class Expandable<N, E : Editable<N>> : ParentEditable<N, E>(), Serializ
     val isExpanded: ReactiveValue<Boolean> get() = _isExpanded
 
     fun setText(text: String) {
-        bindObserver?.kill()
-        bindObserver = null
         _isExpanded.set(false)
-        _edited.set(null)
         _editable.set(null)
         _text.set(text)
     }
@@ -37,8 +32,6 @@ abstract class Expandable<N, E : Editable<N>> : ParentEditable<N, E>(), Serializ
         _text.set("")
         _editable.set(editable)
         _isExpanded.set(true)
-        bindObserver?.kill()
-        bindObserver = _edited.bind(editable.edited)
         editable.moveTo(this)
     }
 
@@ -46,8 +39,8 @@ abstract class Expandable<N, E : Editable<N>> : ParentEditable<N, E>(), Serializ
 
     val editable: ReactiveValue<E?> get() = _editable
 
-    final override val edited: ReactiveValue<N?>
-        get() = _edited
+    final override val edited: ReactiveValue<N?> =
+        _editable.flatMap("Edited of $this") { it?.edited ?: reactiveValue("null", null) }
 
     override val children: Collection<E>
         get() {
