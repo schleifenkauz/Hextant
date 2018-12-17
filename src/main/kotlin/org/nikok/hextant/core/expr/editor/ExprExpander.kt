@@ -27,6 +27,7 @@ class ExprExpander(
             registerConstant("-") { EditableOperatorApplication(Minus) }
             registerConstant("*") { EditableOperatorApplication(Times) }
             registerConstant("/") { EditableOperatorApplication(Div) }
+            registerConstant("sum") { EditableSum() }
             registerInterceptor { it ->
                 val int = it.toIntOrNull()
                 if (int != null) EditableIntLiteral(int)
