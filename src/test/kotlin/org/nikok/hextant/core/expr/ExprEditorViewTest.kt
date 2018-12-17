@@ -5,11 +5,13 @@
 package org.nikok.hextant.core.expr
 
 import javafx.application.Application
+import javafx.application.Platform
 import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.Parent
 import javafx.scene.control.*
 import javafx.scene.input.*
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.HBox
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import kserial.*
@@ -24,6 +26,7 @@ import org.nikok.hextant.core.expr.edited.Expr
 import org.nikok.hextant.core.expr.editor.*
 import org.nikok.hextant.core.fx.hextantScene
 import org.nikok.reaktive.value.now
+import org.nikok.reaktive.value.observe
 import java.util.logging.Level
 
 class ExprEditorViewTest : Application() {
@@ -62,30 +65,47 @@ class ExprEditorViewTest : Application() {
             description = "Flips the both operands in this operator application"
             applicableIf { oe ->
                 val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
-                oae.editable.editableOperator.edited.now?.isCommutative ?: false &&
-                        oae.editable.editableOp1.editable.now != null &&
-                        oae.editable.editableOp2.editable.now != null
+                oae.editable.editableOperator.edited.now?.isCommutative ?: false
             }
             executing { oe, _ ->
                 val oae = oe.parent as OperatorApplicationEditor
                 val expandableOp1 = oae.editable.editableOp1
-                val editableOp1 = expandableOp1.editable.now!!
+                val editableOp1 = expandableOp1.editable.now
                 val expandableOp2 = oae.editable.editableOp2
-                val editableOp2 = expandableOp2.editable.now!!
+                val editableOp2 = expandableOp2.editable.now
                 val expander1 = expanderFactory.getExpander(expandableOp1)
-                expander1.setContent(editableOp2)
+                if (editableOp2 != null) expander1.setContent(editableOp2)
                 val expander2 = expanderFactory.getExpander(expandableOp2)
-                expander2.setContent(editableOp1)
+                if (editableOp1 != null) expander2.setContent(editableOp1)
             }
         }
-        val expandableView = views.getFXView(expandable)
+        val expanderView = views.getFXView(expandable)
         val cl = CommandLine.forSelectedEditors(platform)
         val clView = FXCommandLineView(cl, platform)
+        val evaluationDisplay = Label("Invalid expression")
+        val obs = expandable.edited.observe("Evaluation display") { _, _, new ->
+            Platform.runLater {
+                if (new == null) {
+                    evaluationDisplay.text = "Invalid expression"
+                } else {
+                    val v = new.value
+                    evaluationDisplay.text = "$v"
+                }
+            }
+        }
         val menuBar = createMenuBar(expander)
-        val split = SplitPane(menuBar, expandableView, clView)
+        val split = SplitPane(menuBar, expanderView, clView)
         platform[CoreProperties.logger].level = Level.FINE
         split.orientation = VERTICAL
-        return BorderPane(expandableView, menuBar, null, clView, null)
+        return BorderPane(
+            HBox(10.0, expanderView, Label("->"), evaluationDisplay),
+            menuBar,
+            null,
+            clView,
+            null
+        ).also {
+            it.userData = obs
+        }
     }
 
     private fun createMenuBar(parent: ExprExpander): MenuBar {
