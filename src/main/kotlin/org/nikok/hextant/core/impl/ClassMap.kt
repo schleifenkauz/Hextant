@@ -20,7 +20,7 @@ internal sealed class ClassMap<V> {
         override fun get(cls: KClass<*>): V? {
             map[cls]?.let { return it }
             for (c in cls.allSuperclasses) {
-                map[cls]?.let { return it }
+                map[c]?.let { return it }
             }
             return null
         }
