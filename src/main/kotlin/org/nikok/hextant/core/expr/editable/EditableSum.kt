@@ -18,6 +18,10 @@ class EditableSum : ParentEditable<Sum, Editable<Expr>>(), EditableExpr<Sum> {
 
     val expressions = EditableExprList()
 
+    init {
+        expressions.moveTo(this)
+    }
+
     override val edited: ReactiveValue<Sum?>
         get() = expressions.edited.map("edited of sum") { editableExpressions ->
             editableExpressions.map { editable ->
