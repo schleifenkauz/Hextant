@@ -87,7 +87,7 @@ class FXListEditorView(
         constructor(text: String) : this(Label(text))
 
         init {
-            root = HBox(prefix, null)
+            root = HBox(prefix)
         }
 
         override fun requestFocus() {
@@ -95,12 +95,37 @@ class FXListEditorView(
         }
 
         override fun updateItem(item: EditorControl<*>) {
-            root.children[1] = item
+            if (root.children.size == 2) {
+                root.children[1] = item
+            } else if (root.children.size == 1) {
+                root.children.add(1, item)
+            }
         }
     }
 
     class SeparatorCell(private val separator: Node) : Cell<HBox>() {
         constructor(text: String) : this(Label(text))
+
+        private var left: Node? = null
+            get() = if (root.children.size == 2) root.children[0] else null
+            set(l) {
+                when {
+                    l == null && field != null -> root.children.removeAt(0)
+                    l == null                  -> {
+                    }
+                    field != null              -> root.children[0] = l
+                    else                       -> root.children.add(0, l)
+                }
+                field = l
+            }
+
+        private var right: Node
+            get() = root.children[root.children.size - 1]
+            set(value) {
+                if (root.children.size == 2) {
+                    root.children[1] = value
+                } else root.children.add(root.children.size, value)
+            }
 
         init {
             root = HBox()
@@ -111,14 +136,12 @@ class FXListEditorView(
         }
 
         override fun updateIndex(idx: Int) {
-            if (idx == 0) root.children.add(0, separator)
-            else root.children.removeAt(0)
+            left = if (idx != 0) separator
+            else null
         }
 
         override fun updateItem(item: EditorControl<*>) {
-            val children = root.children
-            if (item in children) children[children.size - 1] = item
-            else children.add(item)
+            right = item
         }
     }
 
