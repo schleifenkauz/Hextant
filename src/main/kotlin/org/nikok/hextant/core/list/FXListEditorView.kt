@@ -194,7 +194,6 @@ class FXListEditorView(
     init {
         initialize(editable, editor, platform)
         editor.addView(this)
-        addChildren()
         initEmptyDisplay()
     }
 
