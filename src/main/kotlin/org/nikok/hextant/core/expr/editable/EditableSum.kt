@@ -6,6 +6,7 @@
 
 package org.nikok.hextant.core.expr.editable
 
+import kserial.*
 import org.nikok.hextant.Editable
 import org.nikok.hextant.ParentEditable
 import org.nikok.hextant.core.expr.edited.Expr
@@ -13,10 +14,9 @@ import org.nikok.hextant.core.expr.edited.Sum
 import org.nikok.reaktive.value.ReactiveValue
 import org.nikok.reaktive.value.now
 
-class EditableSum : ParentEditable<Sum, Editable<Expr>>(), EditableExpr<Sum> {
+class EditableSum(val expressions: EditableExprList = EditableExprList()) : ParentEditable<Sum, Editable<Expr>>(),
+                                                                            EditableExpr<Sum> {
     override fun accepts(child: Editable<*>): Boolean = child is EditableExprList
-
-    val expressions = EditableExprList()
 
     init {
         expressions.moveTo(this)
@@ -30,4 +30,15 @@ class EditableSum : ParentEditable<Sum, Editable<Expr>>(), EditableExpr<Sum> {
                 expressions.all { expr -> expr != null }
             }?.let { Sum(it as List<Expr>) }
         }
+
+    companion object : Serializer<EditableSum> {
+        override fun deserialize(cls: Class<EditableSum>, input: Input, context: SerialContext): EditableSum {
+            val expressions = input.readTyped<EditableExprList>(context)!!
+            return EditableSum(expressions)
+        }
+
+        override fun serialize(obj: EditableSum, output: Output, context: SerialContext) {
+            output.writeObject(obj.expressions, context)
+        }
+    }
 }
