@@ -83,6 +83,45 @@ class FXListEditorView(
         }
     }
 
+    class PrefixCell(prefix: Node) : Cell<HBox>() {
+        constructor(text: String) : this(Label(text))
+
+        init {
+            root = HBox(prefix, null)
+        }
+
+        override fun requestFocus() {
+            item?.requestFocus()
+        }
+
+        override fun updateItem(item: EditorControl<*>) {
+            root.children[1] = item
+        }
+    }
+
+    class SeparatorCell(private val separator: Node) : Cell<HBox>() {
+        constructor(text: String) : this(Label(text))
+
+        init {
+            root = HBox()
+        }
+
+        override fun requestFocus() {
+            item?.requestFocus()
+        }
+
+        override fun updateIndex(idx: Int) {
+            if (idx == 0) root.children.add(0, separator)
+            else root.children.removeAt(0)
+        }
+
+        override fun updateItem(item: EditorControl<*>) {
+            val children = root.children
+            if (item in children) children[children.size - 1] = item
+            else children.add(item)
+        }
+    }
+
     abstract class Cell<R : Node> : Control() {
         var index: Int = -1
             internal set(value) {
