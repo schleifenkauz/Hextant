@@ -14,7 +14,7 @@ import org.nikok.reaktive.value.ReactiveValue
 import org.nikok.reaktive.value.now
 
 class EditableSum : ParentEditable<Sum, Editable<Expr>>(), EditableExpr<Sum> {
-    override fun accepts(child: Editable<*>): Boolean = child is EditableExpr<*>
+    override fun accepts(child: Editable<*>): Boolean = child is EditableExprList
 
     val expressions = EditableExprList()
 
