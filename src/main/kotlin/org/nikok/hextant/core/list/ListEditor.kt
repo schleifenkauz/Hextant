@@ -16,15 +16,19 @@ abstract class ListEditor<E : Editable<*>>(
 
     fun add(idx: Int): E {
         val editable = createNewEditable()
+        editable.moveTo(list)
         list.editableList.now.add(idx, editable)
+        views {
+            added(editable, idx)
+        }
         return editable
     }
 
-    fun remove(editable: E) {
-        list.editableList.now.remove(editable)
-    }
-
     fun removeAt(idx: Int) {
-        list.editableList.now.removeAt(idx)
+        val removed = list.editableList.now.removeAt(idx)
+        removed.moveTo(null)
+        views {
+            removed(idx)
+        }
     }
 }
