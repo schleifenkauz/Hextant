@@ -115,18 +115,12 @@ class ExprEditorViewTest : Application() {
                 }
             }
         }
-        val debug = Button("debug").apply {
-            setOnAction {
-                platform
-                println("debug")
-            }
-        }
         val menuBar = createMenuBar(expander)
         val split = SplitPane(menuBar, expanderView, clView)
         platform[CoreProperties.logger].level = Level.FINE
         split.orientation = VERTICAL
         return BorderPane(
-            HBox(10.0, expanderView, Label("->"), evaluationDisplay, debug),
+            HBox(10.0, expanderView, Label("->"), evaluationDisplay),
             menuBar,
             null,
             clView,
