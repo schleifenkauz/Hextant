@@ -12,10 +12,18 @@ abstract class ListEditor<E : Editable<*>>(
     private val list: EditableList<*, E>,
     platform: HextantPlatform
 ) : AbstractEditor<EditableList<*, E>, ListEditorView>(list, platform) {
+    private val empty get() = list.editableList.now.isEmpty()
+
     override fun viewAdded(view: ListEditorView) {
-        for ((idx, child) in list.editableList.now.withIndex()) {
+        if (empty) {
             view.onGuiThread {
-                view.added(child, idx)
+                view.empty()
+            }
+        } else {
+            for ((idx, child) in list.editableList.now.withIndex()) {
+                view.onGuiThread {
+                    view.added(child, idx)
+                }
             }
         }
     }
@@ -29,6 +37,11 @@ abstract class ListEditor<E : Editable<*>>(
         views {
             added(editable, idx)
         }
+        if (!empty) {
+            views {
+                notEmpty()
+            }
+        }
         return editable
     }
 
@@ -37,6 +50,11 @@ abstract class ListEditor<E : Editable<*>>(
         removed.moveTo(null)
         views {
             removed(idx)
+        }
+        if (empty) {
+            views {
+                empty()
+            }
         }
     }
 }
