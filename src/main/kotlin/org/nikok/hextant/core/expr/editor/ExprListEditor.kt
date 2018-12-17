@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package org.nikok.hextant.core.expr.view
+package org.nikok.hextant.core.expr.editor
 
 import org.nikok.hextant.Editable
 import org.nikok.hextant.HextantPlatform

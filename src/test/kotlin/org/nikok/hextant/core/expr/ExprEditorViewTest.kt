@@ -29,6 +29,7 @@ import org.nikok.hextant.core.expr.editable.ExpandableExpr
 import org.nikok.hextant.core.expr.edited.Expr
 import org.nikok.hextant.core.expr.editor.*
 import org.nikok.hextant.core.fx.hextantScene
+import org.nikok.hextant.core.list.*
 import org.nikok.reaktive.value.now
 import org.nikok.reaktive.value.observe
 import java.util.logging.Level
@@ -51,6 +52,10 @@ class ExprEditorViewTest : Application() {
         val expander = editors.resolveEditor(expandable) as ExprExpander
         val commands = platform[Commands]
         val registrar = commands.of<ExprEditor>()
+        views.registerFX<EditableList<*, *>> {
+            val editor = editors.resolveEditor(it)
+            FXListEditorView(it, editor as ListEditor<*>, platform = platform)
+        }
         registrar.register<ExprEditor, Int> {
             name = "Evaluate Expression"
             shortName = "eval"
