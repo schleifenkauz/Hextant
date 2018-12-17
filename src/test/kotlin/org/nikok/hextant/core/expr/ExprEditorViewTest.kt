@@ -2,6 +2,8 @@
  * @author Nikolaus Knop
  */
 
+@file:Suppress("UNCHECKED_CAST")
+
 package org.nikok.hextant.core.expr
 
 import javafx.application.Application
@@ -21,6 +23,8 @@ import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.command.line.CommandLine
 import org.nikok.hextant.core.command.line.FXCommandLineView
 import org.nikok.hextant.core.command.register
+import org.nikok.hextant.core.editor.Expander
+import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.editable.ExpandableExpr
 import org.nikok.hextant.core.expr.edited.Expr
 import org.nikok.hextant.core.expr.editor.*
@@ -79,6 +83,24 @@ class ExprEditorViewTest : Application() {
                 if (editableOp1 != null) expander2.setContent(editableOp1)
             }
         }
+        commands.of<OperatorApplicationEditor>().register<OperatorApplicationEditor, Unit> {
+            name = "Collapse expression"
+            shortName = "collapse"
+            description = "Partially evaluate the selected expression"
+            applicableIf { oae ->
+                val ok = oae.editable.isOk.now
+                val parentIsExpander = oae.parent is Expander<*>
+                println("ok: $ok")
+                println("parent: ${oae.parent}")
+                ok && parentIsExpander
+            }
+            executing { oae, _ ->
+                val ex = oae.parent as Expander<Editable<Expr>>
+                val res = oae.editable.edited.now!!.value
+                val editable = EditableIntLiteral(res)
+                ex.setContent(editable)
+            }
+        }
         val expanderView = views.getFXView(expandable)
         val cl = CommandLine.forSelectedEditors(platform)
         val clView = FXCommandLineView(cl, platform)
@@ -93,12 +115,18 @@ class ExprEditorViewTest : Application() {
                 }
             }
         }
+        val debug = Button("debug").apply {
+            setOnAction {
+                platform
+                println("debug")
+            }
+        }
         val menuBar = createMenuBar(expander)
         val split = SplitPane(menuBar, expanderView, clView)
         platform[CoreProperties.logger].level = Level.FINE
         split.orientation = VERTICAL
         return BorderPane(
-            HBox(10.0, expanderView, Label("->"), evaluationDisplay),
+            HBox(10.0, expanderView, Label("->"), evaluationDisplay, debug),
             menuBar,
             null,
             clView,
