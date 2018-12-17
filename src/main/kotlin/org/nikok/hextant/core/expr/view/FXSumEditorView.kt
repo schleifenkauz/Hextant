@@ -7,6 +7,7 @@ package org.nikok.hextant.core.expr.view
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.base.CompoundEditorControl
 import org.nikok.hextant.core.expr.editable.EditableSum
+import org.nikok.hextant.core.expr.editor.SumEditor
 
 class FXSumEditorView(
     editableSum: EditableSum,
@@ -16,4 +17,9 @@ class FXSumEditorView(
     indented {
         view(editableSum.expressions)
     }
-})
+}) {
+    init {
+        val editor = SumEditor(editableSum, platform)
+        initialize(editableSum, editor, platform)
+    }
+}
