@@ -35,5 +35,5 @@ interface Editable<out E> {
      * If this [Editable] is already a child of [newParent] this method has no effect
      * @throws IllegalArgumentException if [newParent] doesn't accept this [Editable] as a child
      */
-    fun moveTo(newParent: ParentEditable<*, *>)
+    fun moveTo(newParent: ParentEditable<*, *>?)
 }

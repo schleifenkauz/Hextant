@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
     override val parent: ParentEditable<*, *>?
         get() = source.parent
 
-    override fun moveTo(newParent: ParentEditable<*, *>) {
+    override fun moveTo(newParent: ParentEditable<*, *>?) {
         source.moveTo(newParent)
     }
 }
