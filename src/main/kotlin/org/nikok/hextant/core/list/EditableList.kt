@@ -4,6 +4,7 @@
 
 package org.nikok.hextant.core.list
 
+import kserial.*
 import org.nikok.hextant.Editable
 import org.nikok.hextant.ParentEditable
 import org.nikok.reaktive.collection.all
@@ -16,7 +17,7 @@ import org.nikok.reaktive.value.binding.binding
 import kotlin.reflect.KClass
 
 abstract class EditableList<N, E : Editable<N>>(private val elementCls: KClass<out E>) :
-    ParentEditable<List<E?>, E>() {
+    ParentEditable<List<E?>, E>(), Serializable {
     val editableList = reactiveList<E>("editable list")
 
     val editedList = editableList.map("edited list") { it.edited }.values()
@@ -30,4 +31,12 @@ abstract class EditableList<N, E : Editable<N>>(private val elementCls: KClass<o
     override val isOk: ReactiveBoolean get() = editableList.all("all ok") { it.isOk }
 
     override fun accepts(child: Editable<*>): Boolean = elementCls.isInstance(child)
+
+    override fun deserialize(input: Input, context: SerialContext) {
+        editableList.now.addAll(input.readTyped(context)!!)
+    }
+
+    override fun serialize(output: Output, context: SerialContext) {
+        output.writeObject(editableList.now, context)
+    }
 }
