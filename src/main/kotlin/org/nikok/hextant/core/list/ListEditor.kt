@@ -12,6 +12,14 @@ abstract class ListEditor<E : Editable<*>>(
     private val list: EditableList<*, E>,
     platform: HextantPlatform
 ) : AbstractEditor<EditableList<*, E>, ListEditorView>(list, platform) {
+    override fun viewAdded(view: ListEditorView) {
+        for ((idx, child) in list.editableList.now.withIndex()) {
+            view.onGuiThread {
+                view.added(child, idx)
+            }
+        }
+    }
+
     protected abstract fun createNewEditable(): E
 
     fun add(idx: Int): E {
