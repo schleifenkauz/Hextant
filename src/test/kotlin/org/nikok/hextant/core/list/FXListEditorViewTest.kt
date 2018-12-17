@@ -3,13 +3,11 @@ package org.nikok.hextant.core.list
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage
-import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.expr.editable.ExpandableExpr
+import org.nikok.hextant.*
+import org.nikok.hextant.core.*
 import org.nikok.hextant.core.expr.edited.Expr
 import org.nikok.hextant.core.fx.hextantScene
 import org.nikok.hextant.core.list.FXListEditorView.NumberedCell
-import org.nikok.hextant.core.list.FXListEditorView.Orientation.Vertical
 
 class FXListEditorViewTest : Application() {
     override fun start(stage: Stage) {
@@ -22,12 +20,13 @@ class FXListEditorViewTest : Application() {
         private fun createContent(): Parent {
             val list = EditableList.newInstance<Expr, Editable<Expr>>()
             val platform = HextantPlatform.newInstance()
-            val editor = object : ListEditor<Editable<Expr>>(list, platform) {
-                override fun createNewEditable(): Editable<Expr> = ExpandableExpr()
+            val views = platform[EditorViewFactory]
+            val editors = platform[EditorFactory]
+            views.registerFX<EditableList<*, *>> {
+                val editor = editors.resolveEditor(it)
+                FXListEditorView(it, editor as ListEditor<*>, platform = platform)
             }
-            editor.add(0)
-            editor.add(1)
-            val view = FXListEditorView(list, editor, Vertical, platform)
+            val view = views.getFXView(list) as FXListEditorView
             view.cellFactory = { NumberedCell() }
             return view
         }
