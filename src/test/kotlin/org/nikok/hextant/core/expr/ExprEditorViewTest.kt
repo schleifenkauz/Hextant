@@ -54,7 +54,7 @@ class ExprEditorViewTest : Application() {
         val registrar = commands.of<ExprEditor>()
         views.registerFX<EditableList<*, *>> {
             val editor = editors.resolveEditor(it)
-            FXListEditorView(it, editor as ListEditor<*>, platform = platform)
+            FXListEditorView(it, editor as ListEditor<*>, platform)
         }
         registrar.register<ExprEditor, Int> {
             name = "Evaluate Expression"

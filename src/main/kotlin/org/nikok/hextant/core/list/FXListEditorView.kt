@@ -5,9 +5,8 @@
 package org.nikok.hextant.core.list
 
 import javafx.scene.Node
+import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
-import javafx.scene.control.Control
-import javafx.scene.control.Label
 import javafx.scene.input.*
 import javafx.scene.layout.*
 import org.nikok.hextant.Editable
@@ -21,39 +20,54 @@ import org.nikok.hextant.core.list.FXListEditorView.Orientation.Vertical
 class FXListEditorView(
     private val editable: EditableList<*, *>,
     private val editor: ListEditor<*>,
-    orientation: Orientation = Vertical,
-    platform: HextantPlatform
+    platform: HextantPlatform,
+    private val emptyDisplay: Node,
+    orientation: Orientation = Vertical
 ) : ListEditorView,
-    EditorControl<Pane>() {
+    EditorControl<Node>() {
+    private var items = orientation.createLayout()
+
     var orientation = orientation
         set(new) {
             field = new
             orientationChanged(new)
         }
 
+    constructor(
+        editable: EditableList<*, *>,
+        editor: ListEditor<*>,
+        platform: HextantPlatform,
+        orientation: Orientation = Vertical,
+        emptyText: String = "Add item"
+    ) : this(editable, editor, platform, Button(emptyText), orientation)
+
     private fun orientationChanged(new: Orientation) {
-        root = new.createLayout()
+        items = new.createLayout()
         addChildren()
     }
 
     private fun addChildren() {
-        root.children.clear()
         for (c in cells) {
-            root.children.add(c)
+            items.children.add(c)
         }
     }
 
     var cellFactory: () -> Cell<*> = { DefaultCell() }
         set(value) {
             field = value
-            cells.clear()
-            cells.addAll(cells(editable.editableList.now))
-            addChildren()
+            cellFactoryChanged()
         }
+
+    private fun cellFactoryChanged() {
+        cells.clear()
+        cells.addAll(cells(editable.editableList.now))
+        items.children.clear()
+        addChildren()
+    }
 
     private val viewFactory = platform[Public, EditorViewFactory]
 
-    private val cells = cells(editable.editableList.now)
+    private val cells = mutableListOf<Cell<*>>()
 
     private fun cells(items: List<Editable<*>>) =
         items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, e) }
@@ -179,19 +193,30 @@ class FXListEditorView(
 
     init {
         initialize(editable, editor, platform)
-        for (c in cells) {
-            root.children.add(c)
-        }
         editor.addView(this)
+        addChildren()
+        initEmptyDisplay()
     }
 
-    override fun createDefaultRoot(): Pane = orientation.createLayout()
+    private fun initEmptyDisplay() {
+        emptyDisplay.setOnMouseClicked {
+            editor.add(0)
+        }
+        emptyDisplay.setOnKeyReleased { evt ->
+            if (ADD_ITEM.match(evt)) {
+                editor.add(0)
+                evt.consume()
+            }
+        }
+    }
+
+    override fun createDefaultRoot(): Pane = items
 
     override fun added(editable: Editable<*>, idx: Int) {
         val c = getCell(idx, editable)
         cells.drop(idx).forEach { cell -> cell.index = cell.index + 1 }
         cells.add(idx, c)
-        root.children.add(idx, c)
+        items.children.add(idx, c)
         c.requestFocus()
     }
 
@@ -200,39 +225,59 @@ class FXListEditorView(
         return cellFactory().apply {
             item = control
             index = idx
-            addEventHandler(KeyEvent.KEY_RELEASED) { evt ->
-                when {
-                    ADD_ITEM.match(evt)                        -> {
-                        editor.add(index + 1)
-                        evt.consume()
-                    }
-                    REMOVE_ITEM.match(evt)                     -> {
-                        editor.removeAt(index)
-                        evt.consume()
-                    }
-                    orientation.nextCombination.match(evt)     -> {
-                        if (cells.size > index + 1) {
-                            cells[index + 1].requestFocus()
-                            evt.consume()
-                        }
-                    }
-                    orientation.previousCombination.match(evt) -> {
-                        if (index > 0) {
-                            cells[index - 1].requestFocus()
-                            evt.consume()
-                        }
-                    }
-                }
+            initEventHandlers()
+        }
+    }
+
+    private fun Cell<*>.initEventHandlers() {
+        addEventHandler(KeyEvent.KEY_RELEASED) { evt ->
+            when {
+                ADD_ITEM.match(evt)                        -> addNew(evt)
+                REMOVE_ITEM.match(evt)                     -> removeCurrent(evt)
+                orientation.nextCombination.match(evt)     -> focusNext(evt)
+                orientation.previousCombination.match(evt) -> focusPrevious(evt)
             }
         }
     }
 
+    private fun Cell<*>.addNew(evt: KeyEvent) {
+        editor.add(index + 1)
+        evt.consume()
+    }
+
+    private fun Cell<*>.focusPrevious(evt: KeyEvent) {
+        if (index > 0) {
+            cells[index - 1].requestFocus()
+            evt.consume()
+        }
+    }
+
+    private fun Cell<*>.focusNext(evt: KeyEvent) {
+        if (cells.size > index + 1) {
+            cells[index + 1].requestFocus()
+            evt.consume()
+        }
+    }
+
+    private fun Cell<*>.removeCurrent(evt: KeyEvent) {
+        editor.removeAt(index)
+        evt.consume()
+    }
+
     override fun removed(idx: Int) {
-        root.children.removeAt(idx)
+        items.children.removeAt(idx)
         cells.removeAt(idx)
         cells.drop(idx).forEach { c -> c.index = c.index - 1 }
         if (idx == 0 && cells.size > 0) cells[0].requestFocus()
-        else cells[idx - 1].requestFocus()
+        else if (idx != 0) cells[idx - 1].requestFocus()
+    }
+
+    override fun empty() {
+        root = emptyDisplay
+    }
+
+    override fun notEmpty() {
+        root = items
     }
 
     interface Orientation {

@@ -15,7 +15,7 @@ import org.nikok.reaktive.value.ReactiveValue
 import org.nikok.reaktive.value.binding.binding
 import kotlin.reflect.KClass
 
-open class EditableList<N, E : Editable<N>>(private val elementCls: KClass<out E>) :
+abstract class EditableList<N, E : Editable<N>>(private val elementCls: KClass<out E>) :
     ParentEditable<List<E?>, E>() {
     val editableList = reactiveList<E>("editable list")
 
@@ -30,8 +30,4 @@ open class EditableList<N, E : Editable<N>>(private val elementCls: KClass<out E
     override val isOk: ReactiveBoolean get() = editableList.all("all ok") { it.isOk }
 
     override fun accepts(child: Editable<*>): Boolean = elementCls.isInstance(child)
-
-    companion object {
-        inline fun <N, reified E : Editable<N>> newInstance() = EditableList(E::class)
-    }
 }

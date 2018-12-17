@@ -13,10 +13,14 @@ class FXSumEditorView(
     editableSum: EditableSum,
     platform: HextantPlatform
 ) : CompoundEditorControl(platform, {
-    keyword("sum")
+    line {
+        keyword("sum")
+        operator("(")
+    }
     indented {
         view(editableSum.expressions)
     }
+    operator(")")
 }) {
     init {
         val editor = SumEditor(editableSum, platform)
