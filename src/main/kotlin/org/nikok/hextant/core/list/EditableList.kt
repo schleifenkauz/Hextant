@@ -37,6 +37,6 @@ abstract class EditableList<N, E : Editable<N>>(private val elementCls: KClass<o
     }
 
     override fun serialize(output: Output, context: SerialContext) {
-        output.writeObject(editableList.now, context)
+        output.writeObject(editableList.now.toList(), context)
     }
 }
