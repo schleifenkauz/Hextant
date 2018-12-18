@@ -4,6 +4,9 @@
 
 package org.nikok.hextant.core.undo
 
+/**
+ * Skeletal implementation of [Edit]
+ */
 abstract class AbstractEdit : Edit {
     /**
      * Actually redo the [Edit], state is already checked
@@ -17,21 +20,26 @@ abstract class AbstractEdit : Edit {
 
     private var undone = false
 
-    override val canRedo: Boolean
+    final override val canRedo: Boolean
         get() = undone
 
-    override val canUndo: Boolean
+    final override val canUndo: Boolean
         get() = !undone
 
-    override fun redo() {
+    final override fun redo() {
         check(canRedo) { "Edit already redone" }
         doRedo()
         undone = false
     }
 
-    override fun undo() {
+    final override fun undo() {
         check(canUndo) { "Edit already undone" }
         doUndo()
         undone = true
     }
+
+    /**
+     * Default implementation, returns `null`
+     */
+    override fun mergeWith(other: Edit): Edit? = null
 }
