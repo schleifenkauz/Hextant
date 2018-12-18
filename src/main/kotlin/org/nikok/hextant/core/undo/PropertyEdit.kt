@@ -29,6 +29,6 @@ class PropertyEdit<T>(
 
     @Suppress("UNCHECKED_CAST")
     override fun mergeWith(other: Edit): Edit? =
-        if (other !is PropertyEdit<*> || other.property != this.property) null
+        if (other !is PropertyEdit<*> || other.property !== this.property) null
         else PropertyEdit(property, this.oldValue, other.newValue as T, other.actionDescription)
 }
