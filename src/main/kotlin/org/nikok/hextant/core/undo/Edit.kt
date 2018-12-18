@@ -35,4 +35,9 @@ interface Edit {
      * * If it can be merged with the [other] [Edit] return the merged [Edit]
      */
     fun mergeWith(other: Edit): Edit?
+
+    /**
+     * The description of the action this [Edit] does or undoes
+     */
+    val actionDescription: String
 }
