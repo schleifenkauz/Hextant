@@ -34,7 +34,11 @@ class UndoManagerImpl : UndoManager {
     override fun push(edit: Edit) {
         check(edit.canUndo) { "Attempt to Non-undoable edit push to UndoManager" }
         redoable.clear()
-        undoable.push(edit)
+        val last = undoable.peekFirst()
+        val e = if (last != null) {
+            last.mergeWith(edit) ?: edit
+        } else edit
+        undoable.push(e)
     }
 
     override val undoText: String
