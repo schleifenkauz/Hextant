@@ -29,6 +29,12 @@ interface UndoManager {
     fun redo()
 
     /**
+     * Push the specified [edit] such that [undo] would undo the [Edit]
+     * @throws IllegalStateException if the [edit] is not undoable
+     */
+    fun push(edit: Edit)
+
+    /**
      * The human-readable description of the currently undoable [Edit]
      */
     val undoText: String
