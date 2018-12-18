@@ -4,6 +4,9 @@
 
 package org.nikok.hextant.core.undo
 
+/**
+ * An [Edit] is a user action that can be undone and redone
+ */
 interface Edit {
     /**
      * @return `true` only if this [Edit] can be redone
