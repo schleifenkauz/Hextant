@@ -30,6 +30,7 @@ interface UndoManager {
 
     /**
      * Push the specified [edit] such that [undo] would undo the [Edit]
+     * * All redoable edits are discarded
      * @throws IllegalStateException if the [edit] is not undoable
      */
     fun push(edit: Edit)
