@@ -66,17 +66,4 @@ internal object AbstractEditSpec : Spek({
             }
         }
     }
-}) {
-    class AnEdit : AbstractEdit() {
-        var undone: Boolean = false
-            private set
-
-        override fun doRedo() {
-            undone = false
-        }
-
-        override fun doUndo() {
-            undone = true
-        }
-    }
-}
+})
