@@ -33,6 +33,7 @@ interface Edit {
     /**
      * * If this [Edit] cannot be merged with the [other] simply return `null`
      * * If it can be merged with the [other] [Edit] return the merged [Edit]
+     * * [other] is an edit that happened after this [Edit]
      */
     fun mergeWith(other: Edit): Edit?
 
