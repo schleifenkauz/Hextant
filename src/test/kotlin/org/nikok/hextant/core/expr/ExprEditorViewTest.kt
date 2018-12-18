@@ -23,6 +23,7 @@ import org.nikok.hextant.core.*
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.command.line.CommandLine
 import org.nikok.hextant.core.command.line.FXCommandLineView
+import org.nikok.hextant.core.command.register
 import org.nikok.hextant.core.editor.Expander
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.editable.ExpandableExpr

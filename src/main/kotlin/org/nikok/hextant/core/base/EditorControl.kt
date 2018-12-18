@@ -14,6 +14,7 @@ import javafx.scene.input.KeyCode.W
 import org.nikok.hextant.*
 import org.nikok.hextant.core.command.gui.commandContextMenu
 import org.nikok.hextant.core.fx.*
+import org.nikok.hextant.core.get
 import org.nikok.hextant.core.inspect.Inspections
 import org.nikok.hextant.core.inspect.gui.InspectionPopup
 

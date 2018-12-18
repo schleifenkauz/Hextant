@@ -4,13 +4,15 @@
 
 package org.nikok.hextant.core.command.line
 
-import org.nikok.hextant.*
+import org.nikok.hextant.Editable
+import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.EditableFactory
 import org.nikok.hextant.core.base.AbstractEditable
 import org.nikok.hextant.core.command.*
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingArgs
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingName
+import org.nikok.hextant.core.get
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.impl.myLogger
 import org.nikok.reaktive.event.event

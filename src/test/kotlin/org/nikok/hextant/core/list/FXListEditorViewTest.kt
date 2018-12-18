@@ -8,7 +8,6 @@ import org.nikok.hextant.core.*
 import org.nikok.hextant.core.expr.editable.EditableExprList
 import org.nikok.hextant.core.fx.hextantScene
 import org.nikok.hextant.core.list.FXListEditorView.NumberedCell
-import org.nikok.hextant.prop.get
 
 class FXListEditorViewTest : Application() {
     override fun start(stage: Stage) {

@@ -12,7 +12,6 @@ import org.nikok.hextant.core.expr.editable.EditableOperatorApplication
 import org.nikok.hextant.core.expr.editor.OperatorApplicationEditor
 import org.nikok.hextant.core.fx.OperatorLabel
 import org.nikok.hextant.core.fx.isControlDown
-import org.nikok.hextant.prop.get
 
 class FXOperatorApplicationEditorView(
     editable: EditableOperatorApplication,

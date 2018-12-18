@@ -9,7 +9,7 @@ import javafx.scene.control.MenuBar
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Commands
-import org.nikok.hextant.prop.get
+import org.nikok.hextant.core.get
 
 /**
  * @return a [ContextMenu] with the commands registered for the receiver as items

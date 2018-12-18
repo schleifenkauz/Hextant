@@ -19,7 +19,7 @@ import org.nikok.hextant.core.command.gui.commandContextMenu
 import org.nikok.hextant.core.command.gui.commandMenuBar
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.edited.IntLiteral
-import org.nikok.hextant.prop.get
+import org.nikok.hextant.core.get
 
 internal class CommandGuiTest : Application() {
     override fun start(stage: Stage) {
