@@ -11,7 +11,7 @@ import org.nikok.hextant.core.editable.EditableToken
 import org.nikok.hextant.core.editor.TokenEditor
 import org.nikok.hextant.core.fx.HextantTextField
 import org.nikok.hextant.core.fx.smartSetText
-import org.nikok.hextant.get
+import org.nikok.hextant.prop.get
 
 open class FXTokenEditorView(
     editable: EditableToken<Any>,

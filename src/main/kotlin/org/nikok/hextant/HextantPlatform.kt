@@ -5,7 +5,6 @@
 package org.nikok.hextant
 
 import org.nikok.hextant.core.*
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
@@ -103,6 +102,3 @@ interface HextantPlatform : PropertyHolder {
     }
 }
 
-operator fun <T : Any> HextantPlatform.get(property: Property<T, Public, *>): T = get(Public, property)
-
-operator fun <T : Any> HextantPlatform.set(property: Property<T, *, Public>, value: T) = set(Public, property, value)

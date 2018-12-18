@@ -9,7 +9,7 @@ import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.command.line.CommandLine.State
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingArgs
-import org.nikok.hextant.get
+import org.nikok.hextant.prop.get
 import org.nikok.reaktive.event.subscribe
 import org.nikok.reaktive.value.now
 import org.nikok.reaktive.value.observe
