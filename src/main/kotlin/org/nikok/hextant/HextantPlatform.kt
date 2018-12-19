@@ -4,21 +4,21 @@
 
 package org.nikok.hextant
 
-import org.nikok.hextant.bundle.*
-import org.nikok.hextant.bundle.Bundle.Init
+import org.nikok.hextant.bundle.Bundle
+import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.*
+import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
 import java.util.concurrent.*
 import java.util.logging.Logger
-import kotlin.properties.ReadOnlyProperty
 
 /**
  * The hextant platform, mainly functions as a [Bundle] to manage properties of the hextant platform
  */
-interface HextantPlatform : Bundle {
+interface HextantPlatform : Context {
     /**
      * Enqueues the specified [action] in the Hextant main thread
      */
@@ -26,15 +26,11 @@ interface HextantPlatform : Bundle {
 
     fun exit()
 
-    override fun copy(init: Bundle.Init.() -> Unit): HextantPlatform
-
     /**
      * The default instance of the [HextantPlatform]
      */
-    private class Impl(bundle: HextantPlatform.() -> Bundle) : HextantPlatform {
+    private class Impl(bundle: Bundle) : HextantPlatform, Bundle by bundle {
         private val executor = Executors.newSingleThreadExecutor()
-
-        private val propertyHolder = bundle(this)
 
         override fun <T> runLater(action: () -> T): Future<T> {
             val future = executor.submit(action)
@@ -45,64 +41,41 @@ interface HextantPlatform : Bundle {
             executor.shutdown()
         }
 
-        override fun copy(init: Init.() -> Unit): HextantPlatform {
-            return HextantPlatform.withPropertyHolder { propertyHolder.copy(init) }
-        }
+        override val platform: HextantPlatform
+            get() = this
 
-        override fun <T : Any, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T =
-            propertyHolder[permission, property]
-
-        override fun <T : Any, Write : Permission> set(
-            permission: Write,
-            property: Property<in T, *, Write>,
-            value: T
-        ) {
-            propertyHolder[permission, property] = value
-        }
-
-        override fun <T : Any, Write : Permission> setFactory(
-            permission: Write,
-            property: Property<in T, *, Write>,
-            factory: () -> T
-        ) {
-            propertyHolder.setFactory(permission, property, factory)
-        }
-
-        override fun <T : Any, Write : Permission> setBy(
-            permission: Write,
-            property: Property<in T, *, Write>,
-            delegate: ReadOnlyProperty<Nothing?, T>
-        ) {
-            propertyHolder.setBy(permission, property, delegate)
+        init {
+            set(Version, Version(1, 0, isSnapshot = true))
+            set(SelectionDistributor, SelectionDistributor.newInstance(this))
+            val cl = this.javaClass.classLoader
+            set(EditorViewFactory, EditorViewFactory.newInstance(this, cl))
+            set(EditableFactory, EditableFactory.newInstance(cl))
+            set(Commands, Commands.newInstance(this))
+            set(Inspections, Inspections.newInstance(this))
+            val expanderFactory = ExpanderFactory.newInstance(cl, this)
+            set(ExpanderFactory, expanderFactory)
+            set(EditorFactory, EditorFactory.newInstance(cl, this))
+            set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
         }
     }
 
     companion object {
-        fun HextantPlatform.initDefaultProperties(): Bundle = Bundle.newInstance {
-            val platform = this@initDefaultProperties
-            set(Version, Version(1, 0, isSnapshot = true))
-            set(SelectionDistributor, SelectionDistributor.newInstance(platform))
-            val cl = platform.javaClass.classLoader
-            set(EditorViewFactory, EditorViewFactory.newInstance(platform, cl))
-            set(EditableFactory, EditableFactory.newInstance(cl))
-            set(Commands, Commands.newInstance(platform))
-            set(Inspections, Inspections.newInstance(platform))
-            val expanderFactory = ExpanderFactory.newInstance(cl, platform)
-            set(ExpanderFactory, expanderFactory)
-            set(EditorFactory, EditorFactory.newInstance(cl, platform))
-            set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
-        }
+        val INSTANCE: HextantPlatform = newInstance()
 
-        fun withPropertyHolder(bundle: HextantPlatform.() -> Bundle): HextantPlatform =
-            Impl(bundle)
-
-        val INSTANCE = newInstance()
-
-        fun newInstance(init: Init.() -> Unit = {}) =
-            HextantPlatform.withPropertyHolder { initDefaultProperties().copy(init) }
+        fun newInstance(bundle: Bundle = Bundle.newInstance()): HextantPlatform = Impl(bundle)
     }
 }
 
+@JvmName("getPublic")
 operator fun <T : Any> HextantPlatform.get(property: Property<T, Public, *>): T = get(Public, property)
 
-operator fun <T : Any> HextantPlatform.set(property: Property<T, *, Public>, value: T) = set(Public, property, value)
+@JvmName("setPublic")
+internal operator fun <T : Any> HextantPlatform.set(property: Property<T, *, Public>, value: T) =
+    set(Public, property, value)
+
+@JvmName("getInternal")
+internal operator fun <T : Any> HextantPlatform.get(property: Property<T, Internal, *>): T = get(Internal, property)
+
+@JvmName("setInternal")
+internal operator fun <T : Any> HextantPlatform.set(property: Property<T, *, Internal>, value: T) =
+    set(Internal, property, value)

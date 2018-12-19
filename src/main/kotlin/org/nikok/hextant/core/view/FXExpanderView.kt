@@ -9,9 +9,9 @@ import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode.R
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination.SHORTCUT_ANY
-import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.*
+import org.nikok.hextant.*
+import org.nikok.hextant.core.EditorViewFactory
+import org.nikok.hextant.core.ExpanderFactory
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.fx.HextantTextField

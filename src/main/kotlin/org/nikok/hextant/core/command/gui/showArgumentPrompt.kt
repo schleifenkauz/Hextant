@@ -10,11 +10,13 @@ import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.layout.VBox
 import javafx.stage.Window
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.*
+import org.nikok.hextant.core.EditableFactory
+import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.fx.UtilityDialog
+import org.nikok.hextant.get
 import org.nikok.reaktive.value.now
 
 fun showArgumentPrompt(

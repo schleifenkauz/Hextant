@@ -6,7 +6,6 @@ package org.nikok.hextant.core.inspect
 
 import org.nikok.hextant.core.inspect.Severity.Error
 import org.nikok.hextant.core.inspect.Severity.Warning
-import org.nikok.reaktive.Observer
 import org.nikok.reaktive.value.*
 
 internal class InspectionManager<T>(private val inspected: T) {

@@ -17,8 +17,7 @@ import javafx.scene.layout.HBox
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import kserial.*
-import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.*
 import org.nikok.hextant.core.*
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.command.line.CommandLine
@@ -46,7 +45,7 @@ class ExprEditorViewTest : Application() {
     }
 
     private fun createContent(): Parent {
-        val platform = HextantPlatform.INSTANCE.copy { }
+        val platform = HextantPlatform.newInstance()
         val views = platform[EditorViewFactory]
         val expandable = ExpandableExpr()
         val editors = platform[EditorFactory]

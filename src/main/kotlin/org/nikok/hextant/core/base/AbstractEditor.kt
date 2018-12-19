@@ -7,7 +7,6 @@ package org.nikok.hextant.core.base
 import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.EditorFactory
-import org.nikok.hextant.core.get
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.reaktive.value.Variable
 import org.nikok.reaktive.value.base.AbstractVariable
