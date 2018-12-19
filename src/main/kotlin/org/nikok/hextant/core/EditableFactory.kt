@@ -11,6 +11,7 @@ import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.impl.ClassMap
+import org.nikok.hextant.core.impl.myLogger
 import kotlin.reflect.KClass
 
 /**
@@ -51,12 +52,15 @@ interface EditableFactory {
          * @return a new [EditableFactory]
         */
         fun newInstance(): EditableFactory = Impl()
+
+        val logger by myLogger()
     }
 
     private class Impl : EditableFactory {
         private val oneArgFactories = ClassMap.covariant<(Any) -> Editable<Any>>()
 
         override fun <T : Any> register(editedCls: KClass<T>, factory: (T) -> Editable<T>) {
+            logger.config { "register factory for $editedCls" }
             oneArgFactories[editedCls] = factory as (Any) -> Editable<Any>
         }
 
@@ -64,7 +68,11 @@ interface EditableFactory {
             val editedCls = edited::class
             val factory = oneArgFactories[editedCls]
             if (factory != null) return factory(edited) as Editable<T>
-            else throw NoSuchElementException("No one-arg factory found for ${edited.javaClass}")
+            else {
+                val msg = "No one-arg factory found for ${edited.javaClass}"
+                logger.severe(msg)
+                throw NoSuchElementException(msg)
+            }
         }
 
         private val noArgFactories = ClassMap.contravariant<() -> Editable<*>>()
