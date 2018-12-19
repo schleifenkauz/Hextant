@@ -10,9 +10,7 @@ import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.editable.ConvertedEditable
-import org.nikok.hextant.core.impl.ClassMap
-import org.nikok.hextant.core.impl.DoubleWeakHashMap
-import java.util.logging.Logger
+import org.nikok.hextant.core.impl.*
 import kotlin.reflect.KClass
 
 /**
@@ -50,7 +48,10 @@ interface EditorFactory {
         override fun <E : Editable<*>> getEditor(editable: E): Editor<E> {
             if (editable is ConvertedEditable<*, *>) return getEditor(editable.source) as Editor<E>
             val cached = cache[editable]
-            if (cached != null) return cached as Editor<E>
+            if (cached != null) {
+                logger.info { "Using cached ${cached.javaClass}" }
+                return cached as Editor<E>
+            }
             val cls = editable::class
             val factory = factories[cls]
             if (factory == null) {
@@ -58,12 +59,14 @@ interface EditorFactory {
                 logger.severe(msg)
                 throw NoSuchElementException(msg)
             }
-            return factory(editable) as Editor<E>
+            val new = factory(editable)
+            logger.info { "Created new ${new.javaClass}" }
+            return new as Editor<E>
         }
     }
 
     companion object : Property<EditorFactory, Public, Internal>("editor factory") {
-        val logger = Logger.getLogger(EditorFactory::class.qualifiedName)
+        val logger by myLogger()
         fun newInstance(): EditorFactory = Impl()
     }
 }
