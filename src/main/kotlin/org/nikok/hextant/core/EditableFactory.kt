@@ -12,18 +12,9 @@ import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.impl.ClassMap
 import kotlin.reflect.KClass
-import kotlin.reflect.KVisibility.PUBLIC
-import kotlin.reflect.full.*
 
 /**
- * Used to get editables for edited objects
- *
- * Uses the following naming conventions to search for the classes to instantiate.
- * * If the package of the edited class ends with ".edited" this postfix is replaced with ".editable"
- * and the editable class is searched in a class just prepending "Editable" is searched for in the new package.
- * * If the package doesn't end with ".edited" the same class is searched for in a child package with name "editable".
- * * If no class is found a class with the "Editable"-prefix is searched in the same package.
- * @sample [org.nikok.hextant.core.EditableFactorySpec]
+ * Used to resolve and register editables for edited objects
 */
 interface EditableFactory {
     /**
@@ -63,12 +54,12 @@ interface EditableFactory {
     */
     companion object: Property<EditableFactory, Public, Internal>("editable factory") {
         /**
-         * @return a new [EditableFactory] using the specified [clsLoader]
+         * @return a new [EditableFactory]
         */
-        fun newInstance(clsLoader: ClassLoader): EditableFactory = Impl(clsLoader)
+        fun newInstance(): EditableFactory = Impl()
     }
 
-    private class Impl(private val clsLoader: ClassLoader) : EditableFactory {
+    private class Impl : EditableFactory {
         private val oneArgFactories = ClassMap.covariant<(Any) -> Editable<Any>>()
 
         override fun <T : Any> register(editedCls: KClass<T>, factory: (T) -> Editable<T>) {
@@ -79,8 +70,6 @@ interface EditableFactory {
             val editedCls = edited::class
             val factory = oneArgFactories[editedCls]
             if (factory != null) return factory(edited) as Editable<T>
-            val default = getOneArgConstructor(edited::class)
-            if (default != null) return default(edited)
             else throw NoSuchElementException("No one-arg factory found for ${edited.javaClass}")
         }
 
@@ -95,65 +84,7 @@ interface EditableFactory {
         ): Editable<T> {
             val factory = noArgFactories[editedCls]
             if (factory != null) return factory() as Editable<T>
-            val default = getNoArgConstructor(editedCls)
-            if (default != null) return default()
             throw NoSuchElementException("No no-arg factory found for $editedCls")
-        }
-
-        private fun <T : Any> `locate editable cls in "editable" package`(
-            pkgName: String, name: String
-        ): KClass<Editable<T>>? {
-            return if (pkgName.endsWith("edited")) {
-                val editedRange = pkgName.length - "edited".length until pkgName.length
-                val editablePkg = pkgName.replaceRange(editedRange, "editable")
-                tryFindCls("$editablePkg.Editable$name")
-            } else {
-                tryFindCls("$pkgName.editable.Editable$name")
-            }
-        }
-
-        private fun <T : Any> resolveEditableCls(editedCls: KClass<T>): KClass<Editable<T>>? {
-            val java = editedCls.java
-            val pkg = java.`package` ?: return null
-            val name = editedCls.simpleName ?: return null
-            val pkgName = pkg.name
-            return `locate editable cls in "editable" package`(pkgName, name)
-                   ?: `editable class with "Editable" prefix`(name, pkgName)
-        }
-
-        private fun <T : Any> `editable class with "Editable" prefix`(
-            name: String, pkgName: String?
-        ): KClass<Editable<T>>? {
-            val editableName = "Editable$name"
-            val editableClsName = "$pkgName.$editableName"
-            return tryFindCls(editableClsName)
-        }
-
-        private fun <T : Any> tryFindCls(editableClsName: String): KClass<Editable<T>>? {
-            try {
-                val editableCls: KClass<*> = clsLoader.loadClass(editableClsName)?.kotlin ?: return null
-                if (!editableCls.isSubclassOf(Editable::class)) return null
-                return editableCls as KClass<Editable<T>>
-            } catch (notFound: ClassNotFoundException) {
-                return null
-            }
-        }
-
-        private fun <T : Any> getNoArgConstructor(editedCls: KClass<T>): (() -> Editable<T>)? {
-            val cls = resolveEditableCls(editedCls) ?: return null
-            val noArgConstructor =
-                    cls.constructors.find { c -> c.parameters.all { p -> p.isOptional } } ?: return null
-            return { noArgConstructor.callBy(emptyMap()) }
-        }
-
-        private fun <T : Any> getOneArgConstructor(editedCls: KClass<out T>): ((T) -> Editable<T>)? {
-            val cls = resolveEditableCls(editedCls) ?: return null
-            val oneArgConstructor = cls.constructors.find { c ->
-                c.parameters.drop(1).count { !it.isOptional } == 0 &&
-                c.parameters.first().type.isSupertypeOf(editedCls.starProjectedType) &&
-                c.visibility == PUBLIC
-            } ?: throw NoSuchElementException("Could not find constructor for $editedCls")
-            return { edited -> oneArgConstructor.callBy(mapOf(oneArgConstructor.parameters.first() to edited)) }
         }
     }
 }
