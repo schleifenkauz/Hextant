@@ -76,7 +76,7 @@ internal object EditorControlSpec : Spek({
         }
 
         init {
-            val platform = HextantPlatform.newInstance()
+            val platform = HextantPlatform.configured()
             val editable = EditableMock()
             initialize(editable, MockEditor(editable, platform), platform)
         }

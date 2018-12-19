@@ -5,7 +5,7 @@
 package org.nikok.hextant.core.command.line
 
 import org.nikok.hextant.Context
-import org.nikok.hextant.core.EditorViewFactory
+import org.nikok.hextant.core.EditorControlFactory
 import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.command.line.CommandLine.State
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingArgs
@@ -19,14 +19,14 @@ import org.nikok.reaktive.value.observe
  * @constructor
  * @param commandLine the [CommandLine] controlled by this controller
  * @param view the view using this controller
- * @param viewFactory the [EditorViewFactory] used to get the views for the argument editors
+ * @param viewFactory the [EditorControlFactory] used to get the views for the argument editors
  */
 class CommandLineController(
     val commandLine: CommandLine,
     view: CommandLineView,
     context: Context
 ) : AbstractEditor<CommandLine, CommandLineView>(commandLine, context) {
-    private val viewFactory = context[EditorViewFactory]
+    private val viewFactory = context[EditorControlFactory]
 
     private val completer = CommandCompleter
 
@@ -70,7 +70,7 @@ class CommandLineController(
     private fun handleState(newState: State, view: CommandLineView) {
         if (newState == EditingArgs) {
             val command = commandLine.editedCommand()
-            val views = commandLine.editableArgs().map(viewFactory::getFXView)
+            val views = commandLine.editableArgs().map(viewFactory::getControl)
             view.editingArgs(command.shortName!!, command.parameters, views)
         } else {
             view.editingName(commandLine.text.now)

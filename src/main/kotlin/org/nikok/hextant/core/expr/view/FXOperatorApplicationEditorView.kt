@@ -6,7 +6,8 @@ package org.nikok.hextant.core.expr.view
 
 import javafx.scene.layout.HBox
 import org.nikok.hextant.Context
-import org.nikok.hextant.core.*
+import org.nikok.hextant.core.EditorControlFactory
+import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.expr.editable.EditableOperatorApplication
 import org.nikok.hextant.core.expr.editor.OperatorApplicationEditor
@@ -43,10 +44,10 @@ class FXOperatorApplicationEditorView(
     }
 
     init {
-        val views = context[EditorViewFactory]
-        op1View = views.getFXView(editable.editableOp1)
-        operatorView = views.getFXView(editable.editableOperator)
-        op2View = views.getFXView(editable.editableOp2)
+        val views = context[EditorControlFactory]
+        op1View = views.getControl(editable.editableOp1)
+        operatorView = views.getControl(editable.editableOperator)
+        op2View = views.getControl(editable.editableOp2)
         initialize(editable, editor, context)
         editor.addView(this)
     }

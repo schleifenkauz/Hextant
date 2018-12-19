@@ -22,7 +22,7 @@ open class FXTokenEditorView(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private val editor = context[EditorFactory].resolveEditor(editable) as TokenEditor<*, TextEditorView>
+    private val editor = context[EditorFactory].getEditor(editable) as TokenEditor<*, TextEditorView>
 
     init {
         initialize(editable, editor, context)

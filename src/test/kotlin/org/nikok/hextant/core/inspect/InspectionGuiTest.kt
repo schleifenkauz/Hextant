@@ -26,7 +26,7 @@ class InspectionGuiTest : Application() {
 
     companion object {
         private fun createContent(): Parent {
-            val platform = HextantPlatform.newInstance()
+            val platform = HextantPlatform.configured()
             val inspections = platform[Inspections]
             inspections.of(EditableIntLiteral::class).apply {
                 register { literal ->

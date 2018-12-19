@@ -19,7 +19,7 @@ internal typealias EditableInSamePackage = org.nikok.hextant.core.mocks.Editable
 @Suppress("UNUSED_PARAMETER")
 internal object EditableFactorySpec: Spek({
     describe("registering") {
-        val ef = EditableFactory.newInstance(EditableFactorySpec.javaClass.classLoader)
+        val ef = EditableFactory.newInstance()
         on("registering a editable for a class") {
             ef.register { il: IntLiteral -> EditableIntLiteral(il.value) }
             ef.register { -> EditableIntLiteral() }
@@ -48,7 +48,7 @@ internal object EditableFactorySpec: Spek({
             val clsLoader = mock<ClassLoader> {
                 on { loadClass(EditableInSamePackage::class.qualifiedName) } doReturn EditableInSamePackage::class.java
             }
-            val ef = EditableFactory.newInstance(clsLoader)
+            val ef = EditableFactory.newInstance()
             on("getting an editable for a class") {
                 val cls = org.nikok.hextant.core.mocks.Edited::class
                 val editable = ef.getEditable(cls)
@@ -68,7 +68,7 @@ internal object EditableFactorySpec: Spek({
             val clsLoader = mock<ClassLoader> {
                 on { loadClass(EditableInEditablePackage::class.qualifiedName) } doReturn EditableInEditablePackage::class.java
             }
-            val ef = EditableFactory.newInstance(clsLoader)
+            val ef = EditableFactory.newInstance()
             on("getting an editable for a class") {
                 val cls = org.nikok.hextant.core.mocks.Edited::class
                 val editable = ef.getEditable(cls)
@@ -88,7 +88,7 @@ internal object EditableFactorySpec: Spek({
             val clsLoader = mock<ClassLoader> {
                 on { loadClass(EditableInEditablePackage::class.qualifiedName) } doReturn EditableInEditablePackage::class.java
             }
-            val ef = EditableFactory.newInstance(clsLoader)
+            val ef = EditableFactory.newInstance()
             on("getting an editable for a class") {
                 val cls = org.nikok.hextant.core.mocks.edited.Edited::class
                 val editable = ef.getEditable(cls)

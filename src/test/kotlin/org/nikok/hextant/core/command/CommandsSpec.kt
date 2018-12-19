@@ -8,7 +8,7 @@ import org.nikok.hextant.HextantPlatform
 
 internal object CommandsSpec: Spek({
     given("commands") {
-        val platform = HextantPlatform.newInstance()
+        val platform = HextantPlatform.configured()
         afterGroup { platform.exit() }
         val cs = Commands.newInstance()
         val registrar = cs.of<ICommandTarget>()

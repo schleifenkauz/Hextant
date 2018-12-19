@@ -42,23 +42,27 @@ interface HextantPlatform : Context {
             get() = this
 
         init {
-            set(Version, Version(1, 0, isSnapshot = true))
-            set(SelectionDistributor, SelectionDistributor.newInstance())
-            val cl = this.javaClass.classLoader
-            set(EditorViewFactory, EditorViewFactory.newInstance(this, cl))
-            set(EditableFactory, EditableFactory.newInstance(cl))
-            set(Commands, Commands.newInstance())
-            set(Inspections, Inspections.newInstance())
-            val expanderFactory = ExpanderFactory.newInstance(cl, this)
-            set(ExpanderFactory, expanderFactory)
-            set(EditorFactory, EditorFactory.newInstance(cl, this))
-            set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
+
         }
     }
 
     companion object {
-        val INSTANCE: HextantPlatform = newInstance()
+        val INSTANCE: HextantPlatform = configured()
 
-        fun newInstance(bundle: Bundle = Bundle.newInstance()): HextantPlatform = Impl(bundle)
+        fun configured(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
+            unconfigured(bundle).apply { configure() }
+
+        private fun HextantPlatform.configure() {
+            set(Version, Version(1, 0, isSnapshot = true))
+            set(SelectionDistributor, SelectionDistributor.newInstance())
+            set(EditorControlFactory, EditorControlFactory.newInstance())
+            set(EditableFactory, EditableFactory.newInstance())
+            set(Commands, Commands.newInstance())
+            set(Inspections, Inspections.newInstance())
+            set(EditorFactory, EditorFactory.newInstance())
+            set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
+        }
+
+        fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = Impl(bundle)
     }
 }

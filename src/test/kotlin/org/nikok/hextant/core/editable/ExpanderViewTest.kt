@@ -8,7 +8,7 @@ import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage
 import org.nikok.hextant.HextantPlatform
-import org.nikok.hextant.core.EditorViewFactory
+import org.nikok.hextant.core.EditorControlFactory
 import org.nikok.hextant.core.configure
 import org.nikok.hextant.core.expr.editable.*
 import org.nikok.hextant.core.expr.view.FXIntLiteralEditorView
@@ -26,10 +26,10 @@ class ExpanderViewTest : Application() {
 
     companion object {
         private fun createContent(): Parent {
-            val platform = HextantPlatform.newInstance()
-            platform[EditorViewFactory].configure {
-                registerFX(EditableIntLiteral::class) { FXIntLiteralEditorView(it, platform) }
-                registerFX(EditableText::class) { FXTextEditorView(it, platform) }
+            val platform = HextantPlatform.configured()
+            platform[EditorControlFactory].configure {
+                register(EditableIntLiteral::class) { FXIntLiteralEditorView(it, platform) }
+                register(EditableText::class) { FXTextEditorView(it, platform) }
             }
             val ex = ExpandableExpr()
             return FXExpanderView(ex, platform)

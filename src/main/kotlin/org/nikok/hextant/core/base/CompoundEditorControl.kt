@@ -8,7 +8,7 @@ import javafx.scene.control.Label
 import javafx.scene.layout.*
 import org.nikok.hextant.*
 import org.nikok.hextant.core.CorePermissions.Public
-import org.nikok.hextant.core.EditorViewFactory
+import org.nikok.hextant.core.EditorControlFactory
 import org.nikok.hextant.core.fx.keyword
 import org.nikok.hextant.core.fx.operator
 
@@ -68,7 +68,7 @@ abstract class CompoundEditorControl(
             pane: Pane,
             context: Context
         ): EditorControl<*> {
-            val c = context[Public, EditorViewFactory].getFXView(editable)
+            val c = context[Public, EditorControlFactory].getControl(editable)
             pane.children.add(c)
             return c
         }

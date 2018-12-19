@@ -10,7 +10,7 @@ import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.mocks.MockEditor
 
 internal object SelectionDistributorSpec: Spek({
-    val platform = HextantPlatform.newInstance()
+    val platform = HextantPlatform.configured()
     val sut = platform[Internal, SelectionDistributor]
     test(sut, platform)
 }) {

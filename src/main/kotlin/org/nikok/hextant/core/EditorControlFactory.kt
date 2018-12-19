@@ -4,17 +4,14 @@
 
 package org.nikok.hextant.core
 
-import org.nikok.hextant.Context
 import org.nikok.hextant.Editable
 import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.editable.ConvertedEditable
-import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.core.impl.myLogger
-import org.nikok.hextant.core.view.FXExpanderView
 import kotlin.reflect.KClass
 
 /**
@@ -33,9 +30,7 @@ interface EditorControlFactory {
      */
     fun <E : Editable<*>> getControl(editable: E): EditorControl<*>
 
-    @Suppress("UNCHECKED_CAST") private class Impl(
-        private val context: Context
-    ) : EditorControlFactory {
+    @Suppress("UNCHECKED_CAST") private class Impl : EditorControlFactory {
         private val viewFactories = ClassMap.invariant<(Editable<*>) -> EditorControl<*>>()
 
         override fun <E : Editable<*>> register(editableCls: KClass<out E>, viewFactory: (E) -> EditorControl<*>) {
@@ -46,7 +41,6 @@ interface EditorControlFactory {
             val cls = editable::class
             when (editable) {
                 is ConvertedEditable<*, *> -> return getControl(editable.source)
-                is Expandable<*, *>        -> return FXExpanderView(editable, context)
                 else                       -> {
                     viewFactories[cls]?.let { f -> return f(editable) }
                     unresolvedView(cls)
@@ -62,8 +56,8 @@ interface EditorControlFactory {
     }
 
     companion object : Property<EditorControlFactory, Public, Internal>("editor-view-factory") {
-        fun newInstance(context: Context): EditorControlFactory =
-            Impl(context)
+        fun newInstance(): EditorControlFactory =
+            Impl()
 
         val logger by myLogger()
     }

@@ -31,15 +31,15 @@ class CommandLineGuiTest : Application() {
         private fun createContent(): Parent {
             val commands = Data.commands.toMutableSet()
             val targets = mutableSetOf(Receiver(true))
-            val platform = HextantPlatform.newInstance()
+            val platform = HextantPlatform.configured()
             val editableFactory = platform[EditableFactory]
             editableFactory.run {
                 register(IntLiteral::class) { -> EditableIntLiteral() }
                 register(IntLiteral::class) { v -> EditableIntLiteral(v.value) }
             }
-            val views = platform[EditorViewFactory]
+            val views = platform[EditorControlFactory]
             views.run {
-                registerFX { e: EditableIntLiteral -> FXIntLiteralEditorView(e, platform) }
+                register { e: EditableIntLiteral -> FXIntLiteralEditorView(e, platform) }
             }
             val commandLine = CommandLine({ commands }, { targets }, platform)
             val commandLineView = FXCommandLineView(commandLine, platform)

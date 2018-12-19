@@ -20,14 +20,14 @@ class FXListEditorViewTest : Application() {
     companion object {
         private fun createContent(): Parent {
             val list = EditableExprList()
-            val platform = HextantPlatform.newInstance()
-            val views = platform[EditorViewFactory]
+            val platform = HextantPlatform.configured()
+            val views = platform[EditorControlFactory]
             val editors = platform[EditorFactory]
-            views.registerFX<EditableList<*, *>> {
-                val editor = editors.resolveEditor(it)
+            views.register<EditableList<*, *>> {
+                val editor = editors.getEditor(it)
                 FXListEditorView(it, editor as ListEditor<*>, platform)
             }
-            val view = views.getFXView(list) as FXListEditorView
+            val view = views.getControl(list) as FXListEditorView
             view.cellFactory = { NumberedCell() }
             return view
         }

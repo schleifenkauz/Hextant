@@ -10,10 +10,10 @@ import javafx.scene.input.KeyCode.R
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination.SHORTCUT_ANY
 import org.nikok.hextant.*
-import org.nikok.hextant.core.EditorViewFactory
-import org.nikok.hextant.core.ExpanderFactory
+import org.nikok.hextant.core.EditorControlFactory
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.editable.Expandable
+import org.nikok.hextant.core.editor.Expander
 import org.nikok.hextant.core.fx.HextantTextField
 import org.nikok.hextant.core.fx.registerShortcut
 import org.nikok.reaktive.value.now
@@ -23,9 +23,9 @@ class FXExpanderView(
     context: Context
 ) : ExpanderView, EditorControl<Node>() {
 
-    private val expander = context[ExpanderFactory].getExpander(expandable)
+    private val expander = context.getEditor(expandable) as Expander<*>
 
-    private val views = context[EditorViewFactory]
+    private val views = context[EditorControlFactory]
 
     private var view: EditorControl<*>? = null
 
@@ -56,7 +56,7 @@ class FXExpanderView(
     }
 
     override fun expanded(newContent: Editable<*>) {
-        val v = views.getFXView(newContent)
+        val v = views.getControl(newContent)
         view = v
         v.registerShortcut(RESET_SHORTCUT) { expander.reset() }
         root = v

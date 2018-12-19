@@ -90,13 +90,13 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     }
 
     override val parent: Editor<*>?
-        get() = editable.parent?.let { p -> editorFactory.resolveEditor(p) }
+        get() = editable.parent?.let { p -> editorFactory.getEditor(p) }
 
     override val children: Collection<Editor<*>>?
-        get() = (editable as? ParentEditable<*, *>)?.children?.map { child -> editorFactory.resolveEditor(child) }
+        get() = (editable as? ParentEditable<*, *>)?.children?.map { child -> editorFactory.getEditor(child) }
 
     override val allChildren: Sequence<Editor<*>>?
         get() =
-            if (editable is ParentEditable<*, *>) editable.allChildren.map(editorFactory::resolveEditor)
+            if (editable is ParentEditable<*, *>) editable.allChildren.map(editorFactory::getEditor)
             else null
 }

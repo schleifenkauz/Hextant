@@ -13,7 +13,7 @@ import org.nikok.reaktive.value.now
 
 internal object IntLiteralEditorSpec : Spek({
     given("an int literal editor") {
-        val platform = HextantPlatform.newInstance()
+        val platform = HextantPlatform.configured()
         val editable = EditableIntLiteral()
         val editor = IntLiteralEditor(editable, platform)
         test("the int literal should initially be null") {

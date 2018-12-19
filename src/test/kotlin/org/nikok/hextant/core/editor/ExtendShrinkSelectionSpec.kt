@@ -28,7 +28,7 @@ internal object ExtendShrinkSelectionSpec : Spek({
     class ParentEditor(context: Context) : AbstractEditor<Parent, EditorView>(Parent(), context)
 
     given("3 children and a parent") {
-        val platform = HextantPlatform.newInstance()
+        val platform = HextantPlatform.configured()
         val children = List(3) { ChildEditor(platform) }
         val parent = ParentEditor(platform)
         for (it in children) {
