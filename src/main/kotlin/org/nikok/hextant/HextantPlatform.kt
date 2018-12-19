@@ -26,7 +26,7 @@ interface HextantPlatform : Context {
     /**
      * The default instance of the [HextantPlatform]
      */
-    private class Impl(bundle: Bundle) : HextantPlatform, Bundle by bundle {
+    private class Impl(bundle: Bundle) : HextantPlatform, AbstractContext(null, bundle) {
         private val executor = Executors.newSingleThreadExecutor()
 
         override fun <T> runLater(action: () -> T): Future<T> {
@@ -40,9 +40,6 @@ interface HextantPlatform : Context {
 
         override val platform: HextantPlatform
             get() = this
-
-        override val parent: Context?
-            get() = null
     }
 
     companion object {
