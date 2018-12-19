@@ -14,7 +14,7 @@ import org.nikok.hextant.core.EditorViewFactory
 import org.nikok.hextant.core.command.line.CommandLine
 import org.nikok.hextant.core.command.line.FXCommandLineView
 import org.nikok.hextant.core.fx.hextantScene
-import org.nikok.hextant.core.get
+import org.nikok.hextant.get
 import org.nikok.hextant.sample.editable.EditableName
 
 class NameEditorGuiTest : Application() {
