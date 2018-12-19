@@ -38,7 +38,7 @@ class UndoManagerImpl : UndoManager {
         val e = if (last != null) {
             last.mergeWith(edit) ?: edit
         } else edit
-        undoable.push(e)
+        redoable.push(e)
     }
 
     override val undoText: String
