@@ -9,10 +9,21 @@ import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.EditorControlFactory
 import org.nikok.hextant.core.EditorFactory
+import org.nikok.hextant.core.base.EditorControl
 
-fun Context.createView(editable: Editable<*>) = get(Public, EditorControlFactory).getControl(editable)
+fun Context.createView(editable: Editable<*>): EditorControl<*> =
+    try {
+        get(Public, EditorControlFactory).getControl(editable)
+    } catch (e: NoSuchElementException) {
+        parent?.createView(editable) ?: throw e
+    }
 
-fun <E : Editable<*>> Context.getEditor(editable: E) = get(Public, EditorFactory).getEditor(editable)
+fun <E : Editable<*>> Context.getEditor(editable: E): Editor<E> =
+    try {
+        get(Public, EditorFactory).getEditor(editable)
+    } catch (e: NoSuchElementException) {
+        parent?.getEditor(editable) ?: throw e
+    }
 
 @JvmName("getPublic")
 operator fun <T : Any> Context.get(property: Property<T, Public, *>): T = get(
