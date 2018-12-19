@@ -41,9 +41,8 @@ interface HextantPlatform : Context {
         override val platform: HextantPlatform
             get() = this
 
-        init {
-
-        }
+        override val parent: Context?
+            get() = null
     }
 
     companion object {
