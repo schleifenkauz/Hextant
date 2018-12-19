@@ -5,10 +5,7 @@
 package org.nikok.hextant
 
 import org.nikok.hextant.bundle.Bundle
-import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.*
-import org.nikok.hextant.core.CorePermissions.Internal
-import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
@@ -65,17 +62,3 @@ interface HextantPlatform : Context {
         fun newInstance(bundle: Bundle = Bundle.newInstance()): HextantPlatform = Impl(bundle)
     }
 }
-
-@JvmName("getPublic")
-operator fun <T : Any> HextantPlatform.get(property: Property<T, Public, *>): T = get(Public, property)
-
-@JvmName("setPublic")
-internal operator fun <T : Any> HextantPlatform.set(property: Property<T, *, Public>, value: T) =
-    set(Public, property, value)
-
-@JvmName("getInternal")
-internal operator fun <T : Any> HextantPlatform.get(property: Property<T, Internal, *>): T = get(Internal, property)
-
-@JvmName("setInternal")
-internal operator fun <T : Any> HextantPlatform.set(property: Property<T, *, Internal>, value: T) =
-    set(Internal, property, value)
