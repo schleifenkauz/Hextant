@@ -67,7 +67,6 @@ class ExprEditorViewTest : Application() {
                 v
             }
         }
-        val expanderFactory = platform[ExpanderFactory]
         commands.of<OperatorEditor>().register<OperatorEditor, Unit> {
             name = "Flip operands"
             shortName = "flip_op"
@@ -82,9 +81,9 @@ class ExprEditorViewTest : Application() {
                 val editableOp1 = expandableOp1.editable.now
                 val expandableOp2 = oae.editable.editableOp2
                 val editableOp2 = expandableOp2.editable.now
-                val expander1 = expanderFactory.getExpander(expandableOp1)
+                val expander1 = platform.getEditor(expandableOp1) as Expander<Editable<Expr>>
                 if (editableOp2 != null) expander1.setContent(editableOp2)
-                val expander2 = expanderFactory.getExpander(expandableOp2)
+                val expander2 = platform.getEditor(expandableOp2) as Expander<Editable<Expr>>
                 if (editableOp1 != null) expander2.setContent(editableOp1)
             }
         }
