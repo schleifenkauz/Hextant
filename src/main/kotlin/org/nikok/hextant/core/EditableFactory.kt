@@ -20,7 +20,7 @@ interface EditableFactory {
     /**
      * Register the [factory] for the [editedCls],
      * such that for any call of `getEditable(editedCls)` this [EditableFactory] uses the specified [factory],
-     * where `editedCls` denotes the specified [editedCls] or any superclass-objects,
+     * where `editedCls` denotes the specified [editedCls] or any superclasses,
      * unless another factory has been registered.
     */
     fun <T : Any> register(editedCls: KClass<T>, factory: () -> Editable<T>)
@@ -34,18 +34,12 @@ interface EditableFactory {
     fun <T : Any> register(editedCls: KClass<T>, factory: (T) -> Editable<T>)
 
     /**
-     * Tries to find a factory registered with [register] or applies the naming conventions for [Editable]s,
-     * which are explained in [EditableFactory] to locate the editable class for [editedCls].
-     * Then it tries to find a public constructor without any non-optional parameters and invokes it.
+     * Tries to find a factory registered with [register]
     */
     fun <T : Any> getEditable(editedCls: KClass<T>): Editable<T>
 
     /**
      * Tries to find a factory registered with [register]
-     * or applies the naming conventions for [Editable]s which are explained in [EditableFactory] to locate
-     * the editable class for the class of [edited].
-     * Then it tries to find a public constructor, whose first parameter is not optional
-     * and assignable from [edited] and whose other parameters are optional and invokes it.
      */
     fun <T : Any> getEditable(edited: T): Editable<T>
 
