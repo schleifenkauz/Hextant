@@ -53,12 +53,6 @@ interface Bundle {
         delegate: ReadOnlyProperty<Nothing?, T>
     )
 
-    /**
-     * @return a new [Bundle] with the same properties as this property holder
-     * and apply the [init] block to the new property holder.
-     */
-    fun copy(init: Init.() -> Unit): Bundle
-
     private sealed class Value<out T> {
         abstract val value: T
 
@@ -103,14 +97,6 @@ interface Bundle {
             return properties[property]?.value as T?
                    ?: throw NoSuchPropertyException("Property $property not configured")
         }
-
-        override fun copy(init: Init.() -> Unit): Bundle = newInstance {
-            this as InitImpl
-            for ((p, v) in properties) {
-                setValue(p as Property<Any, *, *>, v)
-            }
-            init()
-        }
     }
 
     companion object {
@@ -118,64 +104,5 @@ interface Bundle {
          * @return a new [Bundle]
          */
         fun newInstance(): Bundle = Impl()
-
-        /**
-         * @return a new [Bundle] first applying the init block to it
-         */
-        fun newInstance(init: Bundle.Init.() -> Unit): Bundle = InitImpl().apply(init).build()
-    }
-
-    /**
-     * Used to initialize [Bundle]s, the setter methods work the same,
-     * just that you don't need any permissions to use them
-     */
-    interface Init {
-        /**
-         * Works the same as [Bundle.set]
-        */
-        fun <T : Any> set(property: Property<in T, *, *>, value: T)
-
-        /**
-         * Works the same as [Bundle.setFactory]
-        */
-        fun <T : Any> setFactory(property: Property<in T, *, *>, factory: () -> T)
-
-        /**
-         * Works the same as [Bundle.setBy]
-        */
-        fun <T : Any> setBy(property: Property<in T, *, *>, delegate: ReadOnlyProperty<Nothing?, T>)
-    }
-
-    private class InitImpl : Init {
-        private val properties = mutableMapOf<Property<*, *, *>, Value<Any>>()
-
-        override fun <T : Any> set(property: Property<in T, *, *>, value: T) {
-            setValue(property, Constant(value))
-        }
-
-        fun <T : Any> setValue(
-            property: Property<in T, *, *>,
-            value: Value<T>
-        ) {
-            properties[property] = value
-        }
-
-        override fun <T : Any> setFactory(
-            property: Property<in T, *, *>,
-            factory: () -> T
-        ) {
-            setValue(property, Factory(factory))
-        }
-
-        override fun <T : Any> setBy(
-            property: Property<in T, *, *>,
-            delegate: ReadOnlyProperty<Nothing?, T>
-        ) {
-            setValue(property, Delegate(delegate))
-        }
-
-        fun build(): Bundle {
-            return Impl(properties)
-        }
     }
 }
