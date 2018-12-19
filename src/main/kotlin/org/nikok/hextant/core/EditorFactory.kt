@@ -4,156 +4,68 @@
 
 package org.nikok.hextant.core
 
-import org.nikok.hextant.*
+import org.nikok.hextant.Editable
+import org.nikok.hextant.Editor
 import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
-import org.nikok.hextant.core.editable.Expandable
+import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.core.impl.DoubleWeakHashMap
 import java.util.logging.Logger
 import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.full.*
 
+/**
+ * Used to register and resolve [Editor]'s
+ * * Editors produced by this factory are always "weakly-cached"
+ *   Which means they are stored using a [java.lang.ref.WeakReference]
+ *   and returned on further invocations unless they have been garbage collected
+ */
 interface EditorFactory {
-    fun <E : Editable<*>, Ed : Editor<E>> register(editableCls: KClass<E>, editorCls: KClass<Ed>, factory: (E) -> Ed)
+    /**
+     * Register the specified [factory] for the [editableCls]
+     */
+    fun <E : Editable<*>, Ed : Editor<E>> register(editableCls: KClass<E>, factory: (E) -> Ed)
 
-    fun <E : Editable<*>, Ed : Editor<E>> getEditor(editorCls: KClass<Ed>, editable: E): Ed
+    /**
+     * @return a maybe cached [Editor] for the specified [editable]
+     */
+    fun <E : Editable<*>, Ed : Editor<E>> getEditor(editable: E): Ed
 
-    fun <E : Editable<*>, Ed : Editor<E>> registerEditorClass(editableCls: KClass<E>, editorCls: KClass<Ed>)
-
-    fun <E : Editable<*>> resolveEditor(editable: E): Editor<E>
     @Suppress("UNCHECKED_CAST")
-    private class Impl(
-        private val context: Context,
-        private val classLoader: ClassLoader
-    ) : EditorFactory {
-        private val expanderFactory by lazy { context[ExpanderFactory] }
-
+    private class Impl : EditorFactory {
         private val factories =
-            mutableMapOf<KClass<*>, MutableMap<KClass<*>, (Editable<*>) -> Editor<*>>>()
+            ClassMap.invariant<(Editable<*>) -> Editor<*>>()
 
         private val cache = DoubleWeakHashMap<Editable<*>, Editor<*>>()
 
         override fun <E : Editable<*>, Ed : Editor<E>> register(
             editableCls: KClass<E>,
-            editorCls: KClass<Ed>,
             factory: (E) -> Ed
         ) {
-            getFactories(editableCls).let {
-                it[editorCls] = factory as (Editable<*>) -> Editor<*>
-            }
+            factories[editableCls] = factory as (Editable<*>) -> Editor<*>
             logger.config { "Registered editor factory for $editableCls" }
         }
 
-        private fun <E : Editable<*>> getFactories(editableCls: KClass<E>) =
-            factories.getOrPut(editableCls) { mutableMapOf() }
-
-        override fun <E : Editable<*>, Ed : Editor<E>> getEditor(editorCls: KClass<Ed>, editable: E): Ed =
-            if (editable is Expandable<*, *>) expanderFactory.getExpander(editable) as Ed
-            else cache.getOrPut(editable) {
-                val cls = editable::class
-                val factory =
-                    getFactories(cls).getOrPut(editorCls) {
-                        resolveConstructor(cls, editorCls) as ((Editable<*>) -> Editor<*>)
-                    }
-                factory(editable)
-            }.let { editorCls.cast(it) }
-
-        private val editorClasses = mutableMapOf<KClass<Editable<*>>, KClass<Editor<*>>>()
-
-        override fun <E : Editable<*>, Ed : Editor<E>> registerEditorClass(
-            editableCls: KClass<E>,
-            editorCls: KClass<Ed>
-        ) {
-            editorClasses[editableCls as KClass<Editable<*>>] = editorCls as KClass<Editor<*>>
-        }
-
-
-        override fun <E : Editable<*>> resolveEditor(editable: E): Editor<E> {
-            if (editable is Expandable<*, *>) return expanderFactory.getExpander(editable) as Editor<E>
-            val editorCls = getEditorClass(editable::class)
-            return getEditor(editorCls, editable)
-        }
-
-        private fun <E : Editable<*>, Ed : Editor<E>> getEditorClass(editableCls: KClass<out E>): KClass<Ed> {
-            val userSpecified = editorClasses[editableCls as KClass<Editable<*>>]
-            return if (userSpecified != null) userSpecified as KClass<Ed>
-            else {
-                val cls = resolveEditorClass<E, Ed>(editableCls as KClass<E>)
-                    ?: throw NoSuchElementException("Could not find editor class for $editableCls")
-                registerEditorClass(editableCls, cls as KClass<Editor<Editable<*>>>)
-                return cls
+        override fun <E : Editable<*>, Ed : Editor<E>> getEditor(editable: E): Ed {
+            val cached = cache[editable]
+            if (cached != null) return cached as Ed
+            val cls = editable::class
+            val factory = factories[cls]
+            if (factory == null) {
+                val msg = "No editor found for $cls"
+                logger.severe(msg)
+                throw NoSuchElementException(msg)
             }
-        }
-
-        private fun <E : Editable<*>, Ed : Editor<E>> resolveEditorClass(editableCls: KClass<E>): KClass<Ed>? {
-            val name = editableCls.simpleName ?: return null
-            val pkg = editableCls.java.`package`?.name ?: return null
-            val editorClsName = name.removePrefix("Editable") + "Editor"
-            val inSamePackage = "$pkg.$editorClsName"
-            val inEditorPackage = "$pkg.editor.$editorClsName"
-            val siblingEditorPkg = pkg.replaceAfterLast('.', "editor")
-            val inSiblingEditorPkg = "$siblingEditorPkg.$editorClsName"
-            return tryCreateEditorCls(inSamePackage)
-                ?: tryCreateEditorCls(inEditorPackage)
-                ?: tryCreateEditorCls(inSiblingEditorPkg)
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun <Ed : Editor<*>> tryCreateEditorCls(name: String): KClass<Ed>? {
-            return try {
-                val cls = classLoader.loadClass(name)
-                val k = cls.kotlin
-                k.takeIf { it.isSubclassOf(Editor::class) } as KClass<Ed>?
-            } catch (cnf: ClassNotFoundException) {
-                null
-            }
-        }
-
-        private fun <E : Editable<*>, Ed : Editor<E>> resolveConstructor(
-            cls: KClass<out E>,
-            editorCls: KClass<Ed>
-        ): ((E) -> Ed)? {
-            lateinit var contextParameter: KParameter
-            lateinit var editableParameter: KParameter
-            val constructor = editorCls.constructors.find { constructor ->
-                val parameters = constructor.parameters
-                contextParameter = parameters.find {
-                    it.type == Context::class.starProjectedType
-                } ?: return@find false
-                editableParameter = parameters.find {
-                    it.type.isSupertypeOf(cls.starProjectedType)
-                            || it.type.classifier == cls
-                            || (it.type.classifier as? KClass<*>)?.isSuperclassOf(cls) ?: false
-                } ?: return@find false
-                val otherParameters = parameters - setOf(contextParameter, editableParameter)
-                otherParameters.count { !it.isOptional } == 0
-            } ?: throw NoSuchElementException("Could not find constructor for $editorCls")
-            return { editable ->
-                constructor.callBy(
-                    mapOf(
-                        editableParameter to editable,
-                        contextParameter to context
-                    )
-                )
-            }
+            return factory(editable) as Ed
         }
     }
 
     companion object : Property<EditorFactory, Public, Internal>("editor factory") {
         val logger = Logger.getLogger(EditorFactory::class.qualifiedName)
-        fun newInstance(
-            classLoader: ClassLoader,
-            context: Context
-        ): EditorFactory =
-            Impl(context, classLoader)
+        fun newInstance(): EditorFactory = Impl()
     }
 }
 
 inline fun <reified E : Editable<*>, reified Ed : Editor<E>> EditorFactory.register(noinline factory: (E) -> Ed) {
-    register(E::class, Ed::class, factory)
+    register(E::class, factory)
 }
-
-inline fun <E : Editable<*>, reified Ed : Editor<E>> EditorFactory.getEditor(editable: E) =
-    getEditor(Ed::class, editable)
