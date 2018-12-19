@@ -6,8 +6,8 @@ package org.nikok.hextant.core.impl
 
 import org.nikok.hextant.Editor
 import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
-import org.nikok.hextant.prop.Property
 import org.nikok.reaktive.set.*
 import org.nikok.reaktive.value.Variable
 

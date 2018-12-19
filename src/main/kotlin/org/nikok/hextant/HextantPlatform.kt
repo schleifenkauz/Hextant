@@ -4,20 +4,21 @@
 
 package org.nikok.hextant
 
+import org.nikok.hextant.bundle.*
+import org.nikok.hextant.bundle.Bundle.Init
 import org.nikok.hextant.core.*
+import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
-import org.nikok.hextant.prop.*
-import org.nikok.hextant.prop.PropertyHolder.Init
 import java.util.concurrent.*
 import java.util.logging.Logger
 import kotlin.properties.ReadOnlyProperty
 
 /**
- * The hextant platform, mainly functions as a [PropertyHolder] to manage properties of the hextant platform
+ * The hextant platform, mainly functions as a [Bundle] to manage properties of the hextant platform
  */
-interface HextantPlatform : PropertyHolder {
+interface HextantPlatform : Bundle {
     /**
      * Enqueues the specified [action] in the Hextant main thread
      */
@@ -25,15 +26,15 @@ interface HextantPlatform : PropertyHolder {
 
     fun exit()
 
-    override fun copy(init: PropertyHolder.Init.() -> Unit): HextantPlatform
+    override fun copy(init: Bundle.Init.() -> Unit): HextantPlatform
 
     /**
      * The default instance of the [HextantPlatform]
      */
-    private class Impl(propertyHolder: HextantPlatform.() -> PropertyHolder) : HextantPlatform {
+    private class Impl(bundle: HextantPlatform.() -> Bundle) : HextantPlatform {
         private val executor = Executors.newSingleThreadExecutor()
 
-        private val propertyHolder = propertyHolder(this)
+        private val propertyHolder = bundle(this)
 
         override fun <T> runLater(action: () -> T): Future<T> {
             val future = executor.submit(action)
@@ -77,7 +78,7 @@ interface HextantPlatform : PropertyHolder {
     }
 
     companion object {
-        fun HextantPlatform.initDefaultProperties(): PropertyHolder = PropertyHolder.newInstance {
+        fun HextantPlatform.initDefaultProperties(): Bundle = Bundle.newInstance {
             val platform = this@initDefaultProperties
             set(Version, Version(1, 0, isSnapshot = true))
             set(SelectionDistributor, SelectionDistributor.newInstance(platform))
@@ -92,8 +93,8 @@ interface HextantPlatform : PropertyHolder {
             set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
         }
 
-        fun withPropertyHolder(propertyHolder: HextantPlatform.() -> PropertyHolder): HextantPlatform =
-            Impl(propertyHolder)
+        fun withPropertyHolder(bundle: HextantPlatform.() -> Bundle): HextantPlatform =
+            Impl(bundle)
 
         val INSTANCE = newInstance()
 
@@ -102,3 +103,6 @@ interface HextantPlatform : PropertyHolder {
     }
 }
 
+operator fun <T : Any> HextantPlatform.get(property: Property<T, Public, *>): T = get(Public, property)
+
+operator fun <T : Any> HextantPlatform.set(property: Property<T, *, Public>, value: T) = set(Public, property, value)

@@ -5,11 +5,11 @@
 package org.nikok.hextant.core
 
 import org.nikok.hextant.*
+import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.impl.DoubleWeakHashMap
-import org.nikok.hextant.prop.Property
 import java.util.logging.Logger
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter

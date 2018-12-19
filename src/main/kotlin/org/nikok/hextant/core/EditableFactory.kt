@@ -7,10 +7,10 @@
 package org.nikok.hextant.core
 
 import org.nikok.hextant.Editable
+import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.impl.ClassMap
-import org.nikok.hextant.prop.Property
 import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility.PUBLIC
 import kotlin.reflect.full.*

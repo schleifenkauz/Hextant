@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package org.nikok.hextant.prop
+package org.nikok.hextant.bundle
 
 import kotlin.properties.ReadOnlyProperty
 
@@ -11,28 +11,28 @@ import kotlin.properties.ReadOnlyProperty
 */
 class PermissionContext<out P: Permission> internal constructor(private val permission: P) {
     /**
-     * Delegates to the [PropertyHolder]
+     * Delegates to the [Bundle]
     */
-    operator fun <T : Any> PropertyHolder.get(property: Property<out T, P, *>) = get(permission, property)
+    operator fun <T : Any> Bundle.get(property: Property<out T, P, *>) = get(permission, property)
 
     /**
-     * Delegates to the [PropertyHolder]
+     * Delegates to the [Bundle]
     */
-    operator fun <T: Any> PropertyHolder.set(property: Property<in T, *, P>, value: T) {
+    operator fun <T : Any> Bundle.set(property: Property<in T, *, P>, value: T) {
         set(permission, property, value)
     }
 
     /**
-     * Delegates to the [PropertyHolder]
+     * Delegates to the [Bundle]
     */
-    fun <T: Any> PropertyHolder.setBy(property: Property<T, *, P>, delegate: ReadOnlyProperty<Nothing?, T>) {
+    fun <T : Any> Bundle.setBy(property: Property<T, *, P>, delegate: ReadOnlyProperty<Nothing?, T>) {
         setBy(permission, property, delegate)
     }
 
     /**
-     * Delegates to the [PropertyHolder]
+     * Delegates to the [Bundle]
     */
-    fun <T: Any> PropertyHolder.setFactory(property: Property<T, *, P>, factory: () -> T) {
+    fun <T : Any> Bundle.setFactory(property: Property<T, *, P>, factory: () -> T) {
         setFactory(permission, property, factory)
     }
 }

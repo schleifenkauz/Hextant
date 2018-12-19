@@ -6,12 +6,12 @@ package org.nikok.hextant.core
 
 import org.nikok.hextant.Editable
 import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.editor.Expander
 import org.nikok.hextant.core.impl.DoubleWeakHashMap
-import org.nikok.hextant.prop.Property
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter

@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package org.nikok.hextant.prop
+package org.nikok.hextant.bundle
 
 /**
  * A Property of type [T] which can be read with [Permission] [Read] and written with [Permission] [Write]

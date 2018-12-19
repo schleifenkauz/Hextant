@@ -6,6 +6,7 @@ package org.nikok.hextant.core
 
 import org.nikok.hextant.Editable
 import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.base.EditorControl
@@ -13,7 +14,6 @@ import org.nikok.hextant.core.editable.ConvertedEditable
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.core.view.FXExpanderView
-import org.nikok.hextant.prop.Property
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.*

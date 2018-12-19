@@ -4,7 +4,7 @@
 
 @file:Suppress("UNCHECKED_CAST")
 
-package org.nikok.hextant.prop
+package org.nikok.hextant.bundle
 
 /**
  * Represents a Permission to get or set a Property

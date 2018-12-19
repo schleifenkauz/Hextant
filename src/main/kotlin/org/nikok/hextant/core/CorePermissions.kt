@@ -1,6 +1,6 @@
 package org.nikok.hextant.core
 
-import org.nikok.hextant.prop.Permission
+import org.nikok.hextant.bundle.Permission
 
 /**
  * The permissions of the core module
