@@ -9,6 +9,7 @@ import org.nikok.hextant.Editor
 import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.editable.ConvertedEditable
 import org.nikok.hextant.core.impl.ClassMap
 import org.nikok.hextant.core.impl.DoubleWeakHashMap
 import java.util.logging.Logger
@@ -29,7 +30,7 @@ interface EditorFactory {
     /**
      * @return a maybe cached [Editor] for the specified [editable]
      */
-    fun <E : Editable<*>, Ed : Editor<E>> getEditor(editable: E): Ed
+    fun <E : Editable<*>> getEditor(editable: E): Editor<E>
 
     @Suppress("UNCHECKED_CAST")
     private class Impl : EditorFactory {
@@ -46,9 +47,10 @@ interface EditorFactory {
             logger.config { "Registered editor factory for $editableCls" }
         }
 
-        override fun <E : Editable<*>, Ed : Editor<E>> getEditor(editable: E): Ed {
+        override fun <E : Editable<*>> getEditor(editable: E): Editor<E> {
+            if (editable is ConvertedEditable<*, *>) return getEditor(editable.source) as Editor<E>
             val cached = cache[editable]
-            if (cached != null) return cached as Ed
+            if (cached != null) return cached as Editor<E>
             val cls = editable::class
             val factory = factories[cls]
             if (factory == null) {
@@ -56,7 +58,7 @@ interface EditorFactory {
                 logger.severe(msg)
                 throw NoSuchElementException(msg)
             }
-            return factory(editable) as Ed
+            return factory(editable) as Editor<E>
         }
     }
 
