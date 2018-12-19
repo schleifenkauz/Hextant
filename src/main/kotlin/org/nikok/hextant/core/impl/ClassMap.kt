@@ -54,10 +54,19 @@ internal sealed class ClassMap<V> {
     }
 
     companion object {
+        /**
+         * @return A [ClassMap] where values are associated with the key class and all of its superclasses
+         */
         fun <V> invariant(): ClassMap<V> = Invariant()
 
+        /**
+         * @return A [ClassMap] where values are associated with the key-class and all of its subclasses
+         */
         fun <V> contravariant(): ClassMap<V> = Contravariant()
 
+        /**
+         * @return A [ClassMap] where values are associated with their exact key-class
+         */
         fun <V> covariant(): ClassMap<V> = Covariant()
     }
 }
