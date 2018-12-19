@@ -13,7 +13,7 @@ import org.nikok.hextant.core.fx.keyword
 import org.nikok.hextant.core.fx.operator
 
 abstract class CompoundEditorControl(
-    private val platform: HextantPlatform,
+    private val context: Context,
     private val build: Vertical.() -> Unit
 ) : EditorControl<VBox>() {
     override fun createDefaultRoot(): VBox = Vertical().also(build)
@@ -29,7 +29,7 @@ abstract class CompoundEditorControl(
     }
 
     inner class Vertical : VBox(), Compound {
-        override fun view(editable: Editable<*>) = view(editable, this, platform)
+        override fun view(editable: Editable<*>) = view(editable, this, context)
 
         override fun space() = space(this)
 
@@ -53,7 +53,7 @@ abstract class CompoundEditorControl(
     }
 
     inner class Horizontal : HBox(), Compound {
-        override fun view(editable: Editable<*>): EditorControl<*> = view(editable, this, platform)
+        override fun view(editable: Editable<*>): EditorControl<*> = view(editable, this, context)
 
         override fun space() = space(this)
 
@@ -66,9 +66,9 @@ abstract class CompoundEditorControl(
         private fun view(
             editable: Editable<*>,
             pane: Pane,
-            platform: HextantPlatform
+            context: Context
         ): EditorControl<*> {
-            val c = platform[Public, EditorViewFactory].getFXView(editable)
+            val c = context[Public, EditorViewFactory].getFXView(editable)
             pane.children.add(c)
             return c
         }
@@ -94,11 +94,11 @@ abstract class CompoundEditorControl(
         operator fun invoke(
             editable: Editable<*>,
             editor: Editor<*>,
-            platform: HextantPlatform,
+            context: Context,
             build: Vertical.() -> Unit
-        ): CompoundEditorControl = object : CompoundEditorControl(platform, build) {
+        ): CompoundEditorControl = object : CompoundEditorControl(context, build) {
             init {
-                initialize(editable, editor, platform)
+                initialize(editable, editor, context)
             }
         }
     }

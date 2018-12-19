@@ -53,14 +53,14 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
      * * Must be called exactly once after constructor logic, otherwise behaviour is undefined
      * @param editable the editable represented by this view
      * @param editor the editor represented by this view
-     * @param platform the [HextantPlatform]
+     * @param context the [Context]
      */
-    protected fun initialize(editable: Editable<*>, editor: Editor<*>, platform: HextantPlatform) {
+    protected fun initialize(editable: Editable<*>, editor: Editor<*>, context: Context) {
         check(!initialized) { "already initialized" }
         this.editor = editor
         root = createDefaultRoot()
-        activateContextMenu(editable, platform)
-        activateInspections(editable, platform)
+        activateContextMenu(editable, context)
+        activateInspections(editable, context)
         activateSelectionExtension(editor)
         initialized = true
     }
@@ -90,14 +90,14 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
     }
 
 
-    private fun activateInspections(inspected: Any, platform: HextantPlatform) {
-        val inspections = platform[Inspections]
+    private fun activateInspections(inspected: Any, context: Context) {
+        val inspections = context[Inspections]
         val p = InspectionPopup(this) { inspections.getProblems(inspected) }
         registerShortcut(KeyCodeCombination(ENTER, KeyCombination.ALT_DOWN)) { p.show(this) }
     }
 
-    private fun <T : Any> activateContextMenu(target: T, platform: HextantPlatform) {
-        val contextMenu = target.commandContextMenu(platform)
+    private fun <T : Any> activateContextMenu(target: T, context: Context) {
+        val contextMenu = target.commandContextMenu(context)
         setOnContextMenuRequested { contextMenu.show(this, Side.BOTTOM, 0.0, 0.0) }
     }
 

@@ -10,7 +10,7 @@ internal object CommandsSpec: Spek({
     given("commands") {
         val platform = HextantPlatform.newInstance()
         afterGroup { platform.exit() }
-        val cs = Commands.newInstance(platform)
+        val cs = Commands.newInstance()
         val registrar = cs.of<ICommandTarget>()
         val command = command<ICommandTarget, Unit> {
             description = "another command"

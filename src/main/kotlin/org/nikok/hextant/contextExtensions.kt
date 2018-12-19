@@ -37,3 +37,5 @@ internal operator fun <T : Any> Context.get(property: Property<T, Internal, *>):
 @JvmName("setInternal")
 internal operator fun <T : Any> Context.set(property: Property<T, *, Internal>, value: T) =
     set(Internal, property, value)
+
+fun Context.runLater(action: () -> Unit) = platform.runLater(action)

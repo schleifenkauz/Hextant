@@ -4,8 +4,7 @@
 
 package org.nikok.hextant.core
 
-import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.*
 import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
@@ -28,7 +27,7 @@ interface ExpanderFactory {
     @Suppress("UNCHECKED_CAST")
     private class Impl(
         private val classLoader: ClassLoader,
-        private val platform: HextantPlatform
+        private val context: Context
     ) : ExpanderFactory {
         private val cache = DoubleWeakHashMap<Expandable<*, *>, Expander<*>>()
 
@@ -86,7 +85,7 @@ interface ExpanderFactory {
                     constructor.callBy(
                         mapOf(
                             expandableParameter to expandable,
-                            platformParameter to platform
+                            platformParameter to context
                         )
                     )
             }
@@ -119,7 +118,7 @@ interface ExpanderFactory {
     }
 
     companion object : Property<ExpanderFactory, Public, Internal>("expander factory") {
-        fun newInstance(classLoader: ClassLoader, platform: HextantPlatform): ExpanderFactory =
-                Impl(classLoader, platform)
+        fun newInstance(classLoader: ClassLoader, context: Context): ExpanderFactory =
+            Impl(classLoader, context)
     }
 }

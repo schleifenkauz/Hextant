@@ -36,7 +36,7 @@ internal class CommandGuiTest : Application() {
             editableFactory.apply {
                 register(IntLiteral::class) { -> EditableIntLiteral() }
             }
-            val commands = Commands.newInstance(platform)
+            val commands = Commands.newInstance()
             val registrar = commands.of<Receiver>().apply {
                 register(command<Receiver, Unit> {
                     executing { _, _ -> println("1") }

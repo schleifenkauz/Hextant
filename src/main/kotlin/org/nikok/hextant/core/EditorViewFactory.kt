@@ -4,8 +4,8 @@
 
 package org.nikok.hextant.core
 
+import org.nikok.hextant.Context
 import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
@@ -35,7 +35,7 @@ interface EditorViewFactory {
     fun <E : Editable<*>> getFXView(editable: E): EditorControl<*>
 
     @Suppress("UNCHECKED_CAST") private class Impl(
-        private val platform: HextantPlatform,
+        private val context: Context,
         private val classLoader: ClassLoader
     ) : EditorViewFactory {
         private val viewFactories = ClassMap.invariant<(Editable<*>) -> EditorControl<*>>()
@@ -49,7 +49,7 @@ interface EditorViewFactory {
             val cls = editable::class
             when (editable) {
                 is ConvertedEditable<*, *> -> return getFXView(editable.source)
-                is Expandable<*, *>        -> return FXExpanderView(editable, platform)
+                is Expandable<*, *>        -> return FXExpanderView(editable, context)
                 else                       -> {
                     viewFactories[cls]?.let { f -> return f(editable) }
                     defaultFactory(cls)?.let { c -> return c(editable) }
@@ -73,24 +73,24 @@ interface EditorViewFactory {
             editableCls: KClass<out E>,
             viewCls: KClass<EditorControl<*>>
         ): (Editable<*>) -> EditorControl<*> {
-            lateinit var platformParameter: KParameter
+            lateinit var contextParameter: KParameter
             lateinit var editableParameter: KParameter
             val constructor = viewCls.constructors.find { constructor ->
                 val parameters = constructor.parameters
-                platformParameter = parameters.find {
-                    it.type.classifier == HextantPlatform::class
+                contextParameter = parameters.find {
+                    it.type.classifier == Context::class
                 } ?: return@find false
                 editableParameter = parameters.find {
                     it.type.isSupertypeOf(editableCls.starProjectedType)
                 } ?: return@find false
-                val otherParameters = parameters - setOf(platformParameter, editableParameter)
+                val otherParameters = parameters - setOf(contextParameter, editableParameter)
                 otherParameters.count { !it.isOptional } == 0
             } ?: throw NoSuchElementException("Could not find constructor for $viewCls")
             return { expandable ->
                 constructor.callBy(
                     mapOf(
                         editableParameter to expandable,
-                        platformParameter to platform
+                        contextParameter to context
                     )
                 )
             }
@@ -123,15 +123,15 @@ interface EditorViewFactory {
     }
 
     companion object : Property<EditorViewFactory, Public, Internal>("editor-view-factory") {
-        fun newInstance(platform: HextantPlatform, classLoader: ClassLoader): EditorViewFactory =
-            Impl(platform, classLoader)
+        fun newInstance(context: Context, classLoader: ClassLoader): EditorViewFactory =
+            Impl(context, classLoader)
 
         inline fun newInstance(
-            platform: HextantPlatform,
+            context: Context,
             configure: EditorViewFactory.() -> Unit,
             classLoader: ClassLoader
         ): EditorViewFactory =
-            newInstance(platform, classLoader).apply(configure)
+            newInstance(context, classLoader).apply(configure)
     }
 }
 

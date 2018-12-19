@@ -7,7 +7,7 @@ package org.nikok.hextant.core.command
 import javafx.scene.Node
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.KeyEvent
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.Context
 import org.nikok.hextant.core.command.Command.Category
 import org.nikok.hextant.core.command.gui.showArgumentPrompt
 import org.nikok.reaktive.event.event
@@ -89,7 +89,7 @@ class CommandRegistrar<R : Any> internal constructor(private val parents: List<C
         keyEvent: KeyEvent,
         target: R,
         node: Node,
-        platform: HextantPlatform
+        context: Context
     ): Boolean {
         val comb = accelerators.keys.find { it.match(keyEvent) }
         val c = accelerators[comb]
@@ -98,17 +98,17 @@ class CommandRegistrar<R : Any> internal constructor(private val parents: List<C
                 c.execute(target)
                 return true
             }
-            val args = showArgumentPrompt(node.scene.window, c, platform) ?: return false
+            val args = showArgumentPrompt(node.scene.window, c, context) ?: return false
             if (args.any { it == null }) return false
             c.execute(target, *args.toTypedArray())
             return true
 
-        } else parents.any { p -> p.handle(keyEvent, target, node, platform) }
+        } else parents.any { p -> p.handle(keyEvent, target, node, context) }
     }
 
-    fun listen(node: Node, target: R, platform: HextantPlatform) {
+    fun listen(node: Node, target: R, context: Context) {
         node.addEventHandler(KeyEvent.KEY_RELEASED) { event: KeyEvent ->
-            handle(event, target, node, platform)
+            handle(event, target, node, context)
         }
     }
 }

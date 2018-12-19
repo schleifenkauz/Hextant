@@ -1,6 +1,6 @@
 package org.nikok.hextant.core.expr.view
 
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.Context
 import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.editor.TextEditor
@@ -12,16 +12,16 @@ import org.nikok.hextant.get
 
 open class FXTextEditorView(
     editable: EditableText,
-    platform: HextantPlatform
+    context: Context
 ) : EditorControl<HextantTextField>(), TextEditorView {
     final override fun createDefaultRoot() = HextantTextField().apply {
         textProperty().addListener { _, _, new -> editor.setText(new) }
     }
 
-    private val editor: TextEditor = platform[EditorFactory].getEditor(editable)
+    private val editor: TextEditor = context[EditorFactory].getEditor(editable)
 
     init {
-        initialize(editable, editor, platform)
+        initialize(editable, editor, context)
         editor.addView(this)
     }
 

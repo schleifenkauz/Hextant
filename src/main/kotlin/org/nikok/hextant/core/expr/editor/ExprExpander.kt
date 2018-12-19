@@ -4,8 +4,8 @@
 
 package org.nikok.hextant.core.expr.editor
 
+import org.nikok.hextant.Context
 import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.editor.ConfiguredExpander
 import org.nikok.hextant.core.editor.ExpanderConfig
 import org.nikok.hextant.core.expr.editable.*
@@ -15,8 +15,8 @@ import org.nikok.reaktive.value.now
 
 class ExprExpander(
     editable: ExpandableExpr,
-    platform: HextantPlatform
-) : ConfiguredExpander<Editable<Expr>>(config, editable, platform), ExprEditor {
+    context: Context
+) : ConfiguredExpander<Editable<Expr>>(config, editable, context), ExprEditor {
     override val expr: Expr?
         get() = editable.editable.now?.edited?.now
 

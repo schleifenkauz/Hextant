@@ -32,9 +32,9 @@ import org.nikok.reaktive.value.binding.impl.notNull
 class CommandLine(
     private val commandsFactory: () -> Set<Command<*, *>>,
     private val targets: () -> Set<Any>,
-    platform: HextantPlatform
+    context: Context
 ) : AbstractEditable<CommandApplication<*>>() {
-    private val editableFactory = platform[EditableFactory]
+    private val editableFactory = context[EditableFactory]
 
     /*
      * The current state

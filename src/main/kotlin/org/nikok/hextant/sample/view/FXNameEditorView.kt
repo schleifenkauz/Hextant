@@ -4,14 +4,14 @@
 
 package org.nikok.hextant.sample.view
 
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.Context
 import org.nikok.hextant.core.expr.view.FXTokenEditorView
 import org.nikok.hextant.sample.editable.EditableName
 
 class FXNameEditorView(
     editable: EditableName,
-    platform: HextantPlatform
-) : FXTokenEditorView(editable, platform) {
+    context: Context
+) : FXTokenEditorView(editable, context) {
     init {
         styleClass.add("identifier-editor")
     }

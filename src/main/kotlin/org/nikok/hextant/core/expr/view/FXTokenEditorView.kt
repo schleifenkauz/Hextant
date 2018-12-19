@@ -4,7 +4,7 @@
 
 package org.nikok.hextant.core.expr.view
 
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.Context
 import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.editable.EditableToken
@@ -15,17 +15,17 @@ import org.nikok.hextant.get
 
 open class FXTokenEditorView(
     editable: EditableToken<Any>,
-    platform: HextantPlatform
+    context: Context
 ) : EditorControl<HextantTextField>(), TextEditorView {
     final override fun createDefaultRoot() = HextantTextField().apply {
         textProperty().addListener { _, _, new -> editor.setText(new) }
     }
 
     @Suppress("UNCHECKED_CAST")
-    private val editor = platform[EditorFactory].resolveEditor(editable) as TokenEditor<*, TextEditorView>
+    private val editor = context[EditorFactory].resolveEditor(editable) as TokenEditor<*, TextEditorView>
 
     init {
-        initialize(editable, editor, platform)
+        initialize(editable, editor, context)
         editor.addView(this)
     }
 

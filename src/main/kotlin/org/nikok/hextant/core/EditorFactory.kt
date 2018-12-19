@@ -25,10 +25,10 @@ interface EditorFactory {
     fun <E : Editable<*>> resolveEditor(editable: E): Editor<E>
     @Suppress("UNCHECKED_CAST")
     private class Impl(
-        private val platform: HextantPlatform,
+        private val context: Context,
         private val classLoader: ClassLoader
     ) : EditorFactory {
-        private val expanderFactory by lazy { platform[ExpanderFactory] }
+        private val expanderFactory by lazy { context[ExpanderFactory] }
 
         private val factories =
             mutableMapOf<KClass<*>, MutableMap<KClass<*>, (Editable<*>) -> Editor<*>>>()
@@ -115,26 +115,26 @@ interface EditorFactory {
             cls: KClass<out E>,
             editorCls: KClass<Ed>
         ): ((E) -> Ed)? {
-            lateinit var platformParameter: KParameter
+            lateinit var contextParameter: KParameter
             lateinit var editableParameter: KParameter
             val constructor = editorCls.constructors.find { constructor ->
                 val parameters = constructor.parameters
-                platformParameter = parameters.find {
-                    it.type == HextantPlatform::class.starProjectedType
+                contextParameter = parameters.find {
+                    it.type == Context::class.starProjectedType
                 } ?: return@find false
                 editableParameter = parameters.find {
                     it.type.isSupertypeOf(cls.starProjectedType)
                             || it.type.classifier == cls
                             || (it.type.classifier as? KClass<*>)?.isSuperclassOf(cls) ?: false
                 } ?: return@find false
-                val otherParameters = parameters - setOf(platformParameter, editableParameter)
+                val otherParameters = parameters - setOf(contextParameter, editableParameter)
                 otherParameters.count { !it.isOptional } == 0
             } ?: throw NoSuchElementException("Could not find constructor for $editorCls")
             return { editable ->
                 constructor.callBy(
                     mapOf(
                         editableParameter to editable,
-                        platformParameter to platform
+                        contextParameter to context
                     )
                 )
             }
@@ -145,9 +145,9 @@ interface EditorFactory {
         val logger = Logger.getLogger(EditorFactory::class.qualifiedName)
         fun newInstance(
             classLoader: ClassLoader,
-            platform: HextantPlatform
+            context: Context
         ): EditorFactory =
-            Impl(platform, classLoader)
+            Impl(context, classLoader)
     }
 }
 

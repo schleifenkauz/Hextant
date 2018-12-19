@@ -43,12 +43,12 @@ interface HextantPlatform : Context {
 
         init {
             set(Version, Version(1, 0, isSnapshot = true))
-            set(SelectionDistributor, SelectionDistributor.newInstance(this))
+            set(SelectionDistributor, SelectionDistributor.newInstance())
             val cl = this.javaClass.classLoader
             set(EditorViewFactory, EditorViewFactory.newInstance(this, cl))
             set(EditableFactory, EditableFactory.newInstance(cl))
-            set(Commands, Commands.newInstance(this))
-            set(Inspections, Inspections.newInstance(this))
+            set(Commands, Commands.newInstance())
+            set(Inspections, Inspections.newInstance())
             val expanderFactory = ExpanderFactory.newInstance(cl, this)
             set(ExpanderFactory, expanderFactory)
             set(EditorFactory, EditorFactory.newInstance(cl, this))

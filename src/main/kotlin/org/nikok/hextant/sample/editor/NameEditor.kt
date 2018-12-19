@@ -4,7 +4,7 @@
 
 package org.nikok.hextant.sample.editor
 
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.Context
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.base.DefaultRegistration
 import org.nikok.hextant.core.command.Commands
@@ -16,10 +16,10 @@ import org.nikok.reaktive.value.now
 
 class NameEditor(
     editable: EditableName,
-    platform: HextantPlatform
-) : TokenEditor<EditableName, TextEditorView>(editable, platform) {
+    context: Context
+) : TokenEditor<EditableName, TextEditorView>(editable, context) {
     init {
-        registerDefault(platform)
+        registerDefault(context)
     }
 
     companion object : DefaultRegistration({

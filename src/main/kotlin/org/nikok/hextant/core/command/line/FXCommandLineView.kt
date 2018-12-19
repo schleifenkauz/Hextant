@@ -16,7 +16,7 @@ import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.Context
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Command.Parameter
@@ -28,7 +28,7 @@ import org.nikok.reaktive.event.subscribe
 
 internal class FXCommandLineView internal constructor(
     commandLine: CommandLine,
-    platform: HextantPlatform
+    context: Context
 ) : EditorControl<VBox>(), CommandLineView {
     private val historyView = ListView<CommandApplication<Any>>().apply {
         styleClass.add("history-view")
@@ -118,7 +118,7 @@ internal class FXCommandLineView internal constructor(
         }
     }
 
-    private val controller = CommandLineController(commandLine, this, platform)
+    private val controller = CommandLineController(commandLine, this, context)
 
     override fun createDefaultRoot(): VBox {
         val currentCommand = createCurrentCommand()
@@ -127,7 +127,7 @@ internal class FXCommandLineView internal constructor(
 
     init {
         controller.addView(this)
-        initialize(commandLine, controller, platform)
+        initialize(commandLine, controller, context)
     }
 
     private val completionsPopup = CompletionPopup<Command<*, *>>()

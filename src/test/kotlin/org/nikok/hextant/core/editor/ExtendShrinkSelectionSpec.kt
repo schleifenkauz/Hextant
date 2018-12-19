@@ -22,10 +22,10 @@ internal object ExtendShrinkSelectionSpec : Spek({
             get() = reactiveValue("unit", Unit)
     }
 
-    class ChildEditor(platform: HextantPlatform) :
-        AbstractEditor<EditableMock, EditorView>(EditableMock(), platform)
+    class ChildEditor(context: Context) :
+        AbstractEditor<EditableMock, EditorView>(EditableMock(), context)
 
-    class ParentEditor(platform: HextantPlatform) : AbstractEditor<Parent, EditorView>(Parent(), platform)
+    class ParentEditor(context: Context) : AbstractEditor<Parent, EditorView>(Parent(), context)
 
     given("3 children and a parent") {
         val platform = HextantPlatform.newInstance()

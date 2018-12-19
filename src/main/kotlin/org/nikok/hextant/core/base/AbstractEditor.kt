@@ -5,7 +5,6 @@
 package org.nikok.hextant.core.base
 
 import org.nikok.hextant.*
-import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.reaktive.value.Variable
@@ -22,7 +21,7 @@ import org.nikok.reaktive.value.observe
  */
 abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     final override val editable: E,
-    platform: HextantPlatform
+    context: Context
 ) : Editor<E>, AbstractController<V>() {
 
     private val isOkObserver = editable.isOk.observe("Observe isOk") { isOk ->
@@ -33,8 +32,8 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
         view.onGuiThread { view.action() }
     }
 
-    private val selectionDistributor = platform[Internal, SelectionDistributor]
-    private val editorFactory = platform[EditorFactory]
+    private val selectionDistributor = context[SelectionDistributor]
+    private val editorFactory = context[EditorFactory]
 
     final override val isSelected: Boolean get() = isSelectedVar.get()
 

@@ -7,7 +7,7 @@ package org.nikok.hextant.core.command.gui
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.INFORMATION
 import javafx.scene.control.MenuItem
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.Context
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.CommandRegistrar
 import java.util.logging.Logger
@@ -16,7 +16,7 @@ internal class CommandMenuItem<T : Any>(
     target: T,
     command: Command<T, *>,
     registrar: CommandRegistrar<out T>,
-    private val platform: HextantPlatform
+    private val context: Context
 ) :
         MenuItem() {
     init {
@@ -52,7 +52,7 @@ internal class CommandMenuItem<T : Any>(
             showResult(res)
         } else {
             val owner = parentPopup.ownerWindow
-            val args = showArgumentPrompt(owner, command, platform)
+            val args = showArgumentPrompt(owner, command, context)
             if (args != null && args.all { a -> a != null }) {
                 logger.fine { "Executing command with arguments $args" }
                 val res = command.execute(target, *args.toTypedArray())

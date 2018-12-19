@@ -4,8 +4,8 @@
 
 package org.nikok.hextant.sample.editor
 
+import org.nikok.hextant.Context
 import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.core.editable.Expandable
 import org.nikok.hextant.core.editor.ConfiguredExpander
 import org.nikok.hextant.core.editor.ExpanderConfig
@@ -17,8 +17,8 @@ import org.nikok.hextant.sample.editable.EditableIntOperatorApplication
 
 class IntExprExpander(
     edited: Expandable<*, Editable<IntExpr>>,
-    platform: HextantPlatform
-) : ConfiguredExpander<Editable<IntExpr>>(config, edited, platform) {
+    context: Context
+) : ConfiguredExpander<Editable<IntExpr>>(config, edited, context) {
     companion object {
         val config = ExpanderConfig<Editable<IntExpr>>().apply {
             registerConstant("+") { createOperatorApplication(Plus) }

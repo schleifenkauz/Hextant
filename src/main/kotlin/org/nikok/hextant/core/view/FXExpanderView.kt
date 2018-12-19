@@ -20,12 +20,12 @@ import org.nikok.reaktive.value.now
 
 class FXExpanderView(
     private val expandable: Expandable<*, *>,
-    platform: HextantPlatform
+    context: Context
 ) : ExpanderView, EditorControl<Node>() {
 
-    private val expander = platform[ExpanderFactory].getExpander(expandable)
+    private val expander = context[ExpanderFactory].getExpander(expandable)
 
-    private val views = platform[EditorViewFactory]
+    private val views = context[EditorViewFactory]
 
     private var view: EditorControl<*>? = null
 
@@ -34,7 +34,7 @@ class FXExpanderView(
     override fun createDefaultRoot(): Node = textField
 
     init {
-        initialize(expandable, expander, platform)
+        initialize(expandable, expander, context)
         expander.addView(this)
     }
 

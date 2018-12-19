@@ -4,13 +4,13 @@
 
 package org.nikok.hextant.core.base
 
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.Context
 
-abstract class DefaultRegistration(private val doRegister: HextantPlatform.() -> Unit) {
-    private val registeredPlatforms = mutableSetOf<HextantPlatform>()
+abstract class DefaultRegistration(private val doRegister: Context.() -> Unit) {
+    private val registeredPlatforms = mutableSetOf<Context>()
 
-    fun registerDefault(platform: HextantPlatform) {
-        if (!registeredPlatforms.add(platform)) return
-        platform.doRegister()
+    fun registerDefault(context: Context) {
+        if (!registeredPlatforms.add(context)) return
+        context.doRegister()
     }
 }

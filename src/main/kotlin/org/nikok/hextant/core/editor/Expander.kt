@@ -12,8 +12,8 @@ import org.nikok.reaktive.value.now
 
 abstract class Expander<E : Editable<*>>(
     editable: Expandable<*, E>,
-    private val platform: HextantPlatform
-) : AbstractEditor<Expandable<*, E>, ExpanderView>(editable, platform) {
+    private val context: Context
+) : AbstractEditor<Expandable<*, E>, ExpanderView>(editable, context) {
     private fun ExpanderView.handleState() {
         if (editable.isExpanded.now) {
             expanded(editable.editable.now!!)
@@ -31,7 +31,7 @@ abstract class Expander<E : Editable<*>>(
     protected abstract fun expand(text: String): E?
 
     fun expand() {
-        platform.runLater {
+        context.runLater {
             check(!editable.isExpanded.now) { "Expander is already expanded" }
             val content = expand(editable.text.now) ?: return@runLater
             setContent(content)
@@ -39,7 +39,7 @@ abstract class Expander<E : Editable<*>>(
     }
 
     fun reset() {
-        platform.runLater {
+        context.runLater {
             check(editable.isExpanded.now) { "Expander is not expanded" }
             editable.setText("")
             notifyViews()
@@ -47,7 +47,7 @@ abstract class Expander<E : Editable<*>>(
     }
 
     fun setText(new: String) {
-        platform.runLater {
+        context.runLater {
             editable.setText(new)
             views {
                 textChanged(new)
