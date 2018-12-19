@@ -9,6 +9,7 @@ import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
+import org.nikok.hextant.core.undo.UndoManagerFactory
 import org.nikok.hextant.prop.*
 import org.nikok.hextant.prop.PropertyHolder.Init
 import java.util.concurrent.*
@@ -91,6 +92,7 @@ interface HextantPlatform : PropertyHolder {
             set(ExpanderFactory, expanderFactory)
             set(EditorFactory, EditorFactory.newInstance(cl, platform))
             set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
+            set(UndoManagerFactory, UndoManagerFactory())
         }
 
         fun withPropertyHolder(propertyHolder: HextantPlatform.() -> PropertyHolder): HextantPlatform =
