@@ -5,10 +5,10 @@
 package org.nikok.hextant.plugin
 
 import javafx.scene.input.KeyCombination
-import org.nikok.hextant.Editable
-import org.nikok.hextant.HextantPlatform
+import org.nikok.hextant.*
 import org.nikok.hextant.core.*
 import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.inspect.Inspection
@@ -20,7 +20,7 @@ import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.isSubclassOf
 
 @Suppress("UNCHECKED_CAST")
-internal class JsonPluginLoader(
+internal class JsonPluginLoader private constructor(
     private val json: JsonParser,
     private val platform: HextantPlatform,
     private val clsLoader: ClassLoader
@@ -115,6 +115,7 @@ internal class JsonPluginLoader(
 
     private fun getShortcut(obj: JsonObject): KeyCombination? =
         obj.getOrNull<JsonObject>("shortcut", "object")?.run {
+            val key = getStr("key", "shortcut")
             TODO()
         }
 
@@ -170,11 +171,71 @@ internal class JsonPluginLoader(
     }
 
     private fun processEditors(value: JsonValue) {
-        TODO("not implemented")
+        val arr = value.asArray("editors")
+        for (o in arr) {
+            processEditor(o.asObject("editor"))
+        }
+    }
+
+    private fun processEditor(obj: JsonObject) {
+        val editableClsName = obj.getStr("editable", "editor")
+        val editableCls = loadClass(editableClsName) as KClass<Editable<Any>>
+        check(editableCls.isSubclassOf(Editable::class), "class $editableClsName is not an editable")
+        val editorClsName = obj.getStr("editor", "editor")
+        val editorCls = loadClass(editorClsName) as KClass<Editor<Editable<Any>>>
+        check(editorCls.isSubclassOf(Editor::class), "class $editorClsName is not an editor")
+        val constructor = editorCls.constructors.find { c ->
+            val required = c.parameters.filterNot { it.isOptional }
+            required.size == 1 && required[0].type.classifier == editableCls
+        } ?: error("no matching constructor found for $editorCls")
+        val editableParameter = constructor.parameters.find {
+            !it.isOptional && it.type.classifier == editableCls
+        } ?: throw AssertionError()
+        val contextParameter = constructor.parameters.find {
+            !it.isOptional && it.type.classifier == Context::class
+        } ?: error("Editor constructors must have a context parameter")
+        editors.register(editableCls) { editable, ctx ->
+            constructor.callBy(
+                mapOf(
+                    editableParameter to editable,
+                    contextParameter to ctx
+                )
+            )
+        }
     }
 
     private fun processViews(value: JsonValue) {
-        TODO("not implemented")
+        val arr = value.asArray("views")
+        for (o in arr) {
+            processView(o.asObject("view"))
+        }
+    }
+
+    private fun processView(obj: JsonObject) {
+        val editableClsName = obj.getStr("editable", "view")
+        val editableCls = loadClass(editableClsName) as KClass<Editable<Any>>
+        check(editableCls.isSubclassOf(Editable::class), "class $editableClsName is not an editable")
+        val viewClsName = obj.getStr("view", "view")
+        val viewCls = loadClass(viewClsName) as KClass<EditorControl<*>>
+        check(viewCls.isSubclassOf(Editor::class), "class $editableClsName is not an editor")
+        val constructor = viewCls.constructors.find { c ->
+            val required = c.parameters.filterNot { it.isOptional }
+            required.size == 1 && required[0].type.classifier == editableCls
+        } ?: error("no matching constructor found for $viewCls")
+        val editableParameter = constructor.parameters.find {
+            !it.isOptional && it.type.classifier == editableCls
+        } ?: throw AssertionError()
+        val contextParameter = constructor.parameters.find {
+            !it.isOptional && it.type.classifier == Context::class
+        } ?: error("View constructors must have a context parameter")
+        views.register(editableCls) { editable, context ->
+            constructor.callBy(
+                mapOf(
+                    editableParameter to editable,
+                    contextParameter to context
+                )
+            )
+        }
     }
 
     private fun processPlugin(value: JsonValue) {
