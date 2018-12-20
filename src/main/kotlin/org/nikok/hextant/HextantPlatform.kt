@@ -9,8 +9,10 @@ import org.nikok.hextant.core.*
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
+import org.nikok.hextant.impl.IO
 import org.nikok.hextant.plugin.JsonPluginLoader
 import org.nikok.hextant.plugin.Plugin
+import java.nio.file.*
 import java.util.concurrent.*
 import java.util.logging.Logger
 import javax.json.stream.JsonParser
@@ -38,6 +40,12 @@ interface HextantPlatform : Context {
     fun getPlugin(name: String): Plugin
 
     /**
+     * Adds the plugin contained in the specified [jar]
+     * * To activate the plugin hextant must be restarted
+     */
+    fun addPlugin(jar: Path)
+
+    /**
      * The default instance of the [HextantPlatform]
      */
     private class Impl(bundle: Bundle) : HextantPlatform, AbstractContext(null, bundle) {
@@ -54,13 +62,18 @@ interface HextantPlatform : Context {
             executor.shutdown()
         }
 
+        override fun addPlugin(jar: Path) {
+            val plugins = IO.settings.resolve("plugins.txt")
+            val writer = Files.newBufferedWriter(plugins, StandardOpenOption.APPEND)
+            writer.appendln(jar.toString())
+        }
+
         override val platform: HextantPlatform
             get() = this
 
         override fun loadPlugin(json: JsonParser) {
-            val loader = JsonPluginLoader(json, platform, ClassLoader.getSystemClassLoader())
-            val p = loader.load()
-            plugins[p.name] = p
+            val plugin = JsonPluginLoader.loadPlugin(json, platform, ClassLoader.getSystemClassLoader())
+            plugins[plugin.name] = plugin
         }
 
         override fun getPlugin(name: String): Plugin =
