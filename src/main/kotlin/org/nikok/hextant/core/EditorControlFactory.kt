@@ -4,6 +4,7 @@
 
 package org.nikok.hextant.core
 
+import org.nikok.hextant.Context
 import org.nikok.hextant.Editable
 import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
@@ -22,27 +23,30 @@ interface EditorControlFactory {
      * Register the specified [viewFactory] to the given [editableCls].
      * From now all calls of [getControl] with an argument of type [E] will use the [viewFactory]
      */
-    fun <E : Editable<*>> register(editableCls: KClass<out E>, viewFactory: (E) -> EditorControl<*>)
+    fun <E : Editable<*>> register(editableCls: KClass<out E>, viewFactory: (E, Context) -> EditorControl<*>)
 
     /**
      * @return the [EditorControl<*>] associated with the type of the specified [editable]
      * @throws NoSuchElementException if there is no [EditorControl<*>] registered with this [editable]
      */
-    fun <E : Editable<*>> getControl(editable: E): EditorControl<*>
+    fun <E : Editable<*>> getControl(editable: E, context: Context): EditorControl<*>
 
     @Suppress("UNCHECKED_CAST") private class Impl : EditorControlFactory {
-        private val viewFactories = ClassMap.invariant<(Editable<*>) -> EditorControl<*>>()
+        private val viewFactories = ClassMap.invariant<(Editable<*>, Context) -> EditorControl<*>>()
 
-        override fun <E : Editable<*>> register(editableCls: KClass<out E>, viewFactory: (E) -> EditorControl<*>) {
-            viewFactories[editableCls] = viewFactory as (Editable<*>) -> EditorControl<*>
+        override fun <E : Editable<*>> register(
+            editableCls: KClass<out E>,
+            viewFactory: (E, Context) -> EditorControl<*>
+        ) {
+            viewFactories[editableCls] = viewFactory as (Editable<*>, Context) -> EditorControl<*>
         }
 
-        override fun <E : Editable<*>> getControl(editable: E): EditorControl<*> {
+        override fun <E : Editable<*>> getControl(editable: E, context: Context): EditorControl<*> {
             val cls = editable::class
             when (editable) {
-                is ConvertedEditable<*, *> -> return getControl(editable.source)
+                is ConvertedEditable<*, *> -> return getControl(editable.source, context)
                 else                       -> {
-                    viewFactories[cls]?.let { f -> return f(editable) }
+                    viewFactories[cls]?.let { f -> return f(editable, context) }
                     unresolvedView(cls)
                 }
             }
@@ -63,7 +67,9 @@ interface EditorControlFactory {
     }
 }
 
-inline fun <reified E : Editable<*>> EditorControlFactory.register(noinline viewFactory: (E) -> EditorControl<*>) {
+inline fun <reified E : Editable<*>> EditorControlFactory.register(
+    noinline viewFactory: (E, Context) -> EditorControl<*>
+) {
     register(E::class, viewFactory)
 }
 
