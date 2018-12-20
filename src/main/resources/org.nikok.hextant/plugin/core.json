@@ -4,13 +4,31 @@
     "author": "Nikolaus Knop"
   },
   "editables": [
+    {
+      "edited": "org.nikok.core.expr.edited.IntLiteral",
+      "editable": "org.nikok.core.expr.editable.EditableIntLiteral"
+    }
   ],
   "editors": [
+    {
+      "editable": "org.nikok.hextant.command.line.CommandLine",
+      "editor": "org.nikok.hextant.command.line.CommandLineController"
+    }
   ],
   "views": [
+    {
+      "editable": "org.nikok.hextant.command.line.CommandLine",
+      "view": "org.nikok.hextant.command.line.FXCommandLineView"
+    }
   ],
   "inspections": [
+    {
+      "class": "org.nikok.hextant.AnInspection"
+    }
   ],
   "commands": [
+    {
+      "class": "org.nikok.hextant.ACommand"
+    }
   ]
 }
