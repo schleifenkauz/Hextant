@@ -24,6 +24,7 @@ import org.nikok.hextant.core.command.gui.argumentEditor
 import org.nikok.hextant.core.completion.Completion
 import org.nikok.hextant.core.completion.gui.CompletionPopup
 import org.nikok.hextant.core.fx.*
+import org.nikok.hextant.getEditor
 import org.nikok.reaktive.event.subscribe
 
 internal class FXCommandLineView internal constructor(
@@ -118,7 +119,7 @@ internal class FXCommandLineView internal constructor(
         }
     }
 
-    private val controller = CommandLineController(commandLine, this, context)
+    private val controller = context.getEditor(commandLine) as CommandLineController
 
     override fun createDefaultRoot(): VBox {
         val currentCommand = createCurrentCommand()

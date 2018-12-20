@@ -13,6 +13,8 @@ class EditableIntLiteral() : EditableToken<IntLiteral>(), Serializable, Editable
         text.set(v.toString())
     }
 
+    constructor(v: IntLiteral) : this(v.value)
+
     override fun isValid(tok: String): Boolean = tok.toIntOrNull() != null
 
     override fun compile(tok: String): IntLiteral = IntLiteral(tok.toInt())

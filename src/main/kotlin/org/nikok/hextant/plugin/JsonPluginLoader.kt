@@ -51,6 +51,7 @@ internal class JsonPluginLoader private constructor(
     }
 
     private fun doLoad(): Plugin {
+        json.next()
         val objects = json.objectStream
         for ((name, obj) in objects) {
             processValue(name, obj)
@@ -141,7 +142,7 @@ internal class JsonPluginLoader private constructor(
     private fun processEditable(obj: JsonObject) {
         val clsName = obj.getStr("class", "editable")
         val cls = loadClass(clsName)
-        check(cls.isSubclassOf(Editable::class), "class $clsName is not an inspection")
+        check(cls.isSubclassOf(Editable::class), "class $clsName is not an editable")
         cls as KClass<Editable<Any>>
         val editedClsName = obj.getStr("edited", "editable")
         val editedCls = loadClass(editedClsName) as KClass<Any>
@@ -186,7 +187,7 @@ internal class JsonPluginLoader private constructor(
         check(editorCls.isSubclassOf(Editor::class), "class $editorClsName is not an editor")
         val constructor = editorCls.constructors.find { c ->
             val required = c.parameters.filterNot { it.isOptional }
-            required.size == 1 && required[0].type.classifier == editableCls
+            required.size == 2 && required[0].type.classifier == editableCls && required[1].type.classifier == Context::class
         } ?: error("no matching constructor found for $editorCls")
         val editableParameter = constructor.parameters.find {
             !it.isOptional && it.type.classifier == editableCls
@@ -217,10 +218,10 @@ internal class JsonPluginLoader private constructor(
         check(editableCls.isSubclassOf(Editable::class), "class $editableClsName is not an editable")
         val viewClsName = obj.getStr("view", "view")
         val viewCls = loadClass(viewClsName) as KClass<EditorControl<*>>
-        check(viewCls.isSubclassOf(Editor::class), "class $editableClsName is not an editor")
+        check(viewCls.isSubclassOf(EditorControl::class), "class $viewClsName is not an editor control")
         val constructor = viewCls.constructors.find { c ->
             val required = c.parameters.filterNot { it.isOptional }
-            required.size == 1 && required[0].type.classifier == editableCls
+            required.size == 2 && required[0].type.classifier == editableCls && required[1].type.classifier == Context::class
         } ?: error("no matching constructor found for $viewCls")
         val editableParameter = constructor.parameters.find {
             !it.isOptional && it.type.classifier == editableCls

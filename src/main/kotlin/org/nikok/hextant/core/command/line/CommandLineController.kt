@@ -4,11 +4,11 @@
 
 package org.nikok.hextant.core.command.line
 
-import org.nikok.hextant.*
-import org.nikok.hextant.core.EditorControlFactory
+import org.nikok.hextant.Context
 import org.nikok.hextant.core.base.AbstractEditor
 import org.nikok.hextant.core.command.line.CommandLine.State
 import org.nikok.hextant.core.command.line.CommandLine.State.EditingArgs
+import org.nikok.hextant.createView
 import org.nikok.reaktive.event.subscribe
 import org.nikok.reaktive.value.now
 import org.nikok.reaktive.value.observe
@@ -17,26 +17,26 @@ import org.nikok.reaktive.value.observe
  * The controller for a [CommandLine]
  * @constructor
  * @param commandLine the [CommandLine] controlled by this controller
- * @param view the view using this controller
- * @param viewFactory the [EditorControlFactory] used to get the views for the argument editors
+
  */
 class CommandLineController(
     val commandLine: CommandLine,
-    view: CommandLineView,
     private val context: Context
 ) : AbstractEditor<CommandLine, CommandLineView>(commandLine, context) {
-    private val viewFactory = context[EditorControlFactory]
-
     private val completer = CommandCompleter
 
     private val stateObserver = commandLine.state.observe("Observe state of $commandLine") { newState ->
-        handleState(newState, view)
+        views {
+            handleState(newState, this)
+        }
     }
 
     private val textObserver = commandLine.text.observe("Observe text of $commandLine") { newText ->
-        view.setText(newText)
-        if (newText.isNotEmpty()) {
-            showCompletions(newText, view)
+        views {
+            setText(newText)
+            if (newText.isNotEmpty()) {
+                showCompletions(newText, this)
+            }
         }
     }
 
@@ -53,7 +53,7 @@ class CommandLineController(
     }
 
     private val executeSubscription = commandLine.executed.subscribe("$this") { appl ->
-        view.executed(appl)
+        views { executed(appl) }
     }
 
     fun dispose() {
@@ -62,7 +62,7 @@ class CommandLineController(
         executeSubscription.cancel()
     }
 
-    init {
+    override fun viewAdded(view: CommandLineView) {
         handleState(commandLine.state.now, view)
     }
 
