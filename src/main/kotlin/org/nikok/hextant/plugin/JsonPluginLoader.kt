@@ -300,4 +300,12 @@ internal class JsonPluginLoader private constructor(
     } catch (noNullaryConstructor: NoSuchElementException) {
         error("Cannot create instance of $this", noNullaryConstructor)
     }
+
+    companion object {
+        fun loadPlugin(
+            json: JsonParser,
+            platform: HextantPlatform,
+            clsLoader: ClassLoader
+        ) = JsonPluginLoader(json, platform, clsLoader).load()
+    }
 }
