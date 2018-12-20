@@ -1,0 +1,16 @@
+{
+  "plugin": {
+    "name": "Hextant",
+    "author": "Nikolaus Knop"
+  },
+  "editables": [
+  ],
+  "editors": [
+  ],
+  "views": [
+  ],
+  "inspections": [
+  ],
+  "commands": [
+  ]
+}
