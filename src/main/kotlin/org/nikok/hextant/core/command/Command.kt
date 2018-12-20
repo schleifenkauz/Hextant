@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 /**
  * A Command that is executable on a receiver of type [R]
  */
-interface Command<in R, out T> {
+interface Command<in R : Any, out T> {
     /**
      * Execute this command on [receiver] with the specified [args]
      */
@@ -47,6 +47,8 @@ interface Command<in R, out T> {
      * * It should explain what this command does
      */
     val description: String
+
+    val receiverCls: KClass<in R>
 
     /**
      * @return whether this [Command] can be executed on the specified [receiver]

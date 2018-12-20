@@ -9,7 +9,7 @@ import org.nikok.reaktive.value.ReactiveBoolean
 /**
  * An inspection for objects of type [T]
 */
-interface Inspection<T> {
+interface Inspection<T : Any> {
     /**
      * @return the inspected object
     */

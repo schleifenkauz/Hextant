@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
  * Skeletal implementation of [Command]
  * @constructor
  */
-abstract class AbstractCommand<R : Any, T>(private val receiverCls: KClass<R>) : Command<R, T> {
+abstract class AbstractCommand<R : Any, T>(override val receiverCls: KClass<R>) : Command<R, T> {
     override val shortName: String?
         get() = null
     override val category: Category?

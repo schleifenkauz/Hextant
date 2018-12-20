@@ -10,7 +10,7 @@ import org.nikok.reaktive.value.now
 /**
  * An inspection for objects of type [T]
 */
-abstract class AbstractInspection<T> : Inspection<T> {
+abstract class AbstractInspection<T : Any> : Inspection<T> {
 
     /**
      * A [ReactiveBoolean] holding `true` if and only if this [Inspection] found a problem on the [inspected] object

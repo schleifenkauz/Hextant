@@ -9,7 +9,7 @@ import org.nikok.reaktive.value.ReactiveBoolean
 /**
  * Used to register [Inspection]s for objects of type [T]
 */
-class InspectionRegistrar<T> internal constructor() {
+class InspectionRegistrar<T : Any> internal constructor() {
     private val managers: MutableMap<T, InspectionManager<T>> = HashMap()
 
     private val inspectionFactories: MutableList<(T) -> Inspection<T>> = mutableListOf()

@@ -8,7 +8,7 @@ import org.nikok.hextant.core.inspect.Severity.Error
 import org.nikok.hextant.core.inspect.Severity.Warning
 import org.nikok.reaktive.value.*
 
-internal class InspectionManager<T>(private val inspected: T) {
+internal class InspectionManager<T : Any>(private val inspected: T) {
     private val warningCount = reactiveVariable("Warning count of $inspected", 0)
 
     private val errorCount = reactiveVariable("Error count of $inspected", 0)

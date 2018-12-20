@@ -9,8 +9,8 @@ import org.nikok.hextant.core.*
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
+import org.nikok.hextant.plugin.JsonPluginLoader
 import org.nikok.hextant.plugin.Plugin
-import org.nikok.hextant.plugin.PluginLoader
 import java.util.concurrent.*
 import java.util.logging.Logger
 import javax.json.stream.JsonParser
@@ -58,7 +58,7 @@ interface HextantPlatform : Context {
             get() = this
 
         override fun loadPlugin(json: JsonParser) {
-            val loader = PluginLoader(json, platform, ClassLoader.getSystemClassLoader())
+            val loader = JsonPluginLoader(json, platform, ClassLoader.getSystemClassLoader())
             val p = loader.load()
             plugins[p.name] = p
         }
