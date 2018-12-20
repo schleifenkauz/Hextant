@@ -9,13 +9,9 @@ import org.nikok.hextant.core.*
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
-import org.nikok.hextant.impl.IO
-import org.nikok.hextant.plugin.JsonPluginLoader
-import org.nikok.hextant.plugin.Plugin
-import java.nio.file.*
+import org.nikok.hextant.impl.PluginRegistry
 import java.util.concurrent.*
 import java.util.logging.Logger
-import javax.json.stream.JsonParser
 
 /**
  * The hextant platform, mainly functions as a [Bundle] to manage properties of the hextant platform
@@ -29,29 +25,11 @@ interface HextantPlatform : Context {
     fun exit()
 
     /**
-     * Loads a plugin from the specified [json]-reader
-     * @throws org.nikok.hextant.plugin.PluginException if an exception occurs during loading
-     */
-    fun loadPlugin(json: JsonParser)
-
-    /**
-     * Returns the [Plugin] instance for the plugin with the specified [name] previously load by [loadPlugin]
-     */
-    fun getPlugin(name: String): Plugin
-
-    /**
-     * Adds the plugin contained in the specified [jar]
-     * * To activate the plugin hextant must be restarted
-     */
-    fun addPlugin(jar: Path)
-
-    /**
      * The default instance of the [HextantPlatform]
      */
     private class Impl(bundle: Bundle) : HextantPlatform, AbstractContext(null, bundle) {
-        private val plugins = mutableMapOf<String, Plugin>()
-
         private val executor = Executors.newSingleThreadExecutor()
+
 
         override fun <T> runLater(action: () -> T): Future<T> {
             val future = executor.submit(action)
@@ -62,22 +40,8 @@ interface HextantPlatform : Context {
             executor.shutdown()
         }
 
-        override fun addPlugin(jar: Path) {
-            val plugins = IO.settings.resolve("plugins.txt")
-            val writer = Files.newBufferedWriter(plugins, StandardOpenOption.APPEND)
-            writer.appendln(jar.toString())
-        }
-
         override val platform: HextantPlatform
             get() = this
-
-        override fun loadPlugin(json: JsonParser) {
-            val plugin = JsonPluginLoader.loadPlugin(json, platform, ClassLoader.getSystemClassLoader())
-            plugins[plugin.name] = plugin
-        }
-
-        override fun getPlugin(name: String): Plugin =
-            plugins[name] ?: throw NoSuchElementException("No plugin with name $name loaded")
     }
 
     companion object {
@@ -95,6 +59,7 @@ interface HextantPlatform : Context {
             set(Inspections, Inspections.newInstance())
             set(EditorFactory, EditorFactory.newInstance())
             set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
+            set(PluginRegistry, PluginRegistry(this))
         }
 
         fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = Impl(bundle)
