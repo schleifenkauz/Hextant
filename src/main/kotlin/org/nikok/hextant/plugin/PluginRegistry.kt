@@ -19,6 +19,14 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
 
     init {
         loadPlugins()
+        loadCore()
+    }
+
+    private fun loadCore() {
+        val core = javaClass.getResource(CORE_PLUGIN_CONFIG)
+        val input = core.openStream()
+        val json = Json.createParser(input)
+        loadPlugin(json, javaClass.classLoader)
     }
 
     private fun loadPlugins() {
@@ -70,5 +78,6 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
 
     companion object : Property<PluginRegistry, Public, Internal>("plugin registry") {
         private const val CONFIG_FILE_NAME = "plugin.json"
+        private const val CORE_PLUGIN_CONFIG = "core.json"
     }
 }
