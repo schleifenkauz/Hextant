@@ -63,7 +63,7 @@
             "examples": [
               "org.nikok.core.expr.edited.IntLiteral"
             ],
-            "pattern": "([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+$"
+            "pattern": "(([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+)$"
           },
           "editable": {
             "$id": "#/properties/editables/items/properties/editable",
@@ -73,7 +73,7 @@
             "examples": [
               "org.nikok.core.expr.editable.EditableIntLiteral"
             ],
-            "pattern": "([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+$"
+            "pattern": "(([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+)$"
           }
         }
       }
@@ -100,7 +100,7 @@
             "examples": [
               "org.nikok.hextant.command.line.CommandLine"
             ],
-            "pattern": "([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+$"
+            "pattern": "(([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+)$"
           },
           "editor": {
             "$id": "#/properties/editors/items/properties/editor",
@@ -110,7 +110,7 @@
             "examples": [
               "org.nikok.hextant.command.line.CommandLineController"
             ],
-            "pattern": "([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+$"
+            "pattern": "(([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+)$"
           }
         }
       }
@@ -137,7 +137,7 @@
             "examples": [
               "org.nikok.hextant.command.line.CommandLine"
             ],
-            "pattern": "([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+$"
+            "pattern": "(([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+)$"
           },
           "view": {
             "$id": "#/properties/views/items/properties/view",
@@ -147,7 +147,7 @@
             "examples": [
               "org.nikok.hextant.command.line.FXCommandLineView"
             ],
-            "pattern": "([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+$"
+            "pattern": "(([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+)$"
           }
         }
       }
@@ -173,7 +173,7 @@
             "examples": [
               "org.nikok.hextant.AnInspection"
             ],
-            "pattern": "([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+$"
+            "pattern": "(([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+)$"
           }
         }
       }
@@ -199,7 +199,7 @@
             "examples": [
               "org.nikok.hextant.ACommand"
             ],
-            "pattern": "([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+$"
+            "pattern": "(([A-Za-z0-9_]+\\.?)*[A-Za-z0-9_]+)$"
           }
         }
       }
