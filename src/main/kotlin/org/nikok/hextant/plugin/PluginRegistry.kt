@@ -2,14 +2,13 @@
  *@author Nikolaus Knop
  */
 
-package org.nikok.hextant.impl
+package org.nikok.hextant.plugin
 
 import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
-import org.nikok.hextant.plugin.JsonPluginLoader
-import org.nikok.hextant.plugin.Plugin
+import org.nikok.hextant.impl.Settings
 import java.net.URLClassLoader
 import java.nio.file.*
 import java.util.jar.JarFile

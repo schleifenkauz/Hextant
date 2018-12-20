@@ -9,7 +9,7 @@ import org.nikok.hextant.core.*
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
-import org.nikok.hextant.impl.PluginRegistry
+import org.nikok.hextant.plugin.PluginRegistry
 import java.util.concurrent.*
 import java.util.logging.Logger
 
