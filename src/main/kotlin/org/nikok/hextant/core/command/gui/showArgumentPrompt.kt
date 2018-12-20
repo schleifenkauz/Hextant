@@ -9,14 +9,12 @@ import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.layout.VBox
 import javafx.stage.Window
-import org.nikok.hextant.Context
+import org.nikok.hextant.*
 import org.nikok.hextant.core.EditableFactory
-import org.nikok.hextant.core.EditorControlFactory
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.command.Command
 import org.nikok.hextant.core.command.Command.Parameter
 import org.nikok.hextant.core.fx.UtilityDialog
-import org.nikok.hextant.get
 import org.nikok.reaktive.value.now
 
 fun showArgumentPrompt(
@@ -27,8 +25,7 @@ fun showArgumentPrompt(
     val parameters = command.parameters
     val editableFactory = context[EditableFactory]
     val editableArguments = parameters.map { p -> p to editableFactory.getEditable(p.type) }
-    val viewFactory = context[EditorControlFactory]
-    val views = editableArguments.map { (p, e) -> p to viewFactory.getControl(e) }
+    val views = editableArguments.map { (p, e) -> p to context.createView(e) }
     val vbox = VBox()
     for ((p, v) in views) {
         vbox.children.add(argumentEditor(p, v))

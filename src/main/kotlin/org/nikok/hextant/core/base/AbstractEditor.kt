@@ -5,7 +5,6 @@
 package org.nikok.hextant.core.base
 
 import org.nikok.hextant.*
-import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.reaktive.value.Variable
 import org.nikok.reaktive.value.base.AbstractVariable
@@ -21,7 +20,7 @@ import org.nikok.reaktive.value.observe
  */
 abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     final override val editable: E,
-    context: Context
+    private val context: Context
 ) : Editor<E>, AbstractController<V>() {
 
     private val isOkObserver = editable.isOk.observe("Observe isOk") { isOk ->
@@ -33,7 +32,6 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     }
 
     private val selectionDistributor = context[SelectionDistributor]
-    private val editorFactory = context[EditorFactory]
 
     final override val isSelected: Boolean get() = isSelectedVar.get()
 
@@ -90,13 +88,13 @@ abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
     }
 
     override val parent: Editor<*>?
-        get() = editable.parent?.let { p -> editorFactory.getEditor(p) }
+        get() = editable.parent?.let { p -> context.getEditor(p) }
 
     override val children: Collection<Editor<*>>?
-        get() = (editable as? ParentEditable<*, *>)?.children?.map { child -> editorFactory.getEditor(child) }
+        get() = (editable as? ParentEditable<*, *>)?.children?.map { child -> context.getEditor(child) }
 
     override val allChildren: Sequence<Editor<*>>?
         get() =
-            if (editable is ParentEditable<*, *>) editable.allChildren.map(editorFactory::getEditor)
+            if (editable is ParentEditable<*, *>) editable.allChildren.map(context::getEditor)
             else null
 }

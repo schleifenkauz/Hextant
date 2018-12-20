@@ -9,10 +9,7 @@ import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.input.*
 import javafx.scene.layout.*
-import org.nikok.hextant.Context
-import org.nikok.hextant.Editable
-import org.nikok.hextant.core.CorePermissions.Public
-import org.nikok.hextant.core.EditorControlFactory
+import org.nikok.hextant.*
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.fx.setRoot
 import org.nikok.hextant.core.list.FXListEditorView.Orientation.Vertical
@@ -20,7 +17,7 @@ import org.nikok.hextant.core.list.FXListEditorView.Orientation.Vertical
 class FXListEditorView(
     private val editable: EditableList<*, *>,
     private val editor: ListEditor<*>,
-    context: Context,
+    private val context: Context,
     private val emptyDisplay: Node,
     orientation: Orientation = Vertical
 ) : ListEditorView,
@@ -64,8 +61,6 @@ class FXListEditorView(
         items.children.clear()
         addChildren()
     }
-
-    private val viewFactory = context[Public, EditorControlFactory]
 
     private val cells = mutableListOf<Cell<*>>()
 
@@ -220,7 +215,7 @@ class FXListEditorView(
     }
 
     private fun getCell(idx: Int, editable: Editable<*>): Cell<*> {
-        val control = viewFactory.getControl(editable)
+        val control = context.createView(editable)
         return cellFactory().apply {
             item = control
             index = idx

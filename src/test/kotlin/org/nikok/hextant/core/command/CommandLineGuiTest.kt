@@ -39,7 +39,7 @@ class CommandLineGuiTest : Application() {
             }
             val views = platform[EditorControlFactory]
             views.run {
-                register { e: EditableIntLiteral -> FXIntLiteralEditorView(e, platform) }
+                register { e: EditableIntLiteral, ctx -> FXIntLiteralEditorView(e, ctx) }
             }
             val commandLine = CommandLine({ commands }, { targets }, platform)
             val commandLineView = FXCommandLineView(commandLine, platform)

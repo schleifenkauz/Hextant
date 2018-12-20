@@ -5,13 +5,12 @@
 package org.nikok.hextant.core.expr.view
 
 import org.nikok.hextant.Context
-import org.nikok.hextant.core.EditorFactory
 import org.nikok.hextant.core.base.EditorControl
 import org.nikok.hextant.core.editable.EditableToken
 import org.nikok.hextant.core.editor.TokenEditor
 import org.nikok.hextant.core.fx.HextantTextField
 import org.nikok.hextant.core.fx.smartSetText
-import org.nikok.hextant.get
+import org.nikok.hextant.getEditor
 
 open class FXTokenEditorView(
     editable: EditableToken<Any>,
@@ -22,7 +21,7 @@ open class FXTokenEditorView(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private val editor = context[EditorFactory].getEditor(editable) as TokenEditor<*, TextEditorView>
+    private val editor = context.getEditor(editable) as TokenEditor<*, TextEditorView>
 
     init {
         initialize(editable, editor, context)

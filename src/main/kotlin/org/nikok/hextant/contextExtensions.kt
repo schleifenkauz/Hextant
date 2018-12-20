@@ -13,14 +13,14 @@ import org.nikok.hextant.core.base.EditorControl
 
 fun Context.createView(editable: Editable<*>): EditorControl<*> =
     try {
-        get(Public, EditorControlFactory).getControl(editable)
+        get(Public, EditorControlFactory).getControl(editable, this)
     } catch (e: NoSuchElementException) {
         parent?.createView(editable) ?: throw e
     }
 
 fun <E : Editable<*>> Context.getEditor(editable: E): Editor<E> =
     try {
-        get(Public, EditorFactory).getEditor(editable)
+        get(Public, EditorFactory).getEditor(editable, this)
     } catch (e: NoSuchElementException) {
         parent?.getEditor(editable) ?: throw e
     }

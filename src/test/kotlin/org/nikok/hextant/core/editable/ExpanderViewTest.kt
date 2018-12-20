@@ -28,8 +28,8 @@ class ExpanderViewTest : Application() {
         private fun createContent(): Parent {
             val platform = HextantPlatform.configured()
             platform[EditorControlFactory].configure {
-                register(EditableIntLiteral::class) { FXIntLiteralEditorView(it, platform) }
-                register(EditableText::class) { FXTextEditorView(it, platform) }
+                register(EditableIntLiteral::class) { editable, ctx -> FXIntLiteralEditorView(editable, ctx) }
+                register(EditableText::class) { editable, ctx -> FXTextEditorView(editable, ctx) }
             }
             val ex = ExpandableExpr()
             return FXExpanderView(ex, platform)

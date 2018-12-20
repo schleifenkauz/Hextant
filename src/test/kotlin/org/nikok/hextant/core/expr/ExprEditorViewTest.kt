@@ -48,13 +48,12 @@ class ExprEditorViewTest : Application() {
         val platform = HextantPlatform.configured()
         val views = platform[EditorControlFactory]
         val expandable = ExpandableExpr()
-        val editors = platform[EditorFactory]
-        val expander = editors.getEditor(expandable) as ExprExpander
+        val expander = platform.getEditor(expandable) as ExprExpander
         val commands = platform[Commands]
         val registrar = commands.of<ExprEditor>()
-        views.register<EditableList<*, *>> {
-            val editor = editors.getEditor(it)
-            FXListEditorView(it, editor as ListEditor<*>, platform)
+        views.register<EditableList<*, *>> { editable, ctx ->
+            val editor = ctx.getEditor(editable)
+            FXListEditorView(editable, editor as ListEditor<*>, ctx)
         }
         registrar.register<ExprEditor, Int> {
             name = "Evaluate Expression"
@@ -105,7 +104,7 @@ class ExprEditorViewTest : Application() {
                 ex.setContent(editable)
             }
         }
-        val expanderView = views.getControl(expandable)
+        val expanderView = platform.createView(expandable)
         val cl = CommandLine.forSelectedEditors(platform)
         val clView = FXCommandLineView(cl, platform)
         val evaluationDisplay = Label("Invalid expression")
