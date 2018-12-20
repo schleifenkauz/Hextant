@@ -8,14 +8,13 @@ import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
-import org.nikok.hextant.impl.Settings
 import java.net.URLClassLoader
 import java.nio.file.*
 import java.util.jar.JarFile
 import javax.json.Json
 import javax.json.stream.JsonParser
 
-class PluginRegistry(private val platform: HextantPlatform) {
+class PluginRegistry(private val platform: HextantPlatform, private val pluginsFile: Path) {
     private val plugins = mutableMapOf<String, Plugin>()
 
     init {
@@ -23,10 +22,10 @@ class PluginRegistry(private val platform: HextantPlatform) {
     }
 
     private fun loadPlugins() {
-        if (!Files.exists(Settings.plugins)) {
-            Files.createFile(Settings.plugins)
+        if (!Files.exists(pluginsFile)) {
+            Files.createFile(pluginsFile)
         }
-        val reader = Files.newBufferedReader(Settings.plugins)
+        val reader = Files.newBufferedReader(pluginsFile)
         val paths = reader.lineSequence()
         for (plugin in paths) {
             val path = Paths.get(plugin)
@@ -64,7 +63,7 @@ class PluginRegistry(private val platform: HextantPlatform) {
      * * To activate the plugin hextant must be restarted
      */
     fun addPlugin(jar: Path) {
-        val plugins = Settings.plugins
+        val plugins = pluginsFile
         val writer = Files.newBufferedWriter(plugins, StandardOpenOption.APPEND)
         writer.appendln(jar.toString())
     }

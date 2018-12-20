@@ -9,6 +9,7 @@ import org.nikok.hextant.core.*
 import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.impl.SelectionDistributor
 import org.nikok.hextant.core.inspect.Inspections
+import org.nikok.hextant.impl.Settings
 import org.nikok.hextant.plugin.PluginRegistry
 import java.util.concurrent.*
 import java.util.logging.Logger
@@ -59,7 +60,7 @@ interface HextantPlatform : Context {
             set(Inspections, Inspections.newInstance())
             set(EditorFactory, EditorFactory.newInstance())
             set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
-            set(PluginRegistry, PluginRegistry(this))
+            set(PluginRegistry, PluginRegistry(this, Settings.plugins))
         }
 
         fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = Impl(bundle)
