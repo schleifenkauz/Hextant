@@ -23,6 +23,7 @@ import org.nikok.hextant.core.command.Commands
 import org.nikok.hextant.core.command.line.CommandLine
 import org.nikok.hextant.core.command.line.FXCommandLineView
 import org.nikok.hextant.core.command.register
+import org.nikok.hextant.core.editor.AContext
 import org.nikok.hextant.core.editor.Expander
 import org.nikok.hextant.core.expr.editable.EditableIntLiteral
 import org.nikok.hextant.core.expr.editable.ExpandableExpr
@@ -30,6 +31,7 @@ import org.nikok.hextant.core.expr.edited.Expr
 import org.nikok.hextant.core.expr.editor.*
 import org.nikok.hextant.core.fx.hextantScene
 import org.nikok.hextant.core.list.*
+import org.nikok.hextant.core.undo.UndoManagerFactory
 import org.nikok.reaktive.value.now
 import org.nikok.reaktive.value.observe
 import java.util.logging.Level
@@ -118,7 +120,7 @@ class ExprEditorViewTest : Application() {
                 }
             }
         }
-        val menuBar = createMenuBar(expander)
+        val menuBar = createMenuBar(expander, platform)
         val split = SplitPane(menuBar, expanderView, clView)
         platform[CoreProperties.logger].level = Level.FINE
         split.orientation = VERTICAL
@@ -133,11 +135,35 @@ class ExprEditorViewTest : Application() {
         }
     }
 
-    private fun createMenuBar(parent: ExprExpander): MenuBar {
+    private fun createMenuBar(
+        parent: ExprExpander,
+        platform: HextantPlatform
+    ): MenuBar {
         val save = createOpenBtn(parent)
         val open = createSaveBtn(parent)
         val file = Menu("File", null, save, open)
-        return MenuBar(file)
+        val edit = Menu("Edit", null, undoBtn(platform), redoBtn(platform))
+        return MenuBar(file, edit)
+    }
+
+    private fun redoBtn(platform: HextantPlatform): MenuItem = MenuItem("Undo").apply {
+        val undo = platform[UndoManagerFactory].get(AContext)
+        setOnAction {
+            if (undo.canUndo) {
+                undo.undo()
+            }
+        }
+        accelerator = KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN)
+    }
+
+    private fun undoBtn(platform: HextantPlatform): MenuItem = MenuItem("Redo").apply {
+        val undo = platform[UndoManagerFactory].get(AContext)
+        setOnAction {
+            if (undo.canRedo) {
+                undo.redo()
+            }
+        }
+        accelerator = KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
     }
 
     private fun createSaveBtn(parent: ExprExpander) = MenuItem("Save").apply {

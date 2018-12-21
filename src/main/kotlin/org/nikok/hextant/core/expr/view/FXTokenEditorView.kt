@@ -16,8 +16,14 @@ open class FXTokenEditorView(
     editable: EditableToken<Any>,
     context: Context
 ) : EditorControl<HextantTextField>(), TextEditorView {
+    private var updatingText = false
+
     final override fun createDefaultRoot() = HextantTextField().apply {
-        textProperty().addListener { _, _, new -> editor.setText(new) }
+        textProperty().addListener { _, _, new ->
+            if (!updatingText) {
+                editor.setText(new)
+            }
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -29,6 +35,8 @@ open class FXTokenEditorView(
     }
 
     final override fun displayText(t: String) {
+        updatingText = true
         root.smartSetText(t)
+        updatingText = false
     }
 }
