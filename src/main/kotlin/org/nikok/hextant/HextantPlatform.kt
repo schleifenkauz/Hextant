@@ -60,7 +60,7 @@ interface HextantPlatform : Context {
             set(Commands, Commands.newInstance())
             set(Inspections, Inspections.newInstance())
             set(EditorFactory, EditorFactory.newInstance())
-            set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
+            set(CoreProperties.logger, Logger.getLogger(javaClass.name))
             val plugins = PluginRegistry(this, Settings.plugins)
             set(PluginRegistry, plugins)
             set(CoreProperties.serialContext, SerialContext.newInstance {
