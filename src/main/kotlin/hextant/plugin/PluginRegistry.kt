@@ -5,10 +5,11 @@
 package hextant.plugin
 
 import hextant.HextantPlatform
-import hextant.bundle.Property
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
+import hextant.bundle.Property
 import hextant.plugin.impl.CompoundClassLoader
+import hextant.plugin.impl.JsonPluginLoader
 import java.net.URLClassLoader
 import java.nio.file.*
 import java.util.jar.JarFile
@@ -58,7 +59,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
 
     /**
      * Loads a plugin from the specified [json]-reader
-     * @throws org.nikok.hextant.plugin.PluginException if an exception occurs during loading
+     * @throws PluginException if an exception occurs during loading
      */
     private fun loadPlugin(json: JsonParser, classLoader: ClassLoader) {
         val plugin = JsonPluginLoader.loadPlugin(json, platform, classLoader)
