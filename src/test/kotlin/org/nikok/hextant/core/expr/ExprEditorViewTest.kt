@@ -164,7 +164,9 @@ class ExprEditorViewTest : Application() {
     companion object {
         private val serial = KSerial.newInstance {}
 
-        private val context = SerialContext.newInstance {}
+        private val context = SerialContext.newInstance {
+            classLoader = ExprEditorViewTest::class.java.classLoader
+        }
 
         @JvmStatic fun main(args: Array<String>) {
             launch(ExprEditorViewTest::class.java, *args)
