@@ -18,7 +18,7 @@ class HextantPreloader : Application() {
 
     override fun start(primaryStage: Stage) {
         stage = primaryStage
-        val hextantImageURL = PRELOADER_IMAGE_PATH
+        val hextantImageURL = javaClass.getResource(PRELOADER_IMAGE).toExternalForm()
         val image = Image(hextantImageURL)
         val view = ImageView(image)
         progressBar = ProgressBar()
@@ -42,7 +42,6 @@ class HextantPreloader : Application() {
             launch(HextantPreloader::class.java)
         }
 
-        private const val PRELOADER_IMAGE_PATH =
-            "file:///D:\\Bibliotheken\\Aktive Projekte\\Hextant\\src\\main\\resources\\hextant\\preloader-image.jpg"
+        private const val PRELOADER_IMAGE = "preloader-image.jpg"
     }
 }
