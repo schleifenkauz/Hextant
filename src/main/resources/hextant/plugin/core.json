@@ -1,24 +1,24 @@
 {
   "plugin": {
-    "name": "Hextant",
+    "name": "Hextant Core Plugin",
     "author": "Nikolaus Knop"
   },
   "editables": [
     {
-      "edited": "org.nikok.hextant.core.expr.edited.IntLiteral",
-      "class": "org.nikok.hextant.core.expr.editable.EditableIntLiteral"
+      "edited": "hextant.core.expr.edited.IntLiteral",
+      "class": "hextant.core.expr.editable.EditableIntLiteral"
     }
   ],
   "editors": [
     {
-      "editable": "org.nikok.hextant.core.command.line.CommandLine",
-      "editor": "org.nikok.hextant.core.command.line.CommandLineController"
+      "editable": "hextant.command.line.CommandLine",
+      "editor": "hextant.command.line.CommandLineController"
     }
   ],
   "views": [
     {
-      "editable": "org.nikok.hextant.core.command.line.CommandLine",
-      "view": "org.nikok.hextant.core.command.line.FXCommandLineView"
+      "editable": "hextant.command.line.CommandLine",
+      "view": "hextant.command.line.FXCommandLineView"
     }
   ],
   "inspections": [
