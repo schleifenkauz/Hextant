@@ -24,6 +24,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     private val _compoundClassLoader = CompoundClassLoader()
 
     init {
+        _compoundClassLoader.add(javaClass.classLoader)
         loadPlugins()
         loadCore()
     }
