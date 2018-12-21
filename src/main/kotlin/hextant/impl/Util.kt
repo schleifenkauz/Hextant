@@ -2,7 +2,7 @@
  * @author Nikolaus Knop
  */
 
-package hextant.core.impl
+package hextant.impl
 
 import java.util.logging.Logger
 import kotlin.properties.ReadOnlyProperty

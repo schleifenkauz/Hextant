@@ -6,7 +6,7 @@ package hextant.core.gui
 
 import hextant.core.base.AbstractController
 import hextant.core.completion.*
-import hextant.core.impl.myLogger
+import hextant.impl.myLogger
 import org.nikok.reaktive.event.event
 import kotlin.properties.Delegates.observable
 

@@ -8,7 +8,7 @@ import hextant.bundle.Bundle
 import hextant.bundle.CoreProperties
 import hextant.core.*
 import hextant.core.command.Commands
-import hextant.core.impl.SelectionDistributor
+import hextant.impl.SelectionDistributor
 import hextant.core.inspect.Inspections
 import hextant.impl.Settings
 import hextant.plugin.PluginRegistry

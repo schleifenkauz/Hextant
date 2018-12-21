@@ -11,8 +11,8 @@ import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.core.base.EditorControl
 import hextant.core.editable.ConvertedEditable
-import hextant.core.impl.ClassMap
-import hextant.core.impl.myLogger
+import hextant.impl.ClassMap
+import hextant.impl.myLogger
 import kotlin.reflect.KClass
 
 /**

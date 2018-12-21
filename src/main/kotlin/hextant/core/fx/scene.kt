@@ -4,7 +4,7 @@
 
 package hextant.core.fx
 
-import hextant.core.impl.Stylesheets
+import hextant.impl.Stylesheets
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Label

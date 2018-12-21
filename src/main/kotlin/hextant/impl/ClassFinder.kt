@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package hextant.core.impl
+package hextant.impl
 
 import java.nio.file.*
 import java.util.*

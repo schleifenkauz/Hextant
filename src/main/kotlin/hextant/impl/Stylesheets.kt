@@ -1,4 +1,4 @@
-package hextant.core.impl
+package hextant.impl
 
 import javafx.scene.Scene
 

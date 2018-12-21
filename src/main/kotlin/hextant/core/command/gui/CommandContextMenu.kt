@@ -6,7 +6,7 @@ package hextant.core.command.gui
 
 import hextant.Context
 import hextant.core.command.CommandRegistrar
-import hextant.core.impl.myLogger
+import hextant.impl.myLogger
 import javafx.scene.control.ContextMenu
 
 internal class CommandContextMenu<T : Any> internal constructor(

@@ -9,7 +9,7 @@ import hextant.bundle.Property
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.core.editable.ConvertedEditable
-import hextant.core.impl.*
+import hextant.impl.*
 import kotlin.reflect.KClass
 
 /**

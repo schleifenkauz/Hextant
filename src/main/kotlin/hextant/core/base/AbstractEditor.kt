@@ -5,7 +5,7 @@
 package hextant.core.base
 
 import hextant.*
-import hextant.core.impl.SelectionDistributor
+import hextant.impl.SelectionDistributor
 import org.nikok.reaktive.value.Variable
 import org.nikok.reaktive.value.base.AbstractVariable
 import org.nikok.reaktive.value.observe

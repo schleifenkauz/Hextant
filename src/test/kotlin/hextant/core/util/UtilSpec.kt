@@ -7,7 +7,7 @@ package hextant.core.util
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
-import hextant.core.impl.myLogger
+import hextant.impl.myLogger
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 

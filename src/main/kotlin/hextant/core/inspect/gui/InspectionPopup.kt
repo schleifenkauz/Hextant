@@ -6,7 +6,7 @@ package hextant.core.inspect.gui
 
 import hextant.core.fx.registerShortcut
 import hextant.core.fx.show
-import hextant.core.impl.Stylesheets
+import hextant.impl.Stylesheets
 import hextant.core.inspect.Problem
 import hextant.core.inspect.ProblemFix
 import javafx.scene.Node

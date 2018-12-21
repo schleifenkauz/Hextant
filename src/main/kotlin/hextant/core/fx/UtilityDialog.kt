@@ -4,7 +4,7 @@
 
 package hextant.core.fx
 
-import hextant.core.impl.Stylesheets
+import hextant.impl.Stylesheets
 import javafx.scene.Node
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.CONFIRMATION

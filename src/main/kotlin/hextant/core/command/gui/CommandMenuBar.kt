@@ -7,7 +7,7 @@ package hextant.core.command.gui
 import hextant.Context
 import hextant.core.command.Command.Category
 import hextant.core.command.CommandRegistrar
-import hextant.core.impl.myLogger
+import hextant.impl.myLogger
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
 import org.nikok.reaktive.event.subscribe

@@ -11,8 +11,8 @@ import hextant.core.base.AbstractEditable
 import hextant.core.command.*
 import hextant.core.command.line.CommandLine.State.EditingArgs
 import hextant.core.command.line.CommandLine.State.EditingName
-import hextant.core.impl.SelectionDistributor
-import hextant.core.impl.myLogger
+import hextant.impl.SelectionDistributor
+import hextant.impl.myLogger
 import org.nikok.reaktive.event.event
 import org.nikok.reaktive.value.*
 import org.nikok.reaktive.value.binding.impl.notNull

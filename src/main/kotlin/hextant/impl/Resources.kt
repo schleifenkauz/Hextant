@@ -1,4 +1,4 @@
-package hextant.core.impl
+package hextant.impl
 
 import java.nio.file.Path
 import java.nio.file.Paths

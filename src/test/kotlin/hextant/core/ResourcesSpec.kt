@@ -6,7 +6,7 @@ package hextant.core
 
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
-import hextant.core.impl.Resources
+import hextant.impl.Resources
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.xdescribe
 import java.nio.file.Files
