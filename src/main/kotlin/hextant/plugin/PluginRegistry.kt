@@ -11,6 +11,7 @@ import hextant.bundle.Property
 import hextant.plugin.dsl.DslPluginLoader
 import hextant.plugin.impl.CompoundClassLoader
 import hextant.plugin.impl.JsonPluginLoader
+import java.io.InputStreamReader
 import java.io.Reader
 import java.net.URLClassLoader
 import java.nio.file.*
@@ -25,7 +26,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
 
     private val _compoundClassLoader = CompoundClassLoader()
 
-    private val dslPluginLoader = DslPluginLoader(platform)
+    private val dslPluginLoader = DslPluginLoader(platform, compoundClassLoader)
 
     init {
         _compoundClassLoader.add(javaClass.classLoader)
@@ -48,15 +49,24 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
         val paths = reader.lineSequence()
         for (plugin in paths) {
             val path = Paths.get(plugin)
-            val config = getConfiguration(path)
+            val jar = JarFile(path.toFile())
+            val jsonConfig = getJsonConfiguration(jar)
+            val dslConfig = getDslConfiguration(jar)
             val classLoader = URLClassLoader(arrayOf(path.toUri().toURL()))
-            loadPlugin(config, classLoader)
+            _compoundClassLoader.add(classLoader)
+            if (jsonConfig != null) loadPlugin(jsonConfig, classLoader)
+            if (dslConfig != null) loadPlugin(dslConfig)
         }
     }
 
-    private fun getConfiguration(plugin: Path): JsonParser {
-        val jar = JarFile(plugin.toFile())
-        val config = jar.getJarEntry(CONFIG_FILE_NAME)
+    private fun getDslConfiguration(root: JarFile): Reader? {
+        val config = root.getJarEntry(DSL_CONFIG_FILE) ?: return null
+        val input = root.getInputStream(config)
+        return InputStreamReader(input)
+    }
+
+    private fun getJsonConfiguration(jar: JarFile): JsonParser? {
+        val config = jar.getJarEntry(JSON_CONFIG_FILE) ?: return null
         val input = jar.getInputStream(config)
         return Json.createParser(input)
     }
@@ -73,8 +83,9 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     /**
      * Loads a plugin from the specified [dsl]-reader
      */
-    private fun loadPlugin(dsl: Reader, classLoader: ClassLoader) {
-
+    private fun loadPlugin(dsl: Reader) {
+        val plugin = dslPluginLoader.loadPlugin(dsl)
+        plugins[plugin.name] = plugin
     }
 
     /**
@@ -95,7 +106,8 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     }
 
     companion object : Property<PluginRegistry, Public, Internal>("plugin registry") {
-        private const val CONFIG_FILE_NAME = "plugin.json"
+        private const val JSON_CONFIG_FILE = "plugin.json"
+        private const val DSL_CONFIG_FILE = "plugin.kts"
         private const val CORE_PLUGIN_CONFIG = "core.json"
     }
 }
