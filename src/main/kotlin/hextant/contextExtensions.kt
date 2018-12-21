@@ -4,12 +4,12 @@
 
 package hextant
 
-import hextant.bundle.Property
+import hextant.base.EditorControl
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
+import hextant.bundle.Property
 import hextant.core.EditorControlFactory
 import hextant.core.EditorFactory
-import hextant.core.base.EditorControl
 
 fun Context.createView(editable: Editable<*>): EditorControl<*> =
     try {

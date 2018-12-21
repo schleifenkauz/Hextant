@@ -4,7 +4,7 @@
 
 package hextant
 
-import hextant.core.base.AbstractEditable
+import hextant.base.AbstractEditable
 
 abstract class ParentEditable<out E, out C : Editable<*>> : AbstractEditable<E>() {
     /**

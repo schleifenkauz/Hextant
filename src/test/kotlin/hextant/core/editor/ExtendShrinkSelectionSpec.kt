@@ -5,7 +5,7 @@
 package hextant.core.editor
 
 import hextant.*
-import hextant.core.base.AbstractEditor
+import hextant.base.AbstractEditor
 import hextant.core.mocks.EditableMock
 import matchers.*
 import org.jetbrains.spek.api.Spek

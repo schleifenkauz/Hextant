@@ -5,7 +5,7 @@
 package hextant.sample.view
 
 import hextant.Context
-import hextant.core.base.CompoundEditorControl
+import hextant.base.CompoundEditorControl
 import hextant.sample.editable.EditableIntOperatorApplication
 
 class FXIntOperatorApplicationEditorView(editable: EditableIntOperatorApplication, context: Context) :

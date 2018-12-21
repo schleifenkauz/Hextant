@@ -6,10 +6,10 @@ package hextant.core
 
 import hextant.Context
 import hextant.Editable
-import hextant.bundle.Property
+import hextant.base.EditorControl
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
-import hextant.core.base.EditorControl
+import hextant.bundle.Property
 import hextant.core.editable.ConvertedEditable
 import hextant.impl.ClassMap
 import hextant.impl.myLogger

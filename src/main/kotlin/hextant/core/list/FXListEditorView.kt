@@ -5,9 +5,9 @@
 package hextant.core.list
 
 import hextant.*
-import hextant.core.base.EditorControl
-import hextant.core.fx.setRoot
+import hextant.base.EditorControl
 import hextant.core.list.FXListEditorView.Orientation.Vertical
+import hextant.fx.setRoot
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT

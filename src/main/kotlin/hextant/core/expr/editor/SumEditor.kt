@@ -6,7 +6,7 @@ package hextant.core.expr.editor
 
 import hextant.Context
 import hextant.EditorView
-import hextant.core.base.AbstractEditor
+import hextant.base.AbstractEditor
 import hextant.core.expr.editable.EditableSum
 import hextant.core.expr.edited.Expr
 import org.nikok.reaktive.value.now

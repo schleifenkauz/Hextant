@@ -5,13 +5,13 @@
 package hextant.plugin.impl
 
 import hextant.*
+import hextant.base.EditorControl
 import hextant.bundle.CorePermissions.Public
+import hextant.command.Command
+import hextant.command.Commands
 import hextant.core.*
-import hextant.core.base.EditorControl
-import hextant.core.command.Command
-import hextant.core.command.Commands
-import hextant.core.inspect.Inspection
-import hextant.core.inspect.Inspections
+import hextant.inspect.Inspection
+import hextant.inspect.Inspections
 import hextant.plugin.*
 import javafx.scene.input.KeyCombination
 import javax.json.*

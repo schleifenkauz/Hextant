@@ -6,7 +6,7 @@ package hextant.core.list
 
 import hextant.Context
 import hextant.Editable
-import hextant.core.base.AbstractEditor
+import hextant.base.AbstractEditor
 
 abstract class ListEditor<E : Editable<*>>(
     private val list: EditableList<*, E>,

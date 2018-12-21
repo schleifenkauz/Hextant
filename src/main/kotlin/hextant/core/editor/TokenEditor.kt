@@ -5,12 +5,12 @@
 package hextant.core.editor
 
 import hextant.Context
+import hextant.base.AbstractEditor
 import hextant.bundle.CorePermissions.Public
-import hextant.core.base.AbstractEditor
 import hextant.core.editable.EditableToken
 import hextant.core.expr.view.TextEditorView
-import hextant.core.undo.*
 import hextant.runLater
+import hextant.undo.*
 import org.nikok.reaktive.value.now
 
 /**

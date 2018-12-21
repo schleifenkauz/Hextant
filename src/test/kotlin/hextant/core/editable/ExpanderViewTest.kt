@@ -10,9 +10,9 @@ import hextant.core.configure
 import hextant.core.expr.editable.*
 import hextant.core.expr.view.FXIntLiteralEditorView
 import hextant.core.expr.view.FXTextEditorView
-import hextant.core.fx.hextantScene
-import hextant.core.view.FXExpanderView
+import hextant.fx.hextantScene
 import hextant.get
+import hextant.view.FXExpanderView
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage

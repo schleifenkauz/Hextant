@@ -1,7 +1,7 @@
 package hextant.core.mocks
 
 import hextant.*
-import hextant.core.base.AbstractEditor
+import hextant.base.AbstractEditor
 
 internal class MockEditor(
     editable: Editable<Unit> = EditableMock(),

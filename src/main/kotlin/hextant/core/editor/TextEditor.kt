@@ -5,7 +5,7 @@
 package hextant.core.editor
 
 import hextant.Context
-import hextant.core.base.AbstractEditor
+import hextant.base.AbstractEditor
 import hextant.core.expr.editable.EditableText
 import hextant.core.expr.view.TextEditorView
 import hextant.runLater

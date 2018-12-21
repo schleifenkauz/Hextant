@@ -5,7 +5,7 @@
 package hextant.core.expr.view
 
 import hextant.Context
-import hextant.core.base.CompoundEditorControl
+import hextant.base.CompoundEditorControl
 import hextant.core.expr.editable.EditableSum
 import hextant.core.expr.editor.SumEditor
 import hextant.getEditor

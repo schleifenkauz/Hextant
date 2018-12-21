@@ -6,11 +6,11 @@ package hextant
 
 import hextant.bundle.Bundle
 import hextant.bundle.CoreProperties
+import hextant.command.Commands
 import hextant.core.*
-import hextant.core.command.Commands
 import hextant.impl.SelectionDistributor
-import hextant.core.inspect.Inspections
 import hextant.impl.Settings
+import hextant.inspect.Inspections
 import hextant.plugin.PluginRegistry
 import kserial.SerialContext
 import java.util.concurrent.*

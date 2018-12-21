@@ -5,11 +5,11 @@
 package hextant.core.expr.view
 
 import hextant.*
-import hextant.core.base.EditorControl
+import hextant.base.EditorControl
 import hextant.core.expr.editable.EditableOperatorApplication
 import hextant.core.expr.editor.OperatorApplicationEditor
-import hextant.core.fx.OperatorLabel
-import hextant.core.fx.isControlDown
+import hextant.fx.OperatorLabel
+import hextant.fx.isControlDown
 import javafx.scene.layout.HBox
 
 class FXOperatorApplicationEditorView(

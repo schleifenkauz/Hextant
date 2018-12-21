@@ -5,10 +5,10 @@
 package hextant.sample.editor
 
 import hextant.Context
+import hextant.base.DefaultRegistration
 import hextant.bundle.CorePermissions.Public
-import hextant.core.base.DefaultRegistration
-import hextant.core.command.Commands
-import hextant.core.command.register
+import hextant.command.Commands
+import hextant.command.register
 import hextant.core.editor.TokenEditor
 import hextant.core.expr.view.TextEditorView
 import hextant.sample.editable.EditableName

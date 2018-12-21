@@ -5,7 +5,7 @@
 package hextant.sample.editor
 
 import hextant.Context
-import hextant.core.base.DefaultRegistration
+import hextant.base.DefaultRegistration
 import hextant.core.editor.TokenEditor
 import hextant.core.expr.view.TextEditorView
 import hextant.sample.editable.EditableIntLiteral

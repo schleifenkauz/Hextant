@@ -4,7 +4,7 @@
 
 package hextant.core.editable
 
-import hextant.core.base.AbstractEditable
+import hextant.base.AbstractEditable
 import org.nikok.reaktive.value.*
 
 open class UnitEditable : AbstractEditable<Unit>() {

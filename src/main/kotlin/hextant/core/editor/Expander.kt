@@ -5,9 +5,9 @@
 package hextant.core.editor
 
 import hextant.*
-import hextant.core.base.AbstractEditor
+import hextant.base.AbstractEditor
 import hextant.core.editable.Expandable
-import hextant.core.view.ExpanderView
+import hextant.view.ExpanderView
 import org.nikok.reaktive.value.now
 
 abstract class Expander<E : Editable<*>>(

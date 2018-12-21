@@ -5,10 +5,10 @@
 package hextant.sample.view
 
 import hextant.HextantPlatform
-import hextant.core.command.line.CommandLine
-import hextant.core.command.line.FXCommandLineView
-import hextant.core.fx.hextantScene
+import hextant.command.line.CommandLine
+import hextant.command.line.FXCommandLineView
 import hextant.createView
+import hextant.fx.hextantScene
 import hextant.sample.editable.EditableName
 import javafx.application.Application
 import javafx.geometry.Orientation.VERTICAL

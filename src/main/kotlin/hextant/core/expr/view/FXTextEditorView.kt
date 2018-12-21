@@ -1,11 +1,11 @@
 package hextant.core.expr.view
 
 import hextant.Context
-import hextant.core.base.EditorControl
+import hextant.base.EditorControl
 import hextant.core.editor.TextEditor
 import hextant.core.expr.editable.EditableText
-import hextant.core.fx.HextantTextField
-import hextant.core.fx.smartSetText
+import hextant.fx.HextantTextField
+import hextant.fx.smartSetText
 import hextant.getEditor
 
 open class FXTextEditorView(

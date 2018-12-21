@@ -5,7 +5,7 @@
 package hextant.core.expr.editor
 
 import hextant.Context
-import hextant.core.base.AbstractEditor
+import hextant.base.AbstractEditor
 import hextant.core.expr.editable.EditableOperatorApplication
 import hextant.core.expr.edited.Expr
 import hextant.core.expr.view.FXOperatorApplicationEditorView
