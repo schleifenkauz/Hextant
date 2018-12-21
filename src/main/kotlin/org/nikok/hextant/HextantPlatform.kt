@@ -4,6 +4,7 @@
 
 package org.nikok.hextant
 
+import kserial.SerialContext
 import org.nikok.hextant.bundle.Bundle
 import org.nikok.hextant.core.*
 import org.nikok.hextant.core.command.Commands
@@ -60,7 +61,12 @@ interface HextantPlatform : Context {
             set(Inspections, Inspections.newInstance())
             set(EditorFactory, EditorFactory.newInstance())
             set(CoreProperties.logger, Logger.getLogger("org.nikok.hextant"))
-            set(PluginRegistry, PluginRegistry(this, Settings.plugins))
+            val plugins = PluginRegistry(this, Settings.plugins)
+            set(PluginRegistry, plugins)
+            set(CoreProperties.serialContext, SerialContext.newInstance {
+                classLoader = plugins.compoundClassLoader
+                useUnsafe = false
+            })
         }
 
         fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = Impl(bundle)

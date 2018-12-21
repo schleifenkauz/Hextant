@@ -99,7 +99,7 @@ allprojects {
         implementation kotlin("reflect")
         implementation nikok("kref", "1.0.0")
         implementation nikok("reaktive", "1.1-SNAPSHOT")
-        implementation nikok("kserial", "1.1.1")
+        implementation nikok("kserial", "1.1.2")
         testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
         implementation "org.controlsfx:controlsfx:8.40.14"
         implementation fileTree(dir: 'lib', include: ['*.jar'])
