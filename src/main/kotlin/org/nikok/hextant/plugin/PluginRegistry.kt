@@ -9,7 +9,6 @@ import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
 import org.nikok.hextant.plugin.impl.CompoundClassLoader
-import java.net.URL
 import java.net.URLClassLoader
 import java.nio.file.*
 import java.util.jar.JarFile
@@ -30,8 +29,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     }
 
     private fun loadCore() {
-        val core =
-            URL("file:/D:\\Bibliotheken\\Aktive Projekte\\Hextant\\src\\main\\resources\\org.nikok.hextant\\plugin\\core.json")
+        val core = javaClass.getResource(CORE_PLUGIN_CONFIG)
         val input = core.openStream()
         val json = Json.createParser(input)
         loadPlugin(json, javaClass.classLoader)
@@ -87,6 +85,6 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
 
     companion object : Property<PluginRegistry, Public, Internal>("plugin registry") {
         private const val CONFIG_FILE_NAME = "plugin.json"
-        private const val CORE_PLUGIN_CONFIG = "core"
+        private const val CORE_PLUGIN_CONFIG = "core.json"
     }
 }
