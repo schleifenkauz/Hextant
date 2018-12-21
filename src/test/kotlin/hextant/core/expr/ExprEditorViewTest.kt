@@ -7,6 +7,7 @@
 package hextant.core.expr
 
 import hextant.*
+import hextant.bundle.CoreProperties
 import hextant.core.*
 import hextant.core.command.Commands
 import hextant.core.command.line.CommandLine

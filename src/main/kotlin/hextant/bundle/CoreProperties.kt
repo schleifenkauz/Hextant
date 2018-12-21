@@ -1,8 +1,7 @@
-package hextant.core
+package hextant.bundle
 
-import hextant.bundle.Property
-import hextant.core.CorePermissions.Internal
-import hextant.core.CorePermissions.Public
+import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Public
 import kserial.SerialContext
 import java.util.logging.Logger
 

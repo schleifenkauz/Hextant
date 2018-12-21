@@ -5,8 +5,8 @@
 package hextant
 
 import hextant.bundle.Property
-import hextant.core.CorePermissions.Internal
-import hextant.core.CorePermissions.Public
+import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Public
 import hextant.core.EditorControlFactory
 import hextant.core.EditorFactory
 import hextant.core.base.EditorControl

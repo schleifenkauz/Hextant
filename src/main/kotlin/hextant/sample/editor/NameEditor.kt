@@ -5,7 +5,7 @@
 package hextant.sample.editor
 
 import hextant.Context
-import hextant.core.CorePermissions.Public
+import hextant.bundle.CorePermissions.Public
 import hextant.core.base.DefaultRegistration
 import hextant.core.command.Commands
 import hextant.core.command.register

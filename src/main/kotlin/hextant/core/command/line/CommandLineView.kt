@@ -9,14 +9,13 @@ import hextant.core.base.EditorControl
 import hextant.core.command.Command
 import hextant.core.command.Command.Parameter
 import hextant.core.completion.Completion
-import hextant.core.fx.FXEditorView
 
 interface CommandLineView: EditorView {
     /**
      * Called when the associated [CommandLine]s state switched to "editing args"
      * @param name the name of the expanded command
      * @param parameters the parameters of the command
-     * @param views the [FXEditorView]s of the argument editors
+     * @param views the [EditorControl]s of the argument editors
     */
     fun editingArgs(
         name: String,

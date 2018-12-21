@@ -6,7 +6,7 @@ package hextant.plugin
 
 import hextant.*
 import hextant.core.*
-import hextant.core.CorePermissions.Public
+import hextant.bundle.CorePermissions.Public
 import hextant.core.base.EditorControl
 import hextant.core.command.Command
 import hextant.core.command.Commands

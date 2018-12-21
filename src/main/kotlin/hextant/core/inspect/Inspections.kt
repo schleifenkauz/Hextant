@@ -5,8 +5,8 @@
 package hextant.core.inspect
 
 import hextant.bundle.Property
-import hextant.core.CorePermissions.Internal
-import hextant.core.CorePermissions.Public
+import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Public
 import org.nikok.reaktive.value.ReactiveBoolean
 import kotlin.reflect.KClass
 

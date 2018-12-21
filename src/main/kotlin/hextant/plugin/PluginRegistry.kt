@@ -6,8 +6,8 @@ package hextant.plugin
 
 import hextant.HextantPlatform
 import hextant.bundle.Property
-import hextant.core.CorePermissions.Internal
-import hextant.core.CorePermissions.Public
+import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Public
 import hextant.plugin.impl.CompoundClassLoader
 import java.net.URLClassLoader
 import java.nio.file.*

@@ -3,7 +3,7 @@ package hextant.core
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import hextant.*
-import hextant.core.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Internal
 import hextant.core.impl.SelectionDistributor
 import hextant.core.mocks.MockEditor
 import org.jetbrains.spek.api.Spek

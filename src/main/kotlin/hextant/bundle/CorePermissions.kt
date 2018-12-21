@@ -1,6 +1,4 @@
-package hextant.core
-
-import hextant.bundle.Permission
+package hextant.bundle
 
 /**
  * The permissions of the core module

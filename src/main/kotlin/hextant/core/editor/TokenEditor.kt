@@ -5,7 +5,7 @@
 package hextant.core.editor
 
 import hextant.Context
-import hextant.core.CorePermissions.Public
+import hextant.bundle.CorePermissions.Public
 import hextant.core.base.AbstractEditor
 import hextant.core.editable.EditableToken
 import hextant.core.expr.view.TextEditorView

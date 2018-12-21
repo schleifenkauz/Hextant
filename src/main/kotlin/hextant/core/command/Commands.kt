@@ -5,8 +5,8 @@
 package hextant.core.command
 
 import hextant.bundle.Property
-import hextant.core.CorePermissions.Internal
-import hextant.core.CorePermissions.Public
+import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Public
 import kotlin.reflect.KClass
 import kotlin.reflect.full.superclasses
 

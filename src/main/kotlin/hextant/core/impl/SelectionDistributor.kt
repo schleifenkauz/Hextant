@@ -6,7 +6,7 @@ package hextant.core.impl
 
 import hextant.Editor
 import hextant.bundle.Property
-import hextant.core.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Internal
 import org.nikok.reaktive.set.*
 import org.nikok.reaktive.value.Variable
 

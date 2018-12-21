@@ -5,7 +5,7 @@
 package hextant.core.command.line
 
 import hextant.*
-import hextant.core.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Internal
 import hextant.core.EditableFactory
 import hextant.core.base.AbstractEditable
 import hextant.core.command.*

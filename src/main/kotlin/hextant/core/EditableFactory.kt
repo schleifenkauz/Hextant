@@ -8,8 +8,8 @@ package hextant.core
 
 import hextant.Editable
 import hextant.bundle.Property
-import hextant.core.CorePermissions.Internal
-import hextant.core.CorePermissions.Public
+import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Public
 import hextant.core.impl.ClassMap
 import hextant.core.impl.myLogger
 import kotlin.reflect.KClass
