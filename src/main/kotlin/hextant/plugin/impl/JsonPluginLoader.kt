@@ -130,13 +130,13 @@ internal class JsonPluginLoader private constructor(
 
     private fun processInspection(obj: JsonObject) {
         val clsName = obj.getStr("class", "inspection")
-        val cls = loadClass(clsName)
-        check(cls.isSubclassOf(Inspection::class), "class $clsName is not an inspection")
         val receiverClsName = obj.getStr("receiver", "inspection")
+        val cls = loadClass(clsName)
+        check(cls.isSubclassOf(Inspection::class), "$cls is not an inspection")
         val receiverCls = loadClass(receiverClsName)
         val registrar = inspections.of(receiverCls)
         val constructor = cls.constructors.find { it.parameters.size == 1 && it.parameters[0].type.classifier == cls }
-            ?: error("No constructor found for inspection $clsName")
+            ?: error("No constructor found for inspection $cls")
         registrar.register { it -> constructor.call(it) as Inspection<Any> }
     }
 
