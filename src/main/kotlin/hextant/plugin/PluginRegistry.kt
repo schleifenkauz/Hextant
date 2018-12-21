@@ -8,8 +8,10 @@ import hextant.HextantPlatform
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
+import hextant.plugin.dsl.DslPluginLoader
 import hextant.plugin.impl.CompoundClassLoader
 import hextant.plugin.impl.JsonPluginLoader
+import java.io.Reader
 import java.net.URLClassLoader
 import java.nio.file.*
 import java.util.jar.JarFile
@@ -22,6 +24,8 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     val compoundClassLoader: ClassLoader get() = _compoundClassLoader
 
     private val _compoundClassLoader = CompoundClassLoader()
+
+    private val dslPluginLoader = DslPluginLoader(platform)
 
     init {
         _compoundClassLoader.add(javaClass.classLoader)
@@ -64,7 +68,13 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     private fun loadPlugin(json: JsonParser, classLoader: ClassLoader) {
         val plugin = JsonPluginLoader.loadPlugin(json, platform, classLoader)
         plugins[plugin.name] = plugin
-        _compoundClassLoader.add(classLoader)
+    }
+
+    /**
+     * Loads a plugin from the specified [dsl]-reader
+     */
+    private fun loadPlugin(dsl: Reader, classLoader: ClassLoader) {
+
     }
 
     /**

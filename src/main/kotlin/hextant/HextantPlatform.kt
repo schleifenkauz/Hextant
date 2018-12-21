@@ -68,6 +68,7 @@ interface HextantPlatform : Context {
                 classLoader = plugins.compoundClassLoader
                 useUnsafe = false
             })
+            set(CoreProperties.classLoader, plugins.compoundClassLoader)
         }
 
         fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = Impl(bundle)

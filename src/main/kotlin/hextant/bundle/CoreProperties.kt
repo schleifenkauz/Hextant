@@ -18,4 +18,6 @@ object CoreProperties {
      * The [SerialContext]
      */
     val serialContext = Property<SerialContext, Public, Internal>("serial context")
+
+    val classLoader = Property<ClassLoader, Public, Internal>("class loader")
 }
