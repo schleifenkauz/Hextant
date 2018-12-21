@@ -8,6 +8,7 @@ import org.nikok.hextant.HextantPlatform
 import org.nikok.hextant.bundle.Property
 import org.nikok.hextant.core.CorePermissions.Internal
 import org.nikok.hextant.core.CorePermissions.Public
+import org.nikok.hextant.plugin.impl.CompoundClassLoader
 import java.net.URL
 import java.net.URLClassLoader
 import java.nio.file.*
@@ -17,6 +18,10 @@ import javax.json.stream.JsonParser
 
 class PluginRegistry(private val platform: HextantPlatform, private val pluginsFile: Path) {
     private val plugins = mutableMapOf<String, Plugin>()
+
+    val compoundClassLoader: ClassLoader get() = _compoundClassLoader
+
+    private val _compoundClassLoader = CompoundClassLoader()
 
     init {
         loadPlugins()
@@ -59,6 +64,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     private fun loadPlugin(json: JsonParser, classLoader: ClassLoader) {
         val plugin = JsonPluginLoader.loadPlugin(json, platform, classLoader)
         plugins[plugin.name] = plugin
+        _compoundClassLoader.add(classLoader)
     }
 
     /**
