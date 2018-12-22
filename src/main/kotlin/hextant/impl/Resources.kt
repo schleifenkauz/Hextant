@@ -23,14 +23,12 @@ internal object Resources {
 
     fun allCSS() = allWithExtension(".css")
 
-    private fun getResourcesRoot(): Path {
-        /*val cls = this.javaClass
-        val url = cls.getResource("resource")
-        val path = Paths.get(url.toURI())
-        val nc = path.nameCount
-        return path.root.resolve(path.subpath(0, nc - 6))*/
-        return Paths.get("D:\\Bibliotheken\\Aktive Projekte\\Hextant\\src\\main\\resources")
-    }
+    private fun getResourcesRoot(): Path =
+        javaClass.classLoader.getResources("").asSequence()
+            .find { root ->
+                root.toExternalForm().endsWith("resources")
+            }?.let { url -> Paths.get(url.toURI()) }
+            ?: throw RuntimeException("Resources root not found")
 
     val logger by myLogger()
 }
