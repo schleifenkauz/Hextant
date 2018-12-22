@@ -16,21 +16,15 @@ internal operator fun <T> KProperty<T>.getValue(receiver: Any?, prop: KProperty<
 
 internal inline fun <reified T : Any> myLogger(): ReadOnlyProperty<T, Logger> {
     val cls = T::class
-    return when {
-        cls.isCompanion            -> {
-            val name = cls.qualifiedName!!
-            val outerName = name.removeSuffix(".Companion")
-            val logger = Logger.getLogger(outerName)!!
-            object : ReadOnlyProperty<T, Logger> {
-                override fun getValue(thisRef: T, property: KProperty<*>): Logger = logger
-            }
+    val qualifiedName = cls.qualifiedName ?: throw IllegalStateException("myLogger invoked from anonymous class")
+    val ownerClsName = when {
+        cls.isCompanion -> {
+            qualifiedName.removeSuffix(".Companion")
         }
-        cls.objectInstance != null -> {
-            val logger = Logger.getLogger(cls.qualifiedName!!)
-            object : ReadOnlyProperty<T, Logger> {
-                override fun getValue(thisRef: T, property: KProperty<*>): Logger = logger
-            }
-        }
-        else                       -> throw IllegalArgumentException("Logger delegate must be invoked from an object")
+        else            -> qualifiedName
+    }
+    val logger = Logger.getLogger(ownerClsName)!!
+    return object : ReadOnlyProperty<T, Logger> {
+        override fun getValue(thisRef: T, property: KProperty<*>): Logger = logger
     }
 }
