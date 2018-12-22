@@ -48,7 +48,11 @@ interface HextantPlatform : Context {
     }
 
     companion object {
-        val INSTANCE: HextantPlatform = configured()
+        val INSTANCE: HextantPlatform = unconfigured()
+
+        init {
+            INSTANCE.configure()
+        }
 
         fun configured(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
             unconfigured(bundle).apply { configure() }
