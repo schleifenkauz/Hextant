@@ -8,6 +8,7 @@ import hextant.HextantPlatform
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
+import hextant.impl.myLogger
 import hextant.plugin.dsl.PluginBuilder
 import hextant.plugin.impl.CompoundClassLoader
 import hextant.plugin.impl.JsonPluginLoader
@@ -37,11 +38,14 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     private fun loadPlugins() {
         if (!Files.exists(pluginsFile)) {
             Files.createFile(pluginsFile)
+            logger.config { "Plugin file didn't exist, creating it" }
         }
+        logger.config { "Reading plugin list from $pluginsFile" }
         val reader = Files.newBufferedReader(pluginsFile)
         val paths = reader.lineSequence()
         for (plugin in paths) {
             val path = Paths.get(plugin)
+            logger.config { "Loading plugin from $path" }
             loadPlugin(path)
         }
     }
@@ -71,6 +75,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
 
     private fun loadJsonPlugin(jar: JarFile) {
         val config = jar.getJarEntry(JSON_CONFIG_FILE) ?: return
+        logger.config { "Found json config at $config" }
         val input = jar.getInputStream(config)
         val parser = Json.createParser(input)
         val plugin = JsonPluginLoader.loadPlugin(parser, platform, compoundClassLoader)
@@ -96,5 +101,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
 
     companion object : Property<PluginRegistry, Public, Internal>("plugin registry") {
         private const val JSON_CONFIG_FILE = "plugin.json"
+
+        val logger by myLogger()
     }
 }
