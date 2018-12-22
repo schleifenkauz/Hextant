@@ -13,7 +13,6 @@ import hextant.command.line.CommandLine
 import hextant.command.line.FXCommandLineView
 import hextant.command.register
 import hextant.core.EditorControlFactory
-import hextant.core.editor.AContext
 import hextant.core.editor.Expander
 import hextant.core.expr.editable.EditableIntLiteral
 import hextant.core.expr.editable.ExpandableExpr
@@ -22,7 +21,8 @@ import hextant.core.expr.editor.*
 import hextant.core.list.*
 import hextant.core.register
 import hextant.fx.hextantScene
-import hextant.undo.UndoManagerFactory
+import hextant.undo.UndoManager
+import hextant.undo.UndoManagerImpl
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.geometry.Orientation.VERTICAL
@@ -50,10 +50,15 @@ class ExprEditorViewTest : Application() {
 
     private fun createContent(): Parent {
         val platform = HextantPlatform.configured()
-        val views = platform[EditorControlFactory]
+        val context = object : AbstractContext(platform) {
+            override val platform: HextantPlatform = platform
+        }.apply {
+            set(UndoManager, UndoManagerImpl())
+        }
+        val views = context[EditorControlFactory]
         val expandable = ExpandableExpr()
-        val expander = platform.getEditor(expandable) as ExprExpander
-        val commands = platform[Commands]
+        val expander = context.getEditor(expandable) as ExprExpander
+        val commands = context[Commands]
         val registrar = commands.of<ExprEditor>()
         views.register<EditableList<*, *>> { editable, ctx ->
             val editor = ctx.getEditor(editable)
@@ -108,7 +113,7 @@ class ExprEditorViewTest : Application() {
                 ex.setContent(editable)
             }
         }
-        val expanderView = platform.createView(expandable)
+        val expanderView = context.createView(expandable)
         val cl = CommandLine.forSelectedEditors(platform)
         val clView = FXCommandLineView(cl, platform)
         val evaluationDisplay = Label("Invalid expression")
@@ -122,9 +127,9 @@ class ExprEditorViewTest : Application() {
                 }
             }
         }
-        val menuBar = createMenuBar(expander, platform)
+        val menuBar = createMenuBar(expander, context)
         val split = SplitPane(menuBar, expanderView, clView)
-        platform[CoreProperties.logger].level = Level.FINE
+        context[CoreProperties.logger].level = Level.FINE
         split.orientation = VERTICAL
         return BorderPane(
             HBox(10.0, expanderView, Label("->"), evaluationDisplay),
@@ -139,17 +144,17 @@ class ExprEditorViewTest : Application() {
 
     private fun createMenuBar(
         parent: ExprExpander,
-        platform: HextantPlatform
+        context: Context
     ): MenuBar {
         val save = createOpenBtn(parent)
         val open = createSaveBtn(parent)
         val file = Menu("File", null, save, open)
-        val edit = Menu("Edit", null, undoBtn(platform), redoBtn(platform))
+        val undo = context[UndoManager]
+        val edit = Menu("Edit", null, undoBtn(undo), redoBtn(undo))
         return MenuBar(file, edit)
     }
 
-    private fun redoBtn(platform: HextantPlatform): MenuItem = MenuItem("Undo").apply {
-        val undo = platform[UndoManagerFactory].get(AContext)
+    private fun redoBtn(undo: UndoManager): MenuItem = MenuItem("Undo").apply {
         setOnAction {
             if (undo.canUndo) {
                 undo.undo()
@@ -158,8 +163,7 @@ class ExprEditorViewTest : Application() {
         accelerator = KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN)
     }
 
-    private fun undoBtn(platform: HextantPlatform): MenuItem = MenuItem("Redo").apply {
-        val undo = platform[UndoManagerFactory].get(AContext)
+    private fun undoBtn(undo: UndoManager): MenuItem = MenuItem("Redo").apply {
         setOnAction {
             if (undo.canRedo) {
                 undo.redo()

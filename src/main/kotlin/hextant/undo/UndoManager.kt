@@ -4,6 +4,9 @@
 
 package hextant.undo
 
+import hextant.bundle.CorePermissions.Public
+import hextant.bundle.Property
+
 /**
  * The UndoManager is responsible for managing stacks of edits and undo and redo them
  */
@@ -44,4 +47,6 @@ interface UndoManager {
      * The human-readable description of the currently undoable [Edit]
      */
     val redoText: String
+
+    companion object : Property<UndoManager, Public, Public>("undo manager")
 }
