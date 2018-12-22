@@ -57,7 +57,7 @@ class ExprEditorViewTest : Application() {
         val registrar = commands.of<ExprEditor>()
         views.register<EditableList<*, *>> { editable, ctx ->
             val editor = ctx.getEditor(editable)
-            FXListEditorView(editable, editor as ListEditor<*>, ctx)
+            FXListEditorView(editable, ctx, editor as ListEditor<*>)
         }
         registrar.register<ExprEditor, Int> {
             name = "Evaluate Expression"
@@ -84,9 +84,9 @@ class ExprEditorViewTest : Application() {
                 val editableOp1 = expandableOp1.editable.now
                 val expandableOp2 = oae.editable.editableOp2
                 val editableOp2 = expandableOp2.editable.now
-                val expander1 = platform.getEditor(expandableOp1) as Expander<Editable<Expr>>
+                val expander1 = platform.getEditor(expandableOp1) as Expander<Editable<Expr>, *>
                 if (editableOp2 != null) expander1.setContent(editableOp2)
-                val expander2 = platform.getEditor(expandableOp2) as Expander<Editable<Expr>>
+                val expander2 = platform.getEditor(expandableOp2) as Expander<Editable<Expr>, *>
                 if (editableOp1 != null) expander2.setContent(editableOp1)
             }
         }
@@ -96,13 +96,13 @@ class ExprEditorViewTest : Application() {
             description = "Partially evaluate the selected expression"
             applicableIf { oae ->
                 val ok = oae.editable.isOk.now
-                val parentIsExpander = oae.parent is Expander<*>
+                val parentIsExpander = oae.parent is Expander<*, *>
                 println("ok: $ok")
                 println("parent: ${oae.parent}")
                 ok && parentIsExpander
             }
             executing { oae, _ ->
-                val ex = oae.parent as Expander<Editable<Expr>>
+                val ex = oae.parent as Expander<Editable<Expr>, *>
                 val res = oae.editable.edited.now!!.value
                 val editable = EditableIntLiteral(res)
                 ex.setContent(editable)

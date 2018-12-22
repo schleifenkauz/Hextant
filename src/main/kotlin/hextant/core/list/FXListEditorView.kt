@@ -32,8 +32,8 @@ class FXListEditorView(
 
     constructor(
         editable: EditableList<*, *>,
-        editor: ListEditor<*>,
         context: Context,
+        editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
         orientation: Orientation = Vertical,
         emptyText: String = "Add item"
     ) : this(editable, editor, context, Button(emptyText), orientation)

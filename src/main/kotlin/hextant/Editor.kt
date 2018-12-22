@@ -7,7 +7,7 @@ package hextant
 /**
  * An Editor which acts like a Controller in the MVC pattern
  */
-interface Editor<E : Editable<*>> {
+interface Editor<out E : Editable<*>> {
     /**
      * @return the [Editable] edited by this [Editor]
      */

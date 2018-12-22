@@ -239,9 +239,9 @@ class CommandLine(
     }
 
     companion object {
-        fun forSelectedEditors(platform: HextantPlatform): CommandLine {
-            val dist = platform[Internal, SelectionDistributor]
-            val commands = platform[Commands]
+        fun forSelectedEditors(context: Context): CommandLine {
+            val dist = context[Internal, SelectionDistributor]
+            val commands = context[Commands]
             val targets = {
                 dist.selectedEditors.now
             }
@@ -250,7 +250,7 @@ class CommandLine(
                     commands.applicableOn(it)
                 }.reduce { acc, s -> acc.union(s) }
             }
-            return CommandLine(commandsFactory, targets, platform)
+            return CommandLine(commandsFactory, targets, context)
         }
 
         val logger by myLogger()

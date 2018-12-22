@@ -16,7 +16,7 @@ import org.nikok.reaktive.value.ReactiveValue
 import org.nikok.reaktive.value.binding.binding
 import kotlin.reflect.KClass
 
-abstract class EditableList<N, E : Editable<N>>(private val elementCls: KClass<out E>) :
+open class EditableList<N, E : Editable<N>>(private val elementCls: KClass<out E>) :
     ParentEditable<List<E?>, E>(), Serializable {
     val editableList = reactiveList<E>("editable list")
 

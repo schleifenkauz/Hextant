@@ -16,7 +16,7 @@ import org.nikok.reaktive.value.now
 class ExprExpander(
     editable: ExpandableExpr,
     context: Context
-) : ConfiguredExpander<Editable<Expr>>(config, editable, context), ExprEditor {
+) : ConfiguredExpander<Editable<Expr>, ExpandableExpr>(config, editable, context), ExprEditor {
     override val expr: Expr?
         get() = editable.editable.now?.edited?.now
 

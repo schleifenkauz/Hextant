@@ -10,10 +10,10 @@ import hextant.core.editable.Expandable
 import hextant.view.ExpanderView
 import org.nikok.reaktive.value.now
 
-abstract class Expander<E : Editable<*>>(
-    editable: Expandable<*, E>,
+abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
+    editable: Ex,
     private val context: Context
-) : AbstractEditor<Expandable<*, E>, ExpanderView>(editable, context) {
+) : AbstractEditor<Ex, ExpanderView>(editable, context) {
     private fun ExpanderView.handleState() {
         if (editable.isExpanded.now) {
             expanded(editable.editable.now!!)

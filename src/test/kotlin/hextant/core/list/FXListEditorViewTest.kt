@@ -24,7 +24,7 @@ class FXListEditorViewTest : Application() {
             val views = platform[EditorControlFactory]
             views.register<EditableList<*, *>> { editable, ctx ->
                 val editor = ctx.getEditor(editable)
-                FXListEditorView(editable, editor as ListEditor<*>, ctx)
+                FXListEditorView(editable, ctx, editor as ListEditor<*>)
             }
             val view = platform.createView(list) as FXListEditorView
             view.cellFactory = { NumberedCell() }

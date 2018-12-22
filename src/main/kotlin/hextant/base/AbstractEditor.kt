@@ -18,7 +18,7 @@ import org.nikok.reaktive.value.observe
  * @param V the type of [EditorView]'s that can be managed by this editor
  * @param editable the [Editable] edited by this [Editor]
  */
-abstract class AbstractEditor<E : Editable<*>, V : EditorView>(
+abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
     final override val editable: E,
     private val context: Context
 ) : Editor<E>, AbstractController<V>() {

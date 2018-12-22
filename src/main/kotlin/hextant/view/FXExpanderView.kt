@@ -22,7 +22,7 @@ class FXExpanderView(
     private val context: Context
 ) : ExpanderView, EditorControl<Node>() {
 
-    private val expander = context.getEditor(expandable) as Expander<*>
+    private val expander = context.getEditor(expandable) as Expander<*, *>
 
     private var view: EditorControl<*>? = null
 
