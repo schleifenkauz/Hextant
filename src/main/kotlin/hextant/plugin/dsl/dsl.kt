@@ -4,4 +4,7 @@
 
 package hextant.plugin.dsl
 
-fun plugin(block: PluginBuilder.() -> Unit) {}
+/**
+ * Register a plugin
+ */
+fun plugin(@Suppress("UNUSED_PARAMETER") block: PluginBuilder.() -> Unit) {}
