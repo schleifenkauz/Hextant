@@ -26,7 +26,7 @@ internal object Resources {
     private fun getResourcesRoot(): Path =
         javaClass.classLoader.getResources("").asSequence()
             .find { root ->
-                root.toExternalForm().endsWith("resources")
+                root.toExternalForm().endsWith("resources/")
             }?.let { url -> Paths.get(url.toURI()) }
             ?: throw RuntimeException("Resources root not found")
 
