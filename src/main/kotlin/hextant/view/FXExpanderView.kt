@@ -57,6 +57,7 @@ class FXExpanderView(
         view = v
         v.registerShortcut(RESET_SHORTCUT) { expander.reset() }
         root = v
+        textField.text = ""
         v.focus()
     }
 
