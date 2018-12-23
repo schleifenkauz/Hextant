@@ -50,6 +50,7 @@ class FXExpanderView(
         view = null
         root = textField
         textField.requestFocus()
+        textField.text = ""
     }
 
     override fun expanded(newContent: Editable<*>) {
@@ -57,7 +58,6 @@ class FXExpanderView(
         view = v
         v.registerShortcut(RESET_SHORTCUT) { expander.reset() }
         root = v
-        textField.text = ""
         v.focus()
     }
 
