@@ -4,6 +4,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 internal object Settings {
+    val logger by myLogger()
+
     val settings = settingsDirectory()
 
     private fun settingsDirectory(): Path {
@@ -14,6 +16,4 @@ internal object Settings {
     }
 
     val plugins = settings.resolve("plugins.txt")!!
-
-    val logger by myLogger()
 }
