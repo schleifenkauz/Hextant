@@ -30,6 +30,10 @@
     -fx-graphic: "M 0.0 0.0 Z";
 }
 
+.expander-popover > .content {
+    -fx-background-color: black;
+}
+
 
 .problem-list {
     -fx-border-color: blue;

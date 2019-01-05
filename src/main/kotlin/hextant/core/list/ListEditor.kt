@@ -4,14 +4,13 @@
 
 package hextant.core.list
 
-import hextant.Context
-import hextant.Editable
-import hextant.base.AbstractEditor
+import hextant.*
+import hextant.base.ParentEditor
 
 abstract class ListEditor<E : Editable<*>>(
     private val list: EditableList<*, E>,
-    context: Context
-) : AbstractEditor<EditableList<*, E>, ListEditorView>(list, context) {
+    private val context: Context
+) : ParentEditor<EditableList<*, E>, ListEditorView>(list, context) {
     private val empty get() = list.editableList.now.isEmpty()
 
     override fun viewAdded(view: ListEditorView) {
@@ -32,7 +31,8 @@ abstract class ListEditor<E : Editable<*>>(
 
     fun add(idx: Int): E {
         val editable = createNewEditable()
-        editable.moveTo(list)
+        val editor = context.getEditor(editable)
+        editor.moveTo(this)
         list.editableList.now.add(idx, editable)
         views {
             added(editable, idx)
@@ -47,7 +47,8 @@ abstract class ListEditor<E : Editable<*>>(
 
     fun removeAt(idx: Int) {
         val removed = list.editableList.now.removeAt(idx)
-        removed.moveTo(null)
+        val editor = context.getEditor(removed)
+        editor.moveTo(null)
         views {
             removed(idx)
         }

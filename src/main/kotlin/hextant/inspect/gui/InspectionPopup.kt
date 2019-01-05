@@ -44,7 +44,6 @@ class InspectionPopup (private val owner: Node, problems: () -> Set<Problem>) : 
         val fixes = problem.fixes
         if (fixes.isNotEmpty()) {
             val fixesPopup = FixesPopup(fixes)
-            registerShortcut(KeyCodeCombination(ENTER)) { fixesPopup.show(owner) }
             setOnAction { fixesPopup.show(owner) }
         }
     }

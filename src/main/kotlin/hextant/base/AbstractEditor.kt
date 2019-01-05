@@ -20,7 +20,7 @@ import org.nikok.reaktive.value.observe
  */
 abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
     final override val editable: E,
-    private val context: Context
+    context: Context
 ) : Editor<E>, AbstractController<V>() {
 
     private val isOkObserver = editable.isOk.observe("Observe isOk") { isOk ->
@@ -54,7 +54,7 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
     }
 
     private fun deselectChildren() {
-        allChildren?.forEach { c ->
+        allChildren.forEach { c ->
             if (c.isSelected) c.toggleSelection()
         }
     }
@@ -70,31 +70,28 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
     private var lastExtendingChild: Editor<*>? = null
 
     override fun extendSelection(child: Editor<*>) {
-        if (editable is ParentEditable<*, *>) {
-            require(child.isSelected) { "Child is not selected" }
-            toggleSelection()
-            child.toggleSelection()
-            lastExtendingChild = child
-        } else throw IllegalStateException("Cannot extend selection for a non-parent editor")
+        throw IllegalStateException("Cannot extend selection for a non-parent editor")
     }
 
-    override fun shrinkSelection() {
-        require(isSelected) { "Shrinking parent is not selected" }
-        if (editable is ParentEditable<*, *>) {
-            val c = lastExtendingChild ?: children!!.first()
-            if (!c.isSelected) c.toggleSelection()
-            toggleSelection()
+    /**
+     * Shrink the selection by selecting the last child that extended selection to this editor
+     * or the first child if there is no such child
+     */
+    override fun shrinkSelection() {}
+
+    override val allChildren: Sequence<Editor<*>>
+        get() = children.asSequence().flatMap { c -> c.allChildren }
+
+    override fun moveTo(newParent: ParentEditor<*, *>?) {
+        if (newParent == null) {
+            parent = null
+            return
         }
+        if (parent == newParent) return
+        newParent.accept(this)
+        parent = newParent
     }
 
-    override val parent: Editor<*>?
-        get() = editable.parent?.let { p -> context.getEditor(p) }
-
-    override val children: Collection<Editor<*>>?
-        get() = (editable as? ParentEditable<*, *>)?.children?.map { child -> context.getEditor(child) }
-
-    override val allChildren: Sequence<Editor<*>>?
-        get() =
-            if (editable is ParentEditable<*, *>) editable.allChildren.map(context::getEditor)
-            else null
+    final override var parent: Editor<*>? = null
+        private set
 }

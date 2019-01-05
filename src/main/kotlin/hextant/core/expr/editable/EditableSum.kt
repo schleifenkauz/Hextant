@@ -6,22 +6,14 @@
 
 package hextant.core.expr.editable
 
-import hextant.Editable
-import hextant.ParentEditable
+import hextant.base.AbstractEditable
 import hextant.core.expr.edited.Expr
 import hextant.core.expr.edited.Sum
 import kserial.*
 import org.nikok.reaktive.value.ReactiveValue
 import org.nikok.reaktive.value.now
 
-class EditableSum(val expressions: EditableExprList = EditableExprList()) : ParentEditable<Sum, Editable<Expr>>(),
-                                                                            EditableExpr<Sum> {
-    override fun accepts(child: Editable<*>): Boolean = child is EditableExprList
-
-    init {
-        expressions.moveTo(this)
-    }
-
+class EditableSum(val expressions: EditableExprList = EditableExprList()) : AbstractEditable<Sum>(), EditableExpr<Sum> {
     override val edited: ReactiveValue<Sum?>
         get() = expressions.edited.map("edited of sum") { editableExpressions ->
             editableExpressions.map { editable ->

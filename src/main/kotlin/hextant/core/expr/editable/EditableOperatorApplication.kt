@@ -5,7 +5,6 @@
 package hextant.core.expr.editable
 
 import hextant.Editable
-import hextant.ParentEditable
 import hextant.core.expr.edited.Operator
 import hextant.core.expr.edited.OperatorApplication
 import kserial.*
@@ -18,15 +17,9 @@ class EditableOperatorApplication(
     val editableOperator: EditableOperator = EditableOperator(),
     val editableOp1: ExpandableExpr = ExpandableExpr(),
     val editableOp2: ExpandableExpr = ExpandableExpr()
-) : ParentEditable<OperatorApplication, Editable<*>>(), EditableExpr<OperatorApplication> {
+) : Editable<OperatorApplication>, EditableExpr<OperatorApplication> {
     constructor(operator: Operator) : this() {
         editableOperator.text.set(operator.name)
-    }
-
-    init {
-        editableOp1.moveTo(this)
-        editableOperator.moveTo(this)
-        editableOp2.moveTo(this)
     }
 
     override val edited: ReactiveValue<OperatorApplication?> =
@@ -41,8 +34,6 @@ class EditableOperatorApplication(
         }
 
     override val isOk: ReactiveBoolean = edited.map("is $this ok") { it != null }
-
-    override fun accepts(child: Editable<*>): Boolean = child is EditableOperator || child is EditableExpr<*>
 
     object Serial : Serializer<EditableOperatorApplication> {
         override fun serialize(obj: EditableOperatorApplication, output: Output, context: SerialContext) {

@@ -5,13 +5,13 @@
 package hextant.sample.editable
 
 import hextant.Editable
-import hextant.ParentEditable
+import hextant.base.AbstractEditable
 import hextant.sample.ast.IntExpr
 import hextant.sample.ast.IntOperatorApplication
 import org.nikok.reaktive.value.ReactiveValue
 import org.nikok.reaktive.value.reactiveValue
 
-class EditableIntOperatorApplication : ParentEditable<IntOperatorApplication, Editable<*>>() {
+class EditableIntOperatorApplication : AbstractEditable<IntOperatorApplication>() {
     val left: Editable<IntExpr> = ExpandableIntExpr()
     val op = EditableIntOperator()
     val right: Editable<IntExpr> = ExpandableIntExpr()
@@ -25,9 +25,5 @@ class EditableIntOperatorApplication : ParentEditable<IntOperatorApplication, Ed
                 else IntOperatorApplication(l, o, r)
             }
         }
-    }
-
-    override fun accepts(child: Editable<*>): Boolean {
-        return child is EditableIntOperator || child is EditableIntExpr
     }
 }

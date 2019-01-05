@@ -14,13 +14,14 @@ import hextant.command.line.FXCommandLineView
 import hextant.command.register
 import hextant.core.EditorControlFactory
 import hextant.core.editor.Expander
-import hextant.core.expr.editable.EditableIntLiteral
-import hextant.core.expr.editable.ExpandableExpr
-import hextant.core.expr.edited.Expr
+import hextant.core.expr.editable.*
+import hextant.core.expr.edited.*
 import hextant.core.expr.editor.*
 import hextant.core.list.*
 import hextant.core.register
 import hextant.fx.hextantScene
+import hextant.inspect.*
+import hextant.inspect.Severity.Warning
 import hextant.undo.UndoManager
 import hextant.undo.UndoManagerImpl
 import javafx.application.Application
@@ -111,6 +112,32 @@ class ExprEditorViewTest : Application() {
                 val res = oae.editable.edited.now!!.value
                 val editable = EditableIntLiteral(res)
                 ex.setContent(editable)
+            }
+        }
+        val inspections = context[Inspections]
+        inspections.of<EditableOperatorApplication>().register { inspected ->
+            inspection(inspected) {
+                description = "Prevent identical operations"
+                severity(Warning)
+                val isPlus = inspected.editableOperator.edited.map("operator is +") { it == Operator.Plus }
+                val operandIs0 = inspected.editableOp1.edited.map("operand is 0") { it is IntLiteral && it.value == 0 }
+                preventingThat(isPlus.flatMap("error") { isP -> operandIs0.map("error") { it && isP } })
+                message { "Operation doesn't change the result" }
+            }
+        }
+        inspections.of<EditableIntLiteral>().register { inspected ->
+            inspection(inspected) {
+                description = "Prevent '0' Literals"
+                message { "Literal is '0'" }
+                severity(Warning)
+                preventingThat(inspected.edited.map("is 0") { it?.value == 0 })
+                addFix {
+                    description = "Set to '1'"
+                    fixingBy {
+                        val editor = context.getEditor(inspected) as IntLiteralEditor
+                        editor.setText("1")
+                    }
+                }
             }
         }
         val expanderView = context.createView(expandable)

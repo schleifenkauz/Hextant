@@ -11,7 +11,10 @@ internal class InspectionImpl<T : Any>(
     override val inspected: T,
     override val description: String,
     private val message: () -> String,
-    override val severity: Severity
+    override val severity: Severity,
+    private val fixes: () -> Collection<ProblemFix>
 ) : AbstractInspection<T>() {
+    override fun fixes(): Collection<ProblemFix> = fixes.invoke()
+
     override fun message(): String = message.invoke()
 }

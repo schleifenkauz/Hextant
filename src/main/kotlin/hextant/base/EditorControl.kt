@@ -93,7 +93,9 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
     private fun activateInspections(inspected: Any, context: Context) {
         val inspections = context[Inspections]
         val p = InspectionPopup(this) { inspections.getProblems(inspected) }
-        registerShortcut(KeyCodeCombination(ENTER, KeyCombination.ALT_DOWN)) { p.show(this) }
+        registerShortcut(KeyCodeCombination(ENTER, KeyCombination.ALT_DOWN)) {
+            p.show(this)
+        }
     }
 
     private fun <T : Any> activateContextMenu(target: T, context: Context) {

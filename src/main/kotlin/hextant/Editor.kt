@@ -4,6 +4,8 @@
 
 package hextant
 
+import hextant.base.ParentEditor
+
 /**
  * An Editor which acts like a Controller in the MVC pattern
  */
@@ -50,18 +52,30 @@ interface Editor<out E : Editable<*>> {
     val isSelected: Boolean
 
     /**
-     * @return the parent of this editor, typically this is the editor of the parent of editable of this editor
+     * The parent of this editor or `null` if it has no parent
+     *
+     * Default implementation returns `null`
      */
     val parent: Editor<*>? get() = null
 
     /**
-     * @return the children of this editor, typically this are the editors of the children of the editable of this editor
+     * The children of this editor
+     *
+     * Default implementation returns an empty list
      */
-    val children: Collection<Editor<*>>? get() = null
+    val children: Collection<Editor<*>> get() = emptyList()
+
+    /**
+     * Move this [Editor] to its specified [newParent] by
+     * * Setting the newParent of this [Editor] to [newParent]
+     * * And adding this [Editor] to the children of [newParent]
+     * If this [Editor] is already a child of [newParent] this method has no effect
+     * @throws IllegalArgumentException if [newParent] doesn't accept this [Editor] as a child
+     */
+    fun moveTo(newParent: ParentEditor<*, *>?)
 
     /**
      * @return all recursive children of this editor
-     * * a `null` return value indicates that the underlying editable is not a parent
      */
-    val allChildren: Sequence<Editor<*>>?
+    val allChildren: Sequence<Editor<*>> get() = emptySequence()
 }

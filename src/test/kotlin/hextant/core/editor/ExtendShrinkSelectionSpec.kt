@@ -5,7 +5,7 @@
 package hextant.core.editor
 
 import hextant.*
-import hextant.base.AbstractEditor
+import hextant.base.*
 import hextant.core.mocks.EditableMock
 import matchers.*
 import org.jetbrains.spek.api.Spek
@@ -15,9 +15,7 @@ import org.nikok.reaktive.value.ReactiveValue
 import org.nikok.reaktive.value.reactiveValue
 
 internal object ExtendShrinkSelectionSpec : Spek({
-    class Parent : ParentEditable<Unit, EditableMock>() {
-        override fun accepts(child: Editable<*>): Boolean = child is EditableMock
-
+    class Parent : AbstractEditable<Unit>() {
         override val edited: ReactiveValue<Unit>
             get() = reactiveValue("unit", Unit)
     }
@@ -25,14 +23,16 @@ internal object ExtendShrinkSelectionSpec : Spek({
     class ChildEditor(context: Context) :
         AbstractEditor<EditableMock, EditorView>(EditableMock(), context)
 
-    class ParentEditor(context: Context) : AbstractEditor<Parent, EditorView>(Parent(), context)
+    class AParentEditor(context: Context) : ParentEditor<Parent, EditorView>(Parent(), context) {
+        override fun accepts(child: Editor<*>): Boolean = child is EditableMock
+    }
 
     given("3 children and a parent") {
         val platform = HextantPlatform.configured()
         val children = List(3) { ChildEditor(platform) }
-        val parent = ParentEditor(platform)
+        val parent = AParentEditor(platform)
         for (it in children) {
-            it.editable.moveTo(parent.editable)
+            it.moveTo(parent)
         }
         val second = children[1]
         val third = children[2]
