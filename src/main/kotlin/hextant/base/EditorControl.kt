@@ -72,6 +72,7 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
                 k.consume()
             } else if (SHRINK_SELECTION.match(k) && editor.isSelected) {
                 editor.shrinkSelection()
+                k.consume()
             }
         }
     }
