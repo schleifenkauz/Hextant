@@ -5,7 +5,7 @@
 package hextant.core.editor
 
 import hextant.*
-import hextant.base.AbstractEditor
+import hextant.base.ParentEditor
 import hextant.core.editable.Expandable
 import hextant.view.ExpanderView
 import org.nikok.reaktive.value.now
@@ -13,7 +13,7 @@ import org.nikok.reaktive.value.now
 abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
     editable: Ex,
     private val context: Context
-) : AbstractEditor<Ex, ExpanderView>(editable, context) {
+) : ParentEditor<Ex, ExpanderView>(editable, context) {
     private fun ExpanderView.handleState() {
         if (editable.isExpanded.now) {
             expanded(editable.editable.now!!)
@@ -35,12 +35,16 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
             check(!editable.isExpanded.now) { "Expander is already expanded" }
             val content = expand(editable.text.now) ?: return@runLater
             setContent(content)
+            val editor = context.getEditor(content)
+            editor.moveTo(this)
         }
     }
 
     fun reset() {
         context.runLater {
             check(editable.isExpanded.now) { "Expander is not expanded" }
+            val editor = context.getEditor(editable.editable.now!!)
+            editor.moveTo(null)
             editable.setText("")
             notifyViews()
         }

@@ -6,7 +6,7 @@ package hextant.base
 
 import hextant.*
 
-abstract class ParentEditor<E : Editable<*>, V : EditorView>(editable: E, context: Context) :
+abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, context: Context) :
     AbstractEditor<E, V>(editable, context) {
     /**
      * @return `true` only if the specified [child] can be child of this parent
