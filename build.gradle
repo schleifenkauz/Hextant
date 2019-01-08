@@ -83,9 +83,6 @@ allprojects {
         mavenCentral()
         jcenter()
         mavenLocal()
-        maven {
-            setUrl("https://dl.bintray.com/s1m0nw1/KtsRunner")
-        }
     }
 
     dependencies {
@@ -107,7 +104,6 @@ allprojects {
         implementation 'com.google.guava:guava:27.0.1-jre'
         implementation group: 'javax.json', name: 'javax.json-api', version: '1.1.4'
         implementation group: 'org.glassfish', name: 'javax.json', version: '1.1.4'
-        implementation "de.swirtz:ktsRunner:0.0.7"
     }
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
