@@ -26,6 +26,7 @@ class CharLiteralEditorControl(
         charTextField.textProperty().addListener { _, _, new ->
             editor.setText(new)
         }
+        styleClass.add("char-literal")
         initialize(editable, editor, context)
     }
 
