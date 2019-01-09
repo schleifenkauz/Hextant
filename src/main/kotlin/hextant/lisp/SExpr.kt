@@ -112,6 +112,10 @@ data class StringLiteral(val value: String) : ScalarExpr() {
     override fun evaluate(): Value = StringValue(value)
 }
 
+data class CharLiteral(val value: Char) : ScalarExpr() {
+    override fun evaluate(): Value = CharValue(value)
+}
+
 data class ListExpr(val elements: SinglyLinkedList<SExpr>) : SExpr() {
     override fun evaluate(): Value = ListValue(elements.map { it.evaluate() })
 
