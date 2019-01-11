@@ -8,4 +8,4 @@ import hextant.Editable
 import hextant.core.expr.edited.Expr
 import hextant.core.list.EditableList
 
-class EditableExprList : EditableList<Expr, Editable<Expr>>(EditableExpr::class)
+class EditableExprList : EditableList<Expr, Editable<Expr>>()

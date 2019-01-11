@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
     val input = CharInput(str)
     val tokens = lex(input)
     println("tokens = $tokens")
-    val expr = parseExpr(tokens, FileScope(emptyList(), emptyMap()))
+    val expr = parseExpr(tokens, FileScope.empty)
     println("expr = $expr")
     val result = expr.evaluate()
     println("result = $result")

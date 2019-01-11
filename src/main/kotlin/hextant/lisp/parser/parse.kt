@@ -19,7 +19,6 @@ fun parseExpr(
     return when (next) {
         Token.OpeningParen     -> return parseApply(tokens, scope)
         Token.ClosingParen     -> throw ParseException("Unmatched closing bracket", -1)
-        Token.Escape           -> return EscapeExpr(parseExpr(tokens, scope))
         is Token.Identifier    -> GetVal(next.name, scope)
         is Token.CharLiteral   -> CharLiteral(next.value)
         is Token.IntLiteral    -> IntLiteral(next.value)
@@ -45,13 +44,13 @@ private fun parseApply(
     return Apply(applied, args)
 }
 
-fun parseExpr(input: Reader, scope: FileScope = FileScope(emptyList(), emptyMap())): SExpr {
+fun parseExpr(input: Reader, scope: FileScope = FileScope.empty): SExpr {
     val toks = lex(CharInput(input))
     return parseExpr(toks, scope)
 }
 
-fun evaluate(input: Reader, scope: FileScope = FileScope(emptyList(), emptyMap())) =
+fun evaluate(input: Reader, scope: FileScope = FileScope.empty) =
     parseExpr(input, scope).evaluate()
 
-fun evaluate(str: String, scope: FileScope = FileScope(emptyList(), emptyMap())) =
+fun evaluate(str: String, scope: FileScope = FileScope.empty) =
     evaluate(StringReader(str), scope)

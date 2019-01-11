@@ -32,7 +32,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     }
 
     private fun loadCore() {
-        loadPlugin(javaClass.classLoader, "Core$1")
+        loadPlugin(javaClass.classLoader, "hextant.Core$1")
     }
 
     private fun loadPlugins() {

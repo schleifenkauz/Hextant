@@ -1,7 +1,5 @@
 package hextant.lisp
 
-import hextant.lisp.SinglyLinkedList.Empty
-
 sealed class Value {
     abstract override fun toString(): String
 
@@ -13,13 +11,11 @@ sealed class Value {
 
     companion object {
         fun of(value: Any?): Value = when (value) {
-            is Int                 -> IntegerValue(value)
-            is Double              -> DoubleValue(value)
-            is Char                -> CharValue(value)
-            is String              -> StringValue(value)
-            is SinglyLinkedList<*> -> ListValue(value.map { Value.of(it) })
-            is List<*>             -> ListValue(SinglyLinkedList.fromList(value.map { Value.of(it) }))
-            else                   -> throw IllegalArgumentException("No LISP representation of $value")
+            is Int    -> IntegerValue(value)
+            is Double -> DoubleValue(value)
+            is Char   -> CharValue(value)
+            is String -> StringValue(value)
+            else      -> throw IllegalArgumentException("No LISP representation of $value")
         }
     }
 }
@@ -79,32 +75,41 @@ data class StringValue(val value: String) : ScalarValue() {
         get() = value
 }
 
-data class ListValue(val elements: SinglyLinkedList<Value>) : Value() {
-    override fun toString(): String = elements.joinToString(prefix = "(", separator = " ", postfix = ")")
+data class EscapedExpr(val escaped: SExpr) : Value() {
+    override fun toString(): String = "´$escaped"
 
-    override fun toBoolean(): Boolean = elements != Empty
+    override fun toBoolean(): Boolean = true
 
-    override val jvm: SinglyLinkedList<Value>
-        get() = elements
+    override val jvm: SExpr
+        get() = escaped
 
     override fun apply(arguments: List<SExpr>): Value =
         throw LispRuntimeError("List value cannot be applied to arguments")
 }
 
-data class BuiltInFunction(
+data class Makro(val parameters: List<String>, val body: SExpr) : Value() {
+    override val jvm: Any
+        get() = TODO("not implemented")
+
+    override fun apply(arguments: List<SExpr>): Value {
+        TODO("not implemented")
+    }
+}
+
+data class BuiltInMacro(
     val name: Identifier,
     val arity: Int,
-    val function: (List<Value>) -> Value
+    val transform: (List<SExpr>) -> Value
 ) : Value() {
-    override val jvm: (List<Value>) -> Value
-        get() = function
+    override val jvm: (List<SExpr>) -> Value
+        get() = transform
 
     override fun apply(arguments: List<SExpr>): Value = when {
         arguments.size > arity ->
             throw LispRuntimeError("Too many arguments for $name, expected $arity, but got ${arguments.size}")
-        arguments.size < arity -> BuiltInFunction(name, arity - arguments.size) { args ->
-            function(arguments.map { it.evaluate() } + args)
+        arguments.size < arity -> BuiltInMacro(name, arity - arguments.size) { args ->
+            transform(arguments + args)
         }
-        else                   -> function(arguments.map { it.evaluate() })
+        else                   -> transform(arguments)
     }
 }

@@ -2,6 +2,7 @@ package hextant.lisp
 
 object Util {
     fun lambdaToString(parameters: List<String>, body: SExpr) = buildString {
+        append("lambda")
         for (p in parameters) {
             append(p)
             append(" -> ")

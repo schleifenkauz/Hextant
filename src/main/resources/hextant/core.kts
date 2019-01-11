@@ -1,3 +1,5 @@
+package hextant
+
 import hextant.command.line.CommandLineController
 import hextant.command.line.FXCommandLineView
 import hextant.core.editor.TextEditor

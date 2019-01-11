@@ -18,10 +18,6 @@ sealed class Token {
         override fun toString(): String = ")"
     }
 
-    object Escape : Token() {
-        override fun toString(): String = "`"
-    }
-
     data class Identifier(val name: String) : Token() {
         override fun toString(): String = name
     }
@@ -51,7 +47,6 @@ fun lex(input: CharInput): LinkedList<Token> {
             c == ')'         -> ClosingParen
             c == '\''        -> parseCharLiteral(input)
             c == '"'         -> parseStringLiteral(input, LinkedList())
-            c == '`'         -> Escape
             c.isDigit()      -> {
                 input.next()
                 val num = parseNumber(input, c.digit())
@@ -118,7 +113,7 @@ private fun parseDoubleAfterComma(input: CharInput, acc: Double): DoubleLiteral 
 
 private fun Char.digit(): Int = this - '0'
 
-private val terminators = setOf('(', ')', '`', '"', '\'', ' ', '\n', '\r', '\t')
+private val terminators = setOf('(', ')', '"', '\'', ' ', '\n', '\r', '\t')
 
 private fun parseStringLiteral(
     input: CharInput,

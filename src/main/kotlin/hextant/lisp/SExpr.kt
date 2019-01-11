@@ -18,7 +18,7 @@ data class GetVal(val name: Identifier, val scope: FileScope) : SExpr() {
     override val children: Iterable<SExpr>
         get() = emptySet()
 
-    override fun evaluate(): Value = scope.lookup(name).evaluate()
+    override fun evaluate(): Value = scope.lookup(name)
 
     override fun replaceOccurrencesOf(identifier: Identifier, replacement: SExpr) =
         if (name == identifier) replacement
@@ -71,28 +71,6 @@ data class IfExpr(val cond: SExpr, val then: SExpr, val otherwise: SExpr) : SExp
         )
 }
 
-data class ConstantExpr(val value: Value) : SExpr() {
-    override val children: Iterable<SExpr>
-        get() = emptySet()
-
-    override fun replaceOccurrencesOf(identifier: Identifier, replacement: SExpr): SExpr = this
-
-    override fun evaluate(): Value = value
-}
-
-data class LambdaExpr(val parameters: List<String>, val body: SExpr) : SExpr() {
-    override fun evaluate(): Value = Lambda(parameters, body)
-
-    override val children: Iterable<SExpr>
-        get() = body.children
-
-    override fun replaceOccurrencesOf(identifier: Identifier, replacement: SExpr): SExpr =
-        if (identifier in parameters) body
-        else body.replaceOccurrencesOf(identifier, replacement)
-
-    override fun toString(): String = Util.lambdaToString(parameters, body)
-}
-
 sealed class ScalarExpr : SExpr() {
     final override val children: Iterable<SExpr>
         get() = emptySet()
@@ -116,16 +94,6 @@ data class CharLiteral(val value: Char) : ScalarExpr() {
     override fun evaluate(): Value = CharValue(value)
 }
 
-data class ListExpr(val elements: SinglyLinkedList<SExpr>) : SExpr() {
-    override fun evaluate(): Value = ListValue(elements.map { it.evaluate() })
-
-    override val children: Iterable<SExpr>
-        get() = elements.toList()
-
-    override fun replaceOccurrencesOf(identifier: Identifier, replacement: SExpr): SExpr =
-        ListExpr(elements.map { it.replaceOccurrencesOf(identifier, replacement) })
-}
-
 data class LazyExpr(val expr: SExpr) : SExpr() {
     override val children: Iterable<SExpr>
         get() = expr.children + expr
@@ -138,20 +106,9 @@ data class LazyExpr(val expr: SExpr) : SExpr() {
         LazyExpr(expr.replaceOccurrencesOf(identifier, replacement))
 }
 
-data class BuiltInExpr(val func: BuiltInFunction) : SExpr() {
-    override val children: Iterable<SExpr>
-        get() = emptySet()
-
-    override fun evaluate(): Value = func
-
-    override fun replaceOccurrencesOf(identifier: Identifier, replacement: SExpr): SExpr =
-        if (func.name == identifier) replacement
-        else this
-}
-
-typealias Program = Map<Identifier, SExpr>
+typealias Program = Map<Identifier, Value>
 
 fun let(bindings: List<Pair<Identifier, SExpr>>, body: SExpr) =
-    LambdaExpr(bindings.map { it.first }, body) apply bindings.map { it.second }
+    Lambda(bindings.map { it.first }, body).apply(bindings.map { it.second })
 
 infix fun SExpr.apply(arguments: List<SExpr>) = Apply(this, arguments)

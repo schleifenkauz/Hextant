@@ -2,6 +2,7 @@ package hextant.bundle
 
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
+import javafx.scene.layout.Region
 import kserial.SerialContext
 import java.util.logging.Logger
 
@@ -20,4 +21,9 @@ object CoreProperties {
     val serialContext = Property<SerialContext, Public, Internal>("serial context")
 
     val classLoader = Property<ClassLoader, Public, Internal>("class loader")
+
+    /**
+     * The parent region of the visual editor
+     */
+    val editorParentRegion = Property<Region, Public, Public>("editor parent region")
 }
