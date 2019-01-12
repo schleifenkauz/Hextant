@@ -37,6 +37,4 @@ plugin {
     //Expanders
     editor(::ExprExpander)
     view(::FXExpanderView)
-    //LISP
-    editable<SExpr, EditableSExpr<*>>(::ExpandableSExpr, oneArg = unsupported1)
 }
