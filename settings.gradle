@@ -1,2 +1,5 @@
 rootProject.name = 'hextant'
+include 'hextant-lisp'
+include 'hextant-core'
+include 'hextant-util'
 
