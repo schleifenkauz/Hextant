@@ -35,8 +35,9 @@ interface HextantPlatform : Context {
 
 
         override fun <T> runLater(action: () -> T): Future<T> {
-            val future = executor.submit(action)
-            return CompletableFuture.supplyAsync { future.get() }.exceptionally { it.printStackTrace(); throw it }
+            //            val future = executor.submit(action)
+            //            return CompletableFuture.supplyAsync { future.get() }.exceptionally { it.printStackTrace(); throw it }
+            return CompletableFuture.completedFuture(action())
         }
 
         override fun exit() {

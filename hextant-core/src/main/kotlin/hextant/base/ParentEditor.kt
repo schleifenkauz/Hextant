@@ -28,4 +28,11 @@ abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, co
      */
     override val children: Collection<Editor<*>> get() = mutableChildren
 
+    override fun extendSelection(child: Editor<*>) {
+        select()
+    }
+
+    override fun shrinkSelection() {
+        children.firstOrNull()?.select()
+    }
 }
