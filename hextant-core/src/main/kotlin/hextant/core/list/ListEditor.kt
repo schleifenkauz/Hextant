@@ -11,6 +11,13 @@ abstract class ListEditor<E : Editable<*>>(
     private val list: EditableList<*, E>,
     private val context: Context
 ) : ParentEditor<EditableList<*, E>, ListEditorView>(list, context) {
+    init {
+        for (child in list.editableList.now) {
+            val editor = context.getEditor(child)
+            editor.moveTo(this)
+        }
+    }
+
     private val empty get() = list.editableList.now.isEmpty()
 
     override fun viewAdded(view: ListEditorView) {
