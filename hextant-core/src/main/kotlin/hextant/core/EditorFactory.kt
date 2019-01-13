@@ -59,6 +59,7 @@ interface EditorFactory {
             }
             val new = factory(editable, context)
             logger.info { "Created new ${new.javaClass}" }
+            cache[editable] = new
             return new as Editor<E>
         }
     }
