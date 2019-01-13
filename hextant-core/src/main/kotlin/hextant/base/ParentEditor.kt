@@ -30,6 +30,9 @@ abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, co
 
     override fun extendSelection(child: Editor<*>) {
         select()
+        views {
+            focus()
+        }
     }
 
     override fun shrinkSelection() {

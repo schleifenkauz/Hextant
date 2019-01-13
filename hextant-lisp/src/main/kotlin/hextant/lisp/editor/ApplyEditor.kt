@@ -4,10 +4,16 @@
 
 package hextant.lisp.editor
 
-import hextant.Context
-import hextant.EditorView
-import hextant.base.AbstractEditor
+import hextant.*
+import hextant.base.ParentEditor
 import hextant.lisp.editable.EditableApply
 
 class ApplyEditor(editable: EditableApply, context: Context) :
-    AbstractEditor<EditableApply, EditorView>(editable, context)
+    ParentEditor<EditableApply, EditorView>(editable, context) {
+    init {
+        context.getEditor(editable.editableApplied).moveTo(this)
+        context.getEditor(editable.editableArgs).moveTo(this)
+    }
+
+    override fun accepts(child: Editor<*>): Boolean = true
+}

@@ -1,5 +1,35 @@
+buildscript {
+    dependencies {
+        classpath: 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.17'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'maven-publish'
+}
+
 group 'org.nikok'
 version '1.0-SNAPSHOT'
+
+apply plugin: 'maven-publish'
+
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+        }
+    }
+}
 
 static String nikok(Object dep, Object version) {
     return "org.nikok:$dep:$version"
@@ -12,6 +42,8 @@ static String kotlin(Object dep) {
 static String spek(Object dep) {
     return "org.jetbrains.spek:spek-$dep:1.1.5"
 }
+
+
 
 dependencies {
     compile nikok("reaktive", "1.1-SNAPSHOT")
