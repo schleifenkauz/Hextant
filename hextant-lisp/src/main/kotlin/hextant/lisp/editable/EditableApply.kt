@@ -12,7 +12,7 @@ import org.nikok.reaktive.value.binding.binding
 import org.nikok.reaktive.value.now
 
 class EditableApply : AbstractEditable<Apply>(), EditableSExpr<Apply> {
-    val editableApplied: EditableSExpr<*> = ExpandableSExpr()
+    val editableApplied = ExpandableSExpr()
 
     val editableArgs = EditableSExprList()
 

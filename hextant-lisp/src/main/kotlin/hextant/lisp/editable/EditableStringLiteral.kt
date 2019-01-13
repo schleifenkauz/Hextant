@@ -12,6 +12,8 @@ class EditableStringLiteral() : EditableToken<StringLiteral>(), EditableSExpr<St
         text.set(value)
     }
 
+    constructor(value: StringLiteral) : this(value.value)
+
     override fun isValid(tok: String): Boolean = true
 
     override fun compile(tok: String): StringLiteral = StringLiteral(tok)

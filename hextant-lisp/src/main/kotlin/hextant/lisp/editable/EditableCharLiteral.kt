@@ -12,6 +12,8 @@ class EditableCharLiteral() : EditableToken<CharLiteral>(), EditableSExpr<CharLi
         text.set(value.toString())
     }
 
+    constructor(value: CharLiteral) : this(value.value)
+
     override fun isValid(tok: String): Boolean = tok.length == 1
 
     override fun compile(tok: String): CharLiteral = CharLiteral(tok.first())

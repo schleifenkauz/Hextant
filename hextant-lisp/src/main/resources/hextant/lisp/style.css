@@ -1,0 +1,15 @@
+.lisp-string-literal {
+    -fx-text-fill: green !important;
+}
+
+.lisp-int-literal {
+    -fx-text-fill: red !important;
+}
+
+.lisp-double-literal {
+    -fx-text-fill: yellow !important;
+}
+
+.lisp-char-literal {
+    -fx-text-fill: blue !important;
+}

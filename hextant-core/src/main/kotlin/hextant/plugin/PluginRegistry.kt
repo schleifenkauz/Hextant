@@ -99,6 +99,14 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
         writer.appendln(jar.toString())
     }
 
+    /**
+     * Loads the plugin from the classpath by executing the kotlin script
+     * named "plugin.kts" directly under the resources root
+     */
+    fun loadPluginFromClasspath(classLoader: ClassLoader) {
+        loadPlugin(classLoader, "Plugin$1")
+    }
+
     companion object : Property<PluginRegistry, Public, Internal>("plugin registry") {
         private const val JSON_CONFIG_FILE = "plugin.json"
 

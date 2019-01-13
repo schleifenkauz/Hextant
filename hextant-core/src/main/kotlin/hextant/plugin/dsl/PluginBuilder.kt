@@ -16,7 +16,7 @@ import hextant.inspect.Inspections
 import hextant.plugin.Plugin
 
 @PluginDsl
-class PluginBuilder @PublishedApi internal constructor(@PublishedApi internal val platform: HextantPlatform) {
+class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlatform) {
     /**
      * The name of the plugin
      */
@@ -30,7 +30,10 @@ class PluginBuilder @PublishedApi internal constructor(@PublishedApi internal va
     /**
      * Register the specified [noArg] and [oneArg] factories for editables of the specified class [T]
      */
-    inline fun <reified T : Any, reified E : Editable<T>> editable(noinline noArg: () -> E, noinline oneArg: (T) -> E) {
+    inline fun <reified T : Any, reified E : Editable<T>> editable(
+        noinline noArg: () -> E,
+        noinline oneArg: (T) -> E
+    ) {
         val factory = platform[Public, EditableFactory]
         factory.register(T::class, noArg)
         factory.register(T::class, oneArg)

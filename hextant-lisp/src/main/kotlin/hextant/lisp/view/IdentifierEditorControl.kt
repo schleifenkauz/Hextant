@@ -12,9 +12,7 @@ import hextant.lisp.editor.IdentifierEditor
 
 class IdentifierEditorControl(editable: EditableToken<Any>, context: Context) : FXTokenEditorView(editable, context) {
     init {
-        styleClass.add("identifier")
         val editor = context.getEditor(editable) as IdentifierEditor
-        editor.addView(this)
         initialize(editable, editor, context)
     }
 }

@@ -8,8 +8,8 @@ import hextant.base.EditorControl
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
-import hextant.core.EditorControlFactory
-import hextant.core.EditorFactory
+import hextant.core.*
+import kotlin.reflect.KClass
 
 fun Context.createView(editable: Editable<*>): EditorControl<*> =
     try {
@@ -23,6 +23,20 @@ fun <E : Editable<*>> Context.getEditor(editable: E): Editor<E> =
         get(Public, EditorFactory).getEditor(editable, this)
     } catch (e: NoSuchElementException) {
         parent?.getEditor(editable) ?: throw e
+    }
+
+fun <T : Any> Context.getEditable(edited: T): Editable<T> =
+    try {
+        get(Public, EditableFactory).getEditable(edited)
+    } catch (e: NoSuchElementException) {
+        parent?.getEditable(edited) ?: throw e
+    }
+
+fun <T : Any> Context.getEditable(cls: KClass<T>): Editable<T> =
+    try {
+        get(Public, EditableFactory).getEditable(cls)
+    } catch (e: NoSuchElementException) {
+        parent?.getEditable(cls) ?: throw e
     }
 
 @JvmName("getPublic")

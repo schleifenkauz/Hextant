@@ -12,6 +12,8 @@ class EditableDoubleLiteral() : EditableToken<DoubleLiteral>(), EditableSExpr<Do
         text.set(value.toString())
     }
 
+    constructor(value: DoubleLiteral) : this(value.value)
+
     override fun isValid(tok: String): Boolean = tok.toDoubleOrNull() != null
 
     override fun compile(tok: String): DoubleLiteral = DoubleLiteral(tok.toDouble())

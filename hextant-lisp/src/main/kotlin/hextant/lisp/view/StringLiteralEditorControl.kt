@@ -7,20 +7,20 @@ package hextant.lisp.view
 import hextant.Context
 import hextant.base.EditorControl
 import hextant.core.expr.view.TextEditorView
+import hextant.fx.HextantTextField
 import hextant.fx.keyword
 import hextant.getEditor
 import hextant.lisp.editable.EditableStringLiteral
-import javafx.scene.control.TextField
 import javafx.scene.layout.HBox
 
 class StringLiteralEditorControl(editable: EditableStringLiteral, context: Context) :
     TextEditorView, EditorControl<HBox>() {
-    private val textField = TextField()
+    private val textField = HextantTextField()
 
     private val layout = HBox()
 
     init {
-        styleClass.add("string-literal")
+        textField.styleClass.add("lisp-string-literal")
         with(layout.children) {
             add(keyword("\""))
             add(textField)

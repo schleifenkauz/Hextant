@@ -13,6 +13,6 @@ class IntLiteralEditorControl(
     context: Context
 ) : FXTokenEditorView(editable, context) {
     init {
-        styleClass.add("int-literal")
+        root.styleClass.add("lisp-int-literal")
     }
 }

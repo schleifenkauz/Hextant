@@ -8,11 +8,18 @@ object BuiltIns {
         lambda.apply(listOf(value))
     }
 
-    private val lambda = BuiltInMacro("lambda", arity = 2) { (parameter, body) ->
-        val getVal =
-            parameter as? GetVal ?: throw LispRuntimeError("$parameter is no valid name")
-        val ident = getVal.name
-        Lambda(listOf(ident), body)
+    private val lambda = BuiltInMacro("lambda", arity = 2) { (parameters, body) ->
+        val names = when (parameters) {
+            is GetVal -> listOf(parameters.name)
+            is Apply  -> listOf(
+                (parameters.function as? GetVal
+                    ?: throw LispRuntimeError("${parameters.function} is no valid name")).name
+            ) + parameters.args.map {
+                (it as? GetVal ?: throw LispRuntimeError("$it is no valid name")).name
+            }
+            else      -> throw LispRuntimeError("$parameters are no valid parameters")
+        }
+        Lambda(names, body)
     }
 
     private val plus = BuiltInMacro("+", arity = 2) { (op1, op2) ->

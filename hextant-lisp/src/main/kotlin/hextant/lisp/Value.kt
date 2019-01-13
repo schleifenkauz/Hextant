@@ -87,13 +87,13 @@ data class EscapedExpr(val escaped: SExpr) : Value() {
         throw LispRuntimeError("List value cannot be applied to arguments")
 }
 
-data class Makro(val parameters: List<String>, val body: SExpr) : Value() {
-    override val jvm: Any
-        get() = TODO("not implemented")
+data class Macro(val parameters: List<String>, val body: SExpr) : Value() {
+    override val jvm: (arguments: List<SExpr>) -> Value
+        get() = ::apply
 
-    override fun apply(arguments: List<SExpr>): Value {
-        TODO("not implemented")
-    }
+    override fun toString(): String = "macro"
+
+    override fun apply(arguments: List<SExpr>): Value = TODO()
 }
 
 data class BuiltInMacro(
@@ -101,6 +101,8 @@ data class BuiltInMacro(
     val arity: Int,
     val transform: (List<SExpr>) -> Value
 ) : Value() {
+    override fun toString(): String = "<builtin:$name>"
+
     override val jvm: (List<SExpr>) -> Value
         get() = transform
 

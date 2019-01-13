@@ -12,6 +12,8 @@ class EditableIntLiteral() : EditableToken<IntLiteral>(), EditableSExpr<IntLiter
         text.set(value.toString())
     }
 
+    constructor(value: IntLiteral) : this(value.value)
+
     override fun isValid(tok: String): Boolean = tok.toIntOrNull() != null
 
     override fun compile(tok: String): IntLiteral = IntLiteral(tok.toInt())

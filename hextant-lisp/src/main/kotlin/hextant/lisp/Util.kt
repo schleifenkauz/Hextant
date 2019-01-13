@@ -10,8 +10,8 @@ object Util {
         append(body)
     }
 
-    fun isValidIdentifier(str: String): Boolean =
-        str.first().isValidIdentifierStart() && str.drop(1).all { c -> c.isValidIdentifierPart() }
+    fun isValidIdentifier(str: String): Boolean = str.isNotEmpty() &&
+            str.first().isValidIdentifierStart() && str.drop(1).all { c -> c.isValidIdentifierPart() }
 
     private fun Char.isValidIdentifierStart() = this != '#' && this != ',' && !isDigit()
 

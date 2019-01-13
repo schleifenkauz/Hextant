@@ -13,7 +13,7 @@ import javafx.scene.input.KeyEvent
 
 internal var isControlDown = false; private set
 
-internal fun hextantScene(root: Parent): Scene {
+fun hextantScene(root: Parent): Scene {
     val scene = Scene(root)
     scene.initHextantScene()
     return scene
@@ -23,13 +23,11 @@ fun Scene.initHextantScene() {
     addEventFilter(KeyEvent.KEY_PRESSED) {
         if (it.code == CONTROL) {
             isControlDown = true
-            println("Control is down")
         }
     }
     addEventFilter(KeyEvent.KEY_RELEASED) {
         if (it.code == CONTROL) {
             isControlDown = false
-            println("Control is up")
         }
     }
     Stylesheets.apply(this)

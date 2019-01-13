@@ -11,6 +11,6 @@ import hextant.core.expr.view.FXTokenEditorView
 class DoubleLiteralEditorControl(editable: EditableToken<Any>, context: Context) :
     FXTokenEditorView(editable, context) {
     init {
-        styleClass.add("double-literal")
+        root.styleClass.add("lisp-double-literal")
     }
 }

@@ -7,18 +7,21 @@ package hextant.core.list
 import hextant.*
 import hextant.base.EditorControl
 import hextant.core.list.FXListEditorView.Orientation.Vertical
+import hextant.fx.Glyphs
 import hextant.fx.setRoot
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.input.*
 import javafx.scene.layout.*
+import org.controlsfx.glyphfont.FontAwesome
+import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 
 class FXListEditorView(
     private val editable: EditableList<*, *>,
-    private val editor: ListEditor<*>,
     private val context: Context,
-    private val emptyDisplay: Node,
+    private val editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
+    private val emptyDisplay: Node = Glyphs.create(PLUS),
     orientation: Orientation = Vertical
 ) : ListEditorView,
     EditorControl<Node>() {
@@ -29,14 +32,6 @@ class FXListEditorView(
             field = new
             orientationChanged(new)
         }
-
-    constructor(
-        editable: EditableList<*, *>,
-        context: Context,
-        editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
-        orientation: Orientation = Vertical,
-        emptyText: String = "Add item"
-    ) : this(editable, editor, context, Button(emptyText), orientation)
 
     private fun orientationChanged(new: Orientation) {
         items = new.createLayout()
@@ -304,5 +299,23 @@ class FXListEditorView(
         private val ADD_ITEM = KeyCodeCombination(KeyCode.PLUS, KeyCombination.SHORTCUT_DOWN)
 
         private val REMOVE_ITEM = KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)
+
+        fun withAltText(
+            editable: EditableList<*, *>,
+            context: Context,
+            editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
+            emptyText: String = "Add item",
+            orientation: Orientation = Vertical
+        ) = FXListEditorView(editable, context, editor, Button(emptyText), orientation)
+
+        fun withAltGlyph(
+            editable: EditableList<*, *>,
+            context: Context,
+            editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
+            glyph: FontAwesome.Glyph,
+            orientation: Orientation = Vertical
+        ) = FXListEditorView(editable, context, editor, Glyphs.create(glyph), orientation)
+
+
     }
 }
