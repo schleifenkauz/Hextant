@@ -15,31 +15,35 @@
     -fx-border-width: 1;
     -fx-padding: 0;
 }
-
+/*The pseudo class applied to components when an error is reported*/
 :error {
     -fx-border-color: red;
 }
 
+/*Pseudo class applied to components that are selected by the user*/
 :selected {
     -fx-background-color: #292929 !important;
 }
 
+/*Style class for dialogs*/
 .utility-dialog-pane {
     -fx-border-width: 0.5;
     -fx-border-color: blue;
     -fx-graphic: "M 0.0 0.0 Z";
 }
 
+/*Currently not needed*/
 .expander-popover > .content {
     -fx-background-color: black;
 }
 
-
+/*Style class applied to problem lists produced by inspections*/
 .problem-list {
     -fx-border-color: blue;
     -fx-border-width: 1;
 }
 
+/*Style class applied to single problem components in problem lists*/
 .problem {
     -fx-background-color: #212121;
 }
@@ -48,24 +52,28 @@
     -fx-background-color: #05437B;
 }
 
+/*Style class applied to single warning components in problem lists*/
 .warning {
     -fx-graphic: url(icon/warning.png);
 }
-
+/*Style class applied to single error components in problem lists*/
 .error {
     -fx-graphic: url(icon/error.png);
 }
 
+/*Style class applied to fix lists*/
 .fix-list {
     -fx-border-color: blue;
     -fx-border-width: 1;
 }
 
+/*Style class applied to auto completion lists*/
 .completions {
     -fx-border-color: blue;
     -fx-border-width: 1;
 }
 
+/*Style class applied to auto completion items*/
 .completion {
     -fx-background-color: #292929;
     -fx-border-color: #212121;
@@ -76,11 +84,11 @@
     -fx-background-color: #212121;
 }
 
+/*Style class applied to the history of command lines*/
 .history-view {
     -fx-background-color: transparent;
     -fx-border-width: 0;
 }
-
 
 .command-history-cell:focused {
     -fx-background-color: #0B0A06;
