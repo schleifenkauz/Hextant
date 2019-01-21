@@ -15,7 +15,7 @@ import hextant.core.expr.editable.EditableIntLiteral
 import hextant.core.expr.edited.IntLiteral
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 internal object CommandLineSpec: Spek({
     data class Target(val isApplicable: Boolean)

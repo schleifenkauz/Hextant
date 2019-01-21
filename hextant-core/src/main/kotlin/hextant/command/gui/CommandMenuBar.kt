@@ -10,7 +10,7 @@ import hextant.command.CommandRegistrar
 import hextant.impl.myLogger
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
-import org.nikok.reaktive.event.subscribe
+import reaktive.event.subscribe
 
 internal class CommandMenuBar<T : Any> private constructor(
     private val target: T,
@@ -31,7 +31,7 @@ internal class CommandMenuBar<T : Any> private constructor(
     }
 
     private fun listenForNewCategories(registrar: CommandRegistrar<T>) {
-        registrar.addedCategory.subscribe("Listen for new Categories") { newCategory ->
+        registrar.addedCategory.subscribe { newCategory ->
             addMenu(registrar, newCategory)
         }
     }

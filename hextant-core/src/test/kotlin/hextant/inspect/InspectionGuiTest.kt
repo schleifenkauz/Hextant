@@ -16,7 +16,7 @@ import hextant.get
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 class InspectionGuiTest : Application() {
     override fun start(stage: Stage) {

@@ -8,7 +8,7 @@ import hextant.*
 import hextant.base.ParentEditor
 import hextant.core.editable.Expandable
 import hextant.view.ExpanderView
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
     editable: Ex,

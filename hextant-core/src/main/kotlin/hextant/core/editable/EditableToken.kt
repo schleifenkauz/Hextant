@@ -6,7 +6,8 @@ package hextant.core.editable
 
 import hextant.base.AbstractEditable
 import kserial.*
-import org.nikok.reaktive.value.*
+import reaktive.value.*
+import reaktive.value.binding.map
 
 /**
  * An editable token the atomic part of the ast editor
@@ -29,11 +30,11 @@ abstract class EditableToken<out T : Any> : AbstractEditable<T>(), Serializable 
      * The uncompiled text
      * * When setting it the [edited] token is recompiled
      */
-    val text = reactiveVariable("text", "")
+    val text = reactiveVariable("")
 
-    override val isOk: ReactiveBoolean = text.map("is ok") { t -> isValid(t) }
+    override val isOk: ReactiveBoolean = text.map { t -> isValid(t) }
 
-    override val edited: ReactiveValue<T?> = text.map("compiled text") { t ->
+    override val edited: ReactiveValue<T?> = text.map { t ->
         if (isOk.now) compile(t)
         else null
     }

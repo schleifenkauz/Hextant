@@ -8,16 +8,17 @@ package hextant.core.editable
 
 import hextant.Editable
 import kserial.*
-import org.nikok.reaktive.value.*
+import reaktive.value.*
+import reaktive.value.binding.flatMap
 
 abstract class Expandable<N, E : Editable<N>> : Editable<N>, Serializable {
-    final override val isOk: ReactiveBoolean = reactiveValue("isOk", true)
+    final override val isOk: ReactiveBoolean = reactiveValue(true)
 
-    private val _editable: ReactiveVariable<E?> = reactiveVariable("content of $this", null)
+    private val _editable: ReactiveVariable<E?> = reactiveVariable(null)
 
-    private val _text: ReactiveVariable<String> = reactiveVariable("Text of $this", "")
+    private val _text: ReactiveVariable<String> = reactiveVariable("")
 
-    private val _isExpanded: ReactiveVariable<Boolean> = reactiveVariable("$this is expanded", false)
+    private val _isExpanded: ReactiveVariable<Boolean> = reactiveVariable(false)
 
     val isExpanded: ReactiveValue<Boolean> get() = _isExpanded
 
@@ -38,7 +39,7 @@ abstract class Expandable<N, E : Editable<N>> : Editable<N>, Serializable {
     val editable: ReactiveValue<E?> get() = _editable
 
     final override val edited: ReactiveValue<N?> =
-        _editable.flatMap("Edited of $this") { it?.edited ?: reactiveValue("null", null) }
+        _editable.flatMap { it?.edited ?: reactiveValue(null) }
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(input: Input, context: SerialContext) {

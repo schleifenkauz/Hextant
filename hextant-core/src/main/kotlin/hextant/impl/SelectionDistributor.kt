@@ -7,8 +7,8 @@ package hextant.impl
 import hextant.Editor
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.Property
-import org.nikok.reaktive.set.*
-import org.nikok.reaktive.value.Variable
+import reaktive.set.*
+import reaktive.value.Variable
 
 internal interface SelectionDistributor {
     val selectedEditors: ReactiveSet<Editor<*>>
@@ -20,7 +20,7 @@ internal interface SelectionDistributor {
     private class Impl: SelectionDistributor {
         private val isEditorSelected: MutableMap<Editor<*>, Variable<Boolean>> = HashMap()
 
-        override val selectedEditors: MutableReactiveSet<Editor<*>> = reactiveSet("Selected editors")
+        override val selectedEditors: MutableReactiveSet<Editor<*>> = reactiveSet()
 
         override fun toggleSelection(editor: Editor<*>, isSelected: Variable<Boolean>) {
             val now = selectedEditors.now

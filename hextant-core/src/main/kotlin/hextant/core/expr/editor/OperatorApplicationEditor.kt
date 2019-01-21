@@ -10,7 +10,7 @@ import hextant.core.expr.editable.EditableExpr
 import hextant.core.expr.editable.EditableOperatorApplication
 import hextant.core.expr.edited.Expr
 import hextant.core.expr.view.FXOperatorApplicationEditorView
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 class OperatorApplicationEditor(
     editable: EditableOperatorApplication,

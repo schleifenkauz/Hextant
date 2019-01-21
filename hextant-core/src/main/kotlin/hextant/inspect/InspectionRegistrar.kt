@@ -4,7 +4,7 @@
 
 package hextant.inspect
 
-import org.nikok.reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveBoolean
 
 /**
  * Used to register [Inspection]s for objects of type [T]

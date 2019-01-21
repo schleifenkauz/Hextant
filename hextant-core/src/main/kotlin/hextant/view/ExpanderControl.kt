@@ -16,7 +16,7 @@ import javafx.scene.control.Button
 import javafx.scene.input.*
 import org.controlsfx.control.PopOver
 import org.controlsfx.control.PopOver.ArrowLocation.TOP_CENTER
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 class ExpanderControl(
     expandable: Expandable<*, *>,

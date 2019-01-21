@@ -13,9 +13,9 @@ import hextant.command.line.CommandLine.State.EditingName
 import hextant.core.EditableFactory
 import hextant.impl.SelectionDistributor
 import hextant.impl.myLogger
-import org.nikok.reaktive.event.event
-import org.nikok.reaktive.value.*
-import org.nikok.reaktive.value.binding.impl.notNull
+import reaktive.event.event
+import reaktive.value.*
+import reaktive.value.binding.impl.notNull
 
 /**
  * The model of a Command line
@@ -39,12 +39,12 @@ class CommandLine(
     /*
      * The current state
     */
-    private val mutableState = reactiveVariable("state", EditingName)
+    private val mutableState = reactiveVariable(EditingName)
 
     /*
      * Is fired when a command was executed by this command line
     */
-    private val execute = event<CommandApplication<Any>>("Execute a command")
+    private val execute = event<CommandApplication<Any>>()
 
     /**
      * An event stream emitting [CommandApplication]s when a command was executed by this command line
@@ -73,14 +73,14 @@ class CommandLine(
     /*
      * The name of the command being searched
     */
-    private val mutableText = reactiveVariable("Text", "")
+    private val mutableText = reactiveVariable("")
 
     /**
      * The name of the command being searched
     */
     val text: ReactiveValue<String> get() = mutableText
 
-    private val mutableEdited = reactiveVariable<CommandApplication<*>?>("command application of command line", null)
+    private val mutableEdited = reactiveVariable<CommandApplication<*>?>(null)
 
     override val edited: ReactiveValue<CommandApplication<*>?> get() = mutableEdited
 

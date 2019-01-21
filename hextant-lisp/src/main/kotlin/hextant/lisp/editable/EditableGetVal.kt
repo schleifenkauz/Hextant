@@ -7,7 +7,8 @@ package hextant.lisp.editable
 import hextant.base.AbstractEditable
 import hextant.lisp.FileScope
 import hextant.lisp.GetVal
-import org.nikok.reaktive.value.ReactiveValue
+import reaktive.value.ReactiveValue
+import reaktive.value.binding.map
 
 class EditableGetVal(
     private val fileScope: FileScope
@@ -19,7 +20,7 @@ class EditableGetVal(
 
     val searchedIdentifier = EditableIdentifier()
 
-    override val edited: ReactiveValue<GetVal?> = searchedIdentifier.edited.map("edited") { ident ->
+    override val edited: ReactiveValue<GetVal?> = searchedIdentifier.edited.map { ident ->
         if (ident == null) null
         else GetVal(ident, fileScope)
     }

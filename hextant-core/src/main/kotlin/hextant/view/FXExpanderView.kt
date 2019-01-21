@@ -15,7 +15,7 @@ import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode.R
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 class FXExpanderView(
     private val expandable: Expandable<*, *>,

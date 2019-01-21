@@ -10,12 +10,13 @@ import hextant.base.AbstractEditable
 import hextant.core.expr.edited.Expr
 import hextant.core.expr.edited.Sum
 import kserial.*
-import org.nikok.reaktive.value.ReactiveValue
-import org.nikok.reaktive.value.now
+import reaktive.value.ReactiveValue
+import reaktive.value.binding.map
+import reaktive.value.now
 
 class EditableSum(val expressions: EditableExprList = EditableExprList()) : AbstractEditable<Sum>(), EditableExpr<Sum> {
     override val edited: ReactiveValue<Sum?>
-        get() = expressions.edited.map("edited of sum") { editableExpressions ->
+        get() = expressions.edited.map { editableExpressions ->
             editableExpressions.map { editable ->
                 editable?.edited?.now
             }.takeIf { expressions ->

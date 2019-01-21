@@ -4,7 +4,7 @@
 
 package hextant.inspect
 
-import org.nikok.reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveBoolean
 
 internal class InspectionImpl<T : Any>(
     override val isProblem: ReactiveBoolean,

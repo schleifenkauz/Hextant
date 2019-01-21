@@ -4,8 +4,8 @@
 
 package hextant.inspect
 
-import org.nikok.reaktive.value.ReactiveBoolean
-import org.nikok.reaktive.value.now
+import reaktive.value.ReactiveBoolean
+import reaktive.value.now
 
 /**
  * An inspection for objects of type [T]

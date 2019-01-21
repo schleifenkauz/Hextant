@@ -7,7 +7,7 @@ package hextant.sample.editable
 import hextant.core.editable.EditableToken
 import hextant.sample.ast.IntExpr
 import hextant.sample.ast.IntLiteral
-import org.nikok.reaktive.value.ReactiveValue
+import reaktive.value.ReactiveValue
 
 class EditableIntLiteral : EditableToken<IntLiteral>(), EditableIntExpr {
     override fun isValid(tok: String): Boolean = tok.toIntOrNull() != null

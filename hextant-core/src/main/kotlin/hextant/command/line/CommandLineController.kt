@@ -9,9 +9,8 @@ import hextant.base.AbstractEditor
 import hextant.command.line.CommandLine.State
 import hextant.command.line.CommandLine.State.EditingArgs
 import hextant.createView
-import org.nikok.reaktive.event.subscribe
-import org.nikok.reaktive.value.now
-import org.nikok.reaktive.value.observe
+import reaktive.value.now
+import reaktive.value.observe
 
 /**
  * The controller for a [CommandLine]
@@ -25,13 +24,13 @@ class CommandLineController(
 ) : AbstractEditor<CommandLine, CommandLineView>(commandLine, context) {
     private val completer = CommandCompleter
 
-    private val stateObserver = commandLine.state.observe("Observe state of $commandLine") { newState ->
+    private val stateObserver = commandLine.state.observe { _, newState ->
         views {
             handleState(newState, this)
         }
     }
 
-    private val textObserver = commandLine.text.observe("Observe text of $commandLine") { newText ->
+    private val textObserver = commandLine.text.observe { _, newText ->
         views {
             setText(newText)
             if (newText.isNotEmpty()) {
@@ -52,7 +51,7 @@ class CommandLineController(
         showCompletions(commandLine.text.now, view)
     }
 
-    private val executeSubscription = commandLine.executed.subscribe("$this") { appl ->
+    private val executeSubscription = commandLine.executed.subscribe { _, appl ->
         views { executed(appl) }
     }
 

@@ -35,8 +35,9 @@ import javafx.scene.layout.HBox
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import kserial.*
-import org.nikok.reaktive.value.now
-import org.nikok.reaktive.value.observe
+import reaktive.value.binding.flatMap
+import reaktive.value.binding.map
+import reaktive.value.now
 import java.util.logging.Level
 
 class ExprEditorViewTest : Application() {
@@ -119,9 +120,9 @@ class ExprEditorViewTest : Application() {
             inspection(inspected) {
                 description = "Prevent identical operations"
                 severity(Warning)
-                val isPlus = inspected.editableOperator.edited.map("operator is +") { it == Operator.Plus }
-                val operandIs0 = inspected.editableOp1.edited.map("operand is 0") { it is IntLiteral && it.value == 0 }
-                preventingThat(isPlus.flatMap("error") { isP -> operandIs0.map("error") { it && isP } })
+                val isPlus = inspected.editableOperator.edited.map { it == Operator.Plus }
+                val operandIs0 = inspected.editableOp1.edited.map { it is IntLiteral && it.value == 0 }
+                preventingThat(isPlus.flatMap { isP -> operandIs0.map { it && isP } })
                 message { "Operation doesn't change the result" }
             }
         }
@@ -130,7 +131,7 @@ class ExprEditorViewTest : Application() {
                 description = "Prevent '0' Literals"
                 message { "Literal is '0'" }
                 severity(Warning)
-                preventingThat(inspected.edited.map("is 0") { it?.value == 0 })
+                preventingThat(inspected.edited.map { it?.value == 0 })
                 addFix {
                     description = "Set to '1'"
                     fixingBy {
@@ -144,7 +145,7 @@ class ExprEditorViewTest : Application() {
         val cl = CommandLine.forSelectedEditors(platform)
         val clView = FXCommandLineView(cl, platform)
         val evaluationDisplay = Label("Invalid expression")
-        val obs = expandable.edited.observe("Evaluation display") { _, _, new ->
+        val obs = expandable.edited.observe { _, _, new ->
             Platform.runLater {
                 if (new == null) {
                     evaluationDisplay.text = "Invalid expression"

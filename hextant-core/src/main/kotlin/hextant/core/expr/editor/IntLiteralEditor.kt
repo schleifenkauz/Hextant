@@ -9,7 +9,7 @@ import hextant.core.editor.TokenEditor
 import hextant.core.expr.editable.EditableIntLiteral
 import hextant.core.expr.edited.Expr
 import hextant.core.expr.view.IntLiteralEditorView
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 class IntLiteralEditor(
     editable: EditableIntLiteral,

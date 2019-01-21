@@ -5,7 +5,7 @@
 package hextant.sample.editable
 
 import hextant.sample.ast.IntExpr
-import org.nikok.reaktive.value.ReactiveValue
+import reaktive.value.ReactiveValue
 
 interface EditableIntExpr {
     val expr: ReactiveValue<IntExpr?>

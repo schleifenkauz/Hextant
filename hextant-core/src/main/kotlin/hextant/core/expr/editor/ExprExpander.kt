@@ -11,7 +11,7 @@ import hextant.core.editor.ExpanderConfig
 import hextant.core.expr.editable.*
 import hextant.core.expr.edited.Expr
 import hextant.core.expr.edited.Operator.*
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 class ExprExpander(
     editable: ExpandableExpr,

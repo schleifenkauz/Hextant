@@ -6,12 +6,13 @@ package hextant.inspect
 
 import hextant.inspect.Severity.Error
 import hextant.inspect.Severity.Warning
-import org.nikok.reaktive.value.*
+import reaktive.value.*
+import reaktive.value.binding.map
 
 internal class InspectionManager<T : Any>(private val inspected: T) {
-    private val warningCount = reactiveVariable("Warning count of $inspected", 0)
+    private val warningCount = reactiveVariable(0)
 
-    private val errorCount = reactiveVariable("Error count of $inspected", 0)
+    private val errorCount = reactiveVariable(0)
 
     private val inspections = mutableSetOf<Inspection<T>>()
 
@@ -21,7 +22,7 @@ internal class InspectionManager<T : Any>(private val inspected: T) {
         if (inspection.isProblem.now) {
             updateProblemCount(inspection.severity) { it + 1 }
         }
-        inspection.isProblem.observe("Observe isProblem of inspection") { isProblem ->
+        inspection.isProblem.observe { _, isProblem ->
             if (isProblem) {
                 updateProblemCount(inspection.severity) { it - 1 }
             } else {
@@ -35,8 +36,8 @@ internal class InspectionManager<T : Any>(private val inspected: T) {
         Warning -> warningCount.set(update(warningCount.now))
     }
 
-    val hasError = errorCount.map("$inspected has error") { it > 0 }
-    val hasWarning = warningCount.map("$inspected has warning") { it > 0 }
+    val hasError = errorCount.map { it > 0 }
+    val hasWarning = warningCount.map { it > 0 }
 
     fun problems(): Set<Problem> =
             inspections.mapNotNullTo(mutableSetOf()) { if (it.isProblem.now) it.getProblem() else null }

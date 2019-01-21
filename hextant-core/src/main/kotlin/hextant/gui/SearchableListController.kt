@@ -7,7 +7,7 @@ package hextant.gui
 import hextant.base.AbstractController
 import hextant.completion.*
 import hextant.impl.myLogger
-import org.nikok.reaktive.event.event
+import reaktive.event.event
 import kotlin.properties.Delegates.observable
 
 class SearchableListController<E : Any>(
@@ -18,7 +18,7 @@ class SearchableListController<E : Any>(
 ) : AbstractController<SearchableListView<E>>() {
     private var mostRecentCompletions: Collection<Completion<E>> = emptySet()
 
-    private val selectItem = event<E>("Select item")
+    private val selectItem = event<E>()
 
     val selectedItem = selectItem.stream
 

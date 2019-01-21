@@ -25,7 +25,7 @@ import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import org.nikok.reaktive.event.subscribe
+import reaktive.event.subscribe
 
 internal class FXCommandLineView internal constructor(
     commandLine: CommandLine,
@@ -133,7 +133,7 @@ internal class FXCommandLineView internal constructor(
 
     private val completionsPopup = CompletionPopup<Command<*, *>>()
 
-    private val completionsSubscription = completionsPopup.completionChosen.subscribe("On completion chosen") { c ->
+    private val completionsSubscription = completionsPopup.completionChosen.subscribe { c ->
         controller.commandLine.setText(c.completed.shortName!!)
         controller.commandLine.executeOrExpand()
     }

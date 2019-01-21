@@ -8,9 +8,10 @@ import hextant.Editable
 import hextant.core.expr.edited.Operator
 import hextant.core.expr.edited.OperatorApplication
 import kserial.*
-import org.nikok.reaktive.dependencies
-import org.nikok.reaktive.value.*
-import org.nikok.reaktive.value.binding.binding
+import reaktive.dependencies
+import reaktive.value.*
+import reaktive.value.binding.binding
+import reaktive.value.binding.map
 
 @SerializableWith(EditableOperatorApplication.Serial::class)
 class EditableOperatorApplication(
@@ -24,7 +25,6 @@ class EditableOperatorApplication(
 
     override val edited: ReactiveValue<OperatorApplication?> =
         binding<OperatorApplication?>(
-            "operator application",
             dependencies(editableOp1.edited, editableOp2.edited, editableOperator.edited)
         ) {
             val operator = editableOperator.edited.now ?: return@binding null
@@ -33,7 +33,7 @@ class EditableOperatorApplication(
             OperatorApplication(op1, op2, operator)
         }
 
-    override val isOk: ReactiveBoolean = edited.map("is $this ok") { it != null }
+    override val isOk: ReactiveBoolean = edited.map { it != null }
 
     object Serial : Serializer<EditableOperatorApplication> {
         override fun serialize(obj: EditableOperatorApplication, output: Output, context: SerialContext) {

@@ -11,7 +11,7 @@ import hextant.core.editable.EditableToken
 import hextant.core.expr.view.TextEditorView
 import hextant.runLater
 import hextant.undo.*
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 /**
  * An editor for tokens

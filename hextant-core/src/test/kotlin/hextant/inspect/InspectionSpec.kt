@@ -9,7 +9,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
-import org.nikok.reaktive.value.reactiveVariable
+import reaktive.value.reactiveVariable
 
 internal object InspectionSpec: Spek({
     lateinit var i: Inspection<Inspected>
@@ -34,6 +34,6 @@ internal object InspectionSpec: Spek({
     }
 }) {
     class Inspected {
-        var isOk = reactiveVariable("$this is Ok", false)
+        var isOk = reactiveVariable(false)
     }
 }

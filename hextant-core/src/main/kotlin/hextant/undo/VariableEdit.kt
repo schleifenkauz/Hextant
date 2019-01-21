@@ -4,7 +4,7 @@
 
 package hextant.undo
 
-import org.nikok.reaktive.value.Variable
+import reaktive.value.Variable
 
 class VariableEdit<T>(
     private val variable: Variable<T>,

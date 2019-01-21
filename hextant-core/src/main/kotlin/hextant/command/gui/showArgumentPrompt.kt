@@ -15,7 +15,7 @@ import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.layout.VBox
 import javafx.stage.Window
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 fun showArgumentPrompt(
     ownerWindow: Window,

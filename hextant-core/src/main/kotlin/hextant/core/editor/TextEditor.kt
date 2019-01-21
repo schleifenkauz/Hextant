@@ -9,7 +9,7 @@ import hextant.base.AbstractEditor
 import hextant.core.expr.editable.EditableText
 import hextant.core.expr.view.TextEditorView
 import hextant.runLater
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 class TextEditor(
     editableText: EditableText,

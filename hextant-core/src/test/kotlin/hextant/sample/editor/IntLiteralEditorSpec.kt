@@ -9,7 +9,7 @@ import hextant.sample.editable.EditableIntLiteral
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.on
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 internal object IntLiteralEditorSpec : Spek({
     given("an int literal editor") {

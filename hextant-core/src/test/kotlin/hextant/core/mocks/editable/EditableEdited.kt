@@ -1,8 +1,8 @@
 package hextant.core.mocks.editable
 
 import hextant.base.AbstractEditable
-import org.nikok.reaktive.value.ReactiveBoolean
-import org.nikok.reaktive.value.ReactiveValue
+import reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveValue
 
 internal class EditableEdited(val arg: Any = Any(), otherArg: Int = 0) : AbstractEditable<Nothing>() {
     override val edited: ReactiveValue<Nothing?>

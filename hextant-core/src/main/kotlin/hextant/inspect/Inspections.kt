@@ -7,7 +7,7 @@ package hextant.inspect
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
-import org.nikok.reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveBoolean
 import kotlin.reflect.KClass
 
 class Inspections private constructor() {

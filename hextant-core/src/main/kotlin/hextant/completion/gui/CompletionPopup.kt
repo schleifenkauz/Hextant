@@ -8,10 +8,10 @@ import hextant.completion.Completion
 import javafx.scene.input.KeyCode.ENTER
 import javafx.scene.layout.VBox
 import javafx.stage.Popup
-import org.nikok.reaktive.event.event
+import reaktive.event.event
 
 class CompletionPopup<C> : Popup() {
-    private val choose = event<Completion<C>>("Choose completion")
+    private val choose = event<Completion<C>>()
     val completionChosen = choose.stream
 
     init {

@@ -10,7 +10,7 @@ import hextant.command.gui.showArgumentPrompt
 import javafx.scene.Node
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.KeyEvent
-import org.nikok.reaktive.event.event
+import reaktive.event.event
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -19,7 +19,7 @@ import kotlin.reflect.KProperty
  * @constructor
  */
 class CommandRegistrar<R : Any> internal constructor(private val parents: List<CommandRegistrar<Any>>, cls: KClass<R>) {
-    private val addCategory = event<Category>("Added category for $cls")
+    private val addCategory = event<Category>()
 
     val addedCategory = addCategory.stream
 

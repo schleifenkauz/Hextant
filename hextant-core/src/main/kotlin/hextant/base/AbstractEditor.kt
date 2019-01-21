@@ -6,9 +6,9 @@ package hextant.base
 
 import hextant.*
 import hextant.impl.SelectionDistributor
-import org.nikok.reaktive.value.Variable
-import org.nikok.reaktive.value.base.AbstractVariable
-import org.nikok.reaktive.value.observe
+import reaktive.value.Variable
+import reaktive.value.base.AbstractVariable
+import reaktive.value.observe
 
 /**
  * The base class of all [Editor]s
@@ -23,7 +23,7 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
     context: Context
 ) : Editor<E>, AbstractController<V>() {
 
-    private val isOkObserver = editable.isOk.observe("Observe isOk") { isOk ->
+    private val isOkObserver = editable.isOk.observe { isOk: Boolean ->
         views.forEach { v -> v.error(isError = !isOk) }
     }
 
@@ -37,9 +37,6 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
 
     private val isSelectedVar: Variable<Boolean> = object : AbstractVariable<Boolean>() {
         private var isSelected = false
-
-        override val description: String
-            get() = "Is ${this@AbstractEditor} selected"
 
         override fun doSet(value: Boolean) {
             if (!value) {

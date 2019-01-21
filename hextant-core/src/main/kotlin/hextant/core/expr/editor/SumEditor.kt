@@ -9,7 +9,7 @@ import hextant.EditorView
 import hextant.base.AbstractEditor
 import hextant.core.expr.editable.EditableSum
 import hextant.core.expr.edited.Expr
-import org.nikok.reaktive.value.now
+import reaktive.value.now
 
 class SumEditor(
     sum: EditableSum,

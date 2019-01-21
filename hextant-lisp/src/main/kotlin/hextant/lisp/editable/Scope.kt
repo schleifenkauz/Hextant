@@ -6,9 +6,9 @@ package hextant.lisp.editable
 
 import hextant.lisp.Identifier
 import hextant.lisp.SExpr
-import org.nikok.reaktive.Observer
-import org.nikok.reaktive.value.*
-import org.nikok.reaktive.value.binding.orElse
+import reaktive.Observer
+import reaktive.value.*
+import reaktive.value.binding.orElse
 
 class Scope(private val parent: Scope? = null) {
     private val boundIdentifiers = mutableMapOf<Identifier, SExpr?>()
@@ -20,7 +20,7 @@ class Scope(private val parent: Scope? = null) {
     fun resolve(identifier: Identifier): ReactiveValue<SExpr?> {
         val expr = boundIdentifiers[identifier]
         val queried = queried.getOrPut(identifier) {
-            reactiveVariable("binding for $identifier", expr)
+            reactiveVariable(expr)
         }
         if (parent != null) return queried.orElse(parent.resolve(identifier))
         return queried
@@ -36,7 +36,7 @@ class Scope(private val parent: Scope? = null) {
 
     fun unregister(identifier: Identifier) {
         boundIdentifiers.remove(identifier)
-        val alternative = parent?.resolve(identifier) ?: reactiveValue("always null", null)
+        val alternative = parent?.resolve(identifier) ?: reactiveValue(null)
         val parentBinder = queried[identifier]?.bind(alternative)
         if (parentBinder != null) {
             parentBinders[identifier] = parentBinder

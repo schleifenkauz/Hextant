@@ -5,7 +5,8 @@
 package hextant.inspect
 
 import hextant.command.Builder
-import org.nikok.reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveBoolean
+import reaktive.value.binding.map
 
 /**
  * Builder for [Inspection]s
@@ -34,7 +35,7 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor(
      * The built inspection will report a problem if [isOk] is `false`
      */
     fun checkingThat(isOk: ReactiveBoolean) {
-        isProblem = isOk.map("not $isOk", Boolean::not)
+        isProblem = isOk.map(Boolean::not)
     }
 
     /**
