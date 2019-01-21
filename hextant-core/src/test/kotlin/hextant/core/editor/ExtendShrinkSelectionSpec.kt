@@ -24,7 +24,7 @@ internal object ExtendShrinkSelectionSpec : Spek({
         AbstractEditor<EditableMock, EditorView>(EditableMock(), context)
 
     class AParentEditor(context: Context) : ParentEditor<Parent, EditorView>(Parent(), context) {
-        override fun accepts(child: Editor<*>): Boolean = child is EditableMock
+        override fun accepts(child: Editor<*>): Boolean = child is ChildEditor
     }
 
     given("3 children and a parent") {

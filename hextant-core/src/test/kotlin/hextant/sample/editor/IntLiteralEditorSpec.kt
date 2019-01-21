@@ -4,8 +4,11 @@ import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import hextant.HextantPlatform
+import hextant.bundle.CorePermissions.Public
 import hextant.sample.ast.IntLiteral
 import hextant.sample.editable.EditableIntLiteral
+import hextant.undo.UndoManager
+import hextant.undo.UndoManagerImpl
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.on
@@ -14,6 +17,7 @@ import reaktive.value.now
 internal object IntLiteralEditorSpec : Spek({
     given("an int literal editor") {
         val platform = HextantPlatform.configured()
+        platform[Public, UndoManager] = UndoManagerImpl()
         val editable = EditableIntLiteral()
         val editor = IntLiteralEditor(editable, platform)
         test("the int literal should initially be null") {

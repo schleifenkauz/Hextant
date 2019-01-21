@@ -19,7 +19,7 @@ internal object UtilSpec: Spek({
                 val logger by myLogger()
             }
             it("should throw an IllegalArgumentException") {
-                { Error(); Unit } shouldMatch throws<IllegalArgumentException>()
+                { Error(); Unit } shouldMatch throws<IllegalStateException>()
             }
         }
         on("calling it from a companion object and getting the logger") {
