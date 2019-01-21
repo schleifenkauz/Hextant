@@ -36,7 +36,7 @@ static String nikok(Object dep, Object version) {
 }
 
 static String kotlin(Object dep) {
-    return "org.jetbrains.kotlin:kotlin-$dep:1.3.0"
+    return "org.jetbrains.kotlin:kotlin-$dep:1.3.11"
 }
 
 static String spek(Object dep) {
@@ -46,7 +46,7 @@ static String spek(Object dep) {
 
 
 dependencies {
-    compile nikok("reaktive", "1.1-SNAPSHOT")
+    compile nikok("reaktive", "1.2-SNAPSHOT")
     compile nikok("kserial", "1.1.2")
     compile "org.jetbrains.kotlin:kotlin-script-runtime:1.3.0"
     compile kotlin("stdlib")

@@ -15,7 +15,7 @@ static String nikok(Object dep, Object version) {
 }
 
 static String kotlin(Object dep) {
-    return "org.jetbrains.kotlin:kotlin-$dep:1.3.0"
+    return "org.jetbrains.kotlin:kotlin-$dep:1.3.11"
 }
 
 static String spek(Object dep) {
