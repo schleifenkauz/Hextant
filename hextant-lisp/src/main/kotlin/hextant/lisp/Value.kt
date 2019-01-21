@@ -3,7 +3,7 @@ package hextant.lisp
 sealed class Value {
     abstract override fun toString(): String
 
-    abstract val jvm: Any
+    abstract val jvm: Any?
 
     open fun toBoolean(): Boolean = true
 

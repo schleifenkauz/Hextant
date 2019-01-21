@@ -31,17 +31,16 @@ private fun parseApply(
     tokens: LinkedList<Token>,
     scope: FileScope
 ): Apply {
-    val applied = parseExpr(tokens, scope)
-    val args = LinkedList<SExpr>()
+    val exprs = LinkedList<SExpr>()
     while (true) {
         val t = tokens.peek() ?: throw ParseException("Unmatched opening paren", -1)
         if (t == ClosingParen) {
             tokens.poll()
             break
         }
-        args.add(parseExpr(tokens, scope))
+        exprs.add(parseExpr(tokens, scope))
     }
-    return Apply(applied, args)
+    return Apply(SinglyLinkedList.fromList(exprs))
 }
 
 fun parseExpr(input: Reader, scope: FileScope = FileScope.empty): SExpr {

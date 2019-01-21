@@ -16,16 +16,12 @@ class ApplyEditorControl(
     editable: EditableApply,
     private val context: Context
 ) : EditorControl<Pane>() {
-    private val appliedView = context.createView(editable.editableApplied)
-
-    private val argumentsView = context.createView(editable.editableArgs)
+    private val exprsView = context.createView(editable.editableExpressions)
 
     init {
         val maxWidth = context[editorParentRegion].widthProperty()
-        val updateLayout = { _: Observable -> updateLayout() }
-        argumentsView.widthProperty().addListener(updateLayout)
-        appliedView.widthProperty().addListener(updateLayout)
-        maxWidth.addListener(updateLayout)
+        exprsView.widthProperty().addListener { _: Observable -> updateLayout() }
+        maxWidth.addListener { _: Observable -> updateLayout() }
         val editor = context.getEditor(editable) as ApplyEditor
         initialize(editable, editor, context)
         root.styleClass.add("lisp-apply")
@@ -48,13 +44,12 @@ class ApplyEditorControl(
     private fun createHorizontalLayout(): HBox = HBox().also {
         with(it.children) {
             //            add(operator("("))
-            add(appliedView)
-            add(argumentsView)
+            add(exprsView)
             //            add(operator(")"))
         }
     }
 
-    private fun fitsHorizontally() = context[editorParentRegion].width >= argumentsView.width + appliedView.width
+    private fun fitsHorizontally() = context[editorParentRegion].width >= exprsView.width
 
     override fun createDefaultRoot(): Pane =
         if (fitsHorizontally()) createHorizontalLayout() else createVerticalLayout()

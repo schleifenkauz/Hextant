@@ -6,21 +6,18 @@ package hextant.lisp.editable
 
 import hextant.base.AbstractEditable
 import hextant.lisp.Apply
+import hextant.lisp.SinglyLinkedList
 import org.nikok.reaktive.dependencies
 import org.nikok.reaktive.value.ReactiveValue
 import org.nikok.reaktive.value.binding.binding
-import org.nikok.reaktive.value.now
 
 class EditableApply : AbstractEditable<Apply>(), EditableSExpr<Apply> {
-    val editableApplied = ExpandableSExpr()
-
-    val editableArgs = EditableSExprList()
+    val editableExpressions = EditableSExprList()
 
     override val edited: ReactiveValue<Apply?> =
-        binding<Apply?>("edited", dependencies(editableApplied.edited, editableArgs.edited)) {
-            val func = editableApplied.edited.now ?: return@binding null
-            val args = editableArgs.editedList.now
-            if (args.any { it == null }) return@binding null
-            Apply(func, args.requireNoNulls())
+        binding<Apply?>("edited", dependencies(editableExpressions.editableList)) {
+            val exprs = editableExpressions.editedList.now
+            if (exprs.any { it == null }) return@binding null
+            Apply(SinglyLinkedList.fromList(exprs.requireNoNulls()))
         }
 }

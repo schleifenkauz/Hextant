@@ -11,10 +11,7 @@ object BuiltIns {
     private val lambda = BuiltInMacro("lambda", arity = 2) { (parameters, body) ->
         val names = when (parameters) {
             is GetVal -> listOf(parameters.name)
-            is Apply  -> listOf(
-                (parameters.function as? GetVal
-                    ?: throw LispRuntimeError("${parameters.function} is no valid name")).name
-            ) + parameters.args.map {
+            is Apply  -> parameters.expressions.toList().map {
                 (it as? GetVal ?: throw LispRuntimeError("$it is no valid name")).name
             }
             else      -> throw LispRuntimeError("$parameters are no valid parameters")

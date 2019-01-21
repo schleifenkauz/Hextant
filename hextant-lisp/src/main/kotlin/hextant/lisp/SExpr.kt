@@ -4,6 +4,8 @@
 
 package hextant.lisp
 
+import hextant.lisp.SinglyLinkedList.Empty
+
 typealias Identifier = String
 
 sealed class SExpr {
@@ -27,48 +29,25 @@ data class GetVal(val name: Identifier, val scope: FileScope) : SExpr() {
     override fun toString(): String = name
 }
 
-data class Apply(val function: SExpr, val args: List<SExpr>) : SExpr() {
+data class Apply(val expressions: SinglyLinkedList<SExpr>) : SExpr() {
     override val children: Iterable<SExpr>
         get() = mutableSetOf<SExpr>().apply {
-            add(function)
-            addAll(args)
-            addAll(function.children)
-            addAll(args.flatMap { it.children })
+            addAll(expressions)
         }
 
     override fun evaluate(): Value =
-        function.evaluate().apply(args)
+        if (expressions is Empty) throw LispRuntimeError("Cannot evaluate empty list") else {
+            expressions.head.evaluate().apply(expressions.tail.toList())
+        }
 
     override fun replaceOccurrencesOf(identifier: Identifier, replacement: SExpr): SExpr =
-        Apply(
-            function.replaceOccurrencesOf(identifier, replacement),
-            args.map { it.replaceOccurrencesOf(identifier, replacement) }
-        )
+        Apply(expressions.map { it.replaceOccurrencesOf(identifier, replacement) })
 
     override fun toString(): String = buildString {
         append('(')
-        append("$function")
-        for (arg in args) {
-            append(' ')
-            append("$arg")
-        }
+        expressions.joinTo(this, separator = "")
         append(')')
     }
-}
-
-data class IfExpr(val cond: SExpr, val then: SExpr, val otherwise: SExpr) : SExpr() {
-    override val children: Iterable<SExpr>
-        get() = setOf(cond, then, otherwise)
-
-    override fun evaluate(): Value =
-        if (cond.evaluate().toBoolean()) then.evaluate() else otherwise.evaluate()
-
-    override fun replaceOccurrencesOf(identifier: Identifier, replacement: SExpr): SExpr =
-        IfExpr(
-            cond.replaceOccurrencesOf(identifier, replacement),
-            then.replaceOccurrencesOf(identifier, replacement),
-            otherwise.replaceOccurrencesOf(identifier, replacement)
-        )
 }
 
 sealed class ScalarExpr : SExpr() {
