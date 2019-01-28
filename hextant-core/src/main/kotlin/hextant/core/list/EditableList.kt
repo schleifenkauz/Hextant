@@ -15,13 +15,16 @@ import reaktive.value.ReactiveValue
 import reaktive.value.binding.binding
 
 open class EditableList<N, E : Editable<N>> :
-    Editable<List<E?>>, Serializable {
+    Editable<List<N>>, Serializable {
     val editableList = reactiveList<E>()
 
     val editedList = editableList.map { it.edited }.values()
 
-    override val edited: ReactiveValue<List<E?>> =
-        binding<List<E?>>(dependencies(editedList)) { editableList.now }
+    @Suppress("UNCHECKED_CAST")
+    override val edited: ReactiveValue<List<N>?> =
+        binding<List<N>?>(dependencies(editedList)) {
+            editedList.now.takeIf { it.none { el -> el == null } } as List<N>?
+        }
 
     override val isOk: ReactiveBoolean get() = editableList.allR { it.isOk }
 

@@ -27,7 +27,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import reaktive.event.subscribe
 
-internal class FXCommandLineView internal constructor(
+class FXCommandLineView constructor(
     commandLine: CommandLine,
     context: Context
 ) : EditorControl<VBox>(), CommandLineView {

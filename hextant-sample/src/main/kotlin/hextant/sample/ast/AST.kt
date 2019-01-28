@@ -82,7 +82,8 @@ data class IntLiteral(override val value: Int) : Constant<Int>(), IntExpr
 /**
  * A boolean literal with constant [value]
  */
-data class BooleanLiteral(override val value: Boolean) : Constant<Boolean>(), BooleanExpr
+data class BooleanLiteral(override val value: Boolean) : Constant<Boolean>(),
+                                                         BooleanExpr
 
 /**
  * An operator combining two integers
@@ -127,7 +128,8 @@ enum class IntOperator(private val op: (Int, Int) -> Int) {
  * @param op the operator combing both expressions
  * @param right the right expression
  */
-data class IntOperatorApplication(val left: IntExpr, val op: IntOperator, val right: IntExpr) : IntExpr {
+data class IntOperatorApplication(val left: IntExpr, val op: IntOperator, val right: IntExpr) :
+    IntExpr {
     /**
      * @return the result of applying [op] to the results of evaluating [left] and [right] in the specified [context]
      */
@@ -174,7 +176,8 @@ data class BooleanOperatorApplication(val left: BooleanExpr, val op: BooleanOper
  * @property func the definition of the called function
  * @property args the list of arguments passed to the function
  */
-data class IntFuncCall(val func: IntFunctionDefinition, val args: List<Expr<Any>>) : IntExpr {
+data class IntFuncCall(val func: IntFunctionDefinition, val args: List<Expr<Any>>) :
+    IntExpr {
     override fun eval(context: Context): Int {
         return context.run {
             prepareFuncCall(args, func)
@@ -198,7 +201,8 @@ private fun Context.prepareFuncCall(
  * @property func the definition of the called function
  * @property args the list of arguments passed to the function
  */
-data class BoolFuncCall(val func: BoolFunctionDefinition, val args: List<Expr<Any>>) : BooleanExpr {
+data class BoolFuncCall(val func: BoolFunctionDefinition, val args: List<Expr<Any>>) :
+    BooleanExpr {
     override fun eval(context: Context): Boolean = context.run {
         prepareFuncCall(args, func)
         func.body.eval(context)
@@ -290,7 +294,8 @@ data class BoolFunctionDefinition(
  * @property then the expr which is evaluated when [cond] evaluates to `true`
  * @property otherwise the expr which is evaluated when [cond] evaluates to `false`
  */
-sealed class IfExpr<T, E : Expr<T>>(val cond: BooleanExpr, val then: E, val otherwise: E) : Expr<T> {
+sealed class IfExpr<T, E : Expr<T>>(val cond: BooleanExpr, val then: E, val otherwise: E) :
+    Expr<T> {
     override fun eval(context: Context): T =
         if (cond.eval(context)) then.eval(context)
         else otherwise.eval(context)
@@ -330,7 +335,8 @@ class BooleanIfExpr(
     cond: BooleanExpr,
     then: BooleanExpr,
     otherwise: BooleanExpr
-) : IfExpr<Boolean, BooleanExpr>(cond, then, otherwise), BooleanExpr {
+) : IfExpr<Boolean, BooleanExpr>(cond, then, otherwise),
+    BooleanExpr {
     override val type: Type
         get() = BOOLEAN
 }
