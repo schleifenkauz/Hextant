@@ -6,6 +6,7 @@ package hextant.lisp.editable
 
 import hextant.lisp.Identifier
 import hextant.lisp.SExpr
+import hextant.util.WeakValuesMap
 import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.orElse
@@ -13,7 +14,7 @@ import reaktive.value.binding.orElse
 class Scope(private val parent: Scope? = null) {
     private val boundIdentifiers = mutableMapOf<Identifier, SExpr?>()
 
-    private val queried = hextant.util.WeakValuesMap<Identifier, ReactiveVariable<SExpr?>>()
+    private val queried = WeakValuesMap<Identifier, ReactiveVariable<SExpr?>>()
 
     private val parentBinders = mutableMapOf<Identifier, Observer>()
 

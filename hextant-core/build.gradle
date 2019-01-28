@@ -11,7 +11,7 @@ plugins {
     id 'maven-publish'
 }
 
-group 'org.nikok'
+group 'org.hextant'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'maven-publish'

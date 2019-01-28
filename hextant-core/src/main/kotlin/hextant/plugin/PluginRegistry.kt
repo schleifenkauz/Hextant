@@ -32,7 +32,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     }
 
     private fun loadCore() {
-        loadPlugin(javaClass.classLoader, "hextant.Core$1")
+        loadPlugin(javaClass.classLoader, "Core$1")
     }
 
     private fun loadPlugins() {
@@ -62,6 +62,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
         val builderBlock = try {
             classLoader.loadClass(builderClsName)
         } catch (e: ClassNotFoundException) {
+            logger.severe { "Class $builderClsName not found" }
             return
         }
         val invoke = builderBlock.getDeclaredMethod("invoke", PluginBuilder::class.java)
