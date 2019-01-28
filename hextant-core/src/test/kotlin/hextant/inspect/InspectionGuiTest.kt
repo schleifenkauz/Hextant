@@ -8,9 +8,9 @@ import hextant.HextantPlatform
 import hextant.command.Commands
 import hextant.command.command
 import hextant.core.EditableFactory
-import hextant.core.expr.editable.EditableIntLiteral
-import hextant.core.expr.edited.IntLiteral
-import hextant.core.expr.view.FXIntLiteralEditorView
+import hextant.expr.editable.EditableIntLiteral
+import hextant.expr.edited.IntLiteral
+import hextant.expr.view.FXIntLiteralEditorView
 import hextant.fx.hextantScene
 import hextant.get
 import javafx.application.Application

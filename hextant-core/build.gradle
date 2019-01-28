@@ -60,4 +60,5 @@ dependencies {
     implementation group: 'org.glassfish', name: 'javax.json', version: '1.1.4'
     implementation fileTree(dir: 'lib', include: ['*.jar'])
     implementation project(":hextant-util")
+    testImplementation project(":hextant-expr")
 }

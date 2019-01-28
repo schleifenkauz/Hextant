@@ -1,6 +1,6 @@
 package hextant.command
 
-import hextant.core.expr.edited.IntLiteral
+import hextant.expr.edited.IntLiteral
 
 internal object Data {
     class Receiver(val isApplicable: Boolean) {

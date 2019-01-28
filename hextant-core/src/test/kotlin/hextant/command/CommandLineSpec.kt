@@ -11,8 +11,8 @@ import hextant.HextantPlatform
 import hextant.command.line.CommandLine
 import hextant.command.line.CommandLine.State.EditingName
 import hextant.core.EditableFactory
-import hextant.core.expr.editable.EditableIntLiteral
-import hextant.core.expr.edited.IntLiteral
+import hextant.expr.editable.EditableIntLiteral
+import hextant.expr.edited.IntLiteral
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.value.now

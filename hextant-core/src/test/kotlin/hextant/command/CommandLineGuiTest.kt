@@ -9,9 +9,9 @@ import hextant.command.Data.Receiver
 import hextant.command.line.CommandLine
 import hextant.command.line.FXCommandLineView
 import hextant.core.*
-import hextant.core.expr.editable.EditableIntLiteral
-import hextant.core.expr.edited.IntLiteral
-import hextant.core.expr.view.FXIntLiteralEditorView
+import hextant.expr.editable.EditableIntLiteral
+import hextant.expr.edited.IntLiteral
+import hextant.expr.view.FXIntLiteralEditorView
 import hextant.fx.hextantScene
 import hextant.get
 import javafx.application.Application

@@ -6,7 +6,7 @@ package hextant.sample.editor
 
 import hextant.Context
 import hextant.core.editor.TokenEditor
-import hextant.core.expr.view.TextEditorView
+import hextant.expr.view.TextEditorView
 import hextant.sample.editable.EditableName
 
 class NameEditor(

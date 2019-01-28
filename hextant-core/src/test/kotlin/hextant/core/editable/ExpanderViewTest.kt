@@ -7,12 +7,13 @@ package hextant.core.editable
 import hextant.HextantPlatform
 import hextant.core.EditorControlFactory
 import hextant.core.configure
-import hextant.core.expr.editable.*
-import hextant.core.expr.view.FXIntLiteralEditorView
-import hextant.core.expr.view.FXTextEditorView
+import hextant.core.view.FXExpanderView
+import hextant.expr.editable.EditableIntLiteral
+import hextant.expr.editable.ExpandableExpr
+import hextant.expr.view.FXIntLiteralEditorView
+import hextant.expr.view.FXTextEditorView
 import hextant.fx.hextantScene
 import hextant.get
-import hextant.view.FXExpanderView
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage

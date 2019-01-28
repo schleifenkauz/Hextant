@@ -6,8 +6,8 @@ package hextant.core
 
 import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
-import hextant.core.expr.editable.EditableIntLiteral
-import hextant.core.expr.edited.IntLiteral
+import hextant.expr.editable.EditableIntLiteral
+import hextant.expr.edited.IntLiteral
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 

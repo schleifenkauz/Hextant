@@ -5,7 +5,7 @@
 package hextant.lisp.view
 
 import hextant.Context
-import hextant.core.expr.view.FXTokenEditorView
+import hextant.expr.view.FXTokenEditorView
 import hextant.lisp.editable.EditableIntLiteral
 
 class IntLiteralEditorControl(

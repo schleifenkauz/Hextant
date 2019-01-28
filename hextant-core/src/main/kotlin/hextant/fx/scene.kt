@@ -11,7 +11,7 @@ import javafx.scene.control.Label
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent
 
-internal var isControlDown = false; private set
+var isControlDown = false; private set
 
 fun hextantScene(root: Parent): Scene {
     val scene = Scene(root)

@@ -8,7 +8,7 @@ import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.bundle.CorePermissions.Public
 import hextant.core.editable.EditableToken
-import hextant.core.expr.view.TextEditorView
+import hextant.expr.view.TextEditorView
 import hextant.runLater
 import hextant.undo.*
 import reaktive.value.now

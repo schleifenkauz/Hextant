@@ -7,7 +7,7 @@ package hextant.core.editor
 import hextant.*
 import hextant.base.ParentEditor
 import hextant.core.editable.Expandable
-import hextant.view.ExpanderView
+import hextant.core.view.ExpanderView
 import reaktive.value.now
 
 abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(

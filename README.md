@@ -36,7 +36,7 @@ Testing via gradle is not supported.
 To try the Lisp-editor you just have to run the JavaFx Application in the file `\hextant-lisp\src\test\kotlin\hextant\lisp\LispEditorTest.kt` relative from the project root.
 
 ### Running the calculator
-To try the calculator run the JavaFX Application in the file  `hextant-core\src\test\kotlin\hextant\core\expr\ExprEditorViewTest.kt`.
+To try the calculator run the JavaFX Application in the file  `hextant-expr\src\test\kotlin\hextant.expr\ExprEditorViewTest.kt`.
 
 ## Contributing
 If you want to contribute to Hextant there are three ways of doing it.

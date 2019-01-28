@@ -6,10 +6,10 @@ package hextant.sample.editor
 
 import hextant.Context
 import hextant.core.editor.TokenEditor
-import hextant.core.expr.editable.EditableOperator
-import hextant.core.expr.view.TextEditorView
+import hextant.expr.view.TextEditorView
+import hextant.sample.editable.EditableIntOperator
 
 class IntOperatorEditor(
-    editable: EditableOperator,
+    editable: EditableIntOperator,
     context: Context
-) : TokenEditor<EditableOperator, TextEditorView>(editable, context)
+) : TokenEditor<EditableIntOperator, TextEditorView>(editable, context)

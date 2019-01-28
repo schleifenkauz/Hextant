@@ -2,9 +2,9 @@ package hextant.core.list
 
 import hextant.*
 import hextant.core.EditorControlFactory
-import hextant.core.expr.editable.EditableExprList
 import hextant.core.list.FXListEditorView.NumberedCell
 import hextant.core.register
+import hextant.expr.editable.EditableExprList
 import hextant.fx.hextantScene
 import javafx.application.Application
 import javafx.scene.Parent

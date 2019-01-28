@@ -5,8 +5,8 @@
   },
   "editables": [
     {
-      "edited": "hextant.core.expr.edited.IntLiteral",
-      "class": "hextant.core.expr.editable.EditableIntLiteral"
+      "edited": "hextant.expr.edited.IntLiteral",
+      "class": "hextant.expr.editable.EditableIntLiteral"
     }
   ],
   "editors": [

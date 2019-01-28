@@ -12,7 +12,7 @@ import javafx.stage.Stage
 import hextant.HextantPlatform
 import hextant.completion.*
 import hextant.fx.hextantScene
-import hextant.view.builder.gui.showViewBuilderGui
+import hextant.core.view.builder.gui.showViewBuilderGui
 
 class SearchableListControllerPopupTest : Application() {
     override fun start(stage: Stage) {

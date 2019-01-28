@@ -8,6 +8,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/org.nikok.hextant-core.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/org.nikok.hextant-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/org.nikok.hextant-core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/org.nikok.hextant-core.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/org.nikok.hextant-core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/org.nikok.hextant-core.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.test.iml" />

@@ -6,7 +6,7 @@ package hextant.lisp.view
 
 import hextant.Context
 import hextant.core.editable.EditableToken
-import hextant.core.expr.view.FXTokenEditorView
+import hextant.expr.view.FXTokenEditorView
 import hextant.getEditor
 import hextant.lisp.editor.IdentifierEditor
 
