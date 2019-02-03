@@ -1,4 +1,4 @@
-package hextant.expr.view
+package hextant.core.view
 
 import hextant.Context
 import hextant.base.EditorControl

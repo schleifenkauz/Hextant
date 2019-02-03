@@ -6,7 +6,7 @@ package hextant.sample.view
 
 import hextant.Context
 import hextant.core.editable.EditableToken
-import hextant.expr.view.FXTokenEditorView
+import hextant.core.view.FXTokenEditorView
 
 class FXIntOperatorEditorView(
     editable: EditableToken<Any>,

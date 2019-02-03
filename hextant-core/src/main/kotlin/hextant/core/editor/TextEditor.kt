@@ -7,7 +7,7 @@ package hextant.core.editor
 import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.core.editable.EditableText
-import hextant.expr.view.TextEditorView
+import hextant.core.view.TextEditorView
 import hextant.runLater
 import reaktive.value.now
 

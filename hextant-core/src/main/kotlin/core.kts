@@ -4,7 +4,7 @@ import hextant.core.editor.TextEditor
 import hextant.core.list.EditableList
 import hextant.core.list.FXListEditorView
 import hextant.core.view.FXExpanderView
-import hextant.expr.view.FXTextEditorView
+import hextant.core.view.FXTextEditorView
 import hextant.plugin.dsl.plugin
 
 plugin {

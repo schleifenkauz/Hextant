@@ -6,7 +6,7 @@ package hextant.lisp.editor
 
 import hextant.Context
 import hextant.core.editor.TokenEditor
-import hextant.expr.view.TextEditorView
+import hextant.core.view.TextEditorView
 import hextant.lisp.editable.EditableDoubleLiteral
 
 class DoubleLiteralEditor(editable: EditableDoubleLiteral, context: Context) :

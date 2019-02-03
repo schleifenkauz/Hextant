@@ -6,8 +6,8 @@ package hextant.expr.editor
 
 import hextant.Context
 import hextant.core.editor.TokenEditor
+import hextant.core.view.TextEditorView
 import hextant.expr.editable.EditableOperator
-import hextant.expr.view.TextEditorView
 
 class OperatorEditor(
     editable: EditableOperator,

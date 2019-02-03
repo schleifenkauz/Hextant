@@ -6,7 +6,7 @@ package hextant.lisp.view
 
 import hextant.Context
 import hextant.base.EditorControl
-import hextant.expr.view.TextEditorView
+import hextant.core.view.TextEditorView
 import hextant.fx.HextantTextField
 import hextant.fx.keyword
 import hextant.getEditor

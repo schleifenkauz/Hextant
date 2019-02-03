@@ -5,7 +5,7 @@
 package hextant.sample.view
 
 import hextant.Context
-import hextant.expr.view.FXTokenEditorView
+import hextant.core.view.FXTokenEditorView
 import hextant.sample.editable.EditableName
 
 class FXNameEditorView(

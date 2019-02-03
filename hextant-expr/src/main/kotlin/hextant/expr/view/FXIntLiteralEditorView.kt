@@ -1,6 +1,7 @@
 package hextant.expr.view
 
 import hextant.Context
+import hextant.core.view.FXTokenEditorView
 import hextant.expr.editable.EditableIntLiteral
 
 class FXIntLiteralEditorView(

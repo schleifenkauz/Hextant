@@ -8,10 +8,10 @@ import hextant.HextantPlatform
 import hextant.core.EditorControlFactory
 import hextant.core.configure
 import hextant.core.view.FXExpanderView
+import hextant.core.view.FXTextEditorView
 import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.editable.ExpandableExpr
 import hextant.expr.view.FXIntLiteralEditorView
-import hextant.expr.view.FXTextEditorView
 import hextant.fx.hextantScene
 import hextant.get
 import javafx.application.Application
