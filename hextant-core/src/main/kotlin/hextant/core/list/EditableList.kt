@@ -26,7 +26,7 @@ open class EditableList<N, E : Editable<N>> :
             editedList.now.takeIf { it.none { el -> el == null } } as List<N>?
         }
 
-    override val isOk: ReactiveBoolean get() = editableList.allR { it.isOk }
+    override val isOk: ReactiveBoolean = editableList.allR { it.isOk }
 
     override fun deserialize(input: Input, context: SerialContext) {
         editableList.now.addAll(input.readTyped(context)!!)

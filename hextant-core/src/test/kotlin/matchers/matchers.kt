@@ -31,3 +31,7 @@ val `null` = Matcher<Any?>("is null") { it == null }
 val `false` = equalTo(false)
 
 val `true` = equalTo(true)
+
+val isEmpty = Matcher(Collection<Any?>::isEmpty)
+
+fun <E> contains(element: E): Matcher<Collection<E?>> = Matcher("contains $element") { it.contains(element) }
