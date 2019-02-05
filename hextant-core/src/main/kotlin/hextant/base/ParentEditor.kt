@@ -28,14 +28,21 @@ abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, co
      */
     override val children: Collection<Editor<*>> get() = mutableChildren
 
+    private var lastExtendingChild: Editor<*>? = null
+
     override fun extendSelection(child: Editor<*>) {
-        select()
-        views {
-            focus()
-        }
+        if (!child.isSelected) throw IllegalStateException("Cannot extend selection from unselected child")
+        child.toggleSelection()
+        if (isSelected) return
+        toggleSelection()
+        lastExtendingChild = child
     }
 
     override fun shrinkSelection() {
-        children.firstOrNull()?.select()
+        val childToSelect = lastExtendingChild ?: children.firstOrNull()
+        if (childToSelect != null && !childToSelect.isSelected && childToSelect in children) {
+            childToSelect.toggleSelection()
+        }
+        if (isSelected) toggleSelection()
     }
 }

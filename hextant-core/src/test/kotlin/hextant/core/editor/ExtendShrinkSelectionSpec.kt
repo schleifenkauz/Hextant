@@ -60,15 +60,5 @@ internal object ExtendShrinkSelectionSpec : Spek({
                 parent.isSelected shouldBe `false`
             }
         }
-        on("selecting the parent and then shrinking selection") {
-            parent.select()
-            parent.shrinkSelection()
-            test("the first child should be selected") {
-                children[0].isSelected shouldBe `true`
-            }
-            test("the parent should not be selected") {
-                parent.isSelected shouldBe `false`
-            }
-        }
     }
 })

@@ -85,6 +85,7 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
             return
         }
         if (parent == newParent) return
+        @Suppress("DEPRECATION") //only called here
         newParent.accept(this)
         parent = newParent
     }
