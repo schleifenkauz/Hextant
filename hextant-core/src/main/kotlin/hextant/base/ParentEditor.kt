@@ -13,7 +13,7 @@ abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, co
      */
     protected abstract fun accepts(child: Editor<*>): Boolean
 
-    @Suppress("UNCHECKED_CAST")
+    @Deprecated("Only called by AbstractEditor")
     internal open fun accept(child: Editor<*>) {
         if (!accepts(child)) {
             throw IllegalArgumentException("$this does not accept $child as a child")

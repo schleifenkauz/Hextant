@@ -10,7 +10,7 @@ import hextant.bundle.Bundle.Value.*
 import kotlin.properties.ReadOnlyProperty
 
 /**
- * A Property Holder is used to get and set properties
+ * A Bundle is used to get and set properties
  */
 interface Bundle {
     /**
