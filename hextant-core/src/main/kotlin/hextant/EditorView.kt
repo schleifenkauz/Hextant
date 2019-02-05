@@ -27,5 +27,7 @@ interface EditorView {
     /**
      * Invoke that specified [action] on the gui thread of this [EditorView]
      */
-    fun onGuiThread(action: () -> Unit)
+    fun onGuiThread(action: () -> Unit) {
+        action()
+    }
 }
