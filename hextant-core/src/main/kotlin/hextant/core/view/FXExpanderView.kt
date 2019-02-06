@@ -11,10 +11,11 @@ import hextant.core.editor.Expander
 import hextant.fx.HextantTextField
 import hextant.fx.registerShortcut
 import javafx.scene.Node
-import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode.R
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
+import reaktive.event.Subscription
+import reaktive.event.subscribe
 import reaktive.value.now
 
 class FXExpanderView(
@@ -26,18 +27,19 @@ class FXExpanderView(
 
     private var view: EditorControl<*>? = null
 
-    private val textField = createExpanderTextField(expandable.text.now)
+    private val textField = HextantTextField()
+
+    private val textSubscription: Subscription
 
     override fun createDefaultRoot(): Node = textField
 
     init {
+        with(textField) {
+            setOnAction { expander.expand() }
+            textSubscription = userUpdatedText.subscribe { new -> expander.setText(new) }
+        }
         initialize(expandable, expander, context)
         expander.addView(this)
-    }
-
-    private fun createExpanderTextField(text: String?): TextField = HextantTextField(text).apply {
-        setOnAction { expander.expand() }
-        textProperty().addListener { _, _, new -> expander.setText(new) }
     }
 
     override fun textChanged(newText: String) {

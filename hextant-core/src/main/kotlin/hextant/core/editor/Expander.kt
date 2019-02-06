@@ -50,6 +50,7 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
         }
 
         override fun doUndo() {
+            doReset()
             doSetText(oldText)
         }
 
@@ -76,7 +77,7 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
 
     private inner class ResetEdit(private val oldContent: E) : AbstractEdit() {
         override fun doRedo() {
-            reset()
+            doReset()
         }
 
         override fun doUndo() {
@@ -101,7 +102,20 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
         views {
             textChanged(new)
         }
-        return VariableEdit(editable.text, old, new, "Typing")
+        return SetTextEdit(old, new)
+    }
+
+    private inner class SetTextEdit(private val old: String, private val new: String) : AbstractEdit() {
+        override fun doRedo() {
+            doSetText(new)
+        }
+
+        override fun doUndo() {
+            doSetText(old)
+        }
+
+        override val actionDescription: String
+            get() = "Typing"
     }
 
     fun setContent(new: E) {
