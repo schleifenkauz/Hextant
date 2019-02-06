@@ -11,6 +11,7 @@ import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.expr.view.IntLiteralEditorView
 import hextant.getEditor
+import hextant.mocking.viewMock
 import hextant.undo.UndoManager
 import hextant.undo.UndoManagerImpl
 import matchers.*
@@ -26,9 +27,7 @@ object TokenEditorSpec : Spek({
         }
         val editable = EditableIntLiteral()
         val editor = context.getEditor(editable) as IntLiteralEditor
-        val view = mock<IntLiteralEditorView> {
-            on { onGuiThread(any()) }.then { it.getArgument<() -> Unit>(0).invoke() }
-        }
+        val view = viewMock<IntLiteralEditorView>()
         view.inOrder {
             on("adding a view") {
                 editor.addView(view)

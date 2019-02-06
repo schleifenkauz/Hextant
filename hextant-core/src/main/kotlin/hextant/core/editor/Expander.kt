@@ -24,7 +24,11 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
 
     override fun viewAdded(view: ExpanderView) {
         view.onGuiThread {
-            view.handleState()
+            if (editable.isExpanded.now) {
+                view.expanded(editable.editable.now!!)
+            } else {
+                view.reset()
+            }
         }
     }
 
@@ -46,7 +50,7 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
             val editor = context.getEditor(editable.editable.now!!)
             editor.moveTo(null)
             editable.setText("")
-            notifyViews()
+            views { reset() }
         }
     }
 
@@ -61,16 +65,10 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
 
     fun setContent(new: E) {
         editable.setContent(new)
-        notifyViews()
+        views { expanded(new) }
     }
 
     override fun extendSelection(child: Editor<*>) {
         parent?.extendSelection(child)
-    }
-
-    private fun notifyViews() {
-        views {
-            handleState()
-        }
     }
 }
