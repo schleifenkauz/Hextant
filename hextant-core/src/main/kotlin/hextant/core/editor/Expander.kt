@@ -102,20 +102,27 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
         views {
             textChanged(new)
         }
-        return SetTextEdit(old, new)
+        return SetTextEdit(this, old, new)
     }
 
-    private inner class SetTextEdit(private val old: String, private val new: String) : AbstractEdit() {
+    private class SetTextEdit(private val expander: Expander<*, *>, private val old: String, private val new: String) :
+        AbstractEdit() {
         override fun doRedo() {
-            doSetText(new)
+            expander.doSetText(new)
         }
 
         override fun doUndo() {
-            doSetText(old)
+            expander.doSetText(old)
         }
 
         override val actionDescription: String
             get() = "Typing"
+
+        override fun mergeWith(other: Edit): Edit? {
+            if (other !is SetTextEdit) return null
+            if (other.expander !== this.expander) return null
+            return SetTextEdit(expander, this.old, other.new)
+        }
     }
 
     fun setContent(new: E) {

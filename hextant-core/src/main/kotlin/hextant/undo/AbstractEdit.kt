@@ -39,7 +39,10 @@ abstract class AbstractEdit : Edit {
     }
 
     /**
-     * Default implementation, returns `null`
+     * Merges this [Edit] with the [other] Edit if possible or returns `null`
+     * * Undoing the resulting [Edit] should behave like undoing the other edit and then this one
+     * * Redoing the resulting [Edit] should behave like redoing this edit and then the other one
+     * * Default implementation, returns `null`
      */
     override fun mergeWith(other: Edit): Edit? = null
 }
