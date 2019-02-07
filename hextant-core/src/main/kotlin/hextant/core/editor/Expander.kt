@@ -40,7 +40,7 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
 
     private fun expandTo(content: E): Edit {
         val text = editable.text.now
-        setContent(content)
+        doSetContent(content)
         return ExpandEdit(text, content)
     }
 
@@ -58,7 +58,7 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
             get() = "Expand $oldText"
     }
 
-    fun reset() {
+    @Synchronized fun reset() {
         context.runLater {
             check(editable.isExpanded.now) { "Expander is not expanded" }
             val edit = doReset()
@@ -88,7 +88,7 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
             get() = "Reset Expander"
     }
 
-    fun setText(new: String) {
+    @Synchronized fun setText(new: String) {
         context.runLater {
             check(!editable.isExpanded.now) { "Cannot set text while expander is expanded" }
             val edit = doSetText(new)
@@ -125,7 +125,13 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
         }
     }
 
-    fun setContent(new: E) {
+    @Synchronized fun setContent(new: E) {
+        context.runLater {
+            doSetContent(new)
+        }
+    }
+
+    private fun doSetContent(new: E) {
         editable.setContent(new)
         val editor = context.getEditor(new)
         editor.moveTo(this)
