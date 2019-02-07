@@ -21,7 +21,7 @@ internal object EditorControlSpec : Spek({
     PlatformImpl.startup { }
     given("a editor control") {
         val ec = AnEditorControl()
-        val scene = Scene(ec) //set the scene of the control
+        Scene(ec) //set the scene of the control
         context("roots") {
             test("the root should be the default root") {
                 ec.root.text shouldBe equalTo("default")

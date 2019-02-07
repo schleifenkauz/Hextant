@@ -8,7 +8,6 @@ import hextant.expr.edited.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.mocking.viewMock
 import hextant.undo.UndoManager
-import hextant.undo.UndoManagerImpl
 import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
@@ -17,7 +16,7 @@ object ListEditorSpec : Spek({
     given("a list editor") {
         describe("addding, removing and clearing") {
             val ctx = Context.newInstance(HextantPlatform.singleThread()) {
-                set(Public, UndoManager, UndoManagerImpl())
+                set(Public, UndoManager, UndoManager.newInstance())
             }
             val editable = EditableList<IntLiteral, EditableIntLiteral>()
             val editor = object : ListEditor<EditableIntLiteral>(editable, ctx) {
@@ -75,7 +74,7 @@ object ListEditorSpec : Spek({
             afterGroup { ctx.platform.exit() }
         }
         describe("undo/redo") {
-            val undo = UndoManagerImpl()
+            val undo = UndoManager.newInstance()
             val ctx = Context.newInstance(HextantPlatform.singleThread()) {
                 set(Public, UndoManager, undo)
             }

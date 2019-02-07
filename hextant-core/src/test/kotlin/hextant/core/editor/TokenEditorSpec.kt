@@ -14,7 +14,6 @@ import hextant.expr.view.IntLiteralEditorView
 import hextant.getEditor
 import hextant.mocking.viewMock
 import hextant.undo.UndoManager
-import hextant.undo.UndoManagerImpl
 import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
@@ -22,7 +21,7 @@ import reaktive.value.now
 
 object TokenEditorSpec : Spek({
     given("a token editor") {
-        val undo: UndoManager = UndoManagerImpl()
+        val undo: UndoManager = UndoManager.newInstance()
         val context = newInstance(HextantPlatform.singleThread()) {
             set(Public, UndoManager, undo)
         }

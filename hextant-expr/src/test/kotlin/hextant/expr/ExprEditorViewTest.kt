@@ -24,7 +24,6 @@ import hextant.fx.hextantScene
 import hextant.inspect.*
 import hextant.inspect.Severity.Warning
 import hextant.undo.UndoManager
-import hextant.undo.UndoManagerImpl
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.geometry.Orientation.VERTICAL
@@ -56,7 +55,7 @@ class ExprEditorViewTest : Application() {
         val context = object : AbstractContext(platform) {
             override val platform: HextantPlatform = platform
         }.apply {
-            set(Public, UndoManager, UndoManagerImpl())
+            set(Public, UndoManager, UndoManager.concurrent())
         }
         val views = context[EditorControlFactory]
         val expandable = ExpandableExpr()

@@ -12,7 +12,6 @@ import hextant.expr.edited.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.mocking.viewMock
 import hextant.undo.UndoManager
-import hextant.undo.UndoManagerImpl
 import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
@@ -22,7 +21,7 @@ object ExpanderSpec : Spek({
     given("an expander") {
         describe("expanding and resetting") {
             val context = Context.newInstance(HextantPlatform.singleThread()) {
-                set(Public, UndoManager, UndoManagerImpl())
+                set(Public, UndoManager, UndoManager.newInstance())
             }
             val e = expandable()
             val ex = expander(e, context)
@@ -81,7 +80,7 @@ object ExpanderSpec : Spek({
             }
         }
         describe("undoing and redoing") {
-            val undo: UndoManager = UndoManagerImpl()
+            val undo: UndoManager = UndoManager.newInstance()
             val context = Context.newInstance(HextantPlatform.singleThread()) {
                 set(Public, UndoManager, undo)
             }

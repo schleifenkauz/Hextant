@@ -48,5 +48,9 @@ interface UndoManager {
      */
     val redoText: String
 
-    companion object : Property<UndoManager, Public, Public>("undo manager")
+    companion object : Property<UndoManager, Public, Public>("undo manager") {
+        fun newInstance(): UndoManager = UndoManagerImpl()
+
+        fun concurrent(undoManager: UndoManager = newInstance()): UndoManager = ConcurrentUndoManager(undoManager)
+    }
 }
