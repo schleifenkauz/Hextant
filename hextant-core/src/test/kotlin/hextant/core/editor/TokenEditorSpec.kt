@@ -6,6 +6,7 @@ package hextant.core.editor
 
 import com.nhaarman.mockitokotlin2.*
 import hextant.Context.Companion.newInstance
+import hextant.HextantPlatform
 import hextant.bundle.CorePermissions.Public
 import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.editor.IntLiteralEditor
@@ -22,7 +23,7 @@ import reaktive.value.now
 object TokenEditorSpec : Spek({
     given("a token editor") {
         val undo: UndoManager = UndoManagerImpl()
-        val context = newInstance {
+        val context = newInstance(HextantPlatform.singleThread()) {
             set(Public, UndoManager, undo)
         }
         val editable = EditableIntLiteral()
@@ -67,6 +68,7 @@ object TokenEditorSpec : Spek({
                     verify(view, never()).displayText(any())
                 }
             }
+            afterGroup { context.platform.exit() }
         }
     }
 })

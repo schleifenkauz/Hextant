@@ -1,8 +1,7 @@
 package hextant.core.editor
 
 import com.nhaarman.mockitokotlin2.inOrder
-import hextant.Context
-import hextant.Editor
+import hextant.*
 import hextant.bundle.CorePermissions.Public
 import hextant.core.editable.Expandable
 import hextant.core.editor.ExpanderSpec.expandable
@@ -22,7 +21,7 @@ import reaktive.value.now
 object ExpanderSpec : Spek({
     given("an expander") {
         describe("expanding and resetting") {
-            val context = Context.newInstance {
+            val context = Context.newInstance(HextantPlatform.singleThread()) {
                 set(Public, UndoManager, UndoManagerImpl())
             }
             val e = expandable()
@@ -78,11 +77,12 @@ object ExpanderSpec : Spek({
                         verify().reset()
                     }
                 }
+                afterGroup { context.platform.exit() }
             }
         }
         describe("undoing and redoing") {
             val undo: UndoManager = UndoManagerImpl()
-            val context = Context.newInstance {
+            val context = Context.newInstance(HextantPlatform.singleThread()) {
                 set(Public, UndoManager, undo)
             }
             val e = expandable()
@@ -144,6 +144,7 @@ object ExpanderSpec : Spek({
                     e.text.now shouldEqual "abc"
                 }
             }
+            afterGroup { context.platform.exit() }
         }
     }
 }) {

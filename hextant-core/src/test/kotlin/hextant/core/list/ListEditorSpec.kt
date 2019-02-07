@@ -1,8 +1,7 @@
 package hextant.core.list
 
 import com.nhaarman.mockitokotlin2.*
-import hextant.Context
-import hextant.Editor
+import hextant.*
 import hextant.bundle.CorePermissions.Public
 import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
@@ -17,7 +16,7 @@ import org.jetbrains.spek.api.dsl.*
 object ListEditorSpec : Spek({
     given("a list editor") {
         describe("addding, removing and clearing") {
-            val ctx = Context.newInstance {
+            val ctx = Context.newInstance(HextantPlatform.singleThread()) {
                 set(Public, UndoManager, UndoManagerImpl())
             }
             val editable = EditableList<IntLiteral, EditableIntLiteral>()
@@ -73,10 +72,11 @@ object ListEditorSpec : Spek({
                     }
                 }
             }
+            afterGroup { ctx.platform.exit() }
         }
         describe("undo/redo") {
             val undo = UndoManagerImpl()
-            val ctx = Context.newInstance {
+            val ctx = Context.newInstance(HextantPlatform.singleThread()) {
                 set(Public, UndoManager, undo)
             }
             val editable = EditableList<IntLiteral, EditableIntLiteral>()
@@ -123,6 +123,7 @@ object ListEditorSpec : Spek({
                     editable.editableList.now.size shouldEqual 0
                 }
             }
+            afterGroup { ctx.platform.exit() }
         }
     }
 })

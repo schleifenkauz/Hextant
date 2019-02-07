@@ -30,22 +30,28 @@ interface HextantPlatform : Context {
     /**
      * The default instance of the [HextantPlatform]
      */
-    private class Impl(bundle: Bundle) : HextantPlatform, AbstractContext(null, bundle) {
+    private abstract class Base(bundle: Bundle) : HextantPlatform, AbstractContext(null, bundle) {
+        override val platform: HextantPlatform
+            get() = this
+    }
+
+    private class SingleThreaded(bundle: Bundle) : Base(bundle) {
+        override fun exit() {}
+
+        override fun <T> runLater(action: () -> T): Future<T> = CompletableFuture.completedFuture(action())
+    }
+
+    private class MultiThreaded(bundle: Bundle) : Base(bundle) {
         private val executor = Executors.newSingleThreadExecutor()
-
-
-        override fun <T> runLater(action: () -> T): Future<T> {
-            //            val future = executor.submit(action)
-            //            return CompletableFuture.supplyAsync { future.get() }.exceptionally { it.printStackTrace(); throw it }
-            return CompletableFuture.completedFuture(action())
-        }
 
         override fun exit() {
             executor.shutdown()
         }
 
-        override val platform: HextantPlatform
-            get() = this
+        override fun <T> runLater(action: () -> T): Future<T> {
+            val future = executor.submit(action)
+            return CompletableFuture.supplyAsync { future.get() }.exceptionally { it.printStackTrace(); throw it }
+        }
     }
 
     companion object {
@@ -70,6 +76,9 @@ interface HextantPlatform : Context {
             set(CoreProperties.classLoader, plugins.compoundClassLoader)
         }
 
-        fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = Impl(bundle)
+        fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = MultiThreaded(bundle)
+
+        fun singleThread(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
+            SingleThreaded(bundle).apply { configure() }
     }
 }

@@ -9,6 +9,7 @@ import hextant.command.gui.commandContextMenu
 import hextant.fx.*
 import hextant.inspect.Inspections
 import hextant.inspect.gui.InspectionPopup
+import javafx.application.Platform
 import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.control.Control
@@ -123,12 +124,11 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
     /**
      * Run the specified [action] on the JavaFX Application Thread
      */
-    override fun onGuiThread(action: () -> Unit) {
-        //        if (!Platform.isFxApplicationThread()) {
-        //            Platform.runLater(action)
-        //        } else action()
-        action()
+    override fun onGuiThread(action: () -> Unit) =
+        if (Platform.isFxApplicationThread()) action() else {
+            Platform.runLater(action)
     }
+    //        action()
 
     companion object {
         private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
