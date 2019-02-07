@@ -41,7 +41,7 @@ interface EditorControlFactory {
             viewFactories[editableCls] = viewFactory as (Editable<*>, Context) -> EditorControl<*>
         }
 
-        override fun <E : Editable<*>> getControl(editable: E, context: Context): EditorControl<*> {
+        @Synchronized override fun <E : Editable<*>> getControl(editable: E, context: Context): EditorControl<*> {
             val cls = editable::class
             when (editable) {
                 is ConvertedEditable<*, *> -> return getControl(editable.source, context)

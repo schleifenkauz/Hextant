@@ -43,7 +43,7 @@ interface EditorFactory {
             logger.config { "Registered editor factory for $editableCls" }
         }
 
-        override fun <E : Editable<*>> getEditor(editable: E, context: Context): Editor<E> {
+        @Synchronized override fun <E : Editable<*>> getEditor(editable: E, context: Context): Editor<E> {
             if (editable is ConvertedEditable<*, *>) return getEditor(editable.source, context) as Editor<E>
             val cached = cache[editable]
             if (cached != null) {

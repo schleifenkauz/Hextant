@@ -22,7 +22,7 @@ internal interface SelectionDistributor {
 
         override val selectedEditors: MutableReactiveSet<Editor<*>> = reactiveSet()
 
-        override fun toggleSelection(editor: Editor<*>, isSelected: Variable<Boolean>) {
+        @Synchronized override fun toggleSelection(editor: Editor<*>, isSelected: Variable<Boolean>) {
             val now = selectedEditors.now
             if (addSelection(editor, isSelected)) return
             if (now.size > 1) removeSelection(now, editor, isSelected)
@@ -37,7 +37,7 @@ internal interface SelectionDistributor {
             }
         }
 
-        override fun select(editor: Editor<*>, isSelected: Variable<Boolean>) {
+        @Synchronized override fun select(editor: Editor<*>, isSelected: Variable<Boolean>) {
             val now = selectedEditors.now
             val alreadySelected = editor in now
             if (now.size == 1 && alreadySelected) return

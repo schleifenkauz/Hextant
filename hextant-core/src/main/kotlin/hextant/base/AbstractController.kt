@@ -52,7 +52,7 @@ abstract class AbstractController<V : Any> {
      * so be careful when adding a view in the constructor
      * * Adding a view to an editor will not prevent the view from being garbage collected
      */
-    fun addView(view: V) {
+    @Synchronized fun addView(view: V) {
         mutableViews.add(WeakReference(view))
         viewAdded(view)
     }

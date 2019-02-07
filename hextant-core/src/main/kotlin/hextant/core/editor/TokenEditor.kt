@@ -29,7 +29,7 @@ abstract class TokenEditor<E : EditableToken<*>, V : TextEditorView>(
     /**
      * Set the text on the platform thread and notify the views
      */
-    fun setText(new: String) {
+    @Synchronized fun setText(new: String) {
         if (new != editable.text.now) {
             val edit = doSetText(new)
             undo.push(edit)

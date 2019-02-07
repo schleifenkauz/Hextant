@@ -29,7 +29,7 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
 
     protected abstract fun expand(text: String): E?
 
-    fun expand() {
+    @Synchronized fun expand() {
         context.runLater {
             check(!editable.isExpanded.now) { "Expander is already expanded" }
             val content = expand(editable.text.now) ?: return@runLater

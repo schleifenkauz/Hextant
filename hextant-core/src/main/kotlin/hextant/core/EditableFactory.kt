@@ -64,7 +64,7 @@ interface EditableFactory {
             oneArgFactories[editedCls] = factory as (Any) -> Editable<Any>
         }
 
-        override fun <T : Any> getEditable(edited: T): Editable<T> {
+        @Synchronized override fun <T : Any> getEditable(edited: T): Editable<T> {
             val editedCls = edited::class
             val factory = oneArgFactories[editedCls]
             if (factory != null) return factory(edited) as Editable<T>
@@ -81,7 +81,7 @@ interface EditableFactory {
             noArgFactories[editedCls] = factory
         }
 
-        override fun <T : Any> getEditable(
+        @Synchronized override fun <T : Any> getEditable(
             editedCls: KClass<T>
         ): Editable<T> {
             val factory = noArgFactories[editedCls]

@@ -19,7 +19,7 @@ class TextEditor(
         view.onGuiThread { view.displayText(editable.text.now) }
     }
 
-    fun setText(new: String) {
+    @Synchronized fun setText(new: String) {
         context.runLater {
             editable.text.set(new)
             views { displayText(new) }
