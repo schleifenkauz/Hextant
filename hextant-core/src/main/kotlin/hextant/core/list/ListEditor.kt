@@ -6,6 +6,7 @@ package hextant.core.list
 
 import hextant.*
 import hextant.base.ParentEditor
+import hextant.undo.*
 
 abstract class ListEditor<E : Editable<*>>(
     private val list: EditableList<*, E>,
@@ -17,6 +18,8 @@ abstract class ListEditor<E : Editable<*>>(
             editor.moveTo(this)
         }
     }
+
+    private val undo = context[UndoManager]
 
     private val empty get() = list.editableList.now.isEmpty()
 
@@ -38,24 +41,53 @@ abstract class ListEditor<E : Editable<*>>(
 
     fun add(idx: Int): E {
         val editable = createNewEditable()
-        add(idx, editable)
+        context.runLater {
+            val edit = doAdd(idx, editable)
+            undo.push(edit)
+        }
         return editable
     }
 
     fun add(idx: Int, editable: E) {
-        val emptyBefore = list.editableList.now.isEmpty()
         context.runLater {
-            val editor = context.getEditor(editable)
-            editor.moveTo(this)
-            list.editableList.now.add(idx, editable)
+            val edit = doAdd(idx, editable)
+            undo.push(edit)
         }
+    }
+
+    private fun doAdd(idx: Int, editable: E): Edit {
+        val emptyBefore = empty
+        val editor = context.getEditor(editable)
+        editor.moveTo(this)
+        list.editableList.now.add(idx, editable)
         views {
             added(editable, idx)
             if (emptyBefore) notEmpty()
         }
+        return AddEdit(idx, editable)
+    }
+
+    private inner class AddEdit(private val index: Int, private val editable: E) : AbstractEdit() {
+        override fun doRedo() {
+            doAdd(index, editable)
+        }
+
+        override fun doUndo() {
+            doRemoveAt(index)
+        }
+
+        override val actionDescription: String
+            get() = "Add element"
     }
 
     fun removeAt(idx: Int) {
+        context.runLater {
+            val edit = doRemoveAt(idx)
+            undo.push(edit)
+        }
+    }
+
+    private fun doRemoveAt(idx: Int): Edit {
         val removed = list.editableList.now.removeAt(idx)
         val editor = context.getEditor(removed)
         editor.moveTo(null)
@@ -67,6 +99,20 @@ abstract class ListEditor<E : Editable<*>>(
                 empty()
             }
         }
+        return RemoveEdit(idx, removed)
+    }
+
+    private inner class RemoveEdit(private val index: Int, private val editable: E) : AbstractEdit() {
+        override fun doRedo() {
+            doRemoveAt(index)
+        }
+
+        override fun doUndo() {
+            doAdd(index, editable)
+        }
+
+        override val actionDescription: String
+            get() = "Remove element"
     }
 
     fun clear() {
