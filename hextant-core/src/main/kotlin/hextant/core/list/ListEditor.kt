@@ -42,7 +42,7 @@ abstract class ListEditor<E : Editable<*>>(
         return editable
     }
 
-    private fun add(idx: Int, editable: E) {
+    fun add(idx: Int, editable: E) {
         val emptyBefore = list.editableList.now.isEmpty()
         context.runLater {
             val editor = context.getEditor(editable)

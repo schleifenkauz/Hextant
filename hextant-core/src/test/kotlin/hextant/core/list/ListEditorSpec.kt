@@ -1,0 +1,76 @@
+package hextant.core.list
+
+import com.nhaarman.mockitokotlin2.*
+import hextant.Context
+import hextant.Editor
+import hextant.bundle.CorePermissions.Public
+import hextant.expr.editable.EditableIntLiteral
+import hextant.expr.edited.IntLiteral
+import hextant.expr.editor.IntLiteralEditor
+import hextant.mocking.viewMock
+import hextant.undo.UndoManager
+import hextant.undo.UndoManagerImpl
+import matchers.shouldEqual
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.*
+
+object ListEditorSpec : Spek({
+    given("a list editor") {
+        val ctx = Context.newInstance {
+            set(Public, UndoManager, UndoManagerImpl())
+        }
+        val editable = EditableList<IntLiteral, EditableIntLiteral>()
+        val editor = object : ListEditor<EditableIntLiteral>(editable, ctx) {
+            override fun createNewEditable(): EditableIntLiteral = EditableIntLiteral()
+
+            override fun accepts(child: Editor<*>): Boolean = child is IntLiteralEditor
+        }
+        val view = viewMock<ListEditorView>()
+        view.inOrder {
+            on("adding a view") {
+                editor.addView(view)
+                it("should notify the view to be empty") {
+                    verify().empty()
+                }
+            }
+            on("adding a new element") {
+                editor.add(0)
+                it("should create a new editable and add it") {
+                    editable.editableList.now.size shouldEqual 1
+                }
+                it("should notify the views") {
+                    verify().added(any(), eq(0))
+                    verify().notEmpty()
+                }
+            }
+            on("adding another element") {
+                editor.add(1)
+                it("should create a new editable and add it") {
+                    editable.editableList.now.size shouldEqual 2
+                }
+                it("should notify the views") {
+                    verify().added(any(), eq(1))
+                }
+            }
+            on("removing an element") {
+                editor.removeAt(0)
+                it("should remove an element from the editable list") {
+                    editable.editableList.now.size shouldEqual 1
+                }
+                it("should notify the views") {
+                    verify().removed(0)
+                }
+            }
+            on("clearing") {
+                editor.clear()
+                it("should remove all elements from the editable list") {
+                    editable.editableList.now.size shouldEqual 0
+                }
+                it("should notify the views") {
+                    verify().removed(0)
+                    verify().empty()
+                }
+            }
+        }
+    }
+})
