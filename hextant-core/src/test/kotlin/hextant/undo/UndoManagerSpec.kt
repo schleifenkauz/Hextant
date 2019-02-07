@@ -1,13 +1,12 @@
 package hextant.undo
 
-import com.natpryce.hamkrest.should.shouldMatch
-import com.natpryce.hamkrest.startsWith
+import hextant.undo.UndoManagerSpec.execute
 import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 
 internal object UndoManagerSpec : Spek({
-
+    execute(UndoManagerImpl())
 }) {
     /**
      * Execute the spec on the specified [subject]
@@ -35,10 +34,11 @@ internal object UndoManagerSpec : Spek({
             val e1 = AnEdit()
             on("pushing an edit") {
                 subject.push(e1)
-                testCanUndo(true)
-                testCanRedo(false)
-                it("should update the text") {
-                    subject.undoText shouldMatch startsWith("Undo ")
+                it("should be able to undo") {
+                    testCanUndo(true)
+                }
+                it("should not be able to redo") {
+                    testCanRedo(false)
                 }
             }
         }
