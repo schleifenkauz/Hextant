@@ -38,18 +38,21 @@ abstract class ListEditor<E : Editable<*>>(
 
     fun add(idx: Int): E {
         val editable = createNewEditable()
-        val editor = context.getEditor(editable)
-        editor.moveTo(this)
-        list.editableList.now.add(idx, editable)
+        add(idx, editable)
+        return editable
+    }
+
+    private fun add(idx: Int, editable: E) {
+        val emptyBefore = list.editableList.now.isEmpty()
+        context.runLater {
+            val editor = context.getEditor(editable)
+            editor.moveTo(this)
+            list.editableList.now.add(idx, editable)
+        }
         views {
             added(editable, idx)
+            if (emptyBefore) notEmpty()
         }
-        if (!empty) {
-            views {
-                notEmpty()
-            }
-        }
-        return editable
     }
 
     fun removeAt(idx: Int) {
@@ -63,6 +66,23 @@ abstract class ListEditor<E : Editable<*>>(
             views {
                 empty()
             }
+        }
+    }
+
+    fun clear() {
+        context.runLater {
+            val editables = list.editableList.now
+            for (editable in editables) {
+                val editor = context.getEditor(editable)
+                editor.moveTo(null)
+                views {
+                    removed(0)
+                }
+            }
+            editables.clear()
+        }
+        views {
+            empty()
         }
     }
 }

@@ -15,7 +15,7 @@ import javafx.scene.text.Text
 import reaktive.event.event
 
 /**
- * A Text field that adds the "hextant-text" style class and automatically resized its width
+ * A Text field that adds the "hextant-text" style class and does automatically resize its width
 */
 open class HextantTextField(text: String? = "") : TextField(text) {
     override fun createDefaultSkin(): Skin<*> = HextantTextFieldSkin()
