@@ -10,65 +10,117 @@ import hextant.expr.editor.IntLiteralEditor
 import hextant.mocking.viewMock
 import hextant.undo.UndoManager
 import hextant.undo.UndoManagerImpl
-import matchers.shouldEqual
+import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 
 object ListEditorSpec : Spek({
     given("a list editor") {
-        val ctx = Context.newInstance {
-            set(Public, UndoManager, UndoManagerImpl())
-        }
-        val editable = EditableList<IntLiteral, EditableIntLiteral>()
-        val editor = object : ListEditor<EditableIntLiteral>(editable, ctx) {
-            override fun createNewEditable(): EditableIntLiteral = EditableIntLiteral()
+        describe("addding, removing and clearing") {
+            val ctx = Context.newInstance {
+                set(Public, UndoManager, UndoManagerImpl())
+            }
+            val editable = EditableList<IntLiteral, EditableIntLiteral>()
+            val editor = object : ListEditor<EditableIntLiteral>(editable, ctx) {
+                override fun createNewEditable(): EditableIntLiteral = EditableIntLiteral()
 
-            override fun accepts(child: Editor<*>): Boolean = child is IntLiteralEditor
+                override fun accepts(child: Editor<*>): Boolean = child is IntLiteralEditor
+            }
+            val view = viewMock<ListEditorView>()
+            view.inOrder {
+                on("adding a view") {
+                    editor.addView(view)
+                    it("should notify the view to be empty") {
+                        verify().empty()
+                    }
+                }
+                on("adding a new element") {
+                    editor.add(0)
+                    it("should create a new editable and add it") {
+                        editable.editableList.now.size shouldEqual 1
+                    }
+                    it("should notify the views") {
+                        verify().added(any(), eq(0))
+                        verify().notEmpty()
+                    }
+                }
+                on("adding another element") {
+                    editor.add(1)
+                    it("should create a new editable and add it") {
+                        editable.editableList.now.size shouldEqual 2
+                    }
+                    it("should notify the views") {
+                        verify().added(any(), eq(1))
+                    }
+                }
+                on("removing an element") {
+                    editor.removeAt(0)
+                    it("should remove an element from the editable list") {
+                        editable.editableList.now.size shouldEqual 1
+                    }
+                    it("should notify the views") {
+                        verify().removed(0)
+                    }
+                }
+                on("clearing") {
+                    editor.clear()
+                    it("should remove all elements from the editable list") {
+                        editable.editableList.now.size shouldEqual 0
+                    }
+                    it("should notify the views") {
+                        verify().removed(0)
+                        verify().empty()
+                    }
+                }
+            }
         }
-        val view = viewMock<ListEditorView>()
-        view.inOrder {
-            on("adding a view") {
-                editor.addView(view)
-                it("should notify the view to be empty") {
-                    verify().empty()
-                }
+        describe("undo/redo") {
+            val undo = UndoManagerImpl()
+            val ctx = Context.newInstance {
+                set(Public, UndoManager, undo)
             }
-            on("adding a new element") {
+            val editable = EditableList<IntLiteral, EditableIntLiteral>()
+            val editor = object : ListEditor<EditableIntLiteral>(editable, ctx) {
+                override fun createNewEditable(): EditableIntLiteral = EditableIntLiteral()
+
+                override fun accepts(child: Editor<*>): Boolean = child is IntLiteralEditor
+            }
+            val view = viewMock<ListEditorView>()
+            editor.addView(view)
+            on("adding an editable") {
                 editor.add(0)
-                it("should create a new editable and add it") {
-                    editable.editableList.now.size shouldEqual 1
-                }
-                it("should notify the views") {
-                    verify().added(any(), eq(0))
-                    verify().notEmpty()
+                it("should be able to undo") {
+                    undo.canUndo shouldBe `true`
                 }
             }
-            on("adding another element") {
-                editor.add(1)
-                it("should create a new editable and add it") {
-                    editable.editableList.now.size shouldEqual 2
+            on("undoing") {
+                undo.undo()
+                it("should remove the editable") {
+                    editable.editableList.now.size shouldEqual 0
                 }
-                it("should notify the views") {
-                    verify().added(any(), eq(1))
+            }
+            on("redoing") {
+                undo.redo()
+                it("should add the editable again") {
+                    editable.editableList.now.size shouldEqual 1
                 }
             }
             on("removing an element") {
                 editor.removeAt(0)
-                it("should remove an element from the editable list") {
-                    editable.editableList.now.size shouldEqual 1
-                }
-                it("should notify the views") {
-                    verify().removed(0)
+                it("should be able to undo") {
+                    undo.canUndo shouldBe `true`
                 }
             }
-            on("clearing") {
-                editor.clear()
-                it("should remove all elements from the editable list") {
-                    editable.editableList.now.size shouldEqual 0
+            on("undoing removing the element") {
+                undo.undo()
+                it("should add the element again") {
+                    editable.editableList.now.size shouldEqual 1
                 }
-                it("should notify the views") {
-                    verify().removed(0)
-                    verify().empty()
+            }
+            on("redoing removing the element") {
+                undo.redo()
+                it("should remove the element again") {
+                    editable.editableList.now.size shouldEqual 0
                 }
             }
         }
