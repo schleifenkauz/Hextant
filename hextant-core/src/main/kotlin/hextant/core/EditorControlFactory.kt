@@ -67,12 +67,3 @@ interface EditorControlFactory {
     }
 }
 
-inline fun <reified E : Editable<*>> EditorControlFactory.register(
-    noinline viewFactory: (E, Context) -> EditorControl<*>
-) {
-    register(E::class, viewFactory)
-}
-
-inline fun EditorControlFactory.configure(config: EditorControlFactory.() -> Unit) {
-    apply(config)
-}

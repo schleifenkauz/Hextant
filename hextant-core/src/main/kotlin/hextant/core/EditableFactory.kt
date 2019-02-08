@@ -91,16 +91,3 @@ interface EditableFactory {
     }
 }
 
-/**
- * Syntactic sugar for register(T::class, factory)
- */
-inline fun <reified T : Any> EditableFactory.register(noinline factory: (T) -> Editable<T>) {
-    register(T::class, factory)
-}
-
-/**
- * Syntactic sugar for register(T::class, factory)
- */
-inline fun <reified T : Any> EditableFactory.register(noinline factory: () -> Editable<T>) {
-    register(T::class, factory)
-}

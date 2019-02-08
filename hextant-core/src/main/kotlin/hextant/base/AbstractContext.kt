@@ -2,8 +2,9 @@
  *@author Nikolaus Knop
  */
 
-package hextant
+package hextant.base
 
+import hextant.Context
 import hextant.bundle.*
 
 abstract class AbstractContext(final override val parent: Context?, private val bundle: Bundle = Bundle.newInstance()) :

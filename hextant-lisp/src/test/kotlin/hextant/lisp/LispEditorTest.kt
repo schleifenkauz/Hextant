@@ -4,9 +4,11 @@
 
 package hextant.lisp
 
-import hextant.*
+import hextant.HextantPlatform
+import hextant.base.AbstractContext
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.CoreProperties.editorParentRegion
+import hextant.createView
 import hextant.fx.hextantScene
 import hextant.lisp.editable.ExpandableSExpr
 import hextant.lisp.editor.LispProperties.Internal

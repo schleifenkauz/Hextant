@@ -4,6 +4,7 @@
 
 package hextant
 
+import hextant.base.AbstractContext
 import hextant.bundle.Bundle
 
 interface Context : Bundle {

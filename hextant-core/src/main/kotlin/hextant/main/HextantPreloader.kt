@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package hextant
+package hextant.main
 
 import javafx.application.Application
 import javafx.scene.Scene

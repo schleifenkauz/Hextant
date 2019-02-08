@@ -7,6 +7,7 @@
 package hextant.expr
 
 import hextant.*
+import hextant.base.AbstractContext
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.CoreProperties
 import hextant.command.Commands

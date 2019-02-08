@@ -70,8 +70,3 @@ interface EditorFactory {
     }
 }
 
-inline fun <reified E : Editable<*>, reified Ed : Editor<E>> EditorFactory.register(
-    noinline factory: (E, Context) -> Ed
-) {
-    register(E::class, factory)
-}
