@@ -6,6 +6,7 @@ package hextant.plugin.dsl
 
 import hextant.*
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
 import hextant.command.Command
 import hextant.command.Commands
@@ -55,7 +56,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
     /**
      * Register the specified [factory] for views of the class [E]
      */
-    inline fun <reified E : Editable<*>, reified V : EditorControl<*>> view(noinline factory: (E, Context) -> V) {
+    inline fun <reified E : Editable<*>, reified V : EditorControl<*>> view(noinline factory: (E, Context, Bundle) -> V) {
         platform[Public, EditorControlFactory].register(E::class, factory)
         val viewName = V::class.qualifiedName
         val editableName = E::class.qualifiedName

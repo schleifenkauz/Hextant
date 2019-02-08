@@ -8,6 +8,7 @@ package hextant.command.line
 
 import hextant.Context
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.command.Command
 import hextant.command.Command.Parameter
 import hextant.command.gui.argumentEditor
@@ -27,10 +28,11 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import reaktive.event.subscribe
 
-class FXCommandLineView constructor(
+class FXCommandLineView(
     commandLine: CommandLine,
-    context: Context
-) : EditorControl<VBox>(), CommandLineView {
+    context: Context,
+    args: Bundle
+) : EditorControl<VBox>(args), CommandLineView {
     private val historyView = ListView<CommandApplication<Any>>().apply {
         styleClass.add("history-view")
         prefHeight = 0.0

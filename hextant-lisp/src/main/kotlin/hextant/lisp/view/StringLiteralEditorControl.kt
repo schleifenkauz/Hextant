@@ -6,6 +6,7 @@ package hextant.lisp.view
 
 import hextant.Context
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.core.view.TextEditorView
 import hextant.fx.HextantTextField
 import hextant.fx.keyword
@@ -13,8 +14,12 @@ import hextant.getEditor
 import hextant.lisp.editable.EditableStringLiteral
 import javafx.scene.layout.HBox
 
-class StringLiteralEditorControl(editable: EditableStringLiteral, context: Context) :
-    TextEditorView, EditorControl<HBox>() {
+class StringLiteralEditorControl(
+    editable: EditableStringLiteral,
+    context: Context,
+    args: Bundle
+) :
+    TextEditorView, EditorControl<HBox>(args) {
     private val textField = HextantTextField()
 
     private val layout = HBox()

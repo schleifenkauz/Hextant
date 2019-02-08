@@ -22,7 +22,7 @@ import javafx.scene.input.KeyCode.W
  * An [EditorView] represented as a [javafx.scene.control.Control]
  * @param R the type of the root-[Node] of this control
  */
-abstract class EditorControl<R : Node>(bundle: Bundle = Bundle.newInstance()) : Control(), EditorView {
+abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorView {
     private var _root: R? = null
 
     private lateinit var editor: Editor<*>
@@ -30,11 +30,11 @@ abstract class EditorControl<R : Node>(bundle: Bundle = Bundle.newInstance()) : 
     final override val arguments: Bundle
 
     init {
-        val reactive = ReactiveBundle(bundle)
+        val reactive = ReactiveBundle(arguments)
         reactive.changed.subscribe { _, change ->
             argumentChanged(change.property, change.newValue)
         }
-        arguments = reactive
+        this.arguments = reactive
     }
 
     /**

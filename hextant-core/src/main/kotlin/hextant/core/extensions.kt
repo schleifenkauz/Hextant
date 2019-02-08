@@ -2,6 +2,7 @@ package hextant.core
 
 import hextant.*
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 
 inline fun <reified E : Editable<*>, reified Ed : Editor<E>> EditorFactory.register(
     noinline factory: (E, Context) -> Ed
@@ -10,7 +11,7 @@ inline fun <reified E : Editable<*>, reified Ed : Editor<E>> EditorFactory.regis
 }
 
 inline fun <reified E : Editable<*>> EditorControlFactory.register(
-    noinline viewFactory: (E, Context) -> EditorControl<*>
+    noinline viewFactory: (E, Context, Bundle) -> EditorControl<*>
 ) {
     register(E::class, viewFactory)
 }

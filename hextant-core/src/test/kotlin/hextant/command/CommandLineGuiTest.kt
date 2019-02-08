@@ -39,10 +39,10 @@ class CommandLineGuiTest : Application() {
             }
             val views = platform[EditorControlFactory]
             views.run {
-                register { e: EditableIntLiteral, ctx -> FXIntLiteralEditorView(e, ctx) }
+                register { e: EditableIntLiteral, ctx -> FXIntLiteralEditorView(e, ctx,) }
             }
             val commandLine = CommandLine({ commands }, { targets }, platform)
-            val commandLineView = FXCommandLineView(commandLine, platform)
+            val commandLineView = FXCommandLineView(commandLine, platform,)
             val root = HBox(commandLineView)
             root.style = "-fx-background-color: black"
             return root

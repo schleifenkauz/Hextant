@@ -7,6 +7,7 @@ package hextant.core
 import hextant.Context
 import hextant.Editable
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
@@ -23,30 +24,38 @@ interface EditorControlFactory {
      * Register the specified [viewFactory] to the given [editableCls].
      * From now all calls of [getControl] with an argument of type [E] will use the [viewFactory]
      */
-    fun <E : Editable<*>> register(editableCls: KClass<out E>, viewFactory: (E, Context) -> EditorControl<*>)
+    fun <E : Editable<*>> register(editableCls: KClass<out E>, viewFactory: (E, Context, Bundle) -> EditorControl<*>)
 
     /**
      * @return the [EditorControl<*>] associated with the type of the specified [editable]
      * @throws NoSuchElementException if there is no [EditorControl<*>] registered with this [editable]
      */
-    fun <E : Editable<*>> getControl(editable: E, context: Context): EditorControl<*>
+    fun <E : Editable<*>> getControl(
+        editable: E,
+        context: Context,
+        arguments: Bundle = Bundle.newInstance()
+    ): EditorControl<*>
 
     @Suppress("UNCHECKED_CAST") private class Impl : EditorControlFactory {
-        private val viewFactories = ClassMap.invariant<(Editable<*>, Context) -> EditorControl<*>>()
+        private val viewFactories = ClassMap.invariant<(Editable<*>, Context, Bundle) -> EditorControl<*>>()
 
         override fun <E : Editable<*>> register(
             editableCls: KClass<out E>,
-            viewFactory: (E, Context) -> EditorControl<*>
+            viewFactory: (E, Context, Bundle) -> EditorControl<*>
         ) {
-            viewFactories[editableCls] = viewFactory as (Editable<*>, Context) -> EditorControl<*>
+            viewFactories[editableCls] = viewFactory as (Editable<*>, Context, Bundle) -> EditorControl<*>
         }
 
-        @Synchronized override fun <E : Editable<*>> getControl(editable: E, context: Context): EditorControl<*> {
+        @Synchronized override fun <E : Editable<*>> getControl(
+            editable: E,
+            context: Context,
+            arguments: Bundle
+        ): EditorControl<*> {
             val cls = editable::class
             when (editable) {
                 is ConvertedEditable<*, *> -> return getControl(editable.source, context)
                 else                       -> {
-                    viewFactories[cls]?.let { f -> return f(editable, context) }
+                    viewFactories[cls]?.let { f -> return f(editable, context, arguments) }
                     unresolvedView(cls)
                 }
             }

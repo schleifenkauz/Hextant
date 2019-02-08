@@ -29,7 +29,7 @@ class NameEditorGuiTest : Application() {
             val editable = EditableName()
             val nameView = platform.createView(editable)
             val cmd = CommandLine.forSelectedEditors(platform)
-            val cmdView = FXCommandLineView(cmd, platform)
+            val cmdView = FXCommandLineView(cmd, platform,)
             return SplitPane(nameView, cmdView).apply {
                 orientation = VERTICAL
             }

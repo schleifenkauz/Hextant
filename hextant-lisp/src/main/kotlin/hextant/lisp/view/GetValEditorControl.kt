@@ -6,14 +6,16 @@ package hextant.lisp.view
 
 import hextant.*
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.lisp.editable.EditableGetVal
 import hextant.lisp.editor.GetValEditor
 import javafx.scene.Node
 
 class GetValEditorControl(
     private val editable: EditableGetVal,
-    private val context: Context
-) : EditorControl<Node>() {
+    private val context: Context,
+    args: Bundle
+) : EditorControl<Node>(args) {
     init {
         val editor = context.getEditor(editable) as GetValEditor
         editor.addView(this)

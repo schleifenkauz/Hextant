@@ -11,7 +11,7 @@ import hextant.sample.editable.EditableName
 class FXNameEditorView(
     editable: EditableName,
     context: Context
-) : FXTokenEditorView(editable, context) {
+) : FXTokenEditorView(editable, context,) {
     init {
         styleClass.add("identifier-editor")
     }

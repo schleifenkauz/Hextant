@@ -6,6 +6,7 @@ package hextant.plugin.impl
 
 import hextant.*
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
 import hextant.command.Command
 import hextant.command.Commands
@@ -222,7 +223,11 @@ internal class JsonPluginLoader private constructor(
         check(viewCls.isSubclassOf(EditorControl::class), "class $viewClsName is not an editor control")
         val constructor = viewCls.constructors.find { c ->
             val required = c.parameters.filterNot { it.isOptional }
-            required.size == 2 && required[0].type.classifier == editableCls && required[1].type.classifier == Context::class
+            required.size == 3 &&
+                    required[0].type.classifier == editableCls &&
+                    required[1].type.classifier == Context::class &&
+                    required[2].type.classifier == Bundle::class
+
         } ?: error("no matching constructor found for $viewCls")
         val editableParameter = constructor.parameters.find {
             !it.isOptional && it.type.classifier == editableCls
@@ -230,11 +235,15 @@ internal class JsonPluginLoader private constructor(
         val contextParameter = constructor.parameters.find {
             !it.isOptional && it.type.classifier == Context::class
         } ?: error("View constructors must have a context parameter")
-        views.register(editableCls) { editable, context ->
+        val argumentParameter = constructor.parameters.find {
+            !it.isOptional && it.type.classifier == Bundle::class
+        } ?: error("View constructors must have a bundle parameter")
+        views.register(editableCls) { editable, context, args ->
             constructor.callBy(
                 mapOf(
                     editableParameter to editable,
-                    contextParameter to context
+                    contextParameter to context,
+                    argumentParameter to args
                 )
             )
         }

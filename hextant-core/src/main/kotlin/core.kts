@@ -13,7 +13,7 @@ plugin {
     editor(::TextEditor)
     view(::FXTextEditorView)
     //Lists
-    view { e: EditableList<*, *>, ctx -> FXListEditorView(e, ctx) }
+    view { e: EditableList<*, *>, ctx, args -> FXListEditorView(e, ctx, bundle = args) }
     //Expanders
     view(::FXExpanderView)
     //Command Line

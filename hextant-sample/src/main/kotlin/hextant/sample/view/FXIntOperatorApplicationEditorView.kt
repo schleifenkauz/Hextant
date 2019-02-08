@@ -15,4 +15,4 @@ class FXIntOperatorApplicationEditorView(editable: EditableIntOperatorApplicatio
             view(editable.op)
             view(editable.right)
         }
-    })
+    },)

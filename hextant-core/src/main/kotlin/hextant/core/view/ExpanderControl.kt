@@ -6,6 +6,7 @@ package hextant.core.view
 
 import hextant.*
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.core.editable.Expandable
 import hextant.core.editor.Expander
 import hextant.fx.HextantTextField
@@ -20,9 +21,10 @@ import reaktive.value.now
 
 class ExpanderControl(
     expandable: Expandable<*, *>,
-    private val ctx: Context
+    private val ctx: Context,
+    args: Bundle
 ) : ExpanderView,
-    EditorControl<Node>() {
+    EditorControl<Node>(args) {
     override fun textChanged(newText: String) {}
 
     private val expander = ctx.getEditor(expandable) as Expander<*, *>

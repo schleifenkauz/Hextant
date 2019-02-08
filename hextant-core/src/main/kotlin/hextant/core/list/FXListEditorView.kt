@@ -6,7 +6,8 @@ package hextant.core.list
 
 import hextant.*
 import hextant.base.EditorControl
-import hextant.core.list.FXListEditorView.Orientation.Vertical
+import hextant.bundle.*
+import hextant.bundle.CorePermissions.Public
 import hextant.fx.Glyphs
 import hextant.fx.setRoot
 import javafx.scene.Node
@@ -22,16 +23,16 @@ class FXListEditorView(
     private val context: Context,
     private val editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
     private val emptyDisplay: Node = Glyphs.create(PLUS),
-    orientation: Orientation = Vertical
+    bundle: Bundle
 ) : ListEditorView,
-    EditorControl<Node>() {
-    private var items = orientation.createLayout()
-
-    var orientation = orientation
+    EditorControl<Node>(bundle) {
+    var orientation = arguments.getOrNull(Public, ORIENTATION) ?: Orientation.Vertical
         set(new) {
             field = new
             orientationChanged(new)
         }
+
+    private var items = orientation.createLayout()
 
     private fun orientationChanged(new: Orientation) {
         items = new.createLayout()
@@ -44,7 +45,7 @@ class FXListEditorView(
         }
     }
 
-    var cellFactory: () -> Cell<*> = { DefaultCell() }
+    var cellFactory: () -> Cell<*> = arguments.getOrNull(Public, CELL_FACTORY) ?: { DefaultCell() }
         set(value) {
             field = value
             cellFactoryChanged()
@@ -55,6 +56,14 @@ class FXListEditorView(
         cells.addAll(cells(editable.editableList.now))
         items.children.clear()
         addChildren()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> argumentChanged(property: Property<T, *, *>, value: Any) {
+        when (property) {
+            ORIENTATION  -> orientation = value as Orientation
+            CELL_FACTORY -> cellFactory = value as () -> Cell<*>
+        }
     }
 
     private val cells = mutableListOf<Cell<*>>()
@@ -305,17 +314,19 @@ class FXListEditorView(
             context: Context,
             editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
             emptyText: String = "Add item",
-            orientation: Orientation = Vertical
-        ) = FXListEditorView(editable, context, editor, Button(emptyText), orientation)
+            args: Bundle = Bundle.newInstance()
+        ) = FXListEditorView(editable, context, editor, Button(emptyText), args)
 
         fun withAltGlyph(
             editable: EditableList<*, *>,
             context: Context,
             editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
             glyph: FontAwesome.Glyph,
-            orientation: Orientation = Vertical
-        ) = FXListEditorView(editable, context, editor, Glyphs.create(glyph), orientation)
+            args: Bundle = Bundle.newInstance()
+        ) = FXListEditorView(editable, context, editor, Glyphs.create(glyph), args)
 
+        val ORIENTATION = Property<Orientation, Public, Public>("list view orientation")
 
+        val CELL_FACTORY = Property<() -> Cell<*>, Public, Public>("list view cell factory")
     }
 }

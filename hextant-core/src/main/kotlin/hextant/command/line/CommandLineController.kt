@@ -68,7 +68,7 @@ class CommandLineController(
     private fun handleState(newState: State, view: CommandLineView) {
         if (newState == EditingArgs) {
             val command = commandLine.editedCommand()
-            val views = commandLine.editableArgs().map(context::createView)
+            val views = commandLine.editableArgs().map { editable -> context.createView(editable) }
             view.editingArgs(command.shortName!!, command.parameters, views)
         } else {
             view.editingName(commandLine.text.now)

@@ -6,6 +6,7 @@ package hextant.core.view
 
 import hextant.Context
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.core.editable.EditableToken
 import hextant.core.editor.TokenEditor
 import hextant.fx.HextantTextField
@@ -14,8 +15,9 @@ import hextant.getEditor
 
 open class FXTokenEditorView(
     editable: EditableToken<Any>,
-    context: Context
-) : EditorControl<HextantTextField>(), TextEditorView {
+    context: Context,
+    args: Bundle
+) : EditorControl<HextantTextField>(args), TextEditorView {
     private var updatingText = false
 
     final override fun createDefaultRoot() = HextantTextField().apply {

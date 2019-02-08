@@ -11,7 +11,7 @@ import hextant.core.view.FXTokenEditorView
 class FXIntOperatorEditorView(
     editable: EditableToken<Any>,
     context: Context
-) : FXTokenEditorView(editable, context) {
+) : FXTokenEditorView(editable, context,) {
     init {
         styleClass.add("int-operator-editor")
     }

@@ -2,6 +2,7 @@ package hextant.core.view
 
 import hextant.Context
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.core.editable.EditableText
 import hextant.core.editor.TextEditor
 import hextant.fx.HextantTextField
@@ -11,8 +12,9 @@ import reaktive.event.subscribe
 
 open class FXTextEditorView(
     editable: EditableText,
-    context: Context
-) : EditorControl<HextantTextField>(), TextEditorView {
+    context: Context,
+    args: Bundle
+) : EditorControl<HextantTextField>(args), TextEditorView {
     final override fun createDefaultRoot() = HextantTextField().apply {
         userUpdatedText.subscribe { new -> editor.setText(new) }
     }

@@ -6,6 +6,7 @@ package hextant.expr.view
 
 import hextant.*
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.expr.editable.EditableOperatorApplication
 import hextant.expr.editor.OperatorApplicationEditor
 import hextant.fx.OperatorLabel
@@ -14,13 +15,14 @@ import javafx.scene.layout.HBox
 
 class FXOperatorApplicationEditorView(
     editable: EditableOperatorApplication,
-    context: Context
-) : EditorControl<HBox>() {
-    private val op1View: EditorControl<*>
+    context: Context,
+    args: Bundle
+) : EditorControl<HBox>(args) {
+    private val op1View: EditorControl<*> = context.createView(editable.editableOp1)
 
-    private val operatorView: EditorControl<*>
+    private val operatorView: EditorControl<*> = context.createView(editable.editableOperator)
 
-    private val op2View: EditorControl<*>
+    private val op2View: EditorControl<*> = context.createView(editable.editableOp2)
 
     private val editor: OperatorApplicationEditor = context.getEditor(editable) as OperatorApplicationEditor
 
@@ -39,9 +41,6 @@ class FXOperatorApplicationEditorView(
     }
 
     init {
-        op1View = context.createView(editable.editableOp1)
-        operatorView = context.createView(editable.editableOperator)
-        op2View = context.createView(editable.editableOp2)
         initialize(editable, editor, context)
         editor.addView(this)
     }

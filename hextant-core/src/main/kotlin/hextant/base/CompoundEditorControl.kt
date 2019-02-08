@@ -5,6 +5,7 @@
 package hextant.base
 
 import hextant.*
+import hextant.bundle.Bundle
 import hextant.fx.keyword
 import hextant.fx.operator
 import javafx.scene.control.Label
@@ -12,8 +13,9 @@ import javafx.scene.layout.*
 
 abstract class CompoundEditorControl(
     private val context: Context,
+    args: Bundle,
     private val build: Vertical.() -> Unit
-) : EditorControl<VBox>() {
+) : EditorControl<VBox>(args) {
     override fun createDefaultRoot(): VBox = Vertical().also(build)
 
     interface Compound {
@@ -93,8 +95,9 @@ abstract class CompoundEditorControl(
             editable: Editable<*>,
             editor: Editor<*>,
             context: Context,
+            arguments: Bundle,
             build: Vertical.() -> Unit
-        ): CompoundEditorControl = object : CompoundEditorControl(context, build) {
+        ): CompoundEditorControl = object : CompoundEditorControl(context, arguments, build) {
             init {
                 initialize(editable, editor, context)
             }

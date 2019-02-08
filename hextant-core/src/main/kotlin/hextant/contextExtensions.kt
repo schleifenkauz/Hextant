@@ -5,15 +5,16 @@
 package hextant
 
 import hextant.base.EditorControl
+import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
 import hextant.core.*
 import kotlin.reflect.KClass
 
-fun Context.createView(editable: Editable<*>): EditorControl<*> =
+fun Context.createView(editable: Editable<*>, arguments: Bundle = Bundle.newInstance()): EditorControl<*> =
     try {
-        get(Public, EditorControlFactory).getControl(editable, this)
+        get(Public, EditorControlFactory).getControl(editable, this, arguments)
     } catch (e: NoSuchElementException) {
         parent?.createView(editable) ?: throw e
     }
