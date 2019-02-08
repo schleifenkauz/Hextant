@@ -104,8 +104,14 @@ interface Bundle {
          */
         fun newInstance(): Bundle = Impl()
 
+        /**
+         * @return a concurrent [Bundle] wrapping the passed [bundle]
+         */
         fun concurrent(bundle: Bundle = newInstance()) = ConcurrentBundle(bundle)
 
+        /**
+         * @return a reactive [Bundle] wrapping the passed [bundle]
+         */
         fun reactive(bundle: Bundle = newInstance()) = ReactiveBundle(bundle)
     }
 }

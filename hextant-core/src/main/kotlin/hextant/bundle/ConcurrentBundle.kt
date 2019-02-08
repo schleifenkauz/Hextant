@@ -6,6 +6,9 @@ package hextant.bundle
 
 import kotlin.properties.ReadOnlyProperty
 
+/**
+ * A [Bundle] synchronizing the mutating methods
+ */
 class ConcurrentBundle(private val bundle: Bundle) : Bundle by bundle {
     @Synchronized override fun <T : Any, Write : Permission> set(
         permission: Write,
