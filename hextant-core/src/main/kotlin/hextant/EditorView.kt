@@ -4,11 +4,18 @@
 
 package hextant
 
+import hextant.bundle.Bundle
+
 /**
  * A graphical view of an [Editor]
  * Acts like the View in the MVC pattern
  */
 interface EditorView {
+    /**
+     * The arguments for this view, mutating those will change the ways it displays the content
+     */
+    val arguments: Bundle
+
     /**
      * Select this control
      */

@@ -5,6 +5,7 @@
 package hextant.base
 
 import hextant.*
+import hextant.bundle.*
 import hextant.command.gui.commandContextMenu
 import hextant.fx.*
 import hextant.inspect.Inspections
@@ -21,10 +22,25 @@ import javafx.scene.input.KeyCode.W
  * An [EditorView] represented as a [javafx.scene.control.Control]
  * @param R the type of the root-[Node] of this control
  */
-abstract class EditorControl<R : Node> : Control(), EditorView {
+abstract class EditorControl<R : Node>(bundle: Bundle = Bundle.newInstance()) : Control(), EditorView {
     private var _root: R? = null
 
     private lateinit var editor: Editor<*>
+
+    final override val arguments: Bundle
+
+    init {
+        val reactive = ReactiveBundle(bundle)
+        reactive.changed.subscribe { _, change ->
+            argumentChanged(change.property, change.newValue)
+        }
+        arguments = reactive
+    }
+
+    /**
+     * Is called when one of the display arguments changed
+     */
+    protected open fun <T> argumentChanged(property: Property<T, *, *>, value: Any) {}
 
     /**
      * Creates the default root for this control
@@ -128,7 +144,6 @@ abstract class EditorControl<R : Node> : Control(), EditorView {
         if (Platform.isFxApplicationThread()) action() else {
             Platform.runLater(action)
     }
-    //        action()
 
     companion object {
         private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
