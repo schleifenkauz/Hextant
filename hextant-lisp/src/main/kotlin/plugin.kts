@@ -1,4 +1,5 @@
 import hextant.core.list.FXListEditorView
+import hextant.core.list.FXListEditorView.Orientation.Horizontal
 import hextant.getEditable
 import hextant.lisp.editable.*
 import hextant.lisp.editor.*
@@ -32,6 +33,6 @@ plugin {
     view(::StringLiteralEditorControl)
     view(::ApplyEditorControl)
     view<EditableSExprList, FXListEditorView> { editable, ctx, args ->
-        FXListEditorView.withAltGlyph(editable, ctx, glyph = PLUS, args = args)
+        FXListEditorView.withAltGlyph(editable, ctx, glyph = PLUS, args = args, orientation = Horizontal)
     }
 }

@@ -322,8 +322,11 @@ class FXListEditorView(
             context: Context,
             editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
             glyph: FontAwesome.Glyph,
-            args: Bundle = Bundle.newInstance()
-        ) = FXListEditorView(editable, context, editor, Glyphs.create(glyph), args)
+            args: Bundle = Bundle.newInstance(),
+            orientation: Orientation = Orientation.Vertical
+        ) = FXListEditorView(editable, context, editor, Glyphs.create(glyph), args.also {
+            it[Public, ORIENTATION] = orientation
+        })
 
         val ORIENTATION = Property<Orientation, Public, Public>("list view orientation")
 

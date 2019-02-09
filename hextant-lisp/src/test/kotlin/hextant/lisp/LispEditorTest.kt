@@ -41,11 +41,11 @@ class LispEditorTest : Application() {
                 override val platform: HextantPlatform
                     get() = platform
             }
+            context[Internal, fileScope] = FileScope.empty
+            context[Public, UndoManager] = UndoManagerImpl()
             val expandable = ExpandableSExpr()
             val view = context.createView(expandable)
             context[Public, editorParentRegion] = view
-            context[Internal, fileScope] = FileScope.empty
-            context[Public, UndoManager] = UndoManagerImpl()
             val eval = Button("Evaluate").apply {
                 setOnAction {
                     val edited = expandable.edited.now ?: return@setOnAction
