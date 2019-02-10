@@ -10,17 +10,19 @@ package hextant.completion
  * @param strategy the used [CompletionStrategy]
  * @param factory the used [CompletionFactory]
  */
-open class ConfiguredCompleter<T : Any>(
-    private val strategy: CompletionStrategy, private val factory: CompletionFactory<T>
-) : Completer<T> {
+open class ConfiguredCompleter<C : Any>(
+    private val strategy: CompletionStrategy,
+    private val factory: CompletionFactory<C>,
+    private val pool: CompletionPool<C>
+) : Completer<C> {
     /**
      * @return the text representing the receiver, by default used [toString]
      */
-    protected open fun T.getText(): String = toString()
+    protected open fun C.getText(): String = toString()
 
-    override fun completions(element: String, completionPool: Collection<T>): Set<Completion<T>> {
-        val completions = completionPool.asSequence().filter {
-            strategy.isCompletable(element, it.getText())
+    override fun completions(input: String): Set<Completion<C>> {
+        val completions = pool.pool().asSequence().filter {
+            strategy.isCompletable(input, it.getText())
         }.map { factory.getCompletion(it) }
         return completions.toSet()
     }

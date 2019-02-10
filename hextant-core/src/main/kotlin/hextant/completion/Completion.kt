@@ -17,7 +17,7 @@ interface Completion<out T> {
 
     /**
      * @return the completed text
-     * for "hel" it could be "helloworld"
+     * for "hel" it could be "hello world"
      */
     val text: String
 

@@ -7,9 +7,9 @@ package hextant.completion
 /**
  * Used to get [Completion]s
  */
-interface Completer<T> {
+interface Completer<out T> {
     /**
-     * @return the possible completions for [element] given a pool of possible completions [completionPool]
+     * @return the possible completions for [input]
      */
-    fun completions(element: String, completionPool: Collection<T>): Set<Completion<T>>
+    fun completions(input: String): Set<Completion<T>>
 }
