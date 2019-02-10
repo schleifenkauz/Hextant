@@ -7,6 +7,8 @@ package hextant.core.editor
 import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.bundle.CorePermissions.Public
+import hextant.completion.Completer
+import hextant.completion.NoCompleter
 import hextant.core.editable.EditableToken
 import hextant.core.view.TextEditorView
 import hextant.runLater
@@ -18,7 +20,8 @@ import reaktive.value.now
  */
 abstract class TokenEditor<E : EditableToken<*>, V : TextEditorView>(
     editable: E,
-    private val context: Context
+    private val context: Context,
+    private val completer: Completer<String> = NoCompleter
 ) : AbstractEditor<E, V>(editable, context) {
     private val undo = context[Public, UndoManager]
 
@@ -30,10 +33,26 @@ abstract class TokenEditor<E : EditableToken<*>, V : TextEditorView>(
      * Set the text on the platform thread and notify the views
      */
     @Synchronized fun setText(new: String) {
-        if (new != editable.text.now) {
-            val edit = doSetText(new)
-            undo.push(edit)
+        context.runLater {
+            if (new != editable.text.now) {
+                val edit = doSetText(new)
+                if (editable.edited.now == null) {
+                    suggestCompletions(new)
+                }
+                undo.push(edit)
+            }
         }
+    }
+
+    private fun suggestCompletions(new: String) {
+        val completions = completer.completions(new)
+        views {
+            displayCompletions(completions)
+        }
+    }
+
+    @Synchronized fun suggestCompletions() {
+        suggestCompletions(editable.text.now)
     }
 
     private fun doSetText(new: String): TextEdit {

@@ -18,7 +18,7 @@ class CompletionPopup<C> : Popup() {
         isAutoHide = true
     }
 
-    fun setCompletions(completions: Set<Completion<C>>) {
+    fun setCompletions(completions: Collection<Completion<C>>) {
         val vbox = VBox()
         vbox.styleClass.add("completions")
         for (c in completions) {
