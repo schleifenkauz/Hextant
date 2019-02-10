@@ -5,12 +5,12 @@
 package hextant.command.line
 
 import hextant.command.Command
-import hextant.completion.CompletionStrategy
-import hextant.completion.ConfiguredCompleter
+import hextant.completion.*
 
-internal object CommandCompleter : ConfiguredCompleter<Command<*, *>>(
+internal class CommandCompleter(pool: CompletionPool<Command<*, *>>) : ConfiguredCompleter<Command<*, *>>(
     CompletionStrategy.simple,
-    CommandCompletionFactory
+    CommandCompletionFactory,
+    pool
 ) {
     override fun Command<*, *>.getText(): String = shortName!!
 }
