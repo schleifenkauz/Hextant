@@ -9,7 +9,7 @@ import hextant.base.AbstractEditor
 import hextant.command.Command
 import hextant.command.line.CommandLine.State
 import hextant.command.line.CommandLine.State.EditingArgs
-import hextant.completion.CompletionPool
+import hextant.completion.Completer
 import hextant.createView
 import reaktive.value.now
 import reaktive.value.observe
@@ -24,11 +24,7 @@ class CommandLineController(
     val commandLine: CommandLine,
     private val context: Context
 ) : AbstractEditor<CommandLine, CommandLineView>(commandLine, context) {
-    private val completer = CommandCompleter(Completions())
-
-    private inner class Completions : CompletionPool<Command<*, *>> {
-        override fun pool(): Set<Command<*, *>> = commandLine.commands()
-    }
+    private val completer: Completer<Command<*, *>> = TODO()
 
     private val stateObserver = commandLine.state.observe { _, newState ->
         views {

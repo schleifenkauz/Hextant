@@ -10,7 +10,7 @@ import hextant.bundle.CorePermissions.Public
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.core.editable.EditableToken
-import hextant.core.view.TextEditorView
+import hextant.core.view.TokenEditorView
 import hextant.runLater
 import hextant.undo.*
 import reaktive.value.now
@@ -18,7 +18,7 @@ import reaktive.value.now
 /**
  * An editor for tokens
  */
-abstract class TokenEditor<E : EditableToken<*>, V : TextEditorView>(
+abstract class TokenEditor<E : EditableToken<*>, V : TokenEditorView>(
     editable: E,
     private val context: Context,
     private val completer: Completer<String> = NoCompleter

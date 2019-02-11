@@ -5,6 +5,7 @@
 package hextant.sample.view
 
 import hextant.HextantPlatform
+import hextant.bundle.Bundle
 import hextant.command.line.CommandLine
 import hextant.command.line.FXCommandLineView
 import hextant.createView
@@ -29,7 +30,7 @@ class NameEditorGuiTest : Application() {
             val editable = EditableName()
             val nameView = platform.createView(editable)
             val cmd = CommandLine.forSelectedEditors(platform)
-            val cmdView = FXCommandLineView(cmd, platform,)
+            val cmdView = FXCommandLineView(cmd, platform, Bundle.newInstance())
             return SplitPane(nameView, cmdView).apply {
                 orientation = VERTICAL
             }

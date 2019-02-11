@@ -3,7 +3,7 @@ package hextant.core.view
 import hextant.EditorView
 import hextant.completion.Completion
 
-interface TextEditorView: EditorView {
+interface TokenEditorView : EditorView {
     fun displayText(t: String)
 
     fun displayCompletions(completions: Collection<Completion<String>>)

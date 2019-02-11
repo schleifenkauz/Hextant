@@ -6,6 +6,7 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.ParentEditor
+import hextant.completion.Completer
 import hextant.core.editable.Expandable
 import hextant.core.view.ExpanderView
 import hextant.undo.*
@@ -13,7 +14,8 @@ import reaktive.value.now
 
 abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
     editable: Ex,
-    private val context: Context
+    private val context: Context,
+    private val completer: Completer<String>
 ) : ParentEditor<Ex, ExpanderView>(editable, context) {
     private val undo = context[UndoManager]
 
@@ -140,5 +142,12 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
 
     override fun extendSelection(child: Editor<*>) {
         parent?.extendSelection(child)
+    }
+
+    fun suggestCompletions() {
+        val completions = completer.completions(editable.text.now)
+        views {
+            suggestCompletions(completions)
+        }
     }
 }

@@ -4,6 +4,6 @@
 
 package hextant.expr.view
 
-import hextant.core.view.TextEditorView
+import hextant.core.view.TokenEditorView
 
-interface IntLiteralEditorView : TextEditorView
+interface IntLiteralEditorView : TokenEditorView

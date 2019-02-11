@@ -5,11 +5,16 @@
 package hextant.core.editor
 
 import hextant.Editable
+import hextant.completion.*
+import reaktive.set.unmodifiableReactiveSet
 import java.util.*
 
 class ExpanderConfig<E : Editable<*>> {
     private val constant = mutableMapOf<String, () -> E>()
     private val interceptors = LinkedList<(String) -> E?>()
+
+    fun completer(strategy: CompletionStrategy, factory: CompletionFactory<String>): Completer<String> =
+        ConfiguredCompleter(strategy, factory, pool = unmodifiableReactiveSet(constant.keys))
 
     fun registerConstant(text: String, create: () -> E) {
         constant[text] = create
@@ -28,6 +33,4 @@ class ExpanderConfig<E : Editable<*>> {
         }
         return null
     }
-
-    fun getCompletions(): Set<String> = constant.keys
 }

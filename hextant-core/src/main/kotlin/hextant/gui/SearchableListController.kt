@@ -8,14 +8,22 @@ import hextant.base.AbstractController
 import hextant.completion.*
 import hextant.impl.myLogger
 import reaktive.event.event
+import reaktive.set.ReactiveSet
 import kotlin.properties.Delegates.observable
 
 class SearchableListController<E : Any>(
-    private val source: Collection<E>,
-    private val completer: Completer<E> = defaultCompleter(),
+    private val completer: Completer<E>,
     private val maxItems: Int = 10,
     initialText: String = ""
 ) : AbstractController<SearchableListView<E>>() {
+    constructor(
+        completionStrategy: CompletionStrategy,
+        factory: CompletionFactory<E>,
+        pool: ReactiveSet<E>,
+        maxItems: Int,
+        initialText: String
+    ) : this(ConfiguredCompleter(completionStrategy, factory, pool), maxItems, initialText)
+
     private var mostRecentCompletions: Collection<Completion<E>> = emptySet()
 
     private val selectItem = event<E>()
@@ -65,17 +73,10 @@ class SearchableListController<E : Any>(
         }
     }
 
-    private fun getCompletions(): Collection<Completion<E>> = completer.completions(text, source).take(maxItems)
+    private fun getCompletions(): Collection<Completion<E>> = completer.completions(text).take(maxItems)
 
     companion object {
-
         val logger by myLogger()
-        private fun <E : Any> defaultCompleter(): ConfiguredCompleter<E> {
-            return ConfiguredCompleter(
-                CompletionStrategy.simple,
-                CompletionFactory.simple<E>()
-            )
-        }
     }
 
 }

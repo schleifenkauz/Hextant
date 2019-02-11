@@ -7,6 +7,7 @@ package hextant.core.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
+import hextant.completion.Completion
 import hextant.core.editable.Expandable
 import hextant.core.editor.Expander
 import hextant.fx.HextantTextField
@@ -27,7 +28,7 @@ class ExpanderControl(
     EditorControl<Node>(args) {
     override fun textChanged(newText: String) {}
 
-    private val expander = ctx.getEditor(expandable) as Expander<*, *>
+    private val expander: Expander<*, *> = ctx.getEditor(expandable)
 
     private val popup = createPopOver(expandable)
 
@@ -66,4 +67,8 @@ class ExpanderControl(
     }
 
     override fun createDefaultRoot(): Node = Button("?")
+
+    override fun suggestCompletions(completions: Set<Completion<String>>) {
+        TODO("not implemented")
+    }
 }

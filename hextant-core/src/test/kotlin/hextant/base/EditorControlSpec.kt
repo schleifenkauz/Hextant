@@ -6,6 +6,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.should.shouldNotMatch
 import com.sun.javafx.application.PlatformImpl
 import hextant.HextantPlatform
+import hextant.bundle.Bundle
 import hextant.core.instanceOf
 import hextant.core.mocks.EditableMock
 import hextant.core.mocks.MockEditor
@@ -68,7 +69,7 @@ internal object EditorControlSpec : Spek({
         afterGroup { PlatformImpl.exit() }
     }
 }) {
-    class AnEditorControl : EditorControl<Label>() {
+    class AnEditorControl : EditorControl<Label>(Bundle.newInstance()) {
         override fun createDefaultRoot(): Label = Label("default")
 
         fun setRoot(new: Label) {

@@ -7,7 +7,8 @@ package hextant.lisp.view
 import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.core.view.TextEditorView
+import hextant.completion.Completion
+import hextant.core.view.TokenEditorView
 import hextant.fx.HextantTextField
 import hextant.fx.keyword
 import hextant.getEditor
@@ -18,8 +19,11 @@ class StringLiteralEditorControl(
     editable: EditableStringLiteral,
     context: Context,
     args: Bundle
-) :
-    TextEditorView, EditorControl<HBox>(args) {
+) : TokenEditorView, EditorControl<HBox>(args) {
+    override fun displayCompletions(completions: Collection<Completion<String>>) {
+        check(completions.isEmpty()) //there are no completions
+    }
+
     private val textField = HextantTextField()
 
     private val layout = HBox()

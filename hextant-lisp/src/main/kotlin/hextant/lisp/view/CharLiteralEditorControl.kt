@@ -7,7 +7,8 @@ package hextant.lisp.view
 import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.core.view.TextEditorView
+import hextant.completion.Completion
+import hextant.core.view.TokenEditorView
 import hextant.fx.HextantTextField
 import hextant.getEditor
 import hextant.lisp.editable.EditableCharLiteral
@@ -19,7 +20,7 @@ class CharLiteralEditorControl(
     editable: EditableCharLiteral,
     context: Context,
     args: Bundle
-) : EditorControl<HBox>(args), TextEditorView {
+) : EditorControl<HBox>(args), TokenEditorView {
     private val charTextField = HextantTextField()
 
     init {
@@ -40,5 +41,9 @@ class CharLiteralEditorControl(
 
     override fun displayText(t: String) {
         charTextField.text = t
+    }
+
+    override fun displayCompletions(completions: Collection<Completion<String>>) {
+        check(completions.isEmpty()) //There are no completions
     }
 }

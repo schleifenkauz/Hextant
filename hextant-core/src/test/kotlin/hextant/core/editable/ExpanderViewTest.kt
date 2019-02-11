@@ -5,6 +5,7 @@
 package hextant.core.editable
 
 import hextant.HextantPlatform
+import hextant.bundle.Bundle
 import hextant.core.EditorControlFactory
 import hextant.core.configure
 import hextant.core.view.FXExpanderView
@@ -29,11 +30,17 @@ class ExpanderViewTest : Application() {
         private fun createContent(): Parent {
             val platform = HextantPlatform.configured()
             platform[EditorControlFactory].configure {
-                register(EditableIntLiteral::class) { editable, ctx -> FXIntLiteralEditorView(editable, ctx,) }
-                register(EditableText::class) { editable, ctx -> FXTextEditorView(editable, ctx,) }
+                register(EditableIntLiteral::class) { editable, ctx, args ->
+                    FXIntLiteralEditorView(
+                        editable,
+                        ctx,
+                        args
+                    )
+                }
+                register(EditableText::class) { editable, ctx, args -> FXTextEditorView(editable, ctx, args) }
             }
             val ex = ExpandableExpr()
-            return FXExpanderView(ex, platform,)
+            return FXExpanderView(ex, platform, Bundle.newInstance())
         }
 
         @JvmStatic fun main(args: Array<String>) {

@@ -20,7 +20,7 @@ open class FXTokenEditorView(
     editable: EditableToken<Any>,
     context: Context,
     args: Bundle
-) : EditorControl<HextantTextField>(args), TextEditorView {
+) : EditorControl<HextantTextField>(args), TokenEditorView {
     private val completionPopup = CompletionPopup<String>()
 
     private val textSubscription: Subscription
@@ -30,7 +30,7 @@ open class FXTokenEditorView(
     final override fun createDefaultRoot() = HextantTextField()
 
     @Suppress("UNCHECKED_CAST")
-    private val editor = context.getEditor(editable) as TokenEditor<*, TextEditorView>
+    private val editor = context.getEditor(editable) as TokenEditor<*, TokenEditorView>
 
     init {
         initialize(editable, editor, context)

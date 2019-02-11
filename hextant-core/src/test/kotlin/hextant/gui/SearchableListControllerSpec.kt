@@ -3,6 +3,7 @@ package hextant.gui
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockitokotlin2.*
+import hextant.completion.NoCompleter
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import java.util.logging.ConsoleHandler
@@ -15,7 +16,7 @@ class SearchableListControllerSpec : Spek({
         val handler = ConsoleHandler().also { it.level = Level.ALL }
         logger.addHandler(handler)
         val source = listOf(12, 12, 13, 14)
-        val c = SearchableListController(source, maxItems = 3, initialText = "initial")
+        val c = SearchableListController<Int>(maxItems = 3, initialText = "initial", completer = NoCompleter)
         val viewMock = mock<SearchableListView<Int>>()
         on("adding a view") {
             c.addView(viewMock)

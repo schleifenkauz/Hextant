@@ -5,6 +5,7 @@
 package hextant.inspect
 
 import hextant.HextantPlatform
+import hextant.bundle.Bundle
 import hextant.command.Commands
 import hextant.command.command
 import hextant.core.EditableFactory
@@ -71,7 +72,7 @@ class InspectionGuiTest : Application() {
             val editableFactory = platform[EditableFactory]
             editableFactory.register(IntLiteral::class) { -> EditableIntLiteral() }
             val e = EditableIntLiteral()
-            return FXIntLiteralEditorView(e, platform,)
+            return FXIntLiteralEditorView(e, platform, Bundle.newInstance())
         }
 
         @JvmStatic fun main(args: Array<String>) {

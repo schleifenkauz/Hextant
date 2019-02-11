@@ -6,13 +6,14 @@ package hextant.lisp.editor
 
 import hextant.Context
 import hextant.Editor
+import hextant.completion.NoCompleter
 import hextant.core.editor.Expander
 import hextant.lisp.editable.*
 import hextant.lisp.editor.LispProperties.Internal
 import hextant.lisp.editor.LispProperties.fileScope
 
 class SExprExpander(editable: ExpandableSExpr, private val context: Context) :
-    Expander<EditableSExpr<*>, ExpandableSExpr>(editable, context) {
+    Expander<EditableSExpr<*>, ExpandableSExpr>(editable, context, NoCompleter) {
     override fun expand(text: String): EditableSExpr<*>? = text.run {
         asIntLiteral() ?: asDoubleLiteral() ?: asStringLiteral() ?: asCharLiteral() ?: asApply() ?: asGetVal()
     }

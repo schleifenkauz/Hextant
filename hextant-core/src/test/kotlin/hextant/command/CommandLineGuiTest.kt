@@ -5,6 +5,7 @@
 package hextant.command
 
 import hextant.HextantPlatform
+import hextant.bundle.Bundle
 import hextant.command.Data.Receiver
 import hextant.command.line.CommandLine
 import hextant.command.line.FXCommandLineView
@@ -39,10 +40,10 @@ class CommandLineGuiTest : Application() {
             }
             val views = platform[EditorControlFactory]
             views.run {
-                register { e: EditableIntLiteral, ctx -> FXIntLiteralEditorView(e, ctx,) }
+                register { e: EditableIntLiteral, ctx, args -> FXIntLiteralEditorView(e, ctx, args) }
             }
             val commandLine = CommandLine({ commands }, { targets }, platform)
-            val commandLineView = FXCommandLineView(commandLine, platform,)
+            val commandLineView = FXCommandLineView(commandLine, platform, Bundle.newInstance())
             val root = HBox(commandLineView)
             root.style = "-fx-background-color: black"
             return root

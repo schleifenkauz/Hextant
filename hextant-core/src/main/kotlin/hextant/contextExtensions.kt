@@ -19,9 +19,10 @@ fun Context.createView(editable: Editable<*>, arguments: Bundle = Bundle.newInst
         parent?.createView(editable) ?: throw e
     }
 
-fun <E : Editable<*>> Context.getEditor(editable: E): Editor<E> =
+fun <E : Editable<*>, Ed : Editor<E>> Context.getEditor(editable: E): Ed =
     try {
-        get(Public, EditorFactory).getEditor(editable, this)
+        @Suppress("UNCHECKED_CAST")
+        get(Public, EditorFactory).getEditor(editable, this) as Ed
     } catch (e: NoSuchElementException) {
         parent?.getEditor(editable) ?: throw e
     }

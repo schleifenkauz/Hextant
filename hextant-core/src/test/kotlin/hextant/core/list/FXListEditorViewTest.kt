@@ -22,9 +22,9 @@ class FXListEditorViewTest : Application() {
             val list = EditableExprList()
             val platform = HextantPlatform.configured()
             val views = platform[EditorControlFactory]
-            views.register<EditableList<*, *>> { editable, ctx ->
+            views.register<EditableList<*, *>> { editable, ctx, args ->
                 val editor = ctx.getEditor(editable)
-                FXListEditorView(editable, ctx, editor as ListEditor<*>)
+                FXListEditorView(editable, ctx, editor as ListEditor<*>, bundle = args)
             }
             val view = platform.createView(list) as FXListEditorView
             view.cellFactory = { NumberedCell() }

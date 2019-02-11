@@ -7,10 +7,11 @@ package hextant.core.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
+import hextant.completion.Completion
+import hextant.completion.gui.CompletionPopup
 import hextant.core.editable.Expandable
 import hextant.core.editor.Expander
-import hextant.fx.HextantTextField
-import hextant.fx.registerShortcut
+import hextant.fx.*
 import javafx.scene.Node
 import javafx.scene.input.KeyCode.R
 import javafx.scene.input.KeyCodeCombination
@@ -25,13 +26,17 @@ class FXExpanderView(
     args: Bundle
 ) : ExpanderView, EditorControl<Node>(args) {
 
-    private val expander = context.getEditor(expandable) as Expander<*, *>
+    private val expander: Expander<*, *> = context.getEditor(expandable)
 
     private var view: EditorControl<*>? = null
 
     private val textField = HextantTextField()
 
     private val textSubscription: Subscription
+
+    private val completionsPopup = CompletionPopup<String>()
+
+    private val completionSubscription: Subscription
 
     override fun createDefaultRoot(): Node = textField
 
@@ -42,11 +47,16 @@ class FXExpanderView(
         }
         initialize(expandable, expander, context)
         expander.addView(this)
+        completionSubscription = completionsPopup.completionChosen.subscribe { comp ->
+            expander.setText(comp.completed)
+            expander.expand()
+        }
     }
 
     override fun textChanged(newText: String) {
         if (newText != textField.text) {
             textField.text = newText
+            expander.suggestCompletions()
         }
     }
 
@@ -63,6 +73,11 @@ class FXExpanderView(
         v.registerShortcut(RESET_SHORTCUT) { expander.reset() }
         root = v
         v.focus()
+    }
+
+    override fun suggestCompletions(completions: Set<Completion<String>>) {
+        completionsPopup.setCompletions(completions)
+        completionsPopup.show(this)
     }
 
     override fun requestFocus() {

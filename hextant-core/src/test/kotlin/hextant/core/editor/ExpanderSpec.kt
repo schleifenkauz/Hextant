@@ -3,6 +3,7 @@ package hextant.core.editor
 import com.nhaarman.mockitokotlin2.inOrder
 import hextant.*
 import hextant.bundle.CorePermissions.Public
+import hextant.completion.NoCompleter
 import hextant.core.editable.Expandable
 import hextant.core.editor.ExpanderSpec.expandable
 import hextant.core.editor.ExpanderSpec.expander
@@ -150,7 +151,8 @@ object ExpanderSpec : Spek({
     fun expandable() = object : Expandable<IntLiteral, EditableIntLiteral>() {}
 
     fun expander(expandable: Expandable<IntLiteral, EditableIntLiteral>, context: Context) =
-        object : Expander<EditableIntLiteral, Expandable<IntLiteral, EditableIntLiteral>>(expandable, context) {
+        object :
+            Expander<EditableIntLiteral, Expandable<IntLiteral, EditableIntLiteral>>(expandable, context, NoCompleter) {
             override fun expand(text: String): EditableIntLiteral? {
                 val int = text.toIntOrNull() ?: return null
                 return EditableIntLiteral(int)
