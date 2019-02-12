@@ -2,7 +2,6 @@ package hextant.completion
 
 import hextant.completion.CompletionResult.Match
 import hextant.completion.CompletionResult.NoMatch
-import java.util.*
 
 /**
  * A completion strategy
@@ -13,18 +12,22 @@ interface CompletionStrategy {
     private object Simple : CompletionStrategy {
         override fun match(now: String, completion: String): CompletionResult {
             if (now == completion) return NoMatch
+            var completionRegionStart = 0
             var completionIdx = -1
-            val matchedIndices = BitSet(completion.length)
+            val matchedIndices = mutableListOf<IntRange>()
             outer@ for (n in now) {
                 //search associated character in completion
                 inner@ while (true) {
-                    ++completionIdx
+                    completionIdx++
                     if (completionIdx >= completion.length) return NoMatch //No associated character found in completion
                     val c = completion[completionIdx]
-                    if (c == n) {
-                        matchedIndices.set(completionIdx)
-                        break@inner //Next character in input
+                    //Next character in input
+                    if (c == n) break@inner
+                    if (completionRegionStart < completionIdx) { //Have there been characters associated
+                        matchedIndices.add(completionRegionStart until completionIdx)
                     }
+                    completionRegionStart++
+
                 }
             }
             return Match(matchedIndices)
@@ -37,23 +40,26 @@ interface CompletionStrategy {
     ) : CompletionStrategy {
         override fun match(now: String, completion: String): CompletionResult {
             if (now == completion) return NoMatch
+            var completionRegionStart = 0
             var completionIdx = -1
-            val matchedIndices = BitSet(completion.length)
+            val matchedIndices = mutableListOf<IntRange>()
             for (n: Char in now) {
                 completionIdx++
                 if (completionIdx >= completion.length) return NoMatch
                 var c = completion[completionIdx]
                 when {
-                    charEquality(c, n) -> matchedIndices.set(completionIdx)
+                    charEquality(c, n) -> {
+                    }
                     n.isSeparator()    -> {
+                        if (completionRegionStart < completionIdx) { //Have there been characters associated
+                            matchedIndices.add(completionRegionStart until completionIdx)
+                        }
                         inner@ while (true) {
                             completionIdx++
                             if (completionIdx >= completion.length) return NoMatch
                             c = completion[completionIdx]
-                            if (charEquality(c, n)) {
-                                matchedIndices.set(completionIdx)
-                                break@inner
-                            }
+                            if (charEquality(c, n)) break@inner
+                            completionRegionStart++
                         }
                     }
                     else               -> return NoMatch
