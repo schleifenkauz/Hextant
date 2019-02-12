@@ -14,7 +14,7 @@ interface CompletionStrategy {
             if (now == completion) return NoMatch
             var completionRegionStart = 0
             var completionIdx = -1
-            val matchedIndices = mutableListOf<IntRange>()
+            val matchedRegions = mutableListOf<IntRange>()
             outer@ for (n in now) {
                 //search associated character in completion
                 inner@ while (true) {
@@ -24,13 +24,14 @@ interface CompletionStrategy {
                     //Next character in input
                     if (c == n) break@inner
                     if (completionRegionStart < completionIdx) { //Have there been characters associated
-                        matchedIndices.add(completionRegionStart until completionIdx)
+                        matchedRegions.add(completionRegionStart until completionIdx)
                     }
-                    completionRegionStart++
+                    completionRegionStart = completionIdx + 1
 
                 }
             }
-            return Match(matchedIndices)
+            matchedRegions.add(completionRegionStart..completionIdx)
+            return Match(matchedRegions)
         }
     }
 
@@ -42,7 +43,7 @@ interface CompletionStrategy {
             if (now == completion) return NoMatch
             var completionRegionStart = 0
             var completionIdx = -1
-            val matchedIndices = mutableListOf<IntRange>()
+            val matchedRegions = mutableListOf<IntRange>()
             for (n: Char in now) {
                 completionIdx++
                 if (completionIdx >= completion.length) return NoMatch
@@ -52,20 +53,23 @@ interface CompletionStrategy {
                     }
                     n.isSeparator()    -> {
                         if (completionRegionStart < completionIdx) { //Have there been characters associated
-                            matchedIndices.add(completionRegionStart until completionIdx)
+                            matchedRegions.add(completionRegionStart until completionIdx)
                         }
                         inner@ while (true) {
                             completionIdx++
                             if (completionIdx >= completion.length) return NoMatch
                             c = completion[completionIdx]
-                            if (charEquality(c, n)) break@inner
-                            completionRegionStart++
+                            if (charEquality(c, n)) {
+                                completionRegionStart = completionIdx
+                                break@inner
+                            }
                         }
                     }
                     else               -> return NoMatch
                 }
             }
-            return Match(matchedIndices)
+            matchedRegions.add(completionRegionStart..completionIdx)
+            return Match(matchedRegions)
         }
     }
 
