@@ -11,12 +11,22 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 
 internal object CompletionStrategySpec: Spek({
-    data class CompletionTestCase(val now: String, val possibility: String, val shouldComplete: Boolean)
+    fun test(
+        testData: List<Pair<Pair<String, String>, Boolean>>,
+        s: CompletionStrategy
+    ) {
+        for (testCase in testData) {
+            val now = testCase.first.first
+            val p = testCase.first.second
+            val expected = testCase.second
+            action("is completable $now to $p") {
+                test("should be $expected") {
+                    (s.match(now, p) is Match) shouldMatch equalTo(expected)
+                }
+            }
+        }
+    }
 
-    fun Pair<Pair<String, String>, Boolean>.testCase() = CompletionTestCase(
-        first.first, first.second,
-        second
-    )
     describe("simple") {
         val s = CompletionStrategy.simple
         val testData = listOf(
@@ -28,13 +38,20 @@ internal object CompletionStrategySpec: Spek({
             "public" to "public" to false,
             "publi" to "public" to true,
             "public void" to "public" to false
-        ).map { it.testCase() }
-        for ((now, p, expected) in testData) {
-            action("is completable $now to $p") {
-                test("should be $expected") {
-                    (s.match(now, p) is Match) shouldMatch equalTo(expected)
-                }
-            }
-        }
+        )
+        test(testData, s)
+    }
+    describe("hyphen") {
+        val s = CompletionStrategy.underscore
+        val testData = listOf(
+            "abc" to "a_b_c" to false,
+            "ab_d" to "abc_def" to true,
+            "ü" to "abc_def" to false,
+            "___" to "abc_def_ghi_jkl" to true,
+            "_" to "abc_def" to true,
+            "_def_" to "abc_def_ghi" to true,
+            "_" to "abc" to false
+        )
+        test(testData, s)
     }
 })
