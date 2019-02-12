@@ -4,6 +4,7 @@
 
 package hextant.completion
 
+import hextant.completion.CompletionResult.Match
 import reaktive.set.ReactiveSet
 
 /**
@@ -11,21 +12,23 @@ import reaktive.set.ReactiveSet
  * @constructor
  * @param strategy the used [CompletionStrategy]
  * @param factory the used [CompletionFactory]
+ * @param pool the pool from which completions are chosen
+ * @param stringFormatter the function used to convert [C]'s to strings, defaults to `toString`
  */
 open class ConfiguredCompleter<C : Any>(
     private val strategy: CompletionStrategy,
     private val factory: CompletionFactory<C>,
-    private val pool: ReactiveSet<C>
+    private val pool: ReactiveSet<C>,
+    private val stringFormatter: (C) -> String = Any::toString
 ) : Completer<C> {
-    /**
-     * @return the text representing the receiver, by default uses [toString]
-     */
-    protected open fun C.getText(): String = toString()
 
     override fun completions(input: String): Set<Completion<C>> {
-        val completions = pool.now.asSequence().filter {
-            strategy.isCompletable(input, it.getText())
-        }.map { factory.getCompletion(it) }
+        val completions = pool.now.asSequence().mapNotNull {
+            val text = stringFormatter(it)
+            val result = strategy.match(input, text)
+            if (result !is Match) null
+            else factory.getCompletion(result, text, it)
+        }
         return completions.toSet()
     }
 }

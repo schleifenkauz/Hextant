@@ -48,7 +48,7 @@ class FXExpanderView(
         initialize(expandable, expander, context)
         expander.addView(this)
         completionSubscription = completionsPopup.completionChosen.subscribe { comp ->
-            expander.setText(comp.completed)
+            expander.setText(comp.text)
             expander.expand()
         }
     }

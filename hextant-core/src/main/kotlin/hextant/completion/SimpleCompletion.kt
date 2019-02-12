@@ -4,17 +4,21 @@
 
 package hextant.completion
 
+import hextant.completion.CompletionResult.Match
 import javafx.scene.control.Control
 import javafx.scene.control.Label
 
 /**
  * A simple completion
  * @constructor
- * @param completed the completed text
+ * @param text the completed text
+ * @param match the matching result
+ *
  */
-class SimpleCompletion<T>(
+class SimpleCompletion<out T>(
     override val completed: T,
-    override val text: String
+    override val text: String,
+    override val match: Match
 ) : Completion<T> {
     override fun createNode(): Control = Label(text).apply { styleClass.add("completion") }
 }

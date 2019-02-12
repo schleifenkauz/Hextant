@@ -11,15 +11,20 @@ import javafx.scene.control.Control
  */
 interface Completion<out T> {
     /**
-     * The object that was completed
-     */
-    val completed: T
-
-    /**
      * @return the completed text
      * for "hel" it could be "hello world"
      */
     val text: String
+
+    /**
+     * The completion result
+     */
+    val match: CompletionResult.Match
+
+    /**
+     * The completed element
+     */
+    val completed: T
 
     /**
      * @return a [Control] showing this completion

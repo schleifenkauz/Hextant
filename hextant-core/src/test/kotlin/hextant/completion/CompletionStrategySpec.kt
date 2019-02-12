@@ -6,6 +6,7 @@ package hextant.completion
 
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
+import hextant.completion.CompletionResult.Match
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 
@@ -31,7 +32,7 @@ internal object CompletionStrategySpec: Spek({
         for ((now, p, expected) in testData) {
             action("is completable $now to $p") {
                 test("should be $expected") {
-                    s.isCompletable(now, p) shouldMatch equalTo(expected)
+                    (s.match(now, p) is Match) shouldMatch equalTo(expected)
                 }
             }
         }

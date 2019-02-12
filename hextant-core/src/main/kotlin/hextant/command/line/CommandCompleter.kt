@@ -12,7 +12,6 @@ import reaktive.set.ReactiveSet
 internal class CommandCompleter(pool: ReactiveSet<Command<*, *>>) : ConfiguredCompleter<Command<*, *>>(
     CompletionStrategy.simple,
     CommandCompletionFactory,
-    pool
-) {
-    override fun Command<*, *>.getText(): String = shortName!!
-}
+    pool,
+    stringFormatter = { it.shortName!! }
+)

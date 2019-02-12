@@ -1,24 +1,33 @@
 package hextant.completion
 
+import hextant.completion.CompletionResult.Match
+import hextant.completion.CompletionResult.NoMatch
+import java.util.*
+
 /**
  * A completion strategy
  */
 interface CompletionStrategy {
-    fun isCompletable(now: String, completion: String): Boolean
+    fun match(now: String, completion: String): CompletionResult
 
     private object Simple : CompletionStrategy {
-        override fun isCompletable(now: String, completion: String): Boolean {
-            if (now == completion) return false
-            if (now.length > completion.length) return false
-            var completionIndex = 0
+        override fun match(now: String, completion: String): CompletionResult {
+            if (now == completion) return NoMatch
+            var completionIdx = -1
+            val matchedIndices = BitSet(completion.length)
             outer@ for (n in now) {
+                //search associated character in completion
                 inner@ while (true) {
-                    if (completionIndex >= completion.length) return false
-                    if (n == completion[completionIndex]) break@inner
-                    ++completionIndex
+                    ++completionIdx
+                    if (completionIdx >= completion.length) return NoMatch //No associated character found in completion
+                    val c = completion[completionIdx]
+                    if (c == n) {
+                        matchedIndices.set(completionIdx)
+                        break@inner //Next character in input
+                    }
                 }
             }
-            return true
+            return Match(matchedIndices)
         }
     }
 
@@ -40,12 +49,20 @@ interface CompletionStrategy {
             return res
         }
 
-        final override fun isCompletable(now: String, completion: String): Boolean {
-            if (now == completion) return false
+        final override fun match(now: String, completion: String): CompletionResult {
+            if (now == completion) return NoMatch
             val completionWords = completion.words()
             val wordsNow = completion.words()
-            return if (wordsNow.size > completionWords.size) false
-            else wordsNow.zip(completionWords).all { (n, c) -> c.startsWith(n) }
+            return if (wordsNow.size > completionWords.size) NoMatch
+            else if (!wordsNow.zip(completionWords).all { (n, c) -> c.startsWith(n) }) NoMatch
+            else buildMatch(wordsNow, completionWords)
+        }
+
+        private fun buildMatch(
+            wordsNow: List<String>,
+            completionWords: List<String>
+        ): Match {
+            TODO("not implemented")
         }
     }
 

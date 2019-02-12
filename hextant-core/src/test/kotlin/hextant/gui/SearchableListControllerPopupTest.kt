@@ -35,7 +35,7 @@ class SearchableListControllerPopupTest : Application() {
                 override fun completions(element: String, completionPool: Collection<String>): Set<Completion<String>> {
                     return completionPool.asSequence().filter {
                         val clsName = it.replaceBeforeLast('.', "")
-                        CompletionStrategy.simple.isCompletable(element, clsName)
+                        CompletionStrategy.simple.match(element, clsName)
                     }.map { qualified ->
                         val clsName = qualified.replaceBeforeLast('.', "")
                         TextCompletion(qualified, clsName, qualified)

@@ -12,4 +12,4 @@ import reaktive.set.ReactiveSet
 class SimpleCompleter<C : Any>(
     strategy: CompletionStrategy,
     pool: ReactiveSet<C>
-) : ConfiguredCompleter<C>(strategy, CompletionFactory.simple { it.toString() }, pool)
+) : ConfiguredCompleter<C>(strategy, CompletionFactory.simple(), pool)
