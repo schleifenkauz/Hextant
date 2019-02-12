@@ -3,9 +3,10 @@ package hextant.gui
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockitokotlin2.*
-import hextant.completion.NoCompleter
+import hextant.completion.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
+import reaktive.set.unmodifiableReactiveSet
 import java.util.logging.ConsoleHandler
 import java.util.logging.Level
 
@@ -16,7 +17,12 @@ class SearchableListControllerSpec : Spek({
         val handler = ConsoleHandler().also { it.level = Level.ALL }
         logger.addHandler(handler)
         val source = listOf(12, 12, 13, 14)
-        val c = SearchableListController<Int>(maxItems = 3, initialText = "initial", completer = NoCompleter)
+        val completer = ConfiguredCompleter(
+            CompletionStrategy.simple,
+            CompletionFactory.simple(),
+            unmodifiableReactiveSet(source)
+        )
+        val c = SearchableListController(completer, 3, "initial")
         val viewMock = mock<SearchableListView<Int>>()
         on("adding a view") {
             c.addView(viewMock)
