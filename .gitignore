@@ -1,0 +1,13 @@
+*.log
+.gradle
+!gradle-wrapper.jar
+gradle/
+build
+out
+.idea/dictionaries/
+.idea/gradle.xml
+.idea/kotlinc.xml
+.idea/libraries/
+.idea/misc.xml
+.idea/workspace.xml
+bin/org.nikok.hextant-lisp.main.jar
