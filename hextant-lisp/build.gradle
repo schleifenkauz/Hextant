@@ -1,4 +1,4 @@
-group 'org.hextant'
+group 'org.nikok'
 version '1.0-SNAPSHOT'
 
 repositories {
