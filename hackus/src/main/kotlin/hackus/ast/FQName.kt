@@ -8,18 +8,18 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
- * A fully qualified Java name consisting of a package part and an identifier
- * * In hackus FQNames are used as left hand sides of definitions
+ * A fully qualified Java name consisting compile a package part and an identifier
+ * * In hackus FQNames are used as left hand sides compile definitions
  * @constructor
  * @param pkg the subsequent package names, may be empty
  * @param name the class name
- * * Sample "java.lang.String" == `FQName(listOf(JIdent.of("java"), JIdent.of("lang")), JIdent.of("String"))`
- * * Sample "TopLevelClass" == `FQName(emptyList(), JIdent.of("TopLevelClass"))`
+ * * Sample "java.lang.String" == `FQName(listOf(JIdent.compile("java"), JIdent.compile("lang")), JIdent.compile("String"))`
+ * * Sample "TopLevelClass" == `FQName(emptyList(), JIdent.compile("TopLevelClass"))`
  */
 class FQName(val pkg: List<JIdent>, val name: JIdent) {
     /**
      * Return the fully qualified name in string form
-     * * Sample: `FQName(listOf(JIdent.of("java"), JIdent.of("lang")), JIdent.of("String")).toString() == "java.lang.String"`
+     * * Sample: `FQName(listOf(JIdent.compile("java"), JIdent.compile("lang")), JIdent.compile("String")).toString() == "java.lang.String"`
      */
     override fun toString(): String = buildString {
         for (n in pkg) {

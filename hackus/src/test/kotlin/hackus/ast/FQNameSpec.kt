@@ -11,7 +11,7 @@ import org.jetbrains.spek.api.dsl.*
 
 object FQNameSpec : Spek({
     given("a fully qualified name") {
-        val jls = FQName(listOf(JIdent.of("java"), JIdent.of("lang")), JIdent.of("String"))
+        val jls = FQName(listOf(JIdent.compile("java"), JIdent.compile("lang")), JIdent.compile("String"))
         on("toString") {
             val str = jls.toString()
             it("it should return the names separated by dots") {

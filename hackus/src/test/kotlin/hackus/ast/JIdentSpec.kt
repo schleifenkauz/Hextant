@@ -11,14 +11,14 @@ import org.jetbrains.spek.api.dsl.*
 
 object JIdentSpec : Spek({
     describe("creation") {
-        describe("JIdent.of") {
+        describe("JIdent.compile") {
             on("passing an invalid java identifier") {
                 it("should throw an illegal argument exception") {
-                    { JIdent.of("123_invalid"); Unit } shouldMatch throws<IllegalArgumentException>()
+                    { JIdent.compile("123_invalid"); Unit } shouldMatch throws<IllegalArgumentException>()
                 }
             }
             on("passing a valid java identifier") {
-                val id = JIdent.of("valid_identifier123YX")
+                val id = JIdent.compile("valid_identifier123YX")
                 it("should return an JIdent with the specified string") {
                     id.toString() shouldMatch equalTo("valid_identifier123YX")
                 }
@@ -66,7 +66,7 @@ object JIdentSpec : Spek({
         }
     }
     given("a JIdent") {
-        val id = JIdent.of("identifier123")
+        val id = JIdent.compile("identifier123")
         on("toString") {
             val str = id.toString()
             it("should return the name") {
@@ -81,14 +81,14 @@ object JIdentSpec : Spek({
             }
         }
         on("equals JIdent with other name") {
-            val other = JIdent.of("otherName")
+            val other = JIdent.compile("otherName")
             val equal = id == other
             it("should return false") {
                 equal shouldMatch equalTo(false)
             }
         }
         on("equals JIdent with same name") {
-            val other = JIdent.of("identifier123")
+            val other = JIdent.compile("identifier123")
             val equal = id == other
             it("should return true") {
                 equal shouldMatch equalTo(true)

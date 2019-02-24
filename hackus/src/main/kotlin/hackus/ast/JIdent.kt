@@ -4,6 +4,8 @@
 
 package hackus.ast
 
+import hextant.core.editable.TokenType
+
 /**
  * A **valid** Java identifier with the only difference that dollar signs (`$`) are not allowed
  */
@@ -28,22 +30,22 @@ class JIdent private constructor(private val string: String) {
      */
     override fun hashCode(): Int = string.hashCode()
 
-    companion object {
+    companion object : TokenType<JIdent> {
         /**
-         * @return `true` only if the passed [name] is a valid java identifier and contains no dollar signs (`$`)
+         * @return `true` only if the passed [tok] is a valid java identifier and contains no dollar signs (`$`)
          */
-        fun isValid(name: String): Boolean =
-            name.isNotEmpty() &&
-                    name.first().isJavaIdentifierStart() &&
-                    name.all { it.isJavaIdentifierPart() && it != '$' }
+        override fun isValid(tok: String): Boolean =
+            tok.isNotEmpty() &&
+                    tok.first().isJavaIdentifierStart() &&
+                    tok.all { it.isJavaIdentifierPart() && it != '$' }
 
         /**
-         * @return a [JIdent] with the specified [string]
-         * @throws IllegalArgumentException if the specified [string] is not valid, see [isValid]
+         * @return a [JIdent] with the specified [tok]
+         * @throws IllegalArgumentException if the specified [tok] is not valid, see [isValid]
          */
-        fun of(string: String): JIdent {
-            require(isValid(string))
-            return JIdent(string)
+        override fun compile(tok: String): JIdent {
+            require(isValid(tok))
+            return JIdent(tok)
         }
 
         /**
