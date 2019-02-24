@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant-lisp.org.nikok.hextant-lisp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant-lisp.org.nikok.hextant-lisp.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant-lisp.org.nikok.hextant-lisp.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant-lisp.org.nikok.hextant-lisp.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant-core.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant-core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant-core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant-core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant-core.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant-sample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant-sample.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant-sample.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant-sample.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant-sample.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant-util.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant-util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant-util.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant-util.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant-util.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant-util.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-expr/org.nikok.hextant-expr.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/org.nikok.hextant-lisp.test.iml" />
+    </modules>
+  </component>
+</project>
