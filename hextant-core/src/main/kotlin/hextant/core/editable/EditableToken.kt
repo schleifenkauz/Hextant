@@ -7,15 +7,15 @@ package hextant.core.editable
 import hextant.CompileResult
 import hextant.base.AbstractEditable
 import kserial.*
+import reaktive.value.*
 import reaktive.value.binding.map
-import reaktive.value.reactiveVariable
 
 /**
  * An editable token the atomic part of the ast editor
  * * In a view it would be typically represented by a text field
  * @param T the type of the token being compiled
  */
-abstract class EditableToken<out T : Any> : AbstractEditable<T>(), Serializable {
+abstract class EditableToken<out T : Any> : AbstractEditable<T>(), Serializable, TokenType<T> {
     /**
      * Compile the specified [tok] to a real token object
      */
