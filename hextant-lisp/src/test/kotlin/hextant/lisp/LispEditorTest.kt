@@ -11,7 +11,6 @@ import hextant.bundle.CoreProperties.editorParentRegion
 import hextant.createView
 import hextant.fx.hextantScene
 import hextant.lisp.editable.ExpandableSExpr
-import hextant.lisp.editor.LispProperties.Internal
 import hextant.lisp.editor.LispProperties.fileScope
 import hextant.plugin.PluginRegistry
 import hextant.undo.UndoManager
@@ -41,7 +40,7 @@ class LispEditorTest : Application() {
                 override val platform: HextantPlatform
                     get() = platform
             }
-            context[Internal, fileScope] = FileScope.empty
+            context[Public, fileScope] = FileScope.empty
             context[Public, UndoManager] = UndoManagerImpl()
             val expandable = ExpandableSExpr()
             val view = context.createView(expandable)

@@ -6,10 +6,10 @@ package hextant.lisp.editor
 
 import hextant.Context
 import hextant.Editor
+import hextant.bundle.CorePermissions.Public
 import hextant.completion.NoCompleter
 import hextant.core.editor.Expander
 import hextant.lisp.editable.*
-import hextant.lisp.editor.LispProperties.Internal
 import hextant.lisp.editor.LispProperties.fileScope
 
 class SExprExpander(editable: ExpandableSExpr, private val context: Context) :
@@ -21,7 +21,7 @@ class SExprExpander(editable: ExpandableSExpr, private val context: Context) :
     override fun accepts(child: Editor<*>): Boolean = child.editable is EditableSExpr<*>
 
     private fun String.asGetVal(): EditableGetVal {
-        val scope = context[Internal, fileScope]
+        val scope = context[Public, fileScope]
         return EditableGetVal(scope, this)
     }
 

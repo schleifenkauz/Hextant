@@ -15,6 +15,7 @@ import hextant.fx.HextantTextField
 import hextant.fx.smartSetText
 import hextant.getEditor
 import reaktive.event.Subscription
+import reaktive.event.subscribe
 
 open class FXTokenEditorView(
     editable: EditableToken<Any>,
@@ -27,18 +28,18 @@ open class FXTokenEditorView(
 
     private val textField = HextantTextField()
 
-    final override fun createDefaultRoot() = HextantTextField()
+    final override fun createDefaultRoot() = textField
 
     @Suppress("UNCHECKED_CAST")
     private val editor = context.getEditor(editable) as TokenEditor<*, TokenEditorView>
 
     init {
-        initialize(editable, editor, context)
         with(textField) {
-            textSubscription = userUpdatedText.subscribe { _, new ->
+            textSubscription = userUpdatedText.subscribe { new ->
                 editor.setText(new)
             }
         }
+        initialize(editable, editor, context)
         editor.addView(this)
     }
 

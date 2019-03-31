@@ -7,7 +7,7 @@ internal object Resources {
     val roots = getResourceRoots()
 
     val all: Set<Path> by lazy {
-        roots.flatMap { root ->
+        roots.asSequence().flatMap { root ->
             root.toFile()
                 .walkBottomUp()
                 .filter { it.isFile && !it.name.startsWith("_") }
@@ -24,11 +24,11 @@ internal object Resources {
 
     fun allCSS() = allWithExtension(".css")
 
-    private fun getResourceRoots(): Sequence<Path> =
+    private fun getResourceRoots(): Set<Path> =
         javaClass.classLoader.getResources("").asSequence()
             .filter { root ->
                 root.toExternalForm().endsWith("resources/")
-            }.map { url -> Paths.get(url.toURI()) }
+            }.map { url -> Paths.get(url.toURI()) }.toSet()
 
     val logger by myLogger()
 }

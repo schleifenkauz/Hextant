@@ -77,7 +77,7 @@ interface HextantPlatform : Context {
             set(CoreProperties.classLoader, plugins.compoundClassLoader)
         }
 
-        fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = MultiThreaded(bundle)
+        fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = SingleThreaded(bundle)
 
         fun singleThread(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
             SingleThreaded(bundle).apply { configure() }

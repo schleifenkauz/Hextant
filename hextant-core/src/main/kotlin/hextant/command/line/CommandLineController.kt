@@ -11,6 +11,7 @@ import hextant.command.line.CommandLine.State
 import hextant.command.line.CommandLine.State.EditingArgs
 import hextant.completion.Completer
 import hextant.createView
+import reaktive.set.unmodifiableReactiveSet
 import reaktive.value.now
 import reaktive.value.observe
 
@@ -24,7 +25,7 @@ class CommandLineController(
     val commandLine: CommandLine,
     private val context: Context
 ) : AbstractEditor<CommandLine, CommandLineView>(commandLine, context) {
-    private val completer: Completer<Command<*, *>> = TODO()
+    private val completer: Completer<Command<*, *>> = CommandCompleter(unmodifiableReactiveSet(emptyList()))
 
     private val stateObserver = commandLine.state.observe { _, newState ->
         views {
