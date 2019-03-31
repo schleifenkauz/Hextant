@@ -8,7 +8,6 @@ import hextant.base.AbstractController
 import hextant.completion.*
 import hextant.impl.myLogger
 import reaktive.event.event
-import reaktive.set.ReactiveSet
 import kotlin.properties.Delegates.observable
 
 class SearchableListController<E : Any>(
@@ -19,7 +18,7 @@ class SearchableListController<E : Any>(
     constructor(
         completionStrategy: CompletionStrategy,
         factory: CompletionFactory<E>,
-        pool: ReactiveSet<E>,
+        pool: () -> Set<E>,
         maxItems: Int,
         initialText: String
     ) : this(ConfiguredCompleter(completionStrategy, factory, pool), maxItems, initialText)

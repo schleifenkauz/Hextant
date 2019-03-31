@@ -5,7 +5,6 @@
 package hextant.completion
 
 import hextant.completion.CompletionResult.Match
-import reaktive.set.ReactiveSet
 
 /**
  * A base class for [Completer]s
@@ -18,12 +17,12 @@ import reaktive.set.ReactiveSet
 open class ConfiguredCompleter<C : Any>(
     private val strategy: CompletionStrategy,
     private val factory: CompletionFactory<C>,
-    private val pool: ReactiveSet<C>,
+    private val pool: () -> Set<C>,
     private val stringFormatter: (C) -> String = Any::toString
 ) : Completer<C> {
 
     override fun completions(input: String): Set<Completion<C>> {
-        val completions = pool.now.asSequence().mapNotNull {
+        val completions = pool().asSequence().mapNotNull {
             val text = stringFormatter(it)
             val result = strategy.match(input, text)
             if (result !is Match) null

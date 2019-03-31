@@ -6,7 +6,6 @@ import com.nhaarman.mockitokotlin2.*
 import hextant.completion.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
-import reaktive.set.unmodifiableReactiveSet
 import java.util.logging.ConsoleHandler
 import java.util.logging.Level
 
@@ -16,11 +15,11 @@ class SearchableListControllerSpec : Spek({
         logger.level = Level.ALL
         val handler = ConsoleHandler().also { it.level = Level.ALL }
         logger.addHandler(handler)
-        val source = listOf(12, 12, 13, 14)
+        val source = setOf(12, 12, 13, 14)
         val completer = ConfiguredCompleter(
             CompletionStrategy.simple,
             CompletionFactory.simple(),
-            unmodifiableReactiveSet(source)
+            { source }
         )
         val c = SearchableListController(completer, 3, "initial")
         val viewMock = mock<SearchableListView<Int>>()
