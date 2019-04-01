@@ -138,7 +138,7 @@ internal class JsonPluginLoader private constructor(
         val registrar = inspections.of(receiverCls)
         val constructor = cls.constructors.find { it.parameters.size == 1 && it.parameters[0].type.classifier == cls }
             ?: error("No constructor found for inspection $cls")
-        registrar.register { it -> constructor.call(it) as Inspection<Any> }
+        registrar.register { constructor.call(it) as Inspection<Any> }
     }
 
     private fun processEditable(obj: JsonObject) {

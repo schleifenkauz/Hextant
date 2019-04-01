@@ -14,9 +14,9 @@ import javafx.application.Platform
 import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.control.Control
-import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
-import javafx.scene.input.KeyCode.W
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -77,20 +77,7 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
         root = createDefaultRoot()
         activateContextMenu(editable, context)
         activateInspections(editable, context)
-        activateSelectionExtension(editor)
         initialized = true
-    }
-
-    private fun activateSelectionExtension(editor: Editor<*>) {
-        addEventHandler(KeyEvent.KEY_RELEASED) { k ->
-            if (EXTEND_SELECTION.match(k) && editor.isSelected) {
-                editor.parent?.extendSelection(editor)
-                k.consume()
-            } else if (SHRINK_SELECTION.match(k) && editor.isSelected) {
-                editor.shrinkSelection()
-                k.consume()
-            }
-        }
     }
 
 
@@ -143,11 +130,5 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     override fun onGuiThread(action: () -> Unit) =
         if (Platform.isFxApplicationThread()) action() else {
             Platform.runLater(action)
-    }
-
-    companion object {
-        private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
-
-        private val SHRINK_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
     }
 }

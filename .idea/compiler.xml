@@ -22,6 +22,12 @@
       <module name="org.hextant.hextant-sample.test" target="1.8" />
       <module name="org.hextant.hextant-util.main" target="1.8" />
       <module name="org.hextant.hextant-util.test" target="1.8" />
+      <module name="org.hextant.hextant.hextant-core.main" target="1.8" />
+      <module name="org.hextant.hextant.hextant-core.test" target="1.8" />
+      <module name="org.hextant.hextant.hextant-sample.main" target="1.8" />
+      <module name="org.hextant.hextant.hextant-sample.test" target="1.8" />
+      <module name="org.hextant.hextant.hextant-util.main" target="1.8" />
+      <module name="org.hextant.hextant.hextant-util.test" target="1.8" />
       <module name="org.nikok.hextant-core.main" target="1.8" />
       <module name="org.nikok.hextant-core.test" target="1.8" />
       <module name="org.nikok.hextant-expr.main" target="1.8" />
@@ -34,6 +40,10 @@
       <module name="org.nikok.hextant-sample.test" target="1.8" />
       <module name="org.nikok.hextant-util.main" target="1.8" />
       <module name="org.nikok.hextant-util.test" target="1.8" />
+      <module name="org.nikok.hextant.hextant-expr.main" target="1.8" />
+      <module name="org.nikok.hextant.hextant-expr.test" target="1.8" />
+      <module name="org.nikok.hextant.hextant-lisp.main" target="1.8" />
+      <module name="org.nikok.hextant.hextant-lisp.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

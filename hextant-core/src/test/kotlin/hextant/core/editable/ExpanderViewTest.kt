@@ -21,14 +21,13 @@ import javafx.stage.Stage
 
 class ExpanderViewTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = hextantScene(createContent())
+        stage.scene = hextantScene(::createContent)
         stage.setOnHidden { System.exit(0) }
         stage.show()
     }
 
     companion object {
-        private fun createContent(): Parent {
-            val platform = HextantPlatform.configured()
+        private fun createContent(platform: HextantPlatform): Parent {
             platform[EditorControlFactory].configure {
                 register(EditableIntLiteral::class) { editable, ctx, args ->
                     FXIntLiteralEditorView(

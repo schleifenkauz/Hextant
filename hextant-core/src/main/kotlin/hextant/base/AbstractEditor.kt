@@ -77,7 +77,7 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
     override fun shrinkSelection() {}
 
     override val allChildren: Sequence<Editor<*>>
-        get() = children.asSequence().flatMap { c -> c.allChildren }
+        get() = children.asSequence().flatMap { c -> c.allChildren + c }
 
     override fun moveTo(newParent: ParentEditor<*, *>?) {
         if (newParent == null) {

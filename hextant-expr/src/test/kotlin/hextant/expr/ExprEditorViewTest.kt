@@ -47,13 +47,12 @@ class ExprEditorViewTest : Application() {
 
     override fun start(primaryStage: Stage) {
         stage = primaryStage
-        stage.scene = hextantScene(createContent())
+        stage.scene = hextantScene(::createContent)
         stage.setOnCloseRequest { System.exit(0) }
         stage.show()
     }
 
-    private fun createContent(): Parent {
-        val platform = HextantPlatform.configured()
+    private fun createContent(platform: HextantPlatform): Parent {
         val context = object : AbstractContext(platform) {
             override val platform: HextantPlatform = platform
         }.apply {

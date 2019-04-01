@@ -21,13 +21,12 @@ import reaktive.value.now
 
 class InspectionGuiTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = hextantScene(createContent())
+        stage.scene = hextantScene(::createContent)
         stage.show()
     }
 
     companion object {
-        private fun createContent(): Parent {
-            val platform = HextantPlatform.configured()
+        private fun createContent(platform: HextantPlatform): Parent {
             val inspections = platform[Inspections]
             inspections.of(EditableIntLiteral::class).apply {
                 register { literal ->

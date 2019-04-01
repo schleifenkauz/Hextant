@@ -32,17 +32,17 @@ abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, co
 
     override fun extendSelection(child: Editor<*>) {
         if (!child.isSelected) throw IllegalStateException("Cannot extend selection from unselected child")
-        child.toggleSelection()
         if (isSelected) return
         toggleSelection()
+        child.toggleSelection()
         lastExtendingChild = child
     }
 
     override fun shrinkSelection() {
         val childToSelect = lastExtendingChild ?: children.firstOrNull()
-        if (childToSelect != null && !childToSelect.isSelected && childToSelect in children) {
+        if (childToSelect != null && !childToSelect.isSelected && childToSelect in allChildren) {
             childToSelect.toggleSelection()
+            if (isSelected) toggleSelection()
         }
-        if (isSelected) toggleSelection()
     }
 }

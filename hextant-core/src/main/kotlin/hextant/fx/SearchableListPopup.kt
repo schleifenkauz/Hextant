@@ -4,6 +4,7 @@
 
 package hextant.fx
 
+import hextant.Context
 import hextant.completion.Completion
 import hextant.gui.SearchableListController
 import hextant.gui.SearchableListView
@@ -14,7 +15,8 @@ import javafx.scene.paint.Color
 
 class SearchableListPopup<T : Any>(
     private val controller: SearchableListController<T>,
-    noCompletionsText: String = DEFAULT_NO_COMPLETIONS_TEXT
+    noCompletionsText: String = DEFAULT_NO_COMPLETIONS_TEXT,
+    context: Context
 ) : PopupControl(),
     SearchableListView<T> {
     private val searchBar = SearchBar()
@@ -37,7 +39,7 @@ class SearchableListPopup<T : Any>(
 
     init {
         scene.root = root
-        scene.initHextantScene()
+        scene.initHextantScene(context.platform)
         listenForSearchTextChange()
     }
 

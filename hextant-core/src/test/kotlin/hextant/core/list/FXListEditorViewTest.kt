@@ -12,15 +12,14 @@ import javafx.stage.Stage
 
 class FXListEditorViewTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = hextantScene(createContent())
+        stage.scene = hextantScene(::createContent)
         stage.setOnCloseRequest { System.exit(0) }
         stage.show()
     }
 
     companion object {
-        private fun createContent(): Parent {
+        private fun createContent(platform: HextantPlatform): Parent {
             val list = EditableExprList()
-            val platform = HextantPlatform.configured()
             val views = platform[EditorControlFactory]
             views.register<EditableList<*, *>> { editable, ctx, args ->
                 val editor = ctx.getEditor(editable)

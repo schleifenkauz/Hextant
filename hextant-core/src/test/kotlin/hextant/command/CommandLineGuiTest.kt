@@ -22,17 +22,16 @@ import javafx.stage.Stage
 
 class CommandLineGuiTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = hextantScene(createContent())
+        stage.scene = hextantScene(::createContent)
         stage.width = 1000.0
         stage.height = 1000.0
         stage.show()
     }
 
     companion object {
-        private fun createContent(): Parent {
+        private fun createContent(platform: HextantPlatform): Parent {
             val commands = Data.commands.toMutableSet()
             val targets = mutableSetOf(Receiver(true))
-            val platform = HextantPlatform.configured()
             val editableFactory = platform[EditableFactory]
             editableFactory.run {
                 register(IntLiteral::class) { -> EditableIntLiteral() }
