@@ -41,19 +41,12 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
         override fun doSet(value: Boolean) {
             if (!value) {
                 lastExtendingChild = null
-                deselectChildren()
             }
             isSelected = value
             views.forEach { it.select(isSelected = value) }
         }
 
         override fun get(): Boolean = isSelected
-    }
-
-    private fun deselectChildren() {
-        allChildren.forEach { c ->
-            if (c.isSelected) c.toggleSelection()
-        }
     }
 
     override fun select() {
