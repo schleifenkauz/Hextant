@@ -17,7 +17,7 @@
 
 /*Pseudo class applied to components that are selected by the user*/
 :selected {
-    -fx-background-color: #292929 !important;
+    -fx-background-color: #292929;
 }
 
 /*Style class for dialogs*/

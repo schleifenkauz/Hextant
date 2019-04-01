@@ -10,6 +10,5 @@ class FXIntLiteralEditorView(
 ) : FXTokenEditorView(editableInt, context, args) {
     init {
         root.styleClass.add("decimal-editor")
-        root.style = "-fx-text-fill: blue;"
     }
 }

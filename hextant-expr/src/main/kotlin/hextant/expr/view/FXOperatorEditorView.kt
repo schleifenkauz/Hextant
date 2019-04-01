@@ -16,6 +16,5 @@ class FXOperatorEditorView(
 ) : FXTokenEditorView(editable, context, args) {
     init {
         root.styleClass.add("operator")
-        root.style = "-fx-text-fill: #00E93A;"
     }
 }

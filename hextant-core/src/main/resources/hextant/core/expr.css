@@ -1,7 +1,11 @@
-.keyword {
+.hextant-text.keyword {
     -fx-text-fill: #E9640C;
 }
 
-.operator {
+.hextant-text.operator {
     -fx-text-fill: #00E93A;
+}
+
+.hextant-text.decimal-editor {
+    -fx-text-fill: blue;
 }
