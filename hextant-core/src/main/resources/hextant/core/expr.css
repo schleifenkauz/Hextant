@@ -1,15 +1,7 @@
-.text-editor {
-    -fx-text-fill: green !important;
-}
-
-.decimal-editor {
-    -fx-text-fill: red !important;
-}
-
 .keyword {
-    -fx-text-fill: #E9640C !important;
+    -fx-text-fill: #E9640C;
 }
 
 .operator {
-    -fx-text-fill: #00E93A !important;
+    -fx-text-fill: #00E93A;
 }

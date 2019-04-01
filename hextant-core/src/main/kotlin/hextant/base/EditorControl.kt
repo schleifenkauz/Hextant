@@ -13,6 +13,7 @@ import hextant.inspect.gui.InspectionPopup
 import javafx.application.Platform
 import javafx.geometry.Side
 import javafx.scene.Node
+import javafx.scene.Parent
 import javafx.scene.control.Control
 import javafx.scene.input.KeyCode.ENTER
 import javafx.scene.input.KeyCodeCombination
@@ -114,7 +115,11 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     }
 
     override fun error(isError: Boolean) {
-        pseudoClassStateChanged(PseudoClasses.ERROR, isError)
+        root.nodeTree().forEach { it.pseudoClassStateChanged(PseudoClasses.ERROR, isError) }
+    }
+
+    override fun warn(warn: Boolean) {
+        root.nodeTree().forEach { it.pseudoClassStateChanged(PseudoClasses.WARN, warn) }
     }
 
     /**
@@ -130,5 +135,10 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     override fun onGuiThread(action: () -> Unit) =
         if (Platform.isFxApplicationThread()) action() else {
             Platform.runLater(action)
+    }
+
+    companion object {
+        private fun Node.nodeTree(): Sequence<Node> =
+            if (this is Parent) childrenUnmodifiable.asSequence() + this else sequenceOf(this)
     }
 }

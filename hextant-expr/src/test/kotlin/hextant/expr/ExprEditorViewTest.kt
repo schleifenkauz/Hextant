@@ -37,7 +37,7 @@ import javafx.scene.layout.HBox
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import kserial.*
-import reaktive.value.binding.flatMap
+import reaktive.value.binding.and
 import reaktive.value.binding.map
 import reaktive.value.now
 import java.util.logging.Level
@@ -122,8 +122,8 @@ class ExprEditorViewTest : Application() {
                 description = "Prevent identical operations"
                 severity(Warning)
                 val isPlus = inspected.editableOperator.edited.map { it == Operator.Plus }
-                val operandIs0 = inspected.editableOp1.edited.map { it is IntLiteral && it.value == 0 }
-                preventingThat(isPlus.flatMap { isP: Boolean -> operandIs0.map { it && isP } })
+                val operandIs0 = inspected.editableOp2.edited.map { it is IntLiteral && it.value == 0 }
+                preventingThat(isPlus.and(operandIs0))
                 message { "Operation doesn't change the result" }
             }
         }

@@ -6,6 +6,7 @@ package hextant.base
 
 import hextant.*
 import hextant.impl.SelectionDistributor
+import hextant.inspect.Inspections
 import reaktive.value.Variable
 import reaktive.value.base.AbstractVariable
 import reaktive.value.observe
@@ -23,8 +24,12 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
     context: Context
 ) : Editor<E>, AbstractController<V>() {
 
-    private val isOkObserver = editable.isOk.observe { isOk: Boolean ->
-        views.forEach { v -> v.error(isError = !isOk) }
+    private val warningObserver = context[Inspections].hasWarning(editable).observe { warn: Boolean ->
+        views { warn(warn) }
+    }
+
+    private val errorObserver = context[Inspections].hasError(editable).observe { isError: Boolean ->
+        views { error(isError) }
     }
 
     override fun onGuiThread(view: V, action: V.() -> Unit) {

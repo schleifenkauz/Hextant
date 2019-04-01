@@ -13,6 +13,11 @@ object PseudoClasses {
 
     /**
      * Used when a Node should be selected
-    */
+     */
     val SELECTED: PseudoClass = PseudoClass.getPseudoClass("selected")
+
+    /**
+     * Indicates a warning
+     */
+    val WARN: PseudoClass = PseudoClass.getPseudoClass("warning")!!
 }

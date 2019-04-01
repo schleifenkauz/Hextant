@@ -7,7 +7,7 @@ package hextant.inspect
 import hextant.inspect.Severity.Error
 import hextant.inspect.Severity.Warning
 import reaktive.value.*
-import reaktive.value.binding.map
+import reaktive.value.binding.notEqualTo
 
 internal class InspectionManager<T : Any>(private val inspected: T) {
     private val warningCount = reactiveVariable(0)
@@ -24,7 +24,7 @@ internal class InspectionManager<T : Any>(private val inspected: T) {
         }
         inspection.isProblem.observe { _, isProblem ->
             if (isProblem) {
-                updateProblemCount(inspection.severity) { it - 1 }
+                updateProblemCount(inspection.severity) { it + 1 }
             } else {
                 updateProblemCount(inspection.severity) { it - 1 }
             }
@@ -36,8 +36,8 @@ internal class InspectionManager<T : Any>(private val inspected: T) {
         Warning -> warningCount.set(update(warningCount.now))
     }
 
-    val hasError = errorCount.map { it > 0 }
-    val hasWarning = warningCount.map { it > 0 }
+    val hasError = errorCount.notEqualTo(0)
+    val hasWarning = warningCount.notEqualTo(0)
 
     fun problems(): Set<Problem> =
             inspections.mapNotNullTo(mutableSetOf()) { if (it.isProblem.now) it.getProblem() else null }

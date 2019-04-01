@@ -15,4 +15,6 @@ internal class MockEditorView: EditorView {
     override fun select(isSelected: Boolean) {}
 
     override fun error(isError: Boolean) {}
+
+    override fun warn(warn: Boolean) {}
 }

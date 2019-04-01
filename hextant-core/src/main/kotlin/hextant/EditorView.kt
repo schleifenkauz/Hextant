@@ -22,9 +22,16 @@ interface EditorView {
     fun select(isSelected: Boolean)
 
     /**
-     * Causes this view to somehow show that the associated editor has an error
+     * Causes this view to somehow show that the associated editor has an error if [isError] is `true`.
+     * Otherwise it stops displaying an error
      */
     fun error(isError: Boolean)
+
+    /**
+     * Causes this view to somehow show that the associated editor has a warning if [warn] is `true`.
+     * Otherwise it stops displaying an error
+     */
+    fun warn(warn: Boolean)
 
     /**
      * Request focus for this [EditorView]

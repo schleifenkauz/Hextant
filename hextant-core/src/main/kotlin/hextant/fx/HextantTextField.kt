@@ -53,7 +53,7 @@ open class HextantTextField(text: String? = "") : TextField(text) {
     }
 
     init {
-        styleClass.add(HextantTextField.STYLE_CLASS)
+        styleClass.add(STYLE_CLASS)
         autoSize()
         letJumpWithArrows()
     }
