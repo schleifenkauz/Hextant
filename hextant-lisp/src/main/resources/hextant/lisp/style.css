@@ -1,17 +1,17 @@
 .hextant-text.lisp-string-literal {
-    -fx-text-fill: green !important;
+    -fx-text-fill: green;
 }
 
 .hextant-text..lisp-int-literal {
-    -fx-text-fill: red !important;
+    -fx-text-fill: red;
 }
 
 .hextant-text.lisp-double-literal {
-    -fx-text-fill: yellow !important;
+    -fx-text-fill: yellow;
 }
 
 .hextant-text.lisp-char-literal {
-    -fx-text-fill: blue !important;
+    -fx-text-fill: blue;
 }
 
 .hextant-text.lisp-apply {

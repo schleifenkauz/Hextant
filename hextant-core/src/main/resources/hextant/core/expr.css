@@ -1,9 +1,9 @@
 .hextant-text.keyword {
-    -fx-text-fill: #E9640C;
+    -fx-text-fill: orange;
 }
 
 .hextant-text.operator {
-    -fx-text-fill: #00E93A;
+    -fx-text-fill: green;
 }
 
 .hextant-text.decimal-editor {

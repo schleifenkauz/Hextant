@@ -139,6 +139,6 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
 
     companion object {
         private fun Node.nodeTree(): Sequence<Node> =
-            if (this is Parent) childrenUnmodifiable.asSequence() + this else sequenceOf(this)
+            if (this is Parent) childrenUnmodifiable.asSequence().flatMap { it.nodeTree() } + this else sequenceOf(this)
     }
 }

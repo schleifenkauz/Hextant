@@ -26,6 +26,7 @@ abstract class TokenEditor<E : EditableToken<*>, V : TokenEditorView>(
     private val undo = context[Public, UndoManager]
 
     override fun viewAdded(view: V) {
+        super.viewAdded(view)
         view.onGuiThread { view.displayText(editable.text.now) }
     }
 
