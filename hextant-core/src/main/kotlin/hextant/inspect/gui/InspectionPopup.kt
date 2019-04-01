@@ -48,10 +48,18 @@ class InspectionPopup(problems: () -> Set<Problem>) : Popup() {
         }
     }
 
-    private class FixesPopup(fixes: Collection<ProblemFix>) : Popup() {
+    override fun show() {
+        if (problems().isNotEmpty()) super.show()
+    }
+
+    private class FixesPopup(private val fixes: Collection<ProblemFix>) : Popup() {
         init {
             Stylesheets.apply(scene)
             content.add(createFixList(fixes))
+        }
+
+        override fun show() {
+            if (fixes.isNotEmpty()) super.show()
         }
 
         private fun createFixList(fixes: Collection<ProblemFix>): Parent {
