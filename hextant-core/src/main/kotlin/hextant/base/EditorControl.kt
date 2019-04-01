@@ -15,9 +15,8 @@ import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.control.Control
+import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
-import javafx.scene.input.KeyCodeCombination
-import javafx.scene.input.KeyCombination
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -98,8 +97,13 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     private fun activateInspections(inspected: Any, context: Context) {
         val inspections = context[Inspections]
         val p = InspectionPopup { inspections.getProblems(inspected) }
-        registerShortcut(KeyCodeCombination(ENTER, KeyCombination.ALT_DOWN)) {
-            p.show(this)
+        addEventHandler(KeyEvent.KEY_RELEASED) { k ->
+            if (KeyCodeCombination(ENTER, KeyCombination.ALT_DOWN).match(k)) {
+                p.show(this)
+                if (p.isShowing) {
+                    k.consume()
+                }
+            }
         }
     }
 
@@ -135,7 +139,7 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     override fun onGuiThread(action: () -> Unit) =
         if (Platform.isFxApplicationThread()) action() else {
             Platform.runLater(action)
-    }
+        }
 
     companion object {
         private fun Node.nodeTree(): Sequence<Node> =
