@@ -29,7 +29,7 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output url="file://$MODULE_DIR$/../../../hextant-util/out/production/classes" />
+    <output url="file://$MODULE_DIR$/../../../hextant-util/build/classes/java/main" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../hextant-util/src/main">
       <sourceFolder url="file://$MODULE_DIR$/../../../hextant-util/src/main/kotlin" isTestSource="false" />

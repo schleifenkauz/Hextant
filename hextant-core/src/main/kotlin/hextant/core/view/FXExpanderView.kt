@@ -13,8 +13,8 @@ import hextant.core.editable.Expandable
 import hextant.core.editor.Expander
 import hextant.fx.*
 import javafx.scene.Node
+import javafx.scene.input.*
 import javafx.scene.input.KeyCode.R
-import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
 import reaktive.event.Subscription
 import reaktive.event.subscribe
@@ -44,6 +44,9 @@ class FXExpanderView(
         with(textField) {
             setOnAction { expander.expand() }
             textSubscription = userUpdatedText.subscribe { new -> expander.setText(new) }
+            registerShortcut(KeyCodeCombination(KeyCode.SPACE, KeyCombination.SHORTCUT_DOWN)) {
+                expander.suggestCompletions()
+            }
         }
         initialize(expandable, expander, context)
         expander.addView(this)

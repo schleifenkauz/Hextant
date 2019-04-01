@@ -35,7 +35,7 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output-test url="file://$MODULE_DIR$/../../../hextant-lisp/out/test/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../hextant-lisp/build/classes/java/test" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../hextant-lisp/src/test">
       <sourceFolder url="file://$MODULE_DIR$/../../../hextant-lisp/src/test/kotlin" isTestSource="true" />
@@ -43,9 +43,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="hextant-lisp.org.nikok.hextant-lisp.main" />
-    <orderEntry type="module" module-name="org.hextant.hextant-core.main" />
-    <orderEntry type="module" module-name="org.hextant.hextant-util.main" />
+    <orderEntry type="module" module-name="hextant.hextant-lisp.main" />
+    <orderEntry type="module" module-name="hextant.hextant-core.main" />
+    <orderEntry type="module" module-name="hextant.hextant-util.main" />
     <orderEntry type="library" name="Gradle: org.jetbrains.spek:spek-junit-platform-engine:1.1.5" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.spek:spek-api:1.1.5" level="project" />
     <orderEntry type="library" name="Gradle: com.natpryce:hamkrest:1.5.0.0" level="project" />
@@ -71,5 +71,5 @@
     <orderEntry type="library" name="Gradle: com.google.j2objc:j2objc-annotations:1.1" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.mojo:animal-sniffer-annotations:1.17" level="project" />
   </component>
-  <component name="TestModuleProperties" production-module="org.nikok.hextant-lisp.main" />
+  <component name="TestModuleProperties" production-module="hextant.hextant-lisp.main" />
 </module>

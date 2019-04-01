@@ -5,7 +5,6 @@
     <content url="file://$MODULE_DIR$/../../../hextant-lisp">
       <excludeFolder url="file://$MODULE_DIR$/../../../hextant-lisp/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../hextant-lisp/build" />
-      <excludeFolder url="file://$MODULE_DIR$/../../../hextant-lisp/out" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
