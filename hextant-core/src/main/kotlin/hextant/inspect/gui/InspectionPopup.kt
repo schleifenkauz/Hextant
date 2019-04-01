@@ -17,7 +17,7 @@ import javafx.scene.input.KeyCodeCombination
 import javafx.scene.layout.VBox
 import javafx.stage.Popup
 
-class InspectionPopup (private val owner: Node, problems: () -> Set<Problem>) : Popup() {
+class InspectionPopup(problems: () -> Set<Problem>) : Popup() {
     private val problems = { problems().sortedBy { it.severity } }
 
     private val container = VBox()
@@ -44,7 +44,7 @@ class InspectionPopup (private val owner: Node, problems: () -> Set<Problem>) : 
         val fixes = problem.fixes
         if (fixes.isNotEmpty()) {
             val fixesPopup = FixesPopup(fixes)
-            setOnAction { fixesPopup.show(owner) }
+            setOnAction { fixesPopup.show(scene.root) }
         }
     }
 
@@ -68,8 +68,14 @@ class InspectionPopup (private val owner: Node, problems: () -> Set<Problem>) : 
             text = fix.description
             isDisable = !fix.isApplicable()
             isFocusTraversable = true
-            registerShortcut(KeyCodeCombination(ENTER)) { fix.fix() }
-            setOnMouseClicked { fix.fix() }
+            registerShortcut(KeyCodeCombination(ENTER)) { applyAndHide(fix) }
+            setOnMouseClicked { applyAndHide(fix) }
+        }
+
+        private fun applyAndHide(fix: ProblemFix) {
+            fix.fix()
+            hide()
+            ownerWindow.hide()
         }
     }
 }
