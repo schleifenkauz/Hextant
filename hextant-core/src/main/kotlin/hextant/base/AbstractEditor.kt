@@ -9,7 +9,7 @@ import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import reaktive.value.Variable
 import reaktive.value.base.AbstractVariable
-import reaktive.value.observe
+import reaktive.value.forEach
 
 /**
  * The base class of all [Editor]s
@@ -24,11 +24,11 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
     context: Context
 ) : Editor<E>, AbstractController<V>() {
 
-    private val warningObserver = context[Inspections].hasWarning(editable).observe { warn: Boolean ->
+    private val warningObserver = context[Inspections].hasWarning(editable).forEach { warn: Boolean ->
         views { warn(warn) }
     }
 
-    private val errorObserver = context[Inspections].hasError(editable).observe { isError: Boolean ->
+    private val errorObserver = context[Inspections].hasError(editable).forEach { isError: Boolean ->
         views { error(isError) }
     }
 

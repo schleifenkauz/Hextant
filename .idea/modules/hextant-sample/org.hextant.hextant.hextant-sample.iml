@@ -5,6 +5,7 @@
     <content url="file://$MODULE_DIR$/../../../hextant-sample">
       <excludeFolder url="file://$MODULE_DIR$/../../../hextant-sample/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../hextant-sample/build" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../hextant-sample/out" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
