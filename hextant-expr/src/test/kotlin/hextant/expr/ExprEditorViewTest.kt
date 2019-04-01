@@ -125,6 +125,16 @@ class ExprEditorViewTest : Application() {
                 val operandIs0 = inspected.editableOp2.edited.map { it is IntLiteral && it.value == 0 }
                 preventingThat(isPlus.and(operandIs0))
                 message { "Operation doesn't change the result" }
+                addFix {
+                    description = "Shorten expression"
+                    applicableIf {
+                        context.getEditor(inspected).parent is Expander<*, *>
+                    }
+                    fixingBy {
+                        val parent = context.getEditor(inspected).parent as Expander<EditableExpr<*>, *>
+                        parent.setContent(inspected.editableOp1)
+                    }
+                }
             }
         }
         inspections.of<EditableIntLiteral>().register { inspected ->
