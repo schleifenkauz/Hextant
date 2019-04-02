@@ -7,7 +7,6 @@
 package hextant.expr
 
 import hextant.*
-import hextant.base.AbstractContext
 import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.CoreProperties
@@ -21,10 +20,13 @@ import hextant.core.list.*
 import hextant.core.register
 import hextant.expr.editable.*
 import hextant.expr.edited.*
+import hextant.expr.edited.Operator.Plus
 import hextant.expr.editor.*
 import hextant.fx.hextantScene
-import hextant.inspect.*
+import hextant.impl.SelectionDistributor
+import hextant.inspect.Inspections
 import hextant.inspect.Severity.Warning
+import hextant.inspect.of
 import hextant.undo.UndoManager
 import javafx.application.Application
 import javafx.application.Platform
@@ -37,6 +39,7 @@ import javafx.scene.layout.HBox
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import kserial.*
+import reaktive.Observer
 import reaktive.value.binding.and
 import reaktive.value.binding.map
 import reaktive.value.now
@@ -53,21 +56,59 @@ class ExprEditorViewTest : Application() {
     }
 
     private fun createContent(platform: HextantPlatform): Parent {
-        val context = object : AbstractContext(platform) {
-            override val platform: HextantPlatform = platform
-        }.apply {
+        val context = Context.newInstance(platform) {
             set(Public, UndoManager, UndoManager.concurrent())
+            set(Public, SelectionDistributor, SelectionDistributor.newInstance())
         }
-        val views = context[EditorControlFactory]
-        val expandable = ExpandableExpr()
-        val expander = context.getEditor(expandable) as ExprExpander
-        val commands = context[Commands]
-        val registrar = commands.of<ExprEditor>()
-        views.register<EditableList<*, *>> { editable, ctx, args ->
+        context[EditorControlFactory].register<EditableList<*, *>> { editable, ctx, args ->
             val editor = ctx.getEditor(editable)
             FXListEditorView(editable, ctx, editor as ListEditor<*>, bundle = args)
         }
-        registrar.register<ExprEditor, Int> {
+        registerCommandsAndInspections(context, platform)
+        val expandable = ExpandableExpr()
+        val expander = context.getEditor(expandable) as ExprExpander
+        val expanderView = context.createView(expandable)
+        val clContext = Context.newInstance(platform) {
+            set(Public, SelectionDistributor, SelectionDistributor.newInstance())
+            set(Public, UndoManager, UndoManager.concurrent())
+        }
+        val sd = context[SelectionDistributor]
+        val cl = CommandLine.forSelectedEditors(sd, clContext)
+        val clView = FXCommandLineView(cl, clContext, Bundle.newInstance())
+        val (evaluationDisplay, obs) = evaluateOnExprChange(expandable)
+        val menuBar = createMenuBar(expander, context)
+        val split = SplitPane(menuBar, expanderView, clView)
+        context[CoreProperties.logger].level = Level.INFO
+        split.orientation = VERTICAL
+        return BorderPane(
+            HBox(10.0, expanderView, Label("->"), evaluationDisplay),
+            menuBar,
+            null,
+            clView,
+            null
+        ).also {
+            it.userData = obs
+        }
+    }
+
+    private fun evaluateOnExprChange(expandable: ExpandableExpr): Pair<Label, Observer> {
+        val evaluationDisplay = Label("Invalid expression")
+        val obs = expandable.edited.observe { _, _, new ->
+            Platform.runLater {
+                if (new == null) {
+                    evaluationDisplay.text = "Invalid expression"
+                } else {
+                    val v = new.value
+                    evaluationDisplay.text = "$v"
+                }
+            }
+        }
+        return Pair(evaluationDisplay, obs)
+    }
+
+    private fun registerCommandsAndInspections(context: Context, platform: HextantPlatform) {
+        val commands = context[Commands]
+        commands.of<ExprEditor>().register<ExprEditor, Int> {
             name = "Evaluate Expression"
             shortName = "eval"
             applicableIf { exprEditor -> exprEditor.expr != null }
@@ -105,8 +146,6 @@ class ExprEditorViewTest : Application() {
             applicableIf { oae ->
                 val ok = oae.editable.isOk.now
                 val parentIsExpander = oae.parent is Expander<*, *>
-                println("ok: $ok")
-                println("parent: ${oae.parent}")
                 ok && parentIsExpander
             }
             executing { oae, _ ->
@@ -117,67 +156,57 @@ class ExprEditorViewTest : Application() {
             }
         }
         val inspections = context[Inspections]
-        inspections.of<EditableOperatorApplication>().register { inspected ->
-            inspection(inspected) {
-                description = "Prevent identical operations"
-                severity(Warning)
-                val isPlus = inspected.editableOperator.edited.map { it == Operator.Plus }
-                val operandIs0 = inspected.editableOp2.edited.map { it is IntLiteral && it.value == 0 }
-                preventingThat(isPlus.and(operandIs0))
-                message { "Operation doesn't change the result" }
-                addFix {
-                    description = "Shorten expression"
-                    applicableIf {
-                        context.getEditor(inspected).parent is Expander<*, *>
-                    }
-                    fixingBy {
-                        val parent = context.getEditor(inspected).parent as Expander<EditableExpr<*>, *>
-                        parent.setContent(inspected.editableOp1)
-                    }
+        inspections.of<EditableOperatorApplication>().registerInspection { inspected ->
+            description = "Prevent identical operations"
+            severity(Warning)
+            val isPlus = inspected.editableOperator.edited.map { it == Plus }
+            val operandIs0 = inspected.editableOp2.edited.map { it is IntLiteral && it.value == 0 }
+            preventingThat(isPlus.and(operandIs0))
+            message { "Operation doesn't change the result" }
+            addFix {
+                description = "Shorten expression"
+                applicableIf {
+                    context.getEditor(inspected).parent is Expander<*, *>
+                }
+                fixingBy {
+                    val parent = context.getEditor(inspected).parent as Expander<EditableExpr<*>, *>
+                    parent.setContent(inspected.editableOp1)
+                }
+
+            }
+        }
+        inspections.of<EditableIntLiteral>().registerInspection { inspected ->
+            description = "Prevent '0' Literals"
+            message { "Literal is '0'" }
+            severity(Warning)
+            preventingThat(inspected.edited.map { it?.value == 0 })
+            addFix {
+                description = "Set to '1'"
+                fixingBy {
+                    val editor = context.getEditor(inspected) as IntLiteralEditor
+                    editor.setText("1")
                 }
             }
         }
-        inspections.of<EditableIntLiteral>().register { inspected ->
-            inspection(inspected) {
-                description = "Prevent '0' Literals"
-                message { "Literal is '0'" }
-                severity(Warning)
-                preventingThat(inspected.edited.map { it?.value == 0 })
-                addFix {
-                    description = "Set to '1'"
-                    fixingBy {
-                        val editor = context.getEditor(inspected) as IntLiteralEditor
-                        editor.setText("1")
-                    }
-                }
+        commands.of<ExprEditor>().register<ExprEditor, Unit> {
+            description =
+                "Wraps the current expression in an operator expression with the current expression being the left operand"
+            name = "Wrap in operator expression"
+            shortName = "wrap_op"
+            addParameter {
+                ofType<Operator>()
+                description = "The operator being applied"
+                name = "operator"
             }
-        }
-        val expanderView = context.createView(expandable)
-        val cl = CommandLine.forSelectedEditors(platform)
-        val clView = FXCommandLineView(cl, platform, Bundle.newInstance())
-        val evaluationDisplay = Label("Invalid expression")
-        val obs = expandable.edited.observe { _, _, new ->
-            Platform.runLater {
-                if (new == null) {
-                    evaluationDisplay.text = "Invalid expression"
-                } else {
-                    val v = new.value
-                    evaluationDisplay.text = "$v"
-                }
+            applicableIf { context; it is Editor<*> && it.parent is Expander<*, *> }
+            executing { editor, (operator) ->
+                //                operator as Operator
+                //                editor as Editor<*>
+                //                val parent = editor.parent as Expander<EditableExpr<*>, *>
+                //                val leftSide = editor.editable as EditableExpr<*>
+                //                parent.setContent(leftSide)
+                println("Wrapping $editor in $operator")
             }
-        }
-        val menuBar = createMenuBar(expander, context)
-        val split = SplitPane(menuBar, expanderView, clView)
-        context[CoreProperties.logger].level = Level.FINE
-        split.orientation = VERTICAL
-        return BorderPane(
-            HBox(10.0, expanderView, Label("->"), evaluationDisplay),
-            menuBar,
-            null,
-            clView,
-            null
-        ).also {
-            it.userData = obs
         }
     }
 

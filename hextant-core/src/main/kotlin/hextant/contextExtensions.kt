@@ -42,9 +42,7 @@ fun <T : Any> Context.getEditable(cls: KClass<T>): Editable<T> =
     }
 
 @JvmName("getPublic")
-operator fun <T : Any> Context.get(property: Property<T, Public, *>): T = get(
-    Public, property
-)
+operator fun <T : Any> Context.get(property: Property<T, Public, *>): T = get(Public, property)
 
 @JvmName("setPublic")
 internal operator fun <T : Any> Context.set(property: Property<T, *, Public>, value: T) =

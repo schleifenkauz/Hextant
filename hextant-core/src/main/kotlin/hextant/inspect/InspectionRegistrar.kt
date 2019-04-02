@@ -24,6 +24,14 @@ class InspectionRegistrar<T : Any> internal constructor() {
         }
     }
 
+    /**
+     * Build an inspection with the given builder lambda and register it
+     */
+    fun registerInspection(builder: InspectionBuilder<T>.(T) -> Unit) {
+        val inspection = { inspected: T -> InspectionBuilder(inspected).apply { builder(inspected) }.build() }
+        register(inspection)
+    }
+
     private fun getInspectionManager(inspected: T): InspectionManager<T> {
         return managers.getOrPut(inspected) { createInspectionManager(inspected) }
     }

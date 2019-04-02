@@ -6,7 +6,6 @@ package hextant.command.line
 
 import hextant.*
 import hextant.base.AbstractEditable
-import hextant.bundle.CorePermissions.Internal
 import hextant.command.*
 import hextant.command.line.CommandLine.State.EditingArgs
 import hextant.command.line.CommandLine.State.EditingName
@@ -239,11 +238,10 @@ class CommandLine(
     }
 
     companion object {
-        fun forSelectedEditors(context: Context): CommandLine {
-            val dist = context[Internal, SelectionDistributor]
+        fun forSelectedEditors(selection: SelectionDistributor, context: Context): CommandLine {
             val commands = context[Commands]
             val targets = {
-                dist.selectedEditors.now
+                selection.selectedEditors.now
             }
             val commandsFactory = {
                 targets().asSequence().map {

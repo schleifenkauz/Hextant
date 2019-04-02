@@ -5,12 +5,12 @@
 package hextant.impl
 
 import hextant.Editor
-import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
 import reaktive.set.*
 import reaktive.value.Variable
 
-internal interface SelectionDistributor {
+interface SelectionDistributor {
     val selectedEditors: ReactiveSet<Editor<*>>
 
     fun toggleSelection(editor: Editor<*>, isSelected: Variable<Boolean>)
@@ -38,6 +38,7 @@ internal interface SelectionDistributor {
         }
 
         @Synchronized override fun select(editor: Editor<*>, isSelected: Variable<Boolean>) {
+            println("Selecting $editor on $this")
             val now = selectedEditors.now
             val alreadySelected = editor in now
             if (now.size == 1 && alreadySelected) return
@@ -78,7 +79,7 @@ internal interface SelectionDistributor {
         }
     }
 
-    companion object: Property<SelectionDistributor, Internal, Internal>("Selection Distributor") {
+    companion object : Property<SelectionDistributor, Public, Public>("Selection Distributor") {
         fun newInstance(): SelectionDistributor = Impl()
     }
 }
