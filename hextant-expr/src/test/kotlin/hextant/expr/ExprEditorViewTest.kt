@@ -155,6 +155,19 @@ class ExprEditorViewTest : Application() {
                 ex.setContent(editable)
             }
         }
+        commands.of<ExprEditor>().register<ExprEditor, Unit> {
+            name = "Unwrap expression"
+            shortName = "unwrap"
+            description = "Unwrap an expression by replacing its outer application with itself"
+            applicableIf {
+                it is Editor<*> && it.parent?.parent is OperatorApplicationEditor && it.parent?.parent?.parent is ExprExpander
+            }
+            executing { editor, _ ->
+                editor as Editor<*>
+                val parentExpander = editor.parent!!.parent!!.parent as ExprExpander
+                parentExpander.setContent(editor.editable as Editable<Expr>)
+            }
+        }
         val inspections = context[Inspections]
         inspections.of<EditableOperatorApplication>().registerInspection { inspected ->
             description = "Prevent identical operations"

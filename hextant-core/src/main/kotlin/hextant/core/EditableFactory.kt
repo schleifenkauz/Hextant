@@ -2,8 +2,6 @@
  *@author Nikolaus Knop
  */
 
-@file:Suppress("UNCHECKED_CAST")
-
 package hextant.core
 
 import hextant.Editable
@@ -56,8 +54,9 @@ interface EditableFactory {
         val logger by myLogger()
     }
 
+    @Suppress("UNCHECKED_CAST")
     private class Impl : EditableFactory {
-        private val oneArgFactories = ClassMap.covariant<(Any) -> Editable<Any>>()
+        private val oneArgFactories = ClassMap.invariant<(Any) -> Editable<Any>>()
 
         override fun <T : Any> register(editedCls: KClass<T>, factory: (T) -> Editable<T>) {
             logger.config { "register factory for $editedCls" }
