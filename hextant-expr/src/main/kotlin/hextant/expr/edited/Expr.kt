@@ -22,7 +22,9 @@ sealed class Operator(private val operation: (Int, Int) -> Int, val name: String
     object Plus: Operator(Int::plus, "+", isCommutative = true)
     object Minus: Operator(Int::minus, "-", isCommutative = false)
     object Times: Operator(Int::times, "*", isCommutative = true)
-    object Div: Operator(Int::div, "/", isCommutative = false)
+    object Div : Operator(Int::div, "/", isCommutative = false)
+
+    override fun toString(): String = name
 
     companion object {
         fun of(text: String) = map[text] ?: throw NoSuchElementException("No such operator '$text'")
@@ -43,4 +45,9 @@ sealed class Operator(private val operation: (Int, Int) -> Int, val name: String
 data class Sum(val expressions: List<Expr>) : Expr {
     override val value: Int
         get() = expressions.sumBy { it.value }
+
+    override fun toString(): String = buildString {
+        append("sum ")
+        expressions.joinTo(this, " + ")
+    }
 }
