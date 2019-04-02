@@ -58,7 +58,7 @@ class ExprEditorViewTest : Application() {
     private fun createContent(platform: HextantPlatform): Parent {
         val context = Context.newInstance(platform) {
             set(Public, UndoManager, UndoManager.concurrent())
-            set(Public, SelectionDistributor, SelectionDistributor.newInstance())
+            //            set(Public, SelectionDistributor, SelectionDistributor.newInstance())
         }
         context[EditorControlFactory].register<EditableList<*, *>> { editable, ctx, args ->
             val editor = ctx.getEditor(editable)
