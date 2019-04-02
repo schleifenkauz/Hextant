@@ -3,7 +3,7 @@ package hextant.core
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import hextant.*
-import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Public
 import hextant.core.mocks.MockEditor
 import hextant.impl.SelectionDistributor
 import org.jetbrains.spek.api.Spek
@@ -11,7 +11,7 @@ import org.jetbrains.spek.api.dsl.*
 
 internal object SelectionDistributorSpec: Spek({
     val platform = HextantPlatform.configured()
-    val sut = platform[Internal, SelectionDistributor]
+    val sut = platform[Public, SelectionDistributor]
     test(sut, platform)
 }) {
     operator fun invoke(

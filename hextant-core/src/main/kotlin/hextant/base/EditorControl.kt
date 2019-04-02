@@ -115,7 +115,7 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     private var initialized = false
 
     override fun select(isSelected: Boolean) {
-        pseudoClassStateChanged(PseudoClasses.SELECTED, isSelected)
+        root.pseudoClassStateChanged(PseudoClasses.SELECTED, isSelected)
     }
 
     override fun error(isError: Boolean) {
