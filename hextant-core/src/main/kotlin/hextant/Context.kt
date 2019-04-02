@@ -14,11 +14,11 @@ interface Context : Bundle {
 
     companion object {
         inline fun newInstance(
-            platform: HextantPlatform = HextantPlatform.configured(),
+            context: Context = HextantPlatform.configured(),
             configure: Bundle.() -> Unit = {}
-        ): Context = object : AbstractContext(parent = platform) {
+        ): Context = object : AbstractContext(parent = context) {
             override val platform: HextantPlatform
-                get() = platform
+                get() = context.platform
         }.apply(configure)
     }
 }

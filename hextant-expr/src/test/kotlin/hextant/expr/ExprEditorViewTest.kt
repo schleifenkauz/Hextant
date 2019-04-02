@@ -50,27 +50,27 @@ class ExprEditorViewTest : Application() {
 
     override fun start(primaryStage: Stage) {
         stage = primaryStage
-        stage.scene = hextantScene(::createContent)
-        stage.setOnCloseRequest { System.exit(0) }
+        stage.scene = hextantScene(::createContent) { platform ->
+            Context.newInstance(platform) {
+                set(Public, UndoManager, UndoManager.concurrent())
+                set(Public, SelectionDistributor, SelectionDistributor.newInstance())
+            }
+        }
+        stage.setOnCloseRequest { System.exit(0) } //Needed to stop the daemon threads
         stage.show()
     }
 
-    private fun createContent(platform: HextantPlatform): Parent {
-        val context = Context.newInstance(platform) {
-            set(Public, UndoManager, UndoManager.concurrent())
-            //            set(Public, SelectionDistributor, SelectionDistributor.newInstance())
-        }
+    private fun createContent(context: Context): Parent {
         context[EditorControlFactory].register<EditableList<*, *>> { editable, ctx, args ->
             val editor = ctx.getEditor(editable)
             FXListEditorView(editable, ctx, editor as ListEditor<*>, bundle = args)
         }
-        registerCommandsAndInspections(context, platform)
+        registerCommandsAndInspections(context)
         val expandable = ExpandableExpr()
         val expander = context.getEditor(expandable) as ExprExpander
         val expanderView = context.createView(expandable)
-        val clContext = Context.newInstance(platform) {
+        val clContext = Context.newInstance(context) {
             set(Public, SelectionDistributor, SelectionDistributor.newInstance())
-            set(Public, UndoManager, UndoManager.concurrent())
         }
         val sd = context[SelectionDistributor]
         val cl = CommandLine.forSelectedEditors(sd, clContext)
@@ -106,7 +106,7 @@ class ExprEditorViewTest : Application() {
         return Pair(evaluationDisplay, obs)
     }
 
-    private fun registerCommandsAndInspections(context: Context, platform: HextantPlatform) {
+    private fun registerCommandsAndInspections(context: Context) {
         val commands = context[Commands]
         commands.of<ExprEditor>().register<ExprEditor, Int> {
             name = "Evaluate Expression"
@@ -133,9 +133,9 @@ class ExprEditorViewTest : Application() {
                 val editableOp1 = expandableOp1.editable.now
                 val expandableOp2 = oae.editable.editableOp2
                 val editableOp2 = expandableOp2.editable.now
-                val expander1 = platform.getEditor(expandableOp1) as Expander<Editable<Expr>, *>
+                val expander1 = context.getEditor(expandableOp1) as Expander<Editable<Expr>, *>
                 if (editableOp2 != null) expander1.setContent(editableOp2)
-                val expander2 = platform.getEditor(expandableOp2) as Expander<Editable<Expr>, *>
+                val expander2 = context.getEditor(expandableOp2) as Expander<Editable<Expr>, *>
                 if (editableOp1 != null) expander2.setContent(editableOp1)
             }
         }
