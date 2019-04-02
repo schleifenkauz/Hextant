@@ -11,6 +11,7 @@ import hextant.bundle.CorePermissions.Public
 import hextant.command.Command
 import hextant.command.Commands
 import hextant.core.*
+import hextant.core.editable.Expandable
 import hextant.impl.myLogger
 import hextant.inspect.Inspection
 import hextant.inspect.Inspections
@@ -61,6 +62,16 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
         val viewName = V::class.qualifiedName
         val editableName = E::class.qualifiedName
         logger.config { "Registered $viewName for $editableName" }
+    }
+
+    /**
+     * Register the specified factory for the expandable of the class [E]
+     */
+    inline fun <reified E : Editable<*>, reified Ex : Expandable<*, E>> expandable(noinline factory: () -> Ex) {
+        platform[Public, ExpandableFactory].register(factory)
+        val editableName = E::class.qualifiedName ?: "<anonymous>"
+        val expandableName = Ex::class.qualifiedName ?: "<anonymous>"
+        logger.config { "Registered $expandableName for $editableName" }
     }
 
     /**
