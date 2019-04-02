@@ -21,10 +21,10 @@ interface ExpandableFactory {
     fun <E : Editable<*>> register(editableCls: KClass<E>, factory: () -> Expandable<*, E>)
 
     /**
-     * Create an expandable for the given [editable] using the previously registered factory for any superclass of [E]
+     * Create an expandable for the given editable class using the previously registered factory for the class [E]
      * @throws NoSuchElementException if no factory for this type of editable was registered
      */
-    fun <E : Editable<*>> createExpandable(editable: E): Expandable<*, E>
+    fun <E : Editable<*>> createExpandable(cls: KClass<E>): Expandable<*, E>
 
     companion object : Property<EditableFactory, Public, Internal>("Expandable Factory") {
         fun newInstance(): ExpandableFactory = TODO()
