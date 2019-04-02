@@ -41,7 +41,7 @@ interface ExpandableFactory {
         }
     }
 
-    companion object : Property<EditableFactory, Public, Internal>("Expandable Factory") {
+    companion object : Property<ExpandableFactory, Public, Internal>("Expandable Factory") {
         fun newInstance(): ExpandableFactory = Impl()
     }
 }
