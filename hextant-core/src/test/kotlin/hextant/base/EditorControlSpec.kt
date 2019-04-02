@@ -44,7 +44,7 @@ internal object EditorControlSpec : Spek({
             on("select") {
                 ec.select(true)
                 it("should have the selected pseudo class") {
-                    ec.root.pseudoClassStates shouldMatch hasElement(SELECTED)
+                    ec.pseudoClassStates shouldMatch hasElement(SELECTED)
                 }
             }
             on("deselect") {
