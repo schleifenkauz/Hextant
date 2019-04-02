@@ -198,7 +198,7 @@ class ExprEditorViewTest : Application() {
                 description = "The operator being applied"
                 name = "operator"
             }
-            applicableIf { context; it is Editor<*> && it.parent is Expander<*, *> }
+            applicableIf { it is Editor<*> && it.parent is Expander<*, *> }
             executing { editor, (operator) ->
                 //                operator as Operator
                 //                editor as Editor<*>

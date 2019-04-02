@@ -1,8 +1,10 @@
 package hextant.core
 
+import hextant.core.editable.EditableText
 import hextant.core.editable.Expandable
 import hextant.core.mocks.EditableMock
 import matchers.shouldBe
+import matchers.shouldThrow
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 
@@ -20,6 +22,10 @@ object ExpandableFactorySpec : Spek({
             it("should return an instance of the registered expandable class") {
                 ex shouldBe instanceOf<ExpandableMock>()
             }
+        }
+        on("trying to create an expandable for an unregistered class") {
+            val error = { f.createExpandable(EditableText::class) }
+            error.shouldThrow<NoSuchElementException>()
         }
     }
 })
