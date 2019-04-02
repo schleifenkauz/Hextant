@@ -35,4 +35,5 @@ plugin {
     view<EditableSExprList, FXListEditorView> { editable, ctx, args ->
         FXListEditorView.withAltGlyph(editable, ctx, glyph = PLUS, args = args, orientation = Horizontal)
     }
+    expandable(::ExpandableSExpr)
 }

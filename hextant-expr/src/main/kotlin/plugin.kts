@@ -1,5 +1,4 @@
-import hextant.expr.editable.EditableIntLiteral
-import hextant.expr.editable.EditableOperator
+import hextant.expr.editable.*
 import hextant.expr.editor.*
 import hextant.expr.view.*
 import hextant.plugin.dsl.plugin
@@ -20,4 +19,5 @@ plugin {
     editor(::SumEditor)
     view(::FXSumEditorView)
     editor(::ExprExpander)
+    expandable(::ExpandableExpr)
 }
