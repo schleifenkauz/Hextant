@@ -53,7 +53,7 @@ inline fun <reified E : Editable<*>, reified Ex : Expandable<*, E>> ExpandableFa
  * * Note the distinction between the class of the type parameter [E] and the class of the given [editable]
  * * An Expandable is created for the class [E] and not for the possible subclass of [E] that [editable] has
  */
-inline fun <reified E : Editable<*>, reified Ex : Expandable<*, E>> ExpandableFactory.wrapInExpandable(editable: E): Expandable<*, E> {
+inline fun <reified E : Editable<*>, reified Ex : Expandable<*, E>> ExpandableFactory.wrapInExpandable(editable: E): Ex {
     val expandable = createExpandable<E, Ex>()
     expandable.setContent(editable)
     return expandable
