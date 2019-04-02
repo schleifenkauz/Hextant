@@ -12,6 +12,7 @@ plugin {
     view(::FXIntLiteralEditorView)
     //Editable expressions
     editable(::EditableOperator, ::EditableOperator)
+    editable(::EditableOperatorApplication) { e -> EditableOperatorApplication(platform, e) }
     editor(::OperatorEditor)
     view(::FXOperatorEditorView)
     editor(::OperatorApplicationEditor)

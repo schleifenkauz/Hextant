@@ -4,6 +4,7 @@
 
 package hextant.expr.editable
 
+import hextant.Context
 import hextant.Editable
 import hextant.expr.editable.EditableOperatorApplication.Serial
 import hextant.expr.edited.Operator
@@ -16,14 +17,22 @@ import reaktive.value.binding.map
 
 @SerializableWith(Serial::class)
 class EditableOperatorApplication(
-    val editableOperator: EditableOperator = EditableOperator(),
-    val editableOp1: ExpandableExpr = ExpandableExpr(),
-    val editableOp2: ExpandableExpr = ExpandableExpr()
+    val editableOperator: EditableOperator,
+    val editableOp1: ExpandableExpr,
+    val editableOp2: ExpandableExpr
 ) : Editable<OperatorApplication>,
     EditableExpr<OperatorApplication> {
     constructor(operator: Operator) : this() {
         editableOperator.text.set(operator.name)
     }
+
+    constructor() : this(EditableOperator(), ExpandableExpr(), ExpandableExpr())
+
+    constructor(context: Context, edited: OperatorApplication) : this(
+        EditableOperator(edited.operator),
+        ExpandableExpr(edited.op1, context),
+        ExpandableExpr(edited.op2, context)
+    )
 
     override val edited: ReactiveValue<OperatorApplication?> =
         binding<OperatorApplication?>(

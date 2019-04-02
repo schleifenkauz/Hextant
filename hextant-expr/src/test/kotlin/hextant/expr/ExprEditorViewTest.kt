@@ -200,12 +200,13 @@ class ExprEditorViewTest : Application() {
             }
             applicableIf { it is Editor<*> && it.parent is Expander<*, *> }
             executing { editor, (operator) ->
-                //                operator as Operator
-                //                editor as Editor<*>
-                //                val parent = editor.parent as Expander<EditableExpr<*>, *>
-                //                val leftSide = editor.editable as EditableExpr<*>
-                //                parent.setContent(leftSide)
-                println("Wrapping $editor in $operator")
+                operator as Operator
+                editor as Editor<*>
+                val parent = editor.parent as Expander<EditableExpr<*>, *>
+                val leftSide = editor.editable as EditableExpr<*>
+                val editableOp = EditableOperator(operator)
+                val app = EditableOperatorApplication(editableOp, ExpandableExpr(leftSide), ExpandableExpr())
+                parent.setContent(app)
             }
         }
     }
