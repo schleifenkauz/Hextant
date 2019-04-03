@@ -68,6 +68,7 @@ class FXExpanderView(
         root = textField
         textField.requestFocus()
         textField.text = ""
+        expander.select()
     }
 
     override fun expanded(newContent: Editable<*>) {
