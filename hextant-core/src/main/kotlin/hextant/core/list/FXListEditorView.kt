@@ -90,10 +90,6 @@ class FXListEditorView(
         override fun updateItem(item: EditorControl<*>) {
             root.graphic = item
         }
-
-        override fun requestFocus() {
-            item?.requestFocus()
-        }
     }
 
     class PrefixCell(prefix: Node) : Cell<HBox>() {
@@ -101,10 +97,6 @@ class FXListEditorView(
 
         init {
             root = HBox(prefix)
-        }
-
-        override fun requestFocus() {
-            item?.requestFocus()
         }
 
         override fun updateItem(item: EditorControl<*>) {
@@ -144,10 +136,6 @@ class FXListEditorView(
             root = HBox()
         }
 
-        override fun requestFocus() {
-            item?.requestFocus()
-        }
-
         override fun updateIndex(idx: Int) {
             left = if (idx != 0) separator
             else null
@@ -182,7 +170,7 @@ class FXListEditorView(
             }
 
         override fun requestFocus() {
-            root.requestFocus()
+            item?.receiveFocus()
         }
 
         protected open fun updateIndex(idx: Int) {}
@@ -276,6 +264,11 @@ class FXListEditorView(
 
     override fun notEmpty() {
         root = items
+    }
+
+    override fun receiveFocus() {
+        val firstChild = cells.firstOrNull() ?: emptyDisplay
+        firstChild.requestFocus()
     }
 
     interface Orientation {

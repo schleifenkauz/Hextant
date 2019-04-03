@@ -35,8 +35,15 @@ interface EditorView {
 
     /**
      * Request focus for this [EditorView]
+     * * In contrast to [receiveFocus] this method should really focus **this** view and not one of its children
      */
     fun focus()
+
+    /**
+     * Is called when this [EditorView] receives focus
+     * * In case of parent views this method can also focus one of its children
+     */
+    fun receiveFocus()
 
     /**
      * Invoke that specified [action] on the gui thread of this [EditorView]

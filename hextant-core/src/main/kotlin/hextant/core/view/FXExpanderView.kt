@@ -75,7 +75,7 @@ class FXExpanderView(
         view = v
         v.registerShortcut(RESET_SHORTCUT) { expander.reset() }
         root = v
-        v.focus()
+        v.receiveFocus()
     }
 
     override fun suggestCompletions(completions: Set<Completion<String>>) {
@@ -83,8 +83,8 @@ class FXExpanderView(
         completionsPopup.show(this)
     }
 
-    override fun requestFocus() {
-        if (expandable.isExpanded.now) view!!.focus()
+    override fun receiveFocus() {
+        if (expandable.isExpanded.now) view!!.receiveFocus()
         else textField.requestFocus()
     }
 

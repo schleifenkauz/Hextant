@@ -51,4 +51,8 @@ open class FXTokenEditorView(
     override fun displayCompletions(completions: Collection<Completion<String>>) {
         completionPopup.setCompletions(completions)
     }
+
+    override fun receiveFocus() {
+        textField.requestFocus()
+    }
 }

@@ -55,7 +55,7 @@ class FXOperatorApplicationEditorView(
         }
     }
 
-    override fun requestFocus() {
-        op1View.focus()
+    override fun receiveFocus() {
+        op1View.receiveFocus()
     }
 }

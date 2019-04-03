@@ -32,6 +32,7 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
     private val warningObserver = hasWarning.observe { warn: Boolean ->
         views { warn(warn) }
     }
+
     private val errorObserver = hasError.observe { isError: Boolean ->
         views { error(isError) }
     }
@@ -45,6 +46,7 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
             onGuiThread {
                 warn(hasWarning.now)
                 error(hasError.now)
+                select(isSelected)
             }
         }
     }

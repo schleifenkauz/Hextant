@@ -129,8 +129,8 @@ class FXCommandLineView(
     }
 
     init {
-        controller.addView(this)
         initialize(commandLine, controller, context)
+        controller.addView(this)
     }
 
     private val completionsPopup = CompletionPopup<Command<*, *>>()
@@ -140,15 +140,17 @@ class FXCommandLineView(
         controller.commandLine.executeOrExpand()
     }
 
-    override fun requestFocus() {
-        Platform.runLater {
-            if (textField.isEditable) {
-                textField.requestFocus()
-            } else {
-                val argEditor = argEditors.children.first() as Label
-                argEditor.graphic.requestFocus()
-            }
+    override fun receiveFocus() {
+        if (textField.isEditable) {
+            textField.requestFocus()
+        } else {
+            val argEditor = argEditors.children.first() as Label
+            argEditor.graphic.requestFocus()
         }
+    }
+
+    override fun requestFocus() {
+        receiveFocus()
     }
 
     fun dispose() {
@@ -161,7 +163,7 @@ class FXCommandLineView(
         val nodes = views.zip(parameters) { v, p -> argumentEditor(p, v) }
         argEditors.children.addAll(nodes)
         completionsPopup.hide()
-        requestFocus()
+        Platform.runLater { receiveFocus() }
     }
 
     override fun setText(newText: String) {
@@ -171,7 +173,7 @@ class FXCommandLineView(
     override fun editingName(name: String) {
         textField.isEditable = true
         argEditors.children.clear()
-        requestFocus()
+        root.requestFocus()
     }
 
     override fun showCompletions(completions: Set<Completion<Command<*, *>>>) {

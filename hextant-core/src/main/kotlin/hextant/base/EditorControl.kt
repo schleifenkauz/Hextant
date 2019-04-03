@@ -57,6 +57,7 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
         protected set(newRoot) {
             _root = newRoot
             activateSelection(editor)
+            root.isFocusTraversable = true
             setRoot(newRoot)
         }
 
@@ -116,6 +117,7 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
 
     override fun select(isSelected: Boolean) {
         pseudoClassStateChanged(PseudoClasses.SELECTED, isSelected)
+        if (isSelected) focus()
     }
 
     override fun error(isError: Boolean) {
@@ -129,8 +131,8 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     /**
      * [requestFocus]
      */
-    override fun focus() {
-        requestFocus()
+    final override fun focus() {
+        onGuiThread { requestFocus() }
     }
 
     /**

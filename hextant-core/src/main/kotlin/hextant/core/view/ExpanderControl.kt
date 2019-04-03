@@ -71,4 +71,8 @@ class ExpanderControl(
     override fun suggestCompletions(completions: Set<Completion<String>>) {
         TODO("not implemented")
     }
+
+    override fun receiveFocus() {
+        root.requestFocus()
+    }
 }

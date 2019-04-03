@@ -18,6 +18,10 @@ abstract class CompoundEditorControl(
 ) : EditorControl<VBox>(args) {
     override fun createDefaultRoot(): VBox = Vertical().also(build)
 
+    override fun receiveFocus() {
+        requestFocus()
+    }
+
     interface Compound {
         fun view(editable: Editable<*>): EditorControl<*>
 
