@@ -57,15 +57,15 @@ class CommandLine(
 
     /**
      * The state of a command line
-    */
+     */
     enum class State {
         /**
          * The state of a command line when the user edits the name of the command, see [CommandLine]
-        */
+         */
         EditingName,
         /**
          * The state of a command line when the user edits the arguments of the command, see [CommandLine]
-        */
+         */
         EditingArgs
     }
 
@@ -76,7 +76,7 @@ class CommandLine(
 
     /**
      * The name of the command being searched
-    */
+     */
     val text: ReactiveValue<String> get() = mutableText
 
     private val mutableEdited = reactiveVariable<CommandApplication<*>?>(null)
@@ -88,7 +88,7 @@ class CommandLine(
     /**
      * Set the name of the command being searched to [new]
      * @throws IllegalStateException if the arguments are currently being edited
-    */
+     */
     fun setText(new: String) {
         check(new == text.now || state.now == EditingName) { "Cannot set text while editing args" }
         logger.info("Set text to $new")
@@ -103,7 +103,7 @@ class CommandLine(
     /**
      * @return the currently edited command
      * @throws IllegalStateException if this command line is in the state "editing name"
-    */
+     */
     fun editedCommand() = editedCommand ?: throw IllegalStateException("No edited command")
 
     /*
@@ -114,7 +114,7 @@ class CommandLine(
     /**
      * @return the currently edited arguments
      * @throws IllegalStateException if the command line is in the state "editing name"
-    */
+     */
     fun editableArgs() = editableArgs ?: throw IllegalStateException("No edited args")
 
     /**
@@ -127,7 +127,7 @@ class CommandLine(
      * * It will lookup whether all editable arguments are ok
      * * If so it will execute the command with the edited arguments
      * * Else it will just do nothing
-    */
+     */
     fun executeOrExpand() {
         logger.info("Executing or expanding")
         val targets = targets()
@@ -140,7 +140,7 @@ class CommandLine(
 
     /**
      * The commands pool in the current context
-    */
+     */
     fun commands() = commandsFactory()
 
     private fun tryExecute(targets: Set<Any>) {
@@ -150,12 +150,10 @@ class CommandLine(
         }
     }
 
-    @Suppress("UNCHECKED_CAST") private fun executeOrExpandEditingName(
-        targets: Set<Any>
-    ) {
+    @Suppress("UNCHECKED_CAST") private fun executeOrExpandEditingName(targets: Set<Any>) {
         logger.fine { "Commandline is editing name" }
         val commands = commands() as Set<Command<Any, *>>
-        logger.fine {"Commands = $commands" }
+        logger.fine { "Commands = $commands" }
         val c = commands.findCommand(targets) ?: return
         logger.fine { "Found command $c" }
         if (c.parameters.isEmpty()) {

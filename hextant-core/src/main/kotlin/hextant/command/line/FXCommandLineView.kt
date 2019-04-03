@@ -83,10 +83,9 @@ class FXCommandLineView(
         }
     }
 
-    private val textField = nameTextField("")
+    private val textField = nameTextField()
 
-    private fun nameTextField(t: String) = HextantTextField().apply {
-        text = t
+    private fun nameTextField() = HextantTextField().apply {
         textProperty().addListener { _, _, new -> controller.commandLine.setText(new) }
         addEventHandler(KeyEvent.KEY_RELEASED) { k ->
             if (SHOW_COMPLETIONS_SHORTCUT.match(k) || k.code == SPACE) {
@@ -94,8 +93,6 @@ class FXCommandLineView(
                 k.consume()
             }
         }
-        textProperty().addListener { _, _, new -> pseudoClassStateChanged(PseudoClasses.ERROR, new.isEmpty()) }
-        pseudoClassStateChanged(PseudoClasses.ERROR, text.isEmpty())
     }
 
     private val argEditors = HBox()
@@ -173,7 +170,7 @@ class FXCommandLineView(
     override fun editingName(name: String) {
         textField.isEditable = true
         argEditors.children.clear()
-        root.requestFocus()
+        receiveFocus()
     }
 
     override fun showCompletions(completions: Set<Completion<Command<*, *>>>) {
