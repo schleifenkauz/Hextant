@@ -17,6 +17,7 @@ import javafx.scene.Parent
 import javafx.scene.control.Control
 import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
+import javafx.scene.input.KeyCode.W
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -28,6 +29,8 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     private lateinit var editor: Editor<*>
 
     final override val arguments: Bundle
+
+    private var focusingAfterSelection = false
 
     init {
         val reactive = ReactiveBundle(arguments)
@@ -78,13 +81,14 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
         root = createDefaultRoot()
         activateContextMenu(editable, context)
         activateInspections(editable, context)
+        activateSelectionExtension(editor)
         initialized = true
     }
 
 
     private fun activateSelection(editor: Editor<*>) {
         root.focusedProperty().addListener { _, _, isFocused ->
-            if (isFocused) {
+            if (!focusingAfterSelection && isFocused) {
                 if (isControlDown) {
                     editor.toggleSelection()
                 } else {
@@ -94,6 +98,17 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
         }
     }
 
+    private fun activateSelectionExtension(editor: Editor<*>) {
+        addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
+            if (EXTEND_SELECTION.match(ev)) {
+                editor.parent?.extendSelection(editor)
+                ev.consume()
+            } else if (SHRINK_SELECTION.match(ev)) {
+                editor.shrinkSelection()
+                ev.consume()
+            }
+        }
+    }
 
     private fun activateInspections(inspected: Any, context: Context) {
         val inspections = context[Inspections]
@@ -117,7 +132,11 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
 
     override fun select(isSelected: Boolean) {
         pseudoClassStateChanged(PseudoClasses.SELECTED, isSelected)
-        if (isSelected) focus()
+        if (isSelected) {
+            focusingAfterSelection = true
+            focus()
+            focusingAfterSelection = false
+        }
     }
 
     override fun error(isError: Boolean) {
@@ -146,5 +165,9 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     companion object {
         private fun Node.nodeTree(): Sequence<Node> =
             if (this is Parent) childrenUnmodifiable.asSequence().flatMap { it.nodeTree() } + this else sequenceOf(this)
+
+        private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
+
+        private val SHRINK_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
     }
 }

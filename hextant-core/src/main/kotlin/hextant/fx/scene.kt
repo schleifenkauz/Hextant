@@ -4,14 +4,14 @@
 
 package hextant.fx
 
-import hextant.*
-import hextant.impl.SelectionDistributor
+import hextant.Context
+import hextant.HextantPlatform
 import hextant.impl.Stylesheets
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Label
-import javafx.scene.input.*
 import javafx.scene.input.KeyCode.*
+import javafx.scene.input.KeyEvent
 
 var isControlDown = false; private set
 
@@ -28,6 +28,7 @@ fun Scene.initHextantScene(context: Context) {
     Stylesheets.apply(this)
 }
 
+@Suppress("UNUSED_PARAMETER")
 private fun Scene.initEventHandlers(context: Context) {
     addEventFilter(KeyEvent.KEY_PRESSED) {
         if (it.code == CONTROL) {
@@ -39,25 +40,7 @@ private fun Scene.initEventHandlers(context: Context) {
             isControlDown = false
         }
     }
-    addEventFilter(KeyEvent.KEY_RELEASED) { k ->
-        val selectedEditors = context[SelectionDistributor].selectedEditors.now
-        if (EXTEND_SELECTION.match(k)) {
-            for (editor in selectedEditors.toSet()) { //.toSet() copy is needed, because of concurrent modification
-                editor.parent?.extendSelection(editor)
-            }
-            k.consume()
-        } else if (SHRINK_SELECTION.match(k)) {
-            for (editor in selectedEditors.toSet()) { //.toSet() copy is needed, because of concurrent modification
-                editor.shrinkSelection()
-            }
-            k.consume()
-        }
-    }
 }
-
-private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
-
-private val SHRINK_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
 
 
 fun lastShortcutLabel(scene: Scene): Label {

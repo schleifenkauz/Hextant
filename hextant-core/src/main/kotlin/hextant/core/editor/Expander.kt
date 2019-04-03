@@ -140,10 +140,6 @@ abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
         views { expanded(new) }
     }
 
-    override fun extendSelection(child: Editor<*>) {
-        parent?.extendSelection(child)
-    }
-
     fun suggestCompletions() {
         val completions = completer.completions(editable.text.now)
         views {
