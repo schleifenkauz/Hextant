@@ -2,8 +2,6 @@
  * @author Nikolaus Knop
  */
 
-@file:Suppress("UNCHECKED_CAST")
-
 package hextant.expr
 
 import hextant.*
@@ -15,7 +13,6 @@ import hextant.command.line.CommandLine
 import hextant.command.line.FXCommandLineView
 import hextant.command.register
 import hextant.core.EditorControlFactory
-import hextant.core.editor.Expander
 import hextant.core.list.*
 import hextant.core.register
 import hextant.expr.editable.*
@@ -133,9 +130,9 @@ class ExprEditorViewTest : Application() {
                 val editableOp1 = expandableOp1.editable.now
                 val expandableOp2 = oae.editable.editableOp2
                 val editableOp2 = expandableOp2.editable.now
-                val expander1 = context.getEditor(expandableOp1) as Expander<Editable<Expr>, *>
+                val expander1: ExprExpander = context.getEditor(expandableOp1)
                 if (editableOp2 != null) expander1.setContent(editableOp2)
-                val expander2 = context.getEditor(expandableOp2) as Expander<Editable<Expr>, *>
+                val expander2: ExprExpander = context.getEditor(expandableOp2)
                 if (editableOp1 != null) expander2.setContent(editableOp1)
             }
         }
@@ -144,12 +141,10 @@ class ExprEditorViewTest : Application() {
             shortName = "collapse"
             description = "Partially evaluate the selected expression"
             applicableIf { oae ->
-                val ok = oae.editable.isOk.now
-                val parentIsExpander = oae.parent is Expander<*, *>
-                ok && parentIsExpander
+                oae.editable.isOk.now && oae.expander != null
             }
             executing { oae, _ ->
-                val ex = oae.parent as Expander<Editable<Expr>, *>
+                val ex = oae.expander as ExprExpander
                 val res = oae.editable.edited.now!!.value
                 val editable = EditableIntLiteral(res)
                 ex.setContent(editable)
@@ -160,12 +155,12 @@ class ExprEditorViewTest : Application() {
             shortName = "unwrap"
             description = "Unwrap an expression by replacing its outer application with itself"
             applicableIf {
-                it is Editor<*> && it.parent?.parent is OperatorApplicationEditor && it.parent?.parent?.parent is ExprExpander
+                it is Editor<*> && it.parent is OperatorApplicationEditor && it.parent!!.expander is ExprExpander
             }
             executing { editor, _ ->
                 editor as Editor<*>
-                val parentExpander = editor.parent!!.parent!!.parent as ExprExpander
-                parentExpander.setContent(editor.editable as Editable<Expr>)
+                val parentExpander = editor.parent!!.expander as ExprExpander
+                parentExpander.setContent(editor.editable as EditableExpr<*>)
             }
         }
         val inspections = context[Inspections]
@@ -179,10 +174,10 @@ class ExprEditorViewTest : Application() {
             addFix {
                 description = "Shorten expression"
                 applicableIf {
-                    context.getEditor(inspected).parent is Expander<*, *>
+                    context.getEditor(inspected).expander is ExprExpander
                 }
                 fixingBy {
-                    val parent = context.getEditor(inspected).parent as Expander<EditableExpr<*>, *>
+                    val parent = context.getEditor(inspected).expander as ExprExpander
                     parent.setContent(inspected.editableOp1)
                 }
 
@@ -196,7 +191,7 @@ class ExprEditorViewTest : Application() {
             addFix {
                 description = "Set to '1'"
                 fixingBy {
-                    val editor = context.getEditor(inspected) as IntLiteralEditor
+                    val editor: IntLiteralEditor = context.getEditor(inspected)
                     editor.setText("1")
                 }
             }
@@ -211,11 +206,11 @@ class ExprEditorViewTest : Application() {
                 description = "The operator being applied"
                 name = "operator"
             }
-            applicableIf { it is Editor<*> && it.parent is Expander<*, *> }
+            applicableIf { it is Editor<*> && it.expander is ExprExpander }
             executing { editor, (operator) ->
                 operator as Operator
                 editor as Editor<*>
-                val parent = editor.parent as Expander<EditableExpr<*>, *>
+                val parent = editor.expander as ExprExpander
                 val leftSide = editor.editable as EditableExpr<*>
                 val editableOp = EditableOperator(operator)
                 val app = EditableOperatorApplication(editableOp, ExpandableExpr(leftSide), ExpandableExpr())
