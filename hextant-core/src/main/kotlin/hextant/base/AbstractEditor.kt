@@ -5,6 +5,7 @@
 package hextant.base
 
 import hextant.*
+import hextant.core.editor.Expander
 import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import reaktive.value.*
@@ -97,12 +98,25 @@ abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
             parent = null
             return
         }
-        if (parent == newParent) return
-        @Suppress("DEPRECATION") //only called here
-        newParent.accept(this)
-        parent = newParent
+        if (newParent is Expander<*, *>) {
+            if (newParent == expander) return
+            @Suppress("DEPRECATION") //only called here
+            newParent.accept(this)
+            _expander = newParent
+            moveTo(newParent.parent)
+        } else {
+            if (parent == newParent) return
+            @Suppress("DEPRECATION") //and here
+            newParent.accept(this)
+            parent = newParent
+        }
     }
 
-    final override var parent: Editor<*>? = null
+    final override var parent: ParentEditor<*, *>? = null
         private set
+
+    private var _expander: Expander<*, *>? = null
+
+    override val expander: Expander<*, *>?
+        get() = _expander
 }

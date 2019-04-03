@@ -5,6 +5,7 @@
 package hextant
 
 import hextant.base.ParentEditor
+import hextant.core.editor.Expander
 
 /**
  * An Editor which acts like a Controller in the MVC pattern
@@ -53,10 +54,13 @@ interface Editor<out E : Editable<*>> {
 
     /**
      * The parent of this editor or `null` if it has no parent
-     *
-     * Default implementation returns `null`
      */
-    val parent: Editor<*>? get() = null
+    val parent: ParentEditor<*, *>?
+
+    /**
+     * The expander that expanded this [Editor] or `if` this editor wasn't expanded
+     */
+    val expander: Expander<*, *>?
 
     /**
      * The children of this editor
@@ -69,6 +73,8 @@ interface Editor<out E : Editable<*>> {
      * Move this [Editor] to its specified [newParent] by
      * * Setting the newParent of this [Editor] to [newParent]
      * * And adding this [Editor] to the children of [newParent]
+     * * If the specified parent is an [Expander] then instead of the above operations the expander is set and
+     * the parent is set to the parent of the expander
      * If this [Editor] is already a child of [newParent] this method has no effect
      * @throws IllegalArgumentException if [newParent] doesn't accept this [Editor] as a child
      */

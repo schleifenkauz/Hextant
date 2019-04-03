@@ -26,4 +26,7 @@ open class ConfiguredExpander<E : Editable<*>, Ex : Expandable<*, E>>(
     override fun expand(text: String): E? = config.expand(text)
 
     override fun accepts(child: Editor<*>): Boolean = true
+
+    override val expander: Expander<*, *>?
+        get() = null
 }

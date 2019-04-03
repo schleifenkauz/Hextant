@@ -38,7 +38,6 @@ interface SelectionDistributor {
         }
 
         @Synchronized override fun select(editor: Editor<*>, isSelected: Variable<Boolean>) {
-            println("Selecting $editor on $this")
             val now = selectedEditors.now
             val alreadySelected = editor in now
             if (now.size == 1 && alreadySelected) return

@@ -10,6 +10,7 @@ import hextant.command.Command
 import hextant.command.line.CommandLine.State
 import hextant.command.line.CommandLine.State.EditingArgs
 import hextant.completion.Completer
+import hextant.core.editor.Expander
 import hextant.createView
 import reaktive.value.now
 import reaktive.value.observe
@@ -66,6 +67,9 @@ class CommandLineController(
     override fun viewAdded(view: CommandLineView) {
         handleState(commandLine.state.now, view)
     }
+
+    override val expander: Expander<*, *>?
+        get() = null
 
     private fun handleState(newState: State, view: CommandLineView) {
         if (newState == EditingArgs) {
