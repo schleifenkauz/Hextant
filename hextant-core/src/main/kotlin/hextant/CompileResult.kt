@@ -127,11 +127,9 @@ class TerminationSignal(val err: CompileResult<Nothing>) : Throwable()
 /**
  * Return the value of this [CompileResult] if it is [Ok], otherwise throw a [TerminationSignal]
  */
-operator fun <T> CompileResult<T>.component1(): T = when (this) {
-    is Err      -> throw TerminationSignal(this)
-    is ChildErr -> throw TerminationSignal(this)
-    is Ok       -> value
-}
+fun <T> CompileResult<T>.orTerminate(): T = ifErr { throw TerminationSignal(it) }
+
+operator fun <T> CompileResult<T>.component1(): T = orTerminate()
 
 /**
  * Execute the specified [body] and return the result catching an eventual [TerminationSignal] thrown by the body

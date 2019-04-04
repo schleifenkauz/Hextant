@@ -168,9 +168,9 @@ object CompileResultSpec : Spek({
         on("flow with errors") {
             it("should return the first error") {
                 compile<Int> {
-                    val (_) = ok(1)
-                    val (_) = childErr<Int>()
-                    val (_) = err<Int>("Message")
+                    ok(1).orTerminate()
+                    val (x) = childErr<Int>() //Cannot rename to _ because it would not terminate execution
+                    err<Int>("Message").orTerminate()
                     throw AssertionError("Should not be reached")
                 } shouldBe childErr
             }
