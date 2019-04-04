@@ -55,6 +55,8 @@ inline fun <T, F> CompileResult<T>.mapOrChildErr(f: (T) -> F) = if (this is Ok) 
 
 inline fun <T> CompileResult<T>.default(def: () -> T): T = if (this is Ok) value else def()
 
+fun <T> CompileResult<T>.toChildErr() = if (isOk) this else ChildErr
+
 fun <T> CompileResult<T>.defaultNull() = default { null }
 
 val CompileResult<*>.isError get() = this !is Ok
