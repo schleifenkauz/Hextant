@@ -4,6 +4,7 @@
 
 package hextant.inspect
 
+import reaktive.event.event
 import reaktive.value.ReactiveBoolean
 
 /**
@@ -12,12 +13,14 @@ import reaktive.value.ReactiveBoolean
 class InspectionRegistrar<T : Any> internal constructor() {
     private val managers: MutableMap<T, InspectionManager<T>> = HashMap()
 
-    private val inspectionFactories: MutableList<(T) -> Inspection<T>> = mutableListOf()
+    private val inspectionFactories: MutableList<(T) -> Inspection> = mutableListOf()
+
+    private val addInspection = event<(T) -> Inspection>()
 
     /**
      * Register the specified [inspection]
      */
-    fun register(inspection: (T) -> Inspection<T>) {
+    fun register(inspection: (T) -> Inspection) {
         inspectionFactories.add(inspection)
         for (m in managers.values) {
             m.addInspection(inspection)

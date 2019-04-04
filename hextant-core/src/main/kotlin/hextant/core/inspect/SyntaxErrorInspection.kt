@@ -11,7 +11,7 @@ import reaktive.value.ReactiveBoolean
 import reaktive.value.binding.map
 import reaktive.value.now
 
-class SyntaxErrorInspection(override val inspected: Editable<*>) : AbstractInspection<Editable<*>>() {
+class SyntaxErrorInspection(private val inspected: Editable<*>) : AbstractInspection() {
     override val isProblem: ReactiveBoolean = inspected.result.map {
         it.isErr
     }

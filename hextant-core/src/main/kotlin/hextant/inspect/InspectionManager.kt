@@ -14,9 +14,9 @@ internal class InspectionManager<T : Any>(private val inspected: T) {
 
     private val errorCount = reactiveVariable(0)
 
-    private val inspections = mutableSetOf<Inspection<T>>()
+    private val inspections = mutableSetOf<Inspection>()
 
-    fun addInspection(inspectionFactory: (T) -> Inspection<T>) {
+    fun addInspection(inspectionFactory: (T) -> Inspection) {
         val inspection = inspectionFactory.invoke(inspected)
         inspections.add(inspection)
         if (inspection.isProblem.now) {

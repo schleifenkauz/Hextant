@@ -8,9 +8,9 @@ import reaktive.value.ReactiveBoolean
 import reaktive.value.now
 
 /**
- * An inspection for objects of type [T]
-*/
-abstract class AbstractInspection<T : Any> : Inspection<T> {
+ * Skeletal implementation of [Inspection]
+ */
+abstract class AbstractInspection : Inspection {
 
     /**
      * A [ReactiveBoolean] holding `true` if and only if this [Inspection] found a problem on the [inspected] object

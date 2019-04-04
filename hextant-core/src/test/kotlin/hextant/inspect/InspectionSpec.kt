@@ -12,7 +12,7 @@ import org.jetbrains.spek.api.dsl.it
 import reaktive.value.reactiveVariable
 
 internal object InspectionSpec: Spek({
-    lateinit var i: Inspection<Inspected>
+    lateinit var i: Inspection
     val inspected = Inspected()
     describe("build inspection") {
         i = inspection(inspected) {
@@ -29,7 +29,6 @@ internal object InspectionSpec: Spek({
         }
         it("should correctly pass the set values") {
             i.description shouldMatch equalTo("Is Ok inspection, reports inspected values that aren't ok")
-            i.inspected shouldMatch equalTo(inspected)
         }
     }
 }) {

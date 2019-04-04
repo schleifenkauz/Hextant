@@ -9,12 +9,14 @@ import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
 import reaktive.value.ReactiveBoolean
 import kotlin.reflect.KClass
+import kotlin.reflect.full.superclasses
 
 class Inspections private constructor() {
     private val registrars: MutableMap<KClass<*>, InspectionRegistrar<Any>> = HashMap()
 
     fun <T : Any> of(cls: KClass<out T>): InspectionRegistrar<T> {
         val registrar = registrars.getOrPut(cls) {
+            val parents = cls.superclasses
             InspectionRegistrar()
         }
         @Suppress("UNCHECKED_CAST") return registrar as InspectionRegistrar<T>

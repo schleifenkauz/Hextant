@@ -84,7 +84,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
     /**
      * Register the specified [factory] for an inspection [I] inspecting instances of class [T]
      */
-    inline fun <reified T : Any, reified I : Inspection<T>> inspection(noinline factory: (T) -> I) {
+    inline fun <reified T : Any, reified I : Inspection> inspection(noinline factory: (T) -> I) {
         platform[Public, Inspections].of(T::class).register(factory)
         val name = I::class.qualifiedName
         logger.config { "Inspection $name registered" }

@@ -7,13 +7,9 @@ package hextant.inspect
 import reaktive.value.ReactiveBoolean
 
 /**
- * An inspection for objects of type [T]
-*/
-interface Inspection<T : Any> {
-    /**
-     * @return the inspected object
-    */
-    val inspected: T
+ * Interface for Inspections
+ */
+interface Inspection {
     /**
      * @return the description of this [Inspection]
     */

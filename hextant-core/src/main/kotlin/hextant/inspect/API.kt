@@ -24,19 +24,16 @@ fun problemFix(description: String, doFix: () -> Unit, applicable: () -> Boolean
 inline fun problemFix(block: (ProblemFixBuilder).() -> Unit) = ProblemFixBuilder().apply(block).build()
 
 /**
- * @return a [Inspection] inspecting the [inspected] value with the specified [description]
+ * @return a [Inspection] with the specified [description]
  * reporting a problem is [isProblem] is `true` and reporting a problem with [problem]
 */
-inline fun <reified T : Any> inspection(
-    inspected: T,
+inline fun inspection(
     description: String,
     isProblem: ReactiveBoolean,
     severity: Severity,
     crossinline problem: () -> Problem?
-): Inspection<T> = object : Inspection<T> {
+): Inspection = object : Inspection {
     override val severity: Severity = severity
-
-    override val inspected = inspected
 
     override val isProblem: ReactiveBoolean = isProblem
 
@@ -48,7 +45,7 @@ inline fun <reified T : Any> inspection(
 /**
  * @return an [Inspection] built with [block] inspecting the specified [inspected] value
 */
-inline fun <reified T : Any> inspection(inspected: T, block: InspectionBuilder<T>.() -> Unit): Inspection<T> =
+inline fun <reified T : Any> inspection(inspected: T, block: InspectionBuilder<T>.() -> Unit): Inspection =
         InspectionBuilder(inspected).apply(block).build()
 
 

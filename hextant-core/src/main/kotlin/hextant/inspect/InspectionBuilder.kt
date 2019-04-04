@@ -73,8 +73,8 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor(
         addFix(problemFix(block))
     }
 
-    @PublishedApi internal fun build(): Inspection<T> {
-        return InspectionImpl(isProblem, inspected, description, messageProducer, severity) {
+    @PublishedApi internal fun build(): Inspection {
+        return InspectionImpl(isProblem, description, messageProducer, severity) {
             fixes.filter { it.isApplicable() }
         }
     }
