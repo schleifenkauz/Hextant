@@ -76,6 +76,10 @@ internal object EditorControlSpec : Spek({
             root = new
         }
 
+        override fun receiveFocus() {
+            root.requestFocus()
+        }
+
         init {
             val platform = HextantPlatform.configured()
             val editable = EditableMock()

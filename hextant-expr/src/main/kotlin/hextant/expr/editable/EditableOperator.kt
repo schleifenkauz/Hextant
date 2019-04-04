@@ -1,5 +1,6 @@
 package hextant.expr.editable
 
+import hextant.*
 import hextant.core.editable.EditableToken
 import hextant.expr.edited.Operator
 import kserial.Serializable
@@ -9,7 +10,6 @@ class EditableOperator() : EditableToken<Operator>(), Serializable {
         text.set(operator.name)
     }
 
-    override fun isValid(tok: String): Boolean = Operator.isValid(tok)
-
-    override fun compile(tok: String): Operator = Operator.of(tok)
+    override fun compile(tok: String): CompileResult<Operator> =
+        tok.okIfOrErr(Operator.isValid(tok)) { "Invalid operator $tok" }.map { Operator.of(it) }
 }

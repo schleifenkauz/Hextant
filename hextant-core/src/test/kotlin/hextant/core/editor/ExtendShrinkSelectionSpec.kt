@@ -11,13 +11,12 @@ import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.on
-import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
 
 internal object ExtendShrinkSelectionSpec : Spek({
     class Parent : AbstractEditable<Unit>() {
-        override val edited: ReactiveValue<Unit>
-            get() = reactiveValue(Unit)
+        override val result: RResult<Unit>
+            get() = reactiveValue(Ok(Unit))
     }
 
     class ChildEditor(context: Context) :

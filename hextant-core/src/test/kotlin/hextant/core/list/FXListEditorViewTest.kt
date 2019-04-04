@@ -12,20 +12,20 @@ import javafx.stage.Stage
 
 class FXListEditorViewTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = hextantScene(::createContent)
+        stage.scene = hextantScene(::createContent) { platform -> Context.newInstance(platform) }
         stage.setOnCloseRequest { System.exit(0) }
         stage.show()
     }
 
     companion object {
-        private fun createContent(platform: HextantPlatform): Parent {
+        private fun createContent(context: Context): Parent {
             val list = EditableExprList()
-            val views = platform[EditorControlFactory]
+            val views = context[EditorControlFactory]
             views.register<EditableList<*, *>> { editable, ctx, args ->
                 val editor = ctx.getEditor(editable)
                 FXListEditorView(editable, ctx, editor as ListEditor<*>, bundle = args)
             }
-            val view = platform.createView(list) as FXListEditorView
+            val view = context.createView(list) as FXListEditorView
             view.cellFactory = { NumberedCell() }
             return view
         }

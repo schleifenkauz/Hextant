@@ -4,29 +4,24 @@
 
 package hextant.core.list
 
-import hextant.Editable
+import hextant.*
 import kserial.*
-import reaktive.collection.binding.allR
 import reaktive.dependencies
 import reaktive.list.binding.values
 import reaktive.list.reactiveList
-import reaktive.value.ReactiveBoolean
-import reaktive.value.ReactiveValue
 import reaktive.value.binding.binding
 
 open class EditableList<N, E : Editable<N>> :
     Editable<List<N>>, Serializable {
     val editableList = reactiveList<E>()
 
-    val editedList = editableList.map { it.edited }.values()
+    val editedList = editableList.map { it.result }.values()
 
     @Suppress("UNCHECKED_CAST")
-    override val edited: ReactiveValue<List<N>?> =
-        binding<List<N>?>(dependencies(editedList)) {
-            editedList.now.takeIf { it.none { el -> el == null } } as List<N>?
+    override val result: RResult<List<N>> =
+        binding<CompileResult<List<N>>>(dependencies(editedList)) {
+            editedList.now.okIfOrChildErr { editedList.now.all { it.isOk } }.map { els -> els.map { el -> el.force() } }
         }
-
-    override val isOk: ReactiveBoolean = editableList.allR { it.isOk }
 
     override fun deserialize(input: Input, context: SerialContext) {
         editableList.now.addAll(input.readTyped(context)!!)

@@ -44,4 +44,8 @@ class StringLiteralEditorControl(
     }
 
     override fun createDefaultRoot(): HBox = layout
+
+    override fun receiveFocus() {
+        textField.requestFocus()
+    }
 }

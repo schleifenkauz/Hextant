@@ -4,6 +4,7 @@
 
 package hextant.lisp.editable
 
+import hextant.*
 import hextant.core.editable.EditableToken
 import hextant.lisp.DoubleLiteral
 
@@ -14,7 +15,6 @@ class EditableDoubleLiteral() : EditableToken<DoubleLiteral>(), EditableSExpr<Do
 
     constructor(value: DoubleLiteral) : this(value.value)
 
-    override fun isValid(tok: String): Boolean = tok.toDoubleOrNull() != null
-
-    override fun compile(tok: String): DoubleLiteral = DoubleLiteral(tok.toDouble())
+    override fun compile(tok: String): CompileResult<DoubleLiteral> =
+        tok.toDoubleOrNull().okOrErr { "Invalid double literal $tok" }.map(::DoubleLiteral)
 }

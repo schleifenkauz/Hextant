@@ -14,7 +14,6 @@ import hextant.impl.SelectionDistributor
 import hextant.impl.myLogger
 import reaktive.event.event
 import reaktive.value.*
-import reaktive.value.binding.impl.notNull
 
 /**
  * The model of a Command line
@@ -79,11 +78,9 @@ class CommandLine(
      */
     val text: ReactiveValue<String> get() = mutableText
 
-    private val mutableEdited = reactiveVariable<CommandApplication<*>?>(null)
+    private val mutableResult = reactiveVariable<CompileResult<CommandApplication<*>>>(Err("No command"))
 
-    override val edited: ReactiveValue<CommandApplication<*>?> get() = mutableEdited
-
-    override val isOk: ReactiveBoolean = edited.notNull()
+    override val result get() = mutableResult
 
     /**
      * Set the name of the command being searched to [new]
@@ -144,8 +141,8 @@ class CommandLine(
     fun commands() = commandsFactory()
 
     private fun tryExecute(targets: Set<Any>) {
-        if (editableArgs().all { e -> e.isOk.now }) {
-            val args = editableArgs().map { it.edited.now!! }
+        if (editableArgs().all { e -> e.isOk }) {
+            val args = editableArgs().map { it.result.now }
             execute(editedCommand(), targets, args.toTypedArray())
         }
     }

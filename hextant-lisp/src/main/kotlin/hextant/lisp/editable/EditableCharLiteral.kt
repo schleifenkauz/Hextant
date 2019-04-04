@@ -4,6 +4,7 @@
 
 package hextant.lisp.editable
 
+import hextant.*
 import hextant.core.editable.EditableToken
 import hextant.lisp.CharLiteral
 
@@ -14,7 +15,6 @@ class EditableCharLiteral() : EditableToken<CharLiteral>(), EditableSExpr<CharLi
 
     constructor(value: CharLiteral) : this(value.value)
 
-    override fun isValid(tok: String): Boolean = tok.length == 1
-
-    override fun compile(tok: String): CharLiteral = CharLiteral(tok.first())
+    override fun compile(tok: String): CompileResult<CharLiteral> =
+        tok.okIfOrErr(tok.length == 1) { "Invalid string literal" }.map { CharLiteral(it.first()) }
 }

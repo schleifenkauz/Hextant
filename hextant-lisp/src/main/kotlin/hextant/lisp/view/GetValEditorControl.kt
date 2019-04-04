@@ -16,6 +16,10 @@ class GetValEditorControl(
     private val context: Context,
     args: Bundle
 ) : EditorControl<Node>(args) {
+    override fun receiveFocus() {
+        root.requestFocus()
+    }
+
     init {
         val editor = context.getEditor(editable) as GetValEditor
         editor.addView(this)

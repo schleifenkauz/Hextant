@@ -4,7 +4,7 @@
 
 package hextant.sample.view
 
-import hextant.HextantPlatform
+import hextant.Context
 import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
 import hextant.command.line.CommandLine
@@ -21,17 +21,17 @@ import javafx.stage.Stage
 
 class NameEditorGuiTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = hextantScene(::createContent)
+        stage.scene = hextantScene(::createContent) { platform -> Context.newInstance(platform) }
         stage.setOnHidden { System.exit(0) }
         stage.show()
     }
 
     companion object {
-        private fun createContent(platform: HextantPlatform): Parent {
+        private fun createContent(context: Context): Parent {
             val editable = EditableName()
-            val nameView = platform.createView(editable)
-            val cmd = CommandLine.forSelectedEditors(platform[Public, SelectionDistributor], platform)
-            val cmdView = FXCommandLineView(cmd, platform, Bundle.newInstance())
+            val nameView = context.createView(editable)
+            val cmd = CommandLine.forSelectedEditors(context[Public, SelectionDistributor], context)
+            val cmdView = FXCommandLineView(cmd, context, Bundle.newInstance())
             return SplitPane(nameView, cmdView).apply {
                 orientation = VERTICAL
             }

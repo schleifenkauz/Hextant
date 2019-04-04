@@ -4,8 +4,7 @@
 
 package hextant.expr.editor
 
-import hextant.Context
-import hextant.EditorView
+import hextant.*
 import hextant.base.AbstractEditor
 import hextant.expr.editable.EditableSum
 import hextant.expr.edited.Expr
@@ -17,5 +16,5 @@ class SumEditor(
 ) : ExprEditor,
     AbstractEditor<EditableSum, EditorView>(sum, context) {
     override val expr: Expr?
-        get() = editable.edited.now
+        get() = editable.result.now.defaultNull()
 }

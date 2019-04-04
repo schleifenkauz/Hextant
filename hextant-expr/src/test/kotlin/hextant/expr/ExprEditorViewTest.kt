@@ -90,9 +90,9 @@ class ExprEditorViewTest : Application() {
 
     private fun evaluateOnExprChange(expandable: ExpandableExpr): Pair<Label, Observer> {
         val evaluationDisplay = Label("Invalid expression")
-        val obs = expandable.edited.observe { _, _, new ->
+        val obs = expandable.result.observe { _, _, new ->
             Platform.runLater {
-                if (new == null) {
+                if (new !is Ok) {
                     evaluationDisplay.text = "Invalid expression"
                 } else {
                     val v = new.value
@@ -122,7 +122,7 @@ class ExprEditorViewTest : Application() {
             description = "Flips the both operands in this operator application"
             applicableIf { oe ->
                 val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
-                oae.editable.editableOperator.edited.now?.isCommutative ?: false
+                oae.editable.editableOperator.result.now.map { it.isCommutative }.default { false }
             }
             executing { oe, _ ->
                 val oae = oe.parent as OperatorApplicationEditor
@@ -141,11 +141,11 @@ class ExprEditorViewTest : Application() {
             shortName = "collapse"
             description = "Partially evaluate the selected expression"
             applicableIf { oae ->
-                oae.editable.isOk.now && oae.expander != null
+                oae.editable.isOk && oae.expander != null
             }
             executing { oae, _ ->
                 val ex = oae.expander as ExprExpander
-                val res = oae.editable.edited.now!!.value
+                val res = oae.editable.result.now.force().value
                 val editable = EditableIntLiteral(res)
                 ex.setContent(editable)
             }
@@ -167,8 +167,9 @@ class ExprEditorViewTest : Application() {
         inspections.of<EditableOperatorApplication>().registerInspection { inspected ->
             description = "Prevent identical operations"
             severity(Warning)
-            val isPlus = inspected.editableOperator.edited.map { it == Plus }
-            val operandIs0 = inspected.editableOp2.edited.map { it is IntLiteral && it.value == 0 }
+            val isPlus = inspected.editableOperator.result.map { it.defaultNull() == Plus }
+            val operandIs0 =
+                inspected.editableOp2.result.map { it.defaultNull() is IntLiteral && it.force().value == 0 }
             preventingThat(isPlus.and(operandIs0))
             message { "Operation doesn't change the result" }
             addFix {
@@ -187,7 +188,7 @@ class ExprEditorViewTest : Application() {
             description = "Prevent '0' Literals"
             message { "Literal is '0'" }
             severity(Warning)
-            preventingThat(inspected.edited.map { it?.value == 0 })
+            preventingThat(inspected.result.map { it.defaultNull()?.value == 0 })
             addFix {
                 description = "Set to '1'"
                 fixingBy {

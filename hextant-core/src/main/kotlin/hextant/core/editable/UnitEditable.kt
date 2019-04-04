@@ -4,17 +4,16 @@
 
 package hextant.core.editable
 
+import hextant.Ok
+import hextant.RResult
 import hextant.base.AbstractEditable
-import reaktive.value.*
+import reaktive.value.reactiveValue
 
 open class UnitEditable : AbstractEditable<Unit>() {
-    override val edited: ReactiveValue<Unit?>
+    override val result: RResult<Unit>
         get() = unitValue
-    override val isOk: ReactiveBoolean
-        get() = ALWAYS_OK
 
     companion object {
-        private val unitValue = reactiveValue(Unit)
-        private val ALWAYS_OK: ReactiveBoolean = reactiveValue(true)
+        private val unitValue = reactiveValue(Ok(Unit))
     }
 }

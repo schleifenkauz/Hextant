@@ -4,7 +4,7 @@
 
 package hextant.command
 
-import hextant.HextantPlatform
+import hextant.Context
 import hextant.bundle.Bundle
 import hextant.command.Data.Receiver
 import hextant.command.line.CommandLine
@@ -22,27 +22,29 @@ import javafx.stage.Stage
 
 class CommandLineGuiTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = hextantScene(::createContent)
+        stage.scene = hextantScene(::createContent) { platform ->
+            Context.newInstance(platform)
+        }
         stage.width = 1000.0
         stage.height = 1000.0
         stage.show()
     }
 
     companion object {
-        private fun createContent(platform: HextantPlatform): Parent {
+        private fun createContent(context: Context): Parent {
             val commands = Data.commands.toMutableSet()
             val targets = mutableSetOf(Receiver(true))
-            val editableFactory = platform[EditableFactory]
+            val editableFactory = context[EditableFactory]
             editableFactory.run {
                 register(IntLiteral::class) { -> EditableIntLiteral() }
                 register(IntLiteral::class) { v -> EditableIntLiteral(v.value) }
             }
-            val views = platform[EditorControlFactory]
+            val views = context[EditorControlFactory]
             views.run {
                 register { e: EditableIntLiteral, ctx, args -> FXIntLiteralEditorView(e, ctx, args) }
             }
-            val commandLine = CommandLine({ commands }, { targets }, platform)
-            val commandLineView = FXCommandLineView(commandLine, platform, Bundle.newInstance())
+            val commandLine = CommandLine({ commands }, { targets }, context)
+            val commandLineView = FXCommandLineView(commandLine, context, Bundle.newInstance())
             val root = HBox(commandLineView)
             root.style = "-fx-background-color: black"
             return root

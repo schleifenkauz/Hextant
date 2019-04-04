@@ -6,6 +6,8 @@ package matchers
 
 import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.should.shouldMatch
+import hextant.*
+import hextant.core.instanceOf
 
 infix fun <T> T.shouldBe(matcher: Matcher<T>) = shouldMatch(matcher)
 
@@ -35,3 +37,15 @@ val `true` = equalTo(true)
 val isEmpty = Matcher(Collection<Any?>::isEmpty)
 
 fun <E> contains(element: E): Matcher<Collection<E?>> = Matcher("contains $element") { it.contains(element) }
+
+val error = Matcher(CompileResult<*>::isError)
+
+val err: Matcher<CompileResult<*>> = instanceOf<Err>()
+
+val childErr: Matcher<CompileResult<*>> = equalTo(ChildErr)
+
+fun <T> isOk(matcher: Matcher<T>): Matcher<CompileResult<T>> = Matcher("Is ok of value $matcher") {
+    it is Ok && matcher.asPredicate().invoke(it.value)
+}
+
+val ok: Matcher<CompileResult<*>> = isOk(Matcher("Any") { true })

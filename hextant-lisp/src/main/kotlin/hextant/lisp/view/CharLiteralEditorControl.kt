@@ -46,4 +46,8 @@ class CharLiteralEditorControl(
     override fun displayCompletions(completions: Collection<Completion<String>>) {
         check(completions.isEmpty()) //There are no completions
     }
+
+    override fun receiveFocus() {
+        charTextField.requestFocus()
+    }
 }

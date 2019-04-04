@@ -37,9 +37,9 @@ fun showArgumentPrompt(
         owner = ownerWindow
     }
     return when (bt) {
-        null -> null
+        null              -> null
         ButtonType.CANCEL -> null
-        else -> editableArguments.map { (_, e) -> e.edited.now }
+        else              -> editableArguments.map { (_, e) -> e.result.now }
     }
 }
 

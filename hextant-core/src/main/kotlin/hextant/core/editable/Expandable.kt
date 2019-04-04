@@ -6,7 +6,7 @@
 
 package hextant.core.editable
 
-import hextant.Editable
+import hextant.*
 import hextant.base.AbstractEditable
 import kserial.*
 import reaktive.value.*
@@ -27,8 +27,8 @@ abstract class Expandable<N, E : Editable<N>> : AbstractEditable<N>(), Serializa
     /**
      * The edited object of the current [editable], or `null` if this Expandable is not expanded
      */
-    final override val edited: ReactiveValue<N?> =
-        _editable.flatMap { it?.edited ?: reactiveValue(null) }
+    final override val result: RResult<N> =
+        _editable.flatMap { it?.result ?: reactiveValue(ChildErr) }
 
     /**
      * Sets the text to [text]

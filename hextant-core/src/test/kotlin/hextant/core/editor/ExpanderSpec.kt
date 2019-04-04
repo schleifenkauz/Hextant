@@ -57,7 +57,7 @@ object ExpanderSpec : Spek({
                 on("expanding") {
                     ex.expand()
                     it("should set the content of the expandable") {
-                        e.editable.now!!.edited.now!!.value shouldEqual 123
+                        e.editable.now!!.result.now.force().value shouldEqual 123
                     }
                     it("should notify the views") {
                         verify().expanded(e.editable.now!!)

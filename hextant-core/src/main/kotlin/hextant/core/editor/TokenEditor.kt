@@ -4,14 +4,13 @@
 
 package hextant.core.editor
 
-import hextant.Context
+import hextant.*
 import hextant.base.AbstractEditor
 import hextant.bundle.CorePermissions.Public
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.core.editable.EditableToken
 import hextant.core.view.TokenEditorView
-import hextant.runLater
 import hextant.undo.*
 import reaktive.value.now
 
@@ -37,7 +36,7 @@ abstract class TokenEditor<E : EditableToken<*>, V : TokenEditorView>(
         context.runLater {
             if (new != editable.text.now) {
                 val edit = doSetText(new)
-                if (editable.edited.now == null) {
+                if (editable.result.now.isError) {
                     suggestCompletions(new)
                 }
                 undo.push(edit)

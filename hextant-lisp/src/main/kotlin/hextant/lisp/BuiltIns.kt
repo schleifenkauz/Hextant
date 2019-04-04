@@ -88,7 +88,7 @@ object BuiltIns {
     //
     //    private val string = BuiltInFunction("string", arity = 1) { (chars) ->
     //        if (chars !is EscapedExprValue) throw LispRuntimeError("'string' expected a list of chars but got $chars")
-    //        val characters = chars.elements.map {
+    //        val characters = chars.elements.flatMap {
     //            val c = it.jvm as? Char ?: throw LispRuntimeError("'string' expected a list of chars but got element $it")
     //            c.toByte()
     //        }
@@ -98,7 +98,7 @@ object BuiltIns {
     //
     //    private val chars = BuiltInFunction("chars", arity = 1) { (str) ->
     //        if (str !is StringValue) throw LispRuntimeError("'chars' expected a string")
-    //        EscapedExprValue(SinglyLinkedList.fromList(str.jvm.toList().map { CharValue(it) }))
+    //        EscapedExprValue(SinglyLinkedList.fromList(str.jvm.toList().flatMap { CharValue(it) }))
     //    }
 
     private inline fun <reified T, reified C> conversion(

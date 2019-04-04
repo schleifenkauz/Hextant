@@ -4,6 +4,8 @@
 
 package hextant.lisp.editable
 
+import hextant.CompileResult
+import hextant.Ok
 import hextant.core.editable.EditableToken
 import hextant.lisp.StringLiteral
 
@@ -14,7 +16,5 @@ class EditableStringLiteral() : EditableToken<StringLiteral>(), EditableSExpr<St
 
     constructor(value: StringLiteral) : this(value.value)
 
-    override fun isValid(tok: String): Boolean = true
-
-    override fun compile(tok: String): StringLiteral = StringLiteral(tok)
+    override fun compile(tok: String): CompileResult<StringLiteral> = Ok(StringLiteral(tok))
 }

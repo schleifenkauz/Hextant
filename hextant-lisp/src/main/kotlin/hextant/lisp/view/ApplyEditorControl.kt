@@ -51,6 +51,10 @@ class ApplyEditorControl(
         }
     }
 
+    override fun receiveFocus() {
+        exprsView.receiveFocus()
+    }
+
     private fun fitsHorizontally() = context[editorParentRegion].width >= exprsView.width
 
     override fun createDefaultRoot(): Pane =

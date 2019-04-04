@@ -4,8 +4,7 @@
 
 package hextant.expr.editor
 
-import hextant.Context
-import hextant.Editable
+import hextant.*
 import hextant.completion.CompletionFactory
 import hextant.completion.CompletionStrategy
 import hextant.core.editor.ConfiguredExpander
@@ -21,7 +20,7 @@ class ExprExpander(
 ) : ConfiguredExpander<Editable<Expr>, ExpandableExpr>(config, editable, context, completer),
     ExprEditor {
     override val expr: Expr?
-        get() = editable.editable.now?.edited?.now
+        get() = editable.editable.now?.result?.now?.defaultNull()
 
     companion object {
         val config = ExpanderConfig<Editable<Expr>>().apply {

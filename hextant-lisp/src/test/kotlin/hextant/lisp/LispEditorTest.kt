@@ -4,17 +4,14 @@
 
 package hextant.lisp
 
-import hextant.HextantPlatform
-import hextant.base.AbstractContext
+import hextant.*
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.CoreProperties.editorParentRegion
-import hextant.createView
 import hextant.fx.hextantScene
 import hextant.lisp.editable.ExpandableSExpr
 import hextant.lisp.editor.LispProperties.fileScope
 import hextant.plugin.PluginRegistry
 import hextant.undo.UndoManager
-import hextant.undo.UndoManagerImpl
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.scene.control.Alert
@@ -26,27 +23,26 @@ import reaktive.value.now
 
 class LispEditorTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = hextantScene(::createContent)
+        stage.scene = hextantScene(::createContent) { platform ->
+            Context.newInstance(platform) {
+                set(Public, fileScope, FileScope.empty)
+                set(Public, UndoManager, UndoManager.newInstance())
+            }
+        }
         stage.show()
     }
 
     companion object {
-        private fun createContent(platform: HextantPlatform): Parent {
+        private fun createContent(context: Context): Parent {
             val cl = LispEditorTest::class.java.classLoader
-            val pluginRegistry = platform[Public, PluginRegistry]
+            val pluginRegistry = context[Public, PluginRegistry]
             pluginRegistry.loadPluginFromClasspath(cl)
-            val context = object : AbstractContext(platform) {
-                override val platform: HextantPlatform
-                    get() = platform
-            }
-            context[Public, fileScope] = FileScope.empty
-            context[Public, UndoManager] = UndoManagerImpl()
             val expandable = ExpandableSExpr()
             val view = context.createView(expandable)
             context[Public, editorParentRegion] = view
             val eval = Button("Evaluate").apply {
                 setOnAction {
-                    val edited = expandable.edited.now ?: return@setOnAction
+                    val edited = expandable.result.now.defaultNull() ?: return@setOnAction
                     val msg = try {
                         edited.evaluate().toString()
                     } catch (e: LispRuntimeError) {

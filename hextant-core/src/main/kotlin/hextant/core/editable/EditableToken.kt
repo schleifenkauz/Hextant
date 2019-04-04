@@ -4,10 +4,11 @@
 
 package hextant.core.editable
 
+import hextant.CompileResult
 import hextant.base.AbstractEditable
 import kserial.*
-import reaktive.value.*
 import reaktive.value.binding.map
+import reaktive.value.reactiveVariable
 
 /**
  * An editable token the atomic part of the ast editor
@@ -16,28 +17,17 @@ import reaktive.value.binding.map
  */
 abstract class EditableToken<out T : Any> : AbstractEditable<T>(), Serializable {
     /**
-     * @return whether the passed [tok] is valid or not
-     */
-    protected abstract fun isValid(tok: String): Boolean
-
-    /**
      * Compile the specified [tok] to a real token object
-     * * Is only called when `isValid(tok)` returned `true` after the last invalidation of [text]
      */
-    protected abstract fun compile(tok: String): T
+    protected abstract fun compile(tok: String): CompileResult<T>
 
     /**
      * The uncompiled text
-     * * When setting it the [edited] token is recompiled
+     * * When setting it the [result] token is recompiled
      */
     val text = reactiveVariable("")
 
-    override val isOk: ReactiveBoolean = text.map { t -> isValid(t) }
-
-    override val edited: ReactiveValue<T?> = text.map { t ->
-        if (isOk.now) compile(t)
-        else null
-    }
+    override val result = text.map { t -> compile(t) }
 
     override fun deserialize(input: Input, context: SerialContext) {
         text.set(input.readString())
@@ -45,25 +35,5 @@ abstract class EditableToken<out T : Any> : AbstractEditable<T>(), Serializable 
 
     override fun serialize(output: Output, context: SerialContext) {
         output.writeString(text.get())
-    }
-
-    companion object {
-        /**
-         * @return an [EditableToken] which uses the specified [regex] to validate the tokens
-         */
-        fun <T : Any> withRegex(regex: Regex, compile: (String) -> T): EditableToken<T> = object : EditableToken<T>() {
-            override fun isValid(tok: String): Boolean = tok matches regex
-
-            override fun compile(tok: String): T = compile.invoke(tok)
-        }
-
-        fun withRegex(regex: Regex): EditableToken<String> =
-            withRegex(regex) { it }
-
-        fun checking(pred: (String) -> Boolean) = object : EditableToken<String>() {
-            override fun isValid(tok: String): Boolean = pred(tok)
-
-            override fun compile(tok: String): String = tok
-        }
     }
 }

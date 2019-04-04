@@ -4,6 +4,7 @@
 
 package hextant.lisp.editable
 
+import hextant.*
 import hextant.core.editable.EditableToken
 import hextant.lisp.IntLiteral
 
@@ -14,7 +15,6 @@ class EditableIntLiteral() : EditableToken<IntLiteral>(), EditableSExpr<IntLiter
 
     constructor(value: IntLiteral) : this(value.value)
 
-    override fun isValid(tok: String): Boolean = tok.toIntOrNull() != null
-
-    override fun compile(tok: String): IntLiteral = IntLiteral(tok.toInt())
+    override fun compile(tok: String): CompileResult<IntLiteral> =
+        tok.toIntOrNull().okOrErr { "Invalid int literal $tok" }.map(::IntLiteral)
 }

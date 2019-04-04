@@ -1,11 +1,12 @@
 package hextant.lisp.editable
 
+import hextant.CompileResult
 import hextant.core.editable.EditableToken
 import hextant.lisp.Identifier
 import hextant.lisp.Util
+import hextant.okIfOrErr
 
 class EditableIdentifier : EditableToken<Identifier>() {
-    override fun isValid(tok: String): Boolean = Util.isValidIdentifier(tok)
-
-    override fun compile(tok: String): Identifier = tok
+    override fun compile(tok: String): CompileResult<Identifier> =
+        tok.okIfOrErr(Util.isValidIdentifier(tok)) { "Invalid identifier $tok" }
 }

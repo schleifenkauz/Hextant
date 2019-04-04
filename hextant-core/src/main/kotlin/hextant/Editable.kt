@@ -4,8 +4,8 @@
 
 package hextant
 
-import reaktive.value.ReactiveBoolean
 import reaktive.value.ReactiveValue
+import reaktive.value.now
 
 /**
  * An Editable object which can be edited by an [Editor]
@@ -13,12 +13,9 @@ import reaktive.value.ReactiveValue
  */
 interface Editable<out E> {
     /**
-     * A [ReactiveValue] holding the edited object
+     * A [ReactiveValue] holding the current compilation result
      */
-    val edited: ReactiveValue<E?>
+    val result: ReactiveValue<CompileResult<E>>
 
-    /**
-     * A [ReactiveValue] holding `true` if this editable and all children are ok
-     */
-    val isOk: ReactiveBoolean
+    val isOk get() = result.now.isOk
 }

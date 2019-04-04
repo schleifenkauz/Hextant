@@ -4,6 +4,7 @@
 
 package hextant.expr.editable
 
+import hextant.*
 import hextant.core.editable.EditableToken
 import hextant.expr.edited.IntLiteral
 import kserial.Serializable
@@ -15,7 +16,6 @@ class EditableIntLiteral() : EditableToken<IntLiteral>(), Serializable, Editable
 
     constructor(v: IntLiteral) : this(v.value)
 
-    override fun isValid(tok: String): Boolean = tok.toIntOrNull() != null
-
-    override fun compile(tok: String): IntLiteral = IntLiteral(tok.toInt())
+    override fun compile(tok: String): CompileResult<IntLiteral> =
+        tok.toIntOrNull().okOrErr { "Invalid int literal $tok" }.map { IntLiteral(it) }
 }

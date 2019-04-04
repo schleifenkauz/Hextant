@@ -4,7 +4,7 @@
 
 package hextant.core.editable
 
-import hextant.HextantPlatform
+import hextant.Context
 import hextant.bundle.Bundle
 import hextant.core.EditorControlFactory
 import hextant.core.configure
@@ -21,14 +21,16 @@ import javafx.stage.Stage
 
 class ExpanderViewTest : Application() {
     override fun start(stage: Stage) {
-        stage.scene = hextantScene(::createContent)
+        stage.scene = hextantScene(::createContent) { platform ->
+            Context.newInstance(platform)
+        }
         stage.setOnHidden { System.exit(0) }
         stage.show()
     }
 
     companion object {
-        private fun createContent(platform: HextantPlatform): Parent {
-            platform[EditorControlFactory].configure {
+        private fun createContent(context: Context): Parent {
+            context[EditorControlFactory].configure {
                 register(EditableIntLiteral::class) { editable, ctx, args ->
                     FXIntLiteralEditorView(
                         editable,
@@ -39,7 +41,7 @@ class ExpanderViewTest : Application() {
                 register(EditableText::class) { editable, ctx, args -> FXTextEditorView(editable, ctx, args) }
             }
             val ex = ExpandableExpr()
-            return FXExpanderView(ex, platform, Bundle.newInstance())
+            return FXExpanderView(ex, context, Bundle.newInstance())
         }
 
         @JvmStatic fun main(args: Array<String>) {
