@@ -19,7 +19,7 @@ object EditableListSpec : Spek({
         val e = EditableList<IntLiteral, EditableIntLiteral>()
         test("e.result should be empty now") {
             val edited = e.result.now
-            edited shouldMatch isOk(isEmpty)
+            edited.force() shouldMatch isEmpty
         }
         test("the editable list should be empty now") {
             e.editableList.now shouldMatch isEmpty
@@ -34,7 +34,7 @@ object EditableListSpec : Spek({
                 e.resultList.now shouldMatch contains<CompileResult<*>>(Ok(IntLiteral(1)))
             }
             test("e.result contains the result of the added editable") {
-                e.result.now shouldMatch isOk(contains(IntLiteral(1)))
+                e.result.now.force() shouldMatch contains(IntLiteral(1))
             }
         }
         on("modifying an int literal to be invalid") {

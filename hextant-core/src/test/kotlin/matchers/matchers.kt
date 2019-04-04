@@ -44,8 +44,4 @@ val err: Matcher<CompileResult<*>> = instanceOf<Err>()
 
 val childErr: Matcher<CompileResult<*>> = equalTo(ChildErr)
 
-fun <T> isOk(matcher: Matcher<T>): Matcher<CompileResult<T>> = Matcher("Is ok of value $matcher") {
-    it is Ok && matcher.asPredicate().invoke(it.value)
-}
-
-val ok: Matcher<CompileResult<*>> = isOk(Matcher("Any") { true })
+val ok: Matcher<CompileResult<*>> = instanceOf<Ok<*>>()

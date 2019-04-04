@@ -22,6 +22,12 @@ data class Err(val message: String) : CompileResult<Nothing>()
  */
 data class Ok<T>(val value: T) : CompileResult<T>()
 
+fun <T> ok(value: T): CompileResult<T> = Ok(value)
+
+fun <T> err(message: String): CompileResult<T> = Err(message)
+
+fun <T> childErr(): CompileResult<T> = ChildErr
+
 /**
  * An error located in one of the children of the [Editable]
  */
@@ -66,20 +72,17 @@ inline fun <T, R> CompileResult<T>.flatMap(f: (T) -> CompileResult<R>): CompileR
 }
 
 /**
- * If this result is an error return [alternative], otherwise return this Result
- */
-fun <T> CompileResult<T>.or(alternative: CompileResult<T>): CompileResult<T> = when (this) {
-    is Ok -> this
-    else  -> alternative
-}
-
-/**
  * If this result is an error return the result of [alternative], otherwise return this Result
  */
 inline fun <T> CompileResult<T>.orElse(alternative: () -> CompileResult<T>): CompileResult<T> = when (this) {
     is Ok -> this
     else  -> alternative()
 }
+
+/**
+ * If this result is an error return [alternative], otherwise return this Result
+ */
+fun <T> CompileResult<T>.or(alternative: CompileResult<T>): CompileResult<T> = orElse { alternative }
 
 /**
  * If this value is `null` return the [default], otherwise return an [Ok] wrapping this non-null value
