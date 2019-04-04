@@ -18,7 +18,7 @@ class OperatorApplicationEditor(
 ) : ParentEditor<EditableOperatorApplication, FXOperatorApplicationEditorView>(editable, context),
     ExprEditor {
     override val expr: Expr?
-        get() = editable.result.now.defaultNull()
+        get() = editable.result.now.orNull()
 
     override fun accepts(child: Editor<*>): Boolean = child is OperatorEditor || child.editable is EditableExpr<*>
 

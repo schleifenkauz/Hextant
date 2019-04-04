@@ -4,11 +4,10 @@
 
 package hextant.lisp.editable
 
-import hextant.RResult
+import hextant.*
 import hextant.base.AbstractEditable
 import hextant.lisp.FileScope
 import hextant.lisp.GetVal
-import hextant.mapOrChildErr
 import reaktive.value.binding.map
 
 class EditableGetVal(
@@ -22,6 +21,6 @@ class EditableGetVal(
     val searchedIdentifier = EditableIdentifier()
 
     override val result: RResult<GetVal> = searchedIdentifier.result.map { ident ->
-        ident.mapOrChildErr { GetVal(it, fileScope) }
+        ident.or(ChildErr).map { GetVal(it, fileScope) }
     }
 }

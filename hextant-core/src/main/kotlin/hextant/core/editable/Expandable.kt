@@ -29,7 +29,7 @@ abstract class Expandable<N, E : Editable<N>> : AbstractEditable<N>(), Serializa
      * The edited object of the current [editable], or `null` if this Expandable is not expanded
      */
     final override val result: RResult<N> =
-        _editable.flatMap { it?.result?.map { res -> res.toChildErr() } ?: reactiveValue(ChildErr) }
+        _editable.flatMap { it?.result?.map { res -> res.or(ChildErr) } ?: reactiveValue(ChildErr) }
 
     /**
      * Sets the text to [text]

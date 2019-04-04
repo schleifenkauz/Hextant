@@ -42,7 +42,7 @@ class LispEditorTest : Application() {
             context[Public, editorParentRegion] = view
             val eval = Button("Evaluate").apply {
                 setOnAction {
-                    val result = expandable.result.now.defaultNull() ?: return@setOnAction
+                    val result = expandable.result.now.orNull() ?: return@setOnAction
                     val msg = try {
                         result.evaluate().toString()
                     } catch (e: LispRuntimeError) {

@@ -41,7 +41,7 @@ internal object IntLiteralEditorSpec : Spek({
                 editable.isOk shouldMatch equalTo(false)
             }
             test("the integer literal should equal null") {
-                editable.result.now.defaultNull() shouldMatch absent()
+                editable.result.now.orNull() shouldMatch absent()
             }
         }
     }

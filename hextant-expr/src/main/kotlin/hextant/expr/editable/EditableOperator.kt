@@ -11,5 +11,5 @@ class EditableOperator() : EditableToken<Operator>(), Serializable {
     }
 
     override fun compile(tok: String): CompileResult<Operator> =
-        tok.okIfOrErr(Operator.isValid(tok)) { "Invalid operator $tok" }.map { Operator.of(it) }
+        tok.takeIf { Operator.isValid(it) }.okOrErr { "Invalid operator $tok" }.map { Operator.of(it) }
 }

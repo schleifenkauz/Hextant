@@ -4,9 +4,9 @@ import hextant.CompileResult
 import hextant.core.editable.EditableToken
 import hextant.lisp.Identifier
 import hextant.lisp.Util
-import hextant.okIfOrErr
+import hextant.okOrErr
 
 class EditableIdentifier : EditableToken<Identifier>() {
     override fun compile(tok: String): CompileResult<Identifier> =
-        tok.okIfOrErr(Util.isValidIdentifier(tok)) { "Invalid identifier $tok" }
+        tok.takeIf { Util.isValidIdentifier(it) }.okOrErr { "Invalid identifier $tok" }
 }

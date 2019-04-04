@@ -19,7 +19,7 @@ class EditableIntOperatorApplication : AbstractEditable<IntOperatorApplication>(
 
     override val result: RResult<IntOperatorApplication> =
         binding<CompileResult<IntOperatorApplication>>(dependencies(left.result, op.result, right.result)) {
-            mdo {
+            compile {
                 Ok(IntOperatorApplication(left.result.now.force(), op.result.now.force(), right.result.now.force()))
             }
         }

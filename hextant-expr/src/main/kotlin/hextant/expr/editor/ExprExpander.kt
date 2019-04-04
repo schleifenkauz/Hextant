@@ -20,7 +20,7 @@ class ExprExpander(
 ) : ConfiguredExpander<Editable<Expr>, ExpandableExpr>(config, editable, context, completer),
     ExprEditor {
     override val expr: Expr?
-        get() = editable.editable.now?.result?.now?.defaultNull()
+        get() = editable.editable.now?.result?.now?.orNull()
 
     companion object {
         val config = ExpanderConfig<Editable<Expr>>().apply {

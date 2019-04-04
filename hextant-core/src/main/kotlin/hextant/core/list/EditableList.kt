@@ -20,7 +20,8 @@ open class EditableList<N, E : Editable<N>> :
     @Suppress("UNCHECKED_CAST")
     override val result: RResult<List<N>> =
         binding<CompileResult<List<N>>>(dependencies(resultList)) {
-            resultList.now.okIfOrChildErr { resultList.now.all { it.isOk } }.map { els -> els.map { el -> el.force() } }
+            resultList.now.takeIf { resultList.now.all { it.isOk } }.okOrChildErr()
+                .map { els -> els.map { el -> el.force() } }
         }
 
     override fun deserialize(input: Input, context: SerialContext) {

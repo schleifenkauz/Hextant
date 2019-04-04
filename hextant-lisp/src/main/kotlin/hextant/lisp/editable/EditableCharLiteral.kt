@@ -16,5 +16,5 @@ class EditableCharLiteral() : EditableToken<CharLiteral>(), EditableSExpr<CharLi
     constructor(value: CharLiteral) : this(value.value)
 
     override fun compile(tok: String): CompileResult<CharLiteral> =
-        tok.okIfOrErr(tok.length == 1) { "Invalid string literal" }.map { CharLiteral(it.first()) }
+        tok.takeIf { tok.length == 1 }.okOrErr { "Invalid string literal" }.map { CharLiteral(it.first()) }
 }

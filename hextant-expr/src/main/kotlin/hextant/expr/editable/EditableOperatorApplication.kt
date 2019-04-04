@@ -37,9 +37,9 @@ class EditableOperatorApplication(
         binding<CompileResult<OperatorApplication>>(
             dependencies(editableOp1.result, editableOp2.result, editableOperator.result)
         ) {
-            val operator = editableOperator.result.now.default { return@binding ChildErr }
-            val op1 = editableOp1.result.now.default { return@binding ChildErr }
-            val op2 = editableOp2.result.now.default { return@binding ChildErr }
+            val operator = editableOperator.result.now.ifErr { return@binding ChildErr }
+            val op1 = editableOp1.result.now.ifErr { return@binding ChildErr }
+            val op2 = editableOp2.result.now.ifErr { return@binding ChildErr }
             Ok(OperatorApplication(op1, op2, operator))
         }
 

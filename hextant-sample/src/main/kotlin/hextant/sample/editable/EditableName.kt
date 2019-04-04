@@ -13,5 +13,5 @@ import hextant.sample.ast.Name
  */
 class EditableName : EditableToken<Name>() {
     override fun compile(tok: String): CompileResult<Name> =
-        tok.okIfOrErr(tok.all { it.isLetter() }) { "Invalid name $tok" }.map { Name(it) }
+        tok.takeIf { tok.all { it.isLetter() } }.okOrErr { "Invalid name $tok" }.map { Name(it) }
 }

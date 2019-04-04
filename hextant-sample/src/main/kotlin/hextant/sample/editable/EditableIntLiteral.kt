@@ -16,5 +16,5 @@ class EditableIntLiteral : EditableToken<IntLiteral>(), EditableIntExpr {
         tok.toIntOrNull().okOrErr { "Invalid integer literal $tok" }.map(::IntLiteral)
 
     override val expr: ReactiveValue<IntExpr?>
-        get() = result.map { it.defaultNull() }
+        get() = result.map { it.orNull() }
 }

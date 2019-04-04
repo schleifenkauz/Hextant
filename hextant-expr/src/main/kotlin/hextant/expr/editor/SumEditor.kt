@@ -16,5 +16,5 @@ class SumEditor(
 ) : ExprEditor,
     AbstractEditor<EditableSum, EditorView>(sum, context) {
     override val expr: Expr?
-        get() = editable.result.now.defaultNull()
+        get() = editable.result.now.orNull()
 }
