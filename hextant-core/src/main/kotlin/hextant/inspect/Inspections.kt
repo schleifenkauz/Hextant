@@ -16,8 +16,12 @@ class Inspections private constructor() {
 
     fun <T : Any> of(cls: KClass<out T>): InspectionRegistrar<T> {
         val registrar = registrars.getOrPut(cls) {
-            val parents = cls.superclasses
-            InspectionRegistrar()
+            InspectionRegistrar<Any>().also { reg ->
+                cls.superclasses.forEach {
+                    @Suppress("DEPRECATION") //Only used here
+                    of(it).passdownInspectionsTo(reg)
+                }
+            }
         }
         @Suppress("UNCHECKED_CAST") return registrar as InspectionRegistrar<T>
     }
@@ -28,7 +32,7 @@ class Inspections private constructor() {
 
     fun hasWarning(obj: Any): ReactiveBoolean = of(obj::class).hasWarning(obj)
 
-    companion object: Property<Inspections, Public, Internal>("inspections") {
+    companion object : Property<Inspections, Public, Internal>("inspections") {
         fun newInstance(): Inspections = Inspections()
     }
 }
