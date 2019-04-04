@@ -141,9 +141,10 @@ class CommandLine(
     fun commands() = commandsFactory()
 
     private fun tryExecute(targets: Set<Any>) {
-        if (editableArgs().all { e -> e.isOk }) {
-            val args = editableArgs().map { it.result.now }
+        compile {
+            val args = editableArgs().map { it.result.now.orTerminate() }
             execute(editedCommand(), targets, args.toTypedArray())
+            ok(Unit)
         }
     }
 
