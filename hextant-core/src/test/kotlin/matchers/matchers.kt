@@ -5,10 +5,15 @@
 package matchers
 
 import com.natpryce.hamkrest.*
+import com.natpryce.hamkrest.MatchResult.Match
+import com.natpryce.hamkrest.MatchResult.Mismatch
 import com.natpryce.hamkrest.should.shouldMatch
 import hextant.*
 import hextant.core.instanceOf
 
+/**
+ * Aliases for [shouldMatch]
+ */
 infix fun <T> T.shouldBe(matcher: Matcher<T>) = shouldMatch(matcher)
 
 infix fun <T> Described<T>.shouldBe(matcher: Matcher<T>) = shouldMatch(matcher)
@@ -19,6 +24,8 @@ inline infix fun <reified E : Throwable> (() -> Unit).shouldThrow(exceptionMatch
     { this(); Unit } shouldMatch throws(exceptionMatcher)
 }
 
+
+//Exception matchers
 inline fun <reified E : Throwable> (() -> Unit).shouldThrow(): Unit = shouldThrow<E>(null)
 
 @JvmName("shouldThrowAny")
@@ -28,6 +35,7 @@ inline infix fun <reified E : Throwable> (() -> Any?).shouldThrow(exceptionMatch
 @JvmName("shouldThrowAny")
 inline fun <reified E : Throwable> (() -> Any?).shouldThrow(): Unit = shouldThrow<E>(null)
 
+//Common matchers
 val `null` = Matcher<Any?>("is null") { it == null }
 
 val `false` = equalTo(false)
@@ -38,6 +46,57 @@ val isEmpty = Matcher(Collection<Any?>::isEmpty)
 
 fun <E> contains(element: E): Matcher<Collection<E?>> = Matcher("contains $element") { it.contains(element) }
 
+fun <E> aSetOf(vararg elementMatchers: Matcher<E>) = object : Matcher.Primitive<Set<E>>() {
+    override val description: String = buildString {
+        append("contains all these elements: ")
+        elementMatchers.joinTo(this, ",\n") { "A value that ${it.description}" }
+    }
+
+    override fun invoke(actual: Set<E>): MatchResult {
+        val expectedSize = elementMatchers.size
+        val actualSize = actual.size
+        if (expectedSize != actualSize) {
+            return Mismatch("got $actualSize elements instead of $expectedSize")
+        }
+        val copy = actual.toMutableSet()
+        outer@ for (m in elementMatchers) {
+            val itr = copy.iterator()
+            while (itr.hasNext()) { //Cannot use removeIf or removeAll because only one element should be removed
+                val e = itr.next()
+                if (m.asPredicate().invoke(e)) {
+                    itr.remove()
+                    continue@outer
+                }
+            }
+            return Mismatch("No element found that satisfies $m")
+        }
+        return Match
+    }
+}
+
+fun <E> aListOf(vararg elementMatchers: Matcher<E>) = object : Matcher.Primitive<List<E>>() {
+    override val description: String = buildString {
+        append("contains all these elements in order: ")
+        elementMatchers.joinTo(this, ",\n") { "A value that ${it.description}" }
+    }
+
+    override fun invoke(actual: List<E>): MatchResult {
+        val expectedSize = elementMatchers.size
+        val actualSize = actual.size
+        if (expectedSize != actualSize) {
+            return Mismatch("got $actualSize elements instead of $expectedSize")
+        }
+        elementMatchers.withIndex().zip(actual) { (i, m), e ->
+            val result = m(e)
+            if (result is Mismatch) {
+                return Mismatch("Mismatch at index $i: $result")
+            }
+        }
+        return Match
+    }
+}
+
+//CompileResult matchers
 val error = Matcher(CompileResult<*>::isError)
 
 val err: Matcher<CompileResult<*>> = instanceOf<Err>()
