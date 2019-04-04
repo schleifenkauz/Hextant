@@ -159,8 +159,8 @@ object CompileResultSpec : Spek({
         on("flow without errors") {
             it("should compute the result") {
                 compile {
-                    val x by ok(1)
-                    val y by ok(2)
+                    val (x) = ok(1)
+                    val (y) = ok(2)
                     ok(x + y)
                 } shouldEqual ok(3)
             }
@@ -168,9 +168,9 @@ object CompileResultSpec : Spek({
         on("flow with errors") {
             it("should return the first error") {
                 compile<Int> {
-                    val x by ok(1)
-                    val y by childErr<Int>()
-                    val z by err<Int>("Message")
+                    val (_) = ok(1)
+                    val (_) = childErr<Int>()
+                    val (_) = err<Int>("Message")
                     throw AssertionError("Should not be reached")
                 } shouldBe childErr
             }

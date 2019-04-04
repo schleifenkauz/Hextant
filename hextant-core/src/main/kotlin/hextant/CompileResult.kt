@@ -5,7 +5,6 @@
 package hextant
 
 import reaktive.value.ReactiveValue
-import kotlin.reflect.KProperty
 
 /**
  * The result of an [Editable]
@@ -128,7 +127,7 @@ class TerminationSignal(val err: CompileResult<Nothing>) : Throwable()
 /**
  * Return the value of this [CompileResult] if it is [Ok], otherwise throw a [TerminationSignal]
  */
-operator fun <T> CompileResult<T>.getValue(receiver: Any?, property: KProperty<*>): T = when (this) {
+operator fun <T> CompileResult<T>.component1(): T = when (this) {
     is Err      -> throw TerminationSignal(this)
     is ChildErr -> throw TerminationSignal(this)
     is Ok       -> value
