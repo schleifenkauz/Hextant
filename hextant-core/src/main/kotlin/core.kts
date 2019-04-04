@@ -1,6 +1,7 @@
 import hextant.command.line.CommandLineController
 import hextant.command.line.FXCommandLineView
 import hextant.core.editor.TextEditor
+import hextant.core.inspect.SyntaxErrorInspection
 import hextant.core.list.EditableList
 import hextant.core.list.FXListEditorView
 import hextant.core.view.FXExpanderView
@@ -19,4 +20,5 @@ plugin {
     //Command Line
     editor(::CommandLineController)
     view(::FXCommandLineView)
+    inspection(::SyntaxErrorInspection)
 }
