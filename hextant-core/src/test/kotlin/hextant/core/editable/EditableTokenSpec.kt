@@ -16,8 +16,8 @@ object EditableTokenSpec : Spek({
         test("it should not be ok") {
             e.isOk shouldBe `false`
         }
-        test("e.edited should be null") {
-            e.result.now shouldBe instanceOf<Err>()
+        test("e.result should be an Err") {
+            e.result.now shouldBe err
         }
         on("changing the text to a valid string") {
             e.text.set("123")
@@ -33,7 +33,7 @@ object EditableTokenSpec : Spek({
             it("should not be ok") {
                 e.isOk shouldBe `false`
             }
-            test("e.edited should be null") {
+            test("e.result should be null") {
                 e.result.now shouldBe instanceOf<Err>()
             }
         }

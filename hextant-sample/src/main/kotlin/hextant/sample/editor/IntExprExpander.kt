@@ -14,9 +14,9 @@ import hextant.sample.ast.IntOperator.*
 import hextant.sample.editable.*
 
 class IntExprExpander(
-    edited: ExpandableIntExpr,
+    expandable: ExpandableIntExpr,
     context: Context
-) : ConfiguredExpander<Editable<IntExpr>, ExpandableIntExpr>(config, edited, context) {
+) : ConfiguredExpander<Editable<IntExpr>, ExpandableIntExpr>(config, expandable, context) {
     companion object {
         val config = ExpanderConfig<Editable<IntExpr>>().apply {
             registerConstant("+") { createOperatorApplication(Plus) }

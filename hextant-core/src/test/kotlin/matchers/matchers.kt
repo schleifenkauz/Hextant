@@ -16,7 +16,7 @@ infix fun <T> Described<T>.shouldBe(matcher: Matcher<T>) = shouldMatch(matcher)
 infix fun <T> T.shouldEqual(value: T) = this shouldBe equalTo(value)
 
 inline infix fun <reified E : Throwable> (() -> Unit).shouldThrow(exceptionMatcher: Matcher<E>?) {
-    { this(); Unit } shouldMatch throws<E>(exceptionMatcher)
+    { this(); Unit } shouldMatch throws(exceptionMatcher)
 }
 
 inline fun <reified E : Throwable> (() -> Unit).shouldThrow(): Unit = shouldThrow<E>(null)

@@ -15,7 +15,7 @@ import reaktive.value.now
 class EditableApply : AbstractEditable<Apply>(), EditableSExpr<Apply> {
     val editableExpressions = EditableSExprList()
 
-    private val expressions get() = editableExpressions.editedList
+    private val expressions get() = editableExpressions.resultList
 
     private val subexpressionsOk = expressions.all { it.isOk }
 

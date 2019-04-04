@@ -10,17 +10,17 @@ import hextant.core.editable.Expandable
 
 open class ConfiguredExpander<E : Editable<*>, Ex : Expandable<*, E>>(
     private val config: ExpanderConfig<E>,
-    edited: Ex,
+    expandable: Ex,
     context: Context,
     completer: Completer<String> = NoCompleter
-) : Expander<E, Ex>(edited, context, completer) {
+) : Expander<E, Ex>(expandable, context, completer) {
     constructor(
         config: ExpanderConfig<E>,
-        edited: Ex,
+        expandable: Ex,
         context: Context,
         factory: CompletionFactory<String> = CompletionFactory.simple(),
         strategy: CompletionStrategy = CompletionStrategy.simple
-    ) : this(config, edited, context, config.completer(strategy, factory))
+    ) : this(config, expandable, context, config.completer(strategy, factory))
 
     @Suppress("UNCHECKED_CAST")
     override fun expand(text: String): E? = config.expand(text)

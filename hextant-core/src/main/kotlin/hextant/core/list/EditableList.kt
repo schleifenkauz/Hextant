@@ -15,12 +15,12 @@ open class EditableList<N, E : Editable<N>> :
     Editable<List<N>>, Serializable {
     val editableList = reactiveList<E>()
 
-    val editedList = editableList.map { it.result }.values()
+    val resultList = editableList.map { it.result }.values()
 
     @Suppress("UNCHECKED_CAST")
     override val result: RResult<List<N>> =
-        binding<CompileResult<List<N>>>(dependencies(editedList)) {
-            editedList.now.okIfOrChildErr { editedList.now.all { it.isOk } }.map { els -> els.map { el -> el.force() } }
+        binding<CompileResult<List<N>>>(dependencies(resultList)) {
+            resultList.now.okIfOrChildErr { resultList.now.all { it.isOk } }.map { els -> els.map { el -> el.force() } }
         }
 
     override fun deserialize(input: Input, context: SerialContext) {

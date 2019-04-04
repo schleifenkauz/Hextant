@@ -24,24 +24,24 @@ object EditableListSpec : Spek({
         test("the editable list should be empty now") {
             e.editableList.now shouldMatch isEmpty
         }
-        test("the edited list should be empty now") {
-            e.editedList.now shouldMatch isEmpty
+        test("the result list should be empty now") {
+            e.resultList.now shouldMatch isEmpty
         }
         val editable1 = EditableIntLiteral(1)
         on("adding an element to the editable list") {
             e.editableList.now.add(editable1)
-            test("the edited list contains the edited of the added editable") {
-                e.editedList.now shouldMatch contains<CompileResult<*>>(Ok(IntLiteral(1)))
+            test("the result list contains the result of the added editable") {
+                e.resultList.now shouldMatch contains<CompileResult<*>>(Ok(IntLiteral(1)))
             }
-            test("e.edited contains the edited of the added editable") {
+            test("e.result contains the result of the added editable") {
                 e.result.now shouldMatch isOk(contains(IntLiteral(1)))
             }
         }
         on("modifying an int literal to be invalid") {
             editable1.text.set("not an int")
-            test("the edited list contains an Err") {
-                e.editedList.now.size shouldEqual 1
-                e.editedList.now[0] shouldBe err
+            test("the result list contains an Err") {
+                e.resultList.now.size shouldEqual 1
+                e.resultList.now[0] shouldBe err
             }
             test("e.result should be a child Err") {
                 e.result.now shouldBe childErr
@@ -49,20 +49,20 @@ object EditableListSpec : Spek({
         }
         on("making it valid again") {
             editable1.text.set("123")
-            test("the edited list contains the compiled literal") {
-                e.editedList.now shouldEqual listOf(Ok(IntLiteral(123)))
+            test("the result list contains the compiled literal") {
+                e.resultList.now shouldEqual listOf(Ok(IntLiteral(123)))
             }
-            test("e.edited list contains the compiled literal") {
+            test("e.result contains the compiled literal") {
                 e.result.now.force() shouldEqual listOf(IntLiteral(123))
             }
         }
         val editable2 = EditableIntLiteral(2)
         on("adding yet another editable int literal") {
             e.editableList.now.add(editable2)
-            test("the edited list contains the compiled literal") {
-                e.editedList.now shouldMatch contains<CompileResult<*>>(Ok(IntLiteral(2)))
+            test("the result list contains the compiled literal") {
+                e.resultList.now shouldMatch contains<CompileResult<*>>(Ok(IntLiteral(2)))
             }
-            test("e.edited contains the compiled literal") {
+            test("e.result contains the compiled literal") {
                 e.result.now.force() shouldMatch contains(IntLiteral(2))
             }
         }

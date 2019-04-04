@@ -15,7 +15,7 @@ import reaktive.value.binding.map
 }
 
 /**
- * @return an [Editable] that is ok if the receiver is ok and maps the edited objects with [f]
+ * @return an [Editable] that is ok if the receiver is ok and maps the results with [f]
  */
 inline fun <reified F : Any, T> Editable<T>.flatMap(noinline f: (T) -> CompileResult<F>): Editable<F> =
     ConvertedEditable(this, f)

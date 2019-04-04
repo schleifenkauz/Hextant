@@ -6,10 +6,9 @@ package hextant.core.editable
 
 import com.natpryce.hamkrest.isEmptyString
 import com.natpryce.hamkrest.should.shouldMatch
-import hextant.defaultNull
+import hextant.Ok
 import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
-import hextant.force
 import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
@@ -21,8 +20,8 @@ object ExpandableSpec : Spek({
         test("the text should be empty") {
             e.text.now shouldMatch isEmptyString
         }
-        test("the edited should be null") {
-            e.result.now.defaultNull() shouldBe `null`
+        test("the result should be a childErr") {
+            e.result.now shouldBe childErr
         }
         test("the editable should be null") {
             e.editable.now shouldBe `null`
@@ -38,8 +37,8 @@ object ExpandableSpec : Spek({
             it("should set the text to the specified string") {
                 e.text.now shouldEqual "abc"
             }
-            test("the edited should be null") {
-                e.result.now.defaultNull() shouldBe `null`
+            test("the result should be an ChildErr") {
+                e.result.now shouldBe childErr
             }
             test("the editable should be null") {
                 e.editable.now shouldBe `null`
@@ -57,8 +56,8 @@ object ExpandableSpec : Spek({
             it("should set the text to the empty string") {
                 e.text.now shouldEqual ""
             }
-            test("the edited should be null") {
-                e.result.now.defaultNull() shouldBe `null`
+            test("the result should be a child error") {
+                e.result.now shouldBe childErr
             }
             test("the editable should be the specified content") {
                 e.editable.now shouldEqual editable1
@@ -72,8 +71,8 @@ object ExpandableSpec : Spek({
         }
         on("making valid input into the content") {
             editable1.text.set("123")
-            it("should set the edited") {
-                e.result.now.force() shouldEqual IntLiteral(123)
+            it("should set the result") {
+                e.result.now shouldEqual Ok(IntLiteral(123))
             }
             it("should be ok") {
                 e.isOk shouldBe `true`
@@ -81,8 +80,8 @@ object ExpandableSpec : Spek({
         }
         on("making the content invalid") {
             editable1.text.set("not an int")
-            it("should set edited to null") {
-                e.result.now.defaultNull() shouldBe `null`
+            it("should set result to a child error") {
+                e.result.now shouldBe childErr
             }
             it("should not be ok") {
                 e.isOk shouldBe `false`
@@ -93,8 +92,8 @@ object ExpandableSpec : Spek({
             it("should set the text to the specified string") {
                 e.text.now shouldEqual "a"
             }
-            test("the edited should be null") {
-                e.result.now shouldBe `null`
+            test("the result should be a child error") {
+                e.result.now shouldBe childErr
             }
             test("the editable should be null") {
                 e.editable.now shouldBe `null`
