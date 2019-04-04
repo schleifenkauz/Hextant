@@ -95,7 +95,7 @@ class ExprEditorViewTest : Application() {
                 if (new !is Ok) {
                     evaluationDisplay.text = "Invalid expression"
                 } else {
-                    val v = new.value
+                    val v = new.value.value
                     evaluationDisplay.text = "$v"
                 }
             }
