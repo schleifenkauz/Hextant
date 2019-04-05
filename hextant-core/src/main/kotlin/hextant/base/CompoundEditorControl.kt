@@ -5,9 +5,11 @@
 package hextant.base
 
 import hextant.*
+import hextant.base.CompoundEditorControl.Vertical
 import hextant.bundle.Bundle
 import hextant.bundle.Property
-import hextant.fx.*
+import hextant.fx.keyword
+import hextant.fx.operator
 import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.layout.*
@@ -17,17 +19,23 @@ abstract class CompoundEditorControl(
     private val context: Context,
     private val args: Bundle,
     private val build: Vertical.(args: Bundle) -> Unit
-) : EditorControl<VBox>(args) {
+) : EditorControl<Vertical>(args) {
+    private var firstChildToFocus: EditorControl<*>? = null
+
     init {
         val editor: AbstractEditor<*, EditorView> = context.getEditor(editable)
         initialize(editable, editor, context)
         editor.addView(this)
     }
 
-    override fun createDefaultRoot(): VBox = Vertical().apply { build(args) }
+    override fun createDefaultRoot(): Vertical = Vertical().apply {
+        build(args)
+    }.also {
+        if (it.firstEditorChild != null) firstChildToFocus = it.firstEditorChild
+    }
 
     override fun receiveFocus() {
-        requestFocus()
+        firstChildToFocus?.receiveFocus() ?: this.requestFocus()
     }
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
@@ -45,7 +53,13 @@ abstract class CompoundEditorControl(
     }
 
     inner class Vertical : VBox(), Compound {
-        override fun view(editable: Editable<*>, args: Bundle): EditorControl<*> = view(editable, this, context, args)
+        var firstEditorChild: EditorControl<*>? = null
+            private set
+
+        override fun view(editable: Editable<*>, args: Bundle): EditorControl<*> =
+            view(editable, this, context, args).also {
+                if (firstEditorChild == null) firstEditorChild = it
+            }
 
         override fun space() = space(this)
 
@@ -55,6 +69,8 @@ abstract class CompoundEditorControl(
 
         fun line(build: Horizontal.() -> Unit): Horizontal {
             val horizontal = Horizontal().apply(build)
+            if (horizontal.firstEditorChild != null && this.firstEditorChild == null)
+                this.firstEditorChild = horizontal.firstEditorChild
             children.add(horizontal)
             return horizontal
         }
@@ -69,7 +85,13 @@ abstract class CompoundEditorControl(
     }
 
     inner class Horizontal : HBox(), Compound {
-        override fun view(editable: Editable<*>, args: Bundle): EditorControl<*> = view(editable, this, context, args)
+        var firstEditorChild: EditorControl<*>? = null
+            private set
+
+        override fun view(editable: Editable<*>, args: Bundle): EditorControl<*> =
+            view(editable, this, context, args).also {
+                if (firstEditorChild == null) firstEditorChild = it
+            }
 
         override fun space() = space(this)
 
