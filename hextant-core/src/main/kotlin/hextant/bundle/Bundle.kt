@@ -105,6 +105,11 @@ interface Bundle {
         fun newInstance(): Bundle = Impl()
 
         /**
+         * @return a new [Bundle], first applying [init] to it
+        */
+        inline fun configure(init: Bundle.() -> Unit) = newInstance().apply(init)
+
+        /**
          * @return a concurrent [Bundle] wrapping the passed [bundle]
          */
         fun concurrent(bundle: Bundle = newInstance()) = ConcurrentBundle(bundle)

@@ -60,7 +60,7 @@ class ExprEditorViewTest : Application() {
     private fun createContent(context: Context): Parent {
         context[EditorControlFactory].register<EditableList<*, *>> { editable, ctx, args ->
             val editor = ctx.getEditor(editable)
-            FXListEditorView(editable, ctx, editor as ListEditor<*>, bundle = args)
+            FXListEditorView(editable, ctx, editor as ListEditor<*, *>, bundle = args)
         }
         registerCommandsAndInspections(context)
         val expandable = ExpandableExpr()

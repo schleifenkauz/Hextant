@@ -6,40 +6,52 @@ package hextant.base
 
 import hextant.*
 import hextant.bundle.Bundle
-import hextant.fx.keyword
-import hextant.fx.operator
+import hextant.bundle.Property
+import hextant.fx.*
+import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.layout.*
 
 abstract class CompoundEditorControl(
+    editable: Editable<*>,
     private val context: Context,
-    args: Bundle,
-    private val build: Vertical.() -> Unit
+    private val args: Bundle,
+    private val build: Vertical.(args: Bundle) -> Unit
 ) : EditorControl<VBox>(args) {
-    override fun createDefaultRoot(): VBox = Vertical().also(build)
+    init {
+        val editor: AbstractEditor<*, EditorView> = context.getEditor(editable)
+        initialize(editable, editor, context)
+        editor.addView(this)
+    }
+
+    override fun createDefaultRoot(): VBox = Vertical().apply { build(args) }
 
     override fun receiveFocus() {
         requestFocus()
     }
 
+    override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
+        root = createDefaultRoot()
+    }
+
     interface Compound {
-        fun view(editable: Editable<*>): EditorControl<*>
+        fun view(editable: Editable<*>, args: Bundle = Bundle.newInstance()): EditorControl<*>
 
         fun space(): Label
 
-        fun keyword(name: String): Label
+        fun keyword(name: String): Node
 
-        fun operator(str: String): Label
+        fun operator(str: String): Node
     }
 
     inner class Vertical : VBox(), Compound {
-        override fun view(editable: Editable<*>) = view(editable, this, context)
+        override fun view(editable: Editable<*>, args: Bundle): EditorControl<*> = view(editable, this, context, args)
 
         override fun space() = space(this)
 
-        override fun keyword(name: String): Label = keyword(name, this)
+        override fun keyword(name: String): Node = keyword(name, this)
 
-        override fun operator(str: String): Label = operator(str, this)
+        override fun operator(str: String): Node = operator(str, this)
 
         fun line(build: Horizontal.() -> Unit): Horizontal {
             val horizontal = Horizontal().apply(build)
@@ -57,33 +69,34 @@ abstract class CompoundEditorControl(
     }
 
     inner class Horizontal : HBox(), Compound {
-        override fun view(editable: Editable<*>): EditorControl<*> = view(editable, this, context)
+        override fun view(editable: Editable<*>, args: Bundle): EditorControl<*> = view(editable, this, context, args)
 
         override fun space() = space(this)
 
-        override fun keyword(name: String): Label = keyword(name, this)
+        override fun keyword(name: String): Node = keyword(name, this)
 
-        override fun operator(str: String): Label = operator(str, this)
+        override fun operator(str: String): Node = operator(str, this)
     }
 
     companion object {
         private fun view(
             editable: Editable<*>,
             pane: Pane,
-            context: Context
+            context: Context,
+            args: Bundle
         ): EditorControl<*> {
-            val c = context.createView(editable)
+            val c = context.createView(editable, args)
             pane.children.add(c)
             return c
         }
 
-        private fun keyword(name: String, pane: Pane): Label {
+        private fun keyword(name: String, pane: Pane): Node {
             val l = keyword(name)
             pane.children.add(l)
             return l
         }
 
-        private fun operator(name: String, pane: Pane): Label {
+        private fun operator(name: String, pane: Pane): Node {
             val l = operator(name)
             pane.children.add(l)
             return l
@@ -97,14 +110,11 @@ abstract class CompoundEditorControl(
 
         operator fun invoke(
             editable: Editable<*>,
-            editor: Editor<*>,
             context: Context,
-            arguments: Bundle,
-            build: Vertical.() -> Unit
-        ): CompoundEditorControl = object : CompoundEditorControl(context, arguments, build) {
-            init {
-                initialize(editable, editor, context)
-            }
+            args: Bundle = Bundle.newInstance(),
+            build: Vertical.(Bundle) -> Unit
+        ): CompoundEditorControl = object : CompoundEditorControl(editable, context, args, build) {
+
         }
     }
 }

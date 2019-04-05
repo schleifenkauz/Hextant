@@ -15,7 +15,7 @@ class FXSumEditorView(
     editable: EditableSum,
     context: Context,
     args: Bundle
-) : CompoundEditorControl(context, args, {
+) : CompoundEditorControl(editable, context, args, {
     line {
         val editor: SumEditor = context.getEditor(editable) as SumEditor
         keyword("sum").setOnMouseClicked {
@@ -27,10 +27,4 @@ class FXSumEditorView(
         view(editable.expressions)
     }
     operator(")")
-}) {
-    init {
-        val editor: SumEditor = context.getEditor(editable) as SumEditor
-        editor.addView(this)
-        initialize(editable, editor, context)
-    }
-}
+})

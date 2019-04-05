@@ -14,7 +14,7 @@ class FXIntOperatorApplicationEditorView(
     context: Context,
     args: Bundle
 ) :
-    CompoundEditorControl(context, args, {
+    CompoundEditorControl(editable, context, args, {
         line {
             view(editable.left)
             view(editable.op)

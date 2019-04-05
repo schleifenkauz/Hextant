@@ -21,7 +21,7 @@ abstract class EditableToken<out T : Any> : AbstractEditable<T>(), Serializable,
      */
     val text = reactiveVariable("")
 
-    override val result = text.map { t -> compile(t) }
+    override val result by lazy { text.map { t -> compile(t) } }
 
     override fun deserialize(input: Input, context: SerialContext) {
         text.set(input.readString())

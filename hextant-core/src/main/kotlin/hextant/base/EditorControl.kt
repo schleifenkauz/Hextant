@@ -43,7 +43,7 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     /**
      * Is called when one of the display arguments changed
      */
-    protected open fun <T> argumentChanged(property: Property<T, *, *>, value: Any) {}
+    protected open fun argumentChanged(property: Property<*, *, *>, value: Any?) {}
 
     /**
      * Creates the default root for this control

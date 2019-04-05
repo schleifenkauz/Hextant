@@ -4,7 +4,11 @@
 
 package hextant
 
+import reaktive.dependencies
 import reaktive.value.ReactiveValue
+import reaktive.value.binding.binding
+import reaktive.value.binding.map
+import reaktive.value.now
 
 /**
  * The result of an [Editable]
@@ -127,7 +131,8 @@ class TerminationSignal(val err: CompileResult<Nothing>) : Throwable()
 /**
  * Return the value of this [CompileResult] if it is [Ok], otherwise throw a [TerminationSignal]
  */
-fun <T> CompileResult<T>.orTerminate(): T = ifErr { throw TerminationSignal(it) }
+inline fun <T> CompileResult<T>.orTerminate(result: (CompileResult<Nothing>) -> CompileResult<Nothing> = { it }): T =
+    ifErr { throw TerminationSignal(result(it)) }
 
 operator fun <T> CompileResult<T>.component1(): T = orTerminate()
 
@@ -141,5 +146,23 @@ inline fun <T> compile(body: () -> CompileResult<T>): CompileResult<T> {
         interrupt.err
     }
 }
+
+fun <T, F> RResult<T>.mapResult(f: (T) -> F) = map { it.map(f) }
+
+fun <T> result(vararg deps: Editable<*>, body: () -> CompileResult<T>): RResult<T> =
+    binding(dependencies(deps.map { it.result }), body)
+
+fun <A, T> result1(dep1: Editable<A>, body: (A) -> CompileResult<T>): RResult<T> = result(dep1) {
+    compile {
+        body(dep1.result.now.orTerminate { childErr() })
+    }
+}
+
+fun <A, B, T> result2(dep1: Editable<A>, dep2: Editable<B>, body: (A, B) -> CompileResult<T>): RResult<T> =
+    result(dep1) {
+        compile {
+            body(dep1.result.now.orTerminate { childErr() }, dep2.result.now.orTerminate { childErr() })
+        }
+    }
 
 typealias RResult<R> = ReactiveValue<CompileResult<R>>

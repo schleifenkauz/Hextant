@@ -99,7 +99,7 @@
 }
 
 :error:warning {
-    -fx-text-fill: red: !important;
+    -fx-text-fill: red !important;
 }
 
 .scroll-bar {

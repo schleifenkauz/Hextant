@@ -21,7 +21,7 @@ import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 class FXListEditorView(
     private val editable: EditableList<*, *>,
     private val context: Context,
-    private val editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
+    private val editor: ListEditor<*, *> = context.getEditor(editable),
     private val emptyDisplay: Node = Glyphs.create(PLUS),
     bundle: Bundle
 ) : ListEditorView,
@@ -59,7 +59,7 @@ class FXListEditorView(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> argumentChanged(property: Property<T, *, *>, value: Any) {
+    override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
         when (property) {
             ORIENTATION  -> orientation = value as Orientation
             CELL_FACTORY -> cellFactory = value as () -> Cell<*>
@@ -305,7 +305,7 @@ class FXListEditorView(
         fun withAltText(
             editable: EditableList<*, *>,
             context: Context,
-            editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
+            editor: ListEditor<*, *> = context.getEditor(editable),
             emptyText: String = "Add item",
             args: Bundle = Bundle.newInstance()
         ) = FXListEditorView(editable, context, editor, Button(emptyText), args)
@@ -313,7 +313,7 @@ class FXListEditorView(
         fun withAltGlyph(
             editable: EditableList<*, *>,
             context: Context,
-            editor: ListEditor<*> = context.getEditor(editable) as ListEditor<*>,
+            editor: ListEditor<*, *> = context.getEditor(editable),
             glyph: FontAwesome.Glyph,
             args: Bundle = Bundle.newInstance(),
             orientation: Orientation = Orientation.Vertical
