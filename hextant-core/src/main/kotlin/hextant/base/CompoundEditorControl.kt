@@ -78,6 +78,8 @@ abstract class CompoundEditorControl(
         fun indented(build: Vertical.() -> Unit): HBox {
             val indent = Label("  ")
             val v = Vertical().apply(build)
+            if (v.firstEditorChild != null && this.firstEditorChild == null)
+                this.firstEditorChild = v.firstEditorChild
             val indented = HBox(indent, v)
             children.add(indented)
             return indented
