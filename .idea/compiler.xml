@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="hextant.hextant-core.main" target="1.8" />
+      <module name="hextant.hextant-core.test" target="1.8" />
+      <module name="hextant.hextant-expr.main" target="1.8" />
+      <module name="hextant.hextant-expr.test" target="1.8" />
+      <module name="hextant.hextant-lisp.main" target="1.8" />
+      <module name="hextant.hextant-lisp.test" target="1.8" />
+      <module name="hextant.hextant-sample.main" target="1.8" />
+      <module name="hextant.hextant-sample.test" target="1.8" />
+      <module name="hextant.hextant-test.main" target="1.8" />
+      <module name="hextant.hextant-test.test" target="1.8" />
+      <module name="hextant.hextant-util.main" target="1.8" />
+      <module name="hextant.hextant-util.test" target="1.8" />
+      <module name="hextant.main" target="1.8" />
+      <module name="hextant.test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
