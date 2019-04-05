@@ -12,6 +12,8 @@
       <module name="hextant.hextant-lisp.test" target="1.8" />
       <module name="hextant.hextant-sample.main" target="1.8" />
       <module name="hextant.hextant-sample.test" target="1.8" />
+      <module name="hextant.hextant-test.main" target="1.8" />
+      <module name="hextant.hextant-test.test" target="1.8" />
       <module name="hextant.hextant-util.main" target="1.8" />
       <module name="hextant.hextant-util.test" target="1.8" />
       <module name="hextant.main" target="1.8" />

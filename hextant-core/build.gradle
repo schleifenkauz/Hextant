@@ -43,8 +43,6 @@ static String spek(Object dep) {
     return "org.jetbrains.spek:spek-$dep:1.1.5"
 }
 
-
-
 dependencies {
     compile nikok("reaktive", "1.0")
     compile nikok("kserial", "1.1.2")
@@ -52,13 +50,9 @@ dependencies {
     compile kotlin("stdlib")
     compile kotlin("reflect")
     compile nikok("kref", "1.0.0")
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
-    compile "org.controlsfx:controlsfx:8.40.14"
-    implementation fileTree(dir: 'lib', include: ['*.jar'])
-    compile 'com.google.guava:guava:27.0.1-jre'
-    implementation group: 'javax.json', name: 'javax.json-api', version: '1.1.4'
-    implementation group: 'org.glassfish', name: 'javax.json', version: '1.1.4'
-    implementation fileTree(dir: 'lib', include: ['*.jar'])
     implementation project(":hextant-util")
+    compile "org.controlsfx:controlsfx:8.40.14"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
     testImplementation project(":hextant-expr")
+    testImplementation project(":hextant-test")
 }

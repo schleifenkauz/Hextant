@@ -7,14 +7,14 @@ import com.natpryce.hamkrest.should.shouldNotMatch
 import com.sun.javafx.application.PlatformImpl
 import hextant.HextantPlatform
 import hextant.bundle.Bundle
-import hextant.core.instanceOf
 import hextant.core.mocks.EditableMock
 import hextant.core.mocks.MockEditor
 import hextant.fx.PseudoClasses.ERROR
 import hextant.fx.PseudoClasses.SELECTED
+import hextant.test.matchers.instanceOf
+import hextant.test.matchers.shouldBe
 import javafx.scene.Scene
 import javafx.scene.control.Label
-import matchers.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 

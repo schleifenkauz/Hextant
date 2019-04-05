@@ -4,8 +4,7 @@ import com.natpryce.hamkrest.sameInstance
 import hextant.core.editable.EditableText
 import hextant.core.editable.Expandable
 import hextant.core.mocks.EditableMock
-import matchers.shouldBe
-import matchers.shouldThrow
+import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.value.now

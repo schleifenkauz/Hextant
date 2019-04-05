@@ -7,16 +7,5 @@ repositories {
 
 dependencies {
     compile project(":hextant-core")
-}
-
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+    testImplementation project(":hextant-test")
 }

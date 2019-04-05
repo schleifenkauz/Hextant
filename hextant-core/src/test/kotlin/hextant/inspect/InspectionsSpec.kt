@@ -1,9 +1,9 @@
 package hextant.inspect
 
 import com.natpryce.hamkrest.should.shouldMatch
-import hextant.core.instanceOf
+import hextant.inspect.Problem.Error
 import hextant.inspect.Problem.Warning
-import matchers.*
+import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.value.*
@@ -73,7 +73,7 @@ internal object InspectionsSpec : Spek({
                 inspections.hasWarning(inspected).now shouldEqual true
             }
             it("should report both a warning and problem") {
-                inspections.getProblems(inspected) shouldBe aSetOf(instanceOf<Warning>(), instanceOf<Problem.Error>())
+                inspections.getProblems(inspected) shouldBe aSetOf(instanceOf<Warning>(), instanceOf<Error>())
             }
         }
         on("making the inspected object unproblematic again") {

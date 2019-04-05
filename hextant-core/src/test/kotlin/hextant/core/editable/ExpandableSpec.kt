@@ -9,7 +9,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import hextant.Ok
 import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
-import matchers.*
+import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.value.now

@@ -2,7 +2,8 @@ package hextant
 
 import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
-import matchers.*
+import hextant.test.matchers.shouldBe
+import hextant.test.matchers.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 
@@ -83,12 +84,12 @@ object CompileResultSpec : Spek({
         }
         on("Err") {
             it("returns the error") {
-                err<Int>("some message").map { it * 2 } shouldBe err
+                err<Int>("some message").map { it * 2 } shouldBe hextant.test.matchers.err
             }
         }
         on("ChildErr") {
             it("returns the error") {
-                childErr<Int>().map { it * 2 } shouldBe childErr
+                childErr<Int>().map { it * 2 } shouldBe hextant.test.matchers.childErr
             }
         }
     }
@@ -100,12 +101,12 @@ object CompileResultSpec : Spek({
         }
         on("Err") {
             it("returns the error") {
-                err<Int>("some error message").flatMap { Ok(it * 2) } shouldBe err
+                err<Int>("some error message").flatMap { Ok(it * 2) } shouldBe hextant.test.matchers.err
             }
         }
         on("Err") {
             it("returns the error") {
-                childErr<Int>().flatMap { Ok(it * 2) } shouldBe childErr
+                childErr<Int>().flatMap { Ok(it * 2) } shouldBe hextant.test.matchers.childErr
             }
         }
     }
@@ -129,12 +130,12 @@ object CompileResultSpec : Spek({
     describe("okOr") {
         on("null value") {
             it("returns the default") {
-                null.okOr { err("Null value") } shouldBe err
+                null.okOr { err("Null value") } shouldBe hextant.test.matchers.err
             }
         }
         on("non-null value") {
             it("returns an ok around the value") {
-                1.okOr { err("Null value") } shouldBe ok
+                1.okOr { err("Null value") } shouldBe hextant.test.matchers.ok
             }
         }
     }
@@ -172,7 +173,7 @@ object CompileResultSpec : Spek({
                     val (x) = childErr<Int>() //Cannot rename to _ because it would not terminate execution
                     err<Int>("Message").orTerminate()
                     throw AssertionError("Should not be reached")
-                } shouldBe childErr
+                } shouldBe hextant.test.matchers.childErr
             }
         }
     }
