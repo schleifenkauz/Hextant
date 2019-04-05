@@ -4,43 +4,32 @@
 
 package hackus.ast
 
+import hextant.*
+import hextant.core.editable.TokenType
 import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
  * A fully qualified Java name consisting compile a package part and an identifier
  * * In hackus FQNames are used as left hand sides compile definitions
- * @constructor
- * @param pkg the subsequent package names, may be empty
- * @param name the class name
- * * Sample "java.lang.String" == `FQName(listOf(JIdent.compile("java"), JIdent.compile("lang")), JIdent.compile("String"))`
- * * Sample "TopLevelClass" == `FQName(emptyList(), JIdent.compile("TopLevelClass"))`
  */
-class FQName(val pkg: List<JIdent>, val name: JIdent) {
+class FQName private constructor(val fullName: String) {
     /**
      * Return the fully qualified name in string form
-     * * Sample: `FQName(listOf(JIdent.compile("java"), JIdent.compile("lang")), JIdent.compile("String")).toString() == "java.lang.String"`
      */
-    override fun toString(): String = buildString {
-        for (n in pkg) {
-            append(n)
-            append('.')
-        }
-        append(name)
-    }
+    override fun toString(): String = fullName
 
     /**
      * @return `true` if and only if the [other] [FQName] represents exactly the same fully qualified name as this one
      */
     override fun equals(other: Any?): Boolean = when {
-        this === other          -> true
-        other !is FQName        -> false
-        other.name != this.name -> false
-        other.pkg != this.pkg   -> false
-        else                    -> true
+        this === other                  -> true
+        other !is FQName                -> false
+        other.fullName != this.fullName -> false
+        else                            -> true
     }
 
-    override fun hashCode(): Int = pkg.hashCode() * 33 + name.hashCode()
+    override fun hashCode(): Int = fullName.hashCode()
 
     /**
      * Return a relative path which would lead from the source root to the class with this fully qualified name
@@ -50,12 +39,17 @@ class FQName(val pkg: List<JIdent>, val name: JIdent) {
      * * "ClassInDefaultPackage" -> "ClassInDefaultPackage.java"
      * * "path.to.SomeClass" -> "path/to/SomeClass.java"
      */
-    fun toPath(): Path =
-        if (pkg.isEmpty()) Paths.get(name.toString())
-        else {
-            val first = pkg.first().toString()
-            val more = pkg.drop(1) + name
-            val asArr = Array(pkg.size) { idx -> more[idx].toString() }
-            Paths.get(first, *asArr)
-        }
+    fun toPath(): Path {
+        val subNames = fullName.split('.')
+        return Paths.get(subNames.first(), *subNames.drop(1).toTypedArray())
+    }
+
+    companion object : TokenType<FQName> {
+        private val identifier = Regex("[_a-zA-Z][_\$a-zA-Z0-9]*")
+
+        override fun compile(tok: String): CompileResult<FQName> =
+            tok.takeIf { it.split('.').all { part -> part.matches(identifier) } }
+                .okOrErr { "Invalid fully qualified name $tok" }
+                .map { FQName(it) }
+    }
 }
