@@ -7,7 +7,7 @@ package hextant.core.editor
 import hextant.*
 import hextant.base.*
 import hextant.core.mocks.EditableMock
-import matchers.*
+import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.on

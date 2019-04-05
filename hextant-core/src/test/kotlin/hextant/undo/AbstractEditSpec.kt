@@ -1,6 +1,6 @@
 package hextant.undo
 
-import matchers.*
+import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 

@@ -2,10 +2,9 @@ package hextant.core.editable
 
 import hextant.Err
 import hextant.Ok
-import hextant.core.instanceOf
 import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
-import matchers.*
+import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.value.now

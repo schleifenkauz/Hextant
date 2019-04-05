@@ -11,11 +11,8 @@ import hextant.bundle.Property
 import hextant.impl.myLogger
 import hextant.plugin.dsl.PluginBuilder
 import hextant.plugin.impl.CompoundClassLoader
-import hextant.plugin.impl.JsonPluginLoader
 import java.net.URLClassLoader
 import java.nio.file.*
-import java.util.jar.JarFile
-import javax.json.Json
 
 class PluginRegistry(private val platform: HextantPlatform, private val pluginsFile: Path) {
     private val plugins = mutableMapOf<String, Plugin>()
@@ -51,10 +48,8 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     }
 
     private fun loadPlugin(path: Path) {
-        val jar = JarFile(path.toFile())
         val classLoader = URLClassLoader(arrayOf(path.toUri().toURL()))
         _compoundClassLoader.add(classLoader)
-        loadJsonPlugin(jar)
         loadPlugin(classLoader, "Plugin$1")
     }
 
@@ -72,15 +67,6 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
         }.get(null)
         invoke.isAccessible = true
         invoke.invoke(instance, builder)
-    }
-
-    private fun loadJsonPlugin(jar: JarFile) {
-        val config = jar.getJarEntry(JSON_CONFIG_FILE) ?: return
-        logger.config { "Found json config at $config" }
-        val input = jar.getInputStream(config)
-        val parser = Json.createParser(input)
-        val plugin = JsonPluginLoader.loadPlugin(parser, platform, compoundClassLoader)
-        plugins[plugin.name] = plugin
     }
 
     /**
@@ -109,8 +95,6 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
     }
 
     companion object : Property<PluginRegistry, Public, Internal>("plugin registry") {
-        private const val JSON_CONFIG_FILE = "plugin.json"
-
         val logger by myLogger()
     }
 }

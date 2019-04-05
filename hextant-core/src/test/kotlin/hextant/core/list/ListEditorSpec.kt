@@ -7,8 +7,8 @@ import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.mocking.viewMock
+import hextant.test.matchers.*
 import hextant.undo.UndoManager
-import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 

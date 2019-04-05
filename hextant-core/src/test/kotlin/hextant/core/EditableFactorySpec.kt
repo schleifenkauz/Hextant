@@ -8,6 +8,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
 import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
+import hextant.test.matchers.instanceOf
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 

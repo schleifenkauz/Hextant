@@ -8,7 +8,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import hextant.*
 import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
-import matchers.*
+import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.on
@@ -41,10 +41,10 @@ object EditableListSpec : Spek({
             editable1.text.set("not an int")
             test("the result list contains an Err") {
                 e.resultList.now.size shouldEqual 1
-                e.resultList.now[0] shouldBe err
+                e.resultList.now[0] shouldBe hextant.test.matchers.err
             }
             test("e.result should be a child Err") {
-                e.result.now shouldBe childErr
+                e.result.now shouldBe hextant.test.matchers.childErr
             }
         }
         on("making it valid again") {

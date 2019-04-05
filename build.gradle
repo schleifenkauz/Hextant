@@ -31,16 +31,7 @@ subprojects {
     
     apply plugin: 'java'
     apply plugin: 'kotlin'
-
-    dependencies {
-        testImplementation(spek("api")) {
-            exclude group: "org.jetbrains.kotlin"
-        }
-        testImplementation(spek("junit-platform-engine")) {
-            exclude group: "org.jetbrains.kotlin"
-        }
-        testImplementation "com.natpryce:hamkrest:1.5.0.0"
-    }
+    
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
@@ -51,9 +42,7 @@ subprojects {
 repositories {
     mavenCentral()
 }
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-}
+
 compileKotlin {
     kotlinOptions {
         jvmTarget = "1.8"

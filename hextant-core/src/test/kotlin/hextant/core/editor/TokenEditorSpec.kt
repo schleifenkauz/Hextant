@@ -13,8 +13,8 @@ import hextant.expr.editor.IntLiteralEditor
 import hextant.expr.view.IntLiteralEditorView
 import hextant.getEditor
 import hextant.mocking.viewMock
+import hextant.test.matchers.*
 import hextant.undo.UndoManager
-import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.value.now

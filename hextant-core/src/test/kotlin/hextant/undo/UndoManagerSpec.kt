@@ -1,7 +1,7 @@
 package hextant.undo
 
+import hextant.test.matchers.*
 import hextant.undo.UndoManagerSpec.execute
-import matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 

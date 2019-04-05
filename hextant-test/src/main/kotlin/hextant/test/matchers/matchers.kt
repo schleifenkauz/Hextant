@@ -2,14 +2,14 @@
  * @author Nikolaus Knop
  */
 
-package matchers
+package hextant.test.matchers
 
 import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.MatchResult.Match
 import com.natpryce.hamkrest.MatchResult.Mismatch
 import com.natpryce.hamkrest.should.shouldMatch
 import hextant.*
-import hextant.core.instanceOf
+import kotlin.reflect.KClass
 
 /**
  * Aliases for [shouldMatch]
@@ -43,6 +43,11 @@ val `false` = equalTo(false)
 val `true` = equalTo(true)
 
 val isEmpty = Matcher(Collection<Any?>::isEmpty)
+
+fun <T : Any> instanceOf(cls: KClass<out T>): Matcher<Any> =
+    Matcher("A value that is instance of $cls") { cls.isInstance(it) }
+
+inline fun <reified T : Any> instanceOf() = instanceOf(T::class)
 
 fun <E> contains(element: E): Matcher<Collection<E?>> = Matcher("contains $element") { it.contains(element) }
 
