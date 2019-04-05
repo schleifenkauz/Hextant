@@ -5,9 +5,13 @@
 package hackus.editor
 
 import hackus.editable.EditableDefinition
-import hextant.Context
-import hextant.EditorView
-import hextant.base.AbstractEditor
+import hextant.*
+import hextant.base.ParentEditor
 
 class DefinitionEditor(editable: EditableDefinition, context: Context) :
-    AbstractEditor<EditableDefinition, EditorView>(editable, context)
+    ParentEditor<EditableDefinition, EditorView>(editable, context) {
+    init {
+        context.getEditor(editable.name).moveTo(this)
+        context.getEditor(editable.rightSide).moveTo(this)
+    }
+}

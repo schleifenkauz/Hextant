@@ -5,9 +5,14 @@
 package hackus.editor
 
 import hackus.editable.EditableAlternative
-import hextant.Context
-import hextant.EditorView
-import hextant.base.AbstractEditor
+import hextant.*
+import hextant.base.ParentEditor
 
 class AlternativeEditor(editable: EditableAlternative, context: Context) :
-    AbstractEditor<EditableAlternative, EditorView>(editable, context)
+    ParentEditor<EditableAlternative, EditorView>(editable, context) {
+    init {
+        context.getEditor(editable.alternatives).moveTo(this)
+    }
+
+    override fun accepts(child: Editor<*>): Boolean = child is FQNameListEditor
+}

@@ -5,9 +5,14 @@
 package hackus.editor
 
 import hackus.editable.EditableTerminal
-import hextant.Context
-import hextant.EditorView
-import hextant.base.AbstractEditor
+import hextant.*
+import hextant.base.ParentEditor
 
 class TerminalEditor(editable: EditableTerminal, context: Context) :
-    AbstractEditor<EditableTerminal, EditorView>(editable, context)
+    ParentEditor<EditableTerminal, EditorView>(editable, context) {
+    init {
+        context.getEditor(editable.fqName).moveTo(this)
+    }
+
+    override fun accepts(child: Editor<*>) = child is FQNameEditor
+}

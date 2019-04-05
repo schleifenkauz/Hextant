@@ -5,9 +5,14 @@
 package hackus.editor
 
 import hackus.editable.EditableCompound
-import hextant.Context
-import hextant.EditorView
-import hextant.base.AbstractEditor
+import hextant.*
+import hextant.base.ParentEditor
 
 class CompoundEditor(editable: EditableCompound, context: Context) :
-    AbstractEditor<EditableCompound, EditorView>(editable, context)
+    ParentEditor<EditableCompound, EditorView>(editable, context) {
+    init {
+        context.getEditor(editable.subNodes).moveTo(this)
+    }
+
+    override fun accepts(child: Editor<*>): Boolean = child is SubNodeListEditor
+}

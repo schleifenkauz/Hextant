@@ -10,8 +10,9 @@ abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, co
     AbstractEditor<E, V>(editable, context) {
     /**
      * @return `true` only if the specified [child] can be child of this parent
+     * * Default returns `true`
      */
-    protected abstract fun accepts(child: Editor<*>): Boolean
+    protected open fun accepts(child: Editor<*>): Boolean = true
 
     @Deprecated("Only called by AbstractEditor")
     internal open fun accept(child: Editor<*>) {

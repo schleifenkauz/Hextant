@@ -5,9 +5,13 @@
 package hackus.editor
 
 import hackus.editable.EditableSubNode
-import hextant.Context
-import hextant.EditorView
-import hextant.base.AbstractEditor
+import hextant.*
+import hextant.base.ParentEditor
 
 class SubNodeEditor(editable: EditableSubNode, context: Context) :
-    AbstractEditor<EditableSubNode, EditorView>(editable, context)
+    ParentEditor<EditableSubNode, EditorView>(editable, context) {
+    init {
+        context.getEditor(editable.name).moveTo(this)
+        context.getEditor(editable.type).moveTo(this)
+    }
+}
