@@ -81,6 +81,7 @@
     <orderEntry type="module" module-name="org.hextant.hextant.hextant-core.main" />
     <orderEntry type="module" module-name="org.hextant.hextant.hextant-core.main" />
     <orderEntry type="module" module-name="org.hextant.hextant.hextant-core.main" />
+    <orderEntry type="module" module-name="org.hextant.hextant.hextant-core.main" />
     <orderEntry type="module" module-name="hextant.hextant-expr.main" />
     <orderEntry type="module" module-name="org.hextant.hextant.hextant-core.main" />
     <orderEntry type="library" name="Gradle: org.nikok:reaktive:1.0" level="project" />
