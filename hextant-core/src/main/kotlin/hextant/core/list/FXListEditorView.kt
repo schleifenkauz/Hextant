@@ -8,8 +8,7 @@ import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.*
 import hextant.bundle.CorePermissions.Public
-import hextant.fx.Glyphs
-import hextant.fx.setRoot
+import hextant.fx.*
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
@@ -203,6 +202,7 @@ class FXListEditorView(
         cells.drop(idx).forEach { cell -> cell.index = cell.index + 1 }
         cells.add(idx, c)
         items.children.add(idx, c)
+        isControlDown = false
         c.requestFocus()
     }
 
