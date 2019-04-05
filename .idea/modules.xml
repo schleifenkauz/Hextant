@@ -2,27 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-expr/hextant.hextant-expr.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-expr/hextant.hextant-expr.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-expr/hextant.hextant-expr.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-expr/hextant.hextant-expr.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-expr/hextant.hextant-expr.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-expr/hextant.hextant-expr.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant.hextant-lisp.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant.hextant-lisp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant.hextant-lisp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant.hextant-lisp.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant.hextant-lisp.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-lisp/hextant.hextant-lisp.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-test/hextant.hextant-test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-test/hextant.hextant-test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-test/hextant.hextant-test.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-test/hextant.hextant-test.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-test/hextant.hextant-test.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-test/hextant.hextant-test.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant.hextant-core.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant.hextant-core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant.hextant-core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant.hextant-core.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant.hextant-core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/org.hextant.hextant.hextant-core.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant.hextant-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant.hextant-sample.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant.hextant-sample.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant.hextant-sample.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant.hextant-sample.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-sample/org.hextant.hextant.hextant-sample.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant.hextant-util.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant.hextant-util.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant.hextant-util.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant.hextant-util.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant.hextant-util.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-util/org.hextant.hextant.hextant-util.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Hextant.iml" filepath="$PROJECT_DIR$/.idea/Hextant.iml" />
     </modules>
   </component>
 </project>
