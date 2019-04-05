@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":hextant-test:test" external.linked.project.path="$MODULE_DIR$/../../../hextant-test" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="org.hextant" external.system.module.version="1.0-SNAPSHOT" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":hextant-test:test" external.linked.project.path="$MODULE_DIR$/../../../hextant-test" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="org.hextant" external.system.module.type="sourceSet" external.system.module.version="1.0-SNAPSHOT" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="kotlin-language" name="Kotlin">
       <configuration version="3" platform="JVM 1.8" useProjectSettings="false">
         <compilerSettings />
         <compilerArguments>
           <option name="destination" value="$MODULE_DIR$/../../../hextant-test/build/classes/kotlin/test" />
-          <option name="classpath" value="$MODULE_DIR$/../../../hextant-test/build/classes/java/main;D:/Bibliotheken/Aktive Projekte/Hextant/hextant-test/build/classes/kotlin/main;D:/Bibliotheken/.gradle/caches/modules-2/files-2.1/org.jetbrains.spek/spek-api/1.1.5/bc19a88a54bb18edc9dd64d79b42f32b3215f1ca/spek-api-1.1.5.jar;D:/Bibliotheken/.gradle/caches/modules-2/files-2.1/com.natpryce/hamkrest/1.5.0.0/854d969284b75db409a16f16aa83d33d89bb0fbe/hamkrest-1.5.0.0.jar" />
+          <option name="classpath" value="$MODULE_DIR$/../../../hextant-test/build/classes/kotlin/main;D:/Bibliotheken/.gradle/caches/modules-2/files-2.1/org.jetbrains.spek/spek-api/1.1.5/bc19a88a54bb18edc9dd64d79b42f32b3215f1ca/spek-api-1.1.5.jar;D:/Bibliotheken/.gradle/caches/modules-2/files-2.1/com.natpryce/hamkrest/1.5.0.0/854d969284b75db409a16f16aa83d33d89bb0fbe/hamkrest-1.5.0.0.jar" />
           <option name="noStdlib" value="true" />
           <option name="noReflect" value="true" />
           <option name="moduleName" value="hextant-test" />
