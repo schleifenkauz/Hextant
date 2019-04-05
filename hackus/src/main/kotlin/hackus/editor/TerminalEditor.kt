@@ -11,7 +11,7 @@ import hextant.base.ParentEditor
 class TerminalEditor(editable: EditableTerminal, context: Context) :
     ParentEditor<EditableTerminal, EditorView>(editable, context) {
     init {
-        context.getEditor(editable.fqName).moveTo(this)
+        addChildren(editable.fqName)
     }
 
     override fun accepts(child: Editor<*>) = child is FQNameEditor

@@ -6,7 +6,7 @@ package hextant.base
 
 import hextant.*
 
-abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, context: Context) :
+abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, private val context: Context) :
     AbstractEditor<E, V>(editable, context) {
     /**
      * @return `true` only if the specified [child] can be child of this parent
@@ -44,6 +44,12 @@ abstract class ParentEditor<out E : Editable<*>, V : EditorView>(editable: E, co
         if (childToSelect != null && !childToSelect.isSelected && childToSelect in allChildren) {
             childToSelect.toggleSelection()
             if (isSelected) toggleSelection()
+        }
+    }
+
+    protected fun addChildren(vararg editables: Editable<*>) {
+        for (e in editables) {
+            context.getEditor(e).moveTo(this)
         }
     }
 }

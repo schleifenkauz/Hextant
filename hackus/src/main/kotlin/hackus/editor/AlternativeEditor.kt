@@ -11,7 +11,7 @@ import hextant.base.ParentEditor
 class AlternativeEditor(editable: EditableAlternative, context: Context) :
     ParentEditor<EditableAlternative, EditorView>(editable, context) {
     init {
-        context.getEditor(editable.alternatives).moveTo(this)
+        addChildren(editable.alternatives)
     }
 
     override fun accepts(child: Editor<*>): Boolean = child is FQNameListEditor
