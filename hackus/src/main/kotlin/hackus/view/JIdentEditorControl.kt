@@ -4,13 +4,13 @@
 
 package hackus.view
 
+import hackus.editable.EditableJIdent
 import hextant.Context
 import hextant.bundle.Bundle
-import hextant.core.editable.EditableToken
 import hextant.core.view.FXTokenEditorView
 
-class JIdentEditorContol(
-    editable: EditableToken<Any>,
+class JIdentEditorControl(
+    editable: EditableJIdent,
     context: Context,
     args: Bundle
 ) : FXTokenEditorView(editable, context, args) {

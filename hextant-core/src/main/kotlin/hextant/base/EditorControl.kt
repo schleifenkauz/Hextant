@@ -32,6 +32,10 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
 
     private var focusingAfterSelection = false
 
+    private var isError = false
+
+    private var isWarn = false
+
     init {
         val reactive = ReactiveBundle(arguments)
         reactive.changed.subscribe { _, change ->
@@ -83,6 +87,12 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
         activateInspections(editable, context)
         activateSelectionExtension(editor)
         initialized = true
+        sceneProperty().addListener { _ ->
+            if (scene != null && scene.window?.isShowing == true) {
+                displayIsError()
+                displayIsWarn()
+            }
+        }
     }
 
 
@@ -139,12 +149,32 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
         }
     }
 
-    override fun error(isError: Boolean) {
-        root.nodeTree().forEach { it.pseudoClassStateChanged(PseudoClasses.ERROR, isError) }
+    override fun error(error: Boolean) {
+        this.isError = error
+        displayIsError()
+    }
+
+    private fun displayIsError() {
+        if (scene != null) {
+            root.nodeTree().forEach {
+                it.pseudoClassStateChanged(PseudoClasses.ERROR, !isError)
+                it.pseudoClassStateChanged(PseudoClasses.ERROR, isError)
+            }
+        }
     }
 
     override fun warn(warn: Boolean) {
-        root.nodeTree().forEach { it.pseudoClassStateChanged(PseudoClasses.WARN, warn) }
+        this.isWarn = warn
+        displayIsWarn()
+    }
+
+    private fun displayIsWarn() {
+        if (scene != null) {
+            root.nodeTree().forEach {
+                it.pseudoClassStateChanged(PseudoClasses.WARN, !isWarn)
+                it.pseudoClassStateChanged(PseudoClasses.WARN, isWarn)
+            }
+        }
     }
 
     /**

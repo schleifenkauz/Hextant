@@ -19,7 +19,7 @@ plugin {
     view(::FXCompoundEditorView)
     view(::DefinitionEditorControl)
     view(::FQNameEditorControl)
-    view(::JIdentEditorContol)
+    view(::JIdentEditorControl)
     view(::SubNodeEditorControl)
     view(::TerminalEditorControl)
 }
