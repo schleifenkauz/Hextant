@@ -23,7 +23,7 @@ class FXListEditorViewTest : Application() {
             val views = context[EditorControlFactory]
             views.register<EditableList<*, *>> { editable, ctx, args ->
                 val editor = ctx.getEditor(editable)
-                FXListEditorView(editable, ctx, editor as ListEditor<*>, bundle = args)
+                FXListEditorView(editable, ctx, editor as ListEditor<*, *>, bundle = args)
             }
             val view = context.createView(list) as FXListEditorView
             view.cellFactory = { NumberedCell() }

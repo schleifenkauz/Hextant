@@ -13,7 +13,6 @@ import hextant.inspect.gui.InspectionPopup
 import javafx.application.Platform
 import javafx.geometry.Side
 import javafx.scene.Node
-import javafx.scene.Parent
 import javafx.scene.control.Control
 import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
@@ -32,6 +31,10 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
 
     private var focusingAfterSelection = false
 
+    private var isError = false
+
+    private var isWarn = false
+
     init {
         val reactive = ReactiveBundle(arguments)
         reactive.changed.subscribe { _, change ->
@@ -43,7 +46,7 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
     /**
      * Is called when one of the display arguments changed
      */
-    protected open fun <T> argumentChanged(property: Property<T, *, *>, value: Any) {}
+    protected open fun argumentChanged(property: Property<*, *, *>, value: Any?) {}
 
     /**
      * Creates the default root for this control
@@ -139,12 +142,22 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
         }
     }
 
-    override fun error(isError: Boolean) {
-        root.nodeTree().forEach { it.pseudoClassStateChanged(PseudoClasses.ERROR, isError) }
+    override fun error(error: Boolean) {
+        this.isError = error
+        displayProblem()
     }
 
     override fun warn(warn: Boolean) {
-        root.nodeTree().forEach { it.pseudoClassStateChanged(PseudoClasses.WARN, warn) }
+        this.isWarn = warn
+        displayProblem()
+    }
+
+    private fun displayProblem() {
+        when {
+            isError -> root.style = "-fx-text-fill: red;"
+            isWarn  -> root.style = "-fx-text-fill: yellow;"
+            else    -> root.style = null
+        }
     }
 
     /**
@@ -163,9 +176,6 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
         }
 
     companion object {
-        private fun Node.nodeTree(): Sequence<Node> =
-            if (this is Parent) childrenUnmodifiable.asSequence().flatMap { it.nodeTree() } + this else sequenceOf(this)
-
         private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
 
         private val SHRINK_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)

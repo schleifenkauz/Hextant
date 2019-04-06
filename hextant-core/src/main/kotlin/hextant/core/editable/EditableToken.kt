@@ -4,7 +4,6 @@
 
 package hextant.core.editable
 
-import hextant.CompileResult
 import hextant.base.AbstractEditable
 import kserial.*
 import reaktive.value.binding.map
@@ -15,19 +14,14 @@ import reaktive.value.reactiveVariable
  * * In a view it would be typically represented by a text field
  * @param T the type of the token being compiled
  */
-abstract class EditableToken<out T : Any> : AbstractEditable<T>(), Serializable {
-    /**
-     * Compile the specified [tok] to a real token object
-     */
-    protected abstract fun compile(tok: String): CompileResult<T>
-
+abstract class EditableToken<out T : Any> : AbstractEditable<T>(), Serializable, TokenType<T> {
     /**
      * The uncompiled text
      * * When setting it the [result] token is recompiled
      */
     val text = reactiveVariable("")
 
-    override val result = text.map { t -> compile(t) }
+    override val result by lazy { text.map { t -> compile(t) } }
 
     override fun deserialize(input: Input, context: SerialContext) {
         text.set(input.readString())

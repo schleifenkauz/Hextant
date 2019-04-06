@@ -1,10 +1,6 @@
 group 'org.hextant'
 version '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     compile project(":hextant-core")
     testImplementation project(":hextant-test")

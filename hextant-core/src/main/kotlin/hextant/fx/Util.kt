@@ -73,6 +73,14 @@ internal fun TextField.smartSetText(new: String) {
     }
 }
 
-fun keyword(name: String) = Label(name).also { it.styleClass.add("keyword") }
+fun keyword(name: String) = HextantTextField(name).apply {
+    isEditable = false
+    isFocusTraversable = false
+    styleClass.add("keyword")
+}
 
-fun operator(name: String) = Label(name).also { it.styleClass.add("operator") }
+fun operator(name: String) = HextantTextField(name).apply {
+    isEditable = false
+    isFocusTraversable = false
+    styleClass.add("operator")
+}

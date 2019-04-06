@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Hextant.iml" filepath="$PROJECT_DIR$/.idea/Hextant.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hackus/hextant.hackus.iml" filepath="$PROJECT_DIR$/.idea/modules/hackus/hextant.hackus.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hackus/hextant.hackus.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hackus/hextant.hackus.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hackus/hextant.hackus.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hackus/hextant.hackus.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/hextant.hextant-core.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/hextant.hextant-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/hextant.hextant-core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/hextant.hextant-core.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hextant-core/hextant.hextant-core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hextant-core/hextant.hextant-core.test.iml" />

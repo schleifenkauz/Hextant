@@ -12,7 +12,7 @@ open class ConfiguredExpander<E : Editable<*>, Ex : Expandable<*, E>>(
     private val config: ExpanderConfig<E>,
     expandable: Ex,
     context: Context,
-    completer: Completer<String> = NoCompleter
+    completer: Completer<String>
 ) : Expander<E, Ex>(expandable, context, completer) {
     constructor(
         config: ExpanderConfig<E>,

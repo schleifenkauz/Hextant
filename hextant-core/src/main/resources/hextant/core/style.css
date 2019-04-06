@@ -90,18 +90,6 @@
     -fx-border-width: 0;
 }
 
-:error {
-    -fx-text-fill: red !important;
-}
-
-:warning {
-    -fx-text-fill: yellow !important;
-}
-
-:error:warning {
-    -fx-text-fill: red: !important;
-}
-
 .scroll-bar {
 	 -fx-background-radius: 0em;
 }

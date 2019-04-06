@@ -11,9 +11,6 @@ plugins {
     id 'maven-publish'
 }
 
-group 'org.hextant'
-version '1.1-SNAPSHOT'
-
 apply plugin: 'maven-publish'
 
 
@@ -50,8 +47,8 @@ dependencies {
     compile kotlin("stdlib")
     compile kotlin("reflect")
     compile nikok("kref", "1.0.0")
-    implementation project(":hextant-util")
     compile "org.controlsfx:controlsfx:8.40.14"
+    implementation project(":hextant-util")
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")

@@ -42,8 +42,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="hextant.hextant-core.main" />
     <orderEntry type="module" module-name="hextant.hextant-expr.main" />
+    <orderEntry type="module" module-name="hextant.hextant-core.main" />
     <orderEntry type="module" module-name="hextant.hextant-core.main" />
     <orderEntry type="library" name="Gradle: org.nikok:reaktive:1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.nikok:kserial:1.1.2" level="project" />

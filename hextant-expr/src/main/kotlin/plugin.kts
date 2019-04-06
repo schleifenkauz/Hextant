@@ -20,5 +20,6 @@ plugin {
     editor(::SumEditor)
     view(::FXSumEditorView)
     editor(::ExprExpander)
+    editor(::ExprListEditor)
     expandable(::ExpandableExpr)
 }

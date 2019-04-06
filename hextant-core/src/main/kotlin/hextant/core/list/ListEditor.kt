@@ -8,10 +8,10 @@ import hextant.*
 import hextant.base.ParentEditor
 import hextant.undo.*
 
-abstract class ListEditor<E : Editable<*>>(
-    private val list: EditableList<*, E>,
+abstract class ListEditor<E : Editable<*>, L: EditableList<*, E>>(
+    private val list: L,
     private val context: Context
-) : ParentEditor<EditableList<*, E>, ListEditorView>(list, context) {
+) : ParentEditor<L, ListEditorView>(list, context) {
     init {
         for (child in list.editableList.now) {
             val editor = context.getEditor(child)

@@ -19,7 +19,7 @@ object ListEditorSpec : Spek({
                 set(Public, UndoManager, UndoManager.newInstance())
             }
             val editable = EditableList<IntLiteral, EditableIntLiteral>()
-            val editor = object : ListEditor<EditableIntLiteral>(editable, ctx) {
+            val editor = object : ListEditor<EditableIntLiteral, EditableList<*, EditableIntLiteral>>(editable, ctx) {
                 override fun createNewEditable(): EditableIntLiteral = EditableIntLiteral()
 
                 override fun accepts(child: Editor<*>): Boolean = child is IntLiteralEditor
@@ -79,7 +79,7 @@ object ListEditorSpec : Spek({
                 set(Public, UndoManager, undo)
             }
             val editable = EditableList<IntLiteral, EditableIntLiteral>()
-            val editor = object : ListEditor<EditableIntLiteral>(editable, ctx) {
+            val editor = object : ListEditor<EditableIntLiteral, EditableList<*, EditableIntLiteral>>(editable, ctx) {
                 override fun createNewEditable(): EditableIntLiteral = EditableIntLiteral()
 
                 override fun accepts(child: Editor<*>): Boolean = child is IntLiteralEditor
