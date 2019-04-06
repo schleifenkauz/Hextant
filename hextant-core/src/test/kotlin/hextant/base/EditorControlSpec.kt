@@ -9,10 +9,8 @@ import hextant.HextantPlatform
 import hextant.bundle.Bundle
 import hextant.core.mocks.EditableMock
 import hextant.core.mocks.MockEditor
-import hextant.fx.PseudoClasses.ERROR
 import hextant.fx.PseudoClasses.SELECTED
-import hextant.test.matchers.instanceOf
-import hextant.test.matchers.shouldBe
+import hextant.test.matchers.*
 import javafx.scene.Scene
 import javafx.scene.control.Label
 import org.jetbrains.spek.api.Spek
@@ -55,14 +53,14 @@ internal object EditorControlSpec : Spek({
             }
             on("error") {
                 ec.error(true)
-                it("should have the error pseudo class") {
-                    ec.root.pseudoClassStates shouldMatch hasElement(ERROR)
+                it("should have red text fill") {
+                    ec.root.style shouldEqual "-fx-text-fill: red;"
                 }
             }
             on("no error") {
                 ec.error(false)
-                it("should not have the error pseudo class") {
-                    ec.root.pseudoClassStates shouldNotMatch hasElement(ERROR)
+                it("should have normal text fill") {
+                    ec.root.style shouldEqual ""
                 }
             }
         }
