@@ -5,7 +5,6 @@
 package hextant.inspect.gui
 
 import hextant.fx.registerShortcut
-import hextant.fx.show
 import hextant.impl.Stylesheets
 import hextant.inspect.Problem
 import hextant.inspect.ProblemFix
@@ -26,7 +25,8 @@ class InspectionPopup(problems: () -> Set<Problem>) : Popup() {
         Stylesheets.apply(scene)
         container.styleClass.add("problem-list")
         setOnShowing { update() }
-        content.add(container)
+        setOnHidden { ownerNode.requestFocus() }
+        scene.root = container
     }
 
     private fun update() {
@@ -44,12 +44,25 @@ class InspectionPopup(problems: () -> Set<Problem>) : Popup() {
         val fixes = problem.fixes
         if (fixes.isNotEmpty()) {
             val fixesPopup = FixesPopup(fixes)
-            setOnAction { fixesPopup.show(scene.root) }
+            setOnAction { showFixes(fixesPopup) }
+            registerShortcut(KeyCodeCombination(ENTER)) { showFixes(fixesPopup) }
         }
     }
 
+    private fun Button.showFixes(fixesPopup: FixesPopup) {
+        val owner = scene.root
+        val anchor = owner.localToScreen(boundsInLocal)
+        fixesPopup.show(owner, anchor.maxX, anchor.minY)
+    }
+
     override fun show() {
-        if (problems().isNotEmpty()) super.show()
+        if (problems().isNotEmpty()) {
+            super.show()
+        }
+        if (isShowing) {
+            val firstProblem = container.children.first()
+            firstProblem.requestFocus()
+        }
     }
 
     private class FixesPopup(private val fixes: Collection<ProblemFix>) : Popup() {

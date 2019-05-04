@@ -6,14 +6,14 @@ package hextant.sample.view
 
 import hextant.Context
 import hextant.bundle.Bundle
-import hextant.core.editable.EditableToken
 import hextant.core.view.FXTokenEditorView
+import hextant.sample.editor.IntOperatorEditor
 
 class FXIntOperatorEditorView(
-    editable: EditableToken<Any>,
+    editor: IntOperatorEditor,
     context: Context,
     args: Bundle
-) : FXTokenEditorView(editable, context, args) {
+) : FXTokenEditorView(editor, context, args) {
     init {
         styleClass.add("int-operator-editor")
     }

@@ -48,14 +48,14 @@ internal class CommandMenuItem<T : Any>(
         logger.info("Executing command $command with $target")
         if (command.parameters.isEmpty()) {
             logger.fine("No parameters just executing")
-            val res = command.execute(target)
+            val res = command.execute(target, emptyList())
             showResult(res)
         } else {
             val owner = parentPopup.ownerWindow
             val args = showArgumentPrompt(owner, command, context)
             if (args != null && args.all { a -> a != null }) {
                 logger.fine { "Executing command with arguments $args" }
-                val res = command.execute(target, *args.toTypedArray())
+                val res = command.execute(target, args)
                 showResult(res)
             } else {
                 logger.fine { "Not all arguments are ok" }

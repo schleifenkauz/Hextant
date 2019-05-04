@@ -4,19 +4,17 @@
 
 package hextant.expr.editor
 
-import hextant.Context
+import hextant.*
 import hextant.core.editor.TokenEditor
-import hextant.expr.editable.EditableIntLiteral
-import hextant.expr.edited.Expr
-import hextant.expr.view.IntLiteralEditorView
-import hextant.orNull
-import reaktive.value.now
+import hextant.expr.edited.IntLiteral
 
-class IntLiteralEditor(
-    editable: EditableIntLiteral,
-    context: Context
-) : TokenEditor<EditableIntLiteral, IntLiteralEditorView>(editable, context),
-    ExprEditor {
-    override val expr: Expr?
-        get() = editable.result.now.orNull()
+class IntLiteralEditor(context: Context) : TokenEditor<IntLiteral>(context), ExprEditor<IntLiteral> {
+    constructor(v: Int, context: Context) : this(context) {
+        setText(v.toString())
+    }
+
+    constructor(v: IntLiteral, context: Context) : this(v.value, context)
+
+    override fun compile(token: String): CompileResult<IntLiteral> =
+        token.toIntOrNull().okOrErr { "Invalid int literal $token" }.map { IntLiteral(it) }
 }

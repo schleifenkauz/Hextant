@@ -13,7 +13,7 @@ interface Command<in R : Any, out T> {
     /**
      * Execute this command on [receiver] with the specified [args]
      */
-    fun execute(receiver: R, vararg args: Any?): T
+    fun execute(receiver: R, args: List<Any?>): T
 
     /**
      * @return the short name of this [Command]

@@ -4,27 +4,25 @@
 
 package hextant.lisp.view
 
-import hextant.*
+import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.lisp.editable.EditableGetVal
+import hextant.createView
 import hextant.lisp.editor.GetValEditor
 import javafx.scene.Node
 
 class GetValEditorControl(
-    private val editable: EditableGetVal,
-    private val context: Context,
+    private val editor: GetValEditor,
+    context: Context,
     args: Bundle
-) : EditorControl<Node>(args) {
+) : EditorControl<Node>(editor, context, args) {
     override fun receiveFocus() {
         root.requestFocus()
     }
 
     init {
-        val editor = context.getEditor(editable) as GetValEditor
         editor.addView(this)
-        initialize(editable, editor, context)
     }
 
-    override fun createDefaultRoot(): Node = context.createView(editable.searchedIdentifier).root
+    override fun createDefaultRoot(): Node = context.createView(editor.searchedIdentifier).root
 }

@@ -1,13 +1,27 @@
 /**
- * @author Nikolaus Knop
+ *@author Nikolaus Knop
  */
 
 package hextant.lisp.editor
 
-import hextant.Context
-import hextant.EditorView
+import hextant.*
 import hextant.base.AbstractEditor
-import hextant.lisp.editable.EditableGetVal
+import hextant.lisp.GetVal
+import reaktive.value.binding.map
 
-class GetValEditor(editable: EditableGetVal, context: Context) :
-    AbstractEditor<EditableGetVal, EditorView>(editable, context)
+class GetValEditor(
+    context: Context
+) : AbstractEditor<GetVal, EditorView>(context),
+    SExprEditor<GetVal> {
+    constructor(value: String, context: Context) : this(context) {
+        searchedIdentifier.setText(value)
+    }
+
+    private val fileScope = context[LispProperties.fileScope]
+
+    val searchedIdentifier = IdentifierEditor(context)
+
+    override val result: EditorResult<GetVal> = searchedIdentifier.result.map { ident ->
+        ident.or(ChildErr).map { GetVal(it, fileScope) }
+    }
+}

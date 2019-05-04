@@ -4,12 +4,11 @@
 
 package hextant.sample.editor
 
-import hextant.Context
+import hextant.*
 import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
-import hextant.sample.editable.EditableIntOperator
+import hextant.sample.ast.IntOperator
 
-class IntOperatorEditor(
-    editable: EditableIntOperator,
-    context: Context
-) : TokenEditor<EditableIntOperator, TokenEditorView>(editable, context)
+class IntOperatorEditor(context: Context) : TokenEditor<IntOperator>(context) {
+    override fun compile(token: String): CompileResult<IntOperator> =
+        IntOperator.operatorMap[token].okOrErr { "Invalid operator $token" }
+}

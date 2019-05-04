@@ -47,6 +47,10 @@
     -fx-background-color: #05437B;
 }
 
+.problem:focused {
+    -fx-background-color: #05437B;
+}
+
 /*Style class applied to single warning components in problem lists*/
 .warning {
     -fx-graphic: url(icon/warning.png);
@@ -60,6 +64,20 @@
 .fix-list {
     -fx-border-color: blue;
     -fx-border-width: 1;
+}
+
+/*Style class applied to single problem fix components in fix lists*/
+.problem-fix {
+    -fx-background-color: #212121;
+    -fx-graphic: url(icon/problem-fix.png);
+}
+
+.problem-fix:hover {
+    -fx-background-color: #05437B;
+}
+
+.problem-fix:focused {
+    -fx-background-color: #05437B;
 }
 
 /*Style class applied to auto completion lists*/

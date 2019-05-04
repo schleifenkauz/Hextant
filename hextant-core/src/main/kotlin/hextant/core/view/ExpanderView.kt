@@ -1,19 +1,15 @@
 /**
- *@author Nikolaus Knop
+ * @author Nikolaus Knop
  */
 
 package hextant.core.view
 
-import hextant.Editable
-import hextant.EditorView
-import hextant.completion.Completion
+import hextant.Editor
 
-interface ExpanderView: EditorView {
-    fun textChanged(newText: String)
+interface ExpanderView {
+    fun expanded(editor: Editor<*>)
 
     fun reset()
 
-    fun expanded(newContent: Editable<*>)
-
-    fun suggestCompletions(completions: Set<Completion<String>>)
+    fun displayText(text: String)
 }

@@ -4,85 +4,135 @@
 
 package hextant.command
 
-import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.should.shouldMatch
-import com.natpryce.hamkrest.throws
-import hextant.HextantPlatform
-import hextant.command.line.CommandLine
-import hextant.command.line.CommandLine.State.EditingName
-import hextant.core.EditableFactory
-import hextant.expr.editable.EditableIntLiteral
+import com.nhaarman.mockitokotlin2.*
+import hextant.*
+import hextant.command.line.*
 import hextant.expr.edited.IntLiteral
+import hextant.expr.editor.IntLiteralEditor
+import hextant.test.matchers.testingContext
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
-import reaktive.value.now
 
 internal object CommandLineSpec: Spek({
-    data class Target(val isApplicable: Boolean)
     given("a command line") {
-        val platform = HextantPlatform.configured()
-        afterGroup { platform.exit() }
-        val possibleCommands = mutableSetOf<Command<*, *>>()
-        val targets = mutableSetOf<Target>()
-        val editableInts = mutableListOf<EditableIntLiteral>()
-        EditableFactory.newInstance().apply {
-            register(IntLiteral::class) { -> EditableIntLiteral().also { editableInts.add(it) } }
+        val context = testingContext {
+            get(EditorFactory).register { context -> IntLiteralEditor(context) }
         }
-        val cl = CommandLine({ possibleCommands }, { targets }, platform)
-        it("should be editing the name") {
-            cl.state.now shouldMatch equalTo(EditingName)
+        val command = command<Target, Unit> {
+            description = "command"
+            shortName = "command"
+            name = "command"
+            executing { t, _ -> t.execute() }
         }
-        on("asking for the edited command") {
-            val error = { cl.editedCommand(); Unit }
-            it("should throw a ISE") {
-                error shouldMatch throws<IllegalStateException>()
+        val command2 = command<Target, Unit> {
+            description = "command with parameter"
+            shortName = "command2"
+            name = "command2"
+            addParameter {
+                description = "the parameter"
+                this.name = "x"
+                ofType<IntLiteral>()
+            }
+            executing { target, (x) ->
+                x as IntLiteral
+                target.execute(x.value)
             }
         }
-        on("asking for the edited args") {
-            val error = { cl.editableArgs(); Unit }
-            it("should throw a NPE") {
-                error shouldMatch throws<IllegalStateException>()
+        val possibleCommands = { setOf(command, command2) }
+        val target = mock<Target> { on { isApplicable }.then { true } }
+        val targets = setOf(target)
+        lateinit var intEditor: IntLiteralEditor
+        val cl = CommandLine(targets, possibleCommands, context)
+        val view = mock<CommandLineView> {
+            on { editingArguments(any(), any(), any()) }.then {
+                val editors = it.getArgument<List<Editor<*>>>(2)
+                intEditor = editors[0] as IntLiteralEditor
+                Unit
             }
         }
-        test("the text should be an empty string") {
-            cl.text.now shouldMatch equalTo("")
-        }
-        on("setting the text") {
-            cl.setText("new")
-            it("should set the text") {
-                cl.text.now shouldMatch equalTo("new")
+        inOrder(view, target) {
+            on("adding a view") {
+                cl.addView(view)
+                it("should display the text") {
+                    verify(view).editingName("")
+                }
             }
-        }
-        on("trying to execute") {
-            cl.executeOrExpand()
-            it("should do nothing") {
-                cl.state.now shouldMatch equalTo(EditingName)
-                cl.text.now shouldMatch equalTo("new")
+            on("editing the name") {
+                cl.editName("new")
+                it("should display the text") {
+                    verify(view).displayText("new")
+                }
             }
-        }
-        on("setting the text to a command without arguments and then executing") {
-            var executed = false
-            possibleCommands.add(command<Target, Unit> {
-                description = "2"
-                shortName = "2"
-                name = "2"
-                executing { _, _ -> executed = true }
-            })
-            targets.add(Target(true))
-            cl.setText("2")
-            cl.executeOrExpand()
-            it("should execute the command") {
-                executed shouldMatch equalTo(true)
+            on("trying to execute") {
+                cl.executeOrExpand()
+                it("should do nothing") {
+                    verifyNoMoreInteractions()
+                }
             }
-            it("should reset the text") {
-                cl.text.now shouldMatch equalTo("")
+            on("setting the text to a command without arguments") {
+                cl.editName("command")
+                it("should display the text") {
+                    verify(view).displayText("command")
+                }
             }
-            it("should reset leave the equal to EditingName") {
-                cl.state.now shouldMatch equalTo(EditingName)
+            on("executing the no-arg command") {
+                cl.executeOrExpand()
+                it("should execute the command") {
+                    verify(target).execute()
+                }
+                it("should notify the views about the executed command") {
+                    verify(view).executed(CommandApplication(command, emptyList(), listOf(Unit)))
+                }
+                it("should reset") {
+                    verify(view).editingName("")
+                }
             }
-        }
-        on("setting the text to a command with arguments and then expanding") {
-
+            on("setting the text to a command with arguments") {
+                cl.editName("command2")
+                it("should display the name") {
+                    verify(view).displayText("command2")
+                }
+            }
+            on("expanding") {
+                cl.executeOrExpand()
+                it("should expand") {
+                    verify(view).editingArguments(eq("command2"), eq(command2.parameters), any())
+                }
+            }
+            on("executing when int editor is not ok") {
+                cl.executeOrExpand()
+                it("should do nothing") {
+                    verifyNoMoreInteractions()
+                }
+            }
+            on("executing after making int editor valid") {
+                intEditor.setText("123")
+                cl.executeOrExpand()
+                it("should execute the command") {
+                    verify(target).execute(123)
+                }
+                it("should notify the views about the executed command") {
+                    verify(view).executed(CommandApplication(command2, listOf(IntLiteral(123)), listOf(Unit)))
+                }
+            }
+            on("expanding and then resetting") {
+                cl.editName("command2")
+                cl.executeOrExpand()
+                cl.reset()
+                it("should edit the name, expand and reset") {
+                    verify(view).displayText("command2")
+                    verify(view).editingArguments(eq("command2"), eq(command2.parameters), any())
+                    verify(view).editingName("")
+                }
+            }
         }
     }
-})
+}) {
+    interface Target {
+        val isApplicable: Boolean
+
+        fun execute()
+
+        fun execute(x: Int)
+    }
+}

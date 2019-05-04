@@ -8,9 +8,8 @@ import hextant.*
 import hextant.bundle.Bundle
 import hextant.command.Commands
 import hextant.command.command
-import hextant.core.EditableFactory
-import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
+import hextant.expr.editor.IntLiteralEditor
 import hextant.expr.view.FXIntLiteralEditorView
 import hextant.fx.hextantScene
 import javafx.application.Application
@@ -28,21 +27,21 @@ class InspectionGuiTest : Application() {
     companion object {
         private fun createContent(context: Context): Parent {
             val inspections = context[Inspections]
-            inspections.of(EditableIntLiteral::class).apply {
+            inspections.of(IntLiteralEditor::class).apply {
                 register { literal ->
                     inspection(literal) {
                         description = "Reports invalid integer literals"
                         checkingThat(literal.result.map { it.isOk })
                         isSevere(true)
                         message {
-                            val t = literal.text.now
+                            val t = literal.text
                             "'$t' is not a valid integer literal"
                         }
                         addFix {
-                            applicableIf { literal.text.now.any(Char::isDigit) }
+                            applicableIf { literal.text.any(Char::isDigit) }
                             fixingBy {
-                                val t = literal.text.now
-                                literal.text.set(t.filter { it.isDigit() })
+                                val t = literal.text
+                                literal.setText(t.filter { it.isDigit() })
                             }
                             description = "Remove all non-digit characters"
                         }
@@ -50,8 +49,8 @@ class InspectionGuiTest : Application() {
                 }
             }
             val commands = context[Commands]
-            commands.of<EditableIntLiteral>().apply {
-                register(command<EditableIntLiteral, Unit> {
+            commands.of<IntLiteralEditor>().apply {
+                register(command<IntLiteralEditor, Unit> {
                     description = "Multiply the integer value"
                     name = "Multiply"
                     shortName = "mul"
@@ -60,17 +59,17 @@ class InspectionGuiTest : Application() {
                         name = "factor"
                         description = "The factor to multiply the value with"
                     }
-                    applicableIf { e -> e.isOk }
+                    applicableIf { e -> e.result.now.isOk }
                     executing { literal, (f) ->
                         f as IntLiteral
                         val v = literal.result.now.force()
-                        literal.text.set((v.value * f.value).toString())
+                        literal.setText((v.value * f.value).toString())
                     }
                 })
             }
-            val editableFactory = context[EditableFactory]
-            editableFactory.register(IntLiteral::class) { -> EditableIntLiteral() }
-            val e = EditableIntLiteral()
+            val editableFactory = context[EditorFactory]
+            editableFactory.register(IntLiteral::class) { ctx -> IntLiteralEditor(ctx) }
+            val e = IntLiteralEditor(context)
             return FXIntLiteralEditorView(e, context, Bundle.newInstance())
         }
 

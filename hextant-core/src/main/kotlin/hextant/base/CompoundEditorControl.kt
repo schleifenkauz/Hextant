@@ -15,27 +15,17 @@ import javafx.scene.control.Label
 import javafx.scene.layout.*
 
 abstract class CompoundEditorControl(
-    editable: Editable<*>,
-    private val context: Context,
-    private val args: Bundle,
+    editor: AbstractEditor<*, EditorView>,
+    context: Context,
+    args: Bundle,
     private val build: Vertical.(args: Bundle) -> Unit
-) : EditorControl<Vertical>(args) {
+) : EditorControl<Vertical>(editor, context, args) {
     private var firstChildToFocus: EditorControl<*>? = null
 
-    init {
-        val editor: AbstractEditor<*, EditorView> = context.getEditor(editable)
-        initialize(editable, editor, context)
-        editor.addView(this)
-    }
-
     override fun createDefaultRoot(): Vertical = Vertical().apply {
-        build(args)
+        build(arguments)
     }.also {
         if (it.firstEditorChild != null) firstChildToFocus = it.firstEditorChild
-    }
-
-    override fun receiveFocus() {
-        firstChildToFocus?.receiveFocus() ?: this.requestFocus()
     }
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
@@ -43,7 +33,7 @@ abstract class CompoundEditorControl(
     }
 
     interface Compound {
-        fun view(editable: Editable<*>, args: Bundle = Bundle.newInstance()): EditorControl<*>
+        fun view(editable: Editor<*>, args: Bundle = Bundle.newInstance()): EditorControl<*>
 
         fun space(): Label
 
@@ -56,7 +46,7 @@ abstract class CompoundEditorControl(
         var firstEditorChild: EditorControl<*>? = null
             private set
 
-        override fun view(editable: Editable<*>, args: Bundle): EditorControl<*> =
+        override fun view(editable: Editor<*>, args: Bundle): EditorControl<*> =
             view(editable, this, context, args).also {
                 if (firstEditorChild == null) firstEditorChild = it
             }
@@ -90,7 +80,7 @@ abstract class CompoundEditorControl(
         var firstEditorChild: EditorControl<*>? = null
             private set
 
-        override fun view(editable: Editable<*>, args: Bundle): EditorControl<*> =
+        override fun view(editable: Editor<*>, args: Bundle): EditorControl<*> =
             view(editable, this, context, args).also {
                 if (firstEditorChild == null) firstEditorChild = it
             }
@@ -104,7 +94,7 @@ abstract class CompoundEditorControl(
 
     companion object {
         private fun view(
-            editable: Editable<*>,
+            editable: Editor<*>,
             pane: Pane,
             context: Context,
             args: Bundle
@@ -133,11 +123,11 @@ abstract class CompoundEditorControl(
         }
 
         operator fun invoke(
-            editable: Editable<*>,
+            editor: AbstractEditor<*, Any>,
             context: Context,
             args: Bundle = Bundle.newInstance(),
             build: Vertical.(Bundle) -> Unit
-        ): CompoundEditorControl = object : CompoundEditorControl(editable, context, args, build) {
+        ): CompoundEditorControl = object : CompoundEditorControl(editor, context, args, build) {
 
         }
     }

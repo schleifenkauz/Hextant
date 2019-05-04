@@ -6,16 +6,13 @@
 
 package hextant.command.line
 
-import hextant.Context
+import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.command.Command
 import hextant.command.Command.Parameter
 import hextant.command.gui.argumentEditor
-import hextant.completion.Completion
-import hextant.completion.gui.CompletionPopup
+import hextant.completion.gui.CompleterPopupHelper
 import hextant.fx.*
-import hextant.getEditor
 import javafx.application.Platform
 import javafx.beans.Observable
 import javafx.scene.control.*
@@ -29,11 +26,13 @@ import javafx.scene.layout.VBox
 import reaktive.event.subscribe
 
 class FXCommandLineView(
-    commandLine: CommandLine,
+    private val commandLine: CommandLine,
     context: Context,
     args: Bundle
-) : EditorControl<VBox>(args), CommandLineView {
-    private val historyView = ListView<CommandApplication<Any>>().apply {
+) : EditorControl<VBox>(commandLine, context, args), CommandLineView {
+    private val completer = CommandCompleter { commandLine.availableCommands() }
+
+    private val historyView = ListView<CommandApplication>().apply {
         styleClass.add("history-view")
         prefHeight = 0.0
         prefWidth = 1000.0
@@ -48,7 +47,7 @@ class FXCommandLineView(
         setCellFactory { _ -> CommandApplicationCell() }
     }
 
-    private inner class CommandApplicationCell : ListCell<CommandApplication<Any>>() {
+    private inner class CommandApplicationCell : ListCell<CommandApplication>() {
         init {
             resumeOnEnter()
             resumeOnDoubleClick()
@@ -71,12 +70,12 @@ class FXCommandLineView(
 
         private fun resume() {
             if (item != null) {
-                controller.commandLine.resume(item)
-                this@FXCommandLineView.requestFocus()
+                commandLine.resume(item)
+                this@FXCommandLineView.focus()
             }
         }
 
-        override fun updateItem(item: CommandApplication<Any>?, empty: Boolean) {
+        override fun updateItem(item: CommandApplication?, empty: Boolean) {
             super.updateItem(item, empty)
             if (item == null || empty) return
             text = item.toString()
@@ -85,11 +84,15 @@ class FXCommandLineView(
 
     private val textField = nameTextField()
 
-    private fun nameTextField() = HextantTextField().apply {
-        textProperty().addListener { _, _, new -> controller.commandLine.setText(new) }
+    private val textUpdater = textField.userUpdatedText.subscribe { new ->
+        commandLine.editName(new)
+        completionsPopup.show(this)
+    }
+
+    private fun nameTextField(): HextantTextField = HextantTextField().apply {
         addEventHandler(KeyEvent.KEY_RELEASED) { k ->
             if (SHOW_COMPLETIONS_SHORTCUT.match(k) || k.code == SPACE) {
-                controller.showCompletions(this@FXCommandLineView)
+                completer.completions(text)
                 k.consume()
             }
         }
@@ -102,11 +105,11 @@ class FXCommandLineView(
             addEventHandler(KeyEvent.KEY_RELEASED) { e ->
                 when {
                     EXECUTE_SHORTCUT.match(e) -> {
-                        controller.commandLine.executeOrExpand()
+                        commandLine.executeOrExpand()
                         e.consume()
                     }
                     RESET_SHORTCUT.match(e)   -> {
-                        controller.commandLine.reset()
+                        commandLine.reset()
                         e.consume()
                     }
                     e.code == UP              -> {
@@ -118,23 +121,20 @@ class FXCommandLineView(
         }
     }
 
-    private val controller = context.getEditor(commandLine) as CommandLineController
-
     override fun createDefaultRoot(): VBox {
         val currentCommand = createCurrentCommand()
         return VBox(historyView, currentCommand)
     }
 
     init {
-        initialize(commandLine, controller, context)
-        controller.addView(this)
+        commandLine.addView(this)
     }
 
-    private val completionsPopup = CompletionPopup<Command<*, *>>()
+    private val completionsPopup = CompleterPopupHelper(completer, this.textField::getText)
 
     private val completionsSubscription = completionsPopup.completionChosen.subscribe { c ->
-        controller.commandLine.setText(c.completed.shortName!!)
-        controller.commandLine.executeOrExpand()
+        commandLine.editName(c.completed.shortName!!)
+        commandLine.executeOrExpand()
     }
 
     override fun receiveFocus() {
@@ -146,39 +146,31 @@ class FXCommandLineView(
         }
     }
 
-    override fun requestFocus() {
-        receiveFocus()
-    }
-
     fun dispose() {
         completionsSubscription.cancel()
+        textUpdater.toString()
     }
 
 
-    override fun editingArgs(name: String, parameters: List<Parameter>, views: List<EditorControl<*>>) {
+    override fun editingArguments(name: String, parameters: List<Parameter>, editors: List<Editor<*>>) {
         textField.isEditable = false
+        val views = editors.map { editor -> context.createView(editor) }
         val nodes = views.zip(parameters) { v, p -> argumentEditor(p, v) }
         argEditors.children.addAll(nodes)
         completionsPopup.hide()
-        Platform.runLater { receiveFocus() }
+        Platform.runLater { focus() }
     }
 
-    override fun setText(newText: String) {
-        textField.text = newText
+    override fun displayText(newText: String) {
+        textField.smartSetText(newText)
     }
 
     override fun editingName(name: String) {
         textField.isEditable = true
         argEditors.children.clear()
-        receiveFocus()
     }
 
-    override fun showCompletions(completions: Set<Completion<Command<*, *>>>) {
-        completionsPopup.setCompletions(completions)
-        completionsPopup.show(textField)
-    }
-
-    override fun executed(appl: CommandApplication<Any>) {
+    override fun executed(appl: CommandApplication) {
         val history = historyView.items
         history.add(appl)
         if (history.size > 100) {

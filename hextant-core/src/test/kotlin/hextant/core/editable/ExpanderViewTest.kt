@@ -4,17 +4,14 @@
 
 package hextant.core.editable
 
-import hextant.Context
+import hextant.*
 import hextant.bundle.Bundle
-import hextant.core.EditorControlFactory
-import hextant.core.configure
+import hextant.bundle.CorePermissions.Public
 import hextant.core.view.FXExpanderView
-import hextant.core.view.FXTextEditorView
-import hextant.expr.editable.EditableIntLiteral
-import hextant.expr.editable.ExpandableExpr
+import hextant.expr.editor.ExprExpander
+import hextant.expr.editor.IntLiteralEditor
 import hextant.expr.view.FXIntLiteralEditorView
 import hextant.fx.hextantScene
-import hextant.get
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.stage.Stage
@@ -30,17 +27,16 @@ class ExpanderViewTest : Application() {
 
     companion object {
         private fun createContent(context: Context): Parent {
-            context[EditorControlFactory].configure {
-                register(EditableIntLiteral::class) { editable, ctx, args ->
+            context[Public, EditorControlFactory].configure {
+                register(IntLiteralEditor::class) { editor, ctx, args ->
                     FXIntLiteralEditorView(
-                        editable,
+                        editor,
                         ctx,
                         args
                     )
                 }
-                register(EditableText::class) { editable, ctx, args -> FXTextEditorView(editable, ctx, args) }
             }
-            val ex = ExpandableExpr()
+            val ex = ExprExpander(context)
             return FXExpanderView(ex, context, Bundle.newInstance())
         }
 

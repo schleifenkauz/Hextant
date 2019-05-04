@@ -4,10 +4,16 @@
 
 package hextant.lisp.editor
 
-import hextant.Context
+import hextant.*
 import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
-import hextant.lisp.editable.EditableStringLiteral
+import hextant.lisp.StringLiteral
 
-class StringLiteralEditor(editable: EditableStringLiteral, context: Context) :
-    TokenEditor<EditableStringLiteral, TokenEditorView>(editable, context)
+class StringLiteralEditor(context: Context) : TokenEditor<StringLiteral>(context), SExprEditor<StringLiteral> {
+    constructor(value: String, context: Context) : this(context) {
+        setText(value)
+    }
+
+    constructor(value: StringLiteral, context: Context) : this(value.value, context)
+
+    override fun compile(token: String): CompileResult<StringLiteral> = Ok(StringLiteral(token))
+}

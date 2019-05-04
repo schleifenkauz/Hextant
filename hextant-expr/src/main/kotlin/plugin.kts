@@ -1,4 +1,3 @@
-import hextant.expr.editable.*
 import hextant.expr.editor.*
 import hextant.expr.view.*
 import hextant.plugin.dsl.plugin
@@ -7,19 +6,16 @@ plugin {
     author = "Nikolaus Knop"
     name = "Hextant Expressions"
     //Int Literals
-    editable(::EditableIntLiteral, ::EditableIntLiteral)
-    editor(::IntLiteralEditor)
+    defaultEditor(::IntLiteralEditor)
     view(::FXIntLiteralEditorView)
     //Editable expressions
-    editable(::EditableOperator, ::EditableOperator)
-    editable(::EditableOperatorApplication) { e -> EditableOperatorApplication(platform, e) }
+    defaultEditor(::OperatorEditor)
     editor(::OperatorEditor)
     view(::FXOperatorEditorView)
-    editor(::OperatorApplicationEditor)
+    defaultEditor(::OperatorApplicationEditor)
     view(::FXOperatorApplicationEditorView)
-    editor(::SumEditor)
+    defaultEditor(::SumEditor)
     view(::FXSumEditorView)
-    editor(::ExprExpander)
-    editor(::ExprListEditor)
-    expandable(::ExpandableExpr)
+    defaultEditor(::ExprExpander)
+    defaultEditor(::ExprListEditor)
 }

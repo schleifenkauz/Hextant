@@ -3,11 +3,11 @@ package hextant.expr.view
 import hextant.Context
 import hextant.bundle.Bundle
 import hextant.core.view.FXTokenEditorView
-import hextant.expr.editable.EditableIntLiteral
+import hextant.expr.editor.IntLiteralEditor
 
 class FXIntLiteralEditorView(
-    editableInt: EditableIntLiteral, context: Context, args: Bundle
-) : FXTokenEditorView(editableInt, context, args) {
+    intEditor: IntLiteralEditor, context: Context, args: Bundle
+) : FXTokenEditorView(intEditor, context, args) {
     init {
         root.styleClass.add("decimal-editor")
     }

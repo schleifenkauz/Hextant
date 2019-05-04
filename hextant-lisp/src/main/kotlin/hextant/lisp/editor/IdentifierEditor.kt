@@ -1,13 +1,11 @@
-/**
- *@author Nikolaus Knop
- */
-
 package hextant.lisp.editor
 
-import hextant.Context
+import hextant.*
 import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
-import hextant.lisp.editable.EditableIdentifier
+import hextant.lisp.Identifier
+import hextant.lisp.Util
 
-class IdentifierEditor(editable: EditableIdentifier, context: Context) :
-    TokenEditor<EditableIdentifier, TokenEditorView>(editable, context)
+class IdentifierEditor(context: Context) : TokenEditor<Identifier>(context) {
+    override fun compile(token: String): CompileResult<Identifier> =
+        token.takeIf { Util.isValidIdentifier(it) }.okOrErr { "Invalid identifier $token" }
+}

@@ -7,49 +7,41 @@ package hextant.core.view
 import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.completion.Completion
-import hextant.completion.gui.CompletionPopup
-import hextant.core.editable.EditableToken
+import hextant.completion.Completer
+import hextant.completion.NoCompleter
+import hextant.completion.gui.CompleterPopupHelper
 import hextant.core.editor.TokenEditor
 import hextant.fx.HextantTextField
 import hextant.fx.smartSetText
-import hextant.getEditor
 import reaktive.event.Subscription
 import reaktive.event.subscribe
 
 open class FXTokenEditorView(
-    editable: EditableToken<Any>,
+    private val editor: TokenEditor<*>,
     context: Context,
-    args: Bundle
-) : EditorControl<HextantTextField>(args), TokenEditorView {
-    private val completionPopup = CompletionPopup<String>()
+    args: Bundle,
+    completer: Completer<String> = NoCompleter
+) : EditorControl<HextantTextField>(editor, context, args), TokenEditorView {
+    private val textField = HextantTextField()
 
     private val textSubscription: Subscription
 
-    private val textField = HextantTextField()
+    private val completionHelper = CompleterPopupHelper(completer, this.textField::getText)
 
     final override fun createDefaultRoot() = textField
-
-    @Suppress("UNCHECKED_CAST")
-    private val editor = context.getEditor(editable) as TokenEditor<*, TokenEditorView>
 
     init {
         with(textField) {
             textSubscription = userUpdatedText.subscribe { new ->
-                editor.setText(new)
+                this@FXTokenEditorView.editor.setText(new)
             }
         }
-        initialize(editable, editor, context)
-        editor.addView(this)
+        this.editor.addView(this)
     }
 
-    final override fun displayText(t: String) {
-        root.smartSetText(t)
-    }
-
-
-    override fun displayCompletions(completions: Collection<Completion<String>>) {
-        completionPopup.setCompletions(completions)
+    final override fun displayText(newText: String) {
+        root.smartSetText(newText)
+        completionHelper
     }
 
     override fun receiveFocus() {

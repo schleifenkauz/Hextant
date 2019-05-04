@@ -1,30 +1,20 @@
-import hextant.core.list.FXListEditorView
-import hextant.core.list.FXListEditorView.Orientation.Horizontal
-import hextant.getEditable
-import hextant.lisp.editable.*
+import hextant.core.view.FXListEditorView
+import hextant.core.view.FXListEditorView.Orientation.Horizontal
 import hextant.lisp.editor.*
 import hextant.lisp.view.*
 import hextant.plugin.dsl.plugin
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 
 plugin {
-    //Editables
-    editable(::ExpandableSExpr) { expr ->
-        ExpandableSExpr().also {
-            val editable = platform.getEditable(expr) as EditableSExpr<*>
-            it.setContent(editable)
-        }
-    }
     //Editors
-    editor(::IntLiteralEditor)
-    editor(::ApplyEditor)
-    editor(::CharLiteralEditor)
-    editor(::DoubleLiteralEditor)
-    editor(::StringLiteralEditor)
-    editor(::GetValEditor)
-    editor(::SExprExpander)
-    editor(::IdentifierEditor)
-    editor(::SExprListEditor)
+    defaultEditor(::IntLiteralEditor)
+    defaultEditor(::ApplyEditor)
+    defaultEditor(::CharLiteralEditor)
+    defaultEditor(::DoubleLiteralEditor)
+    defaultEditor(::StringLiteralEditor)
+    defaultEditor(::SExprExpander)
+    defaultEditor(::IdentifierEditor)
+    defaultEditor(::SExprListEditor)
     //Views
     view(::IntLiteralEditorControl)
     view(::CharLiteralEditorControl)
@@ -32,8 +22,7 @@ plugin {
     view(::GetValEditorControl)
     view(::StringLiteralEditorControl)
     view(::ApplyEditorControl)
-    view<EditableSExprList, FXListEditorView> { editable, ctx, args ->
+    view<SExprListEditor, FXListEditorView> { editable, ctx, args ->
         FXListEditorView.withAltGlyph(editable, ctx, glyph = PLUS, args = args, orientation = Horizontal)
     }
-    expandable(::ExpandableSExpr)
 }

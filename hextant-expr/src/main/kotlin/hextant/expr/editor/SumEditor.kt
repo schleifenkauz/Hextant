@@ -2,19 +2,20 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("UNCHECKED_CAST")
+
 package hextant.expr.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
-import hextant.expr.editable.EditableSum
-import hextant.expr.edited.Expr
-import reaktive.value.now
+import hextant.expr.edited.Sum
+import reaktive.value.binding.map
 
 class SumEditor(
-    sum: EditableSum,
-    context: Context
-) : ExprEditor,
-    AbstractEditor<EditableSum, EditorView>(sum, context) {
-    override val expr: Expr?
-        get() = editable.result.now.orNull()
+    context: Context,
+    val expressions: ExprListEditor
+) : AbstractEditor<Sum, Any>(context), ExprEditor<Sum> {
+    constructor(context: Context) : this(context, ExprListEditor(context))
+
+    override val result: EditorResult<Sum> = expressions.result.map { exprs -> exprs.map(::Sum) }
 }

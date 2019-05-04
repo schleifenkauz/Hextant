@@ -5,145 +5,123 @@
 package hextant.core.editor
 
 import hextant.*
-import hextant.base.ParentEditor
-import hextant.completion.Completer
-import hextant.core.editable.Expandable
+import hextant.base.AbstractEditor
+import hextant.core.editor.Expander.State.Expanded
+import hextant.core.editor.Expander.State.Unexpanded
 import hextant.core.view.ExpanderView
-import hextant.undo.*
-import reaktive.value.now
+import hextant.undo.AbstractEdit
+import hextant.undo.UndoManager
+import reaktive.Observer
+import reaktive.value.*
 
-abstract class Expander<E : Editable<*>, out Ex : Expandable<*, E>>(
-    editable: Ex,
-    private val context: Context,
-    private val completer: Completer<String>
-) : ParentEditor<Ex, ExpanderView>(editable, context) {
+/**
+ * An editor that serves as a wrapper around other editors.
+ */
+abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
+    private sealed class State<out R, out E> {
+        class Unexpanded(val text: String) : State<Nothing, Nothing>()
+
+        class Expanded<out R : Any, E : Editor<R>>(val editor: E) : State<R, E>()
+    }
+
     private val undo = context[UndoManager]
 
-    override fun viewAdded(view: ExpanderView) {
-        view.onGuiThread {
-            if (editable.isExpanded.now) {
-                view.expanded(editable.editable.now!!)
-            } else {
-                view.reset()
+    private var state: State<R, E> = Unexpanded("")
+
+    private val _result = reactiveVariable<CompileResult<R>>(childErr())
+
+    override val result: EditorResult<R> get() = _result
+
+    private var resultDelegator: Observer? = null
+
+    private var parentBinder: Observer? = null
+
+    val isExpanded: Boolean get() = state is Expanded
+
+    val editor: E? get() = (state as? Expanded)?.editor
+
+    protected abstract fun expand(text: String): E?
+
+    private fun doChangeState(newState: State<R, E>) {
+        val oldState = state
+        state = newState
+        when (oldState) {
+            is Expanded   -> {
+                killObservers()
+                when (newState) {
+                    is Unexpanded -> views { reset() }
+                    is Expanded   -> doExpandTo(newState.editor)
+                }
+            }
+            is Unexpanded -> {
+                when (newState) {
+                    is Unexpanded -> views { displayText(newState.text) }
+                    is Expanded   -> doExpandTo(newState.editor)
+                }
             }
         }
     }
 
-    protected abstract fun expand(text: String): E?
+    private fun killObservers() {
+        resultDelegator?.kill()
+        parentBinder?.kill()
+        resultDelegator = null
+        parentBinder = null
+    }
 
-    @Synchronized fun expand() {
-        context.runLater {
-            check(!editable.isExpanded.now) { "Expander is already expanded" }
-            val content = expand(editable.text.now) ?: return@runLater
-            val edit = expandTo(content)
-            undo.push(edit)
+    private fun doExpandTo(editor: E) {
+        resultDelegator = _result.bind(editor.result)
+        parentBinder = this.parent.forEach { editor.setParent(it) }
+        editor.setParent(this.parent.now)
+        editor.setExpander(this)
+        views { expanded(editor) }
+    }
+
+    private fun changeState(newState: State<R, E>, actionDescription: String) {
+        val edit = StateTransition(state, newState, actionDescription)
+        doChangeState(newState)
+        undo.push(edit)
+    }
+
+    fun setText(newText: String) {
+        check(state is Unexpanded) { "Cannot set text on expanded expander" }
+        changeState(Unexpanded(newText), "Type")
+    }
+
+    fun expand() {
+        val state = state
+        check(state is Unexpanded) { "Cannot expand expanded expander" }
+        val editor = expand(state.text) ?: return
+        changeState(Expanded(editor), "Expand")
+    }
+
+    fun setEditor(editor: E) {
+        changeState(Expanded(editor), "Change content")
+    }
+
+    fun reset() {
+        check(state is Expanded) { "Cannot reset unexpanded expander" }
+        changeState(Unexpanded(""), "Reset")
+    }
+
+    override fun viewAdded(view: ExpanderView) {
+        when (val state = state) {
+            is Unexpanded -> view.displayText(state.text)
+            is Expanded   -> view.expanded(state.editor)
         }
     }
 
-    private fun expandTo(content: E): Edit {
-        val text = editable.text.now
-        doSetContent(content)
-        return ExpandEdit(text, content)
-    }
-
-    private inner class ExpandEdit(private val oldText: String, private val content: E) : AbstractEdit() {
+    private inner class StateTransition(
+        private val old: State<R, E>,
+        private val new: State<R, E>,
+        override val actionDescription: String
+    ) : AbstractEdit() {
         override fun doRedo() {
-            expandTo(content)
+            doChangeState(new)
         }
 
         override fun doUndo() {
-            doReset()
-            doSetText(oldText)
-        }
-
-        override val actionDescription: String
-            get() = "Expand $oldText"
-    }
-
-    @Synchronized fun reset() {
-        context.runLater {
-            check(editable.isExpanded.now) { "Expander is not expanded" }
-            val edit = doReset()
-            undo.push(edit)
-        }
-    }
-
-    private fun doReset(): Edit {
-        val oldContent = editable.editable.now!!
-        val editor = context.getEditor(oldContent)
-        editor.moveTo(null)
-        editable.setText("")
-        views { reset() }
-        return ResetEdit(oldContent)
-    }
-
-    private inner class ResetEdit(private val oldContent: E) : AbstractEdit() {
-        override fun doRedo() {
-            doReset()
-        }
-
-        override fun doUndo() {
-            expandTo(oldContent)
-        }
-
-        override val actionDescription: String
-            get() = "Reset Expander"
-    }
-
-    @Synchronized fun setText(new: String) {
-        context.runLater {
-            check(!editable.isExpanded.now) { "Cannot set text while expander is expanded" }
-            val edit = doSetText(new)
-            undo.push(edit)
-        }
-    }
-
-    private fun doSetText(new: String): Edit {
-        val old = editable.text.now
-        editable.setText(new)
-        views {
-            textChanged(new)
-        }
-        return SetTextEdit(this, old, new)
-    }
-
-    private class SetTextEdit(private val expander: Expander<*, *>, private val old: String, private val new: String) :
-        AbstractEdit() {
-        override fun doRedo() {
-            expander.doSetText(new)
-        }
-
-        override fun doUndo() {
-            expander.doSetText(old)
-        }
-
-        override val actionDescription: String
-            get() = "Typing"
-
-        override fun mergeWith(other: Edit): Edit? {
-            if (other !is SetTextEdit) return null
-            if (other.expander !== this.expander) return null
-            return SetTextEdit(expander, this.old, other.new)
-        }
-    }
-
-    @Synchronized fun setContent(new: E) {
-        context.runLater {
-            doSetContent(new)
-        }
-    }
-
-    private fun doSetContent(new: E) {
-        editable.setContent(new)
-        val editor = context.getEditor(new)
-        editor.moveTo(this)
-        views { expanded(new) }
-    }
-
-    fun suggestCompletions() {
-        val completions = completer.completions(editable.text.now)
-        views {
-            suggestCompletions(completions)
+            doChangeState(old)
         }
     }
 }

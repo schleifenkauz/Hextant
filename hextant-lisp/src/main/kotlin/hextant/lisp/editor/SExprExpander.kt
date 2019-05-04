@@ -5,45 +5,34 @@
 package hextant.lisp.editor
 
 import hextant.Context
-import hextant.Editor
-import hextant.bundle.CorePermissions.Public
-import hextant.completion.NoCompleter
 import hextant.core.editor.Expander
-import hextant.lisp.editable.*
-import hextant.lisp.editor.LispProperties.fileScope
+import hextant.lisp.SExpr
 
-class SExprExpander(editable: ExpandableSExpr, private val context: Context) :
-    Expander<EditableSExpr<*>, ExpandableSExpr>(editable, context, NoCompleter) {
-    override fun expand(text: String): EditableSExpr<*>? = text.run {
+class SExprExpander(context: Context) : Expander<SExpr, SExprEditor<*>>(context), SExprEditor<SExpr> {
+    override fun expand(text: String): SExprEditor<*>? = text.run {
         asIntLiteral() ?: asDoubleLiteral() ?: asStringLiteral() ?: asCharLiteral() ?: asApply() ?: asGetVal()
     }
 
-    override fun accepts(child: Editor<*>): Boolean = child.editable is EditableSExpr<*>
-
-    private fun String.asGetVal(): EditableGetVal {
-        val scope = context[Public, fileScope]
-        return EditableGetVal(scope, this)
+    private fun String.asGetVal(): GetValEditor {
+        return GetValEditor(this, context)
     }
 
-    companion object {
+    private fun String.asIntLiteral(): SExprEditor<*>? = toIntOrNull()?.let { IntLiteralEditor(it, context) }
 
-        private fun String.asIntLiteral(): EditableSExpr<*>? = toIntOrNull()?.let { EditableIntLiteral(it) }
+    private fun String.asDoubleLiteral() = toDoubleOrNull()?.let { DoubleLiteralEditor(it, context) }
 
-        private fun String.asDoubleLiteral() = toDoubleOrNull()?.let { EditableDoubleLiteral(it) }
+    private fun String.asStringLiteral() = takeIf { startsWith('"') }?.let { StringLiteralEditor(it, context) }
 
-        private fun String.asStringLiteral() = takeIf { startsWith('"') }?.let { EditableStringLiteral(it) }
-
-        private fun String.asCharLiteral(): EditableCharLiteral? {
-            return when {
-                !startsWith("'")              -> null
-                equals("'")                   -> EditableCharLiteral()
-                length == 2                   -> EditableCharLiteral(get(1))
-                length == 3 && get(2) == '\'' -> EditableCharLiteral(get(1))
-                else                          -> null
-            }
+    private fun String.asCharLiteral(): CharLiteralEditor? {
+        return when {
+            !startsWith("'")              -> null
+            equals("'")                   -> CharLiteralEditor(context)
+            length == 2                   -> CharLiteralEditor(get(1), context)
+            length == 3 && get(2) == '\'' -> CharLiteralEditor(get(1), context)
+            else                          -> null
         }
-
-        private fun String.asApply() = if (this == "(") EditableApply() else null
-
     }
+
+    private fun String.asApply() = if (this == "(") ApplyEditor(context) else null
+
 }

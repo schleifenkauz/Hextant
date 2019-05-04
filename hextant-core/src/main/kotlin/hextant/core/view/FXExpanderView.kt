@@ -7,26 +7,27 @@ package hextant.core.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.completion.Completion
-import hextant.completion.gui.CompletionPopup
-import hextant.core.editable.Expandable
+import hextant.completion.Completer
+import hextant.completion.NoCompleter
+import hextant.completion.gui.CompleterPopupHelper
 import hextant.core.editor.Expander
-import hextant.fx.*
+import hextant.fx.HextantTextField
+import hextant.fx.registerShortcut
 import javafx.scene.Node
-import javafx.scene.input.*
 import javafx.scene.input.KeyCode.R
-import javafx.scene.input.KeyCombination.SHORTCUT_DOWN
+import javafx.scene.input.KeyCode.SPACE
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
 import reaktive.event.Subscription
 import reaktive.event.subscribe
-import reaktive.value.now
 
 class FXExpanderView(
-    private val expandable: Expandable<*, *>,
-    private val context: Context,
-    args: Bundle
-) : ExpanderView, EditorControl<Node>(args) {
-
-    private val expander: Expander<*, *> = context.getEditor(expandable)
+    private val expander: Expander<*, *>,
+    context: Context,
+    args: Bundle,
+    completer: Completer<String>
+) : ExpanderView, EditorControl<Node>(expander, context, args) {
+    constructor(expander: Expander<*, *>, context: Context, args: Bundle) : this(expander, context, args, NoCompleter)
 
     private var view: EditorControl<*>? = null
 
@@ -34,32 +35,44 @@ class FXExpanderView(
 
     private val textSubscription: Subscription
 
-    private val completionsPopup = CompletionPopup<String>()
+    private val completionHelper = CompleterPopupHelper(completer, textField::getText)
 
     private val completionSubscription: Subscription
 
     override fun createDefaultRoot(): Node = textField
 
+    override fun setEditorParent(parent: EditorControl<*>) {
+        super.setEditorParent(parent)
+        view?.setEditorParent(parent)
+    }
+
+    override fun setNext(nxt: EditorControl<*>) {
+        super.setNext(nxt)
+        view?.setNext(nxt)
+    }
+
+    override fun setPrevious(prev: EditorControl<*>) {
+        super.setPrevious(prev)
+        view?.setPrevious(prev)
+    }
+
     init {
         with(textField) {
             setOnAction { expander.expand() }
             textSubscription = userUpdatedText.subscribe { new -> expander.setText(new) }
-            registerShortcut(KeyCodeCombination(KeyCode.SPACE, KeyCombination.SHORTCUT_DOWN)) {
-                expander.suggestCompletions()
-            }
+            registerShortcut(SUGGEST_COMPLETIONS) { completionHelper.show(this) }
         }
-        initialize(expandable, expander, context)
         expander.addView(this)
-        completionSubscription = completionsPopup.completionChosen.subscribe { comp ->
+        completionSubscription = completionHelper.completionChosen.subscribe { comp ->
             expander.setText(comp.text)
             expander.expand()
         }
     }
 
-    override fun textChanged(newText: String) {
-        if (newText != textField.text) {
-            textField.text = newText
-            expander.suggestCompletions()
+    override fun displayText(text: String) {
+        if (text != textField.text) {
+            textField.text = text
+            completionHelper.show(this)
         }
     }
 
@@ -68,28 +81,22 @@ class FXExpanderView(
         root = textField
         textField.requestFocus()
         textField.text = ""
-        expander.select()
     }
 
-    override fun expanded(newContent: Editable<*>) {
-        val v = context.createView(newContent)
+    override fun expanded(editor: Editor<*>) {
+        val v = context.createView(editor)
         view = v
         v.registerShortcut(RESET_SHORTCUT) { expander.reset() }
         root = v
+        this.next?.let { v.setNext(it) }
+        this.previous?.let { v.setPrevious(it) }
+        this.editorParent?.let { v.setEditorParent(it) }
+        v.root //assure that root is fully initialized
         v.receiveFocus()
     }
 
-    override fun suggestCompletions(completions: Set<Completion<String>>) {
-        completionsPopup.setCompletions(completions)
-        completionsPopup.show(this)
-    }
-
-    override fun receiveFocus() {
-        if (expandable.isExpanded.now) view!!.receiveFocus()
-        else textField.requestFocus()
-    }
-
     companion object {
-        private val RESET_SHORTCUT = KeyCodeCombination(R, SHORTCUT_DOWN)
+        private val RESET_SHORTCUT = KeyCodeCombination(R, KeyCombination.SHORTCUT_DOWN)
+        private val SUGGEST_COMPLETIONS = KeyCodeCombination(SPACE, KeyCombination.SHORTCUT_DOWN)
     }
 }

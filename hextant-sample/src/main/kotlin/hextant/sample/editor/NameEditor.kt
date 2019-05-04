@@ -4,12 +4,14 @@
 
 package hextant.sample.editor
 
-import hextant.Context
+import hextant.*
 import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
-import hextant.sample.editable.EditableName
+import hextant.sample.ast.Name
 
-class NameEditor(
-    editable: EditableName,
-    context: Context
-) : TokenEditor<EditableName, TokenEditorView>(editable, context)
+/**
+ * An editable identifier which is valid if the text only contains letters
+ */
+class NameEditor(context: Context) : TokenEditor<Name>(context) {
+    override fun compile(token: String): CompileResult<Name> =
+        token.takeIf { token.all { it.isLetter() } }.okOrErr { "Invalid name $token" }.map { Name(it) }
+}

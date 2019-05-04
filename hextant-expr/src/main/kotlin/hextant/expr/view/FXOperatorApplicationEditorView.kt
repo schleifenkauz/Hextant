@@ -4,53 +4,51 @@
 
 package hextant.expr.view
 
-import hextant.*
+import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.expr.editable.EditableOperatorApplication
+import hextant.createView
 import hextant.expr.editor.OperatorApplicationEditor
 import hextant.fx.OperatorLabel
 import hextant.fx.isControlDown
 import javafx.scene.layout.HBox
 
 class FXOperatorApplicationEditorView(
-    editable: EditableOperatorApplication,
+    editor: OperatorApplicationEditor,
     context: Context,
     args: Bundle
-) : EditorControl<HBox>(args) {
-    private val op1View: EditorControl<*> = context.createView(editable.editableOp1)
+) : EditorControl<HBox>(editor, context, args) {
+    private val op1View: EditorControl<*> = context.createView(editor.editableOp1)
 
-    private val operatorView: EditorControl<*> = context.createView(editable.editableOperator)
+    private val operatorView: EditorControl<*> = context.createView(editor.operatorEditor)
 
-    private val op2View: EditorControl<*> = context.createView(editable.editableOp2)
-
-    private val editor: OperatorApplicationEditor = context.getEditor(editable) as OperatorApplicationEditor
+    private val op2View: EditorControl<*> = context.createView(editor.editableOp2)
 
     override fun createDefaultRoot(): HBox {
         val openingParen = parenLabel("(").apply {
             setOnMouseClicked {
-                editor.select()
+                select()
             }
         }
         val closingParen = parenLabel(")").apply {
             setOnMouseClicked {
-                editor.select()
+                select()
             }
         }
         return HBox(openingParen, op1View, operatorView, op2View, closingParen)
     }
 
     init {
-        initialize(editable, editor, context)
+        defineChildren(op1View, operatorView, op2View)
         editor.addView(this)
     }
 
     private fun parenLabel(paren: String) = OperatorLabel(paren).apply {
         setOnMouseClicked {
             if (isControlDown) {
-                editor.toggleSelection()
+                toggleSelection()
             } else {
-                editor.select()
+                select()
             }
         }
     }

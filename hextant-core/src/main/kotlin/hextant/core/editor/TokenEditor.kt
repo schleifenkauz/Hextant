@@ -6,65 +6,38 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
-import hextant.bundle.CorePermissions.Public
-import hextant.completion.Completer
-import hextant.completion.NoCompleter
-import hextant.core.editable.EditableToken
+import hextant.core.TokenType
 import hextant.core.view.TokenEditorView
 import hextant.undo.*
-import reaktive.value.now
+import reaktive.value.reactiveVariable
 
-/**
- * An editor for tokens
- */
-abstract class TokenEditor<E : EditableToken<*>, V : TokenEditorView>(
-    editable: E,
-    private val context: Context,
-    private val completer: Completer<String> = NoCompleter
-) : AbstractEditor<E, V>(editable, context) {
-    private val undo = context[Public, UndoManager]
+abstract class TokenEditor<out R : Any>(context: Context) : AbstractEditor<R, TokenEditorView>(context), TokenType<R> {
+    private val _result = reactiveVariable(this.compile(""))
 
-    override fun viewAdded(view: V) {
-        super.viewAdded(view)
-        view.onGuiThread { view.displayText(editable.text.now) }
+    override val result: EditorResult<R> get() = _result
+
+    var text = ""; private set
+
+    private val undo = context[UndoManager]
+
+    override fun viewAdded(view: TokenEditorView) {
+        view.displayText(text)
     }
 
-    /**
-     * Set the text on the platform thread and notify the views
-     */
-    @Synchronized fun setText(new: String) {
-        context.runLater {
-            if (new != editable.text.now) {
-                val edit = doSetText(new)
-                if (editable.result.now.isError) {
-                    suggestCompletions(new)
-                }
-                undo.push(edit)
-            }
-        }
+    fun setText(newText: String) {
+        val edit = TextEdit(this, text, newText)
+        doSetText(newText)
+        undo.push(edit)
     }
 
-    private fun suggestCompletions(new: String) {
-        val completions = completer.completions(new)
-        views {
-            displayCompletions(completions)
-        }
+    private fun doSetText(newText: String) {
+        text = newText
+        _result.set(compile(text))
+        views { displayText(newText) }
     }
 
-    @Synchronized fun suggestCompletions() {
-        suggestCompletions(editable.text.now)
-    }
 
-    private fun doSetText(new: String): TextEdit {
-        val edit = TextEdit(this, editable.text.get(), new)
-        context.runLater {
-            editable.text.set(new)
-            views { displayText(new) }
-        }
-        return edit
-    }
-
-    private class TextEdit(private val editor: TokenEditor<*, *>, private val old: String, private val new: String) :
+    private class TextEdit(private val editor: TokenEditor<*>, private val old: String, private val new: String) :
         AbstractEdit() {
         override fun doRedo() {
             editor.doSetText(new)
@@ -80,5 +53,14 @@ abstract class TokenEditor<E : EditableToken<*>, V : TokenEditorView>(
         override fun mergeWith(other: Edit): Edit? =
             if (other !is TextEdit || other.editor !== this.editor) null
             else TextEdit(editor, this.old, other.new)
+    }
+
+    companion object {
+        fun <R : Any> forTokenType(
+            type: TokenType<R>,
+            context: Context
+        ) = object : TokenEditor<R>(context) {
+            override fun compile(token: String): CompileResult<R> = type.compile(token)
+        }
     }
 }

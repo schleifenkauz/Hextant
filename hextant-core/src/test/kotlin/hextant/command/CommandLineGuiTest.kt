@@ -4,17 +4,15 @@
 
 package hextant.command
 
-import hextant.Context
+import hextant.*
 import hextant.bundle.Bundle
 import hextant.command.Data.Receiver
 import hextant.command.line.CommandLine
 import hextant.command.line.FXCommandLineView
-import hextant.core.*
-import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
+import hextant.expr.editor.IntLiteralEditor
 import hextant.expr.view.FXIntLiteralEditorView
 import hextant.fx.hextantScene
-import hextant.get
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.scene.layout.HBox
@@ -32,18 +30,24 @@ class CommandLineGuiTest : Application() {
 
     companion object {
         private fun createContent(context: Context): Parent {
-            val commands = Data.commands.toMutableSet()
+            val commands = { Data.commands }
             val targets = mutableSetOf(Receiver(true))
-            val editableFactory = context[EditableFactory]
+            val editableFactory = context[EditorFactory]
             editableFactory.run {
-                register(IntLiteral::class) { -> EditableIntLiteral() }
-                register(IntLiteral::class) { v -> EditableIntLiteral(v.value) }
+                register(IntLiteral::class) { context -> IntLiteralEditor(context) }
+                register(IntLiteral::class) { v, context -> IntLiteralEditor(v.value, context) }
             }
             val views = context[EditorControlFactory]
             views.run {
-                register { e: EditableIntLiteral, ctx, args -> FXIntLiteralEditorView(e, ctx, args) }
+                register(IntLiteralEditor::class) { e: IntLiteralEditor, ctx, args ->
+                    FXIntLiteralEditorView(
+                        e,
+                        ctx,
+                        args
+                    )
+                }
             }
-            val commandLine = CommandLine({ commands }, { targets }, context)
+            val commandLine = CommandLine(targets, commands, context)
             val commandLineView = FXCommandLineView(commandLine, context, Bundle.newInstance())
             val root = HBox(commandLineView)
             root.style = "-fx-background-color: black"

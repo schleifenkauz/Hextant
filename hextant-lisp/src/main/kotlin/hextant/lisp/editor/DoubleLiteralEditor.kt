@@ -4,10 +4,17 @@
 
 package hextant.lisp.editor
 
-import hextant.Context
+import hextant.*
 import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
-import hextant.lisp.editable.EditableDoubleLiteral
+import hextant.lisp.DoubleLiteral
 
-class DoubleLiteralEditor(editable: EditableDoubleLiteral, context: Context) :
-    TokenEditor<EditableDoubleLiteral, TokenEditorView>(editable, context)
+class DoubleLiteralEditor(context: Context) : TokenEditor<DoubleLiteral>(context), SExprEditor<DoubleLiteral> {
+    constructor(value: Double, context: Context) : this(context) {
+        setText(value.toString())
+    }
+
+    constructor(value: DoubleLiteral, context: Context) : this(value.value, context)
+
+    override fun compile(token: String): CompileResult<DoubleLiteral> =
+        token.toDoubleOrNull().okOrErr { "Invalid double literal $token" }.map(::DoubleLiteral)
+}

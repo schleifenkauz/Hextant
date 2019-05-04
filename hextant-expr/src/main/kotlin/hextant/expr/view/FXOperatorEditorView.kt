@@ -7,13 +7,13 @@ package hextant.expr.view
 import hextant.Context
 import hextant.bundle.Bundle
 import hextant.core.view.FXTokenEditorView
-import hextant.expr.editable.EditableOperator
+import hextant.expr.editor.OperatorEditor
 
 class FXOperatorEditorView(
-    editable: EditableOperator,
+    editor: OperatorEditor,
     context: Context,
     args: Bundle
-) : FXTokenEditorView(editable, context, args) {
+) : FXTokenEditorView(editor, context, args) {
     init {
         root.styleClass.add("operator")
     }

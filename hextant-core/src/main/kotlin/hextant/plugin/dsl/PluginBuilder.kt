@@ -10,8 +10,6 @@ import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
 import hextant.command.Command
 import hextant.command.Commands
-import hextant.core.*
-import hextant.core.editable.Expandable
 import hextant.impl.myLogger
 import hextant.inspect.Inspection
 import hextant.inspect.Inspections
@@ -30,48 +28,30 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
     lateinit var author: String
 
     /**
-     * Register the specified [noArg] and [oneArg] factories for editables of the specified class [T]
+     * Register the specified [factory] for editors of the class [R]
      */
-    inline fun <reified T : Any, reified E : Editable<T>> editable(
-        noinline noArg: () -> E,
-        noinline oneArg: (T) -> E
-    ) {
-        val factory = platform[Public, EditableFactory]
-        factory.register(T::class, noArg)
-        factory.register(T::class, oneArg)
-        val typeName = T::class.qualifiedName
-        val editableName = E::class.qualifiedName
-        logger.config { "Registered $editableName for $typeName" }
+    inline fun <reified R : Any, reified E : Editor<R>> editor(noinline factory: (R, Context) -> E) {
+        platform[Public, EditorFactory].register(R::class, factory)
+        val editableName = R::class.qualifiedName
+        val editorName = E::class.qualifiedName
+        logger.config { "Registered $editorName for $editableName" }
     }
 
     /**
-     * Register the specified [factory] for editors of the class [E]
+     * Register the specified [factory] for editors for class [R]
      */
-    inline fun <reified E : Editable<*>, reified Ed : Editor<E>> editor(noinline factory: (E, Context) -> Ed) {
-        platform[Public, EditorFactory].register(E::class, factory)
-        val editableName = E::class.qualifiedName
-        val editorName = Ed::class.qualifiedName
-        logger.config { "Registered $editorName for $editableName" }
+    inline fun <reified R : Any, reified E : Editor<R>> defaultEditor(noinline factory: (Context) -> E) {
+        platform[Public, EditorFactory].register(R::class, factory)
     }
 
     /**
      * Register the specified [factory] for views of the class [E]
      */
-    inline fun <reified E : Editable<*>, reified V : EditorControl<*>> view(noinline factory: (E, Context, Bundle) -> V) {
+    inline fun <reified E : Editor<*>, reified V : EditorControl<*>> view(noinline factory: (E, Context, Bundle) -> V) {
         platform[Public, EditorControlFactory].register(E::class, factory)
         val viewName = V::class.qualifiedName
         val editableName = E::class.qualifiedName
         logger.config { "Registered $viewName for $editableName" }
-    }
-
-    /**
-     * Register the specified factory for the expandable of the class [E]
-     */
-    inline fun <reified E : Editable<*>, reified Ex : Expandable<*, E>> expandable(noinline factory: () -> Ex) {
-        platform[Public, ExpandableFactory].register(factory)
-        val editableName = E::class.qualifiedName ?: "<anonymous>"
-        val expandableName = Ex::class.qualifiedName ?: "<anonymous>"
-        logger.config { "Registered $expandableName for $editableName" }
     }
 
     /**

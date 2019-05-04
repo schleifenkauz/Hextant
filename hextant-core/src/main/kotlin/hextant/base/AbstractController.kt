@@ -10,12 +10,12 @@ import java.lang.ref.WeakReference
  * Skeletal implementation for MVC-Controllers
  * * Note that this implementation does not store strong references to the registered views
  */
-abstract class AbstractController<V : Any> {
+abstract class AbstractController<in V : Any> {
     private val mutableViews = mutableSetOf<WeakReference<V>>()
     /**
      * @return a sequence of all views registered to this editor
      */
-    protected val views: Sequence<V>
+    protected val views: Sequence<@UnsafeVariance V>
         get() {
             val itr = mutableViews.iterator()
             tailrec fun next(): V? =
@@ -32,18 +32,10 @@ abstract class AbstractController<V : Any> {
         }
 
     /**
-     * Executes the given action on the gui thread (whatever it is)
-     * * Default implementation just invoke the [action] on the specified [view]
+     * Execute the given [action] on all views
      */
-    protected open fun onGuiThread(view: V, action: V.() -> Unit) {
-        action(view)
-    }
-
-    /**
-     * Execute the given [action] on all views [onGuiThread]
-     */
-    protected inline fun views(crossinline action: V.() -> Unit) {
-        views.forEach { v -> onGuiThread(v) { action() } }
+    protected inline fun views(crossinline action: (@UnsafeVariance V).() -> Unit) {
+        views.forEach(action)
     }
 
     /**

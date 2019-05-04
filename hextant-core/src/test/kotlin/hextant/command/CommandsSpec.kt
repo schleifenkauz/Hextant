@@ -2,14 +2,11 @@ package hextant.command
 
 import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.should.shouldMatch
-import hextant.HextantPlatform
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 
 internal object CommandsSpec: Spek({
     given("commands") {
-        val platform = HextantPlatform.configured()
-        afterGroup { platform.exit() }
         val cs = Commands.newInstance()
         val registrar = cs.of<ICommandTarget>()
         val command = command<ICommandTarget, Unit> {

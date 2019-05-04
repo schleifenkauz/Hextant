@@ -22,13 +22,13 @@ internal object CommandSpec: Spek({
             }
         }
         on("executing it") {
-            val r = c.execute(CommandSpec, 2)
+            val r = c.execute(CommandSpec, listOf(2))
             it("should apply the configured function") {
                 r shouldMatch equalTo(4)
             }
         }
         on("executing it with invalid arguments") {
-            val err = { c.execute(CommandSpec, "invalid", null); Unit }
+            val err = { c.execute(CommandSpec, listOf("invalid", null)); Unit }
             it("should throw an ArgumentMismatchException") {
                 err shouldMatch throws<ArgumentMismatchException>()
             }

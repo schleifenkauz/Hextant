@@ -8,32 +8,61 @@ import hextant.*
 import hextant.bundle.*
 import hextant.command.gui.commandContextMenu
 import hextant.fx.*
+import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import hextant.inspect.gui.InspectionPopup
-import javafx.application.Platform
 import javafx.geometry.Side
 import javafx.scene.Node
+import javafx.scene.Parent
 import javafx.scene.control.Control
-import javafx.scene.input.*
-import javafx.scene.input.KeyCode.ENTER
-import javafx.scene.input.KeyCode.W
+import javafx.scene.control.Skin
+import javafx.scene.input.KeyCode.*
+import reaktive.value.now
+import reaktive.value.observe
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
  * @param R the type of the root-[Node] of this control
  */
-abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorView {
+abstract class EditorControl<R : Node>(
+    final override val target: Any,
+    val context: Context,
+    arguments: Bundle
+) : Control(), EditorView {
     private var _root: R? = null
-
-    private lateinit var editor: Editor<*>
 
     final override val arguments: Bundle
 
-    private var focusingAfterSelection = false
+    private val selection = context[SelectionDistributor]
 
-    private var isError = false
+    private val inspections = context[Inspections]
 
-    private var isWarn = false
+    private val inspectionPopup = InspectionPopup { inspections.getProblems(target) }
+
+    private val hasError = inspections.hasError(target)
+
+    private val hasWarning = inspections.hasWarning(target)
+
+    private val errorObserver = hasError.observe { _, isError ->
+        handleProblem(isError, hasWarning.now)
+    }
+
+    private val warningObserver = hasWarning.observe { _, isWarn ->
+        handleProblem(hasError.now, isWarn)
+    }
+
+    internal var editorParent: EditorControl<*>? = null
+        private set
+
+    private var editorChildren: List<EditorControl<*>>? = null
+
+    internal var next: EditorControl<*>? = null
+        private set
+
+    internal var previous: EditorControl<*>? = null
+        private set
+
+    private var manuallySelecting = false
 
     init {
         val reactive = ReactiveBundle(arguments)
@@ -41,12 +70,56 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
             argumentChanged(change.property, change.newValue)
         }
         this.arguments = reactive
+        isFocusTraversable = false
+        initShortcuts()
+        activateContextMenu(target, context)
+        sceneProperty().addListener { _, _, sc ->
+            if (sc != null) handleProblem(hasError.now, hasWarning.now)
+        }
     }
 
     /**
      * Is called when one of the display arguments changed
      */
     protected open fun argumentChanged(property: Property<*, *, *>, value: Any?) {}
+
+    internal open fun setEditorParent(parent: EditorControl<*>) {
+        editorParent = parent
+    }
+
+    internal open fun setNext(nxt: EditorControl<*>) {
+        next = nxt
+    }
+
+    internal open fun setPrevious(prev: EditorControl<*>) {
+        previous = prev
+    }
+
+    fun focusNext() {
+        next?.focus()
+    }
+
+    fun focusPrevious() {
+        previous?.focus()
+    }
+
+    protected fun defineChildren(children: List<EditorControl<*>>) {
+        editorChildren = children
+        if (children.isEmpty()) return
+        children.forEach {
+            it.setEditorParent(this)
+        }
+        children.zipWithNext { previous, next ->
+            previous.setNext(next)
+            next.setPrevious(previous)
+        }
+        children.last().setNext(children.first())
+        children.first().setPrevious(children.last())
+    }
+
+    protected fun defineChildren(vararg children: EditorControl<*>) {
+        defineChildren(children.asList())
+    }
 
     /**
      * Creates the default root for this control
@@ -59,70 +132,105 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
      * * Setting it updates the look of this control
      */
     var root: R
-        get() = _root ?: throw IllegalStateException("root not yet initialized")
+        get() = _root ?: createDefaultRoot().also { root = it }
         protected set(newRoot) {
             _root = newRoot
-            activateSelection(editor)
             root.isFocusTraversable = true
+            root.focusedProperty().addListener { _, _, focused ->
+                if (focused && !manuallySelecting) {
+                    if (isControlDown) doToggleSelection()
+                    else doSelect()
+                }
+            }
             setRoot(newRoot)
         }
+
+    private var lastExtendingChild: EditorControl<*>? = null
+
+    override fun createDefaultSkin(): Skin<*> {
+        root = createDefaultRoot()
+        return skin
+    }
+
+    open fun focus() {
+        check(scene != null)
+        root.requestFocus()
+    }
+
+    /**
+     * Is called when this control should receive focus.
+     * This method can delegate the focus to some child node as well.
+     * The default implementation just calls [focus].
+     */
+    open fun receiveFocus() {
+        focus()
+    }
 
     override fun requestFocus() {
         root.requestFocus()
     }
 
-    /**
-     * Initialize this [EditorControl]
-     * * Must be called exactly once after constructor logic, otherwise behaviour is undefined
-     * @param editable the editable represented by this view
-     * @param editor the editor represented by this view
-     * @param context the [Context]
-     */
-    protected fun initialize(editable: Editable<*>, editor: Editor<*>, context: Context) {
-        check(!initialized) { "already initialized" }
-        this.editor = editor
-        root = createDefaultRoot()
-        activateContextMenu(editable, context)
-        activateInspections(editable, context)
-        activateSelectionExtension(editor)
-        initialized = true
+    private fun doSelect(): Boolean {
+        val selected = selection.select(this)
+        pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
+        return selected
     }
 
-
-    private fun activateSelection(editor: Editor<*>) {
-        root.focusedProperty().addListener { _, _, isFocused ->
-            if (!focusingAfterSelection && isFocused) {
-                if (isControlDown) {
-                    editor.toggleSelection()
-                } else {
-                    editor.select()
-                }
-            }
+    fun select() {
+        if (doSelect()) {
+            manuallySelecting = true
+            root.requestFocus()
+            manuallySelecting = false
         }
     }
 
-    private fun activateSelectionExtension(editor: Editor<*>) {
-        addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
-            if (EXTEND_SELECTION.match(ev)) {
-                editor.parent?.extendSelection(editor)
-                ev.consume()
-            } else if (SHRINK_SELECTION.match(ev)) {
-                editor.shrinkSelection()
-                ev.consume()
-            }
+    private fun doToggleSelection(): Boolean {
+        val selected = selection.toggleSelection(this)
+        pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
+        return selected
+    }
+
+    fun toggleSelection() {
+        if (doToggleSelection()) {
+            manuallySelecting = true
+            root.requestFocus()
+            manuallySelecting = false
         }
     }
 
-    private fun activateInspections(inspected: Any, context: Context) {
-        val inspections = context[Inspections]
-        val p = InspectionPopup { inspections.getProblems(inspected) }
-        addEventHandler(KeyEvent.KEY_RELEASED) { k ->
-            if (KeyCodeCombination(ENTER, KeyCombination.ALT_DOWN).match(k)) {
-                p.show(this)
-                if (p.isShowing) {
-                    k.consume()
-                }
-            }
+    override fun deselect() {
+        pseudoClassStateChanged(PseudoClasses.SELECTED, false)
+    }
+
+    private fun initShortcuts() {
+        registerShortcuts {
+            on(EXTEND_SELECTION) { extendSelection() }
+            on(SHRINK_SELECTION) { shrinkSelection() }
+            maybeOn(INSPECTIONS) { showInspections() }
+        }
+    }
+
+    private fun shrinkSelection() {
+        val childToSelect = lastExtendingChild ?: editorChildren?.firstOrNull() ?: return
+        childToSelect.select()
+    }
+
+    private fun extendSelection() {
+        val parent = editorParent ?: return
+        parent.select()
+        parent.lastExtendingChild = this
+    }
+
+    private fun showInspections(): Boolean {
+        inspectionPopup.show(this)
+        return inspectionPopup.isShowing
+    }
+
+    private fun handleProblem(error: Boolean, warn: Boolean) {
+        when {
+            error -> root.setStyleForAllChildren("-fx-text-fill: red;")
+            warn  -> root.setStyleForAllChildren("-fx-text-fill: yellow;")
+            else  -> root.setStyleForAllChildren(null)
         }
     }
 
@@ -131,53 +239,20 @@ abstract class EditorControl<R : Node>(arguments: Bundle) : Control(), EditorVie
         setOnContextMenuRequested { contextMenu.show(this, Side.BOTTOM, 0.0, 0.0) }
     }
 
-    private var initialized = false
-
-    override fun select(isSelected: Boolean) {
-        pseudoClassStateChanged(PseudoClasses.SELECTED, isSelected)
-        if (isSelected) {
-            focusingAfterSelection = true
-            focus()
-            focusingAfterSelection = false
-        }
-    }
-
-    override fun error(error: Boolean) {
-        this.isError = error
-        displayProblem()
-    }
-
-    override fun warn(warn: Boolean) {
-        this.isWarn = warn
-        displayProblem()
-    }
-
-    private fun displayProblem() {
-        when {
-            isError -> root.style = "-fx-text-fill: red;"
-            isWarn  -> root.style = "-fx-text-fill: yellow;"
-            else    -> root.style = null
-        }
-    }
-
-    /**
-     * [requestFocus]
-     */
-    final override fun focus() {
-        onGuiThread { requestFocus() }
-    }
-
-    /**
-     * Run the specified [action] on the JavaFX Application Thread
-     */
-    override fun onGuiThread(action: () -> Unit) =
-        if (Platform.isFxApplicationThread()) action() else {
-            Platform.runLater(action)
-        }
-
     companion object {
-        private val EXTEND_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN)
+        private val EXTEND_SELECTION = Shortcut(W, CONTROL)
 
-        private val SHRINK_SELECTION = KeyCodeCombination(W, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
+        private val SHRINK_SELECTION = Shortcut(W, CONTROL, SHIFT)
+
+        private val INSPECTIONS = Shortcut(ENTER, ALT)
+
+        private fun Node.setStyleForAllChildren(style: String?) {
+            this.style = style
+            if (this is Parent) {
+                for (c in childrenUnmodifiable) {
+                    c.setStyleForAllChildren(style)
+                }
+            }
+        }
     }
 }

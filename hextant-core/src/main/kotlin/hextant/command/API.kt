@@ -30,7 +30,7 @@ inline fun parameters(block: ParametersBuilder.() -> Unit) = ParametersBuilder()
 ) {
     executing { r, args ->
         try {
-            kFunction.call(r, *args)
+            kFunction.call(r, args)
         } catch (ex: IllegalArgumentException) {
             throw ArgumentMismatchException("Illegal arguments", ex)
         }

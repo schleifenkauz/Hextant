@@ -4,11 +4,8 @@ import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import hextant.*
-import hextant.bundle.CorePermissions.Public
 import hextant.sample.ast.IntLiteral
-import hextant.sample.editable.EditableIntLiteral
-import hextant.undo.UndoManager
-import hextant.undo.UndoManagerImpl
+import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.on
@@ -16,32 +13,21 @@ import reaktive.value.now
 
 internal object IntLiteralEditorSpec : Spek({
     given("an int literal editor") {
-        val platform = HextantPlatform.configured()
-        platform[Public, UndoManager] = UndoManagerImpl()
-        val editable = EditableIntLiteral()
-        val editor = IntLiteralEditor(editable, platform)
-        test("the int literal should initially be null") {
-            editable.result.now shouldMatch absent()
-        }
-        test("the editable should not be ok") {
-            editable.isOk shouldMatch equalTo(false)
+        val context = testingContext()
+        val editor = IntLiteralEditor(context)
+        test("the int literal should initially be an error") {
+            editor.result.now shouldBe instanceOf<Err>()
         }
         on("setting the text to a valid integer literal") {
             editor.setText("124")
-            test("the editable should be ok") {
-                editable.isOk shouldMatch equalTo(true)
-            }
             test("the int literal should be parsed") {
-                editable.result.now.force() shouldMatch equalTo(IntLiteral(124))
+                editor.result.now.force() shouldMatch equalTo(IntLiteral(124))
             }
         }
         on("setting the text to a invalid integer literal") {
             editor.setText("invalid")
-            test("the integer literal should not be ok") {
-                editable.isOk shouldMatch equalTo(false)
-            }
             test("the integer literal should equal null") {
-                editable.result.now.orNull() shouldMatch absent()
+                editor.result.now.orNull() shouldMatch absent()
             }
         }
     }

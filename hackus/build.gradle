@@ -1,4 +1,0 @@
-dependencies {
-    compile project(":hextant-core")
-    testImplementation project(":hextant-test")
-}

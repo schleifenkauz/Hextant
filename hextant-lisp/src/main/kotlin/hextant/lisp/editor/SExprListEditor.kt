@@ -5,16 +5,9 @@
 package hextant.lisp.editor
 
 import hextant.Context
-import hextant.Editor
-import hextant.core.list.EditableList
-import hextant.core.list.ListEditor
-import hextant.lisp.editable.*
+import hextant.core.editor.ListEditor
+import hextant.lisp.SExpr
 
-class SExprListEditor(
-    list: EditableSExprList,
-    context: Context
-) : ListEditor<EditableSExpr<*>, EditableSExprList>(list, context) {
-    override fun createNewEditable(): EditableSExpr<*> = ExpandableSExpr()
-
-    override fun accepts(child: Editor<*>): Boolean = child.editable is EditableSExpr<*>
+class SExprListEditor(context: Context) : ListEditor<SExpr, SExprEditor<*>>(context) {
+    override fun createEditor(): SExprEditor<*> = SExprExpander(context)
 }

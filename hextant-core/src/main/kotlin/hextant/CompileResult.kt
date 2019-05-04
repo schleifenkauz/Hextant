@@ -147,22 +147,22 @@ inline fun <T> compile(body: () -> CompileResult<T>): CompileResult<T> {
     }
 }
 
-fun <T, F> RResult<T>.mapResult(f: (T) -> F) = map { it.map(f) }
+fun <T, F> EditorResult<T>.mapResult(f: (T) -> F) = map { it.map(f) }
 
-fun <T> result(vararg deps: Editable<*>, body: () -> CompileResult<T>): RResult<T> =
+fun <T> result(vararg deps: Editor<*>, body: () -> CompileResult<T>): EditorResult<T> =
     binding(dependencies(deps.map { it.result }), body)
 
-fun <A, T> result1(dep1: Editable<A>, body: (A) -> CompileResult<T>): RResult<T> = result(dep1) {
+fun <A : Any, T> result1(dep1: Editor<A>, body: (A) -> CompileResult<T>): EditorResult<T> = result(dep1) {
     compile {
         body(dep1.result.now.orTerminate { childErr() })
     }
 }
 
-fun <A, B, T> result2(dep1: Editable<A>, dep2: Editable<B>, body: (A, B) -> CompileResult<T>): RResult<T> =
+fun <A : Any, B : Any, T> result2(dep1: Editor<A>, dep2: Editor<B>, body: (A, B) -> CompileResult<T>): EditorResult<T> =
     result(dep1) {
         compile {
             body(dep1.result.now.orTerminate { childErr() }, dep2.result.now.orTerminate { childErr() })
         }
     }
 
-typealias RResult<R> = ReactiveValue<CompileResult<R>>
+typealias EditorResult<R> = ReactiveValue<CompileResult<R>>

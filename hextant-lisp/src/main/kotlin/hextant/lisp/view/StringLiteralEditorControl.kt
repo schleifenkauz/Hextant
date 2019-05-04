@@ -7,23 +7,17 @@ package hextant.lisp.view
 import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.completion.Completion
 import hextant.core.view.TokenEditorView
 import hextant.fx.HextantTextField
 import hextant.fx.keyword
-import hextant.getEditor
-import hextant.lisp.editable.EditableStringLiteral
+import hextant.lisp.editor.StringLiteralEditor
 import javafx.scene.layout.HBox
 
 class StringLiteralEditorControl(
-    editable: EditableStringLiteral,
+    editor: StringLiteralEditor,
     context: Context,
     args: Bundle
-) : TokenEditorView, EditorControl<HBox>(args) {
-    override fun displayCompletions(completions: Collection<Completion<String>>) {
-        check(completions.isEmpty()) //there are no completions
-    }
-
+) : TokenEditorView, EditorControl<HBox>(editor, context, args) {
     private val textField = HextantTextField()
 
     private val layout = HBox()
@@ -35,12 +29,10 @@ class StringLiteralEditorControl(
             add(textField)
             add(keyword("\""))
         }
-        val editor = context.getEditor(editable)
-        initialize(editable, editor, context)
     }
 
-    override fun displayText(t: String) {
-        textField.text = t
+    override fun displayText(newText: String) {
+        textField.text = newText
     }
 
     override fun createDefaultRoot(): HBox = layout

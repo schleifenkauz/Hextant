@@ -1,15 +1,14 @@
-/**
- *@author Nikolaus Knop
- */
-
 package hextant.expr.editor
 
-import hextant.Context
+import hextant.*
 import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
-import hextant.expr.editable.EditableOperator
+import hextant.expr.edited.Operator
 
-class OperatorEditor(
-    editable: EditableOperator,
-    context: Context
-) : TokenEditor<EditableOperator, TokenEditorView>(editable, context)
+class OperatorEditor(context: Context) : TokenEditor<Operator>(context) {
+    constructor(operator: Operator, context: Context) : this(context) {
+        setText(operator.name)
+    }
+
+    override fun compile(token: String): CompileResult<Operator> =
+        token.takeIf { Operator.isValid(it) }.okOrErr { "Invalid operator $token" }.map { Operator.of(it) }
+}

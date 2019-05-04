@@ -7,10 +7,10 @@ package hextant.sample.view
 import hextant.Context
 import hextant.bundle.Bundle
 import hextant.core.view.FXTokenEditorView
-import hextant.sample.editable.EditableName
+import hextant.sample.editor.NameEditor
 
 class FXNameEditorView(
-    editable: EditableName,
+    editable: NameEditor,
     context: Context,
     args: Bundle
 ) : FXTokenEditorView(editable, context, args) {

@@ -12,7 +12,7 @@ import hextant.command.line.FXCommandLineView
 import hextant.createView
 import hextant.fx.hextantScene
 import hextant.impl.SelectionDistributor
-import hextant.sample.editable.EditableName
+import hextant.sample.editor.NameEditor
 import javafx.application.Application
 import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.Parent
@@ -28,7 +28,7 @@ class NameEditorGuiTest : Application() {
 
     companion object {
         private fun createContent(context: Context): Parent {
-            val editable = EditableName()
+            val editable = NameEditor(context)
             val nameView = context.createView(editable)
             val cmd = CommandLine.forSelectedEditors(context[Public, SelectionDistributor], context)
             val cmdView = FXCommandLineView(cmd, context, Bundle.newInstance())

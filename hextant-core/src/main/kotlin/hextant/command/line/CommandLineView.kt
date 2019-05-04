@@ -4,23 +4,21 @@
 
 package hextant.command.line
 
+import hextant.Editor
 import hextant.EditorView
-import hextant.base.EditorControl
-import hextant.command.Command
 import hextant.command.Command.Parameter
-import hextant.completion.Completion
 
 interface CommandLineView: EditorView {
     /**
      * Called when the associated [CommandLine]s state switched to "editing args"
      * @param name the name of the expanded command
      * @param parameters the parameters of the command
-     * @param views the [EditorControl]s of the argument editors
+     * @param editors the argument editors
     */
-    fun editingArgs(
+    fun editingArguments(
         name: String,
         parameters: List<Parameter>,
-        views: List<EditorControl<*>>
+        editors: List<Editor<*>>
     )
 
     /**
@@ -32,15 +30,10 @@ interface CommandLineView: EditorView {
     /**
      * Called when the associated [CommandLine]s text changed to [newText]
     */
-    fun setText(newText: String)
-
-    /**
-     * Show the given [completions] on this view
-    */
-    fun showCompletions(completions: Set<Completion<Command<*, *>>>)
+    fun displayText(newText: String)
 
     /**
      * Called when the associated [CommandLine] executed the given command application [appl]
     */
-    fun executed(appl: CommandApplication<Any>)
+    fun executed(appl: CommandApplication)
 }

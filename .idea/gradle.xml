@@ -9,7 +9,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/hackus" />
             <option value="$PROJECT_DIR$/hextant-core" />
             <option value="$PROJECT_DIR$/hextant-expr" />
             <option value="$PROJECT_DIR$/hextant-lisp" />

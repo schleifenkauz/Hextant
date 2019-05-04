@@ -6,8 +6,6 @@
 
 package hextant.fx
 
-import com.sun.javafx.scene.traversal.Direction.NEXT
-import com.sun.javafx.scene.traversal.Direction.PREVIOUS
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
@@ -53,14 +51,6 @@ internal inline fun Node.registerShortcut(s: KeyCombination, crossinline action:
 internal fun PopupWindow.show(node: Node) {
     val p = node.localToScreen(0.0, node.prefHeight(-1.0))
     show(node, p.x, p.y)
-}
-
-internal fun Node.focusNext() {
-    impl_traverse(NEXT)
-}
-
-internal fun Node.focusPrevious() {
-    impl_traverse(PREVIOUS)
 }
 
 internal fun TextField.smartSetText(new: String) {

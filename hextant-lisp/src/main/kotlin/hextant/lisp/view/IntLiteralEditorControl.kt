@@ -7,10 +7,10 @@ package hextant.lisp.view
 import hextant.Context
 import hextant.bundle.Bundle
 import hextant.core.view.FXTokenEditorView
-import hextant.lisp.editable.EditableIntLiteral
+import hextant.lisp.editor.IntLiteralEditor
 
 class IntLiteralEditorControl(
-    editable: EditableIntLiteral,
+    editable: IntLiteralEditor,
     context: Context,
     args: Bundle
 ) : FXTokenEditorView(editable, context, args) {

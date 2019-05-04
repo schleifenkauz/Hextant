@@ -4,37 +4,38 @@
 
 package hextant.sample.editor
 
-import hextant.Context
-import hextant.Editable
+import hextant.*
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
 import hextant.sample.ast.IntExpr
 import hextant.sample.ast.IntOperator
 import hextant.sample.ast.IntOperator.*
-import hextant.sample.editable.*
+import reaktive.value.ReactiveValue
+import reaktive.value.binding.map
 
-class IntExprExpander(
-    expandable: ExpandableIntExpr,
-    context: Context
-) : ConfiguredExpander<Editable<IntExpr>, ExpandableIntExpr>(config, expandable, context) {
+class IntExprExpander(context: Context) : ConfiguredExpander<IntExpr, Editor<IntExpr>>(config, context),
+                                          IntExprEditor {
+    override val expr: ReactiveValue<IntExpr?>
+        get() = result.map { it.orNull() }
+
     companion object {
-        val config = ExpanderConfig<Editable<IntExpr>>().apply {
-            registerConstant("+") { createOperatorApplication(Plus) }
-            registerConstant("-") { createOperatorApplication(Minus) }
-            registerConstant("*") { createOperatorApplication(Times) }
-            registerConstant("/") { createOperatorApplication(Div) }
-            registerConstant("dec") { EditableIntLiteral() }
-            registerInterceptor { text ->
+        val config = ExpanderConfig<Editor<IntExpr>>().apply {
+            registerConstant("+") { context -> createOperatorApplication(Plus, context) }
+            registerConstant("-") { context -> createOperatorApplication(Minus, context) }
+            registerConstant("*") { context -> createOperatorApplication(Times, context) }
+            registerConstant("/") { context -> createOperatorApplication(Div, context) }
+            registerConstant("dec") { context -> IntLiteralEditor(context) }
+            registerInterceptor { text, context ->
                 val i = text.toIntOrNull() ?: return@registerInterceptor null
-                EditableIntLiteral().also {
-                    it.text.set(i.toString())
+                IntLiteralEditor(context).also {
+                    it.setText(i.toString())
                 }
             }
         }
 
-        private fun createOperatorApplication(operator: IntOperator) =
-            EditableIntOperatorApplication().apply {
-                op.text.set(operator.name)
+        private fun createOperatorApplication(operator: IntOperator, context: Context) =
+            IntOperatorApplicationEditor(context).apply {
+                op.setText(operator.name)
             }
     }
 }

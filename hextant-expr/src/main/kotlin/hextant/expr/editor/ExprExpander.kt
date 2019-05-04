@@ -9,30 +9,32 @@ import hextant.completion.CompletionFactory
 import hextant.completion.CompletionStrategy
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
-import hextant.expr.editable.*
 import hextant.expr.edited.Expr
 import hextant.expr.edited.Operator.*
-import reaktive.value.now
 
 class ExprExpander(
-    editable: ExpandableExpr,
     context: Context
-) : ConfiguredExpander<Editable<Expr>, ExpandableExpr>(config, editable, context, completer),
-    ExprEditor {
-    override val expr: Expr?
-        get() = editable.editable.now?.result?.now?.orNull()
+) : ConfiguredExpander<Expr, ExprEditor<Expr>>(config, context), ExprEditor<Expr> {
+    constructor(edited: Expr, context: Context) : this(context) {
+        val editor = context[EditorFactory].getEditor(edited, context) as ExprEditor<*>
+        setEditor(editor)
+    }
+
+    constructor(editor: ExprEditor<Expr>, context: Context) : this(context) {
+        setEditor(editor)
+    }
 
     companion object {
-        val config = ExpanderConfig<Editable<Expr>>().apply {
-            registerConstant("dec") { EditableIntLiteral() }
-            registerConstant("+") { EditableOperatorApplication(Plus) }
-            registerConstant("-") { EditableOperatorApplication(Minus) }
-            registerConstant("*") { EditableOperatorApplication(Times) }
-            registerConstant("/") { EditableOperatorApplication(Div) }
-            registerConstant("sum") { EditableSum() }
-            registerInterceptor {
-                val int = it.toIntOrNull()
-                if (int != null) EditableIntLiteral(int)
+        val config = ExpanderConfig<ExprEditor<Expr>>().apply {
+            registerConstant("dec") { context -> IntLiteralEditor(context) }
+            registerConstant("+") { context -> OperatorApplicationEditor(Plus, context) }
+            registerConstant("-") { context -> OperatorApplicationEditor(Minus, context) }
+            registerConstant("*") { context -> OperatorApplicationEditor(Times, context) }
+            registerConstant("/") { context -> OperatorApplicationEditor(Div, context) }
+            registerConstant("sum") { context -> SumEditor(context) }
+            registerInterceptor { text, context ->
+                val int = text.toIntOrNull()
+                if (int != null) IntLiteralEditor(int, context)
                 else null
             }
         }

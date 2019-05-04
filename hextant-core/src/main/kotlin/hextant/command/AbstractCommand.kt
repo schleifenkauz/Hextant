@@ -17,7 +17,7 @@ abstract class AbstractCommand<R : Any, T>(override val receiverCls: KClass<R>) 
     override val category: Category?
         get() = null
 
-    private fun checkArgs(args: Array<out Any?>) {
+    private fun checkArgs(args: List<Any?>) {
         if (args.size > parameters.size) throw ArgumentMismatchException("To many arguments for command $this")
         if (args.size < parameters.size) throw ArgumentMismatchException("To few arguments for command $this")
         for ((a, p) in args.zip(parameters)) {
@@ -29,12 +29,12 @@ abstract class AbstractCommand<R : Any, T>(override val receiverCls: KClass<R>) 
     /**
      * Execute this [Command] on the specified [receiver] and the specified [args]
      */
-    protected abstract fun doExecute(receiver: R, args: Array<out Any?>): T
+    protected abstract fun doExecute(receiver: R, args: List<Any?>): T
 
     /**
      * Check that the specified [args] match [parameters] and then call [doExecute]
      */
-    final override fun execute(receiver: R, vararg args: Any?): T {
+    final override fun execute(receiver: R, args: List<Any?>): T {
         checkArgs(args)
         return doExecute(receiver, args)
     }

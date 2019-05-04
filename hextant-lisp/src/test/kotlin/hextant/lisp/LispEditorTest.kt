@@ -8,8 +8,8 @@ import hextant.*
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.CoreProperties.editorParentRegion
 import hextant.fx.hextantScene
-import hextant.lisp.editable.ExpandableSExpr
 import hextant.lisp.editor.LispProperties.fileScope
+import hextant.lisp.editor.SExprExpander
 import hextant.plugin.PluginRegistry
 import hextant.undo.UndoManager
 import javafx.application.Application
@@ -37,7 +37,7 @@ class LispEditorTest : Application() {
             val cl = LispEditorTest::class.java.classLoader
             val pluginRegistry = context[Public, PluginRegistry]
             pluginRegistry.loadPluginFromClasspath(cl)
-            val expandable = ExpandableSExpr()
+            val expandable = SExprExpander(context)
             val view = context.createView(expandable)
             context[Public, editorParentRegion] = view
             val eval = Button("Evaluate").apply {

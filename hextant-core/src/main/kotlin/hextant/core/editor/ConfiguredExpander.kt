@@ -4,29 +4,12 @@
 
 package hextant.core.editor
 
-import hextant.*
-import hextant.completion.*
-import hextant.core.editable.Expandable
+import hextant.Context
+import hextant.Editor
 
-open class ConfiguredExpander<E : Editable<*>, Ex : Expandable<*, E>>(
+open class ConfiguredExpander<R : Any, E : Editor<R>>(
     private val config: ExpanderConfig<E>,
-    expandable: Ex,
-    context: Context,
-    completer: Completer<String>
-) : Expander<E, Ex>(expandable, context, completer) {
-    constructor(
-        config: ExpanderConfig<E>,
-        expandable: Ex,
-        context: Context,
-        factory: CompletionFactory<String> = CompletionFactory.simple(),
-        strategy: CompletionStrategy = CompletionStrategy.simple
-    ) : this(config, expandable, context, config.completer(strategy, factory))
-
-    @Suppress("UNCHECKED_CAST")
-    override fun expand(text: String): E? = config.expand(text)
-
-    override fun accepts(child: Editor<*>): Boolean = true
-
-    override val expander: Expander<*, *>?
-        get() = null
+    context: Context
+) : Expander<R, E>(context) {
+    override fun expand(text: String): E? = config.expand(text, context)
 }

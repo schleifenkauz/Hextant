@@ -8,24 +8,21 @@ import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.bundle.CoreProperties.editorParentRegion
-import hextant.lisp.editable.EditableApply
 import hextant.lisp.editor.ApplyEditor
 import javafx.beans.Observable
 import javafx.scene.layout.*
 
 class ApplyEditorControl(
-    editable: EditableApply,
-    private val context: Context,
+    editor: ApplyEditor,
+    context: Context,
     args: Bundle
-) : EditorControl<Pane>(args) {
-    private val exprsView = context.createView(editable.editableExpressions)
+) : EditorControl<Pane>(editor, context, args) {
+    private val exprsView = context.createView(editor.editableExpressions)
 
     init {
         val maxWidth = context[editorParentRegion].widthProperty()
         exprsView.widthProperty().addListener { _: Observable -> updateLayout() }
         maxWidth.addListener { _: Observable -> updateLayout() }
-        val editor = context.getEditor(editable) as ApplyEditor
-        initialize(editable, editor, context)
         root.styleClass.add("lisp-apply")
     }
 

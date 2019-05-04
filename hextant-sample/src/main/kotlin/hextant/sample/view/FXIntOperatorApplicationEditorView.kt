@@ -7,17 +7,17 @@ package hextant.sample.view
 import hextant.Context
 import hextant.base.CompoundEditorControl
 import hextant.bundle.Bundle
-import hextant.sample.editable.EditableIntOperatorApplication
+import hextant.sample.editor.IntOperatorApplicationEditor
 
 class FXIntOperatorApplicationEditorView(
-    editable: EditableIntOperatorApplication,
+    editor: IntOperatorApplicationEditor,
     context: Context,
     args: Bundle
 ) :
-    CompoundEditorControl(editable, context, args, {
+    CompoundEditorControl(editor, context, args, {
         line {
-            view(editable.left)
-            view(editable.op)
-            view(editable.right)
+            view(editor.left)
+            view(editor.op)
+            view(editor.right)
         }
     })

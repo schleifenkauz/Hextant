@@ -4,10 +4,17 @@
 
 package hextant.lisp.editor
 
-import hextant.Context
+import hextant.*
 import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
-import hextant.lisp.editable.EditableIntLiteral
+import hextant.lisp.IntLiteral
 
-class IntLiteralEditor(editable: EditableIntLiteral, context: Context) :
-    TokenEditor<EditableIntLiteral, TokenEditorView>(editable, context)
+class IntLiteralEditor(context: Context) : TokenEditor<IntLiteral>(context), SExprEditor<IntLiteral> {
+    constructor(value: Int, context: Context) : this(context) {
+        setText(value.toString())
+    }
+
+    constructor(value: IntLiteral, context: Context) : this(value.value, context)
+
+    override fun compile(token: String): CompileResult<IntLiteral> =
+        token.toIntOrNull().okOrErr { "Invalid int literal $token" }.map(::IntLiteral)
+}

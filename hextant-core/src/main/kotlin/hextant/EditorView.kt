@@ -8,7 +8,6 @@ import hextant.bundle.Bundle
 
 /**
  * A graphical view of an [Editor]
- * Acts like the View in the MVC pattern
  */
 interface EditorView {
     /**
@@ -17,38 +16,12 @@ interface EditorView {
     val arguments: Bundle
 
     /**
-     * Select this control
+     * The object viewed by this [EditorView]
      */
-    fun select(isSelected: Boolean)
+    val target: Any
 
     /**
-     * Causes this view to somehow show that the associated editor has an error if [error] is `true`.
-     * Otherwise it stops displaying an error
+     * Visually deselect this [EditorView]
      */
-    fun error(error: Boolean)
-
-    /**
-     * Causes this view to somehow show that the associated editor has a warning if [warn] is `true`.
-     * Otherwise it stops displaying an error
-     */
-    fun warn(warn: Boolean)
-
-    /**
-     * Request focus for this [EditorView]
-     * * In contrast to [receiveFocus] this method should really focus **this** view and not one of its children
-     */
-    fun focus()
-
-    /**
-     * Is called when this [EditorView] receives focus
-     * * In case of parent views this method can also focus one of its children
-     */
-    fun receiveFocus()
-
-    /**
-     * Invoke that specified [action] on the gui thread of this [EditorView]
-     */
-    fun onGuiThread(action: () -> Unit) {
-        action()
-    }
+    fun deselect()
 }

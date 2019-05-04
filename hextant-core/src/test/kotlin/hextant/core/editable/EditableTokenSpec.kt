@@ -1,9 +1,9 @@
 package hextant.core.editable
 
-import hextant.Err
 import hextant.Ok
-import hextant.expr.editable.EditableIntLiteral
 import hextant.expr.edited.IntLiteral
+import hextant.expr.editor.IntLiteralEditor
+import hextant.isOk
 import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
@@ -11,29 +11,24 @@ import reaktive.value.now
 
 object EditableTokenSpec : Spek({
     given("an editable int literal") {
-        val e = EditableIntLiteral()
+        val context = testingContext()
+        val e = IntLiteralEditor(context)
         test("it should not be ok") {
-            e.isOk shouldBe `false`
+            e.result.now.isOk shouldBe `false`
         }
         test("e.result should be an Err") {
             e.result.now shouldBe err
         }
         on("changing the text to a valid string") {
-            e.text.set("123")
+            e.setText("123")
             it("should compile it") {
                 e.result.now shouldEqual Ok(IntLiteral(123))
             }
-            it("should be ok") {
-                e.isOk shouldBe `true`
-            }
         }
         on("changing the text to an invalid string") {
-            e.text.set("invalid")
+            e.setText("invalid")
             it("should not be ok") {
-                e.isOk shouldBe `false`
-            }
-            test("e.result should be null") {
-                e.result.now shouldBe instanceOf<Err>()
+                e.result.now shouldBe err
             }
         }
     }

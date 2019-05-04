@@ -1,10 +1,10 @@
 package hextant.core.list
 
 import hextant.*
-import hextant.core.EditorControlFactory
-import hextant.core.list.FXListEditorView.NumberedCell
-import hextant.core.register
-import hextant.expr.editable.EditableExprList
+import hextant.core.editor.ListEditor
+import hextant.core.view.FXListEditorView
+import hextant.core.view.FXListEditorView.NumberedCell
+import hextant.expr.editor.ExprListEditor
 import hextant.fx.hextantScene
 import javafx.application.Application
 import javafx.scene.Parent
@@ -19,11 +19,10 @@ class FXListEditorViewTest : Application() {
 
     companion object {
         private fun createContent(context: Context): Parent {
-            val list = EditableExprList()
+            val list = ExprListEditor(context)
             val views = context[EditorControlFactory]
-            views.register<EditableList<*, *>> { editable, ctx, args ->
-                val editor = ctx.getEditor(editable)
-                FXListEditorView(editable, ctx, editor as ListEditor<*, *>, bundle = args)
+            views.register(ListEditor::class) { editor, ctx, args ->
+                FXListEditorView(editor, ctx, args)
             }
             val view = context.createView(list) as FXListEditorView
             view.cellFactory = { NumberedCell() }

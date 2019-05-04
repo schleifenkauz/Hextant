@@ -12,10 +12,6 @@ import hextant.command.Commands
 import hextant.command.line.CommandLine
 import hextant.command.line.FXCommandLineView
 import hextant.command.register
-import hextant.core.EditorControlFactory
-import hextant.core.list.*
-import hextant.core.register
-import hextant.expr.editable.*
 import hextant.expr.edited.*
 import hextant.expr.edited.Operator.Plus
 import hextant.expr.editor.*
@@ -58,21 +54,16 @@ class ExprEditorViewTest : Application() {
     }
 
     private fun createContent(context: Context): Parent {
-        context[EditorControlFactory].register<EditableList<*, *>> { editable, ctx, args ->
-            val editor = ctx.getEditor(editable)
-            FXListEditorView(editable, ctx, editor as ListEditor<*, *>, bundle = args)
-        }
         registerCommandsAndInspections(context)
-        val expandable = ExpandableExpr()
-        val expander = context.getEditor(expandable) as ExprExpander
-        val expanderView = context.createView(expandable)
+        val expander = ExprExpander(context)
+        val expanderView = context.createView(expander)
         val clContext = Context.newInstance(context) {
             set(Public, SelectionDistributor, SelectionDistributor.newInstance())
         }
         val sd = context[SelectionDistributor]
         val cl = CommandLine.forSelectedEditors(sd, clContext)
         val clView = FXCommandLineView(cl, clContext, Bundle.newInstance())
-        val (evaluationDisplay, obs) = evaluateOnExprChange(expandable)
+        val (evaluationDisplay, obs) = evaluateOnExprChange(expander)
         val menuBar = createMenuBar(expander, context)
         val split = SplitPane(menuBar, expanderView, clView)
         context[CoreProperties.logger].level = Level.INFO
@@ -88,7 +79,7 @@ class ExprEditorViewTest : Application() {
         }
     }
 
-    private fun evaluateOnExprChange(expandable: ExpandableExpr): Pair<Label, Observer> {
+    private fun evaluateOnExprChange(expandable: ExprExpander): Pair<Label, Observer> {
         val evaluationDisplay = Label("Invalid expression")
         val obs = expandable.result.observe { _, _, new ->
             Platform.runLater {
@@ -105,13 +96,13 @@ class ExprEditorViewTest : Application() {
 
     private fun registerCommandsAndInspections(context: Context) {
         val commands = context[Commands]
-        commands.of<ExprEditor>().register<ExprEditor, Int> {
+        commands.of<ExprEditor<*>>().register<ExprEditor<*>, Int> {
             name = "Evaluate Expression"
             shortName = "eval"
-            applicableIf { exprEditor -> exprEditor.expr != null }
+            applicableIf { exprEditor -> exprEditor.result.now.isOk }
             description = "Evaluates the selected expression and prints it to the console"
             executing { editor, _ ->
-                val e = editor.expr!!
+                val e = editor.result.now.force()
                 val v = e.value
                 v
             }
@@ -121,19 +112,17 @@ class ExprEditorViewTest : Application() {
             shortName = "flip_op"
             description = "Flips the both operands in this operator application"
             applicableIf { oe ->
-                val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
-                oae.editable.editableOperator.result.now.map { it.isCommutative }.ifErr { false }
+                val oae = oe.parent.now as? OperatorApplicationEditor ?: return@applicableIf false
+                oae.operatorEditor.result.now.map { it.isCommutative }.ifErr { false }
             }
             executing { oe, _ ->
-                val oae = oe.parent as OperatorApplicationEditor
-                val expandableOp1 = oae.editable.editableOp1
-                val editableOp1 = expandableOp1.editable.now
-                val expandableOp2 = oae.editable.editableOp2
-                val editableOp2 = expandableOp2.editable.now
-                val expander1: ExprExpander = context.getEditor(expandableOp1)
-                if (editableOp2 != null) expander1.setContent(editableOp2)
-                val expander2: ExprExpander = context.getEditor(expandableOp2)
-                if (editableOp1 != null) expander2.setContent(editableOp1)
+                val oae = oe.parent.now as OperatorApplicationEditor
+                val expander1 = oae.editableOp1
+                val editableOp1 = expander1.editor
+                val expander2 = oae.editableOp2
+                val editableOp2 = expander2.editor
+                if (editableOp2 != null) expander1.setEditor(editableOp2)
+                if (editableOp1 != null) expander2.setEditor(editableOp1)
             }
         }
         commands.of<OperatorApplicationEditor>().register<OperatorApplicationEditor, Unit> {
@@ -141,33 +130,32 @@ class ExprEditorViewTest : Application() {
             shortName = "collapse"
             description = "Partially evaluate the selected expression"
             applicableIf { oae ->
-                oae.editable.isOk && oae.expander != null
+                oae.result.now.isOk && oae.expander.now != null
             }
             executing { oae, _ ->
-                val ex = oae.expander as ExprExpander
-                val res = oae.editable.result.now.force().value
-                val editable = EditableIntLiteral(res)
-                ex.setContent(editable)
+                val ex = oae.expander.now as ExprExpander
+                val res = oae.result.now.force().value
+                val editable = IntLiteralEditor(res, context)
+                ex.setEditor(editable)
             }
         }
-        commands.of<ExprEditor>().register<ExprEditor, Unit> {
+        commands.of<ExprEditor<*>>().register<ExprEditor<*>, Unit> {
             name = "Unwrap expression"
             shortName = "unwrap"
             description = "Unwrap an expression by replacing its outer application with itself"
             applicableIf {
-                it is Editor<*> && it.parent is OperatorApplicationEditor && it.parent!!.expander is ExprExpander
+                it.parent.now is OperatorApplicationEditor && it.parent.now!!.expander.now is ExprExpander
             }
             executing { editor, _ ->
-                editor as Editor<*>
-                val parentExpander = editor.parent!!.expander as ExprExpander
-                parentExpander.setContent(editor.editable as EditableExpr<*>)
+                val parentExpander = editor.parent.now!!.expander.now as ExprExpander
+                parentExpander.setEditor(editor)
             }
         }
         val inspections = context[Inspections]
-        inspections.of<EditableOperatorApplication>().registerInspection { inspected ->
+        inspections.of<OperatorApplicationEditor>().registerInspection { inspected ->
             description = "Prevent identical operations"
             severity(Warning)
-            val isPlus = inspected.editableOperator.result.map { it.orNull() == Plus }
+            val isPlus = inspected.operatorEditor.result.map { it.orNull() == Plus }
             val operandIs0 =
                 inspected.editableOp2.result.map { it.orNull() is IntLiteral && it.force().value == 0 }
             preventingThat(isPlus.and(operandIs0))
@@ -175,16 +163,16 @@ class ExprEditorViewTest : Application() {
             addFix {
                 description = "Shorten expression"
                 applicableIf {
-                    context.getEditor(inspected).expander is ExprExpander
+                    inspected.expander.now is ExprExpander
                 }
                 fixingBy {
-                    val parent = context.getEditor(inspected).expander as ExprExpander
-                    parent.setContent(inspected.editableOp1)
+                    val expander = inspected.expander.now as ExprExpander
+                    expander.setEditor(inspected.editableOp1)
                 }
 
             }
         }
-        inspections.of<EditableIntLiteral>().registerInspection { inspected ->
+        inspections.of<IntLiteralEditor>().registerInspection { inspected ->
             description = "Prevent '0' Literals"
             message { "Literal is '0'" }
             severity(Warning)
@@ -192,12 +180,11 @@ class ExprEditorViewTest : Application() {
             addFix {
                 description = "Set to '1'"
                 fixingBy {
-                    val editor: IntLiteralEditor = context.getEditor(inspected)
-                    editor.setText("1")
+                    inspected.setText("1")
                 }
             }
         }
-        commands.of<ExprEditor>().register<ExprEditor, Unit> {
+        commands.of<ExprEditor<*>>().register<ExprEditor<*>, Unit> {
             description =
                 "Wraps the current expression in an operator expression with the current expression being the left operand"
             name = "Wrap in operator expression"
@@ -207,15 +194,18 @@ class ExprEditorViewTest : Application() {
                 description = "The operator being applied"
                 name = "operator"
             }
-            applicableIf { it is Editor<*> && it.expander is ExprExpander }
+            applicableIf { it.expander.now is ExprExpander }
             executing { editor, (operator) ->
                 operator as Operator
-                editor as Editor<*>
-                val parent = editor.expander as ExprExpander
-                val leftSide = editor.editable as EditableExpr<*>
-                val editableOp = EditableOperator(operator)
-                val app = EditableOperatorApplication(editableOp, ExpandableExpr(leftSide), ExpandableExpr())
-                parent.setContent(app)
+                val expander = editor.expander.now as ExprExpander
+                val opEditor = OperatorEditor(operator, context)
+                val app = OperatorApplicationEditor(
+                    opEditor,
+                    ExprExpander(editor, context),
+                    ExprExpander(context),
+                    context
+                )
+                expander.setEditor(app)
             }
         }
     }
@@ -255,7 +245,7 @@ class ExprEditorViewTest : Application() {
             val chooser = FileChooser()
             val file = chooser.showSaveDialog(stage) ?: return@setOnAction
             val out = serial.createOutput(file)
-            out.writeObject(parent.editable.editable.now, context)
+            out.writeObject(parent.editor, context)
         }
         accelerator = KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN)
     }
@@ -265,8 +255,8 @@ class ExprEditorViewTest : Application() {
             val chooser = FileChooser()
             val file = chooser.showOpenDialog(stage) ?: return@setOnAction
             val input = serial.createInput(file)
-            val editable = input.readTyped<Editable<Expr>>(context)!!
-            parent.setContent(editable)
+            val editable = input.readTyped<ExprEditor<Expr>>(context)!!
+            parent.setEditor(editable)
         }
         accelerator = KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN)
     }

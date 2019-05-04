@@ -4,119 +4,44 @@
 
 package hextant.base
 
-import hextant.*
+import hextant.Context
+import hextant.Editor
 import hextant.core.editor.Expander
-import hextant.impl.SelectionDistributor
-import hextant.inspect.Inspections
-import reaktive.value.*
-import reaktive.value.base.AbstractVariable
+import reaktive.collection.ReactiveCollection
+import reaktive.list.reactiveList
+import reaktive.value.ReactiveValue
+import reaktive.value.reactiveVariable
 
 /**
- * The base class of all [Editor]s
- * It manages selection and showing errors of the [Editable]s in the associated [EditorView]
- * @constructor
- * @param E the type of [Editable] edited by this [Editor]
- * @param V the type of [EditorView]'s that can be managed by this editor
- * @param editable the [Editable] edited by this [Editor]
+ * Skeletal implementation for [Editor]s
  */
-abstract class AbstractEditor<out E : Editable<*>, V : EditorView>(
-    final override val editable: E,
-    context: Context
-) : Editor<E>, AbstractController<V>() {
+abstract class AbstractEditor<out R : Any, in V : Any>(val context: Context) : Editor<R>, AbstractController<V>() {
+    private val _parent = reactiveVariable<Editor<*>?>(null)
 
-    private val inspections = context[Inspections]
+    final override val parent: ReactiveValue<Editor<*>?> get() = _parent
 
-    private val hasWarning = inspections.hasWarning(editable)
+    private val _children = reactiveList<Editor<*>>()
 
-    private val hasError = inspections.hasError(editable)
+    override val children: ReactiveCollection<Editor<*>> get() = _children
 
-    private val warningObserver = hasWarning.observe { warn: Boolean ->
-        views { warn(warn) }
+    private val _expander = reactiveVariable<Expander<R, *>?>(null)
+
+    override val expander: ReactiveValue<Expander<*, *>?> get() = _expander
+
+    override fun setParent(newParent: Editor<*>?) {
+        _parent.set(newParent)
     }
 
-    private val errorObserver = hasError.observe { isError: Boolean ->
-        views { error(isError) }
-    }
-
-    override fun onGuiThread(view: V, action: V.() -> Unit) {
-        view.onGuiThread { view.action() }
-    }
-
-    override fun viewAdded(view: V) {
-        with(view) {
-            onGuiThread {
-                warn(hasWarning.now)
-                error(hasError.now)
-                select(isSelected)
-            }
-        }
-    }
-
-    private val selectionDistributor = context[SelectionDistributor]
-
-    final override val isSelected: Boolean get() = isSelectedVar.get()
-
-    private val isSelectedVar: Variable<Boolean> = object : AbstractVariable<Boolean>() {
-        private var isSelected = false
-
-        override fun doSet(value: Boolean) {
-            if (!value) {
-                lastExtendingChild = null
-            }
-            isSelected = value
-            views.forEach { it.select(isSelected = value) }
-        }
-
-        override fun get(): Boolean = isSelected
-    }
-
-    override fun select() {
-        selectionDistributor.select(this, isSelectedVar)
-    }
-
-    final override fun toggleSelection() {
-        selectionDistributor.toggleSelection(this, isSelectedVar)
-    }
-
-    private var lastExtendingChild: Editor<*>? = null
-
-    override fun extendSelection(child: Editor<*>) {
-        throw IllegalStateException("Cannot extend selection for a non-parent editor")
+    override fun setExpander(newExpander: Expander<@UnsafeVariance R, *>?) {
+        _expander.set(newExpander)
     }
 
     /**
-     * Shrink the selection by selecting the last child that extended selection to this editor
-     * or the first child if there is no such child
+     * Makes the [editor] a child of this editor and just returns it
      */
-    override fun shrinkSelection() {}
-
-    override val allChildren: Sequence<Editor<*>>
-        get() = children.asSequence().flatMap { c -> c.allChildren + c }
-
-    override fun moveTo(newParent: ParentEditor<*, *>?) {
-        if (newParent == null) {
-            parent = null
-            return
-        }
-        if (newParent is Expander<*, *>) {
-            if (newParent == expander) return
-            @Suppress("DEPRECATION") //only called here
-            newParent.accept(this)
-            _expander = newParent
-            moveTo(newParent.parent)
-        } else {
-            if (parent == newParent) return
-            @Suppress("DEPRECATION") //and here
-            newParent.accept(this)
-            parent = newParent
-        }
+    protected fun <E : Editor<*>> child(editor: E): E {
+        editor.setParent(this)
+        _children.now.add(editor)
+        return editor
     }
-
-    final override var parent: ParentEditor<*, *>? = null
-        private set
-
-    private var _expander: Expander<*, *>? = null
-
-    override val expander: Expander<*, *>?
-        get() = _expander
 }

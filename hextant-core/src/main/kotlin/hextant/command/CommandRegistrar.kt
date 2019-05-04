@@ -95,12 +95,12 @@ class CommandRegistrar<R : Any> internal constructor(private val parents: List<C
         val c = accelerators[comb]
         return if (c != null) {
             if (c.parameters.isEmpty()) {
-                c.execute(target)
+                c.execute(target, emptyList())
                 return true
             }
             val args = showArgumentPrompt(node.scene.window, c, context) ?: return false
             if (args.any { it == null }) return false
-            c.execute(target, *args.toTypedArray())
+            c.execute(target, args)
             return true
 
         } else parents.any { p -> p.handle(keyEvent, target, node, context) }

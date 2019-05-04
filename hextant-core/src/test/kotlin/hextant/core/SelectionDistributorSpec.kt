@@ -1,65 +1,103 @@
 package hextant.core
 
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.isEmpty
 import com.natpryce.hamkrest.should.shouldMatch
-import hextant.*
-import hextant.bundle.CorePermissions.Public
-import hextant.core.mocks.MockEditor
+import com.nhaarman.mockitokotlin2.*
+import hextant.EditorView
+import hextant.bundle.Bundle
 import hextant.impl.SelectionDistributor
+import hextant.test.matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 
 internal object SelectionDistributorSpec: Spek({
-    val platform = HextantPlatform.configured()
-    val sut = platform[Public, SelectionDistributor]
-    test(sut, platform)
+    test(SelectionDistributor.newInstance())
 }) {
     operator fun invoke(
-        sut: SelectionDistributor,
-        context: Context
+        sut: SelectionDistributor
     ): Spek {
-        return Spek.wrap { test(sut, context) }
+        return wrap { test(sut) }
     }
 }
 
-private fun SpecBody.test(sut: SelectionDistributor, context: Context) {
-    given("a new selection distributor") {
-        fun testSelectedEditorsEqual(vararg expected: Editor<*>) {
-            sut.selectedEditors.now shouldMatch equalTo(expected.toSet())
+private fun mockView(): EditorView = mock {
+    on { target }.doReturn(Any())
+    on { arguments }.doReturn(Bundle.newInstance())
+}
+
+private fun SpecBody.test(sut: SelectionDistributor) {
+    given("a selection distributor") {
+        test("no editors should be selected") {
+            sut.selectedTargets.now shouldMatch isEmpty
         }
-        it("should have no selected editors") {
-            sut.selectedEditors.now shouldMatch equalTo(emptySet())
+        test("no views should be selected") {
+            sut.selectedViews.now shouldMatch isEmpty
         }
-        val editor = MockEditor(context = context)
-        on("selecting an editor") {
-            editor.select()
-            test("the selected editor should be in the selected editors") {
-                testSelectedEditorsEqual(editor)
+        val view1 = mockView()
+        on("selecting an editor when no other is selected") {
+            val selected = sut.select(view1)
+            it("should return true") {
+                selected shouldBe `true`
+            }
+            it("should add selection to the view") {
+                sut.selectedViews.now shouldBe equalTo(setOf(view1))
+            }
+            it("should add selection to the editor") {
+                sut.selectedTargets.now shouldBe equalTo(setOf(view1.target))
             }
         }
-        on("toggling selection") {
-            editor.toggleSelection()
-            test("nothing happens") {
-                testSelectedEditorsEqual(editor)
-            }
-        }
-        val editor2 = MockEditor(context = context)
+        val view2 = mockView()
         on("selecting another editor") {
-            editor2.select()
-            test("only the newly selected editor should be selected") {
-                testSelectedEditorsEqual(editor2)
+            val selected = sut.select(view2)
+            it("should return true") {
+                selected shouldBe `true`
+            }
+            it("should deselect the old editor and select the new one") {
+                sut.selectedTargets.now shouldBe equalTo(setOf(view2.target))
+            }
+            it("should deselect the old view and select the new one") {
+                sut.selectedViews.now shouldBe equalTo(setOf(view2))
+            }
+            it("should deselect the old editor") {
+                verify(view1).deselect()
             }
         }
-        on("toggling selection of a previously unselected editor") {
-            editor.toggleSelection()
-            test("both the old and the new editor should be selected") {
-                testSelectedEditorsEqual(editor, editor2)
+        on("toggling selection for the old triple") {
+            val selected = sut.toggleSelection(view1)
+            it("should return true") {
+                selected shouldBe `true`
+            }
+            it("should select the new editor") {
+                sut.selectedTargets.now shouldBe equalTo(setOf(view1.target, view2.target))
+            }
+            it("should select the new view") {
+                sut.selectedViews.now shouldBe equalTo(setOf(view1, view2))
             }
         }
-        on("toggling selection of a previously selected editor") {
-            editor2.toggleSelection()
-            test("only the other selected editor should remain selected") {
-                testSelectedEditorsEqual(editor)
+        on("toggling selection for the second triple") {
+            val selected = sut.toggleSelection(view2)
+            it("should return false") {
+                selected shouldBe `false`
+            }
+            it("should deselect the second editor") {
+                sut.selectedTargets.now shouldBe equalTo(setOf(view1.target))
+            }
+            it("should deselect the second view") {
+                sut.selectedViews.now shouldBe equalTo(setOf(view1))
+            }
+            it("should call the second deselect") {
+                verify(view2).deselect()
+            }
+        }
+        on("selecting the first editor") {
+            val selected = sut.select(view1)
+            it("should return false") {
+                selected shouldBe `false`
+            }
+            it("should do nothing else") {
+                sut.selectedViews.now shouldBe equalTo(setOf(view1))
+                sut.selectedTargets.now shouldBe equalTo(setOf(view1.target))
             }
         }
     }

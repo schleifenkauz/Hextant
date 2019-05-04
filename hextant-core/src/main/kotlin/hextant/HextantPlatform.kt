@@ -8,7 +8,6 @@ import hextant.base.AbstractContext
 import hextant.bundle.Bundle
 import hextant.bundle.CoreProperties
 import hextant.command.Commands
-import hextant.core.*
 import hextant.impl.SelectionDistributor
 import hextant.impl.Settings
 import hextant.inspect.Inspections
@@ -60,14 +59,11 @@ interface HextantPlatform : Context {
             unconfigured(bundle).apply { configure() }
 
         private fun HextantPlatform.configure() {
-            set(Version, Version(1, 0, isSnapshot = true))
             set(SelectionDistributor, SelectionDistributor.newInstance())
             set(EditorControlFactory, EditorControlFactory.newInstance())
-            set(EditableFactory, EditableFactory.newInstance())
+            set(EditorFactory, EditorFactory.newInstance())
             set(Commands, Commands.newInstance())
             set(Inspections, Inspections.newInstance())
-            set(EditorFactory, EditorFactory.newInstance())
-            set(ExpandableFactory, ExpandableFactory.newInstance())
             set(CoreProperties.logger, Logger.getLogger(javaClass.name))
             val plugins = PluginRegistry(this, Settings.plugins)
             set(PluginRegistry, plugins)
@@ -76,6 +72,10 @@ interface HextantPlatform : Context {
                 useUnsafe = false
             })
             set(CoreProperties.classLoader, plugins.compoundClassLoader)
+        }
+
+        val forTesting = singleThread().apply {
+            set(EditorFactory, EditorFactory.newInstance())
         }
 
         fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = SingleThreaded(bundle)

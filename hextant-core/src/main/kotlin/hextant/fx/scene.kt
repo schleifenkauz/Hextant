@@ -13,7 +13,7 @@ import javafx.scene.control.Label
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent
 
-var isControlDown = false; internal set
+var isControlDown = false; private set
 
 fun hextantScene(root: (Context) -> Parent, createContext: (HextantPlatform) -> Context): Scene {
     val platform = HextantPlatform.configured()
@@ -35,8 +35,8 @@ private fun Scene.initEventHandlers(context: Context) {
             isControlDown = true
         }
     }
-    addEventFilter(KeyEvent.KEY_RELEASED) {
-        if (it.code == CONTROL) {
+    addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
+        if (ev.code == CONTROL) {
             isControlDown = false
         }
     }

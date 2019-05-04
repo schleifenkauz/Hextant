@@ -34,14 +34,14 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
     */
     var category: Category? = null
 
-    private lateinit var execute: (R, Array<out Any?>) -> T
+    private lateinit var execute: (R, List<Any?>) -> T
     private var applicable: (R) -> Boolean = { true }
     @PublishedApi internal val parameters: MutableList<Command.Parameter> = LinkedList()
 
     /**
      * Sets the executed function of the built command to [block]
     */
-    fun executing(block: (R, Array<out Any?>) -> T) {
+    fun executing(block: (R, List<Any?>) -> T) {
         execute = block
     }
 

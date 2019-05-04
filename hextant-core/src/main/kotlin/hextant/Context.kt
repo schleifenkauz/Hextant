@@ -15,7 +15,7 @@ interface Context : Bundle {
     companion object {
         inline fun newInstance(
             context: Context = HextantPlatform.configured(),
-            configure: Bundle.() -> Unit = {}
+            configure: Context.() -> Unit = {}
         ): Context = object : AbstractContext(parent = context) {
             override val platform: HextantPlatform
                 get() = context.platform

@@ -4,77 +4,61 @@
 
 package hextant.impl
 
-import hextant.Editor
+import hextant.EditorView
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
-import reaktive.set.*
-import reaktive.value.Variable
+import reaktive.set.ReactiveSet
+import reaktive.set.reactiveSet
 
 interface SelectionDistributor {
-    val selectedEditors: ReactiveSet<Editor<*>>
+    val selectedTargets: ReactiveSet<Any>
 
-    fun toggleSelection(editor: Editor<*>, isSelected: Variable<Boolean>)
+    val selectedViews: ReactiveSet<EditorView>
 
-    fun select(editor: Editor<*>, isSelected: Variable<Boolean>)
+    fun toggleSelection(view: EditorView): Boolean
+
+    fun select(view: EditorView): Boolean
 
     private class Impl: SelectionDistributor {
-        private val isEditorSelected: MutableMap<Editor<*>, Variable<Boolean>> = HashMap()
+        override val selectedViews = reactiveSet<EditorView>()
 
-        override val selectedEditors: MutableReactiveSet<Editor<*>> = reactiveSet()
+        override val selectedTargets: ReactiveSet<Any> = selectedViews.map { it.target }
 
-        @Synchronized override fun toggleSelection(editor: Editor<*>, isSelected: Variable<Boolean>) {
-            val now = selectedEditors.now
-            if (addSelection(editor, isSelected)) return
-            if (now.size > 1) removeSelection(now, editor, isSelected)
+        @Synchronized override fun toggleSelection(view: EditorView): Boolean {
+            if (selectedViews.now.add(view)) return true
+            if (selectedTargets.now.size > 1) removeSelection(view)
+            return false
         }
 
         private fun removeSelection(
-            now: MutableSet<Editor<*>>, editor: Editor<*>, isSelected: Variable<Boolean>
+            view: EditorView
         ) {
-            if (now.remove(editor)) {
-                isSelected.set(false)
-                isEditorSelected.remove(editor)
+            if (selectedViews.now.remove(view)) {
+                view.deselect()
             }
         }
 
-        @Synchronized override fun select(editor: Editor<*>, isSelected: Variable<Boolean>) {
-            val now = selectedEditors.now
-            val alreadySelected = editor in now
-            if (now.size == 1 && alreadySelected) return
+        @Synchronized override fun select(view: EditorView): Boolean {
+            val views = selectedViews.now
+            val alreadySelected = view in views
+            if (views.size == 1 && alreadySelected) return true
             else if (alreadySelected) {
-                removeAllExcept(editor, isSelected)
-            }
-            else {
+                removeAllExcept(view)
+            } else {
                 clearSelection()
-                addSelection(editor, isSelected)
+                selectedViews.now.add(view)
             }
+            return true
         }
 
         private fun clearSelection() {
-            selectedEditors.now.forEach { isEditorSelected.remove(it)?.set(false) }
-            selectedEditors.now.clear()
+            selectedViews.now.forEach { it.deselect() }
+            selectedViews.now.clear()
         }
 
-        private fun addSelection(
-            editor: Editor<*>, isSelected: Variable<Boolean>
-        ): Boolean {
-            val couldAdd = selectedEditors.now.add(editor)
-            if (couldAdd) {
-                isEditorSelected[editor] = isSelected
-                isSelected.set(true)
-            }
-            return couldAdd
-        }
-
-        private fun removeAllExcept(
-            editor: Editor<*>, isSelected: Variable<Boolean>
-        ) {
-            selectedEditors.now.removeIf {
-                if (it != editor) {
-                    isEditorSelected[editor] = isSelected
-                    true
-                } else false
-            }
+        private fun removeAllExcept(view: EditorView) {
+            selectedViews.now.forEach { v -> if (v != view) v.deselect() }
+            selectedViews.now.retainAll(setOf(view))
         }
     }
 
