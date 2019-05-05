@@ -81,7 +81,7 @@ class CommandLine(
     fun resume(application: CommandApplication) {
         val command = application.command
         if (targets.any { !command.isApplicableOn(it) }) return
-        val name = command.name
+        val name = command.shortName!!
         if (application.args.isEmpty()) {
             setEditingName(name)
         } else {

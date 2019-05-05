@@ -103,8 +103,12 @@
     -fx-border-width: 0;
 }
 
+.command-history-cell {
+    -fx-background-color: #171717
+}
+
 .command-history-cell:focused {
-    -fx-background-color: #0B0A06;
+    -fx-background-color: #292929;
     -fx-border-width: 0;
 }
 

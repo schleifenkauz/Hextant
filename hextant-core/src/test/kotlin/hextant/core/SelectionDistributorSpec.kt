@@ -92,8 +92,8 @@ private fun SpecBody.test(sut: SelectionDistributor) {
         }
         on("selecting the first editor") {
             val selected = sut.select(view1)
-            it("should return false") {
-                selected shouldBe `false`
+            it("should return true") {
+                selected shouldBe `true`
             }
             it("should do nothing else") {
                 sut.selectedViews.now shouldBe equalTo(setOf(view1))

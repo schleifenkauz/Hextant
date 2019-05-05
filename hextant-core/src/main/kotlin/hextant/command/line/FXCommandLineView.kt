@@ -167,6 +167,7 @@ class FXCommandLineView(
 
     override fun editingName(name: String) {
         textField.isEditable = true
+        textField.text = name
         argEditors.children.clear()
     }
 
