@@ -16,7 +16,9 @@ abstract class TokenEditor<out R : Any>(context: Context) : AbstractEditor<R, To
 
     override val result: EditorResult<R> get() = _result
 
-    var text = ""; private set
+    private var _text = ""
+
+    val text get() = _text
 
     private val undo = context[UndoManager]
 
@@ -31,7 +33,7 @@ abstract class TokenEditor<out R : Any>(context: Context) : AbstractEditor<R, To
     }
 
     private fun doSetText(newText: String) {
-        text = newText
+        _text = newText
         _result.set(compile(text))
         views { displayText(newText) }
     }
