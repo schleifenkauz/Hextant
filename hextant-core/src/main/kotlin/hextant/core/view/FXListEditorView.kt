@@ -169,7 +169,7 @@ class FXListEditorView(
             }
 
         override fun requestFocus() {
-            item?.receiveFocus()
+            item?.select()
         }
 
         protected open fun updateIndex(idx: Int) {}
@@ -204,8 +204,19 @@ class FXListEditorView(
         c.requestFocus()
     }
 
-    private fun getCell(idx: Int, editable: Editor<*>): Cell<*> {
-        val control = context.createView(editable)
+    private fun getCell(idx: Int, editor: Editor<*>): Cell<*> {
+        val control = context.createView(editor)
+        val nxt = cells.getOrElse(idx + 1) { cells.firstOrNull() }?.item
+        if (nxt != null) {
+            control.setNext(nxt)
+            nxt.setPrevious(control)
+        }
+        val prev = cells.getOrElse(idx - 1) { cells.lastOrNull() }?.item
+        if (prev != null) {
+            control.setPrevious(prev)
+            prev.setNext(control)
+        }
+        control.setEditorParent(this)
         return cellFactory().apply {
             item = control
             index = idx

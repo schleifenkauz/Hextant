@@ -26,14 +26,19 @@ abstract class CompoundEditorControl(
         build(arguments)
     }.also {
         if (it.firstEditorChild != null) firstChildToFocus = it.firstEditorChild
+        defineChildren(it.editorChildren)
     }
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
         root = createDefaultRoot()
     }
 
+    override fun receiveFocus() {
+        firstChildToFocus?.receiveFocus()
+    }
+
     interface Compound {
-        fun view(editable: Editor<*>, args: Bundle = Bundle.newInstance()): EditorControl<*>
+        fun view(editor: Editor<*>, args: Bundle = Bundle.newInstance()): EditorControl<*>
 
         fun space(): Label
 
@@ -46,9 +51,12 @@ abstract class CompoundEditorControl(
         var firstEditorChild: EditorControl<*>? = null
             private set
 
-        override fun view(editable: Editor<*>, args: Bundle): EditorControl<*> =
-            view(editable, this, context, args).also {
+        internal val editorChildren: MutableList<EditorControl<*>> = mutableListOf()
+
+        override fun view(editor: Editor<*>, args: Bundle): EditorControl<*> =
+            view(editor, this, context, args).also {
                 if (firstEditorChild == null) firstEditorChild = it
+                editorChildren.add(it)
             }
 
         override fun space() = space(this)
@@ -62,6 +70,7 @@ abstract class CompoundEditorControl(
             if (horizontal.firstEditorChild != null && this.firstEditorChild == null)
                 this.firstEditorChild = horizontal.firstEditorChild
             children.add(horizontal)
+            editorChildren.addAll(horizontal.editorChildren)
             return horizontal
         }
 
@@ -72,17 +81,21 @@ abstract class CompoundEditorControl(
                 this.firstEditorChild = v.firstEditorChild
             val indented = HBox(indent, v)
             children.add(indented)
+            editorChildren.addAll(v.editorChildren)
             return indented
         }
     }
 
     inner class Horizontal : HBox(), Compound {
-        var firstEditorChild: EditorControl<*>? = null
+        internal val editorChildren: MutableList<EditorControl<*>> = mutableListOf()
+
+        internal var firstEditorChild: EditorControl<*>? = null
             private set
 
-        override fun view(editable: Editor<*>, args: Bundle): EditorControl<*> =
-            view(editable, this, context, args).also {
+        override fun view(editor: Editor<*>, args: Bundle): EditorControl<*> =
+            view(editor, this, context, args).also {
                 if (firstEditorChild == null) firstEditorChild = it
+                editorChildren.add(it)
             }
 
         override fun space() = space(this)

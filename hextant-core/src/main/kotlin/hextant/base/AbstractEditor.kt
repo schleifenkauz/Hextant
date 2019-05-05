@@ -44,4 +44,8 @@ abstract class AbstractEditor<out R : Any, in V : Any>(val context: Context) : E
         _children.now.add(editor)
         return editor
     }
+
+    protected fun children(vararg children: Editor<*>) {
+        for (c in children) child(c)
+    }
 }

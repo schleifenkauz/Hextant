@@ -10,7 +10,6 @@ import hextant.bundle.Bundle
 import hextant.createView
 import hextant.expr.editor.OperatorApplicationEditor
 import hextant.fx.OperatorLabel
-import hextant.fx.isControlDown
 import javafx.scene.layout.HBox
 
 class FXOperatorApplicationEditorView(
@@ -45,11 +44,7 @@ class FXOperatorApplicationEditorView(
 
     private fun parenLabel(paren: String) = OperatorLabel(paren).apply {
         setOnMouseClicked {
-            if (isControlDown) {
-                toggleSelection()
-            } else {
-                select()
-            }
+            focus()
         }
     }
 

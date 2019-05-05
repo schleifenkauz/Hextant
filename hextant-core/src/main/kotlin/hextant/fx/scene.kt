@@ -4,11 +4,17 @@
 
 package hextant.fx
 
+import com.sun.javafx.scene.traversal.*
+import com.sun.javafx.scene.traversal.Direction.*
+import com.sun.javafx.scene.traversal.Direction.DOWN
+import com.sun.javafx.scene.traversal.Direction.LEFT
+import com.sun.javafx.scene.traversal.Direction.RIGHT
+import com.sun.javafx.scene.traversal.Direction.UP
 import hextant.Context
 import hextant.HextantPlatform
+import hextant.base.EditorControl
 import hextant.impl.Stylesheets
-import javafx.scene.Parent
-import javafx.scene.Scene
+import javafx.scene.*
 import javafx.scene.control.Label
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent
@@ -40,6 +46,48 @@ private fun Scene.initEventHandlers(context: Context) {
             isControlDown = false
         }
     }
+    changeTraversalEngine()
+}
+
+private fun Scene.changeTraversalEngine() {
+    root.impl_traversalEngine = ParentTraversalEngine(root, object : Algorithm {
+        override fun select(owner: Node, dir: Direction, context: TraversalContext?): Node? {
+            val editorControl = generateSequence(owner) { it.parent }.first { it is EditorControl<*> }
+            editorControl as EditorControl<*>
+            return when (dir) {
+                UP, DOWN, NEXT_IN_LINE -> owner
+                LEFT, PREVIOUS         -> editorControl.previous
+                RIGHT, NEXT            -> editorControl.next
+            }
+        }
+
+        override fun selectFirst(context: TraversalContext?): Node? =
+            firstEditorControl(root)
+
+        private fun firstEditorControl(node: Node): EditorControl<*>? = when (node) {
+            is Parent -> {
+                for (c in node.childrenUnmodifiable) {
+                    firstEditorControl(c)?.let { return it }
+                }
+                if (node is EditorControl<*>) node else null
+            }
+            else      -> node as? EditorControl<*>
+        }
+
+        override fun selectLast(context: TraversalContext?): Node? =
+            lastEditorControl(root)
+
+        private fun lastEditorControl(node: Node): EditorControl<*>? = when (node) {
+            is EditorControl<*> -> node
+            is Parent           -> {
+                for (c in node.childrenUnmodifiable.asReversed()) {
+                    firstEditorControl(c)?.let { return it }
+                }
+                if (node is EditorControl<*>) node else null
+            }
+            else                -> node as? EditorControl<*>
+        }
+    })
 }
 
 

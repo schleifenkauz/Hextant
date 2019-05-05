@@ -15,16 +15,13 @@ internal class CommandContextMenu<T : Any> internal constructor(
     private val context: Context
 ) : ContextMenu() {
     init {
-        logger.info("New Command context menu")
         update()
         setOnShowing { update() }
     }
 
     private fun update() {
-        logger.info("updating")
         items.clear()
         for (c in commandRegistrar.commands) {
-            logger.finest { "Showing command $c" }
             val item = CommandMenuItem(target, c, commandRegistrar, context)
             items.add(item)
         }

@@ -153,8 +153,13 @@ abstract class EditorControl<R : Node>(
     }
 
     open fun focus() {
+        log("focus")
         check(scene != null)
         root.requestFocus()
+    }
+
+    private fun log(msg: String) {
+        //        println("${javaClass.name} $msg")
     }
 
     /**
@@ -163,20 +168,24 @@ abstract class EditorControl<R : Node>(
      * The default implementation just calls [focus].
      */
     open fun receiveFocus() {
+        log("receiveFocus")
         focus()
     }
 
     override fun requestFocus() {
+        log("requestFocus")
         root.requestFocus()
     }
 
     private fun doSelect(): Boolean {
+        log("doSelect")
         val selected = selection.select(this)
         pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
         return selected
     }
 
     fun select() {
+        log("select")
         if (doSelect()) {
             manuallySelecting = true
             root.requestFocus()
@@ -185,12 +194,14 @@ abstract class EditorControl<R : Node>(
     }
 
     private fun doToggleSelection(): Boolean {
+        log("doToggleSelection")
         val selected = selection.toggleSelection(this)
         pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
         return selected
     }
 
     fun toggleSelection() {
+        log("toggleSelection")
         if (doToggleSelection()) {
             manuallySelecting = true
             root.requestFocus()
@@ -199,6 +210,7 @@ abstract class EditorControl<R : Node>(
     }
 
     override fun deselect() {
+        log("deselect")
         pseudoClassStateChanged(PseudoClasses.SELECTED, false)
     }
 

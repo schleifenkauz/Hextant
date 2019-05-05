@@ -49,13 +49,8 @@ interface EditorControlFactory {
             arguments: Bundle
         ): EditorControl<*> {
             val cls = editor::class
-            when (editor) {
-                //                is ConvertedEditable<*, *> -> return getControl(editable.source, context)
-                else                       -> {
-                    viewFactories[cls]?.let { f -> return f(editor, context, arguments) }
-                    unresolvedView(cls)
-                }
-            }
+            viewFactories[cls]?.let { f -> return f(editor, context, arguments) }
+            unresolvedView(cls)
         }
 
         private fun <E : Editor<*>> unresolvedView(cls: KClass<out E>): Nothing {
