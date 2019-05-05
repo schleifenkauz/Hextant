@@ -135,8 +135,8 @@ abstract class CompoundEditorControl(
             return l
         }
 
-        operator fun invoke(
-            editor: AbstractEditor<*, Any>,
+        fun build(
+            editor: AbstractEditor<*, EditorView>,
             context: Context,
             args: Bundle = Bundle.newInstance(),
             build: Vertical.(Bundle) -> Unit

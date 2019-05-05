@@ -159,10 +159,27 @@ fun <A : Any, T> result1(dep1: Editor<A>, body: (A) -> CompileResult<T>): Editor
 }
 
 fun <A : Any, B : Any, T> result2(dep1: Editor<A>, dep2: Editor<B>, body: (A, B) -> CompileResult<T>): EditorResult<T> =
-    result(dep1) {
+    result(dep1, dep2) {
         compile {
             body(dep1.result.now.orTerminate { childErr() }, dep2.result.now.orTerminate { childErr() })
         }
     }
+
+fun <A : Any, B : Any, C : Any, T> result3(
+    dep1: Editor<A>,
+    dep2: Editor<B>,
+    dep3: Editor<C>,
+    body: (A, B, C) -> CompileResult<T>
+): EditorResult<T> =
+    result(dep1, dep2) {
+        compile {
+            body(
+                dep1.result.now.orTerminate { childErr() },
+                dep2.result.now.orTerminate { childErr() },
+                dep3.result.now.orTerminate { childErr() }
+            )
+        }
+    }
+
 
 typealias EditorResult<R> = ReactiveValue<CompileResult<R>>
