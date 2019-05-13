@@ -28,16 +28,10 @@ class ExpanderViewTest : Application() {
     companion object {
         private fun createContent(context: Context): Parent {
             context[Public, EditorControlFactory].configure {
-                register(IntLiteralEditor::class) { editor, ctx, args ->
-                    FXIntLiteralEditorView(
-                        editor,
-                        ctx,
-                        args
-                    )
-                }
+                register(IntLiteralEditor::class, ::FXIntLiteralEditorView)
             }
             val ex = ExprExpander(context)
-            return FXExpanderView(ex, context, Bundle.newInstance())
+            return FXExpanderView(ex, Bundle.newInstance())
         }
 
         @JvmStatic fun main(args: Array<String>) {

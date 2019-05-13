@@ -4,11 +4,12 @@
 
 package hextant.core.view
 
-import hextant.*
+import hextant.Editor
 import hextant.base.EditorControl
 import hextant.bundle.*
 import hextant.bundle.CorePermissions.Public
 import hextant.core.editor.ListEditor
+import hextant.createView
 import hextant.fx.Glyphs
 import hextant.fx.setRoot
 import javafx.scene.Node
@@ -21,10 +22,9 @@ import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 
 class FXListEditorView(
     private val editor: ListEditor<*, *>,
-    context: Context,
     args: Bundle,
     private val emptyDisplay: Node = Glyphs.create(PLUS)
-) : ListEditorView, EditorControl<Node>(editor, context, args) {
+) : ListEditorView, EditorControl<Node>(editor, args) {
     var orientation = arguments.getOrNull(Public, ORIENTATION) ?: Orientation.Vertical
         set(new) {
             field = new
@@ -206,12 +206,12 @@ class FXListEditorView(
 
     private fun getCell(idx: Int, editor: Editor<*>): Cell<*> {
         val control = context.createView(editor)
-        val nxt = cells.getOrElse(idx + 1) { cells.firstOrNull() }?.item
+        val nxt = cells.getOrNull(idx + 1)?.item
         if (nxt != null) {
             control.setNext(nxt)
             nxt.setPrevious(control)
         }
-        val prev = cells.getOrElse(idx - 1) { cells.lastOrNull() }?.item
+        val prev = cells.getOrNull(idx - 1)?.item
         if (prev != null) {
             control.setPrevious(prev)
             prev.setNext(control)
@@ -313,18 +313,16 @@ class FXListEditorView(
 
         fun withAltText(
             editor: ListEditor<*, *>,
-            context: Context,
             emptyText: String = "Add item",
             args: Bundle = Bundle.newInstance()
-        ) = FXListEditorView(editor, context, args, Button(emptyText))
+        ) = FXListEditorView(editor, args, Button(emptyText))
 
         fun withAltGlyph(
             editor: ListEditor<*, *>,
-            context: Context,
             glyph: FontAwesome.Glyph,
             args: Bundle = Bundle.newInstance(),
             orientation: Orientation = Orientation.Vertical
-        ) = FXListEditorView(editor, context, args.also {
+        ) = FXListEditorView(editor, args.also {
             it[Public, ORIENTATION] = orientation
         }, Glyphs.create(glyph))
 

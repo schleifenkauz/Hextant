@@ -39,12 +39,8 @@ class CommandLineGuiTest : Application() {
             }
             val views = context[EditorControlFactory]
             views.run {
-                register(IntLiteralEditor::class) { e: IntLiteralEditor, ctx, args ->
-                    FXIntLiteralEditorView(
-                        e,
-                        ctx,
-                        args
-                    )
+                register(IntLiteralEditor::class) { e: IntLiteralEditor, args ->
+                    FXIntLiteralEditorView(e, args)
                 }
             }
             val commandLine = CommandLine(targets, commands, context)

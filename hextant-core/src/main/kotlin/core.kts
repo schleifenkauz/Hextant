@@ -7,4 +7,5 @@ plugin {
     author = "Nikolaus Knop"
     view(::FXExpanderView)
     inspection(::SyntaxErrorInspection)
+    stylesheet("hextant/core/style.css")
 }

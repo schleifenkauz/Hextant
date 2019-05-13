@@ -15,7 +15,8 @@ import reaktive.value.reactiveVariable
 /**
  * Skeletal implementation for [Editor]s
  */
-abstract class AbstractEditor<out R : Any, in V : Any>(val context: Context) : Editor<R>, AbstractController<V>() {
+abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Context) : Editor<R>,
+                                                                                        AbstractController<V>() {
     private val _parent = reactiveVariable<Editor<*>?>(null)
 
     final override val parent: ReactiveValue<Editor<*>?> get() = _parent

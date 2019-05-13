@@ -4,13 +4,14 @@
 
 package hextant.core.view
 
-import hextant.*
+import hextant.Editor
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompleterPopupHelper
 import hextant.core.editor.Expander
+import hextant.createView
 import hextant.fx.HextantTextField
 import hextant.fx.registerShortcut
 import javafx.scene.Node
@@ -23,11 +24,10 @@ import reaktive.event.subscribe
 
 class FXExpanderView(
     private val expander: Expander<*, *>,
-    context: Context,
     args: Bundle,
     completer: Completer<String>
-) : ExpanderView, EditorControl<Node>(expander, context, args) {
-    constructor(expander: Expander<*, *>, context: Context, args: Bundle) : this(expander, context, args, NoCompleter)
+) : ExpanderView, EditorControl<Node>(expander, args) {
+    constructor(expander: Expander<*, *>, args: Bundle) : this(expander, args, NoCompleter)
 
     private var view: EditorControl<*>? = null
 
@@ -76,11 +76,16 @@ class FXExpanderView(
         }
     }
 
+    override fun receiveFocus() {
+        if (view != null) view!!.receiveFocus()
+        else textField.requestFocus()
+    }
+
     override fun reset() {
         view = null
         root = textField
-        textField.requestFocus()
         textField.text = ""
+        requestFocus()
     }
 
     override fun expanded(editor: Editor<*>) {
@@ -91,7 +96,7 @@ class FXExpanderView(
         this.next?.let { v.setNext(it) }
         this.previous?.let { v.setPrevious(it) }
         this.editorParent?.let { v.setEditorParent(it) }
-        v.root //assure that root is fully initialized
+        v.root //ensure that root is fully initialized
         v.receiveFocus()
     }
 

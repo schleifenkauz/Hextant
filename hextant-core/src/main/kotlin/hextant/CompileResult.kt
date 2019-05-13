@@ -171,7 +171,7 @@ fun <A : Any, B : Any, C : Any, T> result3(
     dep3: Editor<C>,
     body: (A, B, C) -> CompileResult<T>
 ): EditorResult<T> =
-    result(dep1, dep2) {
+    result(dep1, dep2, dep3) {
         compile {
             body(
                 dep1.result.now.orTerminate { childErr() },

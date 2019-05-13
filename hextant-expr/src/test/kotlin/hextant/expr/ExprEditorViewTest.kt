@@ -118,9 +118,9 @@ class ExprEditorViewTest : Application() {
             executing { oe, _ ->
                 val oae = oe.parent.now as OperatorApplicationEditor
                 val expander1 = oae.editableOp1
-                val editableOp1 = expander1.editor
+                val editableOp1 = expander1.editor.now
                 val expander2 = oae.editableOp2
-                val editableOp2 = expander2.editor
+                val editableOp2 = expander2.editor.now
                 if (editableOp2 != null) expander1.setEditor(editableOp2)
                 if (editableOp1 != null) expander2.setEditor(editableOp1)
             }
@@ -244,8 +244,8 @@ class ExprEditorViewTest : Application() {
         setOnAction {
             val chooser = FileChooser()
             val file = chooser.showSaveDialog(stage) ?: return@setOnAction
-            val out = serial.createOutput(file)
-            out.writeObject(parent.editor, context)
+            val out = serial.createOutput(file, context)
+            out.writeObject(parent.editor.now)
         }
         accelerator = KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN)
     }
@@ -254,8 +254,8 @@ class ExprEditorViewTest : Application() {
         setOnAction {
             val chooser = FileChooser()
             val file = chooser.showOpenDialog(stage) ?: return@setOnAction
-            val input = serial.createInput(file)
-            val editable = input.readTyped<ExprEditor<Expr>>(context)!!
+            val input = serial.createInput(file, context)
+            val editable = input.readTyped<ExprEditor<Expr>>(context)
             parent.setEditor(editable)
         }
         accelerator = KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN)

@@ -29,7 +29,7 @@ fun showArgumentPrompt(
     for ((p, v) in views) {
         vbox.children.add(argumentEditor(p, v))
     }
-    val bt = UtilityDialog.show {
+    val bt = UtilityDialog.show(context) {
         title = command.name
         headerText = command.description
         content = vbox

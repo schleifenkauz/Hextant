@@ -21,7 +21,7 @@ interface EditorControlFactory {
      * Register the specified [viewFactory] to the given [editableCls].
      * From now all calls of [getControl] with an argument of type [E] will use the [viewFactory]
      */
-    fun <E : Editor<*>> register(editableCls: KClass<out E>, viewFactory: (E, Context, Bundle) -> EditorControl<*>)
+    fun <E : Editor<*>> register(editableCls: KClass<out E>, viewFactory: (E, Bundle) -> EditorControl<*>)
 
     /**
      * @return the [EditorControl<*>] associated with the type of the specified [editor]
@@ -29,27 +29,25 @@ interface EditorControlFactory {
      */
     fun <E : Editor<*>> getControl(
         editor: E,
-        context: Context,
         arguments: Bundle = Bundle.newInstance()
     ): EditorControl<*>
 
     @Suppress("UNCHECKED_CAST") private class Impl : EditorControlFactory {
-        private val viewFactories = ClassMap.invariant<(Editor<*>, Context, Bundle) -> EditorControl<*>>()
+        private val viewFactories = ClassMap.invariant<(Editor<*>, Bundle) -> EditorControl<*>>()
 
         override fun <E : Editor<*>> register(
             editableCls: KClass<out E>,
-            viewFactory: (E, Context, Bundle) -> EditorControl<*>
+            viewFactory: (E, Bundle) -> EditorControl<*>
         ) {
-            viewFactories[editableCls] = viewFactory as (Editor<*>, Context, Bundle) -> EditorControl<*>
+            viewFactories[editableCls] = viewFactory as (Editor<*>, Bundle) -> EditorControl<*>
         }
 
         @Synchronized override fun <E : Editor<*>> getControl(
             editor: E,
-            context: Context,
             arguments: Bundle
         ): EditorControl<*> {
             val cls = editor::class
-            viewFactories[cls]?.let { f -> return f(editor, context, arguments) }
+            viewFactories[cls]?.let { f -> return f(editor, arguments) }
             unresolvedView(cls)
         }
 
@@ -57,7 +55,6 @@ interface EditorControlFactory {
             val msg = "Could not resolve view for $cls"
             throw NoSuchElementException(msg)
         }
-
     }
 
     companion object : Property<EditorControlFactory, Public, Internal>("editor-view-factory") {

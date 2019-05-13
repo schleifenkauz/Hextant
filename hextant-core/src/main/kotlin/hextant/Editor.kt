@@ -29,6 +29,11 @@ interface Editor<out R : Any> {
      */
     val expander: ReactiveValue<Expander<*, *>?>
 
+    /**
+     * The context of this editor
+     */
+    val context: Context
+
     @Deprecated("Treat as private")
     fun setParent(newParent: Editor<*>?)
 

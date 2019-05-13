@@ -4,7 +4,6 @@
 
 package hextant.lisp.view
 
-import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.createView
@@ -13,9 +12,8 @@ import javafx.scene.Node
 
 class GetValEditorControl(
     private val editor: GetValEditor,
-    context: Context,
     args: Bundle
-) : EditorControl<Node>(editor, context, args) {
+) : EditorControl<Node>(editor, args) {
     override fun receiveFocus() {
         root.requestFocus()
     }

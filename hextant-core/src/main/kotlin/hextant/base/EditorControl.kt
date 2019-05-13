@@ -8,12 +8,13 @@ import hextant.*
 import hextant.bundle.*
 import hextant.command.gui.commandContextMenu
 import hextant.fx.*
+import hextant.fx.ModifierValue.DOWN
+import hextant.fx.ModifierValue.MAYBE
 import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import hextant.inspect.gui.InspectionPopup
 import javafx.geometry.Side
 import javafx.scene.Node
-import javafx.scene.Parent
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
 import javafx.scene.input.KeyCode.*
@@ -29,6 +30,8 @@ abstract class EditorControl<R : Node>(
     val context: Context,
     arguments: Bundle
 ) : Control(), EditorView {
+    constructor(editor: Editor<*>, arguments: Bundle) : this(editor, editor.context, arguments)
+
     private var _root: R? = null
 
     final override val arguments: Bundle
@@ -37,7 +40,7 @@ abstract class EditorControl<R : Node>(
 
     private val inspections = context[Inspections]
 
-    private val inspectionPopup = InspectionPopup { inspections.getProblems(target) }
+    private val inspectionPopup = InspectionPopup(context) { inspections.getProblems(target) }
 
     private val hasError = inspections.hasError(target)
 
@@ -54,17 +57,23 @@ abstract class EditorControl<R : Node>(
     internal var editorParent: EditorControl<*>? = null
         private set
 
-    private var editorChildren: List<EditorControl<*>>? = null
+    internal var editorChildren: List<EditorControl<*>>? = null
+        private set
 
     internal var next: EditorControl<*>? = null
         private set
+        get() = field ?: editorParent?.next
 
     internal var previous: EditorControl<*>? = null
         private set
+        get() = field ?: editorParent?.previous
 
     private var manuallySelecting = false
 
+    private var isSelected = false
+
     init {
+        styleClass.add("editor-control")
         val reactive = ReactiveBundle(arguments)
         reactive.changed.subscribe { _, change ->
             argumentChanged(change.property, change.newValue)
@@ -113,8 +122,6 @@ abstract class EditorControl<R : Node>(
             previous.setNext(next)
             next.setPrevious(previous)
         }
-        children.last().setNext(children.first())
-        children.first().setPrevious(children.last())
     }
 
     protected fun defineChildren(vararg children: EditorControl<*>) {
@@ -138,7 +145,7 @@ abstract class EditorControl<R : Node>(
             root.isFocusTraversable = true
             root.focusedProperty().addListener { _, _, focused ->
                 if (focused && !manuallySelecting) {
-                    if (isControlDown) doToggleSelection()
+                    if (isShiftDown) doToggleSelection()
                     else doSelect()
                 }
             }
@@ -154,7 +161,6 @@ abstract class EditorControl<R : Node>(
 
     open fun focus() {
         log("focus")
-        check(scene != null)
         root.requestFocus()
     }
 
@@ -180,7 +186,7 @@ abstract class EditorControl<R : Node>(
     private fun doSelect(): Boolean {
         log("doSelect")
         val selected = selection.select(this)
-        pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
+        setSelected(selected)
         return selected
     }
 
@@ -196,7 +202,7 @@ abstract class EditorControl<R : Node>(
     private fun doToggleSelection(): Boolean {
         log("doToggleSelection")
         val selected = selection.toggleSelection(this)
-        pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
+        setSelected(selected)
         return selected
     }
 
@@ -211,7 +217,12 @@ abstract class EditorControl<R : Node>(
 
     override fun deselect() {
         log("deselect")
-        pseudoClassStateChanged(PseudoClasses.SELECTED, false)
+        setSelected(false)
+    }
+
+    private fun setSelected(selected: Boolean) {
+        isSelected = selected
+        pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
     }
 
     private fun initShortcuts() {
@@ -224,12 +235,14 @@ abstract class EditorControl<R : Node>(
 
     private fun shrinkSelection() {
         val childToSelect = lastExtendingChild ?: editorChildren?.firstOrNull() ?: return
-        childToSelect.select()
+        childToSelect.requestFocus()
+        if (isSelected) toggleSelection()
     }
 
     private fun extendSelection() {
         val parent = editorParent ?: return
-        parent.select()
+        parent.requestFocus()
+        if (isSelected) toggleSelection()
         parent.lastExtendingChild = this
     }
 
@@ -240,9 +253,18 @@ abstract class EditorControl<R : Node>(
 
     private fun handleProblem(error: Boolean, warn: Boolean) {
         when {
-            error -> root.setStyleForAllChildren("-fx-text-fill: red;")
-            warn  -> root.setStyleForAllChildren("-fx-text-fill: yellow;")
-            else  -> root.setStyleForAllChildren(null)
+            error -> {
+                styleClass.add("error")
+                styleClass.remove("warn")
+            }
+            warn  -> {
+                styleClass.add("warn")
+                styleClass.remove("error")
+            }
+            else  -> {
+                styleClass.remove("warn")
+                styleClass.remove("error")
+            }
         }
     }
 
@@ -252,19 +274,16 @@ abstract class EditorControl<R : Node>(
     }
 
     companion object {
-        private val EXTEND_SELECTION = Shortcut(W, CONTROL)
-
-        private val SHRINK_SELECTION = Shortcut(W, CONTROL, SHIFT)
-
-        private val INSPECTIONS = Shortcut(ENTER, ALT)
-
-        private fun Node.setStyleForAllChildren(style: String?) {
-            this.style = style
-            if (this is Parent) {
-                for (c in childrenUnmodifiable) {
-                    c.setStyleForAllChildren(style)
-                }
-            }
+        private val EXTEND_SELECTION = shortcut(M) {
+            control(DOWN)
+            shift(MAYBE)
         }
+
+        private val SHRINK_SELECTION = shortcut(L) {
+            control(DOWN)
+            shift(MAYBE)
+        }
+
+        private val INSPECTIONS = shortcut(ENTER) { alt(DOWN) }
     }
 }

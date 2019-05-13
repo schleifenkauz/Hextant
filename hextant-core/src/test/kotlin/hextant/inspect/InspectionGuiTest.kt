@@ -70,7 +70,7 @@ class InspectionGuiTest : Application() {
             val editableFactory = context[EditorFactory]
             editableFactory.register(IntLiteral::class) { ctx -> IntLiteralEditor(ctx) }
             val e = IntLiteralEditor(context)
-            return FXIntLiteralEditorView(e, context, Bundle.newInstance())
+            return FXIntLiteralEditorView(e, Bundle.newInstance())
         }
 
         @JvmStatic fun main(args: Array<String>) {

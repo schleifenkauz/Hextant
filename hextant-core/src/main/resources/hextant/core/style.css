@@ -52,11 +52,11 @@
 }
 
 /*Style class applied to single warning components in problem lists*/
-.warning {
+.warning-item {
     -fx-graphic: url(icon/warning.png);
 }
 /*Style class applied to single error components in problem lists*/
-.error {
+.error-item {
     -fx-graphic: url(icon/error.png);
 }
 
@@ -190,4 +190,20 @@
 	c-10.048,0-18.643-3.572-25.786-10.714c-7.143-7.143-10.714-15.737-10.714-25.786c0-10.048,3.572-18.644,10.714-25.786
 	c7.142-7.143,15.738-10.714,25.786-10.714c10.048,0,18.643,3.572,25.787,10.714c7.143,7.142,10.715,15.738,10.715,25.786
 	C134.072,72.62,130.499,81.214,123.357,88.357z";
+}
+
+.hextant-text.keyword {
+    -fx-text-fill: orange;
+}
+
+.hextant-text.operator {
+    -fx-text-fill: green;
+}
+
+.error * {
+    -fx-text-fill: red !important;
+}
+
+.warn * {
+    -fx-text-fill: yellow !important;
 }

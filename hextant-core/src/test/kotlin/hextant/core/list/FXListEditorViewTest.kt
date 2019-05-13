@@ -21,8 +21,8 @@ class FXListEditorViewTest : Application() {
         private fun createContent(context: Context): Parent {
             val list = ExprListEditor(context)
             val views = context[EditorControlFactory]
-            views.register(ListEditor::class) { editor, ctx, args ->
-                FXListEditorView(editor, ctx, args)
+            views.register(ListEditor::class) { editor, args ->
+                FXListEditorView(editor, args)
             }
             val view = context.createView(list) as FXListEditorView
             view.cellFactory = { NumberedCell() }

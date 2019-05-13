@@ -1,19 +1,23 @@
 package hextant.impl
 
+import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.Property
 import javafx.scene.Scene
 
-internal object Stylesheets {
-    private val cssFiles by lazy {
-        Resources.allCSS()
-    }
-
-    private val stringified by lazy { cssFiles.map { it.toUri().toURL().toExternalForm() } }
+internal class Stylesheets {
+    private val paths = mutableListOf<String>()
 
     fun apply(stylesheets: MutableCollection<String>) {
-        stylesheets.addAll(stringified)
+        stylesheets.addAll(paths)
     }
 
     fun apply(scene: Scene) {
         apply(scene.stylesheets)
     }
+
+    fun add(stylesheet: String) {
+        paths.add(stylesheet)
+    }
+
+    companion object : Property<Stylesheets, Internal, Internal>("stylesheets")
 }

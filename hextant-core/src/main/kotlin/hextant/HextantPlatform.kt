@@ -8,8 +8,7 @@ import hextant.base.AbstractContext
 import hextant.bundle.Bundle
 import hextant.bundle.CoreProperties
 import hextant.command.Commands
-import hextant.impl.SelectionDistributor
-import hextant.impl.Settings
+import hextant.impl.*
 import hextant.inspect.Inspections
 import hextant.plugin.PluginRegistry
 import kserial.SerialContext
@@ -65,6 +64,7 @@ interface HextantPlatform : Context {
             set(Commands, Commands.newInstance())
             set(Inspections, Inspections.newInstance())
             set(CoreProperties.logger, Logger.getLogger(javaClass.name))
+            set(Stylesheets, Stylesheets())
             val plugins = PluginRegistry(this, Settings.plugins)
             set(PluginRegistry, plugins)
             set(CoreProperties.serialContext, SerialContext.newInstance {
@@ -74,13 +74,10 @@ interface HextantPlatform : Context {
             set(CoreProperties.classLoader, plugins.compoundClassLoader)
         }
 
-        val forTesting = singleThread().apply {
+        val forTesting = unconfigured().apply {
             set(EditorFactory, EditorFactory.newInstance())
         }
 
         fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = SingleThreaded(bundle)
-
-        fun singleThread(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
-            SingleThreaded(bundle).apply { configure() }
     }
 }

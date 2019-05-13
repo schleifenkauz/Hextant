@@ -10,6 +10,7 @@ import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
 import hextant.command.Command
 import hextant.command.Commands
+import hextant.impl.Stylesheets
 import hextant.impl.myLogger
 import hextant.inspect.Inspection
 import hextant.inspect.Inspections
@@ -47,7 +48,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
     /**
      * Register the specified [factory] for views of the class [E]
      */
-    inline fun <reified E : Editor<*>, reified V : EditorControl<*>> view(noinline factory: (E, Context, Bundle) -> V) {
+    inline fun <reified E : Editor<*>, reified V : EditorControl<*>> view(noinline factory: (E, Bundle) -> V) {
         platform[Public, EditorControlFactory].register(E::class, factory)
         val viewName = V::class.qualifiedName
         val editableName = E::class.qualifiedName
@@ -78,12 +79,9 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
         logger.config { "Command ${command.name} registered" }
     }
 
-    val unsupported: () -> Nothing
-        get() {
-            throw UnsupportedOperationException()
-        }
-
-    val unsupported1: (Any?) -> Nothing get() = { throw UnsupportedOperationException() }
+    fun stylesheet(path: String) {
+        platform[Stylesheets].add(path)
+    }
 
     @PublishedApi internal fun build() = Plugin(name, author).also {
         logger.config("Loaded plugin $name of author $author")

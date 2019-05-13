@@ -13,6 +13,7 @@ import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
 import reaktive.Observer
 import reaktive.value.*
+import reaktive.value.binding.map
 
 /**
  * An editor that serves as a wrapper around other editors.
@@ -38,7 +39,9 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     val isExpanded: Boolean get() = state is Expanded
 
-    val editor: E? get() = (state as? Expanded)?.editor
+    private val _editor = reactiveVariable<E?>(null)
+
+    val editor: ReactiveValue<E?> get() = _editor
 
     protected abstract fun expand(text: String): E?
 
@@ -47,7 +50,8 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         state = newState
         when (oldState) {
             is Expanded   -> {
-                killObservers()
+                unexpand()
+                _result.set(childErr())
                 when (newState) {
                     is Unexpanded -> views { reset() }
                     is Expanded   -> doExpandTo(newState.editor)
@@ -62,16 +66,18 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         }
     }
 
-    private fun killObservers() {
+    private fun unexpand() {
         resultDelegator?.kill()
         parentBinder?.kill()
         resultDelegator = null
         parentBinder = null
+        _editor.set(null)
     }
 
     private fun doExpandTo(editor: E) {
-        resultDelegator = _result.bind(editor.result)
+        resultDelegator = _result.bind(editor.result.map { it.orElse { childErr() } })
         parentBinder = this.parent.forEach { editor.setParent(it) }
+        _editor.set(editor)
         editor.setParent(this.parent.now)
         editor.setExpander(this)
         views { expanded(editor) }

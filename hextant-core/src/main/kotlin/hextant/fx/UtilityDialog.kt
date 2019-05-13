@@ -4,6 +4,8 @@
 
 package hextant.fx
 
+import hextant.Context
+import hextant.get
 import hextant.impl.Stylesheets
 import javafx.scene.Node
 import javafx.scene.control.Alert
@@ -19,13 +21,13 @@ import javafx.stage.Window
  * @param headerText the header text of this dialog, is placed at the top of the content
  * @param content the content of this dialog, is placed in the middle
  * @param owner the [Window] that owns this dialog
-*/
+ */
 class UtilityDialog(
-    title: String, headerText: String, content: Node, owner: Window
+    context: Context, title: String, headerText: String, content: Node, owner: Window
 ) : Alert(CONFIRMATION, "", ButtonType.OK, ButtonType.CANCEL) {
     init {
         initOwner(owner)
-        Stylesheets.apply(dialogPane.scene)
+        context[Stylesheets].apply(dialogPane.scene)
         dialogPane.styleClass.add("utility-dialog-pane")
         this.headerText = headerText
         this.title = title
@@ -40,7 +42,7 @@ class UtilityDialog(
 
     /**
      * Builder for [UtilityDialog]s
-    */
+     */
     interface Builder {
         /**
          * Refer to constructor doc of [UtilityDialog]
@@ -62,26 +64,26 @@ class UtilityDialog(
         var owner: Window
     }
 
-    private class BuilderImpl: Builder {
+    private class BuilderImpl(private val context: Context) : Builder {
         override lateinit var title: String
         override lateinit var headerText: String
         override lateinit var content: Node
         override lateinit var owner: Window
 
-        fun build() = UtilityDialog(title, headerText, content, owner)
+        fun build() = UtilityDialog(context, title, headerText, content, owner)
     }
 
     companion object {
         /**
          * @return a [UtilityDialog] built with [block]
-        */
-        operator fun invoke(block: Builder.() -> Unit): UtilityDialog = BuilderImpl().apply(block).build()
+         */
+        operator fun invoke(context: Context, block: Builder.() -> Unit): UtilityDialog =
+            BuilderImpl(context).apply(block).build()
 
         /**
          * Show a [UtilityDialog] build with [block] and return the clicked button
-        */
-        fun show(block: Builder.() -> Unit): ButtonType? = UtilityDialog(
-            block
-        ).showAndWait().orElse(null)
+         */
+        fun show(context: Context, block: Builder.() -> Unit): ButtonType? =
+            UtilityDialog(context, block).showAndWait().orElse(null)
     }
 }

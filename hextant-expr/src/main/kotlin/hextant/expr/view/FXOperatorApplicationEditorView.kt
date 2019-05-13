@@ -4,7 +4,6 @@
 
 package hextant.expr.view
 
-import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.createView
@@ -14,9 +13,8 @@ import javafx.scene.layout.HBox
 
 class FXOperatorApplicationEditorView(
     editor: OperatorApplicationEditor,
-    context: Context,
     args: Bundle
-) : EditorControl<HBox>(editor, context, args) {
+) : EditorControl<HBox>(editor, args) {
     private val op1View: EditorControl<*> = context.createView(editor.editableOp1)
 
     private val operatorView: EditorControl<*> = context.createView(editor.operatorEditor)
@@ -24,16 +22,8 @@ class FXOperatorApplicationEditorView(
     private val op2View: EditorControl<*> = context.createView(editor.editableOp2)
 
     override fun createDefaultRoot(): HBox {
-        val openingParen = parenLabel("(").apply {
-            setOnMouseClicked {
-                select()
-            }
-        }
-        val closingParen = parenLabel(")").apply {
-            setOnMouseClicked {
-                select()
-            }
-        }
+        val openingParen = parenLabel("(")
+        val closingParen = parenLabel(")")
         return HBox(openingParen, op1View, operatorView, op2View, closingParen)
     }
 
@@ -44,7 +34,7 @@ class FXOperatorApplicationEditorView(
 
     private fun parenLabel(paren: String) = OperatorLabel(paren).apply {
         setOnMouseClicked {
-            focus()
+            select()
         }
     }
 

@@ -4,7 +4,9 @@
 
 package hextant.inspect.gui
 
+import hextant.Context
 import hextant.fx.registerShortcut
+import hextant.get
 import hextant.impl.Stylesheets
 import hextant.inspect.Problem
 import hextant.inspect.ProblemFix
@@ -16,13 +18,13 @@ import javafx.scene.input.KeyCodeCombination
 import javafx.scene.layout.VBox
 import javafx.stage.Popup
 
-class InspectionPopup(problems: () -> Set<Problem>) : Popup() {
+class InspectionPopup(private val context: Context, problems: () -> Set<Problem>) : Popup() {
     private val problems = { problems().sortedBy { it.severity } }
 
     private val container = VBox()
 
     init {
-        Stylesheets.apply(scene)
+        context[Stylesheets].apply(scene)
         container.styleClass.add("problem-list")
         setOnShowing { update() }
         setOnHidden { ownerNode.requestFocus() }
@@ -38,12 +40,12 @@ class InspectionPopup(problems: () -> Set<Problem>) : Popup() {
 
     private fun problemLabel(problem: Problem): Node = Button().apply {
         styleClass.add("problem")
-        styleClass.add(problem.severity.toString())
+        styleClass.add("${problem.severity}-item")
         text = problem.message
         isFocusTraversable = true
         val fixes = problem.fixes
         if (fixes.isNotEmpty()) {
-            val fixesPopup = FixesPopup(fixes)
+            val fixesPopup = FixesPopup(context, fixes)
             setOnAction { showFixes(fixesPopup) }
             registerShortcut(KeyCodeCombination(ENTER)) { showFixes(fixesPopup) }
         }
@@ -65,9 +67,9 @@ class InspectionPopup(problems: () -> Set<Problem>) : Popup() {
         }
     }
 
-    private class FixesPopup(private val fixes: Collection<ProblemFix>) : Popup() {
+    private class FixesPopup(context: Context, private val fixes: Collection<ProblemFix>) : Popup() {
         init {
-            Stylesheets.apply(scene)
+            context[Stylesheets].apply(scene)
             content.add(createFixList(fixes))
         }
 

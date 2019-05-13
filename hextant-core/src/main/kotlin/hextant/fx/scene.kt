@@ -10,16 +10,17 @@ import com.sun.javafx.scene.traversal.Direction.DOWN
 import com.sun.javafx.scene.traversal.Direction.LEFT
 import com.sun.javafx.scene.traversal.Direction.RIGHT
 import com.sun.javafx.scene.traversal.Direction.UP
-import hextant.Context
-import hextant.HextantPlatform
+import hextant.*
 import hextant.base.EditorControl
+import hextant.core.view.FXExpanderView
 import hextant.impl.Stylesheets
 import javafx.scene.*
 import javafx.scene.control.Label
+import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent
 
-var isControlDown = false; private set
+internal var isShiftDown = false; private set
 
 fun hextantScene(root: (Context) -> Parent, createContext: (HextantPlatform) -> Context): Scene {
     val platform = HextantPlatform.configured()
@@ -31,22 +32,48 @@ fun hextantScene(root: (Context) -> Parent, createContext: (HextantPlatform) -> 
 
 fun Scene.initHextantScene(context: Context) {
     initEventHandlers(context)
-    Stylesheets.apply(this)
+    context[Stylesheets].apply(this)
 }
 
 @Suppress("UNUSED_PARAMETER")
 private fun Scene.initEventHandlers(context: Context) {
     addEventFilter(KeyEvent.KEY_PRESSED) {
-        if (it.code == CONTROL) {
-            isControlDown = true
+        if (it.code == SHIFT) {
+            isShiftDown = true
         }
     }
     addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
-        if (ev.code == CONTROL) {
-            isControlDown = false
+        if (ev.code == SHIFT) {
+            isShiftDown = false
         }
     }
     changeTraversalEngine()
+    traverseOnArrowWithCtrl()
+}
+
+fun Scene.traverseOnArrowWithCtrl() {
+    addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
+        if (ev.code == KeyCode.LEFT && ev.isControlDown) {
+            val prev = getFocusedEditorControl()?.previous ?: return@addEventFilter
+            val lastChild = generateSequence(prev) {
+                if (it is FXExpanderView) it.root as? EditorControl<*> ?: it
+                else it.editorChildren?.lastOrNull()
+            }.last()
+            lastChild.focus()
+        } else if (ev.code == KeyCode.RIGHT && ev.isControlDown) {
+            val next = getFocusedEditorControl()?.next ?: return@addEventFilter
+            val firstChild = generateSequence(next) {
+                if (it is FXExpanderView) it.root as? EditorControl<*> ?: it
+                else it.editorChildren?.lastOrNull()
+            }.last()
+            firstChild.focus()
+        }
+    }
+}
+
+private fun Scene.getFocusedEditorControl(): EditorControl<*>? {
+    val editorControl = generateSequence(focusOwner) { it.parent }.firstOrNull { it is EditorControl<*> }
+    return editorControl as EditorControl<*>?
 }
 
 private fun Scene.changeTraversalEngine() {

@@ -21,9 +21,10 @@ plugin {
     view(::FXSumEditorView)
     defaultEditor(::ExprExpander)
     defaultEditor(::ExprListEditor)
-    view<ExprListEditor, FXListEditorView> { editor, ctx, args ->
-        FXListEditorView.withAltGlyph(editor, ctx, FontAwesome.Glyph.PLUS, args, Horizontal).apply {
+    view<ExprListEditor, FXListEditorView> { editor, args ->
+        FXListEditorView.withAltGlyph(editor, FontAwesome.Glyph.PLUS, args, Horizontal).apply {
             cellFactory = { FXListEditorView.SeparatorCell(", ") }
         }
     }
+    stylesheet("expr.css")
 }

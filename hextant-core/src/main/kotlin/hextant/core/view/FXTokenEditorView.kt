@@ -4,7 +4,6 @@
 
 package hextant.core.view
 
-import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.completion.Completer
@@ -18,10 +17,9 @@ import reaktive.event.subscribe
 
 open class FXTokenEditorView(
     private val editor: TokenEditor<*>,
-    context: Context,
     args: Bundle,
     completer: Completer<String> = NoCompleter
-) : EditorControl<HextantTextField>(editor, context, args), TokenEditorView {
+) : EditorControl<HextantTextField>(editor, args), TokenEditorView {
     private val textField = HextantTextField()
 
     private val textSubscription: Subscription

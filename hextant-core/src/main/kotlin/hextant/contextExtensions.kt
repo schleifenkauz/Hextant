@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
 
 fun Context.createView(editor: Editor<*>, arguments: Bundle = Bundle.newInstance()): EditorControl<*> =
     try {
-        get(Public, EditorControlFactory).getControl(editor, this, arguments)
+        get(Public, EditorControlFactory).getControl(editor, arguments)
     } catch (e: NoSuchElementException) {
         parent?.createView(editor) ?: throw e
     }

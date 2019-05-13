@@ -22,7 +22,7 @@ plugin {
     view(::GetValEditorControl)
     view(::StringLiteralEditorControl)
     view(::ApplyEditorControl)
-    view<SExprListEditor, FXListEditorView> { editable, ctx, args ->
-        FXListEditorView.withAltGlyph(editable, ctx, glyph = PLUS, args = args, orientation = Horizontal)
+    view<SExprListEditor, FXListEditorView> { editable, args ->
+        FXListEditorView.withAltGlyph(editable, glyph = PLUS, args = args, orientation = Horizontal)
     }
 }

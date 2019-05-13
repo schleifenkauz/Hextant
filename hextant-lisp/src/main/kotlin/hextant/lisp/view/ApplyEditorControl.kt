@@ -4,19 +4,19 @@
 
 package hextant.lisp.view
 
-import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.bundle.CoreProperties.editorParentRegion
+import hextant.createView
+import hextant.get
 import hextant.lisp.editor.ApplyEditor
 import javafx.beans.Observable
 import javafx.scene.layout.*
 
 class ApplyEditorControl(
     editor: ApplyEditor,
-    context: Context,
     args: Bundle
-) : EditorControl<Pane>(editor, context, args) {
+) : EditorControl<Pane>(editor, args) {
     private val exprsView = context.createView(editor.editableExpressions)
 
     init {

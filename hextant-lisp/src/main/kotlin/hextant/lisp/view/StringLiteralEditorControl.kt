@@ -4,7 +4,6 @@
 
 package hextant.lisp.view
 
-import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.core.view.TokenEditorView
@@ -15,9 +14,8 @@ import javafx.scene.layout.HBox
 
 class StringLiteralEditorControl(
     editor: StringLiteralEditor,
-    context: Context,
     args: Bundle
-) : TokenEditorView, EditorControl<HBox>(editor, context, args) {
+) : TokenEditorView, EditorControl<HBox>(editor, args) {
     private val textField = HextantTextField()
 
     private val layout = HBox()
