@@ -16,7 +16,7 @@ import reaktive.event.Subscription
 import reaktive.event.subscribe
 
 open class FXTokenEditorView(
-    private val editor: TokenEditor<*>,
+    private val editor: TokenEditor<*, TokenEditorView>,
     args: Bundle,
     completer: Completer<String> = NoCompleter
 ) : EditorControl<HextantTextField>(editor, args), TokenEditorView {

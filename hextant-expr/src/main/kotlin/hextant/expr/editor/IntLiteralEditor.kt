@@ -6,9 +6,10 @@ package hextant.expr.editor
 
 import hextant.*
 import hextant.core.editor.TokenEditor
+import hextant.core.view.TokenEditorView
 import hextant.expr.edited.IntLiteral
 
-class IntLiteralEditor(context: Context) : TokenEditor<IntLiteral>(context), ExprEditor<IntLiteral> {
+class IntLiteralEditor(context: Context) : TokenEditor<IntLiteral, TokenEditorView>(context), ExprEditor<IntLiteral> {
     constructor(v: Int, context: Context) : this(context) {
         setText(v.toString())
     }

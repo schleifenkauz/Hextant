@@ -52,19 +52,19 @@ private fun Scene.initEventHandlers(context: Context) {
 }
 
 fun Scene.traverseOnArrowWithCtrl() {
-    addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
+    addEventFilter(KeyEvent.KEY_PRESSED) { ev ->
         if (ev.code == KeyCode.LEFT && ev.isControlDown) {
             val prev = getFocusedEditorControl()?.previous ?: return@addEventFilter
             val lastChild = generateSequence(prev) {
-                if (it is FXExpanderView) it.root as? EditorControl<*> ?: it
+                if (it is FXExpanderView) it.root as? EditorControl<*>
                 else it.editorChildren?.lastOrNull()
             }.last()
             lastChild.focus()
         } else if (ev.code == KeyCode.RIGHT && ev.isControlDown) {
             val next = getFocusedEditorControl()?.next ?: return@addEventFilter
             val firstChild = generateSequence(next) {
-                if (it is FXExpanderView) it.root as? EditorControl<*> ?: it
-                else it.editorChildren?.lastOrNull()
+                if (it is FXExpanderView) it.root as? EditorControl<*>
+                else it.editorChildren?.firstOrNull()
             }.last()
             firstChild.focus()
         }

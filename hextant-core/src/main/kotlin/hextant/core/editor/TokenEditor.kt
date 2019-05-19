@@ -11,7 +11,8 @@ import hextant.core.view.TokenEditorView
 import hextant.undo.*
 import reaktive.value.reactiveVariable
 
-abstract class TokenEditor<out R : Any>(context: Context) : AbstractEditor<R, TokenEditorView>(context), TokenType<R> {
+abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
+                                                                                    TokenType<R> {
     private val _result = reactiveVariable(this.compile(""))
 
     override val result: EditorResult<R> get() = _result
@@ -22,7 +23,7 @@ abstract class TokenEditor<out R : Any>(context: Context) : AbstractEditor<R, To
 
     private val undo = context[UndoManager]
 
-    override fun viewAdded(view: TokenEditorView) {
+    override fun viewAdded(view: V) {
         view.displayText(text)
     }
 
@@ -39,7 +40,7 @@ abstract class TokenEditor<out R : Any>(context: Context) : AbstractEditor<R, To
     }
 
 
-    private class TextEdit(private val editor: TokenEditor<*>, private val old: String, private val new: String) :
+    private class TextEdit(private val editor: TokenEditor<*, *>, private val old: String, private val new: String) :
         AbstractEdit() {
         override fun doRedo() {
             editor.doSetText(new)
@@ -61,7 +62,7 @@ abstract class TokenEditor<out R : Any>(context: Context) : AbstractEditor<R, To
         fun <R : Any> forTokenType(
             type: TokenType<R>,
             context: Context
-        ) = object : TokenEditor<R>(context) {
+        ) = object : TokenEditor<R, TokenEditorView>(context) {
             override fun compile(token: String): CompileResult<R> = type.compile(token)
         }
     }

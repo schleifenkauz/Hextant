@@ -113,6 +113,14 @@ inline fun <T> CompileResult<T>.ifErr(def: (CompileResult<Nothing>) -> T): T = w
     is Ok       -> value
 }
 
+inline fun <T> CompileResult<T>.ifOk(action: (T) -> Unit) {
+    if (this is Ok) action(value)
+}
+
+inline fun <T, R> ifOk(t: CompileResult<T>, r: CompileResult<R>, action: (T, R) -> Unit) {
+    if (t is Ok && r is Ok) action(t.value, r.value)
+}
+
 /**
  * If this result is [Ok] than return the value, otherwise throw an [IllegalArgumentException]
  */

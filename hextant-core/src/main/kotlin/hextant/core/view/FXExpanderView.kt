@@ -64,7 +64,7 @@ class FXExpanderView(
         }
         expander.addView(this)
         completionSubscription = completionHelper.completionChosen.subscribe { comp ->
-            expander.setText(comp.text)
+            expander.setText(comp.completed)
             expander.expand()
         }
     }

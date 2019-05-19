@@ -6,9 +6,11 @@ package hextant.lisp.editor
 
 import hextant.*
 import hextant.core.editor.TokenEditor
+import hextant.core.view.TokenEditorView
 import hextant.lisp.CharLiteral
 
-class CharLiteralEditor(context: Context) : TokenEditor<CharLiteral>(context), SExprEditor<CharLiteral> {
+class CharLiteralEditor(context: Context) : TokenEditor<CharLiteral, TokenEditorView>(context),
+                                            SExprEditor<CharLiteral> {
     constructor(value: Char, context: Context) : this(context) {
         setText(value.toString())
     }
