@@ -49,7 +49,7 @@ internal inline fun Node.registerShortcut(s: KeyCombination, crossinline action:
 }
 
 internal fun PopupWindow.show(node: Node) {
-    val p = node.localToScreen(0.0, node.prefHeight(-1.0))
+    val p = node.localToScreen(0.0, node.prefHeight(-1.0)) ?: return
     show(node, p.x, p.y)
 }
 

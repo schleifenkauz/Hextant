@@ -18,8 +18,7 @@ import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
 import javafx.scene.input.KeyCode.*
-import reaktive.value.now
-import reaktive.value.observe
+import reaktive.value.*
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -70,7 +69,9 @@ abstract class EditorControl<R : Node>(
 
     private var manuallySelecting = false
 
-    private var isSelected = false
+    private val _isSelected = reactiveVariable(false)
+
+    val isSelected: ReactiveValue<Boolean> get() = _isSelected
 
     init {
         styleClass.add("editor-control")
@@ -116,6 +117,7 @@ abstract class EditorControl<R : Node>(
         editorChildren = children
         if (children.isEmpty()) return
         children.forEach {
+            it.root
             it.setEditorParent(this)
         }
         children.zipWithNext { previous, next ->
@@ -165,7 +167,7 @@ abstract class EditorControl<R : Node>(
     }
 
     private fun log(msg: String) {
-        //        println("${javaClass.name} $msg")
+        println("${javaClass.name} $msg")
     }
 
     /**
@@ -221,7 +223,7 @@ abstract class EditorControl<R : Node>(
     }
 
     private fun setSelected(selected: Boolean) {
-        isSelected = selected
+        _isSelected.set(selected)
         pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
     }
 
@@ -236,13 +238,13 @@ abstract class EditorControl<R : Node>(
     private fun shrinkSelection() {
         val childToSelect = lastExtendingChild ?: editorChildren?.firstOrNull() ?: return
         childToSelect.requestFocus()
-        if (isSelected) toggleSelection()
+        if (isSelected.now) toggleSelection()
     }
 
     private fun extendSelection() {
         val parent = editorParent ?: return
         parent.requestFocus()
-        if (isSelected) toggleSelection()
+        if (isSelected.now) toggleSelection()
         parent.lastExtendingChild = this
     }
 

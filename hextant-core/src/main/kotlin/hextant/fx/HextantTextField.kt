@@ -54,11 +54,6 @@ open class HextantTextField(text: String? = "") : TextField(text) {
         autoSize()
     }
 
-    override fun requestFocus() {
-        super.requestFocus()
-        positionCaret(text.length)
-    }
-
     private fun autoSize() {
         textProperty().addListener { _, _, new ->
             updateWidth(new)
