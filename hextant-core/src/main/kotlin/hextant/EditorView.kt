@@ -21,7 +21,17 @@ interface EditorView {
     val target: Any
 
     /**
+     * The [ViewGroup] this editor view belongs to
+     */
+    val group: ViewGroup<*>
+
+    /**
      * Visually deselect this [EditorView]
      */
     fun deselect()
+
+    /**
+     * Focus this [EditorView]
+     */
+    fun focus()
 }

@@ -65,6 +65,7 @@ interface HextantPlatform : Context {
             set(Inspections, Inspections.newInstance())
             set(CoreProperties.logger, Logger.getLogger(javaClass.name))
             set(Stylesheets, Stylesheets())
+            set(EditorControlGroup, EditorControlGroup())
             val plugins = PluginRegistry(this, Settings.plugins)
             set(PluginRegistry, plugins)
             set(CoreProperties.serialContext, SerialContext.newInstance {

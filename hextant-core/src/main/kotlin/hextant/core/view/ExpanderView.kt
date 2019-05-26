@@ -5,8 +5,9 @@
 package hextant.core.view
 
 import hextant.Editor
+import hextant.EditorView
 
-interface ExpanderView {
+interface ExpanderView : EditorView {
     fun expanded(editor: Editor<*>)
 
     fun reset()

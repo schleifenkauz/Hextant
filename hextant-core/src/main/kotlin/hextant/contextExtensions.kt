@@ -11,12 +11,10 @@ import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
 import kotlin.reflect.KClass
 
-fun Context.createView(editor: Editor<*>, arguments: Bundle = Bundle.newInstance()): EditorControl<*> =
-    try {
-        get(Public, EditorControlFactory).getControl(editor, arguments)
-    } catch (e: NoSuchElementException) {
-        parent?.createView(editor) ?: throw e
-    }
+fun Context.createView(editor: Editor<*>, arguments: Bundle = Bundle.newInstance()): EditorControl<*> {
+    val group = get(EditorControlGroup)
+    return group.createViewFor(editor, this, arguments)
+}
 
 fun <R : Any> Context.createEditor(resultCls: KClass<R>): Editor<R> =
     try {

@@ -35,6 +35,8 @@ abstract class EditorControl<R : Node>(
 
     final override val arguments: Bundle
 
+    override val group: EditorControlGroup = context[EditorControlGroup]
+
     private val selection = context[SelectionDistributor]
 
     private val inspections = context[Inspections]
@@ -161,7 +163,7 @@ abstract class EditorControl<R : Node>(
         return skin
     }
 
-    open fun focus() {
+    override fun focus() {
         log("focus")
         root.requestFocus()
     }

@@ -1,6 +1,7 @@
 package hextant.core.mocks
 
 import hextant.EditorView
+import hextant.ViewGroup
 import hextant.bundle.Bundle
 
 internal class MockEditorView: EditorView {
@@ -12,4 +13,11 @@ internal class MockEditorView: EditorView {
     override fun deselect() {
 
     }
+
+    override fun focus() {
+        TODO("not implemented")
+    }
+
+    override val group: ViewGroup<*>
+        get() = TODO("not implemented")
 }

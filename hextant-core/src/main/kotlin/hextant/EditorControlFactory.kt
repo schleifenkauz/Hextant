@@ -19,18 +19,17 @@ import kotlin.reflect.KClass
 interface EditorControlFactory {
     /**
      * Register the specified [viewFactory] to the given [editableCls].
-     * From now all calls of [getControl] with an argument of type [E] will use the [viewFactory]
+     * From now all calls of [createControl] with an argument of type [E] will use the [viewFactory]
      */
     fun <E : Editor<*>> register(editableCls: KClass<out E>, viewFactory: (E, Bundle) -> EditorControl<*>)
 
     /**
-     * @return the [EditorControl<*>] associated with the type of the specified [editor]
-     * @throws NoSuchElementException if there is no [EditorControl<*>] registered with this [editor]
+     * @return the [EditorControl<*>] associated with the type of the specified [editor] or null if there is no registered factory
      */
-    fun <E : Editor<*>> getControl(
+    fun <E : Editor<*>> createControl(
         editor: E,
         arguments: Bundle = Bundle.newInstance()
-    ): EditorControl<*>
+    ): EditorControl<*>?
 
     @Suppress("UNCHECKED_CAST") private class Impl : EditorControlFactory {
         private val viewFactories = ClassMap.invariant<(Editor<*>, Bundle) -> EditorControl<*>>()
@@ -42,18 +41,13 @@ interface EditorControlFactory {
             viewFactories[editableCls] = viewFactory as (Editor<*>, Bundle) -> EditorControl<*>
         }
 
-        @Synchronized override fun <E : Editor<*>> getControl(
+        @Synchronized override fun <E : Editor<*>> createControl(
             editor: E,
             arguments: Bundle
-        ): EditorControl<*> {
+        ): EditorControl<*>? {
             val cls = editor::class
-            viewFactories[cls]?.let { f -> return f(editor, arguments) }
-            unresolvedView(cls)
-        }
-
-        private fun <E : Editor<*>> unresolvedView(cls: KClass<out E>): Nothing {
-            val msg = "Could not resolve view for $cls"
-            throw NoSuchElementException(msg)
+            val factory = viewFactories[cls] ?: return null
+            return factory(editor, arguments)
         }
     }
 
