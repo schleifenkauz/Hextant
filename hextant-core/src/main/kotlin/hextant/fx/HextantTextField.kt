@@ -13,7 +13,7 @@ import reaktive.event.event
 
 /**
  * A Text field that adds the "hextant-text" style class and does automatically resize its width
-*/
+ */
 open class HextantTextField(text: String? = "") : TextField(text) {
     override fun createDefaultSkin(): Skin<*> = HextantTextFieldSkin()
 
@@ -52,6 +52,11 @@ open class HextantTextField(text: String? = "") : TextField(text) {
     init {
         styleClass.add(STYLE_CLASS)
         autoSize()
+    }
+
+    override fun requestFocus() {
+        super.requestFocus()
+        positionCaret(text.length)
     }
 
     private fun autoSize() {
