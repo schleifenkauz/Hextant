@@ -15,7 +15,7 @@ import javafx.scene.control.Label
 import javafx.scene.layout.*
 
 abstract class CompoundEditorControl(
-    editor: AbstractEditor<*, EditorView>,
+    editor: Editor<*>,
     args: Bundle,
     private val build: Vertical.(args: Bundle) -> Unit
 ) : EditorControl<Vertical>(editor, args) {
@@ -44,10 +44,12 @@ abstract class CompoundEditorControl(
         fun keyword(name: String): Node
 
         fun operator(str: String): Node
+
+        fun node(node: Node)
     }
 
     inner class Vertical : VBox(), Compound {
-        var firstEditorChild: EditorControl<*>? = null
+        internal var firstEditorChild: EditorControl<*>? = null
             private set
 
         internal val editorChildren: MutableList<EditorControl<*>> = mutableListOf()
@@ -83,6 +85,11 @@ abstract class CompoundEditorControl(
             editorChildren.addAll(v.editorChildren)
             return indented
         }
+
+        override fun node(node: Node) {
+            if (node is EditorControl<*> && firstEditorChild == null) firstEditorChild = node
+            children.add(node)
+        }
     }
 
     inner class Horizontal : HBox(), Compound {
@@ -96,6 +103,11 @@ abstract class CompoundEditorControl(
                 if (firstEditorChild == null) firstEditorChild = it
                 editorChildren.add(it)
             }
+
+        override fun node(node: Node) {
+            if (node is EditorControl<*> && firstEditorChild == null) firstEditorChild = node
+            children.add(node)
+        }
 
         override fun space() = space(this)
 
@@ -135,7 +147,7 @@ abstract class CompoundEditorControl(
         }
 
         fun build(
-            editor: AbstractEditor<*, EditorView>,
+            editor: Editor<*>,
             args: Bundle = Bundle.newInstance(),
             build: Vertical.(Bundle) -> Unit
         ): CompoundEditorControl = object : CompoundEditorControl(editor, args, build) {

@@ -67,7 +67,10 @@ open class HextantTextField(text: String? = "") : TextField(text) {
     }
 
     private fun updateWidth(text: String) {
-        prefWidth = Math.max(TextUtils.computeTextWidth(font, text) + 5.0, 15.0)
+        val w = Math.max(TextUtils.computeTextWidth(font, text) + 5.0, 15.0)
+        minWidth = w
+        prefWidth = w
+        maxWidth = w
     }
 
     companion object {

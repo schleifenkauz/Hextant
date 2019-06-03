@@ -7,7 +7,7 @@
 
 /*Style class for text components in Hextant*/
 .hextant-text {
-    -fx-font-size: 12;
+    -fx-font-size: 15;
     -fx-text-fill: white;
     -fx-background-color: transparent;
     -fx-background-radius: 0;
