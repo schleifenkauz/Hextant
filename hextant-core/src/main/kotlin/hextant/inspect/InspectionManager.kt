@@ -7,43 +7,50 @@ package hextant.inspect
 import hextant.inspect.Severity.Error
 import hextant.inspect.Severity.Warning
 import reaktive.Observer
-import reaktive.value.*
 import reaktive.value.binding.notEqualTo
+import reaktive.value.now
+import reaktive.value.reactiveVariable
 import java.util.*
 
-internal class InspectionManager<T : Any>(private val inspected: T) {
+internal class InspectionManager<T : Any>(private val inspected: T, private val inspections: Inspections) {
     private val warningCount = reactiveVariable(0)
 
     private val errorCount = reactiveVariable(0)
 
-    private val inspections = mutableSetOf<Inspection>()
+    private val reportingInspections = mutableSetOf<Inspection>()
 
     private val observers = LinkedList<Observer>()
 
     fun addInspection(inspectionFactory: (T) -> Inspection) {
         val inspection = inspectionFactory.invoke(inspected)
-        inspections.add(inspection)
+        val actualTarget =
+            if (inspected === inspection.location) this
+            else inspections.getManagerFor(inspection.location)
         if (inspection.isProblem.now) {
-            updateProblemCount(inspection.severity) { it + 1 }
+            actualTarget.reportingInspections.add(inspection)
+            actualTarget.changeCount(inspection.severity, +1)
         }
-        val obs = inspection.isProblem.observe { _, isProblem ->
-            if (isProblem) {
-                updateProblemCount(inspection.severity) { it + 1 }
+        val obs = inspection.isProblem.observe { _, _, problem ->
+            if (problem) {
+                actualTarget.reportingInspections.add(inspection)
+                actualTarget.changeCount(inspection.severity, +1)
             } else {
-                updateProblemCount(inspection.severity) { it - 1 }
+                actualTarget.reportingInspections.remove(inspection)
+                actualTarget.changeCount(inspection.severity, -1)
             }
         }
         observers.add(obs)
     }
 
-    private fun updateProblemCount(severity: Severity, update: (Int) -> Int) = when (severity) {
-        Error   -> errorCount.set(update(errorCount.now))
-        Warning -> warningCount.set(update(warningCount.now))
+    private fun changeCount(type: Severity, delta: Int) {
+        if (type == Error) errorCount.now += delta
+        else if (type == Warning) warningCount.now += delta
     }
 
     val hasError = errorCount.notEqualTo(0)
     val hasWarning = warningCount.notEqualTo(0)
 
-    fun problems(): Set<Problem> =
-            inspections.mapNotNullTo(mutableSetOf()) { if (it.isProblem.now) it.getProblem() else null }
+    fun problems(): Set<Problem> = reportingInspections.mapTo(mutableSetOf<Problem>()) {
+        it.getProblem() ?: error("Inspection $it reported reported but returned null on getProblem()")
+    }
 }

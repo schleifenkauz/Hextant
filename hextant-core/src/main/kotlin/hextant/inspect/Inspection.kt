@@ -22,8 +22,10 @@ interface Inspection {
 
     /**
      * @return the severity of this problem
-    */
+     */
     val severity: Severity
+
+    val location: Any
 
     /**
      * @return the problem reported by this inspection or `null` if there is no problem

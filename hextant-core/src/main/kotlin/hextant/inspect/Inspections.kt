@@ -16,7 +16,7 @@ class Inspections private constructor() {
 
     fun <T : Any> of(cls: KClass<out T>): InspectionRegistrar<T> {
         val registrar = registrars.getOrPut(cls) {
-            InspectionRegistrar<Any>().also { reg ->
+            InspectionRegistrar<Any>(this).also { reg ->
                 cls.superclasses.forEach {
                     @Suppress("DEPRECATION") //Only used here
                     of(it).passdownInspectionsTo(reg)
@@ -31,6 +31,8 @@ class Inspections private constructor() {
     fun hasError(obj: Any): ReactiveBoolean = of(obj::class).hasError(obj)
 
     fun hasWarning(obj: Any): ReactiveBoolean = of(obj::class).hasWarning(obj)
+
+    internal fun getManagerFor(obj: Any) = of(obj::class).getManagerFor(obj)
 
     companion object : Property<Inspections, Public, Internal>("inspections") {
         fun newInstance(): Inspections = Inspections()

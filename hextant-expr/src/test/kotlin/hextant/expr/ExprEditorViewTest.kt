@@ -155,6 +155,7 @@ class ExprEditorViewTest : Application() {
         inspections.of<OperatorApplicationEditor>().registerInspection { inspected ->
             description = "Prevent identical operations"
             severity(Warning)
+            location(inspected.editableOp2)
             val isPlus = inspected.operatorEditor.result.map { it.orNull() == Plus }
             val operandIs0 =
                 inspected.editableOp2.result.map { it.orNull() is IntLiteral && it.force().value == 0 }

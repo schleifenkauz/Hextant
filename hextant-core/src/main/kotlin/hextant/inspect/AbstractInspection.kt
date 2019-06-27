@@ -11,9 +11,8 @@ import reaktive.value.now
  * Skeletal implementation of [Inspection]
  */
 abstract class AbstractInspection : Inspection {
-
     /**
-     * A [ReactiveBoolean] holding `true` if and only if this [Inspection] found a problem on the [inspected] object
+     * A [ReactiveBoolean] holding `true` if and only if this [Inspection] found a problem on the inspected object
     */
     abstract override val isProblem: ReactiveBoolean
 
@@ -26,7 +25,7 @@ abstract class AbstractInspection : Inspection {
     /**
      * @return the [ProblemFix]s fixing the reported problem
      * * Is only called when [isProblem] is `true`
-    */
+     */
     protected open fun fixes(): Collection<ProblemFix> = emptyList()
 
     /**

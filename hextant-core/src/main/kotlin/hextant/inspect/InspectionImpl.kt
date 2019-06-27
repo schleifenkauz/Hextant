@@ -11,7 +11,8 @@ internal class InspectionImpl(
     override val description: String,
     private val message: () -> String,
     override val severity: Severity,
-    private val fixes: () -> Collection<ProblemFix>
+    private val fixes: () -> Collection<ProblemFix>,
+    override val location: Any
 ) : AbstractInspection() {
     override fun fixes(): Collection<ProblemFix> = fixes.invoke()
 

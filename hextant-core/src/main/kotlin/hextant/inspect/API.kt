@@ -31,6 +31,7 @@ inline fun inspection(
     description: String,
     isProblem: ReactiveBoolean,
     severity: Severity,
+    location: Any,
     crossinline problem: () -> Problem?
 ): Inspection = object : Inspection {
     override val severity: Severity = severity
@@ -39,14 +40,16 @@ inline fun inspection(
 
     override val description = description
 
+    override val location: Any = location
+
     override fun getProblem() = problem()
 }
 
 /**
  * @return an [Inspection] built with [block] inspecting the specified [inspected] value
 */
-inline fun <reified T : Any> inspection(inspected: T, block: InspectionBuilder<T>.() -> Unit): Inspection =
-        InspectionBuilder(inspected).apply(block).build()
+inline fun <reified T : Any> inspection(inspected: T, block: InspectionBuilder.() -> Unit): Inspection =
+    InspectionBuilder().apply { location(inspected); block() }.build()
 
 
 inline fun <reified T : Any> Inspections.of(): InspectionRegistrar<T> = of(T::class)

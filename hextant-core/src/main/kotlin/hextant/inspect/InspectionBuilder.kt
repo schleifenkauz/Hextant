@@ -12,9 +12,7 @@ import reaktive.value.binding.map
  * Builder for [Inspection]s
  */
 @Builder
-class InspectionBuilder<T : Any> @PublishedApi internal constructor(
-    private val inspected: T
-) {
+class InspectionBuilder @PublishedApi internal constructor() {
     /**
      * The description of the [Inspection], must be set
      */
@@ -22,6 +20,7 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor(
     private lateinit var isProblem: ReactiveBoolean
     private lateinit var messageProducer: () -> String
     private lateinit var severity: Severity
+    private lateinit var location: Any
     private var fixes: MutableCollection<ProblemFix> = mutableSetOf()
 
     /**
@@ -59,6 +58,10 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor(
         severity(Severity.of(isSevere))
     }
 
+    fun location(loc: Any) {
+        location = loc
+    }
+
     /**
      * Add a possible problem-[fix] to the problems reported by the built [Inspection]
      */
@@ -74,8 +77,7 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor(
     }
 
     @PublishedApi internal fun build(): Inspection {
-        return InspectionImpl(isProblem, description, messageProducer, severity) {
-            fixes.filter { it.isApplicable() }
-        }
+        val fixes = { fixes.filter { it.isApplicable() } }
+        return InspectionImpl(isProblem, description, messageProducer, severity, fixes, location)
     }
 }

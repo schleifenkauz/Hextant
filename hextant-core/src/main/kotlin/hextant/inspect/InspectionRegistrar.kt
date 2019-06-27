@@ -10,7 +10,7 @@ import reaktive.value.ReactiveBoolean
 /**
  * Used to register [Inspection]s for objects of type [T]
  */
-class InspectionRegistrar<T : Any> internal constructor() {
+class InspectionRegistrar<T : Any> internal constructor(private val inspections: Inspections) {
     private val managers: MutableMap<T, InspectionManager<T>> = HashMap()
 
     private val inspectionFactories: MutableList<(T) -> Inspection> = mutableListOf()
@@ -20,6 +20,8 @@ class InspectionRegistrar<T : Any> internal constructor() {
     private val addedInspection = addInspection.stream
 
     private val passdownSubscriptions = mutableListOf<Subscription>()
+
+    internal fun getManagerFor(obj: T): InspectionManager<T> = getInspectionManager(obj)
 
     @Deprecated("Treat as private")
     internal fun <C : T> passdownInspectionsTo(child: InspectionRegistrar<C>) {
@@ -42,8 +44,13 @@ class InspectionRegistrar<T : Any> internal constructor() {
     /**
      * Build an inspection with the given builder lambda and register it
      */
-    fun registerInspection(builder: InspectionBuilder<T>.(T) -> Unit) {
-        val inspection = { inspected: T -> InspectionBuilder(inspected).apply { builder(inspected) }.build() }
+    fun registerInspection(builder: InspectionBuilder.(T) -> Unit) {
+        val inspection = { inspected: T ->
+            InspectionBuilder().apply {
+                location(inspected)
+                builder(inspected)
+            }.build()
+        }
         register(inspection)
     }
 
@@ -52,18 +59,18 @@ class InspectionRegistrar<T : Any> internal constructor() {
     }
 
     private fun createInspectionManager(inspected: T): InspectionManager<T> {
-        val manager = InspectionManager(inspected)
+        val manager = InspectionManager(inspected, inspections)
         for (iFact in inspectionFactories) {
             manager.addInspection(iFact)
         }
         return manager
     }
 
+
     internal fun getProblems(inspected: T): Set<Problem> {
         val m = getInspectionManager(inspected)
         return m.problems()
     }
-
 
     internal fun hasError(inspected: T): ReactiveBoolean {
         val m = getInspectionManager(inspected)
