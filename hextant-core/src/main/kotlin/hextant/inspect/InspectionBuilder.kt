@@ -4,15 +4,21 @@
 
 package hextant.inspect
 
-import hextant.command.Builder
 import reaktive.value.ReactiveBoolean
 import reaktive.value.binding.map
+import java.lang.ref.WeakReference
 
 /**
  * Builder for [Inspection]s
  */
-@Builder
-class InspectionBuilder @PublishedApi internal constructor() {
+class InspectionBuilder<out T> @PublishedApi internal constructor(inspected: T) {
+    private val weakInspected = WeakReference(inspected)
+
+    /**
+     * Returns the inspected element
+     */
+    val inspected get() = weakInspected.get() ?: error("Inspected object collected before inspection builder")
+
     /**
      * The description of the [Inspection], must be set
      */

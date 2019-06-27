@@ -39,8 +39,8 @@ internal object InspectionsSpec : Spek({
             inspections.of<Inspected>().registerInspection {
                 description = "Prevents even integers"
                 isSevere(false)
-                message { "${it.number.now} is even" }
-                preventingThat(it.number.map { n -> n % 2 == 0 })
+                message { "${inspected.number.now} is even" }
+                preventingThat(inspected.number.map { n -> n % 2 == 0 })
             }
             checkNoProblems()
         }
@@ -64,7 +64,7 @@ internal object InspectionsSpec : Spek({
                 description = "Prevents non-positive integers"
                 isSevere(true)
                 message { "Number is non-positive" }
-                preventingThat(!it.isPositive)
+                preventingThat(!inspected.isPositive)
             }
             it("should have an error") {
                 inspections.hasError(inspected).now shouldEqual true

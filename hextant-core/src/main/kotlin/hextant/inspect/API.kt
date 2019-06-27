@@ -48,8 +48,8 @@ inline fun inspection(
 /**
  * @return an [Inspection] built with [block] inspecting the specified [inspected] value
 */
-inline fun <reified T : Any> inspection(inspected: T, block: InspectionBuilder.() -> Unit): Inspection =
-    InspectionBuilder().apply { location(inspected); block() }.build()
+inline fun <reified T : Any> inspection(inspected: T, block: InspectionBuilder<T>.() -> Unit): Inspection =
+    InspectionBuilder(inspected).apply { location(inspected); block() }.build()
 
 
 /**

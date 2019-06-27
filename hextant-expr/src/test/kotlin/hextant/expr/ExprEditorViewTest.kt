@@ -153,7 +153,7 @@ class ExprEditorViewTest : Application() {
             }
         }
         val inspections = context[Inspections]
-        inspections.of<OperatorApplicationEditor>().registerInspection { inspected ->
+        inspections.of<OperatorApplicationEditor>().registerInspection {
             description = "Prevent identical operations"
             severity(Warning)
             location(inspected.editableOp2)
@@ -174,7 +174,7 @@ class ExprEditorViewTest : Application() {
 
             }
         }
-        inspections.of<IntLiteralEditor>().registerInspection { inspected ->
+        inspections.of<IntLiteralEditor>().registerInspection {
             description = "Prevent '0' Literals"
             message { "Literal is '0'" }
             severity(Warning)

@@ -6,12 +6,13 @@ package hextant.inspect
 
 import reaktive.event.*
 import reaktive.value.ReactiveBoolean
+import java.util.*
 
 /**
  * Used to register [Inspection]s for objects of type [T]
  */
 class InspectionRegistrar<T : Any> internal constructor(private val inspections: Inspections) {
-    private val managers: MutableMap<T, InspectionManager<T>> = HashMap()
+    private val managers: MutableMap<T, InspectionManager<T>> = WeakHashMap()
 
     private val inspectionFactories: MutableList<(T) -> Inspection> = mutableListOf()
 
@@ -44,11 +45,11 @@ class InspectionRegistrar<T : Any> internal constructor(private val inspections:
     /**
      * Build an inspection with the given builder lambda and register it
      */
-    fun registerInspection(builder: InspectionBuilder.(T) -> Unit) {
+    fun registerInspection(builder: InspectionBuilder<T>.() -> Unit) {
         val inspection = { inspected: T ->
-            InspectionBuilder().apply {
+            InspectionBuilder(inspected).apply {
                 location(inspected)
-                builder(inspected)
+                builder()
             }.build()
         }
         register(inspection)
