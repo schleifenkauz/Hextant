@@ -24,6 +24,8 @@ class ExprExpander(
         setEditor(editor)
     }
 
+    override fun accepts(editor: Editor<*>): Boolean = editor is ExprEditor
+
     companion object {
         val config = ExpanderConfig<ExprEditor<Expr>>().apply {
             registerConstant("dec") { context -> IntLiteralEditor(context) }

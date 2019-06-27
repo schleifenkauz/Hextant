@@ -12,13 +12,10 @@ import hextant.completion.NoCompleter
 import hextant.completion.gui.CompleterPopupHelper
 import hextant.core.editor.Expander
 import hextant.createView
-import hextant.fx.HextantTextField
-import hextant.fx.registerShortcut
+import hextant.fx.*
+import hextant.fx.ModifierValue.DOWN
 import javafx.scene.Node
-import javafx.scene.input.KeyCode.R
-import javafx.scene.input.KeyCode.SPACE
-import javafx.scene.input.KeyCodeCombination
-import javafx.scene.input.KeyCombination
+import javafx.scene.input.KeyCode.*
 import reaktive.event.Subscription
 import reaktive.event.subscribe
 
@@ -63,7 +60,10 @@ class FXExpanderView(
         with(textField) {
             setOnAction { expander.expand() }
             textSubscription = userUpdatedText.subscribe { new -> expander.setText(new) }
-            registerShortcut(SUGGEST_COMPLETIONS) { completionHelper.show(this) }
+            registerShortcuts {
+                on(shortcut(V) { control(DOWN); shift(DOWN) }) { expander.paste() }
+                on(shortcut(SPACE) { control(DOWN) }) { completionHelper.show(this@FXExpanderView) }
+            }
         }
         expander.addView(this)
         completionSubscription = completionHelper.completionChosen.subscribe { comp ->
@@ -94,17 +94,15 @@ class FXExpanderView(
     override fun expanded(editor: Editor<*>) {
         val v = context.createView(editor)
         view = v
-        v.registerShortcut(RESET_SHORTCUT) { expander.reset() }
+        v.registerShortcuts {
+            on(shortcut(R) { control(DOWN) }) { expander.reset() }
+            on(shortcut(C) { control(DOWN); shift(DOWN) }) { expander.copy() }
+        }
         root = v
         this.next?.let { v.setNext(it) }
         this.previous?.let { v.setPrevious(it) }
         this.editorParent?.let { v.setEditorParent(it) }
         v.root //ensure that root is fully initialized
         v.receiveFocus()
-    }
-
-    companion object {
-        private val RESET_SHORTCUT = KeyCodeCombination(R, KeyCombination.SHORTCUT_DOWN)
-        private val SUGGEST_COMPLETIONS = KeyCodeCombination(SPACE, KeyCombination.SHORTCUT_DOWN)
     }
 }

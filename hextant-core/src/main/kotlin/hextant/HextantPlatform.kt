@@ -72,6 +72,7 @@ interface HextantPlatform : Context {
                 classLoader = plugins.compoundClassLoader
                 useUnsafe = false
             })
+            set(CoreProperties.clipboard, null)
             set(CoreProperties.classLoader, plugins.compoundClassLoader)
         }
 

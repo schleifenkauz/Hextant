@@ -20,10 +20,18 @@ object CoreProperties {
      */
     val serialContext = Property<SerialContext, Public, Internal>("serial context")
 
+    /**
+     * The class loader used by the application
+     */
     val classLoader = Property<ClassLoader, Public, Internal>("class loader")
 
     /**
      * The parent region of the visual editor
      */
     val editorParentRegion = Property<Region, Public, Public>("editor parent region")
+
+    /**
+     * The clipboard content
+     */
+    val clipboard: Property<Any?, Public, Internal> = Property("clipboard")
 }

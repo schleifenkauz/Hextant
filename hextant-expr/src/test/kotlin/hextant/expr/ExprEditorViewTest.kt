@@ -37,6 +37,7 @@ import reaktive.value.binding.and
 import reaktive.value.binding.map
 import reaktive.value.now
 import java.util.logging.Level
+import kotlin.system.exitProcess
 
 class ExprEditorViewTest : Application() {
     private lateinit var stage: Stage
@@ -49,7 +50,7 @@ class ExprEditorViewTest : Application() {
                 set(Public, SelectionDistributor, SelectionDistributor.newInstance())
             }
         }
-        stage.setOnCloseRequest { System.exit(0) } //Needed to stop the daemon threads
+        stage.setOnCloseRequest { exitProcess(0) } //Needed to stop the daemon threads
         stage.show()
     }
 
