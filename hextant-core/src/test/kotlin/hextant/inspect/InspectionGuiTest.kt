@@ -34,13 +34,13 @@ class InspectionGuiTest : Application() {
                         checkingThat(literal.result.map { it.isOk })
                         isSevere(true)
                         message {
-                            val t = literal.text
+                            val t = literal.text.now
                             "'$t' is not a valid integer literal"
                         }
                         addFix {
-                            applicableIf { literal.text.any(Char::isDigit) }
+                            applicableIf { literal.text.now.any(Char::isDigit) }
                             fixingBy {
-                                val t = literal.text
+                                val t = literal.text.now
                                 literal.setText(t.filter { it.isDigit() })
                             }
                             description = "Remove all non-digit characters"

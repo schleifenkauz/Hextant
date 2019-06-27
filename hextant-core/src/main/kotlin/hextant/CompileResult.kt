@@ -11,28 +11,39 @@ import reaktive.value.binding.map
 import reaktive.value.now
 
 /**
- * The result of an [Editable]
+ * The result of an [Editor]
  */
 sealed class CompileResult<out T>
 
 /**
- * An error directly located in the [Editable]
+ * An error directly located in the [Editor]
+ * @property message the message of this error
  */
 data class Err(val message: String) : CompileResult<Nothing>()
 
 /**
  * Anything is ok
+ * @property value the value
  */
 data class Ok<T>(val value: T) : CompileResult<T>()
 
+/**
+ * @return an [Ok] result with the given [value]
+ */
 fun <T> ok(value: T): CompileResult<T> = Ok(value)
 
+/**
+ * @return an [Err] with the given [message]
+ */
 fun <T> err(message: String): CompileResult<T> = Err(message)
 
+/**
+ * @return a [ChildErr]
+ */
 fun <T> childErr(): CompileResult<T> = ChildErr
 
 /**
- * An error located in one of the children of the [Editable]
+ * An error located in one of the children of the [Editor]
  */
 object ChildErr : CompileResult<Nothing>()
 
@@ -113,10 +124,16 @@ inline fun <T> CompileResult<T>.ifErr(def: (CompileResult<Nothing>) -> T): T = w
     is Ok       -> value
 }
 
+/**
+ * Execute the given action with the value of this result if it is ok
+ */
 inline fun <T> CompileResult<T>.ifOk(action: (T) -> Unit) {
     if (this is Ok) action(value)
 }
 
+/**
+ * Execute the given action on the values of the given results if both are ok
+ */
 inline fun <T, R> ifOk(t: CompileResult<T>, r: CompileResult<R>, action: (T, R) -> Unit) {
     if (t is Ok && r is Ok) action(t.value, r.value)
 }
@@ -133,6 +150,7 @@ fun <T> CompileResult<T>.orNull() = ifErr { null }
 
 /**
  * Throwable signaling that the computation should terminate with the specified [err]
+ * @property err the error the computation terminated with
  */
 class TerminationSignal(val err: CompileResult<Nothing>) : Throwable()
 
@@ -142,6 +160,9 @@ class TerminationSignal(val err: CompileResult<Nothing>) : Throwable()
 inline fun <T> CompileResult<T>.orTerminate(result: (CompileResult<Nothing>) -> CompileResult<Nothing> = { it }): T =
     ifErr { throw TerminationSignal(result(it)) }
 
+/**
+ * Syntactic sugar for [orTerminate]
+ */
 operator fun <T> CompileResult<T>.component1(): T = orTerminate()
 
 /**
@@ -155,17 +176,29 @@ inline fun <T> compile(body: () -> CompileResult<T>): CompileResult<T> {
     }
 }
 
+/**
+ * Syntactic sugar for `map { it.map(f) }`
+ */
 fun <T, F> EditorResult<T>.mapResult(f: (T) -> F) = map { it.map(f) }
 
+/**
+ * @return a binding which has the results of the given editors as dependencies and computes [body]
+ */
 fun <T> result(vararg deps: Editor<*>, body: () -> CompileResult<T>): EditorResult<T> =
     binding(dependencies(deps.map { it.result }), body)
 
+/**
+ * @return an [EditorResult] with the given dependencies computing [body]
+ */
 fun <A : Any, T> result1(dep1: Editor<A>, body: (A) -> CompileResult<T>): EditorResult<T> = result(dep1) {
     compile {
         body(dep1.result.now.orTerminate { childErr() })
     }
 }
 
+/**
+ * @return an [EditorResult] with the given dependencies computing [body]
+ */
 fun <A : Any, B : Any, T> result2(dep1: Editor<A>, dep2: Editor<B>, body: (A, B) -> CompileResult<T>): EditorResult<T> =
     result(dep1, dep2) {
         compile {
@@ -173,6 +206,9 @@ fun <A : Any, B : Any, T> result2(dep1: Editor<A>, dep2: Editor<B>, body: (A, B)
         }
     }
 
+/**
+ * @return an [EditorResult] with the given dependencies computing [body]
+ */
 fun <A : Any, B : Any, C : Any, T> result3(
     dep1: Editor<A>,
     dep2: Editor<B>,
@@ -190,4 +226,7 @@ fun <A : Any, B : Any, C : Any, T> result3(
     }
 
 
+/**
+ * The result of an [Editor] is a reactive value of compile results
+ */
 typealias EditorResult<R> = ReactiveValue<CompileResult<R>>

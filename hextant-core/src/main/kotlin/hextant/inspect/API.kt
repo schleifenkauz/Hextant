@@ -52,4 +52,7 @@ inline fun <reified T : Any> inspection(inspected: T, block: InspectionBuilder.(
     InspectionBuilder().apply { location(inspected); block() }.build()
 
 
+/**
+ * @return the [InspectionRegistrar] for the class of [T]
+ */
 inline fun <reified T : Any> Inspections.of(): InspectionRegistrar<T> = of(T::class)

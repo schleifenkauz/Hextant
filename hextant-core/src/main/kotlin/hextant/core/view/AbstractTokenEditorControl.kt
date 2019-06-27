@@ -14,6 +14,11 @@ import hextant.fx.HextantTextField
 import hextant.fx.smartSetText
 import reaktive.event.subscribe
 
+/**
+ * An [EditorControl] for [TokenEditor]'s.
+ * The constructor of this class doesn't register itself as a view of the supplied editor.
+ * Most likely you should use [FXTokenEditorView] instead.
+ */
 open class AbstractTokenEditorControl(
     private val editor: TokenEditor<*, *>,
     args: Bundle,

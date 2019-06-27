@@ -22,6 +22,9 @@ import javafx.scene.input.KeyCombination
 import reaktive.event.Subscription
 import reaktive.event.subscribe
 
+/**
+ * JavaFX implementation of a [ExpanderView]
+ */
 class FXExpanderView(
     private val expander: Expander<*, *>,
     args: Bundle,

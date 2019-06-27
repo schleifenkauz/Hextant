@@ -46,6 +46,9 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
         return editor
     }
 
+    /**
+     * Make all the given editors children of this editor
+     */
     protected fun children(vararg children: Editor<*>) {
         for (c in children) child(c)
     }

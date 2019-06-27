@@ -196,8 +196,8 @@ class FXListEditorView(
 
     override fun createDefaultRoot(): Pane = items
 
-    override fun added(editable: Editor<*>, idx: Int) {
-        val c = getCell(idx, editable)
+    override fun added(editor: Editor<*>, idx: Int) {
+        val c = getCell(idx, editor)
         cells.drop(idx).forEach { cell -> cell.index = cell.index + 1 }
         cells.add(idx, c)
         items.children.add(idx, c)

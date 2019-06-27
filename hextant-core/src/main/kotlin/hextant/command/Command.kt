@@ -48,6 +48,9 @@ interface Command<in R : Any, out T> {
      */
     val description: String
 
+    /**
+     * The class of the receiver used for checking the type when executing
+     */
     val receiverCls: KClass<in R>
 
     /**
@@ -55,15 +58,31 @@ interface Command<in R : Any, out T> {
     */
     fun isApplicableOn(receiver: Any): Boolean
 
+    /**
+     * A command category corresponds to a menu of shortcuts.
+     * @property name the name of the command category
+     */
     class Category private constructor(val name: String) {
         companion object {
             private val cache = mutableMapOf<String, Category>()
 
+            /**
+             * @return a possibly cached [Category] with the specified [name]
+             */
             fun withName(name: String) = cache.getOrPut(name) { Category(name) }
 
-            val FILE = Category.withName("File")
-            val EDIT = Category.withName("Edit")
-            val VIEW = Category.withName("View")
+            /**
+             * The file menu
+             */
+            val FILE = withName("File")
+            /**
+             * The edit menu
+             */
+            val EDIT = withName("Edit")
+            /**
+             * The view menu
+             */
+            val VIEW = withName("View")
         }
     }
 
@@ -87,13 +106,32 @@ interface Command<in R : Any, out T> {
         }
     }
 
+    /**
+     * A builder for [Parameter]s
+     */
     @Builder
     class ParameterBuilder @PublishedApi internal constructor() {
+        /**
+         * The name of the parameter
+         */
         lateinit var name: String
+        /**
+         * The type of the parameter
+         */
         lateinit var type: KClass<*>
+        /**
+         * `true` iff the parameter is nullable
+         */
         var nullable = false
+        /**
+         * The description of this parameter, an explanation of what the parameter influences.
+         * The default description is "No description provided"
+         */
         var description: String = "No description provided"
 
+        /**
+         * Set the type to the class of [T]
+         */
         inline fun <reified T> ofType() {
             type = T::class
         }

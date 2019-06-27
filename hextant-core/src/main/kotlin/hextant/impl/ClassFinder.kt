@@ -8,7 +8,7 @@ import java.nio.file.*
 import java.util.*
 import kotlin.reflect.KClass
 
-class ClassFinder private constructor(private val classLoader: ClassLoader) {
+internal class ClassFinder private constructor(private val classLoader: ClassLoader) {
     class ClassInfo(val fullName: String, private val classLoader: ClassLoader) {
         val packageName by lazy { fullName.replaceAfterLast('.', "").dropLast(1) }
 

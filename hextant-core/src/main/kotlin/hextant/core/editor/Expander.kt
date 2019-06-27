@@ -15,9 +15,6 @@ import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.map
 
-/**
- * An editor that serves as a wrapper around other editors.
- */
 abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
     private sealed class State<out R, out E> {
         class Unexpanded(val text: String) : State<Nothing, Nothing>()

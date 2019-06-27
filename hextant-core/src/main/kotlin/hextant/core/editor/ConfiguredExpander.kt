@@ -7,6 +7,9 @@ package hextant.core.editor
 import hextant.Context
 import hextant.Editor
 
+/**
+ * An [Expander] which expands text using its [config]
+ */
 open class ConfiguredExpander<R : Any, E : Editor<R>>(
     private val config: ExpanderConfig<E>,
     context: Context

@@ -25,6 +25,9 @@ interface Inspection {
      */
     val severity: Severity
 
+    /**
+     * If a problem is reported this problem is registered for this target
+     */
     val location: Any
 
     /**

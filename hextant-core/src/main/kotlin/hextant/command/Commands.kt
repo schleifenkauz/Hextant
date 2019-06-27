@@ -20,7 +20,7 @@ class Commands private constructor() {
     private fun <R : Any> forClass(cls: KClass<out R>): CommandRegistrar<R> {
         return commandRegistrars.getOrPut(cls) {
             val parents = cls.superclasses.map { superCls -> forClass(superCls) }
-            CommandRegistrar(parents, cls)
+            CommandRegistrar<R>(parents)
         } as CommandRegistrar<R>
     }
 
@@ -40,6 +40,9 @@ class Commands private constructor() {
     operator fun <R : Any> get(cls: KClass<R>) = of(cls)
 
     companion object: Property<Commands, Public, Internal>("commands") {
+        /**
+         * Return a new [Commands] object
+         */
         fun newInstance(): Commands = Commands()
     }
 }

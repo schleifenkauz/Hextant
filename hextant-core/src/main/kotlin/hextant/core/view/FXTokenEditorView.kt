@@ -9,6 +9,9 @@ import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.core.editor.TokenEditor
 
+/**
+ * JavaFX implementation of a [TokenEditorView]
+ */
 open class FXTokenEditorView(
     editor: TokenEditor<*, TokenEditorView>,
     args: Bundle,

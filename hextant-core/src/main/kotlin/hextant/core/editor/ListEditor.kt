@@ -15,6 +15,9 @@ import reaktive.list.binding.values
 import reaktive.list.reactiveList
 import reaktive.value.binding.binding
 
+/**
+ * An editor for multiple child editors of type [E] whose result type is [R]
+ */
 abstract class ListEditor<R : Any, E : Editor<R>>(
     context: Context
 ) : AbstractEditor<List<R>, ListEditorView>(context) {
@@ -22,10 +25,22 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
     private val _editors = reactiveList<E>()
 
+    /**
+     * All child editors of this [ListEditor]
+     */
     val editors: ReactiveList<E> get() = _editors
 
+    /**
+     * All results of the child editors, the results always stay valid and fire changes when
+     * * a new editor is added
+     * * an editor is removed
+     * * the result of a child editor changes
+     */
     val results = editors.map { it.result }.values()
 
+    /**
+     * The [result] only contains an [Ok] value, if all child results are [Ok]. Otherwise it contains a [ChildErr]
+     */
     override val result: EditorResult<List<R>> = binding<CompileResult<List<R>>>(dependencies(results)) {
         results.now.takeIf { it.all { r -> r.isOk } }
             .okOrChildErr()
@@ -39,17 +54,26 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     protected abstract fun createEditor(): E
 
+    /**
+     * Add a new editor at the given index using [createEditor] to create a new editor
+     */
     fun addAt(index: Int) {
         val editor = createEditor()
         addAt(index, editor)
     }
 
+    /**
+     * Add the specified [editor] at the specified [index]
+     */
     fun addAt(index: Int, editor: E) {
         val edit = AddEdit(index, editor)
         doAddAt(index, editor)
         undo.push(edit)
     }
 
+    /**
+     * Remove the editor at the specified [index]
+     */
     fun removeAt(index: Int) {
         val editor = editors.now[index]
         val edit = RemoveEdit(index, editor)
@@ -109,6 +133,10 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     }
 
     companion object {
+        /**
+         * Create a [ListEditor] which overrides [createEditor] such that it returns an editor for type results of [R]
+         * using the specified [context]
+         */
         inline fun <reified R : Any> forType(context: Context): ListEditor<R, Editor<R>> =
             object : ListEditor<R, Editor<R>>(context) {
                 override fun createEditor(): Editor<R> = context.createEditor(R::class)

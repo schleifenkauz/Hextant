@@ -11,20 +11,25 @@ import javafx.scene.Node
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.KeyEvent
 import reaktive.event.event
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 /**
  * Used to register commands with receiver of type [R]
  * @constructor
  */
-class CommandRegistrar<R : Any> internal constructor(private val parents: List<CommandRegistrar<Any>>, cls: KClass<R>) {
+class CommandRegistrar<R : Any> internal constructor(private val parents: List<CommandRegistrar<Any>>) {
     private val addCategory = event<Category>()
 
+    /**
+     * Event stream that emits new category when they are added
+     */
     val addedCategory = addCategory.stream
 
     private val _categories: MutableSet<Category> = mutableSetOf()
 
+    /**
+     * A set of all categories of the commands registered in this registrar
+     */
     val categories: Set<Category> get() = _categories + parents.flatMap { it.categories }
 
     private val declaredCommands: MutableSet<Command<R, Any?>> = mutableSetOf()
@@ -77,13 +82,19 @@ class CommandRegistrar<R : Any> internal constructor(private val parents: List<C
         registerShortcut(command, shortcut)
     }
 
+    /**
+     * Register the specified [shortcut] for the **previously registered** command
+     */
     fun registerShortcut(command: Command<R, *>, shortcut: KeyCombination) {
         accelerators[shortcut] = command
         shortcuts[command] = shortcut
     }
 
+    /**
+     * @return the shortcut of the specified command or null if there is none
+     */
     fun getShortcut(command: Command<R, *>): KeyCombination? =
-            shortcuts[command] ?: parents.fold(null as KeyCombination?) { acc, r -> acc ?: r.shortcuts[command] }
+        shortcuts[command] ?: parents.fold(null as KeyCombination?) { acc, r -> acc ?: r.shortcuts[command] }
 
     private fun handle(
         keyEvent: KeyEvent,

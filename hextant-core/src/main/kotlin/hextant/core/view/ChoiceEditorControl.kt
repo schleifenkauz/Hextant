@@ -11,6 +11,9 @@ import javafx.collections.FXCollections
 import javafx.scene.control.ComboBox
 import javafx.scene.control.ListCell
 
+/**
+ * JavaFX implementation of a [ChoiceEditorView]
+ */
 open class ChoiceEditorControl<C : Any>(
     private val items: List<C>,
     private val editor: ChoiceEditor<C>,
@@ -22,9 +25,10 @@ open class ChoiceEditorControl<C : Any>(
         root.valueProperty().addListener { _, _, item ->
             editor.select(item)
         }
+        root.setCellFactory { createDefaultCell() }
     }
 
-    protected open fun createCell(): ListCell<C> = object : ListCell<C>() {
+    private fun createDefaultCell(): ListCell<C> = object : ListCell<C>() {
         override fun updateItem(item: C?, empty: Boolean) {
             super.updateItem(item, empty)
             if (item != null || empty) {
@@ -36,6 +40,6 @@ open class ChoiceEditorControl<C : Any>(
     }
 
     override fun selected(choice: C) {
-        root.setCellFactory { createCell() }
+        root.selectionModel.select(choice)
     }
 }

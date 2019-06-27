@@ -34,9 +34,17 @@ interface Editor<out R : Any> {
      */
     val context: Context
 
+    /**
+     * This method should be considered an implementation detail.
+     * It is likely to be removed soon and using it can cause all sorts of bugs.
+     */
     @Deprecated("Treat as private")
     fun setParent(newParent: Editor<*>?)
 
+    /**
+     * This method should be considered an implementation detail.
+     * It is likely to be removed soon and using it can cause all sorts of bugs.
+     */
     @Deprecated("Treat as private")
     fun setExpander(newExpander: Expander<@UnsafeVariance R, *>?)
 }

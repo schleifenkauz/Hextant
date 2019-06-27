@@ -9,33 +9,43 @@ import hextant.base.AbstractEditor
 import hextant.core.TokenType
 import hextant.core.view.TokenEditorView
 import hextant.undo.*
-import reaktive.value.reactiveVariable
+import reaktive.value.*
 
+/**
+ * A token editor transforms text to tokens.
+ * When setting the text it is automatically compiled to a token.
+ */
 abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
                                                                                     TokenType<R> {
     private val _result = reactiveVariable(this.compile(""))
 
     override val result: EditorResult<R> get() = _result
 
-    private var _text = ""
+    private var _text = reactiveVariable("")
 
-    val text get() = _text
+    /**
+     * A [ReactiveValue] holding the current textual content of this editor
+     */
+    val text: ReactiveString get() = _text
 
     private val undo = context[UndoManager]
 
     override fun viewAdded(view: V) {
-        view.displayText(text)
+        view.displayText(text.now)
     }
 
+    /**
+     * Set the text of this editor, such that the result is automatically updated
+     */
     fun setText(newText: String) {
-        val edit = TextEdit(this, text, newText)
+        val edit = TextEdit(this, text.now, newText)
         doSetText(newText)
         undo.push(edit)
     }
 
     private fun doSetText(newText: String) {
-        _text = newText
-        _result.set(compile(text))
+        _text.now = newText
+        _result.set(compile(text.now))
         views { displayText(newText) }
     }
 
@@ -59,6 +69,9 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
     }
 
     companion object {
+        /**
+         * Return a [TokenEditor] which delegates text compilation to the given token [type]
+         */
         fun <R : Any> forTokenType(
             type: TokenType<R>,
             context: Context

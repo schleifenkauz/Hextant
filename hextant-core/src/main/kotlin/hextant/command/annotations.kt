@@ -4,5 +4,8 @@
 
 package hextant.command
 
+/**
+ * DSL marker
+ */
 @DslMarker
 annotation class Builder

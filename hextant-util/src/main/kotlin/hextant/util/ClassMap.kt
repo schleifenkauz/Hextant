@@ -7,11 +7,23 @@ package hextant.util
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
 
+/**
+ * A [HashMap] which associated classes with values of type [V]
+ */
 sealed class ClassMap<V> {
+    /**
+     * Get the value associated with the given class or `null` if there is none
+     */
     abstract operator fun get(cls: KClass<*>): V?
 
+    /**
+     * Set the value associated with the given class
+     */
     abstract operator fun set(cls: KClass<*>, value: V)
 
+    /**
+     * Get the value associated with class [T]
+     */
     inline fun <reified T : Any> get() = get(T::class)
 
     private class Invariant<V> : ClassMap<V>() {
