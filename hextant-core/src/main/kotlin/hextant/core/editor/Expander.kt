@@ -46,9 +46,10 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     protected abstract fun expand(text: String): E?
 
     /**
-     * @return `true` iff the given editor can be the content of this expander
+     * Return `true` iff the given editor can be the content of this expander.
+     * Default implementation simply returns `false`
      */
-    protected abstract fun accepts(editor: Editor<*>): Boolean
+    protected open fun accepts(editor: Editor<*>): Boolean = false
 
     private fun doChangeState(newState: State<R, E>) {
         val oldState = state
