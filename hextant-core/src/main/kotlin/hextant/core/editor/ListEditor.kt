@@ -25,6 +25,8 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
     private val _editors = reactiveList<E>()
 
+    private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
+
     /**
      * All child editors of this [ListEditor]
      */
@@ -53,6 +55,15 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * Create a new Editor for results of type [E]
      */
     protected abstract fun createEditor(): E
+
+
+    override fun copyFor(context: Context): ListEditor<R, E> {
+        val copy = constructor.newInstance(context)
+        for ((i, e) in editors.now.withIndex()) {
+            addAt(i, e)
+        }
+        return copy
+    }
 
     /**
      * Add a new editor at the given index using [createEditor] to create a new editor
