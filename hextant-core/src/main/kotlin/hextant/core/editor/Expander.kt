@@ -9,7 +9,6 @@ import hextant.base.AbstractEditor
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.CoreProperties.clipboard
-import hextant.core.MovableEditor
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Unexpanded
 import hextant.core.view.ExpanderView
@@ -121,8 +120,9 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      * If the expander is not expanded or the current editor doesn't support copying this method has no effect.
      */
     fun copy() {
+        println("copy")
         val e = editor.now ?: return
-        if (e !is MovableEditor<*>) return
+        if (!e.supportsCopy()) return
         context[Internal, clipboard] = e
     }
 
@@ -130,7 +130,9 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      * Set the editor of this expander to a copy of the clipboard editor this expander can accept it
      */
     fun paste() {
-        val content = context[Public, clipboard] as? MovableEditor<*> ?: return
+        println("paste")
+        val content = context[Public, clipboard] as? Editor<*> ?: return
+        check(content.supportsCopy()) { "Content in clipboard does not support copying" }
         if (!accepts(content)) return
         val copy = content.copyFor(this.context)
         check(copy.javaClass == content.javaClass) { "Copy returned object of different class" }

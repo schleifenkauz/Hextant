@@ -15,8 +15,8 @@ import reaktive.value.*
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
-abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
-                                                                                    TokenType<R> {
+abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) :
+    AbstractEditor<R, V>(context), TokenType<R> {
     private val _result = reactiveVariable(this.compile(""))
 
     override val result: EditorResult<R> get() = _result
@@ -34,6 +34,16 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         view.displayText(text.now)
     }
 
+    private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
+
+    override fun supportsCopy(): Boolean = true
+
+    override fun copyFor(context: Context): Editor<R> {
+        val copy = constructor.newInstance(context)
+        copy.setText(this.text.now)
+        return copy
+    }
+
     /**
      * Set the text of this editor, such that the result is automatically updated
      */
@@ -48,7 +58,6 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         _result.set(compile(text.now))
         views { displayText(newText) }
     }
-
 
     private class TextEdit(private val editor: TokenEditor<*, *>, private val old: String, private val new: String) :
         AbstractEdit() {

@@ -20,8 +20,10 @@ class ExprExpander(
         setEditor(editor)
     }
 
-    constructor(editor: ExprEditor<Expr>, context: Context) : this(context) {
-        setEditor(editor)
+    constructor(editor: ExprEditor<Expr>?, context: Context) : this(context) {
+        if (editor != null) {
+            setEditor(editor)
+        }
     }
 
     override fun accepts(editor: Editor<*>): Boolean = editor is ExprEditor
