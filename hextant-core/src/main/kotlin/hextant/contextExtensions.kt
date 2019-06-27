@@ -31,19 +31,19 @@ fun <R : Any> Context.createEditor(result: R): Editor<R> =
     }
 
 @JvmName("getPublic")
-operator fun <T : Any> Context.get(property: Property<T, Public, *>): T = get(Public, property)
+operator fun <T> Context.get(property: Property<T, Public, *>): T = get(Public, property)
 
 @JvmName("setPublic")
-operator fun <T : Any> Context.set(property: Property<T, *, Public>, value: T) =
+operator fun <T> Context.set(property: Property<T, *, Public>, value: T) =
     set(Public, property, value)
 
 @JvmName("getInternal")
-internal operator fun <T : Any> Context.get(property: Property<T, Internal, *>): T = get(
+internal operator fun <T> Context.get(property: Property<T, Internal, *>): T = get(
     Internal, property
 )
 
 @JvmName("setInternal")
-internal operator fun <T : Any> Context.set(property: Property<T, *, Internal>, value: T) =
+internal operator fun <T> Context.set(property: Property<T, *, Internal>, value: T) =
     set(Internal, property, value)
 
 fun Context.runLater(action: () -> Unit) = platform.runLater(action)
