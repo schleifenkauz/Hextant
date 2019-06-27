@@ -18,4 +18,6 @@ class SumEditor(
     constructor(context: Context) : this(context, ExprListEditor(context))
 
     override val result: EditorResult<Sum> = expressions.result.map { exprs -> exprs.map(::Sum) }
+
+    override fun copyFor(context: Context): ExprEditor<Sum> = SumEditor(context, expressions.copyFor(context))
 }

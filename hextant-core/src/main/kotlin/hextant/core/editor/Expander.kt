@@ -19,15 +19,15 @@ import reaktive.value.*
 import reaktive.value.binding.map
 
 abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
-    private sealed class State<out R, out E> {
-        class Unexpanded(val text: String) : State<Nothing, Nothing>()
+    private sealed class State<out E> {
+        class Unexpanded(val text: String) : State<Nothing>()
 
-        class Expanded<out R : Any, E : Editor<R>>(val editor: E) : State<R, E>()
+        class Expanded<E : Editor<*>>(val editor: E) : State<E>()
     }
 
     private val undo = context[UndoManager]
 
-    private var state: State<R, E> = Unexpanded("")
+    private var state: State<E> = Unexpanded("")
 
     private val _result = reactiveVariable<CompileResult<R>>(childErr())
 
@@ -43,6 +43,8 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     val editor: ReactiveValue<E?> get() = _editor
 
+    private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
+
     protected abstract fun expand(text: String): E?
 
     /**
@@ -51,7 +53,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      */
     protected open fun accepts(editor: Editor<*>): Boolean = false
 
-    private fun doChangeState(newState: State<R, E>) {
+    private fun doChangeState(newState: State<E>) {
         val oldState = state
         state = newState
         when (oldState) {
@@ -89,7 +91,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         views { expanded(editor) }
     }
 
-    private fun changeState(newState: State<R, E>, actionDescription: String) {
+    private fun changeState(newState: State<E>, actionDescription: String) {
         val edit = StateTransition(state, newState, actionDescription)
         doChangeState(newState)
         undo.push(edit)
@@ -114,6 +116,12 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     fun reset() {
         check(state is Expanded) { "Cannot reset unexpanded expander" }
         changeState(Unexpanded(""), "Reset")
+    }
+
+    override fun copyFor(context: Context): Expander<R, E> {
+        val copy = constructor.newInstance(context) as Expander<R, E>
+        copy.doChangeState(this.state)
+        return copy
     }
 
     /**
@@ -149,8 +157,8 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     }
 
     private inner class StateTransition(
-        private val old: State<R, E>,
-        private val new: State<R, E>,
+        private val old: State<E>,
+        private val new: State<E>,
         override val actionDescription: String
     ) : AbstractEdit() {
         override fun doRedo() {

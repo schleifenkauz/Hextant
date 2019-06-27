@@ -42,18 +42,13 @@ class OperatorApplicationEditor(
     )
 
     override fun copyFor(context: Context): OperatorApplicationEditor {
-        val o1 = editableOp2.editor.now?.copyFor(context) as ExprEditor<*>
-        val o2 = editableOp1.editor.now?.copyFor(context)
-        val o = operatorEditor.copyFor(context) as OperatorEditor
         return OperatorApplicationEditor(
-            o,
-            ExprExpander(o2 as ExprEditor<*>, context),
-            ExprExpander(o1, context),
+            operatorEditor.copyFor(context),
+            editableOp1.copyFor(context),
+            editableOp2.copyFor(context),
             context
         )
     }
-
-    override fun supportsCopy(): Boolean = true
 
     override val result: EditorResult<OperatorApplication> =
         binding<CompileResult<OperatorApplication>>(

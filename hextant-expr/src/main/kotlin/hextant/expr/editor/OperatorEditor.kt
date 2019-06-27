@@ -10,6 +10,8 @@ class OperatorEditor(context: Context) : TokenEditor<Operator, TokenEditorView>(
         setText(operator.name)
     }
 
+    override fun copyFor(context: Context): OperatorEditor = super.copyFor(context) as OperatorEditor
+
     override fun compile(token: String): CompileResult<Operator> =
         token.takeIf { Operator.isValid(it) }.okOrErr { "Invalid operator $token" }.map { Operator.of(it) }
 }

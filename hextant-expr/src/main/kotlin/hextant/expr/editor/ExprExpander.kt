@@ -28,6 +28,9 @@ class ExprExpander(
 
     override fun accepts(editor: Editor<*>): Boolean = editor is ExprEditor
 
+    override fun copyFor(context: Context): ExprExpander =
+        super.copyFor(context) as ExprExpander
+
     companion object {
         val config = ExpanderConfig<ExprEditor<Expr>>().apply {
             registerConstant("dec") { context -> IntLiteralEditor(context) }

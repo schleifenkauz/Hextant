@@ -36,11 +36,9 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
 
     private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
 
-    override fun supportsCopy(): Boolean = true
-
     override fun copyFor(context: Context): Editor<R> {
         val copy = constructor.newInstance(context)
-        copy.setText(this.text.now)
+        copy.doSetText(this.text.now)
         return copy
     }
 

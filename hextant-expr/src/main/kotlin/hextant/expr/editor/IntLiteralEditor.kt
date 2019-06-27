@@ -16,6 +16,8 @@ class IntLiteralEditor(context: Context) : TokenEditor<IntLiteral, TokenEditorVi
 
     constructor(v: IntLiteral, context: Context) : this(v.value, context)
 
+    override fun copyFor(context: Context): IntLiteralEditor = super.copyFor(context) as IntLiteralEditor
+
     override fun compile(token: String): CompileResult<IntLiteral> =
         token.toIntOrNull().okOrErr { "Invalid int literal $token" }.map { IntLiteral(it) }
 }
