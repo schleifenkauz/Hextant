@@ -6,7 +6,7 @@
         <compilerSettings />
         <compilerArguments>
           <option name="destination" value="$MODULE_DIR$/../../../hextant-test/build/classes/kotlin/test" />
-          <option name="classpath" value="$MODULE_DIR$/../../../hextant-test/build/classes/kotlin/main;D:/data/.gradle/caches/modules-2/files-2.1/org.jetbrains.spek/spek-api/1.1.5/bc19a88a54bb18edc9dd64d79b42f32b3215f1ca/spek-api-1.1.5.jar;D:/data/.gradle/caches/modules-2/files-2.1/com.natpryce/hamkrest/1.5.0.0/854d969284b75db409a16f16aa83d33d89bb0fbe/hamkrest-1.5.0.0.jar" />
+          <option name="classpath" value="$MODULE_DIR$/../../../hextant-test/build/classes/kotlin/main;D:/data/.gradle/caches/modules-2/files-2.1/org.jetbrains.spek/spek-api/1.1.5/bc19a88a54bb18edc9dd64d79b42f32b3215f1ca/spek-api-1.1.5.jar;D:/data/.gradle/caches/modules-2/files-2.1/com.natpryce/hamkrest/1.5.0.0/854d969284b75db409a16f16aa83d33d89bb0fbe/hamkrest-1.5.0.0.jar;D:/data/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/5.4.2/665d1c0daecb26c6210c872768000b417e7e52b6/junit-jupiter-api-5.4.2.jar;D:/data/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.4.2/37993dc807ca253aa347be8968a0ae7b70642dbc/junit-platform-commons-1.4.2.jar;D:/data/.gradle/caches/modules-2/files-2.1/org.apiguardian/apiguardian-api/1.0.0/3ef5276905e36f4d8055fe3cb0bdcc7503ffc85d/apiguardian-api-1.0.0.jar;D:/data/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.1.1/efd9f971e91074491ea55b19f67b13470cf4fcdd/opentest4j-1.1.1.jar" />
           <option name="noStdlib" value="true" />
           <option name="noReflect" value="true" />
           <option name="moduleName" value="hextant-test" />
@@ -41,7 +41,11 @@
     <orderEntry type="module" module-name="hextant.hextant-test.main" />
     <orderEntry type="library" name="Gradle: org.jetbrains.spek:spek-api:1.1.5" level="project" />
     <orderEntry type="library" name="Gradle: com.natpryce:hamkrest:1.5.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter-api:5.4.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-commons:1.4.2" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.spek:spek-junit-platform-engine:1.1.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.apiguardian:apiguardian-api:1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.opentest4j:opentest4j:1.1.1" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="hextant.hextant-test.main" />
 </module>
