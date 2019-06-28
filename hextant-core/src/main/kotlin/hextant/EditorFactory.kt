@@ -29,7 +29,7 @@ interface EditorFactory {
      * where `edited` denotes an instance of exactly [editedCls] not a sub- or superclass instance,
      * unless another factory has been registered.
      */
-    fun <T : Any> register(editedCls: KClass<T>, factory: (T, Context) -> Editor<T>)
+    fun <T : Any> register(editedCls: KClass<T>, factory: (Context, T) -> Editor<T>)
 
     /**
      * Tries to find a factory registered with [register]
@@ -55,17 +55,17 @@ interface EditorFactory {
 
     @Suppress("UNCHECKED_CAST")
     private class Impl : EditorFactory {
-        private val oneArgFactories = ClassMap.invariant<(Any, Context) -> Editor<Any>>()
+        private val oneArgFactories = ClassMap.invariant<(Context, Any) -> Editor<Any>>()
 
-        override fun <T : Any> register(editedCls: KClass<T>, factory: (T, Context) -> Editor<T>) {
+        override fun <T : Any> register(editedCls: KClass<T>, factory: (Context, T) -> Editor<T>) {
             logger.config { "register factory for $editedCls" }
-            oneArgFactories[editedCls] = factory as (Any, Context) -> Editor<Any>
+            oneArgFactories[editedCls] = factory as (Context, Any) -> Editor<Any>
         }
 
         @Synchronized override fun <T : Any> getEditor(edited: T, context: Context): Editor<T> {
             val editedCls = edited::class
             val factory = oneArgFactories[editedCls]
-            if (factory != null) return factory(edited, context) as Editor<T>
+            if (factory != null) return factory(context, edited) as Editor<T>
             else {
                 val msg = "No one-arg factory found for ${edited.javaClass}"
                 logger.severe(msg)

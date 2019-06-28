@@ -136,7 +136,7 @@ class ExprEditorViewTest : Application() {
             executing { oae, _ ->
                 val ex = oae.expander.now as ExprExpander
                 val res = oae.result.now.force().value
-                val editable = IntLiteralEditor(res, context)
+                val editable = IntLiteralEditor(context, res.toString())
                 ex.setEditor(editable)
             }
         }
@@ -200,10 +200,10 @@ class ExprEditorViewTest : Application() {
             executing { editor, (operator) ->
                 operator as Operator
                 val expander = editor.expander.now as ExprExpander
-                val opEditor = OperatorEditor(operator, context)
+                val opEditor = OperatorEditor(context, operator)
                 val app = OperatorApplicationEditor(
                     opEditor,
-                    ExprExpander(editor, context),
+                    ExprExpander(context, editor),
                     ExprExpander(context),
                     context
                 )

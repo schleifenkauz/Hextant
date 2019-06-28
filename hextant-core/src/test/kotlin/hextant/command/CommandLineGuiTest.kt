@@ -35,7 +35,7 @@ class CommandLineGuiTest : Application() {
             val editableFactory = context[EditorFactory]
             editableFactory.run {
                 register(IntLiteral::class) { context -> IntLiteralEditor(context) }
-                register(IntLiteral::class) { v, context -> IntLiteralEditor(v.value, context) }
+                register(IntLiteral::class) { context, v -> IntLiteralEditor(v, context) }
             }
             val views = context[EditorControlFactory]
             views.run {

@@ -17,6 +17,10 @@ import reaktive.value.*
  */
 abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) :
     AbstractEditor<R, V>(context), TokenType<R> {
+    constructor(context: Context, text: String) : this(context) {
+        doSetText(text)
+    }
+
     private val _result = reactiveVariable(this.compile(""))
 
     override val result: EditorResult<R> get() = _result
@@ -36,7 +40,7 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
 
     private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
 
-    override fun copyFor(context: Context): Editor<R> {
+    override fun copyForImpl(context: Context): Editor<R> {
         val copy = constructor.newInstance(context)
         copy.doSetText(this.text.now)
         return copy

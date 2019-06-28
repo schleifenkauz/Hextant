@@ -12,6 +12,4 @@ class ExprListEditor(context: Context) : ListEditor<Expr, ExprEditor<Expr>>(cont
     override fun createEditor(): ExprEditor<Expr> = ExprExpander(context)
 
     override fun supportsCopy(): Boolean = true
-
-    override fun copyFor(context: Context): ExprListEditor = super.copyFor(context) as ExprListEditor
 }

@@ -53,7 +53,7 @@ interface Editor<out R : Any> {
      * The default implementation throws a [UnsupportedOperationException].
      * Implementing classes must ensure that this method is supported iff [supportsCopy] returns `true`.
      */
-    fun copyFor(context: Context): Editor<R> = throw UnsupportedOperationException("Copying is not supported")
+    fun copyForImpl(context: Context): Editor<R> = throw UnsupportedOperationException("Copying is not supported")
 
     /**
      * Return `true` iff this editor supports copying.

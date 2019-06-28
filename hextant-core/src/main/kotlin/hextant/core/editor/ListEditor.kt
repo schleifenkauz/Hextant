@@ -57,7 +57,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     protected abstract fun createEditor(): E
 
 
-    override fun copyFor(context: Context): ListEditor<R, E> {
+    override fun copyForImpl(context: Context): Editor<List<R>> {
         val copy = constructor.newInstance(context)
         for ((i, e) in editors.now.withIndex()) {
             addAt(i, e)

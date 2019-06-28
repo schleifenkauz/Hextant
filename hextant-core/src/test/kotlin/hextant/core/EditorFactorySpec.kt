@@ -21,7 +21,7 @@ internal object EditorFactorySpec : Spek({
         val ef = EditorFactory.newInstance()
         val context = testingContext()
         on("registering a editable for a class") {
-            ef.register { il: IntLiteral, context -> IntLiteralEditor(il.value, context) }
+            ef.register { context, il: IntLiteral -> IntLiteralEditor(il, context) }
             ef.register { context -> IntLiteralEditor(context) }
             it("should return the registered editable when getting an Editable for the registered class") {
                 ef.getEditor(IntLiteral::class, context) shouldMatch instanceOf<IntLiteralEditor>()

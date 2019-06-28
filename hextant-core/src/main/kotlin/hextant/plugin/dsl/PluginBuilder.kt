@@ -31,7 +31,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
     /**
      * Register the specified [factory] for editors of the class [R]
      */
-    inline fun <reified R : Any, reified E : Editor<R>> editor(noinline factory: (R, Context) -> E) {
+    inline fun <reified R : Any, reified E : Editor<R>> editor(noinline factory: (Context, R) -> E) {
         platform[Public, EditorFactory].register(R::class, factory)
         val editableName = R::class.qualifiedName
         val editorName = E::class.qualifiedName

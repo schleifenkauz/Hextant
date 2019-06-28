@@ -19,6 +19,14 @@ import reaktive.value.*
 import reaktive.value.binding.map
 
 abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
+    constructor(context: Context, editor: E?) : this(context) {
+        if (editor != null) doExpandTo(editor)
+    }
+
+    constructor(context: Context, text: String) : this(context) {
+        doChangeState(Unexpanded(text))
+    }
+
     private sealed class State<out E> {
         class Unexpanded(val text: String) : State<Nothing>()
 
@@ -118,7 +126,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         changeState(Unexpanded(""), "Reset")
     }
 
-    override fun copyFor(context: Context): Expander<R, E> {
+    override fun copyForImpl(context: Context): Editor<R> {
         val copy = constructor.newInstance(context) as Expander<R, E>
         copy.doChangeState(this.state)
         return copy
@@ -143,7 +151,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         val content = context[Public, clipboard] as? Editor<*> ?: return
         check(content.supportsCopy()) { "Content in clipboard does not support copying" }
         if (!accepts(content)) return
-        val copy = content.copyFor(this.context)
+        val copy = content.copyForImpl(this.context)
         check(copy.javaClass == content.javaClass) { "Copy returned object of different class" }
         @Suppress("UNCHECKED_CAST")
         setEditor(copy as E)

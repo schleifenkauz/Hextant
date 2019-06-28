@@ -1,5 +1,6 @@
 import hextant.core.view.FXListEditorView
 import hextant.core.view.FXListEditorView.Orientation.Horizontal
+import hextant.expr.edited.Operator
 import hextant.expr.editor.*
 import hextant.expr.view.*
 import hextant.plugin.dsl.plugin
@@ -13,7 +14,7 @@ plugin {
     view(::FXIntLiteralEditorView)
     //Editable expressions
     defaultEditor(::OperatorEditor)
-    editor(::OperatorEditor)
+    editor<Operator, OperatorEditor>(::OperatorEditor)
     view(::FXOperatorEditorView)
     defaultEditor(::OperatorApplicationEditor)
     view(::FXOperatorApplicationEditorView)

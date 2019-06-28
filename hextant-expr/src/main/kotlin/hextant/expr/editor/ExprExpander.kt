@@ -13,23 +13,16 @@ import hextant.expr.edited.Expr
 import hextant.expr.edited.Operator.*
 
 class ExprExpander(
-    context: Context
-) : ConfiguredExpander<Expr, ExprEditor<Expr>>(config, context), ExprEditor<Expr> {
-    constructor(edited: Expr, context: Context) : this(context) {
-        val editor = context[EditorFactory].getEditor(edited, context) as ExprEditor<*>
-        setEditor(editor)
-    }
+    context: Context, editor: ExprEditor<Expr>?
+) : ConfiguredExpander<Expr, ExprEditor<Expr>>(config, context, editor), ExprEditor<Expr> {
+    constructor(context: Context) : this(context, null)
 
-    constructor(editor: ExprEditor<Expr>?, context: Context) : this(context) {
-        if (editor != null) {
-            setEditor(editor)
-        }
-    }
+    constructor(edited: Expr, context: Context) : this(
+        context,
+        context[EditorFactory].getEditor(edited, context) as ExprEditor<Expr>
+    )
 
     override fun accepts(editor: Editor<*>): Boolean = editor is ExprEditor
-
-    override fun copyFor(context: Context): ExprExpander =
-        super.copyFor(context) as ExprExpander
 
     companion object {
         val config = ExpanderConfig<ExprEditor<Expr>>().apply {
@@ -41,7 +34,7 @@ class ExprExpander(
             registerConstant("sum") { context -> SumEditor(context) }
             registerInterceptor { text, context ->
                 val int = text.toIntOrNull()
-                if (int != null) IntLiteralEditor(int, context)
+                if (int != null) IntLiteralEditor(context, int.toString())
                 else null
             }
         }

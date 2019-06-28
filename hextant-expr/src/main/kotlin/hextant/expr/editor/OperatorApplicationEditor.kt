@@ -13,12 +13,15 @@ import reaktive.value.binding.binding
 import reaktive.value.now
 
 class OperatorApplicationEditor(
-    val operatorEditor: OperatorEditor,
-    val editableOp1: ExprExpander,
-    val editableOp2: ExprExpander,
+    operatorEditor: OperatorEditor,
+    editableOp1: ExprExpander,
+    editableOp2: ExprExpander,
     context: Context
-) : AbstractEditor<OperatorApplication, Any>(context),
-    ExprEditor<OperatorApplication> {
+) : AbstractEditor<OperatorApplication, Any>(context), ExprEditor<OperatorApplication> {
+    val operatorEditor = operatorEditor.moveTo(context)
+    val editableOp1 = editableOp1.moveTo(context)
+    val editableOp2 = editableOp2.moveTo(context)
+
     constructor(operator: Operator, context: Context) : this(context) {
         operatorEditor.setText(operator.name)
     }
@@ -35,13 +38,13 @@ class OperatorApplicationEditor(
     )
 
     constructor(context: Context, edited: OperatorApplication) : this(
-        OperatorEditor(edited.operator, context),
+        OperatorEditor(context, edited.operator),
         ExprExpander(edited.op1, context),
         ExprExpander(edited.op2, context),
         context
     )
 
-    override fun copyFor(context: Context): OperatorApplicationEditor {
+    override fun copyForImpl(context: Context): OperatorApplicationEditor {
         return OperatorApplicationEditor(
             operatorEditor.copyFor(context),
             editableOp1.copyFor(context),
