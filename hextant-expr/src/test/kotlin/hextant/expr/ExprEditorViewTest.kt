@@ -46,7 +46,7 @@ class ExprEditorViewTest : Application() {
         stage = primaryStage
         stage.scene = hextantScene(::createContent) { platform ->
             Context.newInstance(platform) {
-                set(Public, UndoManager, UndoManager.concurrent())
+                set(Public, UndoManager, UndoManager.newInstance())
                 set(Public, SelectionDistributor, SelectionDistributor.newInstance())
             }
         }
