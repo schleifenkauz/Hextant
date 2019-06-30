@@ -84,7 +84,7 @@ abstract class EditorControl<R : Node>(
         this.arguments = reactive
         isFocusTraversable = false
         initShortcuts()
-        activateContextMenu(target, context)
+        //        activateContextMenu(target, context)
         sceneProperty().addListener { _, _, sc ->
             if (sc != null) handleProblem(hasError.now, hasWarning.now)
         }

@@ -47,10 +47,7 @@ class InspectionRegistrar<T : Any> internal constructor(private val inspections:
      */
     fun registerInspection(builder: InspectionBuilder<T>.() -> Unit) {
         val inspection = { inspected: T ->
-            InspectionBuilder(inspected).apply {
-                location(inspected)
-                builder()
-            }.build()
+            InspectionBuilder(inspected).apply(builder).build()
         }
         register(inspection)
     }

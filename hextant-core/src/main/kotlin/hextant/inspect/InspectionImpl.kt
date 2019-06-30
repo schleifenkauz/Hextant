@@ -4,7 +4,6 @@
 
 package hextant.inspect
 
-import org.nikok.kref.weak
 import reaktive.value.ReactiveBoolean
 
 internal class InspectionImpl(
@@ -13,12 +12,9 @@ internal class InspectionImpl(
     private val message: () -> String,
     override val severity: Severity,
     private val fixes: () -> Collection<ProblemFix>,
-    loc: Any
-) : AbstractInspection() {
-    private val weakLoc by weak(loc)
-
-    override val location get() = weakLoc ?: error("Location already collected")
-
+    inspected: Any,
+    location: Any
+) : AbstractInspection<Any>(inspected, location) {
     override fun fixes(): Collection<ProblemFix> = fixes.invoke()
 
     override fun message(): String = message.invoke()

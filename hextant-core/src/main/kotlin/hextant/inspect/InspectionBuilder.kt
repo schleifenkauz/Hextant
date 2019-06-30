@@ -4,20 +4,19 @@
 
 package hextant.inspect
 
+import org.nikok.kref.forcedWeak
+import org.nikok.kref.mutableWeak
 import reaktive.value.ReactiveBoolean
 import reaktive.value.binding.map
-import java.lang.ref.WeakReference
 
 /**
  * Builder for [Inspection]s
  */
-class InspectionBuilder<out T> @PublishedApi internal constructor(inspected: T) {
-    private val weakInspected = WeakReference(inspected)
-
+class InspectionBuilder<out T : Any> @PublishedApi internal constructor(inspected: T) {
     /**
      * Returns the inspected element
      */
-    val inspected get() = weakInspected.get() ?: error("Inspected object collected before inspection builder")
+    val inspected by forcedWeak(inspected)
 
     /**
      * The description of the [Inspection], must be set
@@ -26,7 +25,7 @@ class InspectionBuilder<out T> @PublishedApi internal constructor(inspected: T) 
     private lateinit var isProblem: ReactiveBoolean
     private lateinit var messageProducer: () -> String
     private lateinit var severity: Severity
-    private lateinit var location: Any
+    private var location = mutableWeak(inspected as Any)
     private var fixes: MutableCollection<ProblemFix> = mutableSetOf()
 
     /**
@@ -64,8 +63,11 @@ class InspectionBuilder<out T> @PublishedApi internal constructor(inspected: T) 
         severity(Severity.of(isSevere))
     }
 
+    /**
+     * Set the location of the inspection
+     */
     fun location(loc: Any) {
-        location = loc
+        location.referent = loc
     }
 
     /**
@@ -84,6 +86,6 @@ class InspectionBuilder<out T> @PublishedApi internal constructor(inspected: T) 
 
     @PublishedApi internal fun build(): Inspection {
         val fixes = { fixes.filter { it.isApplicable() } }
-        return InspectionImpl(isProblem, description, messageProducer, severity, fixes, location)
+        return InspectionImpl(isProblem, description, messageProducer, severity, fixes, inspected, location.referent!!)
     }
 }

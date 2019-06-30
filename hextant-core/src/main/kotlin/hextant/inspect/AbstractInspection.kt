@@ -4,17 +4,19 @@
 
 package hextant.inspect
 
-import reaktive.value.ReactiveBoolean
+import org.nikok.kref.forcedWeak
 import reaktive.value.now
 
 /**
  * Skeletal implementation of [Inspection]
  */
-abstract class AbstractInspection : Inspection {
+abstract class AbstractInspection<T : Any>(inspected: T, location: Any) : Inspection {
+    final override val location: Any by forcedWeak(location)
+
     /**
-     * A [ReactiveBoolean] holding `true` if and only if this [Inspection] found a problem on the inspected object
+     * The object inspected by this inspection
     */
-    abstract override val isProblem: ReactiveBoolean
+    val inspected by forcedWeak(inspected)
 
     /**
      * Return the message for the problem reported by this [Inspection]

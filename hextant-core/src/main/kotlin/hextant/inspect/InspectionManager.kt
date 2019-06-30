@@ -6,7 +6,7 @@ package hextant.inspect
 
 import hextant.inspect.Severity.Error
 import hextant.inspect.Severity.Warning
-import org.nikok.kref.weak
+import org.nikok.kref.forcedWeak
 import reaktive.Observer
 import reaktive.value.binding.notEqualTo
 import reaktive.value.now
@@ -14,7 +14,7 @@ import reaktive.value.reactiveVariable
 import java.util.*
 
 internal class InspectionManager<T : Any>(inspected: T, private val inspections: Inspections) {
-    private val inspected by weak(inspected)
+    private val inspected by forcedWeak(inspected)
 
     private val warningCount = reactiveVariable(0)
 
@@ -25,7 +25,7 @@ internal class InspectionManager<T : Any>(inspected: T, private val inspections:
     private val observers = LinkedList<Observer>()
 
     fun addInspection(inspectionFactory: (T) -> Inspection) {
-        val inspection = inspectionFactory.invoke(inspected!!)
+        val inspection = inspectionFactory.invoke(inspected)
         val actualTarget =
             if (inspected === inspection.location) this
             else inspections.getManagerFor(inspection.location)
