@@ -13,21 +13,21 @@ import reaktive.value.binding.binding
 import reaktive.value.now
 
 class OperatorApplicationEditor(
-    operatorEditor: OperatorEditor,
-    editableOp1: ExprExpander,
-    editableOp2: ExprExpander,
+    op: OperatorEditor,
+    opnd1: ExprExpander,
+    opnd2: ExprExpander,
     context: Context
 ) : AbstractEditor<OperatorApplication, Any>(context), ExprEditor<OperatorApplication> {
-    val operatorEditor = operatorEditor.moveTo(context)
-    val editableOp1 = editableOp1.moveTo(context)
-    val editableOp2 = editableOp2.moveTo(context)
+    val operator = op.moveTo(context)
+    val operand1 = opnd1.moveTo(context)
+    val operand2 = opnd2.moveTo(context)
 
     constructor(operator: Operator, context: Context) : this(context) {
-        operatorEditor.setText(operator.name)
+        this.operator.setText(operator.name)
     }
 
     init {
-        children(editableOp1, operatorEditor, editableOp2)
+        children(operand1, operator, operand2)
     }
 
     constructor(context: Context) : this(
@@ -46,20 +46,20 @@ class OperatorApplicationEditor(
 
     override fun copyForImpl(context: Context): OperatorApplicationEditor {
         return OperatorApplicationEditor(
-            operatorEditor.copyFor(context),
-            editableOp1.copyFor(context),
-            editableOp2.copyFor(context),
+            operator.copyFor(context),
+            operand1.copyFor(context),
+            operand2.copyFor(context),
             context
         )
     }
 
     override val result: EditorResult<OperatorApplication> =
         binding<CompileResult<OperatorApplication>>(
-            dependencies(editableOp1.result, editableOp2.result, operatorEditor.result)
+            dependencies(operand1.result, operand2.result, operator.result)
         ) {
-            val operator = operatorEditor.result.now.ifErr { return@binding ChildErr }
-            val op1 = editableOp1.result.now.ifErr { return@binding ChildErr }
-            val op2 = editableOp2.result.now.ifErr { return@binding ChildErr }
+            val operator = operator.result.now.ifErr { return@binding ChildErr }
+            val op1 = operand1.result.now.ifErr { return@binding ChildErr }
+            val op2 = operand2.result.now.ifErr { return@binding ChildErr }
             Ok(OperatorApplication(op1, op2, operator))
         }
 }

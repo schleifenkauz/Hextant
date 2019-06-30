@@ -114,13 +114,13 @@ class ExprEditorViewTest : Application() {
             description = "Flips the both operands in this operator application"
             applicableIf { oe ->
                 val oae = oe.parent.now as? OperatorApplicationEditor ?: return@applicableIf false
-                oae.operatorEditor.result.now.map { it.isCommutative }.ifErr { false }
+                oae.operator.result.now.map { it.isCommutative }.ifErr { false }
             }
             executing { oe, _ ->
                 val oae = oe.parent.now as OperatorApplicationEditor
-                val expander1 = oae.editableOp1
+                val expander1 = oae.operand1
                 val editableOp1 = expander1.editor.now
-                val expander2 = oae.editableOp2
+                val expander2 = oae.operand2
                 val editableOp2 = expander2.editor.now
                 if (editableOp2 != null) expander1.setEditor(editableOp2)
                 if (editableOp1 != null) expander2.setEditor(editableOp1)
@@ -156,10 +156,10 @@ class ExprEditorViewTest : Application() {
         inspections.of<OperatorApplicationEditor>().registerInspection {
             description = "Prevent identical operations"
             severity(Warning)
-            location(inspected.editableOp2)
-            val isPlus = inspected.operatorEditor.result.map { it.orNull() == Plus }
+            location(inspected.operand2)
+            val isPlus = inspected.operator.result.map { it.orNull() == Plus }
             val operandIs0 =
-                inspected.editableOp2.result.map { it.orNull() is IntLiteral && it.force().value == 0 }
+                inspected.operand2.result.map { it.orNull() is IntLiteral && it.force().value == 0 }
             preventingThat(isPlus.and(operandIs0))
             message { "Operation doesn't change the result" }
             addFix {
@@ -169,7 +169,7 @@ class ExprEditorViewTest : Application() {
                 }
                 fixingBy {
                     val expander = inspected.expander.now as ExprExpander
-                    expander.setEditor(inspected.editableOp1)
+                    expander.setEditor(inspected.operand1)
                 }
 
             }

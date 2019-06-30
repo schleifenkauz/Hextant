@@ -225,6 +225,27 @@ fun <A : Any, B : Any, C : Any, T> result3(
         }
     }
 
+/**
+ * @return an [EditorResult] with the given dependencies computing [body]
+ */
+fun <A : Any, B : Any, C : Any, D : Any, T> result4(
+    dep1: Editor<A>,
+    dep2: Editor<B>,
+    dep3: Editor<C>,
+    dep4: Editor<D>,
+    body: (A, B, C, D) -> CompileResult<T>
+): EditorResult<T> =
+    result(dep1, dep2, dep3, dep4) {
+        compile {
+            body(
+                dep1.result.now.orTerminate { childErr() },
+                dep2.result.now.orTerminate { childErr() },
+                dep3.result.now.orTerminate { childErr() },
+                dep4.result.now.orTerminate { childErr() }
+            )
+        }
+    }
+
 
 /**
  * The result of an [Editor] is a reactive value of compile results

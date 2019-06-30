@@ -15,11 +15,11 @@ class FXOperatorApplicationEditorView(
     editor: OperatorApplicationEditor,
     args: Bundle
 ) : EditorControl<HBox>(editor, args) {
-    private val op1View: EditorControl<*> = context.createView(editor.editableOp1)
+    private val op1View: EditorControl<*> = context.createView(editor.operand1)
 
-    private val operatorView: EditorControl<*> = context.createView(editor.operatorEditor)
+    private val operatorView: EditorControl<*> = context.createView(editor.operator)
 
-    private val op2View: EditorControl<*> = context.createView(editor.editableOp2)
+    private val op2View: EditorControl<*> = context.createView(editor.operand2)
 
     override fun createDefaultRoot(): HBox {
         val openingParen = parenLabel("(")
