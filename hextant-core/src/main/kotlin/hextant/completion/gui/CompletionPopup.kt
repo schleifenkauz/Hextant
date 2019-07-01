@@ -37,10 +37,8 @@ class CompletionPopup<C> : Popup() {
             }
         }
         n.setOnMouseClicked {
-            if (it.clickCount > 1) {
-                choose(c)
-                it.consume()
-            }
+            choose(c)
+            it.consume()
         }
     }
 

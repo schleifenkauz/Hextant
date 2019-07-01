@@ -20,5 +20,8 @@ class SimpleCompletion<out T>(
     override val text: String,
     override val match: Match
 ) : Completion<T> {
-    override fun createNode(): Control = Label(text).apply { styleClass.add("completion") }
+    override fun createNode(): Control = Label(text).apply {
+        isFocusTraversable = true
+        styleClass.addAll("completion", "hextant-text")
+    }
 }

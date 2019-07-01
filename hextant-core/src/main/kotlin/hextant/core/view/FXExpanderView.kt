@@ -6,7 +6,8 @@ package hextant.core.view
 
 import hextant.Editor
 import hextant.base.EditorControl
-import hextant.bundle.Bundle
+import hextant.bundle.*
+import hextant.bundle.CorePermissions.Public
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompleterPopupHelper
@@ -24,16 +25,31 @@ import reaktive.event.subscribe
  */
 class FXExpanderView(
     private val expander: Expander<*, *>,
-    args: Bundle,
-    completer: Completer<String>
+    args: Bundle
 ) : ExpanderView, EditorControl<Node>(expander, args) {
-    constructor(expander: Expander<*, *>, args: Bundle) : this(expander, args, NoCompleter)
+    constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<String>) :
+            this(expander, args.also { it[Public, COMPLETER] = completer })
 
     private var view: EditorControl<*>? = null
 
     private val textField = HextantTextField()
 
     private val textSubscription: Subscription
+
+    /**
+     * The completer used by this FXExpanderView
+     */
+    var completer
+        get() = arguments.getOrNull(Public, COMPLETER) ?: NoCompleter
+        set(value) {
+            arguments[Public, COMPLETER] = value
+        }
+
+    override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
+        when (property) {
+            COMPLETER -> completionHelper.completer = completer
+        }
+    }
 
     private val completionHelper = CompleterPopupHelper(completer, textField::getText)
 
@@ -104,5 +120,12 @@ class FXExpanderView(
         this.editorParent?.let { v.setEditorParent(it) }
         v.root //ensure that root is fully initialized
         v.receiveFocus()
+    }
+
+    companion object {
+        /**
+         * This property controls the completer of the expander control
+         */
+        val COMPLETER = Property<Completer<String>, Public, Public>("completer")
     }
 }

@@ -93,7 +93,7 @@ abstract class EditorControl<R : Node>(
     /**
      * Is called when one of the display arguments changed
      */
-    protected open fun argumentChanged(property: Property<*, *, *>, value: Any?) {}
+    open fun argumentChanged(property: Property<*, *, *>, value: Any?) {}
 
     internal open fun setEditorParent(parent: EditorControl<*>) {
         editorParent = parent

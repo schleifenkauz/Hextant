@@ -10,9 +10,10 @@ import javafx.scene.Node
 
 /**
  * Helper for JavaFx completion popups
+ * @property completer the completer used to get the completions
  */
 class CompleterPopupHelper<C>(
-    private val completer: Completer<C>, private val text: () -> String,
+    var completer: Completer<C>, private val text: () -> String,
     private val popup: CompletionPopup<C> = CompletionPopup()
 ) {
     /**

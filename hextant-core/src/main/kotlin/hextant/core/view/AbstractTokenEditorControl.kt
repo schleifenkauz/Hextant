@@ -5,13 +5,15 @@
 package hextant.core.view
 
 import hextant.base.EditorControl
-import hextant.bundle.Bundle
+import hextant.bundle.*
+import hextant.bundle.CorePermissions.Public
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompleterPopupHelper
 import hextant.core.editor.TokenEditor
-import hextant.fx.HextantTextField
-import hextant.fx.smartSetText
+import hextant.core.view.FXExpanderView.Companion
+import hextant.fx.*
+import javafx.scene.input.*
 import reaktive.event.subscribe
 
 /**
@@ -26,20 +28,50 @@ open class AbstractTokenEditorControl(
 ) : EditorControl<HextantTextField>(editor, args), TokenEditorView {
     private val textField = HextantTextField()
 
+    init {
+        registerShortcut(KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN)) {
+            completionHelper.show(this)
+        }
+    }
+
     private val textSubscription = textField.userUpdatedText.subscribe { new ->
         editor.setText(new)
     }
 
+    /**
+     * The completer used by this FXExpanderView
+     */
+    var completer
+        get() = arguments.getOrNull(Public, COMPLETER) ?: NoCompleter
+        set(value) {
+            arguments[Public, COMPLETER] = value
+        }
+
+    override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
+        when (property) {
+            COMPLETER -> completionHelper.completer = completer
+        }
+    }
+
     private val completionHelper = CompleterPopupHelper(completer, this.textField::getText)
+
+    private val obs = completionHelper.completionChosen.subscribe { c -> editor.setText(c.completed) }
 
     final override fun createDefaultRoot() = textField
 
     final override fun displayText(newText: String) {
         root.smartSetText(newText)
-        completionHelper
+        completionHelper.show(this)
     }
 
     override fun receiveFocus() {
         textField.requestFocus()
+    }
+
+    companion object {
+        /**
+         * This property controls the completer of the token editor control
+        */
+        val COMPLETER = Property<Completer<String>, Public, Public>("completer")
     }
 }

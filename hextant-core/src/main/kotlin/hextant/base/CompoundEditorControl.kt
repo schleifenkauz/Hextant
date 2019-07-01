@@ -21,11 +21,12 @@ abstract class CompoundEditorControl(
 ) : EditorControl<Vertical>(editor, args) {
     private var firstChildToFocus: EditorControl<*>? = null
 
-    override fun createDefaultRoot(): Vertical = Vertical().apply {
-        build(arguments)
-    }.also {
-        if (it.firstEditorChild != null) firstChildToFocus = it.firstEditorChild
-        defineChildren(it.editorChildren)
+    override fun createDefaultRoot(): Vertical {
+        val v = Vertical()
+        build(v, arguments)
+        if (v.firstEditorChild != null) firstChildToFocus = v.firstEditorChild
+        defineChildren(v.editorChildren)
+        return v
     }
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
@@ -45,7 +46,7 @@ abstract class CompoundEditorControl(
 
         fun operator(str: String): Node
 
-        fun node(node: Node)
+        fun <N : Node> node(node: N): N
     }
 
     inner class Vertical : VBox(), Compound {
@@ -86,9 +87,10 @@ abstract class CompoundEditorControl(
             return indented
         }
 
-        override fun node(node: Node) {
+        override fun <N : Node> node(node: N): N {
             if (node is EditorControl<*> && firstEditorChild == null) firstEditorChild = node
             children.add(node)
+            return node
         }
     }
 
@@ -104,9 +106,10 @@ abstract class CompoundEditorControl(
                 editorChildren.add(it)
             }
 
-        override fun node(node: Node) {
+        override fun <N : Node> node(node: N): N {
             if (node is EditorControl<*> && firstEditorChild == null) firstEditorChild = node
             children.add(node)
+            return node
         }
 
         override fun space() = space(this)
