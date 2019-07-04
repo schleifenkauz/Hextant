@@ -88,7 +88,10 @@ abstract class CompoundEditorControl(
         }
 
         override fun <N : Node> node(node: N): N {
-            if (node is EditorControl<*> && firstEditorChild == null) firstEditorChild = node
+            if (node is EditorControl<*>) {
+                if (firstEditorChild == null) firstEditorChild = node
+                editorChildren.add(node)
+            }
             children.add(node)
             return node
         }
@@ -107,7 +110,10 @@ abstract class CompoundEditorControl(
             }
 
         override fun <N : Node> node(node: N): N {
-            if (node is EditorControl<*> && firstEditorChild == null) firstEditorChild = node
+            if (node is EditorControl<*>) {
+                if (firstEditorChild == null) firstEditorChild = node
+                editorChildren.add(node)
+            }
             children.add(node)
             return node
         }

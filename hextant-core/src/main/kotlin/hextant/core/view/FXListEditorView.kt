@@ -169,7 +169,7 @@ class FXListEditorView(
             }
 
         override fun requestFocus() {
-            item?.select()
+            item?.receiveFocus()
         }
 
         protected open fun updateIndex(idx: Int) {}
@@ -206,6 +206,7 @@ class FXListEditorView(
 
     private fun getCell(idx: Int, editor: Editor<*>): Cell<*> {
         val control = context.createView(editor)
+        control.root //Initialize root
         val nxt = cells.getOrNull(idx + 1)?.item
         if (nxt != null) {
             control.setNext(nxt)
