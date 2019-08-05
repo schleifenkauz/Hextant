@@ -5,3 +5,5 @@ include 'hextant-util'
 include 'hextant-sample'
 include 'hextant-expr'
 include 'hextant-test'
+include 'hextant-editor-codegen'
+

@@ -2,8 +2,8 @@
 .gradle
 !gradle-wrapper.jar
 gradle/
-build
-out
+*/build
+*/out
 .idea/misc.xml
 .idea/workspace.xml
 bin/org.nikok.hextant-lisp.main.jar
