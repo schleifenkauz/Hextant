@@ -5,7 +5,6 @@
 package hextant.codegen
 
 import com.google.auto.service.AutoService
-import com.squareup.kotlinpoet.asTypeName
 import hextant.*
 import hextant.base.AbstractEditor
 import hextant.core.TokenType
@@ -119,7 +118,7 @@ class AnnotationProcessor : AbstractProcessor() {
             {
                 import<TokenEditor<*, *>>()
                 import(annotated.toString())
-                import<hextant.Context>()
+                import<Context>()
                 import<TokenType<*>>()
                 import<TokenEditorView>()
             },
@@ -151,10 +150,9 @@ class AnnotationProcessor : AbstractProcessor() {
         annotation: Annotation,
         simpleName: String
     ) {
-        val supertype = getTypeMirror(annotation::subtypeOf)
-        if (supertype == NotASubtypeOfAnything::class) return
-        if (supertype.asTypeName().toString() != NotASubtypeOfAnything::class.qualifiedName) {
-            val el = processingEnv.elementUtils.getTypeElement(supertype.toString())
+        val supertype = getTypeMirror(annotation::subtypeOf).toString()
+        if (supertype != NotASubtypeOfAnything::class.qualifiedName) {
+            val el = processingEnv.elementUtils.getTypeElement(supertype)
             val ann = el.getAnnotation(Alternative::class.java)
             if (ann == null) error("No annotation of type Alternative on $supertype")
             else {

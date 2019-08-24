@@ -246,8 +246,8 @@ class ExprEditorViewTest : Application() {
         setOnAction {
             val chooser = FileChooser()
             val file = chooser.showSaveDialog(stage) ?: return@setOnAction
-            val out = serial.createOutput(file)
-            out.writeObject(parent.editor.now, context)
+            val out = serial.createOutput(file, context)
+            out.writeObject(parent.editor.now)
         }
         accelerator = KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN)
     }
@@ -256,9 +256,9 @@ class ExprEditorViewTest : Application() {
         setOnAction {
             val chooser = FileChooser()
             val file = chooser.showOpenDialog(stage) ?: return@setOnAction
-            val input = serial.createInput(file)
-            val editable = input.readTyped<ExprEditor<Expr>>(context)
-            parent.setEditor(editable!!)
+            val input = serial.createInput(file, context)
+            val editable = input.readTyped<ExprEditor<Expr>>()
+            parent.setEditor(editable)
         }
         accelerator = KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN)
     }

@@ -76,6 +76,7 @@ private fun Scene.getFocusedEditorControl(): EditorControl<*>? {
     return editorControl as EditorControl<*>?
 }
 
+@Suppress("DEPRECATION")
 private fun Scene.changeTraversalEngine() {
     root.impl_traversalEngine = ParentTraversalEngine(root, object : Algorithm {
         override fun select(owner: Node, dir: Direction, context: TraversalContext?): Node? {

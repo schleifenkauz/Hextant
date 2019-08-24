@@ -90,6 +90,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         _editor.set(null)
     }
 
+    @Suppress("DEPRECATION")
     private fun doExpandTo(editor: E) {
         resultDelegator = _result.bind(editor.result.map { it.orElse { childErr() } })
         parentBinder = this.parent.forEach { editor.setParent(it) }
