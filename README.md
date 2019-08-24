@@ -1,6 +1,6 @@
 # Hextant - A structural editor
 
-**Hextant is in a very early stage of development. So there is no "real" version**.  
+**Hextant is in a very early stage of development. It is neither recommended nor possible to use Hextant for production.**
 If you want to try an example to grasp the key concepts of Hextant,  
 please refer to [this](https://github.com/NKb03/Hextant/wiki/The-calculator-example) wiki page.   
 If you want to learn what I mean with structural editor you can read [this](https://github.com/NKb03/Hextant/wiki/What-is-a-structural-editor).  
