@@ -11,7 +11,7 @@ import hextant.Editor
  * An [Expander] which expands text using its [config]
  */
 abstract class ConfiguredExpander<R : Any, E : Editor<R>>(
-    private val config: ExpanderConfig<E>,
+    private val config: ExpanderDelegate<E>,
     context: Context,
     editor: E? = null
 ) : Expander<R, E>(context, editor) {

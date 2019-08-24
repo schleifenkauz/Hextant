@@ -8,11 +8,12 @@
         <option name="testRunner" value="PLATFORM" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="D:/Program Files/gradle/gradle-4.5.1" />
+        <option name="gradleHome" value="D:/Program Files/gradle/gradle-4.10.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/hextant-core" />
+            <option value="$PROJECT_DIR$/hextant-editor-codegen" />
             <option value="$PROJECT_DIR$/hextant-expr" />
             <option value="$PROJECT_DIR$/hextant-lisp" />
             <option value="$PROJECT_DIR$/hextant-sample" />
