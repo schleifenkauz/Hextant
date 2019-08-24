@@ -7,3 +7,4 @@ gradle/
 .idea/misc.xml
 .idea/workspace.xml
 bin/org.nikok.hextant-lisp.main.jar
+build
