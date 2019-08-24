@@ -12,7 +12,7 @@ import java.util.*
 /**
  * A configuration for a [ConfiguredExpander]
  */
-class ExpanderConfig<E : Editor<*>> {
+class ExpanderConfig<E : Editor<*>> : ExpanderDelegate<E> {
     private val constant = mutableMapOf<String, (Context) -> E>()
     private val interceptors = LinkedList<(String, Context) -> E?>()
 
@@ -42,7 +42,7 @@ class ExpanderConfig<E : Editor<*>> {
      * Expand the given [text] in the given [context] using the registered interceptors.
      * If no interceptor matches `null` is returned
      */
-    fun expand(text: String, context: Context): E? {
+    override fun expand(text: String, context: Context): E? {
         val constant = constant[text]
         if (constant != null) return constant(context)
         for (i in interceptors) {

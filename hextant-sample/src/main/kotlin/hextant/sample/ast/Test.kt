@@ -4,19 +4,27 @@
 
 package hextant.sample.ast
 
-import hextant.CompileResult
-import hextant.codegen.Token
+import hextant.*
+import hextant.codegen.*
 import hextant.core.TokenType
-import hextant.ok
-import hextant.sample.editor.TestEditor
+import hextant.core.editor.TokenEditor
+import hextant.sample.ast.editor.*
 
-@Token(pkg = "hextant.sample.editor", name = "TestEditor")
-class Test {
-    companion object: TokenType<Test> {
-        override fun compile(token: String): CompileResult<Test> = ok(Test())
+object AltExpanderDelegator : ExpanderConfigurator<AltEditor<Alt>>({
+    registerConstant("token") { TestTokenEditor(it) }
+    registerConstant("comp") { CompEditor(it) }
+})
+
+@Alternative
+@Expandable(AltExpanderDelegator::class, subtypeOf = Alt::class)
+sealed class Alt {
+    @Token(subtypeOf = Alt::class)
+    data class TestToken(val str: String): Alt() {
+        companion object : TokenType<TestToken> {
+            override fun compile(token: String): CompileResult<TestToken> = ok(TestToken(token))
+        }
     }
-}
 
-fun main() {
-    Test().javaClass.classLoader.loadClass("hextant.sample.editor.TestEditor")
+    @Compound(subtypeOf = Alt::class)
+    data class Comp(val x: Alt, val y: Alt): Alt()
 }

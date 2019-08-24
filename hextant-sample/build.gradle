@@ -8,5 +8,5 @@ dependencies {
     compile project(":hextant-core")
     testImplementation project(":hextant-test")
     kapt project(":hextant-editor-codegen")
-    compileOnly project(":hextant-editor-codegen")
+    compile project(":hextant-editor-codegen")
 }
