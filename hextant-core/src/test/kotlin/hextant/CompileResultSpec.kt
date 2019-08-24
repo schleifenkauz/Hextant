@@ -170,7 +170,7 @@ object CompileResultSpec : Spek({
             it("should return the first error") {
                 compile<Int> {
                     ok(1).orTerminate()
-                    val (x) = childErr<Int>() //Cannot rename to _ because it would not terminate execution
+                    childErr<Int>().orTerminate()
                     err<Int>("Message").orTerminate()
                     throw AssertionError("Should not be reached")
                 } shouldBe hextant.test.matchers.childErr

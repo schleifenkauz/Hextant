@@ -29,10 +29,12 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
 
     override val expander: ReactiveValue<Expander<*, *>?> get() = _expander
 
+    @Suppress("OverridingDeprecatedMember")
     override fun setParent(newParent: Editor<*>?) {
         _parent.set(newParent)
     }
 
+    @Suppress("OverridingDeprecatedMember")
     override fun setExpander(newExpander: Expander<@UnsafeVariance R, *>?) {
         _expander.set(newExpander)
     }
@@ -41,6 +43,7 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
      * Makes the [editor] a child of this editor and just returns it
      */
     protected fun <E : Editor<*>> child(editor: E): E {
+        @Suppress("DEPRECATION")
         editor.setParent(this)
         _children.now.add(editor)
         return editor

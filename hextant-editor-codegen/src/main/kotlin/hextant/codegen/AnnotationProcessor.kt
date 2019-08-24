@@ -41,7 +41,6 @@ class AnnotationProcessor : AbstractProcessor() {
         if (annotations.isEmpty()) {
             error("$element is not annotated with any editor codegen annotation")
         } else if (annotations.size > 1) {
-            note(annotations.toString())
             error("$element is annotated with more than one editor codegen annotation")
         }
         return annotations.first()
@@ -73,7 +72,6 @@ class AnnotationProcessor : AbstractProcessor() {
     ) {
         getElementsAnnotatedWith(A::class.java).forEach { element ->
             val annotation = element.getAnnotation(A::class.java)
-            note("Processing annotation $annotation of $element")
             process(element as TypeElement, annotation)
         }
     }
@@ -258,9 +256,9 @@ class AnnotationProcessor : AbstractProcessor() {
                         *components.toTypedArray(),
                         lambda(body = call("compile", lambda {
                             for (n in names) {
-                                addVal(n) initializedWith (n.e select "result" select "now" call "orTerminate")
+                                addVal("${n}Res") initializedWith (n.e select "result" select "now" call "orTerminate")
                             }
-                            callFunction("ok", {}, call(name, {}, *components.toTypedArray()))
+                            callFunction("ok", {}, call(name, {}, *names.mapToArray { n -> "${n}Res".e }))
                         }))
                     )
                 )
