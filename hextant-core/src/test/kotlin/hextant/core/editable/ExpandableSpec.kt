@@ -2,7 +2,7 @@
 // *@author Nikolaus Knop
 // */
 //
-//package hextant.core.editable
+package hextant.core.editable
 //
 //import com.natpryce.hamkrest.isEmptyString
 //import hextant.Ok

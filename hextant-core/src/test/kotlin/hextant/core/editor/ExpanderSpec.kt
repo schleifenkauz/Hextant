@@ -1,4 +1,4 @@
-//package hextant.core.editor
+package hextant.core.editor
 //
 //import hextant.*
 //import hextant.bundle.CorePermissions.Public

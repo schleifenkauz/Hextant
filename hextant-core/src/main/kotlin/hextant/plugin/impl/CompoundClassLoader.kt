@@ -4,7 +4,7 @@ internal class CompoundClassLoader : ClassLoader() {
     private val children = mutableSetOf<ClassLoader>()
 
     init {
-        children.add(ClassLoader.getSystemClassLoader())
+        children.add(getSystemClassLoader())
     }
 
     fun add(classLoader: ClassLoader) {

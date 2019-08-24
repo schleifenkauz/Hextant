@@ -13,6 +13,7 @@ import hextant.lisp.editor.ApplyEditor
 import javafx.beans.Observable
 import javafx.scene.layout.*
 
+@Suppress("RedundantLambdaArrow")
 class ApplyEditorControl(
     editor: ApplyEditor,
     args: Bundle
@@ -21,6 +22,7 @@ class ApplyEditorControl(
 
     init {
         val maxWidth = context[editorParentRegion].widthProperty()
+        //If _: Observable is removed, doesn't compile
         exprsView.widthProperty().addListener { _: Observable -> updateLayout() }
         maxWidth.addListener { _: Observable -> updateLayout() }
         root.styleClass.add("lisp-apply")

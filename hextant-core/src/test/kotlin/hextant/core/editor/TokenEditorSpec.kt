@@ -2,7 +2,7 @@
 // *@author Nikolaus Knop
 // */
 //
-//package hextant.core.editor
+package hextant.core.editor
 //
 //import com.nhaarman.mockitokotlin2.*
 //import hextant.Context.Companion.newInstance

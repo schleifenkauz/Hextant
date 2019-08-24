@@ -5,7 +5,6 @@
 package hextant.lisp.parser
 
 import hextant.lisp.*
-import hextant.lisp.parser.Token.ClosingParen
 import java.io.Reader
 import java.io.StringReader
 import java.text.ParseException
@@ -15,8 +14,7 @@ fun parseExpr(
     tokens: LinkedList<Token>,
     scope: FileScope
 ): SExpr {
-    val next = tokens.poll()
-    return when (next) {
+    return when (val next = tokens.poll()) {
         Token.OpeningParen     -> return parseApply(tokens, scope)
         Token.ClosingParen     -> throw ParseException("Unmatched closing bracket", -1)
         is Token.Identifier    -> GetVal(next.name, scope)
@@ -34,7 +32,7 @@ private fun parseApply(
     val exprs = LinkedList<SExpr>()
     while (true) {
         val t = tokens.peek() ?: throw ParseException("Unmatched opening paren", -1)
-        if (t == ClosingParen) {
+        if (t == Token.ClosingParen) {
             tokens.poll()
             break
         }

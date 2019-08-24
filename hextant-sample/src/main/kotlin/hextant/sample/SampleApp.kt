@@ -8,7 +8,6 @@ import hextant.*
 import hextant.main.HextantApplication
 import hextant.sample.ast.editor.AltExpander
 import hextant.undo.UndoManager
-import hextant.undo.UndoManager.Companion
 import javafx.scene.Parent
 
 class SampleApp: HextantApplication() {

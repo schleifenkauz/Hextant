@@ -10,10 +10,6 @@ import kotlin.reflect.KClass
 
 const val DEFAULT = "<default>"
 
-const val NONE = "<none>"
-
-internal fun String.orDefault(default: () -> String) = if (this == DEFAULT) default() else this
-
 sealed class NotASubtypeOfAnything
 
 @Retention(SOURCE)
@@ -34,8 +30,6 @@ annotation class Expandable(
     val expanderLocation: String = DEFAULT,
     val subtypeOf: KClass<*> = NotASubtypeOfAnything::class
 )
-
-internal val allAnnotations = setOf(Token::class, Compound::class, Alternative::class, Expandable::class)
 
 internal val Annotation.qualifiedEditorClassName
     get() = when (this) {

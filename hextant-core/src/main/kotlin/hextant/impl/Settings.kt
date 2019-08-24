@@ -15,5 +15,5 @@ internal object Settings {
         return path
     }
 
-    val plugins = settings.resolve("plugins.txt")!!
+    val plugins = settings.resolve("plugins.txt")
 }

@@ -7,8 +7,8 @@ internal object Data {
         override fun toString(): String = "Target: $isApplicable"
     }
 
-    val commands = setOf<Command<Receiver, Unit>>(
-        command {
+    val commands = setOf(
+        command<Receiver, Unit> {
             name = "1"
             description = "1"
             shortName = "1"

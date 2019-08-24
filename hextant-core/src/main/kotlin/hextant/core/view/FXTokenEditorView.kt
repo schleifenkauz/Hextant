@@ -18,6 +18,7 @@ open class FXTokenEditorView(
     completer: Completer<String> = NoCompleter
 ) : AbstractTokenEditorControl(editor, args, completer) {
     init {
+        @Suppress("LeakingThis")
         editor.addView(this)
     }
 }

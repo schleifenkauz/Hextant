@@ -22,9 +22,9 @@ import javax.lang.model.element.*
 import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic.Kind.ERROR
-import javax.tools.Diagnostic.Kind.NOTE
 import kotlin.reflect.KClass
 
+@Suppress("unused")
 @AutoService(Processor::class)
 class AnnotationProcessor : AbstractProcessor() {
     private class ProcessingException(msg: String) : Exception(msg)
@@ -74,10 +74,6 @@ class AnnotationProcessor : AbstractProcessor() {
             val annotation = element.getAnnotation(A::class.java)
             process(element as TypeElement, annotation)
         }
-    }
-
-    private fun note(msg: String) {
-        processingEnv.messager.printMessage(NOTE, msg)
     }
 
     override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {

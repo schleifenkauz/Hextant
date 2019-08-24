@@ -4,10 +4,10 @@
 
 package hextant.sample.ast
 
-import hextant.*
+import hextant.CompileResult
 import hextant.codegen.*
 import hextant.core.TokenType
-import hextant.core.editor.TokenEditor
+import hextant.ok
 import hextant.sample.ast.editor.*
 
 object AltExpanderDelegator : ExpanderConfigurator<AltEditor<Alt>>({

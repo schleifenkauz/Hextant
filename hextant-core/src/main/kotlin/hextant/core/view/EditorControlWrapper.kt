@@ -5,7 +5,6 @@
 package hextant.core.view
 
 import hextant.Editor
-import hextant.EditorControlGroup
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.bundle.Property

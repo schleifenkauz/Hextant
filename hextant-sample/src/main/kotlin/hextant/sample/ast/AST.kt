@@ -2,10 +2,10 @@
  * @author Nikolaus Knop
  */
 
+@file: Suppress("unused")
+
 package hextant.sample.ast
 
-import hextant.sample.ast.Type.BOOLEAN
-import hextant.sample.ast.Type.INT
 import hextant.sample.rt.Context
 
 /**
@@ -322,7 +322,7 @@ class IntIfExpr(
     otherwise: IntExpr
 ) : IfExpr<Int, IntExpr>(cond, then, otherwise), IntExpr {
     override val type: Type
-        get() = INT
+        get() = Type.INT
 }
 
 /**
@@ -338,7 +338,7 @@ class BooleanIfExpr(
 ) : IfExpr<Boolean, BooleanExpr>(cond, then, otherwise),
     BooleanExpr {
     override val type: Type
-        get() = BOOLEAN
+        get() = Type.BOOLEAN
 }
 
 /**

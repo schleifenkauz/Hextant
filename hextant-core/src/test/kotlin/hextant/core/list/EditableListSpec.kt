@@ -2,7 +2,7 @@
 // *@author Nikolaus Knop
 // */
 //
-//package hextant.core.list
+package hextant.core.list
 //
 //import hextant.*
 //import hextant.expr.editor.IntLiteralEditor

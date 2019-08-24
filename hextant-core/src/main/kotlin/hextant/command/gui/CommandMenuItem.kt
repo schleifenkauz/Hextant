@@ -69,6 +69,6 @@ internal class CommandMenuItem<T : Any>(
     }
 
     companion object {
-        val logger = Logger.getLogger(CommandMenuItem::class.qualifiedName)
+        val logger: Logger = Logger.getLogger(CommandMenuItem::class.qualifiedName)
     }
 }

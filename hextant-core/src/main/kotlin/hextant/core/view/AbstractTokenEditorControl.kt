@@ -11,7 +11,6 @@ import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompleterPopupHelper
 import hextant.core.editor.TokenEditor
-import hextant.core.view.FXExpanderView.Companion
 import hextant.fx.*
 import javafx.scene.input.*
 import reaktive.event.subscribe
