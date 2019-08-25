@@ -4,10 +4,12 @@
 
 package hextant.core.view
 
+import hextant.EditorView
+
 /**
  * A view that displays a single token editor
  */
-interface TokenEditorView {
+interface TokenEditorView : EditorView {
     /**
      * Called when the text of the associated token editor changed
      */

@@ -7,19 +7,9 @@ import hextant.EditorView
 import hextant.impl.SelectionDistributor
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.SpecBody
 
 internal object SelectionDistributorSpec: Spek({
-    test(SelectionDistributor.newInstance())
-}) {
-    operator fun invoke(
-        sut: SelectionDistributor
-    ): Spek {
-        return wrap { test(sut) }
-    }
-}
-
-private fun SpecBody.test(sut: SelectionDistributor) {
+    val sut = SelectionDistributor.newInstance()
     GIVEN("a selection distributor") {
         test("no editors should be selected") {
             sut.selectedTargets.now shouldMatch isEmpty
@@ -94,7 +84,4 @@ private fun SpecBody.test(sut: SelectionDistributor) {
             }
         }
     }
-}
-
-
-
+})

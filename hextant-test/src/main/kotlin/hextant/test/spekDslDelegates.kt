@@ -24,6 +24,12 @@ fun TestContainer.IT(description: String, body: TestBody.() -> Unit) {
 }
 
 @UseExperimental(ExperimentalContracts::class)
+fun SpecBody.ACTION(description: String, body: ActionBody.() -> Unit) {
+    contract { callsInPlace(body, EXACTLY_ONCE) }
+    action(description, Pending.No, body)
+}
+
+@UseExperimental(ExperimentalContracts::class)
 fun SpecBody.ON(description: String, body: ActionBody.() -> Unit) {
     contract { callsInPlace(body, EXACTLY_ONCE) }
     on(description, body)
