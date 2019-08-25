@@ -12,6 +12,12 @@ import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
 
 @UseExperimental(ExperimentalContracts::class)
+fun TestContainer.TEST(description: String, body: TestBody.() -> Unit) {
+    contract { callsInPlace(body, EXACTLY_ONCE) }
+    test(description, Pending.No, body)
+}
+
+@UseExperimental(ExperimentalContracts::class)
 fun TestContainer.IT(description: String, body: TestBody.() -> Unit) {
     contract { callsInPlace(body, EXACTLY_ONCE) }
     it(description, body)

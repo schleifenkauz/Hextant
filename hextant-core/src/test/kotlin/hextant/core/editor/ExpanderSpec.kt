@@ -12,7 +12,39 @@ import reaktive.value.now
 
 object ExpanderSpec : Spek({
     GIVEN("an expander") {
-        DESCRIBE("expanding and resetting") {
+        DESCRIBE("compiling result") {
+            val context = testingContext()
+            val ex = ExpanderSpec.expander(context)
+            TEST("editor.now should be null") {
+                ex.editor.now shouldBe `null`
+            }
+            TEST("result.now should be child error") {
+                ex.result.now shouldBe childErr
+            }
+            val editor = IntLiteralEditor(context)
+            ON("expanding to an editor with error result") {
+                ex.setEditor(editor)
+                TEST("result.now should be child error") {
+                    ex.result.now shouldBe childErr
+                }
+            }
+            ON("wrapped editor gets ok result") {
+                editor.setText("123")
+                TEST("result.now should be the result of the wrapped editor") {
+                    ex.result.now shouldEqual ok(IntLiteral(123))
+                }
+            }
+            ON("resetting the expander") {
+                ex.reset()
+                TEST("editor.now should be null") {
+                    ex.editor.now shouldBe `null`
+                }
+                TEST("result.now should be child error") {
+                    ex.result.now shouldBe childErr
+                }
+            }
+        }
+        DESCRIBE("notifying views") {
             val context = testingContext()
             val ex = ExpanderSpec.expander(context)
             val view = mockView<ExpanderView>()
