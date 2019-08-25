@@ -81,7 +81,7 @@ class AnnotationProcessor : AbstractProcessor() {
                 processAnnotations(::genCompoundEditorClass)
                 processAnnotations(::genAlternativeInterface)
                 processAnnotations(::genExpanderClass)
-                processAnnotations { annotated, _: EditableList -> genListEditorClass(annotated) }
+                processAnnotations(::genListEditorClass)
             }
         } catch (e: ProcessingException) {
             processingEnv.messager.printMessage(ERROR, e.message)
@@ -95,11 +95,11 @@ class AnnotationProcessor : AbstractProcessor() {
         return true
     }
 
-    private fun genListEditorClass(annotated: Element) {
-        val (annotatedPkg, annotatedName) = splitPackageAndSimpleName(annotated.toString())
+    private fun genListEditorClass(annotated: Element, annotation: EditableList) {
         val editorCls = getEditorClassName(annotated.asType())
-        val pkg = "$annotatedPkg.editor"
-        val name = "${annotatedName}ListEditor"
+        val simpleName = annotated.simpleName.toString()
+        val qn = extractQualifiedEditorClassName(annotation, annotated, classNameSuffix = "ListEditor")
+        val (pkg, name) = splitPackageAndSimpleName(qn)
         val file = kotlinClass(
             pkg, {
                 import(annotated.toString())
@@ -111,11 +111,25 @@ class AnnotationProcessor : AbstractProcessor() {
             primaryConstructor = { "context" of "Context" },
             inheritance = {
                 extend(type("ListEditor").parameterizedBy {
-                    covariant(annotatedName)
+                    covariant(simpleName)
                     covariant(editorCls)
                 }, "context".e)
             }
         ) {
+            addConstructor(
+                {
+                    "context" of "Context"
+                    "elements" of type("List").parameterizedBy { covariant(simpleName) }
+                },
+                "context".e
+            ) {
+                addFor("i", "elements".e select "indices") {
+                    addVal("e") initializedWith ("context".e
+                        .call("createEditor", "elements".e["i".e])
+                        .cast(type(editorCls)))
+                    callFunction("addAt", {}, "i".e, "e".e)
+                }
+            }
             addSingleExprFunction("createEditor", { override() }) { call(editorCls, "context".e) }
         }
         writeToFile(pkg, name, file)
@@ -296,9 +310,10 @@ class AnnotationProcessor : AbstractProcessor() {
         val t = checkNonPrimitive(tm)
         val e = processingEnv.typeUtils.asElement(t)
         if (e.toString() == "java.util.List") {
-            val elementType = checkNonPrimitive(t.typeArguments[0]).asElement()!!
-            val (pkg, name) = splitPackageAndSimpleName(elementType.toString())
-            return "$pkg.editor.${name}ListEditor"
+            val elementType = checkNonPrimitive(t.typeArguments[0]).asElement()
+            val ann = elementType.getAnnotation(EditableList::class.java)
+            return extractQualifiedEditorClassName(ann, elementType, classNameSuffix = "ListEditor")
+
         }
         return lookupQualifiedEditorClassName(e)
     }
@@ -363,7 +378,7 @@ class AnnotationProcessor : AbstractProcessor() {
             addConstructor({ "context" of "Context" }, "context".e, "null".e)
             addConstructor(
                 { "context" of "Context"; "edited" of name }, "context".e,
-                "context".e["EditorFactory".e].call("getEditor", "edited".e, "context".e) cast editorType
+                "context".e.call("createEditor", "edited".e) cast editorType
             )
             addVal("config", modifiers = { private() }) { initializeWith(delegate) }
             addSingleExprFunction(

@@ -19,7 +19,7 @@ class ExprExpander(
 
     constructor(edited: Expr, context: Context) : this(
         context,
-        context[EditorFactory].getEditor(edited, context) as ExprEditor<Expr>
+        context.createEditor(edited) as ExprEditor<Expr>
     )
 
     override fun accepts(editor: Editor<*>): Boolean = editor is ExprEditor

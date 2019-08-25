@@ -34,7 +34,7 @@ annotation class Expandable(
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class EditableList
+annotation class EditableList(val classLocation: String = DEFAULT)
 
 internal val Annotation.qualifiedEditorClassName: String?
     get() = when (this) {
@@ -42,7 +42,7 @@ internal val Annotation.qualifiedEditorClassName: String?
         is Compound     -> this.classLocation.takeIf { it != DEFAULT }
         is Alternative  -> this.interfaceLocation.takeIf { it != DEFAULT }
         is Expandable   -> this.expanderLocation.takeIf { it != DEFAULT }
-        is EditableList -> null
+        is EditableList -> this.classLocation.takeIf { it != DEFAULT }
         else            -> throw AssertionError()
     }
 

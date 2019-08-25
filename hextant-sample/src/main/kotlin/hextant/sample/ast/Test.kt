@@ -17,7 +17,7 @@ object AltExpanderDelegator : ExpanderConfigurator<AltEditor<Alt>>({
 
 @Alternative
 @Expandable(AltExpanderDelegator::class, subtypeOf = Alt::class)
-@EditableList
+@EditableList(classLocation = "hextant.sample.editor.AltEditorList")
 sealed class Alt {
     @Token(subtypeOf = Alt::class)
     data class TestToken(val str: String): Alt() {
@@ -27,5 +27,5 @@ sealed class Alt {
     }
 
     @Compound(subtypeOf = Alt::class)
-    data class Comp(val x: Alt, val y: Alt): Alt()
+    data class Comp(val x: Alt, val y: List<Alt>) : Alt()
 }
