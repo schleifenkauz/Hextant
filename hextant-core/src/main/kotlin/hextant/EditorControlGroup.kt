@@ -10,6 +10,9 @@ import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
 import hextant.util.DoubleWeakHashMap
 
+/**
+ * An [EditorControlGroup] is a [ViewGroup] of [EditorControl]s
+ */
 class EditorControlGroup : ViewGroup<EditorControl<*>> {
     private val views = DoubleWeakHashMap<Editor<*>, EditorControl<*>>()
 

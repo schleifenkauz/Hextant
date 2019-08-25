@@ -23,6 +23,7 @@ import reaktive.value.*
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
  * @param R the type of the root-[Node] of this control
+ * @property context the [Context] of this [EditorControl]
  */
 abstract class EditorControl<R : Node>(
     final override val target: Any,
@@ -73,6 +74,9 @@ abstract class EditorControl<R : Node>(
 
     private val _isSelected = reactiveVariable(false)
 
+    /**
+     * A [ReactiveValue] holding `true` only if this [EditorControl] is selected at the moment
+     */
     val isSelected: ReactiveValue<Boolean> get() = _isSelected
 
     init {
@@ -107,14 +111,25 @@ abstract class EditorControl<R : Node>(
         previous = prev
     }
 
+    /**
+     * Focuses the [EditorControl] visually right or at the bottom of this one
+     */
     fun focusNext() {
         next?.focus()
     }
 
+    /**
+     * Focuses the [EditorControl] visually left or at the top of this one
+     */
     fun focusPrevious() {
         previous?.focus()
     }
 
+    /**
+     * Defines the list of children of this [EditorControl].
+     * For all children their parent is set to this [EditorControl].
+     * The left and right [EditorControl]s of the children are set according to their order in the list.
+     */
     protected fun defineChildren(children: List<EditorControl<*>>) {
         editorChildren = children
         if (children.isEmpty()) return
@@ -128,6 +143,9 @@ abstract class EditorControl<R : Node>(
         }
     }
 
+    /**
+     * Delegates to [defineChildren]
+     */
     protected fun defineChildren(vararg children: EditorControl<*>) {
         defineChildren(children.asList())
     }
@@ -158,6 +176,7 @@ abstract class EditorControl<R : Node>(
 
     private var lastExtendingChild: EditorControl<*>? = null
 
+    @Suppress("KDocMissingDocumentation")
     override fun createDefaultSkin(): Skin<*> {
         root = createDefaultRoot()
         return skin
@@ -176,6 +195,9 @@ abstract class EditorControl<R : Node>(
         focus()
     }
 
+    /**
+     * Delegates to the [EditorControl.root]
+     */
     override fun requestFocus() {
         root.requestFocus()
     }
@@ -186,6 +208,9 @@ abstract class EditorControl<R : Node>(
         return selected
     }
 
+    /**
+     * Select this editor control and request focus.
+     */
     fun select() {
         if (doSelect()) {
             manuallySelecting = true
@@ -200,6 +225,9 @@ abstract class EditorControl<R : Node>(
         return selected
     }
 
+    /**
+     * Toggle the selection of this [EditorControl] and request focus if it is selected afterwards
+     */
     fun toggleSelection() {
         if (doToggleSelection()) {
             manuallySelecting = true

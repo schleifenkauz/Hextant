@@ -24,6 +24,9 @@ interface HextantPlatform : Context {
      */
     fun <T> runLater(action: () -> T): Future<T>
 
+    /**
+     * Stops all threads owned by this [HextantPlatform]
+     */
     fun exit()
 
     /**
@@ -54,6 +57,20 @@ interface HextantPlatform : Context {
     }
 
     companion object {
+        /**
+         * Return a configured Platform with a
+         * * [SelectionDistributor]
+         * * [EditorControlFactory]
+         * * [Commands] registrar
+         * * [Inspections] registrar
+         * * [CoreProperties.logger]
+         * * [Stylesheets] configurator
+         * * [EditorControlGroup]
+         * * [PluginRegistry]
+         * * [CoreProperties.serialContext]
+         * * [CoreProperties.clipboard]
+         * * [CoreProperties.classLoader]
+         */
         fun configured(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
             unconfigured(bundle).apply { configure() }
 
@@ -76,10 +93,17 @@ interface HextantPlatform : Context {
             set(CoreProperties.classLoader, plugins.compoundClassLoader)
         }
 
+        /**
+         * Return a [HextantPlatform] that only has a [EditorFactory] property.
+         * Note that this property always returns the same [HextantPlatform]
+         */
         val forTesting = unconfigured().apply {
             set(EditorFactory, EditorFactory.newInstance())
         }
 
+        /**
+         * Return a [HextantPlatform] without any properties
+         */
         fun unconfigured(bundle: Bundle = Bundle.newInstance()): HextantPlatform = SingleThreaded(bundle)
     }
 }

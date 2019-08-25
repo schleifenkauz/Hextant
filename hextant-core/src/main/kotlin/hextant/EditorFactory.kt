@@ -50,6 +50,9 @@ interface EditorFactory {
          */
         fun newInstance(): EditorFactory = Impl()
 
+        /**
+         * Logger for all instances of [EditorFactory]
+         */
         val logger by myLogger()
     }
 

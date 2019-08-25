@@ -52,9 +52,15 @@ interface EditorControlFactory {
     }
 
     companion object : Property<EditorControlFactory, Public, Internal>("editor-view-factory") {
+        /**
+         * Creates a new [EditorControlFactory]
+         */
         fun newInstance(): EditorControlFactory =
             Impl()
 
+        /**
+         * Logger used by all instances of [EditorControlFactory]
+         */
         val logger by myLogger()
     }
 }

@@ -11,11 +11,22 @@ import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
 import kotlin.reflect.KClass
 
+/**
+ * Uses the [EditorControlGroup] of this [Context] to create a view for the given [editor] with the specified [arguments]
+ */
 fun Context.createView(editor: Editor<*>, arguments: Bundle = Bundle.newInstance()): EditorControl<*> {
     val group = get(EditorControlGroup)
     return group.createViewFor(editor, this, arguments)
 }
 
+/**
+ * Uses the [EditorFactory] of this [Context] to create an [Editor] with the result type [R].
+ * If this [Context] has no [EditorFactory] or there isn't an editor registered in the [EditorFactory],
+ * this method recursively tries to create an [Editor] with the [Context.parent] [Context].
+ * This method is invariant in the sense that it could also create an [Editor] for results of type `S` if `S` is a subtype of `R`.
+ * @throws NoSuchElementException if neither this context nor any of its parent contexts can create an [Editor]
+ * for result type [R]
+ */
 fun <R : Any> Context.createEditor(resultCls: KClass<R>): Editor<R> =
     try {
         get(Public, EditorFactory).getEditor(resultCls, this)
@@ -23,6 +34,13 @@ fun <R : Any> Context.createEditor(resultCls: KClass<R>): Editor<R> =
         parent?.createEditor(resultCls) ?: throw e
     }
 
+/**
+ * Uses the [EditorFactory] of this [Context] to create an [Editor] with the result type [R], having the initial specified [result].
+ * If this [Context] has no [EditorFactory] or there isn't an editor registered in the [EditorFactory],
+ * this method recursively tries to create an [Editor] with the [Context.parent] [Context]
+ * @throws NoSuchElementException if neither this context nor any of its parent contexts can create an [Editor]
+ * for result type [R]
+ */
 fun <R : Any> Context.createEditor(result: R): Editor<R> =
     try {
         get(Public, EditorFactory).getEditor(result, this)
@@ -30,9 +48,15 @@ fun <R : Any> Context.createEditor(result: R): Editor<R> =
         parent?.createEditor(result) ?: throw e
     }
 
+/**
+ * Syntactic sugar for `get(Public, property)`
+ */
 @JvmName("getPublic")
 operator fun <T> Context.get(property: Property<T, Public, *>): T = get(Public, property)
 
+/**
+ * Syntactic sugar for `set(Public, property, value)`
+ */
 @JvmName("setPublic")
 operator fun <T> Context.set(property: Property<T, *, Public>, value: T) =
     set(Public, property, value)
@@ -46,4 +70,7 @@ internal operator fun <T> Context.get(property: Property<T, Internal, *>): T = g
 internal operator fun <T> Context.set(property: Property<T, *, Internal>, value: T) =
     set(Internal, property, value)
 
+/**
+ * Delegates to [HextantPlatform.runLater] of the [Context.platform] of this [Context]
+ */
 fun Context.runLater(action: () -> Unit) = platform.runLater(action)

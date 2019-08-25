@@ -8,6 +8,9 @@ import hextant.core.editor.Expander
 import reaktive.collection.ReactiveCollection
 import reaktive.value.ReactiveValue
 
+/**
+ * An editor for results of type [R]
+ */
 interface Editor<out R : Any> {
     /**
      * A [reaktive.value.ReactiveValue] holding the result of compiling the content of the editor

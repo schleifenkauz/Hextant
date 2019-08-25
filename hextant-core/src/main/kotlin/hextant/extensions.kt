@@ -1,5 +1,8 @@
 package hextant
 
+/**
+ * Synonym for [apply]
+ */
 inline fun EditorControlFactory.configure(config: EditorControlFactory.() -> Unit) {
     apply(config)
 }
