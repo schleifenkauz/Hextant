@@ -39,7 +39,7 @@ annotation class Expandable(
 annotation class EditableList(val classLocation: String = DEFAULT, val editorCls: KClass<*> = None::class)
 
 @Retention(SOURCE)
-@Target(VALUE_PARAMETER)
+@Target(VALUE_PARAMETER, CLASS)
 annotation class UseEditor(val cls: KClass<out Editor<*>>)
 
 internal val Annotation.qualifiedEditorClassName: String?

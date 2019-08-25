@@ -48,6 +48,10 @@ class AnnotationProcessor : AbstractProcessor() {
      * Looks up the annotation annotating the given [element] and delegates to [extractQualifiedEditorClassName]
      */
     private fun lookupQualifiedEditorClassName(element: Element): String {
+        element.getAnnotation(UseEditor::class.java)?.let { ann ->
+            val tm = getTypeMirror(ann::cls)
+            return tm.toString()
+        }
         val ann = getOneAnnotation(element, setOf(Token::class, Compound::class, Expandable::class))
         val suffix = if (ann is Expandable) "Expander" else "Editor"
         return extractQualifiedEditorClassName(ann, element, classNameSuffix = suffix)
