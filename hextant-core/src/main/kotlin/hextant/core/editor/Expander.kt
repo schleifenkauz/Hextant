@@ -18,6 +18,9 @@ import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.map
 
+/**
+ * An Expander acts like a wrapper around editors.
+ */
 abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
     constructor(context: Context, editor: E?) : this(context) {
         if (editor != null) doExpandTo(editor)
@@ -45,18 +48,31 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     private var parentBinder: Observer? = null
 
+    /**
+     * @return `true` only if the expander is expanded
+     */
     val isExpanded: Boolean get() = state is Expanded
 
     private val _editor = reactiveVariable<E?>(null)
 
+    /**
+     * A [ReactiveValue] holding the currently wrapped editor or `null` if the expander is not expanded
+     */
     val editor: ReactiveValue<E?> get() = _editor
 
     private val _text = reactiveVariable<String?>(null)
 
+    /**
+     * A [ReactiveValue] holding the current text of the editor or `null` if it is expanded
+     */
     val text: ReactiveValue<String?> get() = _text
 
     private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
 
+    /**
+     * @return the editor that should be wrapped if the expander is expanded with the given [text] or `null` if the text
+     * is not valid
+     */
     protected abstract fun expand(text: String): E?
 
     /**
@@ -123,11 +139,19 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         undo.push(edit)
     }
 
+    /**
+     * Set the text of this expander
+     * @throws IllegalStateException if the expander is expanded
+     */
     fun setText(newText: String) {
         check(state is Unexpanded) { "Cannot set text on expanded expander" }
         changeState(Unexpanded(newText), "Type")
     }
 
+    /**
+     * Expand the current text
+     * @throws IllegalStateException if already expanded
+     */
     fun expand() {
         val state = state
         check(state is Unexpanded) { "Cannot expand expanded expander" }
@@ -135,10 +159,17 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         changeState(Expanded(editor), "Expand")
     }
 
+    /**
+     * Set the wrapped editor to the specified one
+     */
     fun setEditor(editor: E) {
         changeState(Expanded(editor), "Change content")
     }
 
+    /**
+     * Reset the expander by setting the text to the empty string
+     * @throws IllegalStateException if not expanded
+     */
     fun reset() {
         check(state is Expanded) { "Cannot reset unexpanded expander" }
         changeState(Unexpanded(""), "Reset")
@@ -155,7 +186,6 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      * If the expander is not expanded or the current editor doesn't support copying this method has no effect.
      */
     fun copy() {
-        println("copy")
         val e = editor.now ?: return
         if (!e.supportsCopy()) return
         context[Internal, clipboard] = e
@@ -165,7 +195,6 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      * Set the editor of this expander to a copy of the clipboard editor this expander can accept it
      */
     fun paste() {
-        println("paste")
         val content = context[Public, clipboard] as? Editor<*> ?: return
         check(content.supportsCopy()) { "Content in clipboard does not support copying" }
         if (!accepts(content)) return
