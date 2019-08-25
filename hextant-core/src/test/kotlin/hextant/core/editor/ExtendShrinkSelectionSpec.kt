@@ -26,7 +26,7 @@ package hextant.core.editor
 //        override fun accepts(child: Editor<*>): Boolean = child is ChildEditor
 //    }
 //
-//    given("3 children and a parent") {
+//    GIVEN("3 children and a parent") {
 //        val platform = HextantPlatform.configured()
 //        val children = List(3) { ChildEditor(platform) }
 //        val parent = AParentEditor(platform)
@@ -35,7 +35,7 @@ package hextant.core.editor
 //        }
 //        val second = children[1]
 //        val third = children[2]
-//        on("selecting the second and the third child and the extending selection") {
+//        ON("selecting the second and the third child and the extending selection") {
 //            second.select()
 //            third.toggleSelection()
 //            parent.extendSelection(second)
@@ -49,7 +49,7 @@ package hextant.core.editor
 //                parent.isSelected shouldBe `true`
 //            }
 //        }
-//        on("shrinking selection on the parent") {
+//        ON("shrinking selection on the parent") {
 //            parent.shrinkSelection()
 //            test("the second and the third child should be selected") {
 //                second.isSelected shouldBe `true`

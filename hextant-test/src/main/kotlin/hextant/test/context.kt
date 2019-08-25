@@ -2,7 +2,7 @@
  * @author Nikolaus Knop
  */
 
-package hextant.test.matchers
+package hextant.test
 
 import hextant.Context
 import hextant.HextantPlatform

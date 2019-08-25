@@ -11,8 +11,8 @@ package hextant.core.list
 //import org.jetbrains.spek.api.dsl.*
 //
 //object ListEditorSpec : Spek({
-//    given("a list editor") {
-//        describe("addding, removing and clearing") {
+//    GIVEN("a ListEditor") {
+//        DESCRIBE("addding, removing and clearing") {
 //            val ctx = Context.newInstance(HextantPlatform.singleThread()) {
 //                set(Public, UndoManager, UndoManager.newInstance())
 //            }
@@ -24,46 +24,46 @@ package hextant.core.list
 //            }
 //            val view = viewMock<ListEditorView>()
 //            view.inOrder {
-//                on("adding a view") {
+//                ON("adding a view") {
 //                    editor.addView(view)
-//                    it("should notify the view to be empty") {
+//                    IT("should notify the view to be empty") {
 //                        verify().empty()
 //                    }
 //                }
-//                on("adding a new element") {
+//                ON("adding a new element") {
 //                    editor.add(0)
-//                    it("should create a new editable and add it") {
+//                    IT("should create a new editable and add it") {
 //                        editable.editableList.now.size shouldEqual 1
 //                    }
-//                    it("should notify the views") {
+//                    IT("should notify the views") {
 //                        verify().added(any(), eq(0))
 //                        verify().notEmpty()
 //                    }
 //                }
-//                on("adding another element") {
+//                ON("adding another element") {
 //                    editor.add(1)
-//                    it("should create a new editable and add it") {
+//                    IT("should create a new editable and add it") {
 //                        editable.editableList.now.size shouldEqual 2
 //                    }
-//                    it("should notify the views") {
+//                    IT("should notify the views") {
 //                        verify().added(any(), eq(1))
 //                    }
 //                }
-//                on("removing an element") {
+//                ON("removing an element") {
 //                    editor.removeAt(0)
-//                    it("should remove an element from the editable list") {
+//                    IT("should remove an element from the editable list") {
 //                        editable.editableList.now.size shouldEqual 1
 //                    }
-//                    it("should notify the views") {
+//                    IT("should notify the views") {
 //                        verify().removed(0)
 //                    }
 //                }
-//                on("clearing") {
+//                ON("clearing") {
 //                    editor.clear()
-//                    it("should remove all elements from the editable list") {
+//                    IT("should remove all elements from the editable list") {
 //                        editable.editableList.now.size shouldEqual 0
 //                    }
-//                    it("should notify the views") {
+//                    IT("should notify the views") {
 //                        verify().removed(0)
 //                        verify().empty()
 //                    }
@@ -71,7 +71,7 @@ package hextant.core.list
 //            }
 //            afterGroup { ctx.platform.exit() }
 //        }
-//        describe("undo/redo") {
+//        DESCRIBE("undo/redo") {
 //            val undo = UndoManager.newInstance()
 //            val ctx = Context.newInstance(HextantPlatform.singleThread()) {
 //                set(Public, UndoManager, undo)
@@ -84,39 +84,39 @@ package hextant.core.list
 //            }
 //            val view = viewMock<ListEditorView>()
 //            editor.addView(view)
-//            on("adding an editable") {
+//            ON("adding an editable") {
 //                editor.add(0)
-//                it("should be able to undo") {
+//                IT("should be able to undo") {
 //                    undo.canUndo shouldBe `true`
 //                }
 //            }
-//            on("undoing") {
+//            ON("undoing") {
 //                undo.undo()
-//                it("should remove the editable") {
+//                IT("should remove the editable") {
 //                    editable.editableList.now.size shouldEqual 0
 //                }
 //            }
-//            on("redoing") {
+//            ON("redoing") {
 //                undo.redo()
-//                it("should add the editable again") {
+//                IT("should add the editable again") {
 //                    editable.editableList.now.size shouldEqual 1
 //                }
 //            }
-//            on("removing an element") {
+//            ON("removing an element") {
 //                editor.removeAt(0)
-//                it("should be able to undo") {
+//                IT("should be able to undo") {
 //                    undo.canUndo shouldBe `true`
 //                }
 //            }
-//            on("undoing removing the element") {
+//            ON("undoing removing the element") {
 //                undo.undo()
-//                it("should add the element again") {
+//                IT("should add the element again") {
 //                    editable.editableList.now.size shouldEqual 1
 //                }
 //            }
-//            on("redoing removing the element") {
+//            ON("redoing removing the element") {
 //                undo.redo()
-//                it("should remove the element again") {
+//                IT("should remove the element again") {
 //                    editable.editableList.now.size shouldEqual 0
 //                }
 //            }

@@ -2,7 +2,7 @@
  * @author Nikolaus Knop
  */
 
-package hextant.test.matchers
+package hextant.test
 
 import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.MatchResult.Match

@@ -5,7 +5,7 @@
 package hextant.inspect
 
 import com.natpryce.hamkrest.absent
-import hextant.test.matchers.shouldBe
+import hextant.test.shouldBe
 import org.junit.jupiter.api.Test
 import org.nikok.kref.*
 import reaktive.value.ReactiveBoolean

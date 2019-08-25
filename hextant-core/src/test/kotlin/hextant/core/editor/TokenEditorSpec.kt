@@ -17,7 +17,7 @@ package hextant.core.editor
 //import org.jetbrains.spek.api.dsl.*
 //
 //object TokenEditorSpec : Spek({
-//    given("a token editor") {
+//    GIVEN("a token editor") {
 //        val undo: UndoManager = UndoManager.newInstance()
 //        val context = newInstance(HextantPlatform.singleThread()) {
 //            set(Public, UndoManager, undo)
@@ -26,40 +26,40 @@ package hextant.core.editor
 //        val editor = context.getEditor(editable) as IntLiteralEditor
 //        val view = viewMock<IntLiteralEditorView>()
 //        view.inOrder {
-//            on("adding a view") {
+//            ON("adding a view") {
 //                editor.addView(view)
-//                it("should display the text") {
+//                IT("should display the text") {
 //                    verify().displayText("")
 //                }
 //            }
-//            on("setting the text") {
+//            ON("setting the text") {
 //                editor.setText("abc")
-//                it("should notify the view") {
+//                IT("should notify the view") {
 //                    verify().displayText("abc")
 //                }
 //                test("the undo manager should be able to undo") {
 //                    undo.canUndo shouldBe `true`
 //                }
 //            }
-//            on("undoing") {
+//            ON("undoing") {
 //                undo.undo()
-//                it("should set text back to the empty string") {
+//                IT("should set text back to the empty string") {
 //                    editable.text.now shouldEqual ""
 //                }
 //                test("the view should be notified") {
 //                    verify().displayText("")
 //                }
 //            }
-//            on("redoing") {
+//            ON("redoing") {
 //                undo.redo()
-//                it("should set text to the undone text") {
+//                IT("should set text to the undone text") {
 //                    editable.text.now shouldEqual "abc"
 //                }
 //                test("the view should be notified") {
 //                    verify().displayText("abc")
 //                }
 //            }
-//            action("after") {
+//            ACTION("after") {
 //                test("no more interactions") {
 //                    verify(view, never()).displayText(any())
 //                }

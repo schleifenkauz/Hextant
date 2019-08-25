@@ -7,11 +7,12 @@ dependencies {
     compile(spek("api")) {
         exclude group: "org.jetbrains.kotlin"
     }
-    runtime(spek("junit-platform-engine")) {
+    compile(spek("junit-platform-engine")) {
         exclude group: "org.jetbrains.kotlin"
     }
     compile "com.natpryce:hamkrest:1.5.0.0"
     compile "org.junit.jupiter:junit-jupiter-api:5.4.2"
+    compile "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
 }
 
 apply plugin: 'maven-publish'
@@ -28,5 +29,11 @@ publishing {
             from components.java
             artifact sourcesJar
         }
+    }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
     }
 }

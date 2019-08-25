@@ -13,7 +13,7 @@ package hextant.core.list
 //import org.jetbrains.spek.api.dsl.on
 //
 //object EditableListSpec : Spek({
-//    given("an editable list e") {
+//    GIVEN("an editable list e") {
 //        val e = EditableList<IntLiteral, IntLiteralEditor>()
 //        test("e.result should be empty now") {
 //            val edited = e.result.now
@@ -26,7 +26,7 @@ package hextant.core.list
 //            e.resultList.now shouldMatch isEmpty
 //        }
 //        val editable1 = IntLiteralEditor(1)
-//        on("adding an element to the editable list") {
+//        ON("adding an element to the editable list") {
 //            e.editableList.now.add(editable1)
 //            test("the result list contains the result of the added editable") {
 //                e.resultList.now shouldMatch contains<CompileResult<*>>(Ok(IntLiteral(1)))
@@ -35,17 +35,17 @@ package hextant.core.list
 //                e.result.now.force() shouldMatch contains(IntLiteral(1))
 //            }
 //        }
-//        on("modifying an int literal to be invalid") {
+//        ON("modifying an int literal to be invalid") {
 //            editable1.text.set("not an int")
 //            test("the result list contains an Err") {
 //                e.resultList.now.size shouldEqual 1
-//                e.resultList.now[0] shouldBe hextant.test.matchers.err
+//                e.resultList.now[0] shouldBe hextant.test.getErr
 //            }
 //            test("e.result should be a child Err") {
-//                e.result.now shouldBe hextant.test.matchers.childErr
+//                e.result.now shouldBe hextant.test.getChildErr
 //            }
 //        }
-//        on("making it valid again") {
+//        ON("making it valid again") {
 //            editable1.text.set("123")
 //            test("the result list contains the compiled literal") {
 //                e.resultList.now shouldEqual listOf(Ok(IntLiteral(123)))
@@ -55,7 +55,7 @@ package hextant.core.list
 //            }
 //        }
 //        val editable2 = IntLiteralEditor(2)
-//        on("adding yet another editable int literal") {
+//        ON("adding yet another editable int literal") {
 //            e.editableList.now.add(editable2)
 //            test("the result list contains the compiled literal") {
 //                e.resultList.now shouldMatch contains<CompileResult<*>>(Ok(IntLiteral(2)))

@@ -51,6 +51,10 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     val editor: ReactiveValue<E?> get() = _editor
 
+    private val _text = reactiveVariable<String?>(null)
+
+    val text: ReactiveValue<String?> get() = _text
+
     private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
 
     protected abstract fun expand(text: String): E?
@@ -69,17 +73,29 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
                 unexpand()
                 _result.set(childErr())
                 when (newState) {
-                    is Unexpanded -> views { reset() }
+                    is Unexpanded -> {
+                        resetViews()
+                        onSetText(newState.text)
+                    }
                     is Expanded   -> doExpandTo(newState.editor)
                 }
             }
             is Unexpanded -> {
                 when (newState) {
-                    is Unexpanded -> views { displayText(newState.text) }
+                    is Unexpanded -> onSetText(newState.text)
                     is Expanded   -> doExpandTo(newState.editor)
                 }
             }
         }
+    }
+
+    private fun onSetText(text: String) {
+        _text.set(text)
+        views { displayText(text) }
+    }
+
+    private fun resetViews() {
+        views { reset() }
     }
 
     private fun unexpand() {
@@ -95,6 +111,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         resultDelegator = _result.bind(editor.result.map { it.orElse { childErr() } })
         parentBinder = this.parent.forEach { editor.setParent(it) }
         _editor.set(editor)
+        _text.set(null)
         editor.setParent(this.parent.now)
         editor.setExpander(this)
         views { expanded(editor) }
@@ -160,7 +177,10 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     override fun viewAdded(view: ExpanderView) {
         when (val state = state) {
-            is Unexpanded -> view.displayText(state.text)
+            is Unexpanded -> {
+                view.reset()
+                view.displayText(state.text)
+            }
             is Expanded   -> view.expanded(state.editor)
         }
     }

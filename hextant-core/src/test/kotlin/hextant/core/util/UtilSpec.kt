@@ -8,21 +8,21 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
 import hextant.impl.myLogger
+import hextant.test.*
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
 
 internal object UtilSpec: Spek({
-    describe("myLogger") {
-        on("calling it from a non companion class") {
+    DESCRIBE("myLogger") {
+        ON("calling it from a non companion class") {
             class Error {
                 @Suppress("unused")
                 val logger by myLogger()
             }
-            it("should throw an IllegalArgumentException") {
+            IT("should throw an IllegalArgumentException") {
                 { Error(); Unit } shouldMatch throws<IllegalStateException>()
             }
         }
-        on("calling it from a companion object and getting the logger") {
+        ON("calling it from a companion object and getting the logger") {
             test("the logger should have the name of the class owning the companion") {
                 Right.logger.name shouldMatch equalTo(Right::class.qualifiedName)
             }

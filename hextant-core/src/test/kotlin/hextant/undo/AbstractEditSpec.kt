@@ -1,67 +1,66 @@
 package hextant.undo
 
-import hextant.test.matchers.*
+import hextant.test.*
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
 
 internal object AbstractEditSpec : Spek({
-    given("an edit") {
+    GIVEN("an edit") {
         val e = AnEdit()
-        it("should be able to undo") {
+        IT("should be able to undo") {
             e.canUndo shouldBe `true`
         }
-        it("shouldn't be able to redo") {
+        IT("shouldn't be able to redo") {
             e.canRedo shouldBe `false`
         }
-        on("redoing it") {
-            it("should throw an IllegalStateException") {
+        ON("redoing it") {
+            IT("should throw an illegal state exception") {
                 { e.redo() }.shouldThrow<IllegalStateException>()
             }
-            it("should not actually redo") {
+            IT("should not actually redo") {
                 e.undone shouldBe `false`
             }
-            it("should still not be able to redo") {
+            IT("should still not be able to redo") {
                 e.canRedo shouldBe `false`
             }
-            it("should still be able to undo") {
+            IT("should still be able to undo") {
                 e.canUndo shouldBe `true`
             }
         }
-        on("undoing it") {
+        ON("undoing it") {
             e.undo()
-            it("should actually undo") {
+            IT("should actually undo") {
                 e.undone shouldBe `true`
             }
-            it("should be able to redo") {
+            IT("should be able to redo") {
                 e.canRedo shouldBe `true`
             }
-            it("should not be able to undo") {
+            IT("should not be able to undo") {
                 e.canUndo shouldBe `false`
             }
         }
-        on("undoing it") {
-            it("should throw an IllegalStateException") {
+        ON("undoing it") {
+            IT("should throw an illegal state exception") {
                 { e.undo() }.shouldThrow<IllegalStateException>()
             }
-            it("should not actually undo") {
+            IT("should not actually undo") {
                 e.undone shouldBe `true`
             }
-            it("should still not be able to undo") {
+            IT("should still not be able to undo") {
                 e.canUndo shouldBe `false`
             }
-            it("should still be able to redo") {
+            IT("should still be able to redo") {
                 e.canRedo shouldBe `true`
             }
         }
-        on("redoing it") {
+        ON("redoing it") {
             e.redo()
-            it("should actually redo") {
+            IT("should actually redo") {
                 e.undone shouldBe `false`
             }
-            it("should be able to undo") {
+            IT("should be able to undo") {
                 e.canUndo shouldBe `true`
             }
-            it("should not be able to redo") {
+            IT("should not be able to redo") {
                 e.canRedo shouldBe `false`
             }
         }

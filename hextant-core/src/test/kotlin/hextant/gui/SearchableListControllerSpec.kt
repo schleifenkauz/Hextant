@@ -4,13 +4,13 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockitokotlin2.*
 import hextant.completion.*
+import hextant.test.*
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
 import java.util.logging.ConsoleHandler
 import java.util.logging.Level
 
 class SearchableListControllerSpec : Spek({
-    given("A searchable list controller with simple completer") {
+    GIVEN("a searchable list controller with simple completer") {
         val logger = SearchableListController.logger
         logger.level = Level.ALL
         val handler = ConsoleHandler().also { it.level = Level.ALL }
@@ -23,33 +23,33 @@ class SearchableListControllerSpec : Spek({
         )
         val c = SearchableListController(completer, 3, "initial")
         val viewMock = mock<SearchableListView<Int>>()
-        on("adding a view") {
+        ON("adding a view") {
             c.addView(viewMock)
-            it("should update the search text of the view") {
+            IT("should update the search text of the view") {
                 verify(viewMock).displaySearchText("initial")
             }
-            it("should display no completions") {
+            IT("should display no completions") {
                 verify(viewMock).displayNoCompletions()
             }
         }
-        on("setting the text to be completable") {
-            it("should display all possible completions but not more than max items") {
+        ON("setting the text to be completable") {
+            IT("should display all possible completions but not more than max items") {
                 c.text = "1"
                 verify(viewMock).displayCompletions(check {
                     it.size shouldMatch equalTo(3)
                 })
             }
-            it("should update the text") {
+            IT("should update the text") {
                 c.text = "1"
                 verify(viewMock).displaySearchText("1")
             }
         }
-        on("setting the text not to be completable") {
+        ON("setting the text not to be completable") {
             c.text = "not completable"
-            it("should display the text") {
+            IT("should display the text") {
                 verify(viewMock).displaySearchText("not completable")
             }
-            it("display not completions") {
+            IT("display not completions") {
                 verify(viewMock, times(2)).displayNoCompletions()
             }
         }

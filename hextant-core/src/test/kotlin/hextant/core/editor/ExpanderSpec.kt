@@ -1,158 +1,142 @@
 package hextant.core.editor
-//
-//import hextant.*
-//import hextant.bundle.CorePermissions.Public
-//import hextant.core.editable.Expandable
-//import hextant.core.editor.ExpanderSpec.expandable
-//import hextant.core.editor.ExpanderSpec.expander
-//import hextant.core.view.ExpanderView
-//import hextant.expr.edited.IntLiteral
-//import hextant.mocking.viewMock
-//import hextant.test.matchers.*
-//import hextant.undo.UndoManager
-//import org.jetbrains.spek.api.Spek
-//import org.jetbrains.spek.api.dsl.*
-//
-//object ExpanderSpec : Spek({
-//    given("an expander") {
-//        describe("expanding and resetting") {
-//            val context = Context.newInstance(HextantPlatform.singleThread()) {
-//                set(Public, UndoManager, UndoManager.newInstance())
-//            }
-//            val e = expandable()
-//            val ex = expander(e, context)
-//            val view = viewMock<ExpanderView>()
-//            view.inOrder {
-//                on("adding a view") {
-//                    ex.addView(view)
-//                    test("the view should be reset") {
-//                        verify().reset()
-//                    }
-//                }
-//                on("resetting when not expanded") {
-//                    it("should thrown an exception") {
-//                        { ex.reset() }.shouldThrow<IllegalStateException>()
-//                    }
-//                }
-//                on("expanding invalid text") {
-//                    ex.expand()
-//                    it("should not expand") {
-//                        verifyNoMoreInteractions()
-//                    }
-//                }
-//                on("setting text") {
-//                    ex.setText("123")
-//                    it("should set the text") {
-//                        e.text.now shouldEqual "123"
-//                    }
-//                    it("should notify the views") {
-//                        verify().textChanged("123")
-//                    }
-//                }
-//                on("expanding") {
-//                    ex.expand()
-//                    it("should set the content of the expandable") {
-//                        e.editable.now!!.result.now.force().value shouldEqual 123
-//                    }
-//                    it("should notify the views") {
-//                        verify().expanded(e.editable.now!!)
-//                    }
-//                }
-//                on("expanding again") {
-//                    it("should throw an exception") {
-//                        { ex.expand() }.shouldThrow<IllegalStateException>()
-//                    }
-//                }
-//                on("reset") {
-//                    ex.reset()
-//                    it("should reset the expandable") {
-//                        e.editable.now shouldBe `null`
-//                    }
-//                    it("should notify the view") {
-//                        verify().reset()
-//                    }
-//                }
-//                afterGroup { context.platform.exit() }
-//            }
-//        }
-//        describe("undoing and redoing") {
-//            val undo: UndoManager = UndoManager.newInstance()
-//            val context = Context.newInstance(HextantPlatform.singleThread()) {
-//                set(Public, UndoManager, undo)
-//            }
-//            val e = expandable()
-//            val ex = expander(e, context)
-//            lateinit var content1: hextant.expr.editor.IntLiteralEditor
-//            on("expanding") {
-//                ex.setText("123")
-//                ex.expand()
-//                content1 = e.editable.now!!
-//                it("should push an edit") {
-//                    undo.canUndo shouldBe `true`
-//                }
-//            }
-//            on("undoing") {
-//                undo.undo()
-//                it("should reset") {
-//                    e.editable.now shouldBe `null`
-//                }
-//            }
-//            on("redoing") {
-//                undo.redo()
-//                it("should expand to the last editable") {
-//                    e.editable.now shouldEqual content1
-//                }
-//            }
-//            on("resetting") {
-//                ex.reset()
-//                it("should push an edit") {
-//                    undo.canUndo shouldBe `true`
-//                }
-//            }
-//            on("undoing reset") {
-//                undo.undo()
-//                it("should expand to the last editable") {
-//                    e.editable.now shouldEqual content1
-//                }
-//            }
-//            on("redoing reset") {
-//                undo.redo()
-//                it("should reset") {
-//                    e.editable.now shouldBe `null`
-//                }
-//            }
-//            on("setting the text") {
-//                ex.setText("abc")
-//                it("should push an edit") {
-//                    undo.canUndo shouldBe `true`
-//                }
-//            }
-//            on("undoing set text") {
-//                undo.undo()
-//                it("should set the text to the previous string") {
-//                    e.text.now shouldEqual ""
-//                }
-//            }
-//            on("redoing set text") {
-//                undo.redo()
-//                it("should set the text to the text set by setText") {
-//                    e.text.now shouldEqual "abc"
-//                }
-//            }
-//            afterGroup { context.platform.exit() }
-//        }
-//    }
-//}) {
-//    fun expandable() = object : Expandable<IntLiteral, hextant.expr.editor.IntLiteralEditor>() {}
-//
-//    fun expander(expandable: Expandable<IntLiteral, hextant.expr.editor.IntLiteralEditor>, context: Context) =
-//        object :
-//            Expander<hextant.expr.editor.IntLiteralEditor, Expandable<IntLiteral, hextant.expr.editor.IntLiteralEditor>>() {
-//            override fun expand(text: String): hextant.expr.editor.IntLiteralEditor? {
-//                val int = text.toIntOrNull() ?: return null
-//                return hextant.expr.editor.IntLiteralEditor(int)
-//            }
-//
-//            override fun accepts(child: Editor<*>): Boolean = child is IntLiteralEditor
-//        }
-//}
+
+import com.nhaarman.mockitokotlin2.inOrder
+import hextant.*
+import hextant.core.view.ExpanderView
+import hextant.expr.edited.IntLiteral
+import hextant.expr.editor.IntLiteralEditor
+import hextant.test.*
+import hextant.undo.UndoManager
+import org.jetbrains.spek.api.Spek
+import reaktive.value.now
+
+object ExpanderSpec : Spek({
+    GIVEN("an expander") {
+        DESCRIBE("expanding and resetting") {
+            val context = testingContext()
+            val ex = ExpanderSpec.expander(context)
+            val view = mockView<ExpanderView>()
+            view.inOrder {
+                ON("adding a view") {
+                    ex.addView(view)
+                    test("the view should be reset") {
+                        verify().reset()
+                        verify().displayText("")
+                    }
+                }
+                ON("resetting when not expanded") {
+                    IT("should thrown an exception") {
+                        { ex.reset() }.shouldThrow<IllegalStateException>()
+                    }
+                }
+                ON("expanding invalid text") {
+                    ex.expand()
+                    IT("should not expand") {
+                        verifyNoMoreInteractions()
+                    }
+                }
+                ON("setting text") {
+                    ex.setText("123")
+                    IT("should notify the views") {
+                        verify().displayText("123")
+                    }
+                }
+                ON("expanding") {
+                    ex.expand()
+                    IT("should set the result") {
+                        ex.result.now shouldEqual ok(IntLiteral(123))
+                    }
+                    IT("should notify the views") {
+                        verify().expanded(ex.editor.now!!)
+                    }
+                }
+                ON("expanding again") {
+                    IT("should throw an exception") {
+                        { ex.expand() }.shouldThrow<IllegalStateException>()
+                    }
+                }
+                ON("reset") {
+                    ex.reset()
+                    IT("should set the editor to null") {
+                        ex.editor.now shouldBe `null`
+                    }
+                    IT("should set the result to a child error") {
+                        ex.result.now shouldBe childErr
+                    }
+                    IT("should notify the view") {
+                        verify().reset()
+                    }
+                }
+                afterGroup { context.platform.exit() }
+            }
+        }
+        DESCRIBE("undoing and redoing") {
+            val context = testingContext()
+            val undo = context[UndoManager]
+            val ex = ExpanderSpec.expander(context)
+            val content1: IntLiteralEditor
+            ON("expanding") {
+                ex.setText("123")
+                ex.expand()
+                content1 = ex.editor.now!!
+                IT("should push an edit") {
+                    undo.canUndo shouldBe `true`
+                }
+            }
+            ON("undoing") {
+                undo.undo()
+                IT("should reset") {
+                    ex.editor.now shouldBe `null`
+                }
+            }
+            ON("redoing") {
+                undo.redo()
+                IT("should expand to the last editable") {
+                    ex.editor.now shouldEqual content1
+                }
+            }
+            ON("resetting") {
+                ex.reset()
+                IT("should push an edit") {
+                    undo.canUndo shouldBe `true`
+                }
+            }
+            ON("undoing reset") {
+                undo.undo()
+                IT("should expand to the last editable") {
+                    ex.editor.now shouldEqual content1
+                }
+            }
+            ON("redoing reset") {
+                undo.redo()
+                IT("should reset") {
+                    ex.editor.now shouldBe `null`
+                }
+            }
+            ON("setting the text") {
+                ex.setText("abc")
+                IT("should push an edit") {
+                    undo.canUndo shouldBe `true`
+                }
+            }
+            ON("undoing set text") {
+                undo.undo()
+                IT("should set the text to the previous string") {
+                    ex.text.now shouldEqual ""
+                }
+            }
+            ON("redoing set text") {
+                undo.redo()
+                IT("should set the text to the text set by settext") {
+                    ex.text.now shouldEqual "abc"
+                }
+            }
+            afterGroup { context.platform.exit() }
+        }
+    }
+}) {
+    private fun expander(context: Context) = object : Expander<IntLiteral, IntLiteralEditor>(context) {
+        override fun expand(text: String): IntLiteralEditor? =
+            if (text.toIntOrNull() != null) IntLiteralEditor(context, text) else null
+    }
+}

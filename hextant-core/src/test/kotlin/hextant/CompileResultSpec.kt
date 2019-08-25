@@ -2,163 +2,161 @@ package hextant
 
 import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
-import hextant.test.matchers.shouldBe
-import hextant.test.matchers.shouldEqual
+import hextant.test.*
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
 
 object CompileResultSpec : Spek({
-    describe("isOk") {
-        on("Err") {
-            it("returns false") {
+    DESCRIBE("isOk") {
+        ON("Err") {
+            IT("returns false") {
                 Err("some message").isOk shouldEqual false
             }
         }
-        on("ChildErr") {
-            it("returns false") {
+        ON("ChildErr") {
+            IT("returns false") {
                 ChildErr.isOk shouldEqual false
             }
         }
-        on("Ok") {
-            it("returns true") {
+        ON("Ok") {
+            IT("returns true") {
                 ok(123).isOk shouldEqual true
             }
         }
     }
-    describe("isErr") {
-        on("Ok") {
-            it("returns false") {
+    DESCRIBE("isErr") {
+        ON("ok") {
+            IT("returns false") {
                 ok(123).isErr shouldEqual false
             }
         }
-        on("ChildErr") {
-            it("returns false") {
+        ON("ChildErr") {
+            IT("returns false") {
                 ChildErr.isErr shouldEqual false
             }
         }
-        on("Err") {
-            it("returns true") {
+        ON("err") {
+            IT("returns true") {
                 Err("Some error").isErr shouldEqual true
             }
         }
     }
-    describe("isChildErr") {
-        on("Ok") {
-            it("returns false") {
+    DESCRIBE("isChildErr") {
+        ON("ok") {
+            IT("returns false") {
                 ok(123).isChildErr shouldEqual false
             }
         }
-        on("Err") {
-            it("returns false") {
+        ON("Err") {
+            IT("returns false") {
                 Err("Some error").isChildErr shouldEqual false
             }
         }
-        on("ChildErr") {
-            it("returns true") {
+        ON("ChildErr") {
+            IT("returns true") {
                 ChildErr.isChildErr shouldEqual true
             }
         }
     }
-    describe("isError") {
-        on("Ok") {
-            it("returns false") {
+    DESCRIBE("is error") {
+        ON("ok") {
+            IT("returns false") {
                 ok(123).isError shouldEqual false
             }
         }
-        on("Err") {
-            it("returns true") {
+        ON("err") {
+            IT("returns true") {
                 Err("Some error").isError shouldEqual true
             }
         }
-        on("ChildErr") {
-            it("returns true") {
+        ON("child err") {
+            IT("returns true") {
                 ChildErr.isError shouldEqual true
             }
         }
     }
-    describe("map") {
-        on("Ok") {
-            it("maps the result") {
+    DESCRIBE("map") {
+        ON("ok") {
+            IT("maps the result") {
                 ok(123).map { it * 2 } shouldEqual ok(246)
             }
         }
-        on("Err") {
-            it("returns the error") {
-                err<Int>("some message").map { it * 2 } shouldBe hextant.test.matchers.err
+        ON("err") {
+            IT("returns the error") {
+                err<Int>("some message").map { it * 2 } shouldBe err
             }
         }
-        on("ChildErr") {
-            it("returns the error") {
-                childErr<Int>().map { it * 2 } shouldBe hextant.test.matchers.childErr
+        ON("childErr") {
+            IT("returns the error") {
+                childErr<Int>().map { it * 2 } shouldBe childErr
             }
         }
     }
-    describe("flatMap") {
-        on("Ok") {
-            it("returns the result of the function") {
+    DESCRIBE("flatMap") {
+        ON("ok") {
+            IT("returns the result of the function") {
                 ok(123).flatMap { Ok(it * 2) } shouldEqual ok(246)
             }
         }
-        on("Err") {
-            it("returns the error") {
-                err<Int>("some error message").flatMap { Ok(it * 2) } shouldBe hextant.test.matchers.err
+        ON("err") {
+            IT("returns the error") {
+                err<Int>("some error message").flatMap { Ok(it * 2) } shouldBe err
             }
         }
-        on("Err") {
-            it("returns the error") {
-                childErr<Int>().flatMap { Ok(it * 2) } shouldBe hextant.test.matchers.childErr
+        ON("err") {
+            IT("returns the error") {
+                childErr<Int>().flatMap { Ok(it * 2) } shouldBe childErr
             }
         }
     }
-    describe("orElse") {
-        on("Ok") {
-            it("returns the ok") {
+    DESCRIBE("orElse") {
+        ON("OK") {
+            IT("returns the ok") {
                 ok(123).or(ok(234)) shouldEqual ok(123)
             }
         }
-        on("Err") {
-            it("returns the alternative") {
+        ON("Err") {
+            IT("returns the alternative") {
                 err<Int>("some error").or(ok(345)) shouldEqual ok(345)
             }
         }
-        on("Err") {
-            it("returns the alternative") {
+        ON("Err") {
+            IT("returns the alternative") {
                 childErr<Int>().or(err("Alternative error")) shouldEqual err("Alternative error")
             }
         }
     }
-    describe("okOr") {
-        on("null value") {
-            it("returns the default") {
-                null.okOr { err("Null value") } shouldBe hextant.test.matchers.err
+    DESCRIBE("okOr") {
+        ON("null value") {
+            IT("returns the default") {
+                null.okOr { err("Null value") } shouldBe err
             }
         }
-        on("non-null value") {
-            it("returns an ok around the value") {
-                1.okOr { err("Null value") } shouldBe hextant.test.matchers.ok
+        ON("non-null value") {
+            IT("returns an ok around the value") {
+                1.okOr { err("Null value") } shouldBe ok
             }
         }
     }
-    describe("ifErr") {
-        on("Ok") {
-            it("returns the value") {
+    DESCRIBE("ifErr") {
+        ON("OK") {
+            IT("returns the value") {
                 ok(1).ifErr { throw AssertionError() }
             }
         }
-        on("Err") {
-            it("returns the default") {
+        ON("err") {
+            IT("returns the default") {
                 err<Int>("Some message").orNull() shouldEqual null
             }
         }
-        on("ChildErr") {
-            it("executes the default") {
+        ON("childErr") {
+            IT("executes the default") {
                 { childErr<Unit>().force() } shouldMatch throws<IllegalArgumentException>()
             }
         }
     }
-    describe("compile") {
-        on("flow without errors") {
-            it("should compute the result") {
+    DESCRIBE("compile") {
+        ON("flow without errors") {
+            IT("should compute the result") {
                 compile {
                     val (x) = ok(1)
                     val (y) = ok(2)
@@ -166,14 +164,14 @@ object CompileResultSpec : Spek({
                 } shouldEqual ok(3)
             }
         }
-        on("flow with errors") {
-            it("should return the first error") {
+        ON("flow with errors") {
+            IT("should return the first error") {
                 compile<Int> {
                     ok(1).orTerminate()
                     childErr<Int>().orTerminate()
                     err<Int>("Message").orTerminate()
                     throw AssertionError("Should not be reached")
-                } shouldBe hextant.test.matchers.childErr
+                } shouldBe childErr
             }
         }
     }
