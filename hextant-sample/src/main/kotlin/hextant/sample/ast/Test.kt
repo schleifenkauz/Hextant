@@ -17,6 +17,7 @@ object AltExpanderDelegator : ExpanderConfigurator<AltEditor<Alt>>({
 
 @Alternative
 @Expandable(AltExpanderDelegator::class, subtypeOf = Alt::class)
+@EditableList
 sealed class Alt {
     @Token(subtypeOf = Alt::class)
     data class TestToken(val str: String): Alt() {

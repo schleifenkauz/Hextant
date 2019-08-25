@@ -8,8 +8,7 @@ import com.google.auto.service.AutoService
 import hextant.*
 import hextant.base.AbstractEditor
 import hextant.core.TokenType
-import hextant.core.editor.Expander
-import hextant.core.editor.TokenEditor
+import hextant.core.editor.*
 import hextant.core.view.TokenEditorView
 import krobot.api.*
 import java.io.PrintWriter
@@ -19,8 +18,7 @@ import java.nio.file.Paths
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.*
-import javax.lang.model.type.MirroredTypeException
-import javax.lang.model.type.TypeMirror
+import javax.lang.model.type.*
 import javax.tools.Diagnostic.Kind.ERROR
 import kotlin.reflect.KClass
 
@@ -83,16 +81,44 @@ class AnnotationProcessor : AbstractProcessor() {
                 processAnnotations(::genCompoundEditorClass)
                 processAnnotations(::genAlternativeInterface)
                 processAnnotations(::genExpanderClass)
+                processAnnotations { annotated, _: EditableList -> genListEditorClass(annotated) }
             }
         } catch (e: ProcessingException) {
             processingEnv.messager.printMessage(ERROR, e.message)
         } catch (e: Throwable) {
             processingEnv.messager.printMessage(ERROR, "Unexpected error ${e.message}")
-            val w = PrintWriter(StringWriter())
-            e.printStackTrace(w)
+            val w = StringWriter()
+            val p = PrintWriter(w)
+            e.printStackTrace(p)
             processingEnv.messager.printMessage(ERROR, w.toString())
         }
         return true
+    }
+
+    private fun genListEditorClass(annotated: Element) {
+        val (annotatedPkg, annotatedName) = splitPackageAndSimpleName(annotated.toString())
+        val editorCls = getEditorClassName(annotated.asType())
+        val pkg = "$annotatedPkg.editor"
+        val name = "${annotatedName}ListEditor"
+        val file = kotlinClass(
+            pkg, {
+                import(annotated.toString())
+                import<ListEditor<*, *>>()
+                import(editorCls)
+                import("hextant.*")
+            },
+            name,
+            primaryConstructor = { "context" of "Context" },
+            inheritance = {
+                extend(type("ListEditor").parameterizedBy {
+                    covariant(annotatedName)
+                    covariant(editorCls)
+                }, "context".e)
+            }
+        ) {
+            addSingleExprFunction("createEditor", { override() }) { call(editorCls, "context".e) }
+        }
+        writeToFile(pkg, name, file)
     }
 
     private fun splitPackageAndSimpleName(qualifiedName: String): Pair<String?, String> {
@@ -135,7 +161,10 @@ class AnnotationProcessor : AbstractProcessor() {
                 "context" of "Context"
                 "value" of name
             }, "context".e, "value".e call "toString")
-            addSingleExprFunction("compile", { override() }, parameters = { "token" of "String" }) { name.e.call("compile", "token".e) }
+            addSingleExprFunction(
+                "compile",
+                { override() },
+                parameters = { "token" of "String" }) { name.e.call("compile", "token".e) }
         }
         writeToFile(pkg, simpleName, file)
     }
@@ -156,7 +185,7 @@ class AnnotationProcessor : AbstractProcessor() {
         }
     }
 
-    private fun error(msg: String) {
+    private fun error(msg: String): Nothing {
         throw ProcessingException(msg)
     }
 
@@ -189,7 +218,6 @@ class AnnotationProcessor : AbstractProcessor() {
         }
         if (constructors.size != 1) {
             error("Class $annotated with annotation @Compound has ${constructors.size} constructors")
-            return
         }
         val primary = constructors[0] as ExecutableElement
         val file = kotlinClass(
@@ -265,8 +293,20 @@ class AnnotationProcessor : AbstractProcessor() {
     }
 
     private fun getEditorClassName(tm: TypeMirror): String {
-        val t = processingEnv.typeUtils.asElement(tm)
-        return lookupQualifiedEditorClassName(t)
+        val t = checkNonPrimitive(tm)
+        val e = processingEnv.typeUtils.asElement(t)
+        if (e.toString() == "java.util.List") {
+            val elementType = checkNonPrimitive(t.typeArguments[0]).asElement()!!
+            val (pkg, name) = splitPackageAndSimpleName(elementType.toString())
+            return "$pkg.editor.${name}ListEditor"
+        }
+        return lookupQualifiedEditorClassName(e)
+    }
+
+    private fun checkNonPrimitive(t: TypeMirror): DeclaredType {
+        if (t is DeclaredType) return t
+        if (t is WildcardType) return checkNonPrimitive(t.extendsBound)
+        error("Invalid component type $t(${t::class})")
     }
 
     private fun genAlternativeInterface(annotated: Element, annotation: Alternative) {
@@ -321,7 +361,8 @@ class AnnotationProcessor : AbstractProcessor() {
         ) {
             val delegate = delegator.toString().e call "getDelegate"
             addConstructor({ "context" of "Context" }, "context".e, "null".e)
-            addConstructor({ "context" of "Context"; "edited" of name }, "context".e,
+            addConstructor(
+                { "context" of "Context"; "edited" of name }, "context".e,
                 "context".e["EditorFactory".e].call("getEditor", "edited".e, "context".e) cast editorType
             )
             addVal("config", modifiers = { private() }) { initializeWith(delegate) }
