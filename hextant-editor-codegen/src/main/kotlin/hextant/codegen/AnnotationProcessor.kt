@@ -96,7 +96,8 @@ class AnnotationProcessor : AbstractProcessor() {
     }
 
     private fun genListEditorClass(annotated: Element, annotation: EditableList) {
-        val editorCls = getEditorClassName(annotated.asType())
+        val editorCls = getTypeMirror(annotation::editorCls).takeIf { it.toString() != None::class.qualifiedName }
+        val editorClsName = editorCls?.toString() ?: getEditorClassName(annotated.asType(), null)
         val simpleName = annotated.simpleName.toString()
         val qn = extractQualifiedEditorClassName(annotation, annotated, classNameSuffix = "ListEditor")
         val (pkg, name) = splitPackageAndSimpleName(qn)
@@ -104,7 +105,7 @@ class AnnotationProcessor : AbstractProcessor() {
             pkg, {
                 import(annotated.toString())
                 import<ListEditor<*, *>>()
-                import(editorCls)
+                import(editorClsName)
                 import("hextant.*")
             },
             name,
@@ -112,7 +113,7 @@ class AnnotationProcessor : AbstractProcessor() {
             inheritance = {
                 extend(type("ListEditor").parameterizedBy {
                     covariant(simpleName)
-                    covariant(editorCls)
+                    covariant(editorClsName)
                 }, "context".e)
             }
         ) {
@@ -126,11 +127,11 @@ class AnnotationProcessor : AbstractProcessor() {
                 addFor("i", "elements".e select "indices") {
                     addVal("e") initializedWith ("context".e
                         .call("createEditor", "elements".e["i".e])
-                        .cast(type(editorCls)))
+                        .cast(type(editorClsName)))
                     callFunction("addAt", {}, "i".e, "e".e)
                 }
             }
-            addSingleExprFunction("createEditor", { override() }) { call(editorCls, "context".e) }
+            addSingleExprFunction("createEditor", { override() }) { call(editorClsName, "context".e) }
         }
         writeToFile(pkg, name, file)
     }
@@ -188,7 +189,7 @@ class AnnotationProcessor : AbstractProcessor() {
         simpleName: String
     ) {
         val supertype = getTypeMirror(annotation::subtypeOf).toString()
-        if (supertype != NotASubtypeOfAnything::class.qualifiedName) {
+        if (supertype != None::class.qualifiedName) {
             val el = processingEnv.elementUtils.getTypeElement(supertype)
             val ann = el.getAnnotation(Alternative::class.java)
             if (ann == null) error("No annotation of type Alternative on $supertype")
@@ -203,7 +204,7 @@ class AnnotationProcessor : AbstractProcessor() {
         throw ProcessingException(msg)
     }
 
-    private fun getTypeMirror(classAccessor: () -> KClass<*>): TypeMirror {
+    private inline fun getTypeMirror(classAccessor: () -> KClass<*>): TypeMirror {
         return try {
             val cls = classAccessor()
             val name = cls.qualifiedName
@@ -246,7 +247,7 @@ class AnnotationProcessor : AbstractProcessor() {
             name = simpleName,
             primaryConstructor = {
                 for (p in primary.parameters) {
-                    val editorCls = getEditorClassName(p.asType())
+                    val editorCls = getEditorClassName(p.asType(), p)
                     val n = p.simpleName.toString()
                     n of editorCls
                 }
@@ -261,7 +262,7 @@ class AnnotationProcessor : AbstractProcessor() {
             }
         ) {
             val names = primary.parameters.map { it.toString() }
-            val componentClasses = primary.parameters.map { getEditorClassName(it.asType()) }
+            val componentClasses = primary.parameters.map { getEditorClassName(it.asType(), it) }
             addConstructor(
                 { "context" of "Context" },
                 *componentClasses.mapToArray { call(it, "context".e) },
@@ -270,7 +271,7 @@ class AnnotationProcessor : AbstractProcessor() {
             addConstructor(
                 { "context" of "Context"; "edited" of name },
                 *primary.parameters.mapToArray { p ->
-                    val editorCls = getEditorClassName(p.asType())
+                    val editorCls = getEditorClassName(p.asType(), p)
                     val n = p.simpleName.toString()
                     call(editorCls, "context".e, "edited".e select n)
                 },
@@ -306,7 +307,12 @@ class AnnotationProcessor : AbstractProcessor() {
         writeToFile(pkg, simpleName, file)
     }
 
-    private fun getEditorClassName(tm: TypeMirror): String {
+    private fun getEditorClassName(tm: TypeMirror, p: VariableElement?): String {
+        val useEditor = p?.getAnnotation(UseEditor::class.java)
+        if (useEditor != null) {
+            val cls = getTypeMirror(useEditor::cls)
+            return cls.toString()
+        }
         val t = checkNonPrimitive(tm)
         val e = processingEnv.typeUtils.asElement(t)
         if (e.toString() == "java.util.List") {
