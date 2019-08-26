@@ -1,11 +1,7 @@
-*.log
-.gradle
-!gradle-wrapper.jar
-gradle/
 */build
 */out
-.idea/misc.xml
-.idea/workspace.xml
-bin/org.nikok.hextant-lisp.main.jar
+.gradle
+gradle
 build
+bin/org.nikok.hextant-lisp.main.jar
 .idea
