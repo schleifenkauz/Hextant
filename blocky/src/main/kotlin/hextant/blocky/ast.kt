@@ -5,6 +5,7 @@
 package hextant.blocky
 
 import hextant.*
+import hextant.blocky.editor.*
 import hextant.codegen.*
 import hextant.core.TokenType
 
@@ -79,9 +80,10 @@ data class Assign(val name: Id, val value: Expr) : Statement()
 @Compound(subtypeOf = Statement::class)
 data class Swap(val left: Id, val right: Id) : Statement()
 
-@Alternative
-@Expandable(ExecutableExpanderDelegator::class)
+@UseEditor(NextExecutableEditor::class)
 sealed class Executable
+
+object End: Executable()
 
 @Compound
 data class Block(val statements: List<Statement>, val next: Executable) : Executable()

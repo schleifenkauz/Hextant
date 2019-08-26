@@ -2,9 +2,9 @@
  *@author Nikolaus Knop
  */
 
-package hextant.blocky
+package hextant.blocky.editor
 
-import hextant.blocky.editor.ExprEditor
+import hextant.blocky.Expr
 import hextant.codegen.ExpanderConfigurator
 
 object ExprExpanderDelegator : ExpanderConfigurator<ExprEditor<Expr>>({
