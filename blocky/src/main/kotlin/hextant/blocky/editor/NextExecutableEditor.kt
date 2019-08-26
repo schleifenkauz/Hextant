@@ -10,8 +10,8 @@ import hextant.blocky.End
 import hextant.blocky.Executable
 import reaktive.value.reactiveVariable
 
-class NextExecutableEditor(context: Context) : AbstractEditor<Executable, EditorView>(context) {
-    private val _result = reactiveVariable(ok(End as Executable))
+class NextExecutableEditor(context: Context, next: Executable = End) : AbstractEditor<Executable, EditorView>(context) {
+    private val _result = reactiveVariable(ok(next))
 
     override val result: EditorResult<Executable> get() = _result
 

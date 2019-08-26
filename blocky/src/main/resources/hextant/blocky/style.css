@@ -1,0 +1,7 @@
+.hextant-text.int-literal {
+    -fx-text-fill: purple;
+}
+
+.hextant-text.id {
+    -fx-text-fill: blue;
+}

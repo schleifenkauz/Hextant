@@ -43,6 +43,8 @@ enum class BinaryOperator(private val str: String) {
     EQ("=="), NEQ("!="),
     LE("<="), GE(">="), LO("<"), GR(">");
 
+    override fun toString(): String = str
+
     companion object : TokenType<BinaryOperator> {
         private val operators = values().associateBy { it.str }
 
@@ -57,6 +59,8 @@ data class BinaryExpression(val op: BinaryOperator, val left: Expr, val right: E
 @Token
 enum class UnaryOperator(private val str: String) {
     Not("!"), Minus("-");
+
+    override fun toString(): String = str
 
     companion object : TokenType<UnaryOperator> {
         private val operators = values().associateBy { it.str }
