@@ -5,6 +5,7 @@
 package hextant.plugin.dsl
 
 import hextant.*
+import hextant.base.CompoundEditorControl
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
@@ -53,6 +54,14 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
         val viewName = V::class.qualifiedName
         val editableName = E::class.qualifiedName
         logger.config { "Registered $viewName for $editableName" }
+    }
+
+    /**
+     * Register a factory for views of class [E] that produce a [hextant.base.CompoundEditorControl]
+     * applying the given [block] to it.
+     */
+    inline fun <reified E : Editor<*>> compoundView(crossinline block: CompoundEditorControl.Vertical.(editor: E) -> Unit) {
+        view { e: E, args -> CompoundEditorControl.build(e, args) { block(e) } }
     }
 
     /**
