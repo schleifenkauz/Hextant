@@ -5,7 +5,7 @@
 package hextant.blocky
 
 import hextant.*
-import hextant.blocky.editor.StatementListEditor
+import hextant.blocky.editor.ProgramEditor
 import hextant.main.HextantApplication
 import hextant.undo.UndoManager
 import javafx.scene.Parent
@@ -16,7 +16,7 @@ class BlockyApp : HextantApplication() {
     }
 
     override fun createView(context: Context): Parent {
-        val e = StatementListEditor(context)
+        val e = ProgramEditor(context)
         return context.createView(e)
     }
 

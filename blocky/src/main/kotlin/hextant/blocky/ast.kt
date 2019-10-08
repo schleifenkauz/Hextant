@@ -85,12 +85,16 @@ data class Assign(val name: Id, val value: Expr) : Statement()
 data class Swap(val left: Id, val right: Id) : Statement()
 
 @UseEditor(NextExecutableEditor::class)
+@Alternative
 sealed class Executable
 
 object End: Executable()
 
-@Compound
+@Compound(subtypeOf = Executable::class)
 data class Block(val statements: List<Statement>, val next: Executable) : Executable()
 
-@Compound
-data class Branch(val condition: Expr, val yes: Executable, val no: Executable)
+@Compound(subtypeOf = Executable::class)
+data class Branch(val condition: Expr, val yes: Executable, val no: Executable) : Executable()
+
+//@UseEditor(ProgramEditor::class)
+data class Program(val start: Block)
