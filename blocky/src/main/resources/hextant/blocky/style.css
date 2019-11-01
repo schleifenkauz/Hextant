@@ -13,3 +13,11 @@
 .block {
     -fx-background-color: black;
 }
+
+.branch {
+    -fx-background-color: black;
+}
+
+.entry {
+    -fx-background-color: green;
+}

@@ -84,11 +84,17 @@ data class Assign(val name: Id, val value: Expr) : Statement()
 @Compound(subtypeOf = Statement::class)
 data class Swap(val left: Id, val right: Id) : Statement()
 
+@Compound(subtypeOf = Statement::class)
+data class Print(val expr: Expr) : Statement()
+
 @UseEditor(NextExecutableEditor::class)
 @Alternative
 sealed class Executable
 
-object End: Executable()
+@Compound(subtypeOf = Executable::class)
+data class Entry(val next: Executable) : Executable()
+
+object End : Executable()
 
 @Compound(subtypeOf = Executable::class)
 data class Block(val statements: List<Statement>, val next: Executable) : Executable()
@@ -96,5 +102,5 @@ data class Block(val statements: List<Statement>, val next: Executable) : Execut
 @Compound(subtypeOf = Executable::class)
 data class Branch(val condition: Expr, val yes: Executable, val no: Executable) : Executable()
 
-//@UseEditor(ProgramEditor::class)
-data class Program(val start: Block)
+@UseEditor(ProgramEditor::class)
+data class Program(val start: Entry)

@@ -1,11 +1,9 @@
 import hextant.blocky.editor.*
-import hextant.blocky.view.BranchEditorControl
-import hextant.blocky.view.ProgramEditorControl
+import hextant.blocky.view.*
 import hextant.core.view.EditorControlWrapper
 import hextant.core.view.FXTokenEditorView
 import hextant.createView
 import hextant.plugin.dsl.plugin
-import javafx.scene.control.Label
 
 plugin {
     name = "Blocky"
@@ -42,6 +40,13 @@ plugin {
             view(e.value)
         }
     }
+    compoundView<PrintEditor> { e ->
+        line {
+            spacing = 2.0
+            keyword("print")
+            view(e.expr)
+        }
+    }
     compoundView<SwapEditor> { e ->
         line {
             spacing = 2.0
@@ -65,13 +70,9 @@ plugin {
             root.styleClass.add("operator")
         }
     }
-    view(::ProgramEditorControl)
-    compoundView { e: BlockEditor ->
-        styleClass.add("block")
-        node(Label(""))
-        node(e.context.createView(e.statements))
-
-    }
+    view(::EntryEditorControl)
+    view(::BlockEditorControl)
     view(::BranchEditorControl)
+    view(::ProgramEditorControl)
     stylesheet("hextant/blocky/style.css")
 }

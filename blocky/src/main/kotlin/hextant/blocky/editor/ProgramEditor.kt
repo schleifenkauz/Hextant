@@ -9,21 +9,18 @@ import hextant.base.AbstractEditor
 import hextant.blocky.Program
 import hextant.blocky.view.ProgramEditorView
 
-class ProgramEditor(context: Context, initialBlock: BlockEditor) :
+class ProgramEditor(context: Context) :
     AbstractEditor<Program, ProgramEditorView>(context) {
-    private val start = initialBlock.moveTo(context)
-
-    constructor(context: Context) : this(context, BlockEditor(context))
+    private val entry = EntryEditor(context)
 
     private val components = mutableListOf<Editor<*>>()
 
     init {
-        addComponent(start)
+        addComponent(entry)
     }
 
     fun addComponent(comp: Editor<*>) {
         components.add(comp)
-        children(*components.toTypedArray())
         views {
             addedComponent(components.size - 1, comp)
         }
@@ -33,9 +30,8 @@ class ProgramEditor(context: Context, initialBlock: BlockEditor) :
         val idx = components.indexOf(comp)
         if (idx == -1) error("Component $comp not present")
         components.removeAt(idx)
-        children(*components.toTypedArray())
         views {
-            removedComponent(idx)
+            removedComponent(comp)
         }
     }
 
@@ -43,5 +39,5 @@ class ProgramEditor(context: Context, initialBlock: BlockEditor) :
         components.forEachIndexed { idx, comp -> view.addedComponent(idx, comp) }
     }
 
-    override val result: EditorResult<Program> = result1(start) { s -> ok(Program(s)) }
+    override val result: EditorResult<Program> = result1(entry) { s -> ok(Program(s)) }
 }

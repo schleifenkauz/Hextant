@@ -4,19 +4,21 @@
 
 package hextant.blocky.view
 
-import hextant.Editor
+import hextant.*
 import hextant.base.EditorControl
 import hextant.blocky.editor.*
 import hextant.bundle.Bundle
-import hextant.createView
 import javafx.scene.Cursor
-import javafx.scene.layout.AnchorPane
+import javafx.scene.Node
+import javafx.scene.control.ContextMenu
+import javafx.scene.control.MenuItem
 import javafx.scene.layout.Pane
+import javafx.scene.shape.Line
 import org.controlsfx.control.action.Action
 import org.controlsfx.control.action.ActionUtils.createContextMenu
 
-class ProgramEditorControl(editor: ProgramEditor, args: Bundle) : ProgramEditorView,
-                                                                  EditorControl<Pane>(editor, args) {
+class ProgramEditorControl(private val editor: ProgramEditor, args: Bundle) : ProgramEditorView,
+                                                                              EditorControl<Pane>(editor, args) {
     init {
         setPrefSize(1000.0, 1000.0)
         root.styleClass.add("program")
@@ -27,7 +29,7 @@ class ProgramEditorControl(editor: ProgramEditor, args: Bundle) : ProgramEditorV
         editor.addView(this)
     }
 
-    override fun createDefaultRoot(): AnchorPane = AnchorPane()
+    override fun createDefaultRoot(): Pane = Pane()
 
     override fun addedComponent(idx: Int, comp: Editor<*>) {
         val view = context.createView(comp)
@@ -38,15 +40,32 @@ class ProgramEditorControl(editor: ProgramEditor, args: Bundle) : ProgramEditorV
             startX = view.layoutX - ev.sceneX
             startY = view.layoutY - ev.sceneY
             view.cursor = Cursor.CLOSED_HAND
+            ev.consume()
         }
         view.setOnMouseDragged { ev ->
             view.layoutX = ev.sceneX + startX
             view.layoutY = ev.sceneY + startY
+            ev.consume()
         }
-        view.setOnMouseReleased { view.cursor = Cursor.HAND }
+        if (comp !is EntryEditor) {
+            val remove = MenuItem("Remove")
+            remove.setOnAction { editor.removeComponent(comp) }
+            if (view.contextMenu == null) view.contextMenu = ContextMenu()
+            view.contextMenu.items.add(remove)
+        }
     }
 
-    override fun removedComponent(idx: Int) {
-        root.children.removeAt(idx)
+    override fun removedComponent(comp: Editor<*>) {
+        val view = context[EditorControlGroup].getViewOf(comp)
+        root.children.remove(view)
+    }
+
+    fun displayArrow(from: Node, to: Node) {
+        val line = Line()
+        line.startXProperty().bind(from.layoutXProperty())
+        line.startYProperty().bind(from.layoutYProperty())
+        line.endXProperty().bind(to.layoutXProperty())
+        line.endYProperty().bind(to.layoutYProperty())
+        root.children.add(line)
     }
 }
