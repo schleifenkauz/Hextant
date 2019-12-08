@@ -20,7 +20,7 @@ class Commands private constructor() {
     private fun <R : Any> forClass(cls: KClass<out R>): CommandRegistrar<R> {
         return commandRegistrars.getOrPut(cls) {
             val parents = cls.superclasses.map { superCls -> forClass(superCls) }
-            CommandRegistrar<R>(parents)
+            CommandRegistrar(cls, parents)
         } as CommandRegistrar<R>
     }
 
