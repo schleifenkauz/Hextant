@@ -1,0 +1,23 @@
+.hextant-text.int-literal {
+    -fx-text-fill: purple;
+}
+
+.hextant-text.id {
+    -fx-text-fill: blue;
+}
+
+.program {
+    -fx-background-color: #392A34;
+}
+
+.block {
+    -fx-background-color: black;
+}
+
+.branch {
+    -fx-background-color: black;
+}
+
+.entry {
+    -fx-background-color: green;
+}

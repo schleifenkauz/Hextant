@@ -1,5 +1,10 @@
 apply plugin: 'kotlin-kapt'
 
+kapt {
+    generateStubs = true
+    useBuildCache = true
+}
+
 dependencies {
     compile project(":hextant-core")
     testImplementation project(":hextant-test")

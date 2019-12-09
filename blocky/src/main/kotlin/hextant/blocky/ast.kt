@@ -43,6 +43,8 @@ enum class BinaryOperator(private val str: String) {
     EQ("=="), NEQ("!="),
     LE("<="), GE(">="), LO("<"), GR(">");
 
+    override fun toString(): String = str
+
     companion object : TokenType<BinaryOperator> {
         private val operators = values().associateBy { it.str }
 
@@ -57,6 +59,8 @@ data class BinaryExpression(val op: BinaryOperator, val left: Expr, val right: E
 @Token
 enum class UnaryOperator(private val str: String) {
     Not("!"), Minus("-");
+
+    override fun toString(): String = str
 
     companion object : TokenType<UnaryOperator> {
         private val operators = values().associateBy { it.str }
@@ -80,13 +84,23 @@ data class Assign(val name: Id, val value: Expr) : Statement()
 @Compound(subtypeOf = Statement::class)
 data class Swap(val left: Id, val right: Id) : Statement()
 
+@Compound(subtypeOf = Statement::class)
+data class Print(val expr: Expr) : Statement()
+
 @UseEditor(NextExecutableEditor::class)
+@Alternative
 sealed class Executable
 
-object End: Executable()
+@Compound(subtypeOf = Executable::class)
+data class Entry(val next: Executable) : Executable()
 
-@Compound
+object End : Executable()
+
+@Compound(subtypeOf = Executable::class)
 data class Block(val statements: List<Statement>, val next: Executable) : Executable()
 
-@Compound
-data class Branch(val condition: Expr, val yes: Executable, val no: Executable)
+@Compound(subtypeOf = Executable::class)
+data class Branch(val condition: Expr, val yes: Executable, val no: Executable) : Executable()
+
+@UseEditor(ProgramEditor::class)
+data class Program(val start: Entry)
