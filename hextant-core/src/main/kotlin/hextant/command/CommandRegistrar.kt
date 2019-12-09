@@ -7,17 +7,22 @@ package hextant.command
 import hextant.Context
 import hextant.command.Command.Category
 import hextant.command.gui.showArgumentPrompt
+import hextant.command.meta.collectProvidedCommands
 import javafx.scene.Node
 import javafx.scene.input.KeyCombination
 import javafx.scene.input.KeyEvent
 import reaktive.event.event
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 /**
  * Used to register commands with receiver of type [R]
  * @constructor
  */
-class CommandRegistrar<R : Any> internal constructor(private val parents: List<CommandRegistrar<Any>>) {
+class CommandRegistrar<R : Any> internal constructor(
+    receiver: KClass<R>,
+    private val parents: List<CommandRegistrar<Any>>
+) {
     private val addCategory = event<Category>()
 
     /**
@@ -32,19 +37,18 @@ class CommandRegistrar<R : Any> internal constructor(private val parents: List<C
      */
     val categories: Set<Category> get() = _categories + parents.flatMap { it.categories }
 
-    private val declaredCommands: MutableSet<Command<R, Any?>> = mutableSetOf()
-
     private val accelerators = mutableMapOf<KeyCombination, Command<R, *>>()
 
     private val shortcuts = mutableMapOf<Command<R, *>, KeyCombination>()
 
+    private val declaredCommands = mutableSetOf<Command<R, *>>()
+
+    private val providedCommands = receiver.collectProvidedCommands()
+
     /**
      * @return all commands registered for receivers of type [R] and all superclasses
      */
-    @Suppress("UNCHECKED_CAST") val commands: Set<Command<R, Any?>>
-        get() {
-            return declaredCommands + parents.flatMap { it.commands }
-        }
+    val commands: Set<Command<R, *>> get() = declaredCommands + providedCommands + parents.flatMap { it.commands }
 
     /**
      * @return the [commands]
@@ -55,13 +59,13 @@ class CommandRegistrar<R : Any> internal constructor(private val parents: List<C
      * @return the [commands] applicable on [receiver]
      */
     @JvmName("commandsFor") @JvmSynthetic operator fun getValue(receiver: R, property: KProperty<*>) =
-            commandsFor(receiver)
+        commandsFor(receiver)
 
     /**
      * @return the [commands] applicable on the specified [receiver]
      */
     fun commandsFor(receiver: R): Set<Command<R, *>> =
-            commands.filterTo(mutableSetOf()) { c -> c.isApplicableOn(receiver) }
+        commands.filterTo(mutableSetOf()) { c -> c.isApplicableOn(receiver) }
 
     /**
      * Register the specified [command] for receivers of type [R]
