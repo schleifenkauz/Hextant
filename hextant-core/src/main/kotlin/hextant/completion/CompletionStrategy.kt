@@ -11,7 +11,7 @@ interface CompletionStrategy {
 
     private object Simple : CompletionStrategy {
         override fun match(now: String, completion: String): CompletionResult {
-            if (now == completion) return NoMatch
+            //if (now == completion) return NoMatch
             var completionRegionStart = 0
             var completionIdx = -1
             val matchedRegions = mutableListOf<IntRange>()
