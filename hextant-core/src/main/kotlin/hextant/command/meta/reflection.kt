@@ -13,7 +13,7 @@ import kotlin.reflect.jvm.javaMethod
 
 internal fun <R : Any> KClass<R>.collectProvidedCommands(): Set<Command<R, *>> {
     val dest = mutableSetOf<Command<R, *>>()
-    for (fct in memberFunctions) {
+    for (fct in declaredMemberFunctions) {
         val ann = fct.findAnnotation<ProvideCommand>() ?: continue
         val cmd = fct.extractCommand(this, ann)
         dest.add(cmd)
