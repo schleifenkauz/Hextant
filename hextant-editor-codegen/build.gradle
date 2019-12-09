@@ -1,4 +1,23 @@
+plugins {
+    id 'maven-publish'
+}
+
 apply plugin: 'kotlin-kapt'
+apply plugin: 'maven-publish'
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+        }
+    }
+}
 
 dependencies {
     compile "com.google.auto.service:auto-service:1.0-rc2"
