@@ -30,10 +30,13 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         doChangeState(Unexpanded(text))
     }
 
-    private sealed class State<out E> {
+    private sealed class State<out E : Editor<*>> {
         class Unexpanded(val text: String) : State<Nothing>()
 
         class Expanded<E : Editor<*>>(val editor: E) : State<E>()
+
+        @Suppress("UNCHECKED_CAST")
+        fun copyState() = if (this is Expanded) Expanded(editor.copyForImpl(editor.context) as E) else this
     }
 
     private val undo = context[UndoManager]
@@ -177,7 +180,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     override fun copyForImpl(context: Context): Editor<R> {
         val copy = constructor.newInstance(context) as Expander<R, E>
-        copy.doChangeState(this.state)
+        copy.doChangeState(this.state.copyState())
         return copy
     }
 

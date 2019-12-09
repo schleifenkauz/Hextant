@@ -40,3 +40,8 @@ inline fun <reified E : Editor<*>> E.moveTo(newContext: Context): E =
  * Type safe version of [Editor.copyForImpl] casts the editor returned by [Editor.copyForImpl] to [E]
  */
 inline fun <reified E : Editor<*>> E.copyFor(newContext: Context): E = copyForImpl(newContext) as E
+
+/**
+ * Returns a copy of the given Editor for the same [Context]
+ */
+inline fun <reified E : Editor<*>> E.copy(): E = copyFor(context)
