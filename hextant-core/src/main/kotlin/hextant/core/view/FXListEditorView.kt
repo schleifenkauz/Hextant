@@ -70,7 +70,7 @@ class FXListEditorView(
     private fun cells(items: List<Editor<*>>) =
         items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, e) }
 
-    private class DefaultCell : Cell<EditorControl<*>>() {
+    class DefaultCell : Cell<EditorControl<*>>() {
         override fun updateItem(item: EditorControl<*>) {
             root = item
         }

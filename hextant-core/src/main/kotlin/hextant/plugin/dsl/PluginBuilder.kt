@@ -11,6 +11,11 @@ import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
 import hextant.command.Command
 import hextant.command.Commands
+import hextant.completion.Completer
+import hextant.completion.NoCompleter
+import hextant.core.editor.TokenEditor
+import hextant.core.view.FXTokenEditorView
+import hextant.core.view.TokenEditorView
 import hextant.impl.Stylesheets
 import hextant.impl.myLogger
 import hextant.inspect.Inspection
@@ -62,6 +67,25 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
      */
     inline fun <reified E : Editor<*>> compoundView(crossinline block: CompoundEditorControl.Vertical.(editor: E) -> Unit) {
         view { e: E, args -> CompoundEditorControl.build(e, args) { block(e) } }
+    }
+
+    /**
+     * Register an [FXTokenEditorView] for the given type of editor
+     * @param styleClass the style class added to the text field displaying the token editor, or `null` if there is none
+     * @param completer the [Completer] used by the [TokenEditorView]. Defaults to [NoCompleter]
+     * @param extraConfig some extra configuration
+     */
+    inline fun <reified E : TokenEditor<*, TokenEditorView>> tokenEditorView(
+        styleClass: String? = null,
+        completer: Completer<String> = NoCompleter,
+        crossinline extraConfig: FXTokenEditorView.() -> Unit = {}
+    ) {
+        view { e: E, args ->
+            FXTokenEditorView(e, args, completer).apply {
+                if (styleClass != null) root.styleClass.add(styleClass)
+                extraConfig()
+            }
+        }
     }
 
     /**
