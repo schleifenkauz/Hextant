@@ -227,12 +227,15 @@ class FXListEditorView(
 
     private fun Cell<*>.initEventHandlers() {
         addEventHandler(KeyEvent.KEY_RELEASED) { evt ->
+            var consume = true
             when {
                 ADD_ITEM.match(evt)                        -> addNew(evt)
                 REMOVE_ITEM.match(evt)                     -> removeCurrent(evt)
                 orientation.nextCombination.match(evt)     -> focusNext(evt)
                 orientation.previousCombination.match(evt) -> focusPrevious(evt)
+                else                                       -> consume = false
             }
+            if (consume) evt.consume()
         }
     }
 

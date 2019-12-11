@@ -31,13 +31,12 @@ fun hextantScene(root: (Context) -> Parent, createContext: (HextantPlatform) -> 
 }
 
 fun Scene.initHextantScene(context: Context) {
-    initEventHandlers(context)
+    initEventHandlers()
     context[Stylesheets].apply(this)
 }
 
-@Suppress("UNUSED_PARAMETER")
-private fun Scene.initEventHandlers(context: Context) {
-    addEventFilter(KeyEvent.KEY_PRESSED) {
+private fun Scene.initEventHandlers() {
+    addEventFilter(KeyEvent.KEY_RELEASED) {
         if (it.code == SHIFT) {
             isShiftDown = true
         }
@@ -52,13 +51,14 @@ private fun Scene.initEventHandlers(context: Context) {
 }
 
 fun Scene.traverseOnArrowWithCtrl() {
-    addEventFilter(KeyEvent.KEY_PRESSED) { ev ->
+    addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
         if (ev.code == KeyCode.LEFT && ev.isControlDown) {
             val prev = getFocusedEditorControl()?.previous ?: return@addEventFilter
             val lastChild = generateSequence(prev) {
                 if (it is FXExpanderView) it.root as? EditorControl<*>
                 else it.editorChildren?.lastOrNull()
             }.last()
+            ev.consume()
             lastChild.focus()
         } else if (ev.code == KeyCode.RIGHT && ev.isControlDown) {
             val next = getFocusedEditorControl()?.next ?: return@addEventFilter
@@ -66,6 +66,7 @@ fun Scene.traverseOnArrowWithCtrl() {
                 if (it is FXExpanderView) it.root as? EditorControl<*>
                 else it.editorChildren?.firstOrNull()
             }.last()
+            ev.consume()
             firstChild.focus()
         }
     }
