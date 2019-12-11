@@ -9,7 +9,10 @@ package hextant.bundle
  * @constructor
  * @property name the name of this property
  */
-open class Property<T, in Read : Permission, in Write : Permission>(private val name: String) {
+open class Property<T : Any, in Read : Permission, in Write : Permission>(
+    private val name: String,
+    internal val default: T? = null
+) {
     /**
      * @return the name of this property with the prefix "Property "
      */

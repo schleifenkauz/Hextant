@@ -14,11 +14,11 @@ import kotlin.properties.ReadOnlyProperty
  */
 interface Bundle {
     /**
-     * Get the value of the specified [property] in this [Bundle].
-     * You need to pass the [Read] [Permission]
-     * @throws NoSuchPropertyException if the specified [property] was not set before
+     * Get the value of the specified [property] in this [Bundle], or the [Property.default] value, if not present.
+     * You need to pass the [Read] [Permission].
+     * @throws NoSuchPropertyException if the specified [property] was not set before and no default value is provided.
      */
-    operator fun <T, Read : Permission> get(
+    operator fun <T : Any, Read : Permission> get(
         permission: Read,
         property: Property<out T, Read, *>
     ): T
@@ -28,7 +28,7 @@ interface Bundle {
      * Calls of `get(permission, property)` will return this [value] until a new value is set
      * You need to pass the [Write] [Permission]
      */
-    operator fun <T, Write : Permission> set(
+    operator fun <T : Any, Write : Permission> set(
         permission: Write, property: Property<in T, *, Write>,
         value: T
     )
@@ -37,7 +37,7 @@ interface Bundle {
      * Set a factory for the specified [property] in this [Bundle].
      * Calls of `get(permission, property) will call [factory] and return the result until a new value is set`
      */
-    fun <T, Write : Permission> setFactory(
+    fun <T : Any, Write : Permission> setFactory(
         permission: Write,
         property: Property<in T, *, Write>,
         factory: () -> T
@@ -47,7 +47,7 @@ interface Bundle {
      * Set a delegate for the specified [property] in this [Bundle].
      * Calls of `get(permission, property) will delegate to the specified [delegate]`
      */
-    fun <T, Write : Permission> setBy(
+    fun <T : Any, Write : Permission> setBy(
         permission: Write,
         property: Property<in T, *, Write>,
         delegate: ReadOnlyProperty<Nothing?, T>
@@ -68,7 +68,7 @@ interface Bundle {
     }
 
     private class Impl(private val properties: MutableMap<Property<*, *, *>, Value<Any?>> = mutableMapOf()) : Bundle {
-        override fun <T, Write : Permission> set(
+        override fun <T : Any, Write : Permission> set(
             permission: Write,
             property: Property<in T, *, Write>,
             value: T
@@ -76,7 +76,7 @@ interface Bundle {
             properties[property] = Constant(value)
         }
 
-        override fun <T, Write : Permission> setFactory(
+        override fun <T : Any, Write : Permission> setFactory(
             permission: Write,
             property: Property<in T, *, Write>,
             factory: () -> T
@@ -84,7 +84,7 @@ interface Bundle {
             properties[property] = Factory(factory)
         }
 
-        override fun <T, Write : Permission> setBy(
+        override fun <T : Any, Write : Permission> setBy(
             permission: Write,
             property: Property<in T, *, Write>,
             delegate: ReadOnlyProperty<Nothing?, T>
@@ -92,9 +92,11 @@ interface Bundle {
             properties[property] = Delegate(delegate)
         }
 
-        override fun <T, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T {
+        override fun <T : Any, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T {
             if (property !in properties) throw NoSuchPropertyException("$property not configured")
-            return properties[property]?.value as T
+            return properties[property]?.value as? T
+                ?: property.default
+                ?: throw NoSuchPropertyException("Property $property not configured and no default value provided")
         }
     }
 

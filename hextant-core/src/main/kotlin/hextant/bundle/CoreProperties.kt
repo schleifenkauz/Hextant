@@ -33,5 +33,7 @@ object CoreProperties {
     /**
      * The clipboard content
      */
-    val clipboard: Property<Any?, Public, Internal> = Property("clipboard")
+    val clipboard: Property<Any, Public, Internal> = Property("clipboard", NoClipboard)
+
+    object NoClipboard
 }

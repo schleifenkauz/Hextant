@@ -16,7 +16,7 @@ open class AbstractContext(final override val parent: Context?, private val bund
     override val platform: HextantPlatform
         get() = TODO("not implemented")
 
-    override fun <T, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T =
+    override fun <T : Any, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T =
         try {
             bundle[permission, property]
         } catch (e: NoSuchPropertyException) {

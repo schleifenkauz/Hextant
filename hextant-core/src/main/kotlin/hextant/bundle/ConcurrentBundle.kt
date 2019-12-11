@@ -10,7 +10,7 @@ import kotlin.properties.ReadOnlyProperty
  * A [Bundle] synchronizing the mutating methods
  */
 class ConcurrentBundle(private val bundle: Bundle) : Bundle by bundle {
-    @Synchronized override fun <T, Write : Permission> set(
+    @Synchronized override fun <T : Any, Write : Permission> set(
         permission: Write,
         property: Property<in T, *, Write>,
         value: T
@@ -18,7 +18,7 @@ class ConcurrentBundle(private val bundle: Bundle) : Bundle by bundle {
         bundle[permission, property] = value
     }
 
-    @Synchronized override fun <T, Write : Permission> setFactory(
+    @Synchronized override fun <T : Any, Write : Permission> setFactory(
         permission: Write,
         property: Property<in T, *, Write>,
         factory: () -> T
@@ -26,7 +26,7 @@ class ConcurrentBundle(private val bundle: Bundle) : Bundle by bundle {
         bundle.setFactory(permission, property, factory)
     }
 
-    @Synchronized override fun <T, Write : Permission> setBy(
+    @Synchronized override fun <T : Any, Write : Permission> setBy(
         permission: Write,
         property: Property<in T, *, Write>,
         delegate: ReadOnlyProperty<Nothing?, T>

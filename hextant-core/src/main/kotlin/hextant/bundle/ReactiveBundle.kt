@@ -17,7 +17,7 @@ class ReactiveBundle(private val bundle: Bundle) : Bundle by bundle {
      */
     val changed = change.stream
 
-    override fun <T, Write : Permission> set(permission: Write, property: Property<in T, *, Write>, value: T) {
+    override fun <T : Any, Write : Permission> set(permission: Write, property: Property<in T, *, Write>, value: T) {
         bundle[permission, property] = value
         val ch = BundleChange(this, property, value)
         change.fire(ch)
