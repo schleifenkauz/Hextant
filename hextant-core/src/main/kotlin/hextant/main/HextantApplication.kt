@@ -18,6 +18,10 @@ abstract class HextantApplication : Application() {
         val preloader = HextantPreloader()
         preloader.start(Stage())
         stage.scene = hextantScene(this::createView, this::createContext)
+        showPreloader(preloader, stage)
+    }
+
+    private fun showPreloader(preloader: HextantPreloader, stage: Stage) {
         thread {
             for (i in 0..100) {
                 Platform.runLater {

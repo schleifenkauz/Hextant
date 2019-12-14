@@ -14,6 +14,8 @@ import hextant.*
 import hextant.base.EditorControl
 import hextant.core.view.FXExpanderView
 import hextant.impl.Stylesheets
+import hextant.main.InputMethod
+import hextant.main.InputMethod.VIM
 import javafx.scene.*
 import javafx.scene.control.Label
 import javafx.scene.input.KeyCode
@@ -22,7 +24,10 @@ import javafx.scene.input.KeyEvent
 
 internal var isShiftDown = false; private set
 
-fun hextantScene(root: (Context) -> Parent, createContext: (HextantPlatform) -> Context): Scene {
+fun hextantScene(
+    root: (Context) -> Parent,
+    createContext: (HextantPlatform) -> Context
+): Scene {
     val platform = HextantPlatform.configured()
     val context = createContext(platform)
     val scene = Scene(root(context))
@@ -31,12 +36,19 @@ fun hextantScene(root: (Context) -> Parent, createContext: (HextantPlatform) -> 
 }
 
 fun Scene.initHextantScene(context: Context) {
-    initEventHandlers()
+    initEventHandlers(context)
     context[Stylesheets].apply(this)
 }
 
-private fun Scene.initEventHandlers() {
-    addEventFilter(KeyEvent.KEY_RELEASED) {
+private fun Scene.initEventHandlers(ctx: Context) {
+    listenForShift()
+    if (ctx[InputMethod] == VIM) configureVim()
+    changeTraversalEngine()
+    traverseOnArrowWithCtrl()
+}
+
+private fun Scene.listenForShift() {
+    addEventFilter(KeyEvent.KEY_PRESSED) {
         if (it.code == SHIFT) {
             isShiftDown = true
         }
@@ -46,8 +58,6 @@ private fun Scene.initEventHandlers() {
             isShiftDown = false
         }
     }
-    changeTraversalEngine()
-    traverseOnArrowWithCtrl()
 }
 
 fun Scene.traverseOnArrowWithCtrl() {

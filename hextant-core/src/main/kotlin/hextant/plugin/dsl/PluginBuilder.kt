@@ -9,8 +9,7 @@ import hextant.base.CompoundEditorControl
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
-import hextant.command.Command
-import hextant.command.Commands
+import hextant.command.*
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.core.editor.TokenEditor
@@ -107,9 +106,16 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
     /**
      * Register the specified [command]
      */
-    inline fun <reified T : Any, C : Command<T, *>> command(command: C) {
-        platform[Public, Commands].of(T::class).register(command)
+    inline fun <reified R : Any> command(command: Command<R, *>) {
+        platform[Public, Commands].of(R::class).register(command)
         logger.config { "Command ${command.name} registered" }
+    }
+
+    /**
+     * Register a command configured by [config]
+     */
+    inline fun <reified R : Any, T> registerCommand(config: CommandBuilder<R, T>.() -> Unit) {
+        command(command(config))
     }
 
     fun stylesheet(path: String) {

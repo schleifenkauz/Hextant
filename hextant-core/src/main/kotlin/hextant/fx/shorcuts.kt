@@ -46,7 +46,7 @@ class ShortcutBuilder @PublishedApi internal constructor(private val key: KeyCod
     fun build() = Shortcut(key, control, alt, shift)
 }
 
-inline fun shortcut(key: KeyCode, block: ShortcutBuilder.() -> Unit) = ShortcutBuilder(key).apply(block).build()
+inline fun shortcut(key: KeyCode, block: ShortcutBuilder.() -> Unit = {}) = ShortcutBuilder(key).apply(block).build()
 
 private suspend fun SequenceScope<Matcher>.decidedAll(
     ctrl: Boolean,
