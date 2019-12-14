@@ -14,16 +14,16 @@ object ExprExpanderDelegator : ExpanderConfigurator<ExprEditor<Expr>>({
     registerInterceptor { text, context ->
         BinaryOperator.compile(text).orNull()?.let { op ->
             BinaryExpressionEditor(
+                context,
                 BinaryOperatorEditor(context, op),
                 ExprExpander(context),
-                ExprExpander(context),
-                context
+                ExprExpander(context)
             )
         }
     }
     registerInterceptor { text, context ->
         UnaryOperator.compile(text).orNull()?.let { op ->
-            UnaryExpressionEditor(UnaryOperatorEditor(context, op), ExprExpander(context), context)
+            UnaryExpressionEditor(context, UnaryOperatorEditor(context, op), ExprExpander(context))
         }
     }
 })
