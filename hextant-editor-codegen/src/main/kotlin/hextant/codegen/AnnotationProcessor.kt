@@ -281,17 +281,17 @@ class AnnotationProcessor : AbstractProcessor() {
             val componentClasses = primary.parameters.map { getEditorClassName(it.asType(), it) }
             addConstructor(
                 { "context" of "Context" },
-                *componentClasses.mapToArray { call(it, "context".e) },
-                "context".e
+                "context".e,
+                *componentClasses.mapToArray { call(it, "context".e) }
             )
             addConstructor(
                 { "context" of "Context"; "edited" of name },
+                "context".e,
                 *primary.parameters.mapToArray { p ->
                     val editorCls = getEditorClassName(p.asType(), p)
                     val n = p.simpleName.toString()
                     call(editorCls, "context".e, "edited".e select n)
-                },
-                "context".e
+                }
             )
             for (n in names) {
                 addVal(n) { initializeWith(n.e.call("moveTo", "context".e)) }
