@@ -124,6 +124,18 @@ class AnnotationProcessor : AbstractProcessor() {
             addConstructor(
                 {
                     "context" of "Context"
+                    "vararg editors" of editorClsName
+                },
+                "context".e
+            ) {
+                addFor("i", "editors".e select "indices") {
+                    addVal("e") initializedWith "editors".e["i".e]
+                    callFunction("addAt", {}, "i".e, "e".e)
+                }
+            }
+            addConstructor(
+                {
+                    "context" of "Context"
                     "elements" of type("List").parameterizedBy { covariant(simpleName) }
                 },
                 "context".e
