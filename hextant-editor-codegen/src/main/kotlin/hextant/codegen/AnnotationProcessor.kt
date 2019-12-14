@@ -262,12 +262,12 @@ class AnnotationProcessor : AbstractProcessor() {
             },
             name = simpleName,
             primaryConstructor = {
+                "context" of "Context"
                 for (p in primary.parameters) {
                     val editorCls = getEditorClassName(p.asType(), p)
                     val n = p.simpleName.toString()
                     n of editorCls
                 }
-                "context" of "Context"
             },
             inheritance = {
                 extend(
