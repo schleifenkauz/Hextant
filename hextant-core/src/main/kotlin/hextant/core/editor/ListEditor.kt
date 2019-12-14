@@ -6,6 +6,7 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.command.meta.ProvideCommand
 import hextant.core.view.ListEditorView
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
@@ -68,6 +69,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     /**
      * Add a new editor at the given index using [createEditor] to create a new editor
      */
+    @ProvideCommand(name = "Add editor", shortName = "add")
     fun addAt(index: Int) {
         val editor = createEditor()
         addAt(index, editor)
@@ -85,6 +87,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     /**
      * Remove the editor at the specified [index]
      */
+    @ProvideCommand(name = "Remove editor", shortName = "remove")
     fun removeAt(index: Int) {
         val editor = editors.now[index]
         val edit = RemoveEdit(index, editor)

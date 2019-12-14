@@ -64,8 +64,16 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
      * Register a factory for views of class [E] that produce a [hextant.base.CompoundEditorControl]
      * applying the given [block] to it.
      */
-    inline fun <reified E : Editor<*>> compoundView(crossinline block: CompoundEditorControl.Vertical.(editor: E) -> Unit) {
-        view { e: E, args -> CompoundEditorControl.build(e, args) { block(e) } }
+    inline fun <reified E : Editor<*>> compoundView(
+        styleCls: String? = null,
+        crossinline block: CompoundEditorControl.Vertical.(editor: E) -> Unit
+    ) {
+        view { e: E, args ->
+            CompoundEditorControl.build(e, args) {
+                if (styleCls != null) styleClass.add(styleCls)
+                block(e)
+            }
+        }
     }
 
     /**

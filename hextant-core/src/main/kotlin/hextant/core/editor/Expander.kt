@@ -23,7 +23,7 @@ import reaktive.value.binding.map
  */
 abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
     constructor(context: Context, editor: E?) : this(context) {
-        if (editor != null) doExpandTo(editor)
+        if (editor != null) doChangeState(Expanded(editor))
     }
 
     constructor(context: Context, text: String) : this(context) {

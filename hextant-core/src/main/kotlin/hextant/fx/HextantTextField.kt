@@ -84,11 +84,14 @@ open class HextantTextField(text: String? = "") : TextField(text) {
 
         fun startLayout(period: Long = 10) {
             fixedRateTimer(daemon = true, period = period) {
-                val itr = instances.iterator()
-                for (ref in itr) {
+                val marked = mutableSetOf<WeakReference<HextantTextField>>()
+                for (ref in instances) {
                     val tf = ref.get()
-                    if (tf == null) itr.remove()
+                    if (tf == null) marked.add(ref)
                     else Platform.runLater { ensureSize(tf) }
+                }
+                for (m in marked) {
+                    instances.remove(m)
                 }
             }
         }

@@ -153,5 +153,7 @@ class CommandLine(
             }
             return CommandLine(selection.selectedTargets.now, commandsFactory, context)
         }
+
+        fun forSelectedEditors(context: Context) = forSelectedEditors(context[SelectionDistributor], context)
     }
 }
