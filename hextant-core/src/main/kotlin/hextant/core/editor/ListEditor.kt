@@ -10,6 +10,7 @@ import hextant.command.meta.ProvideCommand
 import hextant.core.view.ListEditorView
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
+import kserial.*
 import reaktive.dependencies
 import reaktive.list.ReactiveList
 import reaktive.list.binding.values
@@ -21,7 +22,7 @@ import reaktive.value.binding.binding
  */
 abstract class ListEditor<R : Any, E : Editor<R>>(
     context: Context
-) : AbstractEditor<List<R>, ListEditorView>(context) {
+) : AbstractEditor<List<R>, ListEditorView>(context), Serializable {
     private val undo = context[UndoManager]
 
     private val _editors = reactiveList<E>()
@@ -64,6 +65,21 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
             addAt(i, e)
         }
         return copy
+    }
+
+    override fun serialize(output: Output, context: SerialContext) {
+        output.writeInt(editors.now.size)
+        for (e in editors.now) {
+            output.writeObject(e)
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun deserialize(input: Input, context: SerialContext) {
+        val size = input.readInt()
+        for (idx in 0 until size) {
+            doAddAt(idx, input.readObject() as E)
+        }
     }
 
     /**

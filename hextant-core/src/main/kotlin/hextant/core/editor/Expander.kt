@@ -14,6 +14,7 @@ import hextant.core.editor.Expander.State.Unexpanded
 import hextant.core.view.ExpanderView
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
+import kserial.*
 import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.map
@@ -21,7 +22,8 @@ import reaktive.value.binding.map
 /**
  * An Expander acts like a wrapper around editors.
  */
-abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
+abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context),
+                                                                        Serializable {
     constructor(context: Context, editor: E?) : this(context) {
         if (editor != null) doChangeState(Expanded(editor))
     }
@@ -182,6 +184,19 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         val copy = constructor.newInstance(context) as Expander<R, E>
         copy.doChangeState(this.state.copyState())
         return copy
+    }
+
+    override fun serialize(output: Output, context: SerialContext) {
+        output.writeObject(text.now)
+        output.writeObject(editor.now)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun deserialize(input: Input, context: SerialContext) {
+        val text = input.readTyped<String?>()
+        if (text != null) setText(text)
+        val editor = input.readObject() as E?
+        if (editor != null) setEditor(editor)
     }
 
     /**

@@ -9,6 +9,7 @@ import hextant.base.AbstractEditor
 import hextant.core.TokenType
 import hextant.core.view.TokenEditorView
 import hextant.undo.*
+import kserial.*
 import reaktive.value.*
 
 /**
@@ -16,7 +17,7 @@ import reaktive.value.*
  * When setting the text it is automatically compiled to a token.
  */
 abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) :
-    AbstractEditor<R, V>(context), TokenType<R> {
+    AbstractEditor<R, V>(context), TokenType<R>, Serializable {
     constructor(context: Context, text: String) : this(context) {
         doSetText(text)
     }
@@ -44,6 +45,15 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         val copy = constructor.newInstance(context)
         copy.doSetText(this.text.now)
         return copy
+    }
+
+    override fun serialize(output: Output, context: SerialContext) {
+        output.writeString(text.now)
+    }
+
+    override fun deserialize(input: Input, context: SerialContext) {
+        val txt = input.readString()
+        setText(txt)
     }
 
     /**
