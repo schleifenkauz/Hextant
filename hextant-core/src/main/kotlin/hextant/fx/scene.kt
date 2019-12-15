@@ -66,7 +66,7 @@ fun Scene.traverseOnArrowWithCtrl() {
             val prev = getFocusedEditorControl()?.previous ?: return@addEventFilter
             val lastChild = generateSequence(prev) {
                 if (it is FXExpanderView) it.root as? EditorControl<*>
-                else it.editorChildren?.lastOrNull()
+                else it.editorChildren().lastOrNull()
             }.last()
             ev.consume()
             lastChild.focus()
@@ -74,7 +74,7 @@ fun Scene.traverseOnArrowWithCtrl() {
             val next = getFocusedEditorControl()?.next ?: return@addEventFilter
             val firstChild = generateSequence(next) {
                 if (it is FXExpanderView) it.root as? EditorControl<*>
-                else it.editorChildren?.firstOrNull()
+                else it.editorChildren().firstOrNull()
             }.last()
             ev.consume()
             firstChild.focus()

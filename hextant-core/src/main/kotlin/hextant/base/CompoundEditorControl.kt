@@ -29,7 +29,7 @@ abstract class CompoundEditorControl(
         val v = Vertical()
         build(v, arguments)
         if (v.firstEditorChild != null) firstChildToFocus = v.firstEditorChild
-        defineChildren(v.editorChildren)
+        setChildren(v.editorChildren)
         return v
     }
 

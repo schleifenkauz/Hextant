@@ -18,7 +18,7 @@ class EditorControlWrapper(
     arguments: Bundle
 ) : EditorControl<EditorControl<*>>(editor, arguments) {
     init {
-        defineChildren(view)
+        setChildren(view)
     }
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {

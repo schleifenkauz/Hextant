@@ -59,8 +59,9 @@ abstract class EditorControl<R : Node>(
     internal var editorParent: EditorControl<*>? = null
         private set
 
-    internal var editorChildren: List<EditorControl<*>>? = null
-        private set
+    private val editorChildren = mutableListOf<EditorControl<*>>()
+
+    fun editorChildren(): List<EditorControl<*>> = editorChildren
 
     internal var next: EditorControl<*>? = null
         private set
@@ -130,8 +131,9 @@ abstract class EditorControl<R : Node>(
      * For all children their parent is set to this [EditorControl].
      * The left and right [EditorControl]s of the children are set according to their order in the list.
      */
-    protected fun defineChildren(children: List<EditorControl<*>>) {
-        editorChildren = children
+    protected fun setChildren(children: List<EditorControl<*>>) {
+        editorChildren.clear()
+        editorChildren.addAll(children)
         if (children.isEmpty()) return
         children.forEach {
             it.root
@@ -143,11 +145,34 @@ abstract class EditorControl<R : Node>(
         }
     }
 
+    protected fun addChild(child: EditorControl<*>, idx: Int) {
+        val prev = editorChildren.getOrNull(idx - 1)
+        val next = editorChildren.getOrNull(idx)
+        prev?.next = child
+        next?.previous = child
+        child.next = next
+        child.previous = previous
+        child.setEditorParent(this)
+        editorChildren.add(idx, child)
+    }
+
+    private fun clearChildren() {
+        editorChildren.clear()
+    }
+
+    protected fun removeChild(idx: Int) {
+        val prev = editorChildren.getOrNull(idx - 1)
+        val next = editorChildren.getOrNull(idx + 1)
+        prev?.next = next
+        next?.previous = previous
+        editorChildren.removeAt(idx)
+    }
+
     /**
-     * Delegates to [defineChildren]
+     * Delegates to [setChildren]
      */
-    protected fun defineChildren(vararg children: EditorControl<*>) {
-        defineChildren(children.asList())
+    protected fun setChildren(vararg children: EditorControl<*>) {
+        setChildren(children.asList())
     }
 
     /**
@@ -254,7 +279,7 @@ abstract class EditorControl<R : Node>(
     }
 
     private fun shrinkSelection() {
-        val childToSelect = lastExtendingChild ?: editorChildren?.firstOrNull() ?: return
+        val childToSelect = lastExtendingChild ?: editorChildren.firstOrNull() ?: return
         childToSelect.requestFocus()
         if (isSelected.now) toggleSelection()
     }

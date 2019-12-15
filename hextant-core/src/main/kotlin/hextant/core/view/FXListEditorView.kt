@@ -68,7 +68,7 @@ class FXListEditorView(
     private val cells = mutableListOf<Cell<*>>()
 
     private fun cells(items: List<Editor<*>>) =
-        items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, e) }
+        items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, context.createView(e)) }
 
     class DefaultCell : Cell<EditorControl<*>>() {
         override fun updateItem(item: EditorControl<*>) {
@@ -197,15 +197,16 @@ class FXListEditorView(
     override fun createDefaultRoot(): Pane = items
 
     override fun added(editor: Editor<*>, idx: Int) {
-        val c = getCell(idx, editor)
+        val view = context.createView(editor)
+        val c = getCell(idx, view)
         cells.drop(idx).forEach { cell -> cell.index = cell.index + 1 }
         cells.add(idx, c)
         items.children.add(idx, c)
+        addChild(view, idx)
         c.requestFocus()
     }
 
-    private fun getCell(idx: Int, editor: Editor<*>): Cell<*> {
-        val control = context.createView(editor)
+    private fun getCell(idx: Int, control: EditorControl<*>): Cell<*> {
         control.root //Initialize root
         val nxt = cells.getOrNull(idx + 1)?.item
         if (nxt != null) {
@@ -269,6 +270,7 @@ class FXListEditorView(
         cells.drop(idx).forEach { c -> c.index = c.index - 1 }
         if (idx == 0 && cells.size > 0) cells[0].requestFocus()
         else if (idx != 0) cells[idx - 1].requestFocus()
+        removeChild(idx)
     }
 
     override fun empty() {

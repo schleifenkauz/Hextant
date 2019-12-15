@@ -28,7 +28,7 @@ class FXOperatorApplicationEditorView(
     }
 
     init {
-        defineChildren(op1View, operatorView, op2View)
+        setChildren(op1View, operatorView, op2View)
         editor.addView(this)
     }
 
