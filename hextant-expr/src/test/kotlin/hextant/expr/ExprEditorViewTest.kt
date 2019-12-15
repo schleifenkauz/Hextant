@@ -20,13 +20,16 @@ import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import hextant.inspect.Severity.Warning
 import hextant.inspect.of
+import hextant.serial.HextantSerialContext
 import hextant.undo.UndoManager
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.Parent
 import javafx.scene.control.*
-import javafx.scene.input.*
+import javafx.scene.input.KeyCode.*
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.stage.FileChooser
@@ -41,14 +44,18 @@ import kotlin.system.exitProcess
 
 class ExprEditorViewTest : Application() {
     private lateinit var stage: Stage
+    private lateinit var context: Context
+    private lateinit var serialContext: SerialContext
 
     override fun start(primaryStage: Stage) {
         stage = primaryStage
         stage.scene = hextantScene(::createContent) { platform ->
-            Context.newInstance(platform) {
+            context = Context.newInstance(platform) {
                 set(Public, UndoManager, UndoManager.newInstance())
                 set(Public, SelectionDistributor, SelectionDistributor.newInstance())
             }
+            serialContext = HextantSerialContext(context,)
+            context
         }
         stage.setOnCloseRequest { exitProcess(0) } //Needed to stop the daemon threads
         stage.show()
@@ -230,7 +237,7 @@ class ExprEditorViewTest : Application() {
                 undo.undo()
             }
         }
-        accelerator = KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN)
+        accelerator = KeyCodeCombination(Z, KeyCombination.SHORTCUT_DOWN)
     }
 
     private fun undoBtn(undo: UndoManager): MenuItem = MenuItem("Redo").apply {
@@ -239,39 +246,36 @@ class ExprEditorViewTest : Application() {
                 undo.redo()
             }
         }
-        accelerator = KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
+        accelerator = KeyCodeCombination(Z, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
     }
 
     private fun createSaveBtn(parent: ExprExpander) = MenuItem("Save").apply {
         setOnAction {
             val chooser = FileChooser()
             val file = chooser.showSaveDialog(stage) ?: return@setOnAction
-            val out = serial.createOutput(file, context)
+            val out = serial.createOutput(file, serialContext)
             out.writeObject(parent.editor.now)
         }
-        accelerator = KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN)
+        accelerator = KeyCodeCombination(S, KeyCombination.SHORTCUT_DOWN)
     }
 
     private fun createOpenBtn(parent: ExprExpander) = MenuItem("Open").apply {
         setOnAction {
             val chooser = FileChooser()
             val file = chooser.showOpenDialog(stage) ?: return@setOnAction
-            val input = serial.createInput(file, context)
+            val input = serial.createInput(file, serialContext)
             val editable = input.readTyped<ExprEditor<Expr>>()
             parent.setEditor(editable)
         }
-        accelerator = KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN)
+        accelerator = KeyCodeCombination(O, KeyCombination.SHORTCUT_DOWN)
     }
 
     companion object {
         private val serial = KSerial.newInstance {}
 
-        private val context = SerialContext.newInstance {
-            classLoader = ExprEditorViewTest::class.java.classLoader
-        }
-
         @JvmStatic fun main(args: Array<String>) {
             launch(ExprEditorViewTest::class.java, *args)
         }
     }
+
 }

@@ -8,6 +8,7 @@ import hextant.*
 import hextant.base.AbstractEditor
 import hextant.expr.edited.Operator
 import hextant.expr.edited.OperatorApplication
+import kserial.CompoundSerializable
 import reaktive.dependencies
 import reaktive.value.binding.binding
 import reaktive.value.now
@@ -17,7 +18,7 @@ class OperatorApplicationEditor(
     opnd1: ExprExpander,
     opnd2: ExprExpander,
     context: Context
-) : AbstractEditor<OperatorApplication, Any>(context), ExprEditor<OperatorApplication> {
+) : AbstractEditor<OperatorApplication, Any>(context), ExprEditor<OperatorApplication>, CompoundSerializable {
     val operator = op.moveTo(context)
     val operand1 = opnd1.moveTo(context)
     val operand2 = opnd2.moveTo(context)
@@ -52,6 +53,8 @@ class OperatorApplicationEditor(
             context
         )
     }
+
+    override fun components(): Sequence<Any> = sequenceOf(operator, operand1, operand2)
 
     override val result: EditorResult<OperatorApplication> =
         binding<CompileResult<OperatorApplication>>(
