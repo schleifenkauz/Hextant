@@ -15,14 +15,13 @@ import hextant.command.register
 import hextant.expr.edited.*
 import hextant.expr.edited.Operator.Plus
 import hextant.expr.editor.*
-import hextant.fx.hextantScene
 import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import hextant.inspect.Severity.Warning
 import hextant.inspect.of
+import hextant.main.HextantApplication
 import hextant.serial.HextantSerialContext
 import hextant.undo.UndoManager
-import javafx.application.Application
 import javafx.application.Platform
 import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.Parent
@@ -33,35 +32,23 @@ import javafx.scene.input.KeyCombination
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.stage.FileChooser
-import javafx.stage.Stage
 import kserial.*
 import reaktive.Observer
 import reaktive.value.binding.and
 import reaktive.value.binding.map
 import reaktive.value.now
 import java.util.logging.Level
-import kotlin.system.exitProcess
 
-class ExprEditorViewTest : Application() {
-    private lateinit var stage: Stage
-    private lateinit var context: Context
+class ExprEditorViewTest : HextantApplication() {
     private lateinit var serialContext: SerialContext
 
-    override fun start(primaryStage: Stage) {
-        stage = primaryStage
-        stage.scene = hextantScene(::createContent) { platform ->
-            context = Context.newInstance(platform) {
-                set(Public, UndoManager, UndoManager.newInstance())
-                set(Public, SelectionDistributor, SelectionDistributor.newInstance())
-            }
-            serialContext = HextantSerialContext(context, ExprEditorViewTest::class.java.classLoader)
-            context
-        }
-        stage.setOnCloseRequest { exitProcess(0) } //Needed to stop the daemon threads
-        stage.show()
+    override fun createContext(platform: HextantPlatform): Context = Context.newInstance(platform) {
+        set(Public, UndoManager, UndoManager.newInstance())
+        set(Public, SelectionDistributor, SelectionDistributor.newInstance())
     }
 
-    private fun createContent(context: Context): Parent {
+    override fun createView(context: Context): Parent {
+        serialContext = HextantSerialContext(context, ExprEditorViewTest::class.java.classLoader)
         registerCommandsAndInspections(context)
         val expander = ExprExpander(context)
         val expanderView = context.createView(expander)

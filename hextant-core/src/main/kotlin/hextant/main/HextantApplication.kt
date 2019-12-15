@@ -14,11 +14,15 @@ import javafx.stage.Stage
 import kotlin.concurrent.thread
 
 abstract class HextantApplication : Application() {
-    final override fun start(stage: Stage) {
+    protected lateinit var stage: Stage
+        private set
+
+    final override fun start(primaryStage: Stage) {
         val preloader = HextantPreloader()
         preloader.start(Stage())
-        stage.scene = hextantScene(this::createView, this::createContext)
-        showPreloader(preloader, stage)
+        primaryStage.scene = hextantScene(this::createView, this::createContext)
+        stage = primaryStage
+        showPreloader(preloader, primaryStage)
     }
 
     private fun showPreloader(preloader: HextantPreloader, stage: Stage) {
