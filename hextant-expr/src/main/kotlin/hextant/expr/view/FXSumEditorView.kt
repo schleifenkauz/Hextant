@@ -14,8 +14,7 @@ class FXSumEditorView(
 ) : CompoundEditorControl(editor, args, {
     line {
         keyword("sum")
-    }
-    indented {
+        space()
         view(editor.expressions)
     }
 })
