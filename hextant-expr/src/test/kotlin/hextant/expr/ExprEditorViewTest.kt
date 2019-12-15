@@ -54,7 +54,7 @@ class ExprEditorViewTest : Application() {
                 set(Public, UndoManager, UndoManager.newInstance())
                 set(Public, SelectionDistributor, SelectionDistributor.newInstance())
             }
-            serialContext = HextantSerialContext(context,)
+            serialContext = HextantSerialContext(context, ExprEditorViewTest::class.java.classLoader)
             context
         }
         stage.setOnCloseRequest { exitProcess(0) } //Needed to stop the daemon threads
