@@ -8,11 +8,11 @@ import com.sun.javafx.scene.control.skin.TextFieldSkin
 import javafx.application.Platform
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
+import javafx.scene.layout.Region
 import javafx.scene.text.Font
 import javafx.scene.text.Text
 import reaktive.event.event
-import java.lang.ref.WeakReference
-import kotlin.concurrent.fixedRateTimer
+import kotlin.concurrent.thread
 
 /**
  * A Text field that adds the "hextant-text" style class and does automatically resize its width
@@ -54,7 +54,6 @@ open class HextantTextField(text: String? = "") : TextField(text) {
 
     init {
         styleClass.add(STYLE_CLASS)
-        instances.add(WeakReference(this))
         autoSize()
     }
 
@@ -64,44 +63,25 @@ open class HextantTextField(text: String? = "") : TextField(text) {
     }
 
     private fun autoSize() {
+        maxWidth = Region.USE_PREF_SIZE
+        minWidth = Region.USE_PREF_SIZE
         textProperty().addListener { _, _, new ->
             updateWidth(new)
         }
-        updateWidth(text)
+        thread {
+            Thread.sleep(10)
+            Platform.runLater {
+                updateWidth(text)
+            }
+        }
     }
 
     private fun updateWidth(text: String) {
-        val w = Math.max(TextUtils.computeTextWidth(font, text) + 5.0, 15.0)
-        minWidth = w
-        prefWidth = w
-        maxWidth = w
+        val textWidth = TextUtils.computeTextWidth(font, text) + 5.0
+        prefWidth = textWidth.coerceAtLeast(15.0)
     }
 
     companion object {
         private const val STYLE_CLASS = "hextant-text"
-
-        private val instances = HashSet<WeakReference<HextantTextField>>()
-
-        fun startLayout(period: Long = 10) {
-            fixedRateTimer(daemon = true, period = period) {
-                val marked = mutableSetOf<WeakReference<HextantTextField>>()
-                for (ref in instances) {
-                    val tf = ref.get()
-                    if (tf == null) marked.add(ref)
-                    else Platform.runLater { ensureSize(tf) }
-                }
-                for (m in marked) {
-                    instances.remove(m)
-                }
-            }
-        }
-
-        private fun ensureSize(tf: HextantTextField) {
-            val t = tf.text
-            val pos = tf.caretPosition
-            tf.text = ""
-            tf.text = t
-            tf.positionCaret(pos)
-        }
     }
 }
