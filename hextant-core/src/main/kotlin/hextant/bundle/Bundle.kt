@@ -93,7 +93,6 @@ interface Bundle {
         }
 
         override fun <T : Any, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T {
-            if (property !in properties) throw NoSuchPropertyException("$property not configured")
             return properties[property]?.value as? T
                 ?: property.default
                 ?: throw NoSuchPropertyException("Property $property not configured and no default value provided")
