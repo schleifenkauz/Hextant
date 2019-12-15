@@ -1,8 +1,10 @@
 import hextant.core.view.FXListEditorView
 import hextant.core.view.FXListEditorView.Orientation.Horizontal
+import hextant.expr.edited.Expr
 import hextant.expr.edited.Operator
 import hextant.expr.editor.*
 import hextant.expr.view.*
+import hextant.ok
 import hextant.plugin.dsl.plugin
 import org.controlsfx.glyphfont.FontAwesome
 
@@ -27,5 +29,6 @@ plugin {
             cellFactory = { FXListEditorView.SeparatorCell(", ") }
         }
     }
+    registerConversion<Expr, Int> { expr -> ok(expr.value) }
     stylesheet("expr.css")
 }

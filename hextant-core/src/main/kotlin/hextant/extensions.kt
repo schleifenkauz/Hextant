@@ -1,5 +1,7 @@
 package hextant
 
+import hextant.core.editor.TransformedEditor
+
 /**
  * Synonym for [apply]
  */
@@ -45,3 +47,8 @@ inline fun <reified E : Editor<*>> E.copyFor(newContext: Context): E = copyForIm
  * Returns a copy of the given Editor for the same [Context]
  */
 inline fun <reified E : Editor<*>> E.copy(): E = copyFor(context)
+
+fun <T : Any, R : Any> Editor<T>.map(f: (T) -> CompileResult<R>): Editor<R> = TransformedEditor(this, f)
+
+@JvmName("simpleMap")
+fun <T : Any, R : Any> Editor<T>.map(f: (T) -> R): Editor<R> = map { ok(f(it)) }

@@ -51,6 +51,13 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
     }
 
     /**
+     * Register an [Editor] for values of type [R] using an editor for type [T] and transforming with the given function
+     */
+    inline fun <reified T : Any, reified R : Any> registerConversion(noinline transform: (T) -> CompileResult<R>) {
+        defaultEditor { context -> context.createEditor(T::class).map(transform) }
+    }
+
+    /**
      * Register the specified [factory] for views of the class [E]
      */
     inline fun <reified E : Editor<*>, reified V : EditorControl<*>> view(noinline factory: (E, Bundle) -> V) {

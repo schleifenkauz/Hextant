@@ -68,6 +68,7 @@ open class HextantTextField(text: String? = "") : TextField(text) {
         textProperty().addListener { _, _, new ->
             updateWidth(new)
         }
+        updateWidth(text)
         thread {
             Thread.sleep(10)
             Platform.runLater {
