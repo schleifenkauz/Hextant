@@ -4,12 +4,15 @@
 
 package hextant.bundle
 
+import reaktive.event.asObserver
 import reaktive.event.event
+import reaktive.value.binding.Binding
+import reaktive.value.binding.binding
 
 /**
  * A bundle that reports changes
  */
-class ReactiveBundle(private val bundle: Bundle) : Bundle by bundle {
+open class ReactiveBundle(private val bundle: Bundle) : Bundle by bundle {
     private val change = event<BundleChange<*>>()
 
     /**
@@ -21,5 +24,15 @@ class ReactiveBundle(private val bundle: Bundle) : Bundle by bundle {
         bundle[permission, property] = value
         val ch = BundleChange(this, property, value)
         change.fire(ch)
+    }
+
+    inline fun <reified T : Any, Read : Permission> getReactive(
+        permission: Read,
+        property: Property<T, Read, *>
+    ): Binding<T> = binding(get(permission, property)) {
+        val subscription = changed.subscribe { _, change ->
+            if (change.property == property) set(change.newValue as T)
+        }
+        addObserver(subscription.asObserver())
     }
 }

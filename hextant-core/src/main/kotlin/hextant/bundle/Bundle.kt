@@ -24,6 +24,11 @@ interface Bundle {
     ): T
 
     /**
+     * @return `true` if the given [property] is configured in this [Bundle]
+     */
+    fun hasProperty(property: Property<*, *, *>): Boolean
+
+    /**
      * Set the value of the specified [property] to the constant [value] in this [Bundle].
      * Calls of `get(permission, property)` will return this [value] until a new value is set
      * You need to pass the [Write] [Permission]
@@ -97,6 +102,8 @@ interface Bundle {
                 ?: property.default
                 ?: throw NoSuchPropertyException("Property $property not configured and no default value provided")
         }
+
+        override fun hasProperty(property: Property<*, *, *>): Boolean = property in properties
     }
 
     companion object {
@@ -107,7 +114,7 @@ interface Bundle {
 
         /**
          * @return a new [Bundle], first applying [init] to it
-        */
+         */
         inline fun configure(init: Bundle.() -> Unit) = newInstance().apply(init)
 
         /**

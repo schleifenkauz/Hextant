@@ -7,14 +7,10 @@
     * TextFields must stay focusable
     * When user exits Vim mode, all TextFields must become editable
     * Vim mode also affects command line
-
 2. Improve command completion and focus of argument editors
     * Highlight matched parts
     * When command with parameters is expanded the argument editors need focus
-    
 3. Fix bug in inspection display, where warnings hide more concrete errors
-4. Don't use hack to ensure size of TextFields after added to scene
-    * After expanding, request layout pass
     
 # Long term goals
 
