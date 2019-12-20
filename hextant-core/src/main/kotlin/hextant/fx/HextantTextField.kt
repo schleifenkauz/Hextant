@@ -5,9 +5,15 @@
 package hextant.fx
 
 import com.sun.javafx.scene.control.skin.TextFieldSkin
+import hextant.main.InputMethod
+import hextant.main.InputMethod.REGULAR
+import hextant.main.InputMethod.VIM
 import javafx.application.Platform
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
+import javafx.scene.input.KeyCode.*
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Region
 import javafx.scene.text.Font
 import javafx.scene.text.Text
@@ -17,12 +23,21 @@ import kotlin.concurrent.thread
 /**
  * A Text field that adds the "hextant-text" style class and does automatically resize its width
  */
-open class HextantTextField(text: String? = "") : TextField(text) {
+open class HextantTextField(
+    text: String? = "",
+    initialInputMethod: InputMethod = REGULAR
+) : TextField(text) {
     override fun createDefaultSkin(): Skin<*> = HextantTextFieldSkin()
 
     private val userUpdatesText = event<String>()
 
     val userUpdatedText = userUpdatesText.stream
+
+    var inputMethod = initialInputMethod
+        internal set(value) {
+            field = value
+            isEditable = value != VIM || (isEditable && isFocused)
+        }
 
     private inner class HextantTextFieldSkin : TextFieldSkin(this) {
         override fun replaceText(start: Int, end: Int, txt: String?) {
@@ -54,6 +69,27 @@ open class HextantTextField(text: String? = "") : TextField(text) {
 
     init {
         styleClass.add(STYLE_CLASS)
+        focusedProperty().addListener { _, _, focused ->
+            if (!focused && inputMethod == VIM) {
+                isEditable = false
+            }
+        }
+        addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
+            when {
+                INPUT_MODE.match(ev) && inputMethod == VIM && !isEditable  -> {
+                    isEditable = true
+                    ev.consume()
+                }
+                COMMAND_MODE.match(ev) && inputMethod == VIM && isEditable -> {
+                    isEditable = false
+                    ev.consume()
+                }
+                isEditable && shouldConsume(ev)                            -> {
+                    println("Consumed $ev")
+                    ev.consume()
+                }
+            }
+        }
         autoSize()
     }
 
@@ -84,5 +120,18 @@ open class HextantTextField(text: String? = "") : TextField(text) {
 
     companion object {
         private const val STYLE_CLASS = "hextant-text"
+
+        private fun shouldConsume(ev: KeyEvent): Boolean = when {
+            ev.code.isFunctionKey || ev.code.isMediaKey || ev.code.isModifierKey -> false
+            ev.isControlDown || ev.isAltDown                                     -> false
+            ev.code in controlKeys                                               -> false
+            else                                                                 -> true
+        }
+
+        private val controlKeys = setOf(ENTER, ESCAPE, TAB)
+
+        private val INPUT_MODE = KeyCodeCombination(I)
+
+        private val COMMAND_MODE = KeyCodeCombination(ESCAPE)
     }
 }
