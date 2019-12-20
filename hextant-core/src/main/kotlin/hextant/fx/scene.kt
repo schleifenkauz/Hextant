@@ -34,11 +34,11 @@ fun hextantScene(
 }
 
 fun Scene.initHextantScene(context: Context) {
-    initEventHandlers(context)
+    initEventHandlers()
     context[Stylesheets].apply(this)
 }
 
-private fun Scene.initEventHandlers(ctx: Context) {
+private fun Scene.initEventHandlers() {
     listenForShift()
     changeTraversalEngine()
     traverseOnArrowWithCtrl()

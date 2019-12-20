@@ -15,11 +15,16 @@ import hextant.command.register
 import hextant.expr.edited.*
 import hextant.expr.edited.Operator.Plus
 import hextant.expr.editor.*
+import hextant.fx.*
+import hextant.fx.ModifierValue.DOWN
 import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import hextant.inspect.Severity.Warning
 import hextant.inspect.of
 import hextant.main.HextantApplication
+import hextant.main.InputMethod
+import hextant.main.InputMethod.REGULAR
+import hextant.main.InputMethod.VIM
 import hextant.serial.HextantSerialContext
 import hextant.undo.UndoManager
 import javafx.application.Platform
@@ -43,8 +48,7 @@ class ExprEditorViewTest : HextantApplication() {
     private lateinit var serialContext: SerialContext
 
     override fun createContext(platform: HextantPlatform): Context = Context.newInstance(platform) {
-        set(Public, UndoManager, UndoManager.newInstance())
-        set(Public, SelectionDistributor, SelectionDistributor.newInstance())
+        set(InputMethod, InputMethod.VIM)
     }
 
     override fun createView(context: Context): Parent {
@@ -69,8 +73,14 @@ class ExprEditorViewTest : HextantApplication() {
             null,
             clView,
             null
-        ).also {
-            it.userData = obs
+        ).apply {
+            userData = obs
+            registerShortcuts {
+                on(P, { control(DOWN) }) {
+                    context[InputMethod] = if (context[InputMethod] == VIM) REGULAR else VIM
+                    applyInputMethod(context[InputMethod])
+                }
+            }
         }
     }
 

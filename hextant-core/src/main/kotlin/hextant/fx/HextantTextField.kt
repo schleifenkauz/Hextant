@@ -85,7 +85,6 @@ open class HextantTextField(
                     ev.consume()
                 }
                 isEditable && shouldConsume(ev)                            -> {
-                    println("Consumed $ev")
                     ev.consume()
                 }
             }
