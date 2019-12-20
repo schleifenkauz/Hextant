@@ -12,6 +12,7 @@ import hextant.completion.NoCompleter
 import hextant.completion.gui.CompleterPopupHelper
 import hextant.core.editor.TokenEditor
 import hextant.fx.*
+import hextant.main.InputMethod
 import javafx.scene.input.*
 import reaktive.event.subscribe
 
@@ -25,7 +26,7 @@ open class AbstractTokenEditorControl(
     args: Bundle,
     completer: Completer<String> = NoCompleter
 ) : EditorControl<HextantTextField>(editor, args), TokenEditorView {
-    private val textField = HextantTextField()
+    private val textField = HextantTextField(initialInputMethod = context[Public, InputMethod])
 
     init {
         registerShortcut(KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN)) {
@@ -70,7 +71,7 @@ open class AbstractTokenEditorControl(
     companion object {
         /**
          * This property controls the completer of the token editor control
-        */
+         */
         val COMPLETER = Property<Completer<String>, Public, Public>("completer")
     }
 }
