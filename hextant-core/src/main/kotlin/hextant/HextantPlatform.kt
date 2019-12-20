@@ -10,7 +10,9 @@ import hextant.bundle.CoreProperties
 import hextant.command.Commands
 import hextant.impl.*
 import hextant.inspect.Inspections
+import hextant.main.InputMethod
 import hextant.plugin.PluginRegistry
+import hextant.undo.UndoManager
 import kserial.SerialContext
 import java.util.concurrent.*
 import java.util.logging.Logger
@@ -70,6 +72,8 @@ interface HextantPlatform : Context {
          * * [CoreProperties.serialContext]
          * * [CoreProperties.clipboard]
          * * [CoreProperties.classLoader]
+         * * [UndoManager]
+         * * [InputMethod]
          */
         fun configured(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
             unconfigured(bundle).apply { configure() }
@@ -90,6 +94,8 @@ interface HextantPlatform : Context {
                 useUnsafe = false
             })
             set(CoreProperties.classLoader, plugins.compoundClassLoader)
+            set(UndoManager, UndoManager.newInstance())
+            set(InputMethod, InputMethod.REGULAR)
         }
 
         /**

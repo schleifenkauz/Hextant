@@ -125,6 +125,6 @@ interface Bundle {
         /**
          * @return a reactive [Bundle] wrapping the passed [bundle]
          */
-        fun reactive(bundle: Bundle = newInstance()) = ReactiveBundle(bundle)
+        fun reactive(bundle: Bundle = newInstance()): ReactiveBundle = ReactiveBundleImpl(bundle)
     }
 }

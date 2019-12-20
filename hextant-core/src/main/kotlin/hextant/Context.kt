@@ -5,12 +5,12 @@
 package hextant
 
 import hextant.base.AbstractContext
-import hextant.bundle.Bundle
+import hextant.bundle.ReactiveBundle
 
 /**
  * A context is used for passing down dependencies used by editors and views
  */
-interface Context : Bundle {
+interface Context : ReactiveBundle {
     /**
      * The platform instance is the root of the context hierarchy
      */
