@@ -114,6 +114,14 @@ inline fun ShortcutRegistrar.on(shortcut: Shortcut, crossinline handler: () -> U
     maybeOn(shortcut) { handler(); true }
 }
 
+inline fun ShortcutRegistrar.on(
+    key: KeyCode,
+    modifiers: ShortcutBuilder.() -> Unit,
+    crossinline action: () -> Unit
+) {
+    on(shortcut(key, modifiers)) { action() }
+}
+
 inline fun Node.registerShortcuts(handlers: ShortcutRegistrar.() -> Unit) {
     val handler = ShortcutRegistrar()
     handler.handlers()

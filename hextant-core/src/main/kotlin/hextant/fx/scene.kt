@@ -14,8 +14,6 @@ import hextant.*
 import hextant.base.EditorControl
 import hextant.core.view.FXExpanderView
 import hextant.impl.Stylesheets
-import hextant.main.InputMethod
-import hextant.main.InputMethod.VIM
 import javafx.scene.*
 import javafx.scene.control.Label
 import javafx.scene.input.KeyCode
@@ -42,7 +40,6 @@ fun Scene.initHextantScene(context: Context) {
 
 private fun Scene.initEventHandlers(ctx: Context) {
     listenForShift()
-    if (ctx[InputMethod] == VIM) configureVim()
     changeTraversalEngine()
     traverseOnArrowWithCtrl()
 }
@@ -61,17 +58,17 @@ private fun Scene.listenForShift() {
 }
 
 fun Scene.traverseOnArrowWithCtrl() {
-    addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
-        if (ev.code == KeyCode.LEFT && ev.isControlDown) {
-            val prev = getFocusedEditorControl()?.previous ?: return@addEventFilter
+    addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
+        if (ev.code == KeyCode.LEFT) {
+            val prev = getFocusedEditorControl()?.previous ?: return@addEventHandler
             val lastChild = generateSequence(prev) {
                 if (it is FXExpanderView) it.root as? EditorControl<*>
                 else it.editorChildren().lastOrNull()
             }.last()
             ev.consume()
             lastChild.focus()
-        } else if (ev.code == KeyCode.RIGHT && ev.isControlDown) {
-            val next = getFocusedEditorControl()?.next ?: return@addEventFilter
+        } else if (ev.code == KeyCode.RIGHT) {
+            val next = getFocusedEditorControl()?.next ?: return@addEventHandler
             val firstChild = generateSequence(next) {
                 if (it is FXExpanderView) it.root as? EditorControl<*>
                 else it.editorChildren().firstOrNull()

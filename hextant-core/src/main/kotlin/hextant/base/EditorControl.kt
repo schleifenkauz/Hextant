@@ -5,7 +5,8 @@
 package hextant.base
 
 import hextant.*
-import hextant.bundle.*
+import hextant.bundle.Bundle
+import hextant.bundle.Property
 import hextant.command.gui.commandContextMenu
 import hextant.fx.*
 import hextant.fx.ModifierValue.DOWN
@@ -82,7 +83,7 @@ abstract class EditorControl<R : Node>(
 
     init {
         styleClass.add("editor-control")
-        val reactive = ReactiveBundle(arguments)
+        val reactive = Bundle.reactive(arguments)
         reactive.changed.subscribe { _, change ->
             argumentChanged(change.property, change.newValue)
         }
@@ -319,15 +320,9 @@ abstract class EditorControl<R : Node>(
     }
 
     companion object {
-        private val EXTEND_SELECTION = shortcut(M) {
-            control(DOWN)
-            shift(MAYBE)
-        }
+        private val EXTEND_SELECTION = shortcut(M) { control(MAYBE) }
 
-        private val SHRINK_SELECTION = shortcut(L) {
-            control(DOWN)
-            shift(MAYBE)
-        }
+        private val SHRINK_SELECTION = shortcut(L) { control(MAYBE) }
 
         private val INSPECTIONS = shortcut(ENTER) { alt(DOWN) }
     }
