@@ -5,56 +5,40 @@
 package hextant.expr.editor
 
 import hextant.*
-import hextant.base.AbstractEditor
+import hextant.base.CompoundEditor
 import hextant.expr.edited.Operator
 import hextant.expr.edited.OperatorApplication
-import kserial.CompoundSerializable
 import reaktive.dependencies
 import reaktive.value.binding.binding
 import reaktive.value.now
 
 class OperatorApplicationEditor(
+    context: Context,
     op: OperatorEditor,
     opnd1: ExprExpander,
-    opnd2: ExprExpander,
-    context: Context
-) : AbstractEditor<OperatorApplication, Any>(context), ExprEditor<OperatorApplication>, CompoundSerializable {
-    val operator = op.moveTo(context)
-    val operand1 = opnd1.moveTo(context)
-    val operand2 = opnd2.moveTo(context)
+    opnd2: ExprExpander
+) : CompoundEditor<OperatorApplication>(context), ExprEditor<OperatorApplication> {
+    val operator by child(op, context)
+    val operand1 by child(opnd1, context)
+    val operand2 by child(opnd2, context)
 
     constructor(operator: Operator, context: Context) : this(context) {
         this.operator.setText(operator.name)
     }
 
-    init {
-        children(operand1, operator, operand2)
-    }
-
     constructor(context: Context) : this(
+        context,
         OperatorEditor(context),
         ExprExpander(context),
-        ExprExpander(context),
-        context
+        ExprExpander(context)
     )
 
     constructor(context: Context, edited: OperatorApplication) : this(
+        context,
         OperatorEditor(context, edited.operator),
         ExprExpander(edited.op1, context),
-        ExprExpander(edited.op2, context),
-        context
+        ExprExpander(edited.op2, context)
     )
-
-    override fun copyForImpl(context: Context): OperatorApplicationEditor {
-        return OperatorApplicationEditor(
-            operator.copyFor(context),
-            operand1.copyFor(context),
-            operand2.copyFor(context),
-            context
-        )
-    }
-
-    override fun components(): Sequence<Any> = sequenceOf(operator, operand1, operand2)
 
     override val result: EditorResult<OperatorApplication> =
         binding<CompileResult<OperatorApplication>>(

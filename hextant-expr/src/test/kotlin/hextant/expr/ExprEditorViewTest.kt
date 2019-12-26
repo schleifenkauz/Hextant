@@ -206,10 +206,10 @@ class ExprEditorViewTest : HextantApplication() {
                 val expander = editor.expander.now as ExprExpander
                 val opEditor = OperatorEditor(context, operator)
                 val app = OperatorApplicationEditor(
+                    context,
                     opEditor,
                     ExprExpander(context, editor),
-                    ExprExpander(context),
-                    context
+                    ExprExpander(context)
                 )
                 expander.setEditor(app)
             }
