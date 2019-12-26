@@ -6,7 +6,7 @@ package hextant.codegen
 
 import com.google.auto.service.AutoService
 import hextant.*
-import hextant.base.AbstractEditor
+import hextant.base.CompoundEditor
 import hextant.core.TokenType
 import hextant.core.editor.*
 import hextant.core.view.TokenEditorView
@@ -254,7 +254,7 @@ class AnnotationProcessor : AbstractProcessor() {
         val file = kotlinClass(
             pkg,
             imports = {
-                import<AbstractEditor<*, *>>()
+                import<CompoundEditor<*>>()
                 import(annotated.toString())
                 import("hextant.*")
                 import<EditorView>()
@@ -271,7 +271,7 @@ class AnnotationProcessor : AbstractProcessor() {
             },
             inheritance = {
                 extend(
-                    "AbstractEditor".t.parameterizedBy { covariant(name); covariant("EditorView") },
+                    "CompoundEditor".t.parameterizedBy { covariant(name) },
                     "context".e
                 )
                 implementEditorOfSuperType(annotation, name)
@@ -294,11 +294,8 @@ class AnnotationProcessor : AbstractProcessor() {
                 }
             )
             for (n in names) {
-                addVal(n) { initializeWith(n.e.call("moveTo", "context".e)) }
-            }
-            init {
-                for (n in names) {
-                    callFunction("child", {}, "this".e select n)
+                addVal(n) {
+                    by(call("child", n.e, "context".e))
                 }
             }
             val components = names.map { it.e }
