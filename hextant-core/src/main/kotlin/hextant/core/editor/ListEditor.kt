@@ -8,6 +8,7 @@ import hextant.*
 import hextant.base.AbstractEditor
 import hextant.command.meta.ProvideCommand
 import hextant.core.view.ListEditorView
+import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
 import kserial.*
@@ -67,6 +68,12 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         return copy
     }
 
+    override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
+        if (accessor !is IndexAccessor) throw InvalidAccessorException(accessor)
+        if (accessor.index >= editors.now.size) throw InvalidAccessorException(accessor)
+        return editors.now[accessor.index]
+    }
+
     override fun serialize(output: Output, context: SerialContext) {
         output.writeInt(editors.now.size)
         for (e in editors.now) {
@@ -115,14 +122,23 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         val emptyBefore = emptyNow()
         _editors.now.add(index, editor)
         child(editor)
+        updateIndicesFrom(index)
         views {
             if (emptyBefore) notEmpty()
             added(editor, index)
         }
     }
 
+    private fun updateIndicesFrom(index: Int) {
+        for (i in index until editors.now.size) {
+            @Suppress("DEPRECATION")
+            editors.now[i].setAccessor(IndexAccessor(index))
+        }
+    }
+
     private fun doRemoveAt(index: Int) {
         _editors.now.removeAt(index)
+        updateIndicesFrom(index)
         views { removed(index) }
         if (emptyNow()) views { empty() }
     }

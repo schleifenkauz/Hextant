@@ -5,9 +5,11 @@
 package hextant.base
 
 import hextant.*
+import hextant.serial.*
 import kserial.CompoundSerializable
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 
 abstract class CompoundEditor<R : Any>(context: Context) :
@@ -33,13 +35,23 @@ abstract class CompoundEditor<R : Any>(context: Context) :
     }
 
     private inner class ChildDelegatorImpl<E : Editor<*>>(private val editor: E) : ChildDelegator<E> {
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
         override fun provideDelegate(
             thisRef: CompoundEditor<*>,
             property: KProperty<*>
         ): ReadOnlyProperty<CompoundEditor<*>, E> {
-
+            editor.setAccessor(PropertyAccessor(property.name))
             return delegate(editor)
         }
+    }
+
+    override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
+        if (accessor !is PropertyAccessor) throw InvalidAccessorException(accessor)
+        val prop = this::class.memberProperties.find { it.name == accessor.propertyName }
+            ?: throw InvalidAccessorException(accessor)
+        val res = prop.call(this)
+        if (res !is Editor<*>) throw InvalidAccessorException(accessor)
+        return res
     }
 
     companion object {

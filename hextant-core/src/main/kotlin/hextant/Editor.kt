@@ -5,6 +5,7 @@
 package hextant
 
 import hextant.core.editor.Expander
+import hextant.serial.EditorAccessor
 import reaktive.collection.ReactiveCollection
 import reaktive.value.ReactiveValue
 
@@ -21,6 +22,11 @@ interface Editor<out R : Any> {
      * The parent of this Editor or `null` if this Editor is the root
      */
     val parent: ReactiveValue<Editor<*>?>
+
+    /**
+     * @return the location of this editor relative its parent
+     */
+    val accessor: EditorAccessor?
 
     /**
      * The children of this editor
@@ -51,6 +57,9 @@ interface Editor<out R : Any> {
     @Deprecated("Treat as private")
     fun setExpander(newExpander: Expander<@UnsafeVariance R, *>?)
 
+    @Deprecated("Treat as private")
+    fun setAccessor(acc: EditorAccessor)
+
     /**
      * Copy this editor such that the new editor has the given editor.
      * The default implementation throws a [UnsupportedOperationException].
@@ -63,4 +72,9 @@ interface Editor<out R : Any> {
      * Default implementation returns `false`.
      */
     fun supportsCopy(): Boolean = false
+
+    /**
+     * Return the child denoted by the given [accessor] or throw a [NoSuchElementException] if there is no such child
+     */
+    fun getSubEditor(accessor: EditorAccessor): Editor<*>
 }

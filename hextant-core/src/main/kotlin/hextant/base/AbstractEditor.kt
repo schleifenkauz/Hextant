@@ -7,6 +7,8 @@ package hextant.base
 import hextant.Context
 import hextant.Editor
 import hextant.core.editor.Expander
+import hextant.serial.EditorAccessor
+import hextant.serial.InvalidAccessorException
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
 import reaktive.value.ReactiveValue
@@ -37,6 +39,18 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
     @Suppress("OverridingDeprecatedMember")
     override fun setExpander(newExpander: Expander<@UnsafeVariance R, *>?) {
         _expander.set(newExpander)
+    }
+
+    final override var accessor: EditorAccessor? = null
+        private set
+
+    @Suppress("OverridingDeprecatedMember")
+    override fun setAccessor(acc: EditorAccessor) {
+        accessor = acc
+    }
+
+    override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
+        throw InvalidAccessorException(accessor)
     }
 
     /**
