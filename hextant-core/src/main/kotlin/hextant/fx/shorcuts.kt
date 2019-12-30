@@ -12,8 +12,8 @@ import javafx.scene.input.KeyEvent
 
 enum class ModifierValue { DOWN, UP, MAYBE }
 
-class Shortcut(val key: KeyCode, val control: ModifierValue, val alt: ModifierValue, val shift: ModifierValue) {
-    override fun toString(): String = buildString {
+class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: ModifierValue, val shift: ModifierValue) {
+    override fun toString(): String = if (key == null) "Never" else buildString {
         append(key.name)
         for ((name, value) in listOf("Ctrl" to control, "Alt" to alt, "Shift" to shift)) {
             when (value) {
@@ -48,13 +48,15 @@ class ShortcutBuilder @PublishedApi internal constructor(private val key: KeyCod
 
 inline fun shortcut(key: KeyCode, block: ShortcutBuilder.() -> Unit = {}) = ShortcutBuilder(key).apply(block).build()
 
+fun never() = Shortcut(null, UP, UP, UP)
+
 private suspend fun SequenceScope<Matcher>.decidedAll(
     ctrl: Boolean,
     alt: Boolean,
     shift: Boolean,
     shortcut: Shortcut
 ) {
-    yield(Matcher(shortcut.key, ctrl, alt, shift))
+    yield(AMatcher(shortcut.key!!, ctrl, alt, shift))
 }
 
 private suspend fun SequenceScope<Matcher>.decidedControl(ctrl: Boolean, shortcut: Shortcut) {
@@ -80,7 +82,8 @@ private suspend fun SequenceScope<Matcher>.decidedAlt(ctrl: Boolean, alt: Boolea
 }
 
 private fun matchers(shortcut: Shortcut): Sequence<Matcher> = sequence {
-    when (shortcut.control) {
+    if (shortcut.key == null) yield(Never)
+    else when (shortcut.control) {
         DOWN  -> decidedControl(true, shortcut)
         UP    -> decidedControl(false, shortcut)
         MAYBE -> {
@@ -90,10 +93,14 @@ private fun matchers(shortcut: Shortcut): Sequence<Matcher> = sequence {
     }
 }
 
-data class Matcher(val key: KeyCode, val control: Boolean, val alt: Boolean, val shift: Boolean)
+sealed class Matcher
+
+private object Never : Matcher()
+
+private data class AMatcher(val key: KeyCode, val control: Boolean, val alt: Boolean, val shift: Boolean) : Matcher()
 
 private fun KeyEvent.getMatcher(): Matcher =
-    Matcher(code, isControlDown, isAltDown, isShiftDown)
+    AMatcher(code, isControlDown, isAltDown, isShiftDown)
 
 class ShortcutRegistrar : EventHandler<KeyEvent> {
     private val handlers = mutableMapOf<Matcher, () -> Boolean>()
