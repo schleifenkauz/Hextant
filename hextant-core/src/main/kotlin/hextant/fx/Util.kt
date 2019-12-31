@@ -8,8 +8,8 @@ package hextant.fx
 
 import javafx.scene.Node
 import javafx.scene.control.*
-import javafx.scene.input.KeyCombination
-import javafx.scene.input.KeyEvent
+import javafx.scene.input.*
+import javafx.scene.input.KeyCode.ENTER
 import javafx.stage.PopupWindow
 
 internal fun control(skin: Skin<out Control>): Control {
@@ -59,6 +59,21 @@ internal fun TextField.smartSetText(new: String) {
         text = new
         if (previous.isEmpty()) {
             positionCaret(new.length)
+        }
+    }
+}
+
+internal fun Node.onAction(action: () -> Unit) {
+    addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
+        if (ev.code == ENTER) {
+            action()
+            ev.consume()
+        }
+    }
+    addEventHandler(MouseEvent.MOUSE_PRESSED) { ev ->
+        if (ev.clickCount >= 2) {
+            action()
+            ev.consume()
         }
     }
 }
