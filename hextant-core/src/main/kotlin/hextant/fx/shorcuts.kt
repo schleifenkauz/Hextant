@@ -24,6 +24,17 @@ class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: ModifierV
             }
         }
     }
+
+    fun matches(ev: KeyEvent): Boolean = when {
+        ev.code != key                       -> false
+        ev.isAltDown && alt == UP            -> false
+        !ev.isAltDown && alt == DOWN         -> false
+        ev.isControlDown && control == UP    -> false
+        !ev.isControlDown && control == DOWN -> false
+        ev.isShiftDown && shift == UP        -> false
+        !ev.isShiftDown && shift == DOWN     -> false
+        else                                 -> true
+    }
 }
 
 class ShortcutBuilder @PublishedApi internal constructor(private val key: KeyCode) {
