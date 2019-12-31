@@ -12,7 +12,7 @@ import java.util.*
 /**
  * A configuration for a [ConfiguredExpander]
  */
-class ExpanderConfig<E : Editor<*>> : ExpanderDelegate<E> {
+class ExpanderConfig<E : Editor<*>>(private val fallback: ExpanderDelegate<E>? = null) : ExpanderDelegate<E> {
     private val constant = mutableMapOf<String, (Context) -> E>()
     private val interceptors = LinkedList<(String, Context) -> E?>()
 
@@ -49,6 +49,9 @@ class ExpanderConfig<E : Editor<*>> : ExpanderDelegate<E> {
             val e = i(text, context)
             if (e != null) return e
         }
+        if (fallback != null) return fallback.expand(text, context)
         return null
     }
+
+    fun extend(additionalConfig: ExpanderConfig<E>.() -> Unit) = ExpanderConfig(this).apply(additionalConfig)
 }
