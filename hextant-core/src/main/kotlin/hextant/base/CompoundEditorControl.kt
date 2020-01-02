@@ -8,11 +8,12 @@ import hextant.*
 import hextant.base.CompoundEditorControl.Vertical
 import hextant.bundle.Bundle
 import hextant.bundle.Property
-import hextant.fx.keyword
-import hextant.fx.operator
+import hextant.fx.*
 import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.layout.*
+import org.controlsfx.glyphfont.FontAwesome
+import org.controlsfx.glyphfont.Glyph
 
 /**
  * A [CompoundEditorControl] is an [EditorControl] composed of multiple
@@ -75,12 +76,17 @@ abstract class CompoundEditorControl(
          * Add the given [Node] to this compound control and return it.
          */
         fun <N : Node> node(node: N): N
+
+        /**
+         * Add the given [Glyph] to this compound control and return it.
+         */
+        fun icon(glyph: FontAwesome.Glyph): Glyph
     }
 
     /**
      * A vertical box
      */
-    inner class Vertical : VBox(), Compound {
+    inner class Vertical internal constructor() : VBox(), Compound {
         internal var firstEditorChild: EditorControl<*>? = null
             private set
 
@@ -132,12 +138,18 @@ abstract class CompoundEditorControl(
             children.add(node)
             return node
         }
+
+        override fun icon(glyph: FontAwesome.Glyph): Glyph {
+            val g = Glyphs.create(glyph)
+            children.add(g)
+            return g
+        }
     }
 
     /**
      * A horizontal box
      */
-    inner class Horizontal : HBox(), Compound {
+    inner class Horizontal internal constructor() : HBox(), Compound {
         internal val editorChildren: MutableList<EditorControl<*>> = mutableListOf()
 
         internal var firstEditorChild: EditorControl<*>? = null
@@ -156,6 +168,12 @@ abstract class CompoundEditorControl(
             }
             children.add(node)
             return node
+        }
+
+        override fun icon(glyph: FontAwesome.Glyph): Glyph {
+            val g = Glyphs.create(glyph)
+            children.add(g)
+            return g
         }
 
         override fun space() = space(this)
