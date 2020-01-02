@@ -18,9 +18,12 @@ open class AbstractContext(final override val parent: Context?, private val bund
 
     override fun <T : Any, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T =
         when {
-            hasProperty(property)    -> bundle[permission, property]
-            parent != null           -> parent[permission, property]
-            property.default != null -> property.default
-            else                     -> throw NoSuchPropertyException("Property $property is not configured")
+            bundle.hasProperty(property) -> bundle[permission, property]
+            parent != null               -> parent[permission, property]
+            property.default != null     -> property.default
+            else                         -> throw NoSuchPropertyException("Property $property is not configured")
         }
+
+    override fun hasProperty(property: Property<*, *, *>): Boolean =
+        bundle.hasProperty(property) || parent?.hasProperty(property) ?: false
 }
