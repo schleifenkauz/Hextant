@@ -12,15 +12,35 @@ import java.util.*
 /**
  * A configuration for a [ConfiguredExpander]
  */
-class ExpanderConfig<E : Editor<*>>(private val fallback: ExpanderDelegate<E>? = null) : ExpanderDelegate<E> {
-    private val constant = mutableMapOf<String, (Context) -> E>()
-    private val interceptors = LinkedList<(String, Context) -> E?>()
+class ExpanderConfig<E : Editor<*>> private constructor(
+    private val fallback: ExpanderDelegate<E>?,
+    private val constant: MutableMap<String, (Context) -> E>,
+    private val interceptors: LinkedList<(String, Context) -> E?>
+) : ExpanderDelegate<E> {
+
+    constructor(fallback: ExpanderDelegate<E>? = null) : this(fallback, mutableMapOf(), LinkedList())
 
     /**
      * @return a [Completer] which uses the registered choices and the given [strategy] and [factory]
      */
-    fun completer(strategy: CompletionStrategy, factory: CompletionFactory<String>): Completer<String> =
-        ConfiguredCompleter(strategy, factory, pool = { constant.keys })
+    fun completer(strategy: CompletionStrategy, factory: CompletionFactory<String>): Completer<String> {
+        val keys = keys()
+        return ConfiguredCompleter(strategy, factory, pool = { keys })
+    }
+
+    private fun keys(): Set<String> =
+        if (fallback is ExpanderConfig) constant.keys + fallback.keys() else constant.keys
+
+    fun withFallback(fallback: ExpanderDelegate<E>?) = ExpanderConfig(fallback, constant, interceptors)
+
+    fun <R : Editor<*>> transform(f: (E) -> R): ExpanderConfig<R> {
+        val fb = if (fallback is ExpanderConfig) fallback.transform(f) else fallback?.map(f)
+        val constant = constant.mapValuesTo(mutableMapOf()) { (_, fct) -> { ctx: Context -> f(fct(ctx)) } }
+        val interceptors = interceptors.mapTo(LinkedList()) { fct ->
+            { text: String, ctx: Context -> fct(text, ctx)?.let { f(it) } }
+        }
+        return ExpanderConfig(fb, constant, interceptors)
+    }
 
     /**
      * If the given string is expanded an editor is returned using [create].
@@ -54,4 +74,6 @@ class ExpanderConfig<E : Editor<*>>(private val fallback: ExpanderDelegate<E>? =
     }
 
     fun extend(additionalConfig: ExpanderConfig<E>.() -> Unit) = ExpanderConfig(this).apply(additionalConfig)
+
+    fun extendWith(config: ExpanderConfig<E>) = config.withFallback(this)
 }
