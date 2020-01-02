@@ -222,16 +222,6 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         setEditor(copy as E)
     }
 
-    override fun viewAdded(view: ExpanderView) {
-        when (val state = state) {
-            is Unexpanded -> {
-                view.reset()
-                view.displayText(state.text)
-            }
-            is Expanded   -> view.expanded(state.editor)
-        }
-    }
-
     private inner class StateTransition(
         private val old: State<E>,
         private val new: State<E>,

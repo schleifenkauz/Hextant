@@ -21,11 +21,12 @@ import javafx.scene.Node
 import javafx.scene.input.KeyCode.*
 import reaktive.event.Subscription
 import reaktive.event.subscribe
+import reaktive.value.now
 
 /**
  * JavaFX implementation of a [ExpanderView]
  */
-class FXExpanderView(
+open class FXExpanderView(
     private val expander: Expander<*, *>,
     args: Bundle
 ) : ExpanderView, EditorControl<Node>(expander, args) {
@@ -76,14 +77,16 @@ class FXExpanderView(
 
     init {
         with(textField) {
-            setOnAction { expander.expand() }
-            textSubscription = userUpdatedText.subscribe { new -> expander.setText(new) }
             registerShortcuts {
                 on(shortcut(V) { control(DOWN); shift(DOWN) }) { expander.paste() }
                 on(shortcut(V)) { expander.paste() }
                 on(shortcut(SPACE) { control(DOWN) }) { completionHelper.show(this@FXExpanderView) }
+                on(shortcut(ENTER)) { expander.expand() }
             }
+            textSubscription = userUpdatedText.subscribe { new -> expander.setText(new) }
         }
+        expander.editor.now?.let { showContent(it) }
+        expander.text.now?.let { displayText(it) }
         expander.addView(this)
         completionSubscription = completionHelper.completionChosen.subscribe { comp ->
             expander.setText(comp.completed)
@@ -110,7 +113,14 @@ class FXExpanderView(
         requestFocus()
     }
 
-    override fun expanded(editor: Editor<*>) {
+    final override fun expanded(editor: Editor<*>) {
+        val v = showContent(editor)
+        onExpansion(editor, v)
+    }
+
+    protected open fun onExpansion(editor: Editor<*>, control: EditorControl<*>) {}
+
+    private fun showContent(editor: Editor<*>): EditorControl<*> {
         val v = context.createView(editor)
         view = v
         v.registerShortcuts {
@@ -124,6 +134,7 @@ class FXExpanderView(
         this.editorParent?.let { v.setEditorParent(it) }
         v.root //ensure that root is fully initialized
         v.receiveFocus()
+        return v
     }
 
     companion object {
