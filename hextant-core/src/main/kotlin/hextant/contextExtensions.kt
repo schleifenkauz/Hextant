@@ -19,6 +19,9 @@ fun Context.createView(editor: Editor<*>, arguments: Bundle = Bundle.newInstance
     return group.createViewFor(editor, this, arguments)
 }
 
+fun Context.createView(editor: Editor<*>, configure: Bundle.() -> Unit): EditorControl<*> =
+    createView(editor, Bundle.configure(configure))
+
 /**
  * Uses the [EditorFactory] of this [Context] to create an [Editor] with the result type [R].
  * If this [Context] has no [EditorFactory] or there isn't an editor registered in the [EditorFactory],
