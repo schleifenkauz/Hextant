@@ -14,7 +14,11 @@ import hextant.isError
 import javafx.scene.input.KeyEvent
 import reaktive.event.EventHandler
 import reaktive.event.Subscription
+import reaktive.value.now
 
+/**
+ * A [TokenEditorView] that is uneditable by default and which only accepts states where the token is valid.
+ */
 class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, arguments: Bundle) :
     EditorControl<HextantTextField>(editor, arguments), TokenEditorView {
     private var editable = false
@@ -54,6 +58,9 @@ class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, ar
         }
     }
 
+    /**
+     * Make the text field editable, throws [IllegalStateException] if already editable
+     */
     fun beginChange() {
         check(!editable)
         textSubscription = root.userUpdatedText.subscribe(textHandler)
@@ -63,6 +70,11 @@ class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, ar
         root.selectAll()
     }
 
+    /**
+     * Try to commit the text change, which is only possible if the underlying [TokenEditor] accepts the token.
+     * When it is possible to commit, the text fields becomes uneditable
+     * @throws IllegalStateException if not in the editable state
+     */
     fun commitChange() {
         check(editable)
         if (!editor.compile(root.text).isError) {
@@ -71,9 +83,15 @@ class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, ar
         }
     }
 
+    /**
+     * Abort the change and set the text back to the original text saved by the token editor.
+     * After this method has been called the text field will be uneditable.
+     * @throws IllegalStateException if not in the editable state
+     */
     fun abortChange() {
         check(editable)
         makeUneditable()
+        root.text = editor.text.now
     }
 
     private fun makeUneditable() {
