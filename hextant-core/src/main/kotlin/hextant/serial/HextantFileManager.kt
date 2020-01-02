@@ -18,6 +18,8 @@ interface HextantFileManager {
      */
     fun <T : Any> get(path: Path): HextantFile<T>
 
+    fun <T : Any> get(path: Path, content: T): HextantFile<T>
+
     /**
      * Create a new [HextantFile] with the given [content] and [path] return it
      * @throws IllegalStateException if this [HextantFileManager] already created a file with the given [path]
