@@ -35,6 +35,7 @@ abstract class HextantApplication : Application() {
             }
             Platform.runLater {
                 preloader.hide()
+                stage.isFullScreen = true
                 stage.show()
             }
         }
