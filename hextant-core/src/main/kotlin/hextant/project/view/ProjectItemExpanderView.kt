@@ -10,6 +10,7 @@ import hextant.bundle.Bundle
 import hextant.core.editor.TokenEditor
 import hextant.core.view.FXExpanderView
 import hextant.core.view.TokenEditorControl
+import hextant.get
 import hextant.project.editor.*
 import reaktive.value.now
 
@@ -22,6 +23,8 @@ class ProjectItemExpanderView(private val expander: ProjectItemExpander<*>, args
         } else if (editor is FileEditor<*> && control is FileEditorControl) {
             val name = control.fileName as? TokenEditorControl ?: return
             expandedTo(editor, editor.name, name)
+            val pane = context[EditorPane]
+            pane.show(editor.root.get())
         }
     }
 
