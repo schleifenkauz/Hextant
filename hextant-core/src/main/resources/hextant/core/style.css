@@ -207,3 +207,11 @@
 .warn * {
     -fx-text-fill: yellow !important;
 }
+
+.tree-cell {
+    -fx-background-color: rgb(60, 63, 65);
+}
+
+.tree-cell:selected {
+    -fx-background-color: rgb(13, 41, 62);
+}

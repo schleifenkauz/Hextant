@@ -12,9 +12,8 @@ import hextant.project.ProjectItem
 import hextant.serial.*
 import java.nio.file.Paths
 
-class ProjectItemExpander<R : Any>(context: Context) :
-    Expander<ProjectItem<R>, ProjectItemEditor<R, *>>(context), ProjectItemEditor<R, ProjectItem<R>> {
-
+class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
+    Expander<ProjectItem<R>, ProjectItemEditor<R, *>>(context, initialText), ProjectItemEditor<R, ProjectItem<R>> {
     private val cfg = context[config<R>()]
 
     private val id = Any()

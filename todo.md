@@ -43,3 +43,7 @@
 15. View configuration serialization
 16. View configuration commands
 17. Think about indentation
+18. Make Project explorer GUI better
+19. Make name suggestion configurable
+20. Check for duplicate names
+21. Show errors instantly in TokenEditorControl
