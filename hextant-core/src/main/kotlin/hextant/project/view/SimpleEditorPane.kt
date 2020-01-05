@@ -16,6 +16,8 @@ class SimpleEditorPane : EditorPane, Control() {
     }
 
     override fun show(editor: Editor<*>) {
-        setRoot(editor.context.createView(editor))
+        val v = editor.context.createView(editor)
+        setRoot(v)
+        v.requestFocus()
     }
 }
