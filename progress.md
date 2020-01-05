@@ -84,3 +84,7 @@
 - Begin work on VIM-mode
 - Serialization
 - Child tracking in FXListEditorView
+- Work on virtual editors
+
+# Jan 2020
+- Work on project explorer
