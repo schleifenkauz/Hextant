@@ -20,7 +20,7 @@ import javafx.scene.layout.*
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 
-class FXListEditorView(
+open class FXListEditorView(
     private val editor: ListEditor<*, *>,
     args: Bundle,
     private val emptyDisplay: Node = Glyphs.create(PLUS)
@@ -196,8 +196,13 @@ class FXListEditorView(
 
     override fun createDefaultRoot(): Pane = items
 
+    /**
+     * This method may be overwritten to pass arguments to children of this list editor view
+     */
+    protected open fun Bundle.provideChildArguments() {}
+
     override fun added(editor: Editor<*>, idx: Int) {
-        val view = context.createView(editor)
+        val view = context.createView(editor) { provideChildArguments() }
         val c = getCell(idx, view)
         cells.drop(idx).forEach { cell -> cell.index = cell.index + 1 }
         cells.add(idx, c)
