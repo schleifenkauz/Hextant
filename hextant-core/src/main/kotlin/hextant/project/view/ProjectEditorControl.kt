@@ -98,7 +98,8 @@ class ProjectEditorControl(private val editor: DirectoryEditor<*>, arguments: Bu
             }
             @Suppress("UNCHECKED_CAST") //TODO maybe this can be done more elegantly
             on(DELETE) {
-                for (item in root.selectionModel.selectedItems) {
+                val selected = root.selectionModel.selectedItems.toList()
+                for (item in selected) {
                     val e = item.value
                     val list = e.parent.now
                     if (list !is ProjectItemListEditor<*>) return@on
@@ -149,6 +150,9 @@ class ProjectEditorControl(private val editor: DirectoryEditor<*>, arguments: Bu
             //TODO invent slightly less horrific hack
             Thread.sleep(20) //EVIL! Waits for new view to rendered and added to view group.
             Platform.runLater {
+                val item = items[new]
+                root.selectionModel.clearSelection()
+                root.selectionModel.select(item)
                 val view = context[EditorControlGroup].getViewOf(new)
                 view.receiveFocus()
             }
