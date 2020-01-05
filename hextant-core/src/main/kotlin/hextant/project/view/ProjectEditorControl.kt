@@ -7,8 +7,9 @@ package hextant.project.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.fx.*
-import hextant.fx.ModifierValue.MAYBE
+import hextant.core.view.TokenEditorControl
+import hextant.fx.on
+import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import hextant.util.DoubleWeakHashMap
 import javafx.application.Platform
@@ -16,7 +17,7 @@ import javafx.collections.ObservableList
 import javafx.collections.ObservableListBase
 import javafx.scene.control.*
 import javafx.scene.control.SelectionMode.MULTIPLE
-import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCode.*
 import reaktive.Observer
 import reaktive.list.ListChange.*
 import reaktive.list.ReactiveList
@@ -52,6 +53,13 @@ class ProjectEditorControl(private val editor: DirectoryEditor<*>, arguments: Bu
             get() = wrapped.now.size
     }
 
+    private fun ProjectItemEditor<*, *>.getItemNameEditor(): FileNameEditor? = when (this) {
+        is ProjectItemExpander<*> -> editor.now?.getItemNameEditor()
+        is FileEditor<*>          -> name
+        is DirectoryEditor<*>     -> directoryName
+        else                      -> error("Invalid project item editor $this")
+    }
+
     private inner class Cell : TreeCell<ProjectItemEditor<*, *>>() {
         override fun updateItem(item: ProjectItemEditor<*, *>?, empty: Boolean) {
             super.updateItem(item, empty)
@@ -84,12 +92,12 @@ class ProjectEditorControl(private val editor: DirectoryEditor<*>, arguments: Bu
     init {
         root.selectionModel.selectionMode = MULTIPLE
         root.registerShortcuts {
-            on(shortcut(KeyCode.INSERT) { control(MAYBE) }) {
+            on(INSERT) {
                 val e = root.selectionModel.selectedItem.value
                 addNewItem(e)
             }
             @Suppress("UNCHECKED_CAST") //TODO maybe this can be done more elegantly
-            on(shortcut(KeyCode.DELETE) { control(MAYBE) }) {
+            on(DELETE) {
                 for (item in root.selectionModel.selectedItems) {
                     val e = item.value
                     val list = e.parent.now
@@ -101,6 +109,14 @@ class ProjectEditorControl(private val editor: DirectoryEditor<*>, arguments: Bu
                     val v = context[EditorControlGroup].getViewOf(dir)
                     v.requestFocus()
                 }
+            }
+            on(F2) {
+                val item = root.selectionModel.selectedItem.value
+                val name = item.getItemNameEditor() ?: return@on
+                val view = context[EditorControlGroup].getViewOf(name)
+                if (view !is TokenEditorControl) return@on
+                if (view.editable) view.receiveFocus()
+                else view.beginChange()
             }
         }
     }

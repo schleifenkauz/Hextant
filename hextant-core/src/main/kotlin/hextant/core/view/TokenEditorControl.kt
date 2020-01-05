@@ -12,8 +12,7 @@ import hextant.core.editor.TokenEditor
 import hextant.fx.*
 import hextant.isError
 import javafx.scene.input.KeyEvent
-import reaktive.event.EventHandler
-import reaktive.event.Subscription
+import reaktive.event.*
 import reaktive.value.now
 
 /**
@@ -21,17 +20,34 @@ import reaktive.value.now
  */
 class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, arguments: Bundle) :
     EditorControl<HextantTextField>(editor, arguments), TokenEditorView {
-    private var editable = false
+    var editable = false
+        private set
 
     private val textHandler: EventHandler<String> = { _, txt ->
         val error = editor.compile(txt).isError
-        pseudoClassStateChanged(PseudoClasses.ERROR, error)
+        if (error) styleClass.add("error")
+        else styleClass.remove("error")
     }
 
     private var textSubscription: Subscription? = null
 
+    private val commit = event<String>()
+    private val abort = unitEvent()
+    private val endChange = unitEvent()
+    private val beginChange = unitEvent()
+
+    val commited = commit.stream
+    val aborted = abort.stream
+    val endedChange = endChange.stream
+    val beganChange = beginChange.stream
+
     init {
         listenForCommands()
+        root.focusedProperty().addListener { _, _, focused ->
+            if (!focused && editable) {
+                abortChange()
+            }
+        }
         editor.addView(this)
     }
 
@@ -63,10 +79,12 @@ class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, ar
      */
     fun beginChange() {
         check(!editable)
+        beginChange.fire()
         textSubscription = root.userUpdatedText.subscribe(textHandler)
         editable = true
         root.isEditable = true
         root.isFocusTraversable = true
+        requestFocus()
         root.selectAll()
     }
 
@@ -80,6 +98,7 @@ class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, ar
         if (!editor.compile(root.text).isError) {
             editor.setText(root.text)
             makeUneditable()
+            commit.fire(root.text)
         }
     }
 
@@ -92,6 +111,7 @@ class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, ar
         check(editable)
         makeUneditable()
         root.text = editor.text.now
+        abort.fire()
     }
 
     private fun makeUneditable() {
@@ -99,6 +119,7 @@ class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, ar
         root.isEditable = false
         root.isFocusTraversable = false
         textSubscription?.cancel()
+        endChange.fire()
     }
 
     override fun createDefaultRoot(): HextantTextField {

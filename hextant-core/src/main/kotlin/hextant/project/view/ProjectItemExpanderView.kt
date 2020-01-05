@@ -12,10 +12,13 @@ import hextant.core.view.FXExpanderView
 import hextant.core.view.TokenEditorControl
 import hextant.get
 import hextant.project.editor.*
+import reaktive.event.Subscription
 import reaktive.value.now
 
 class ProjectItemExpanderView(private val expander: ProjectItemExpander<*>, args: Bundle) :
     FXExpanderView(expander, args) {
+    private lateinit var subscription: Subscription
+
     override fun onExpansion(editor: Editor<*>, control: EditorControl<*>) {
         if (editor is DirectoryEditor<*> && control is DirectoryEditorControl) {
             val name = control.directoryName as? TokenEditorControl ?: return
@@ -23,8 +26,11 @@ class ProjectItemExpanderView(private val expander: ProjectItemExpander<*>, args
         } else if (editor is FileEditor<*> && control is FileEditorControl) {
             val name = control.fileName as? TokenEditorControl ?: return
             expandedTo(editor, editor.name, name)
-            val pane = context[EditorPane]
-            pane.show(editor.root.get())
+            subscription = name.endedChange.subscribe { _, _ ->
+                val pane = context[EditorPane]
+                pane.show(editor.root.get())
+                subscription.cancel()
+            }
         }
     }
 
@@ -35,5 +41,6 @@ class ProjectItemExpanderView(private val expander: ProjectItemExpander<*>, args
         nameControl.root.selectAll()
         name.setText(suggested)
         nameControl.beginChange()
+
     }
 }

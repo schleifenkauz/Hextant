@@ -202,7 +202,6 @@ abstract class EditorControl<R : Node>(
 
     private var lastExtendingChild: EditorControl<*>? = null
 
-    @Suppress("KDocMissingDocumentation")
     override fun createDefaultSkin(): Skin<*> {
         root = createDefaultRoot()
         return skin
