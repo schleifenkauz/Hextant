@@ -18,7 +18,7 @@ import reaktive.value.now
 /**
  * A [TokenEditorView] that is uneditable by default and which only accepts states where the token is valid.
  */
-class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, arguments: Bundle) :
+class TokenEditorControl(val editor: TokenEditor<*, TokenEditorView>, arguments: Bundle) :
     EditorControl<HextantTextField>(editor, arguments), TokenEditorView {
     var editable = false
         private set
@@ -119,6 +119,7 @@ class TokenEditorControl(private val editor: TokenEditor<*, TokenEditorView>, ar
         root.isEditable = false
         root.isFocusTraversable = false
         textSubscription?.cancel()
+        styleClass.remove("error")
         endChange.fire()
     }
 
