@@ -27,6 +27,10 @@ val <E : Editor<*>> E.location: EditorLocation<E>
         var cur: Editor<*> = this
         val accessors = mutableListOf<EditorAccessor>()
         while (cur !is RootEditor) {
+            while (cur.expander.now != null) {
+                cur = cur.expander.now!!
+                accessors.add(ExpanderContent)
+            }
             val acc = cur.accessor ?: error("Editor has no accessor")
             cur = cur.parent.now ?: error("Editor has no parent")
             accessors.add(acc)

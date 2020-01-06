@@ -12,6 +12,7 @@ import hextant.bundle.CoreProperties.clipboard
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Unexpanded
 import hextant.core.view.ExpanderView
+import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
 import kserial.*
@@ -135,6 +136,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         _text.set(null)
         editor.setParent(this.parent.now)
         editor.setExpander(this)
+        editor.setAccessor(ExpanderContent)
         views { expanded(editor) }
     }
 
@@ -197,6 +199,11 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         if (text != null) setText(text)
         val editor = input.readObject() as E?
         if (editor != null) setEditor(editor)
+    }
+
+    override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
+        if (accessor !is ExpanderContent) throw InvalidAccessorException(accessor)
+        return editor.now ?: throw InvalidAccessorException(accessor)
     }
 
     /**

@@ -16,3 +16,7 @@ data class PropertyAccessor(val propertyName: String) : EditorAccessor() {
 data class IndexAccessor(val index: Int) : EditorAccessor() {
     override fun toString(): String = "[$index]"
 }
+
+object ExpanderContent : EditorAccessor() {
+    override fun toString(): String = ".editor.now"
+}

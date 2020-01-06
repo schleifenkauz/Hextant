@@ -6,6 +6,7 @@ package hextant
 
 import hextant.core.editor.Expander
 import hextant.serial.EditorAccessor
+import hextant.serial.InvalidAccessorException
 import reaktive.collection.ReactiveCollection
 import reaktive.value.ReactiveValue
 
@@ -74,7 +75,7 @@ interface Editor<out R : Any> {
     fun supportsCopy(): Boolean = false
 
     /**
-     * Return the child denoted by the given [accessor] or throw a [NoSuchElementException] if there is no such child
+     * Return the child denoted by the given [accessor] or throw a [InvalidAccessorException] if there is no such child
      */
     fun getSubEditor(accessor: EditorAccessor): Editor<*>
 }
