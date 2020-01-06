@@ -10,7 +10,6 @@ import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
 import hextant.fx.*
 import hextant.project.editor.FileEditor
-import hextant.serial.RootEditor
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import org.controlsfx.glyphfont.FontAwesome.Glyph
@@ -24,7 +23,7 @@ class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) : 
 
     private var currentGlyph = glyphBinding(editor.root.get())
 
-    private fun glyphBinding(e: RootEditor<*>) = iconProvider.provideIcon(e).orElse(FILE)
+    private fun glyphBinding(e: Editor<*>) = iconProvider.provideIcon(e).orElse(FILE)
 
     private var glyphObserver: Observer = currentGlyph.observe { _, _, g ->
         children[0] = createIcon(g)
@@ -38,7 +37,7 @@ class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) : 
         }
     }
 
-    val fileName = context.createView(editor.name)
+    val fileName = context.createView(editor.fileName)
 
     override fun receiveFocus() {
         fileName.receiveFocus()

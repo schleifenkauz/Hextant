@@ -18,7 +18,7 @@ class DirectoryEditor<R : Any>(
     val items by child(content, context)
 
     private fun nameEditor(item: ProjectItemEditor<*, *>): FileNameEditor? = when (item) {
-        is FileEditor          -> item.name
+        is FileEditor          -> item.fileName
         is DirectoryEditor     -> item.directoryName
         is ProjectItemExpander -> item.editor.now?.let { nameEditor(it) }
         else                   -> null

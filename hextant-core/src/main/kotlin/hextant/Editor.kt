@@ -78,4 +78,10 @@ interface Editor<out R : Any> {
      * Return the child denoted by the given [accessor] or throw a [InvalidAccessorException] if there is no such child
      */
     fun getSubEditor(accessor: EditorAccessor): Editor<*>
+
+    /**
+     * Returns `true` only if this editor can be the root of an editor tree.
+     * The default implementation returns `false`
+     */
+    val isRoot: Boolean get() = false
 }

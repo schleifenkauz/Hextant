@@ -18,7 +18,16 @@ interface HextantFileManager {
      */
     fun <T : Any> get(path: Path): HextantFile<T>
 
+    /**
+     * Creates a new [HextantFile] with the given [path] and [content] or just returns a cached one.
+     */
     fun <T : Any> get(path: Path, content: T): HextantFile<T>
+
+    /**
+     * Looks up the [HextantFile] with the given [content] as the root and returns it.
+     * @throws @NoSuchElementException if no such [HextantFile] exists.
+     */
+    fun <T : Any> get(content: T): HextantFile<T>
 
     /**
      * Create a new [HextantFile] with the given [content] and [path] return it

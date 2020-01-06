@@ -28,7 +28,7 @@ import reaktive.value.*
 import reaktive.value.binding.map
 import kotlin.concurrent.thread
 
-class ProjectEditorControl(private val editor: DirectoryEditor<*>, arguments: Bundle) :
+class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, arguments: Bundle) :
     EditorControl<TreeView<ProjectItemEditor<*, *>>>(editor, arguments) {
     private val items = DoubleWeakHashMap<ProjectItemEditor<*, *>, TreeItem<ProjectItemEditor<*, *>>>()
 
@@ -51,13 +51,6 @@ class ProjectEditorControl(private val editor: DirectoryEditor<*>, arguments: Bu
 
         override val size: Int
             get() = wrapped.now.size
-    }
-
-    private fun ProjectItemEditor<*, *>.getItemNameEditor(): FileNameEditor? = when (this) {
-        is ProjectItemExpander<*> -> editor.now?.getItemNameEditor()
-        is FileEditor<*>          -> name
-        is DirectoryEditor<*>     -> directoryName
-        else                      -> error("Invalid project item editor $this")
     }
 
     private inner class Cell : TreeCell<ProjectItemEditor<*, *>>() {
