@@ -14,7 +14,7 @@ import javafx.scene.input.KeyEvent
 import reaktive.event.subscribe
 import reaktive.value.now
 
-class FilteredTokenEditorControl(private val editor: FilteredTokenEditor<*>, arguments: Bundle) :
+class FilteredTokenEditorControl(val editor: FilteredTokenEditor<*>, arguments: Bundle) :
     EditorControl<HextantTextField>(editor, arguments), FilteredTokenEditorView {
     private val textSubscription = root.userUpdatedText.subscribe { new ->
         editor.setText(new)
@@ -33,7 +33,7 @@ class FilteredTokenEditorControl(private val editor: FilteredTokenEditor<*>, arg
     }
 
     override fun displayText(text: String) {
-        root.text = text
+        root.smartSetText(text)
     }
 
     override fun endChange() {

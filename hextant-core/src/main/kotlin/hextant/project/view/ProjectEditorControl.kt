@@ -7,7 +7,6 @@ package hextant.project.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.core.view.TokenEditorControl
 import hextant.fx.on
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
@@ -23,10 +22,7 @@ import reaktive.list.binding.flatten
 import reaktive.list.unmodifiableReactiveList
 import reaktive.value.binding.map
 import reaktive.value.now
-import kotlin.collections.List
-import kotlin.collections.forEach
 import kotlin.collections.set
-import kotlin.collections.toList
 import kotlin.concurrent.thread
 
 class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, arguments: Bundle) :
@@ -71,7 +67,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
         root.registerShortcuts {
             on(INSERT) {
                 val e = root.selectionModel.selectedItem.value
-                addNewItem(e)
+                if (e != null) addNewItem(e)
             }
             on(DELETE) {
                 val selected = root.selectionModel.selectedItems.toList()
@@ -79,17 +75,14 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             }
             on(F2) {
                 val item = root.selectionModel.selectedItem.value
-                startRename(item)
+                if (item != null) startRename(item)
             }
         }
     }
 
     private fun startRename(item: ProjectItemEditor<*, *>) {
         val name = item.getItemNameEditor() ?: return
-        val view = context[EditorControlGroup].getViewOf(name)
-        if (view !is TokenEditorControl) return
-        if (view.editable) view.receiveFocus()
-        else view.beginChange()
+        name.beginChange()
     }
 
     @Suppress("UNCHECKED_CAST") //TODO maybe this can be done more elegantly

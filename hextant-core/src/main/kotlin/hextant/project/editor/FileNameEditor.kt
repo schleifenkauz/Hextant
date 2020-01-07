@@ -5,11 +5,10 @@
 package hextant.project.editor
 
 import hextant.*
-import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
+import hextant.core.editor.FilteredTokenEditor
 import reaktive.value.now
 
-class FileNameEditor(context: Context, text: String) : TokenEditor<String, TokenEditorView>(context, text) {
+class FileNameEditor(context: Context, text: String) : FilteredTokenEditor<String>(context, text) {
     constructor(context: Context) : this(context, "")
 
     private fun parentDirectory(): DirectoryEditor<*>? {

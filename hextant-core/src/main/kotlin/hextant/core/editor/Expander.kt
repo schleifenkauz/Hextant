@@ -82,6 +82,11 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     protected abstract fun expand(text: String): E?
 
     /**
+     * Can be overwritten by extending classes to be notified when [expand] was successfully called
+     */
+    protected open fun onExpansion(editor: E) {}
+
+    /**
      * Return `true` iff the given editor can be the content of this expander.
      * Default implementation simply returns `false`
      */
@@ -164,6 +169,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         check(state is Unexpanded) { "Cannot expand expanded expander" }
         val editor = expand(state.text) ?: return
         changeState(Expanded(editor), "Expand")
+        onExpansion(editor)
     }
 
     /**

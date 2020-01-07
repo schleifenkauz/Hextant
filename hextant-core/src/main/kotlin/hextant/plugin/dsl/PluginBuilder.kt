@@ -17,8 +17,7 @@ import hextant.core.view.FXTokenEditorView
 import hextant.core.view.TokenEditorView
 import hextant.impl.Stylesheets
 import hextant.impl.myLogger
-import hextant.inspect.Inspection
-import hextant.inspect.Inspections
+import hextant.inspect.*
 import hextant.plugin.Plugin
 
 @PluginDsl
@@ -116,6 +115,10 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
         platform[Public, Inspections].of(T::class).register(factory)
         val name = I::class.qualifiedName
         logger.config { "Inspection $name registered" }
+    }
+
+    inline fun <reified T : Any> registerInspection(noinline configuration: InspectionBuilder<T>.() -> Unit) {
+        platform[Public, Inspections].of(T::class).registerInspection(configuration)
     }
 
     /**
