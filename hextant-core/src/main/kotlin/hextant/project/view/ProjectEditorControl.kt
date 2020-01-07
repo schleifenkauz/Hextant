@@ -13,19 +13,20 @@ import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import hextant.util.DoubleWeakHashMap
 import javafx.application.Platform
-import javafx.collections.ObservableList
-import javafx.collections.ObservableListBase
 import javafx.scene.control.*
 import javafx.scene.control.SelectionMode.MULTIPLE
 import javafx.scene.input.KeyCode.*
 import reaktive.Observer
 import reaktive.list.ListChange.*
 import reaktive.list.ReactiveList
-import reaktive.list.binding.ListBinding
-import reaktive.list.binding.listBinding
+import reaktive.list.binding.flatten
 import reaktive.list.unmodifiableReactiveList
-import reaktive.value.*
 import reaktive.value.binding.map
+import reaktive.value.now
+import kotlin.collections.List
+import kotlin.collections.forEach
+import kotlin.collections.set
+import kotlin.collections.toList
 import kotlin.concurrent.thread
 
 class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, arguments: Bundle) :
@@ -34,23 +35,6 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
 
     override fun createDefaultRoot(): TreeView<ProjectItemEditor<*, *>> = TreeView(createTreeItem(editor)).apply {
         setCellFactory { Cell() }
-    }
-
-    private class ObservableListAdapter<E>(private val wrapped: ReactiveList<E>) : ObservableListBase<E>() {
-        private val obs = wrapped.observeList { c ->
-            beginChange()
-            when (c) {
-                is Added    -> nextAdd(c.index, c.index + 1)
-                is Removed  -> nextRemove(c.index, c.element)
-                is Replaced -> nextReplace(c.index, c.index + 1, mutableListOf(c.old))
-            }
-            endChange()
-        }
-
-        override fun get(index: Int): E = wrapped.now[index]
-
-        override val size: Int
-            get() = wrapped.now.size
     }
 
     private inner class Cell : TreeCell<ProjectItemEditor<*, *>>() {
@@ -89,29 +73,37 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
                 val e = root.selectionModel.selectedItem.value
                 addNewItem(e)
             }
-            @Suppress("UNCHECKED_CAST") //TODO maybe this can be done more elegantly
             on(DELETE) {
                 val selected = root.selectionModel.selectedItems.toList()
-                for (item in selected) {
-                    val e = item.value
-                    val list = e.parent.now
-                    if (list !is ProjectItemListEditor<*>) return@on
-                    list as ProjectItemListEditor<Any>
-                    list.remove(e as ProjectItemEditor<Any, *>)
-                    val dir = list.parent.now
-                    if (dir !is DirectoryEditor<*>) return@on
-                    val v = context[EditorControlGroup].getViewOf(dir)
-                    v.requestFocus()
-                }
+                deleteItems(selected)
             }
             on(F2) {
                 val item = root.selectionModel.selectedItem.value
-                val name = item.getItemNameEditor() ?: return@on
-                val view = context[EditorControlGroup].getViewOf(name)
-                if (view !is TokenEditorControl) return@on
-                if (view.editable) view.receiveFocus()
-                else view.beginChange()
+                startRename(item)
             }
+        }
+    }
+
+    private fun startRename(item: ProjectItemEditor<*, *>) {
+        val name = item.getItemNameEditor() ?: return
+        val view = context[EditorControlGroup].getViewOf(name)
+        if (view !is TokenEditorControl) return
+        if (view.editable) view.receiveFocus()
+        else view.beginChange()
+    }
+
+    @Suppress("UNCHECKED_CAST") //TODO maybe this can be done more elegantly
+    private fun deleteItems(selected: List<TreeItem<ProjectItemEditor<*, *>>>) {
+        for (item in selected) {
+            val e = item.value
+            val list = e.parent.now
+            if (list !is ProjectItemListEditor<*>) return
+            list as ProjectItemListEditor<Any>
+            list.remove(e as ProjectItemEditor<Any, *>)
+            val dir = list.parent.now
+            if (dir !is DirectoryEditor<*>) return
+            val v = context[EditorControlGroup].getViewOf(dir)
+            v.requestFocus()
         }
     }
 
@@ -166,39 +158,5 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
         }
         items[e] = item
         return item
-    }
-
-    companion object {
-
-        private fun <E> ReactiveValue<ReactiveList<E>>.flatten(): ListBinding<E> = listBinding(now.now) {
-            var obs: Observer? = null
-            val o = forEach { l ->
-                if (obs != null) {
-                    obs!!.kill()
-                    clear()
-                    addAll(l.now)
-                }
-                obs = l.observeList { ch ->
-                    when (ch) {
-                        is Removed  -> removeAt(ch.index)
-                        is Added    -> add(ch.index, ch.element)
-                        is Replaced -> set(ch.index, ch.new)
-                    }
-                }
-                addObserver(obs!!)
-            }
-            addObserver(o)
-        }
-
-        private fun <E> ObservableList<E>.bind(other: ReactiveList<E>): Observer {
-            setAll(other.now)
-            return other.observeList { ch ->
-                when (ch) {
-                    is Removed  -> removeAt(ch.index)
-                    is Added    -> add(ch.index, ch.element)
-                    is Replaced -> set(ch.index, ch.new)
-                }
-            }
-        }
     }
 }

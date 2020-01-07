@@ -11,7 +11,7 @@ import hextant.core.editor.ExpanderConfig
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.fx.ModifierValue.DOWN
-import hextant.fx.Shortcut
+import hextant.fx.menuBar
 import hextant.fx.shortcut
 import hextant.main.HextantApplication
 import hextant.project.editor.*
@@ -21,7 +21,7 @@ import hextant.serial.SerialProperties.projectRoot
 import hextant.serial.SerialProperties.serial
 import hextant.serial.SerialProperties.serialContext
 import javafx.scene.Parent
-import javafx.scene.control.*
+import javafx.scene.control.SplitPane
 import javafx.scene.input.KeyCode.S
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
@@ -55,35 +55,6 @@ class DirectoryViewTest : HextantApplication() {
             }
         }
         return VBox(menu, SplitPane(explorer, Pane(pane)))
-    }
-
-    inline fun menuBar(builder: MenuBarBuilder.() -> Unit) = MenuBarBuilder().apply(builder).build()
-
-    class MenuBarBuilder {
-        private val menus = mutableListOf<Menu>()
-
-        fun menu(menu: Menu) {
-            menus.add(menu)
-        }
-
-        inline fun menu(name: String, block: MenuBuilder.() -> Unit) {
-            menu(MenuBuilder(name).apply(block).build())
-        }
-
-        fun build() = MenuBar(*menus.toTypedArray())
-    }
-
-    class MenuBuilder(private val name: String) {
-        private var items = mutableListOf<MenuItem>()
-
-        fun item(name: String, shortcut: Shortcut? = null, action: () -> Unit) {
-            val item = MenuItem(name)
-            item.accelerator = shortcut?.toCombination()
-            item.setOnAction { action() }
-            items.add(item)
-        }
-
-        fun build() = Menu(name, null, *items.toTypedArray())
     }
 
     class IntEditor(context: Context, text: String = "") :
