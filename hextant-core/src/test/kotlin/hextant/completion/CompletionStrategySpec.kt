@@ -36,7 +36,7 @@ internal object CompletionStrategySpec: Spek({
             "h" to "hello world" to Match(listOf(0..0)),
             "z" to "hello world" to NoMatch,
             "w" to "hello world" to Match(listOf(6..6)),
-            "public" to "public" to NoMatch,
+            "public" to "public" to Match(listOf(0..5)),
             "publi" to "public" to Match(listOf(0..4)),
             "public void" to "public" to NoMatch
         )

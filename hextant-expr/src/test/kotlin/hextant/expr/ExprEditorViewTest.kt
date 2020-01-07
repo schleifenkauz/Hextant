@@ -52,7 +52,7 @@ class ExprEditorViewTest : HextantApplication() {
     }
 
     override fun createView(context: Context): Parent {
-        serialContext = HextantSerialContext(context, ExprEditorViewTest::class.java.classLoader)
+        serialContext = HextantSerialContext(context.platform, ExprEditorViewTest::class.java.classLoader)
         registerCommandsAndInspections(context)
         val expander = ExprExpander(context)
         val expanderView = context.createView(expander)
