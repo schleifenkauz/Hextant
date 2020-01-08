@@ -84,6 +84,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         if (!editable.now) return
         _editable.set(false)
         _text.set(oldText)
+        _intermediateResult.now = compile(oldText)
         abortChange.fire()
         views.forEach { v ->
             v.endChange()

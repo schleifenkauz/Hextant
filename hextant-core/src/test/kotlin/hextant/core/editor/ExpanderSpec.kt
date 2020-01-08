@@ -48,14 +48,8 @@ object ExpanderSpec : Spek({
             val context = testingContext()
             val ex = ExpanderSpec.expander(context)
             val view = mockView<ExpanderView>()
+            ex.addView(view)
             view.inOrder {
-                ON("adding a view") {
-                    ex.addView(view)
-                    test("the view should be reset") {
-                        verify().reset()
-                        verify().displayText("")
-                    }
-                }
                 ON("resetting when not expanded") {
                     IT("should thrown an exception") {
                         { ex.reset() }.shouldThrow<IllegalStateException>()
