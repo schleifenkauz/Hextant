@@ -14,6 +14,7 @@ import kserial.createOutput
 import reaktive.event.EventStream
 import reaktive.event.event
 import java.lang.ref.WeakReference
+import java.nio.file.Files
 
 internal class HextantFileImpl<T : Any>(
     obj: T?,
@@ -35,26 +36,35 @@ internal class HextantFileImpl<T : Any>(
         val obj = ref.get()
         checkNotNull(obj) { "Already collected" }
         _write.fire(obj)
-        context[serial].createOutput(getRealPath(), context[serialContext]).use { out ->
-            out.writeObject(obj)
+        safeIO {
+            val output = context[serial].createOutput(getRealPath(), context[serialContext])
+            output.writeObject(obj)
+            output.close()
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun get(): T {
         checkNotDeleted()
-        return ref.get() ?: context[serial].createInput(getRealPath(), context[serialContext]).use { input ->
-            val obj = input.readObject() as T
-            _read.fire(obj)
-            ref = WeakReference(obj)
-            obj
-        }
+        return ref.get() ?: read()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun read(): T {
+        val input = context[serial].createInput(getRealPath(), context[serialContext])
+        val obj = input.readObject() as T
+        input.close()
+        _read.fire(obj)
+        ref = WeakReference(obj)
+        return obj
     }
 
     override fun inMemory(): Boolean = ref.get() != null
 
     override fun delete() {
         checkNotDeleted()
+        safeIO {
+            Files.delete(path.now)
+        }
         deleted = true
     }
 

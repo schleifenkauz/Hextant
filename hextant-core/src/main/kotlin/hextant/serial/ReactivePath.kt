@@ -20,7 +20,7 @@ sealed class ReactivePath {
 
 private object Nil : ReactivePath()
 
-private data class Resolve(val parent: ReactivePath, val name: ReactiveString) : ReactivePath()
+private class Resolve(val parent: ReactivePath, val name: ReactiveString) : ReactivePath()
 
 val ReactivePath.now: Path
     get() {

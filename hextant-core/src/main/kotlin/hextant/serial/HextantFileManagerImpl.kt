@@ -6,6 +6,7 @@ package hextant.serial
 
 import hextant.*
 import hextant.serial.SerialProperties.projectRoot
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -29,19 +30,29 @@ internal class HextantFileManagerImpl(private val context: Context) : HextantFil
 
     override fun rename(old: Path, new: Path) {
         val pr = context[projectRoot]
-        Files.move(pr.resolve(old), pr.resolve(new))
+        safeIO {
+            Files.move(pr.resolve(old), pr.resolve(new))
+        }
     }
 
     override fun createDirectory(path: Path) {
-        Files.createDirectory(context[projectRoot].resolve(path))
+        safeIO {
+            Files.createDirectory(context[projectRoot].resolve(path))
+        }
     }
 
     override fun delete(path: ReactivePath) {
-        val f = cache.remove(path) ?: error("$path is not managed by this file manager")
-        f.delete()
-        val absolute = context[projectRoot].resolve(path.now)
-        if (Files.isDirectory(absolute)) {
-            Files.walk(absolute).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
-        } else Files.delete(absolute)
+        safeIO {
+            val absolute = context[projectRoot].resolve(path.now)
+            when {
+                Files.isRegularFile(absolute) -> {
+                    val f = cache.remove(path) ?: error("$path is not managed by this file manager")
+                    f.delete()
+                }
+                Files.isDirectory(absolute)   ->
+                    Files.walk(absolute).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
+                else                          -> throw IOException("Illegal file type $absolute")
+            }
+        }
     }
 }
