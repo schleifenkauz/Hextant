@@ -207,15 +207,23 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     override fun serialize(output: Output, context: SerialContext) {
         output.writeObject(text.now)
-        output.writeObject(editor.now)
+        editor.now?.let { e ->
+            output.writeString(e::class.java.name!!)
+            output.writeUntyped(e)
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(input: Input, context: SerialContext) {
         val text = input.readTyped<String?>()
         if (text != null) doChangeState(Unexpanded(text), notify = false)
-        val editor = input.readObject() as E?
-        if (editor != null) doChangeState(Expanded(editor), notify = false)
+        else {
+            val name = input.readString()
+            val cls = Class.forName(name).kotlin
+            val editor = context.createInstance(cls)
+            doChangeState(Expanded(editor as E), notify = false)
+            input.readInplace(editor)
+        }
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {

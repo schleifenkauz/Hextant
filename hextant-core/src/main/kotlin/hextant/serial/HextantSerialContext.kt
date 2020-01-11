@@ -7,6 +7,7 @@ import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.valueParameters
+import kotlin.reflect.jvm.javaConstructor
 
 class HextantSerialContext(
     private val platform: HextantPlatform,
@@ -21,8 +22,9 @@ class HextantSerialContext(
         val contextConstr = cls.constructors.find {
             val params = it.valueParameters.filter { p -> !p.isOptional }
             params.size == 1 && params[0].type.classifier == Context::class
-        } ?: throw SerializationException("Editors must have constructor with context parameter")
+        } ?: throw SerializationException("$cls has no constructor with context parameter")
         val contextParam = contextConstr.parameters.find { !it.isOptional }!!
+        contextConstr.javaConstructor!!.isAccessible = true
         return contextConstr.callBy(mapOf(contextParam to context))
     }
 

@@ -27,7 +27,7 @@ abstract class CompoundEditor<R : Any>(context: Context) :
         check(context is HextantSerialContext)
         for (c in children.now) {
             context.pushContext(c.context)
-            output.writeObject(c)
+            output.writeUntyped(c)
             context.popContext()
         }
     }

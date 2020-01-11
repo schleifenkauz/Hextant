@@ -17,6 +17,8 @@ class FileEditor<R : Any> private constructor(
     context: Context,
     name: FileNameEditor
 ) : AbstractEditor<File<R>, EditorView>(context), ProjectItemEditor<R, File<R>>, Serializable {
+    private constructor(context: Context) : this(context, FileNameEditor(context, ""))
+
     constructor(
         context: Context,
         name: FileNameEditor,

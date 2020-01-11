@@ -25,21 +25,21 @@ class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
         get() = editor.now?.path
 
     val config: ExpanderConfig<ProjectItemEditor<R, *>> = defaultConfig().extendWith(cfg.transform {
-        val exp = RootExpander(cfg, it.context, it)
+        val exp = RootExpander(it.context, cfg, it)
         fileEditor(exp)
     })
 
     class RootExpander<R : Any>(
-        config: ExpanderDelegate<Editor<R>>,
         context: Context,
-        initial: Editor<R>?
+        config: ExpanderDelegate<Editor<R>> = context[config<R>()],
+        initial: Editor<R>? = null
     ) : ConfiguredExpander<R, Editor<R>>(config, context, initial)
 
     private fun defaultConfig(): ExpanderConfig<ProjectItemEditor<R, *>> =
         ExpanderConfig<ProjectItemEditor<R, *>>().apply {
             registerConstant("file") { ctx ->
                 val cfg = context[config<R>()]
-                val obj = RootExpander(cfg, ctx, null)
+                val obj = RootExpander(ctx, cfg, null)
                 fileEditor(obj)
             }
             registerConstant("dir") { ctx -> DirectoryEditor(ctx, FileNameEditor(ctx, "_")) }

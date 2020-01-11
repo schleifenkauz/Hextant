@@ -77,7 +77,8 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     override fun serialize(output: Output, context: SerialContext) {
         output.writeInt(editors.now.size)
         for (e in editors.now) {
-            output.writeObject(e)
+            output.writeString(e::class.java.name)
+            output.writeUntyped(e)
         }
     }
 
@@ -85,7 +86,11 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     override fun deserialize(input: Input, context: SerialContext) {
         val size = input.readInt()
         for (idx in 0 until size) {
-            doAddAt(idx, input.readObject() as E, notify = false)
+            val name = input.readString()
+            val cls = Class.forName(name).kotlin
+            val ed = context.createInstance(cls)
+            doAddAt(idx, ed as E, notify = false)
+            input.readInplace(ed)
         }
     }
 

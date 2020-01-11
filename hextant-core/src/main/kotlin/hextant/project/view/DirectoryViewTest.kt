@@ -22,9 +22,11 @@ import hextant.serial.SerialProperties.serial
 import hextant.serial.SerialProperties.serialContext
 import javafx.scene.Parent
 import javafx.scene.control.SplitPane
+import javafx.scene.input.KeyCode.O
 import javafx.scene.input.KeyCode.S
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
+import kserial.createInput
 import kserial.createOutput
 import java.nio.file.Paths
 
@@ -42,15 +44,20 @@ class DirectoryViewTest : HextantApplication() {
 
     override fun createView(context: Context): Parent {
         val e = DirectoryEditor<Int>(context, FileNameEditor(context, "project"))
-        e.items.addAt(0, ProjectItemExpander(context, "file"))
-        e.items.addAt(1, ProjectItemExpander(context, "file"))
         val explorer = ProjectEditorControl(e, Bundle.newInstance())
         val menu = menuBar {
             menu("File") {
                 item("Save", shortcut(S) { control(DOWN) }) {
                     val path = context[projectRoot].resolve(".project")
                     val output = context[serial].createOutput(path, context[serialContext])
-                    output.writeObject(e)
+                    output.writeUntyped(e)
+                    output.close()
+                }
+                item("Open", shortcut(O) { control(DOWN) }) {
+                    val path = context[projectRoot].resolve(".project")
+                    val input = context[serial].createInput(path, context[serialContext])
+                    input.readInplace(e)
+                    input.close()
                 }
             }
         }
