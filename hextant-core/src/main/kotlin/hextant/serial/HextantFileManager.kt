@@ -4,6 +4,7 @@
 
 package hextant.serial
 
+import hextant.Editor
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
 import java.nio.file.Path
@@ -12,34 +13,15 @@ import java.nio.file.Path
  * A [HextantFileManager] organizes many [HextantFile]s, so that for each physical file, there is always only one [HextantFile]
  */
 interface HextantFileManager {
-    /**
-     * Return the [HextantFile] associated with the given [path]
-     * @throws NoSuchElementException if no [HextantFile] with the given [path] has been created by this [HextantFileManager]
-     */
-    fun <T : Any> get(path: Path): HextantFile<T>
+    fun <T : Any> get(content: T, path: ReactivePath): HextantFile<T>
 
-    /**
-     * Creates a new [HextantFile] with the given [path] and [content] or just returns a cached one.
-     */
-    fun <T : Any> get(path: Path, content: T): HextantFile<T>
+    fun <E : Editor<*>> get(editor: E): HextantFile<E>
 
-    /**
-     * Looks up the [HextantFile] with the given [content] as the root and returns it.
-     * @throws @NoSuchElementException if no such [HextantFile] exists.
-     */
-    fun <T : Any> get(content: T): HextantFile<T>
+    fun <T : Any> from(path: ReactivePath): HextantFile<T>
 
-    /**
-     * Create a new [HextantFile] with the given [content] and [path] return it
-     * @throws IllegalStateException if this [HextantFileManager] already created a file with the given [path]
-     */
-    fun <T : Any> create(path: Path, content: T): HextantFile<T>
+    fun rename(old: Path, new: Path)
 
-    /**
-     * Delete the [HextantFile] associated with the given [path] both physically and virtually.
-     * @throw IllegalStateException if there is no [HextantFile] associated with the given [path]
-     */
-    fun delete(path: Path)
+    fun createDirectory(path: Path)
 
     companion object : Property<HextantFileManager, Public, Public>("file manager")
 }

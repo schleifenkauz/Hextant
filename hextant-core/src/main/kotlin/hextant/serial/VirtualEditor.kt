@@ -18,7 +18,7 @@ interface VirtualEditor<E : Editor<*>> {
     fun get(): E
 
     /**
-     * Alias for [get]
+     * Alias for [getGet]
      */
     operator fun getValue(thisRef: Any?, property: KProperty<*>): E = get()
 }

@@ -7,16 +7,17 @@ package hextant.base
 import hextant.Context
 import hextant.Editor
 import hextant.core.editor.Expander
+import hextant.project.editor.FileEditor
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
-import reaktive.value.ReactiveValue
-import reaktive.value.reactiveVariable
+import reaktive.value.*
 
 /**
  * Skeletal implementation for [Editor]s
  */
+@Suppress("OverridingDeprecatedMember")
 abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Context) : Editor<R>,
                                                                                         AbstractController<V>() {
     private val _parent = reactiveVariable<Editor<*>?>(null)
@@ -31,12 +32,10 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
 
     override val expander: ReactiveValue<Expander<*, *>?> get() = _expander
 
-    @Suppress("OverridingDeprecatedMember")
     override fun setParent(newParent: Editor<*>?) {
         _parent.set(newParent)
     }
 
-    @Suppress("OverridingDeprecatedMember")
     override fun setExpander(newExpander: Expander<@UnsafeVariance R, *>?) {
         _expander.set(newExpander)
     }
@@ -44,7 +43,6 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
     final override var accessor: EditorAccessor? = null
         private set
 
-    @Suppress("OverridingDeprecatedMember")
     override fun setAccessor(acc: EditorAccessor) {
         accessor = acc
     }
@@ -69,4 +67,16 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
     protected fun children(vararg children: Editor<*>) {
         for (c in children) child(c)
     }
+
+    private var _file: FileEditor<*>? = null
+
+    override fun setFile(editor: FileEditor<*>) {
+        _file = editor
+    }
+
+    override val file: FileEditor<*>?
+        get() = _file ?: parent.now?.file
+
+    override val isRoot: Boolean
+        get() = _file != null
 }

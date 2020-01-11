@@ -10,6 +10,8 @@ import hextant.bundle.Property
 import hextant.core.editor.*
 import hextant.project.ProjectItem
 import hextant.project.view.EditorPane
+import hextant.serial.*
+import reaktive.Observer
 import reaktive.event.Subscription
 
 class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
@@ -17,10 +19,13 @@ class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
     private val cfg = context[config<R>()]
     private var commitChangeSubscription: Subscription? = null
     private var abortChangeSubscription: Subscription? = null
+    private var renamer: Observer? = null
+    override val path: ReactivePath?
+        get() = null
 
     val config: ExpanderConfig<ProjectItemEditor<R, *>> = defaultConfig().extendWith(cfg.transform {
         val exp = RootExpander(cfg, it.context, it)
-        FileEditor(context, FileNameEditor(context, "_"), exp)
+        fileEditor(exp)
     })
 
     class RootExpander<R : Any>(
@@ -34,20 +39,29 @@ class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
             registerConstant("file") { ctx ->
                 val cfg = context[config<R>()]
                 val obj = RootExpander(cfg, ctx, null)
-                FileEditor(context, FileNameEditor(context, "_"), obj)
+                fileEditor(obj)
             }
             registerConstant("dir") { ctx -> DirectoryEditor(ctx, FileNameEditor(ctx, "_")) }
         }
 
+    private fun fileEditor(editor: RootExpander<R>): FileEditor<R> {
+        val parentPath = getProjectItemEditorParent()?.path ?: ReactivePath.empty()
+        return FileEditor(context, FileNameEditor(context, "_"), editor, parentPath)
+    }
+
     override fun onExpansion(editor: ProjectItemEditor<R, *>) {
         val name = editor.getItemNameEditor() ?: error("Unexpected project item editor")
         name.beginChange()
-        if (editor is FileEditor<*>) {
-            commitChangeSubscription = name.commitedChange.subscribe { _, _ ->
+        commitChangeSubscription = name.commitedChange.subscribe { _, _ ->
+            renamer?.kill()
+            renamer = editor.renamePhysicalOnNameChange()
+            if (editor is FileEditor<*>) {
                 val pane = context[EditorPane]
                 pane.show(editor.root.get())
-                cancelSubscriptions()
+            } else if (editor is DirectoryEditor<*>) {
+                context[HextantFileManager].createDirectory(editor.path.now)
             }
+            cancelSubscriptions()
         }
         abortChangeSubscription = name.abortedChange.subscribe { _, _ ->
             reset()

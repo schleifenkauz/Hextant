@@ -5,6 +5,7 @@
 package hextant
 
 import hextant.core.editor.Expander
+import hextant.project.editor.FileEditor
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
 import reaktive.collection.ReactiveCollection
@@ -45,6 +46,16 @@ interface Editor<out R : Any> {
     val context: Context
 
     /**
+     * The file of this editor
+     */
+    val file: FileEditor<*>?
+
+    /**
+     * Returns `true` only if this editor can be the root of an editor tree
+     */
+    val isRoot: Boolean
+
+    /**
      * This method should be considered an implementation detail.
      * It is likely to be removed soon and using it can cause all sorts of bugs.
      */
@@ -79,9 +90,6 @@ interface Editor<out R : Any> {
      */
     fun getSubEditor(accessor: EditorAccessor): Editor<*>
 
-    /**
-     * Returns `true` only if this editor can be the root of an editor tree.
-     * The default implementation returns `false`
-     */
-    val isRoot: Boolean get() = false
+    @Deprecated("Treat as private")
+    fun setFile(editor: FileEditor<*>)
 }

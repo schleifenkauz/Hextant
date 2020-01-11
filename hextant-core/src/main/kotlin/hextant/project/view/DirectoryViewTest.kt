@@ -32,7 +32,7 @@ class DirectoryViewTest : HextantApplication() {
     private val pane = SimpleEditorPane()
 
     override fun createContext(platform: HextantPlatform): Context = Context.newInstance {
-        set(HextantFileManager, HextantFileManagerImpl(get(serial), get(serialContext)))
+        set(HextantFileManager, HextantFileManagerImpl(this))
         set(Public, ProjectItemExpander.config(), ExpanderConfig<IntEditor>().apply {
             registerInterceptor { text, context -> text.toIntOrNull()?.let { IntEditor(context, text) } }
         })
@@ -48,7 +48,7 @@ class DirectoryViewTest : HextantApplication() {
         val menu = menuBar {
             menu("File") {
                 item("Save", shortcut(S) { control(DOWN) }) {
-                    val path = context[projectRoot].resolve("project")
+                    val path = context[projectRoot].resolve(".project")
                     val output = context[serial].createOutput(path, context[serialContext])
                     output.writeObject(e)
                 }

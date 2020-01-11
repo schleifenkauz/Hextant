@@ -43,7 +43,7 @@ interface HextantFile<out T : Any> {
     val write: EventStream<T>
 
     /**
-     * Returns `true` only if the content is present in its deserialized form, that is [get] does not have to read from the disk
+     * Returns `true` only if the content is present in its deserialized form, that is [getGet] does not have to read from the disk
      */
     fun inMemory(): Boolean
 }

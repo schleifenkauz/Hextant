@@ -44,7 +44,6 @@ val <E : Editor<*>> E.location: EditorLocation<E>
  * Virtualize this editor
  */
 fun <E : Editor<*>> E.virtualize(): VirtualEditor<E> {
-    val r = root
     val f = context[HextantFileManager].get(this)
     val loc = location
     return VirtualEditorImpl(this, f, loc)
