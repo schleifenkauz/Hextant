@@ -71,6 +71,11 @@ class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
         }
     }
 
+    override fun onReset(editor: ProjectItemEditor<R, *>) {
+        val p = editor.path ?: error("Expanded project item editor must have path")
+        context[HextantFileManager].delete(p)
+    }
+
     private fun cancelSubscriptions() {
         abortChangeSubscription?.cancel()
         commitChangeSubscription?.cancel()

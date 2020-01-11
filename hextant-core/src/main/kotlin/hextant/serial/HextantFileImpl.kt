@@ -62,8 +62,9 @@ internal class HextantFileImpl<T : Any>(
 
     override fun delete() {
         checkNotDeleted()
+        val absolute = context[projectRoot].resolve(path.now)
         safeIO {
-            Files.delete(path.now)
+            Files.delete(absolute)
         }
         deleted = true
     }
