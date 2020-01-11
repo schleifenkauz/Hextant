@@ -8,6 +8,8 @@ import hextant.*
 import hextant.base.AbstractEditor
 import hextant.core.TokenType
 import hextant.core.view.FilteredTokenEditorView
+import hextant.undo.AbstractEdit
+import hextant.undo.UndoManager
 import kserial.*
 import reaktive.event.event
 import reaktive.event.unitEvent
@@ -99,6 +101,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         if (!editable.now) return
         val res = intermediateResult.now
         if (res !is Ok) return
+        val edit = CommitEdit(oldText, text.now)
         _editable.set(false)
         _result.set(res)
         oldText = text.now
@@ -106,6 +109,18 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         views.forEach { v ->
             v.endChange()
         }
+        context[UndoManager].push(edit)
+    }
+
+    private fun setTextAndCommit(new: String) {
+        check(!editable.now)
+        val res = compile(new)
+        if (res !is Ok) error("Illegal token $new")
+        _text.set(new)
+        _intermediateResult.set(res)
+        _result.set(res)
+        oldText = new
+        views { displayText(new) }
     }
 
     /**
@@ -140,5 +155,18 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         _text.now = input.readString()
         _intermediateResult.now = compile(text.now)
         _result.now = intermediateResult.now
+    }
+
+    private inner class CommitEdit(private val old: String, private val new: String) : AbstractEdit() {
+        override fun doUndo() {
+            setTextAndCommit(old)
+        }
+
+        override fun doRedo() {
+            setTextAndCommit(new)
+        }
+
+        override val actionDescription: String
+            get() = "Commit edit"
     }
 }
