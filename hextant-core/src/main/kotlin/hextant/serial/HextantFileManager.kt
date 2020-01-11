@@ -23,5 +23,7 @@ interface HextantFileManager {
 
     fun createDirectory(path: Path)
 
+    fun delete(path: ReactivePath)
+
     companion object : Property<HextantFileManager, Public, Public>("file manager")
 }

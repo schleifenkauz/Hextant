@@ -11,5 +11,7 @@ import hextant.bundle.Property
 interface EditorPane {
     fun show(editor: Editor<*>)
 
+    fun deleted(editor: Editor<*>)
+
     companion object : Property<EditorPane, Public, Public>("editor pane")
 }

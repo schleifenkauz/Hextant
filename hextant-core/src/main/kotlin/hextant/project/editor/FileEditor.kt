@@ -25,11 +25,11 @@ class FileEditor<R : Any> private constructor(
     ) : this(context, name) {
         path = parentPath.resolve(fileName.text)
         val manager = context[HextantFileManager]
-        _root = manager.get(editor, path)
+        _content = manager.get(editor, path)
         bindResult()
     }
 
-    private lateinit var _root: HextantFile<Editor<R>>
+    private lateinit var _content: HextantFile<Editor<R>>
     override lateinit var path: ReactivePath
         private set
     private val _result = reactiveVariable<CompileResult<File<R>>>(childErr())
@@ -37,7 +37,7 @@ class FileEditor<R : Any> private constructor(
     private var obs: Observer? = null
     private lateinit var subscription: Subscription
 
-    val root get() = _root
+    val content get() = _content
 
     init {
         child(fileName)
@@ -53,13 +53,13 @@ class FileEditor<R : Any> private constructor(
         val parentPath = getProjectItemEditorParent()?.path ?: ReactivePath.empty()
         path = parentPath.resolve(fileName.text)
         val manager = this.context[HextantFileManager]
-        _root = manager.from(path)
+        _content = manager.from(path)
         bindResult()
     }
 
     private fun bindResult() {
-        updateEditor(_root.get())
-        subscription = root.read.subscribe { _, e ->
+        updateEditor(_content.get())
+        subscription = content.read.subscribe { _, e ->
             obs?.kill()
             updateEditor(e)
         }
@@ -72,7 +72,7 @@ class FileEditor<R : Any> private constructor(
 
     override fun serialize(output: Output, context: SerialContext) {
         output.writeUntyped(fileName)
-        root.write()
+        content.write()
     }
 
     override val result: EditorResult<File<R>> get() = _result

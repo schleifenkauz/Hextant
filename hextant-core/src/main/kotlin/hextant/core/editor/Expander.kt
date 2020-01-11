@@ -87,36 +87,47 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     protected open fun onExpansion(editor: E) {}
 
     /**
+     * Can be overwritten by extending classes to be notified when [reset] was successfully called
+     */
+    protected open fun onReset(editor: E) {}
+
+    /**
      * Return `true` iff the given editor can be the content of this expander.
      * Default implementation simply returns `false`
      */
     protected open fun accepts(editor: Editor<*>): Boolean = false
 
-    private fun doChangeState(newState: State<E>) {
+    private fun doChangeState(newState: State<E>, notify: Boolean = true) {
         val oldState = state
         state = newState
         when (oldState) {
             is Expanded   -> {
                 unexpand()
-                _result.set(childErr())
+                if (notify) onReset(oldState.editor)
                 when (newState) {
                     is Unexpanded -> {
-                        resetViews()
-                        onSetText(newState.text)
+                        views { reset() }
+                        doSetText(newState.text)
                     }
-                    is Expanded   -> doExpandTo(newState.editor)
+                    is Expanded   -> {
+                        doExpandTo(newState.editor)
+                        if (notify) onExpansion(newState.editor)
+                    }
                 }
             }
             is Unexpanded -> {
                 when (newState) {
-                    is Unexpanded -> onSetText(newState.text)
-                    is Expanded   -> doExpandTo(newState.editor)
+                    is Unexpanded -> doSetText(newState.text)
+                    is Expanded   -> {
+                        doExpandTo(newState.editor)
+                        if (notify) onExpansion(newState.editor)
+                    }
                 }
             }
         }
     }
 
-    private fun onSetText(text: String) {
+    private fun doSetText(text: String) {
         _text.set(text)
         views { displayText(text) }
     }
@@ -131,6 +142,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         resultDelegator = null
         parentBinder = null
         _editor.set(null)
+        _result.set(childErr())
     }
 
     @Suppress("DEPRECATION")
@@ -169,7 +181,6 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         check(state is Unexpanded) { "Cannot expand expanded expander" }
         val editor = expand(state.text) ?: return
         changeState(Expanded(editor), "Expand")
-        onExpansion(editor)
     }
 
     /**
@@ -202,9 +213,9 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(input: Input, context: SerialContext) {
         val text = input.readTyped<String?>()
-        if (text != null) setText(text)
+        if (text != null) doChangeState(Unexpanded(text), notify = false)
         val editor = input.readObject() as E?
-        if (editor != null) setEditor(editor)
+        if (editor != null) doChangeState(Expanded(editor), notify = false)
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {

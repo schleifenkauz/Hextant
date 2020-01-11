@@ -14,7 +14,6 @@ import kserial.createOutput
 import reaktive.event.EventStream
 import reaktive.event.event
 import java.lang.ref.WeakReference
-import java.nio.file.Files
 
 internal class HextantFileImpl<T : Any>(
     obj: T?,
@@ -56,7 +55,6 @@ internal class HextantFileImpl<T : Any>(
 
     override fun delete() {
         checkNotDeleted()
-        Files.delete(getRealPath())
         deleted = true
     }
 

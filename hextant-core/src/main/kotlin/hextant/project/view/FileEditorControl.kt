@@ -21,7 +21,7 @@ import reaktive.value.now
 class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) : EditorControl<HBox>(editor, arguments) {
     private val iconProvider = context[IconProvider.property<Editor<*>>()]
 
-    private var currentGlyph = glyphBinding(editor.root.get())
+    private var currentGlyph = glyphBinding(editor.content.get())
 
     private fun glyphBinding(e: Editor<*>) = iconProvider.provideIcon(e).orElse(FILE)
 
@@ -29,7 +29,7 @@ class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) : 
         children[0] = createIcon(g)
     }
 
-    private val rootObserver = editor.root.read.subscribe { _, e ->
+    private val rootObserver = editor.content.read.subscribe { _, e ->
         currentGlyph = glyphBinding(e)
         glyphObserver.kill()
         glyphObserver = currentGlyph.observe { _, _, g ->
@@ -49,7 +49,7 @@ class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) : 
         root.children.add(fileName)
         onAction {
             val pane = context[Public, EditorPane]
-            pane.show(editor.root.get())
+            pane.show(editor.content.get())
         }
     }
 

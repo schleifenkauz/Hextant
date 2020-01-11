@@ -12,9 +12,17 @@ import javafx.scene.control.Label
 
 class SimpleEditorPane : EditorPane, Control() {
     private var currentEditor: Editor<*>? = null
+    private val empty = Label("Please open a file")
 
     init {
-        setRoot(Label("Please open a file"))
+        setRoot(empty)
+    }
+
+    override fun deleted(editor: Editor<*>) {
+        if (editor == currentEditor) {
+            currentEditor = null
+            setRoot(empty)
+        }
     }
 
     override fun show(editor: Editor<*>) {

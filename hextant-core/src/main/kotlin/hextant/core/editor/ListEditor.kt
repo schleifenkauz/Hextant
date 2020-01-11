@@ -85,7 +85,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     override fun deserialize(input: Input, context: SerialContext) {
         val size = input.readInt()
         for (idx in 0 until size) {
-            doAddAt(idx, input.readObject() as E)
+            doAddAt(idx, input.readObject() as E, notify = false)
         }
     }
 
@@ -106,6 +106,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         val edit = AddEdit(index, editor)
         doAddAt(index, editor)
         undo.push(edit)
+        editorAdded(editor, index)
     }
 
     /**
@@ -140,7 +141,17 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         removeAt(idx)
     }
 
-    private fun doAddAt(index: Int, editor: E) {
+    /**
+     * Is called whenever a new editor is added to the list of editors forming this [ListEditor]
+     */
+    protected open fun editorAdded(editor: E, index: Int) {}
+
+    /**
+     * Is called whenever an editor removed from the list of editors forming this [ListEditor]
+     */
+    protected open fun editorRemoved(editor: E, index: Int) {}
+
+    private fun doAddAt(index: Int, editor: E, notify: Boolean = true) {
         val emptyBefore = emptyNow()
         _editors.now.add(index, editor)
         child(editor)
@@ -149,6 +160,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
             if (emptyBefore) notEmpty()
             added(editor, index)
         }
+        if (notify) editorAdded(editor, index)
     }
 
     private fun updateIndicesFrom(index: Int) {
@@ -159,10 +171,11 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     }
 
     private fun doRemoveAt(index: Int) {
-        _editors.now.removeAt(index)
+        val old = _editors.now.removeAt(index)
         updateIndicesFrom(index)
         views { removed(index) }
         if (emptyNow()) views { empty() }
+        editorRemoved(old, index)
     }
 
     override fun viewAdded(view: ListEditorView) {

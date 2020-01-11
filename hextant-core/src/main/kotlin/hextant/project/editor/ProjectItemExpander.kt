@@ -13,6 +13,7 @@ import hextant.project.view.EditorPane
 import hextant.serial.*
 import reaktive.Observer
 import reaktive.event.Subscription
+import reaktive.value.now
 
 class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
     Expander<ProjectItem<R>, ProjectItemEditor<R, *>>(context, initialText), ProjectItemEditor<R, ProjectItem<R>> {
@@ -21,7 +22,7 @@ class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
     private var abortChangeSubscription: Subscription? = null
     private var renamer: Observer? = null
     override val path: ReactivePath?
-        get() = null
+        get() = editor.now?.path
 
     val config: ExpanderConfig<ProjectItemEditor<R, *>> = defaultConfig().extendWith(cfg.transform {
         val exp = RootExpander(cfg, it.context, it)
@@ -57,7 +58,8 @@ class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
             renamer = editor.renamePhysicalOnNameChange()
             if (editor is FileEditor<*>) {
                 val pane = context[EditorPane]
-                pane.show(editor.root.get())
+                editor.content.write()
+                pane.show(editor.content.get())
             } else if (editor is DirectoryEditor<*>) {
                 context[HextantFileManager].createDirectory(editor.path.now)
             }

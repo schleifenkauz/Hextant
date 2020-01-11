@@ -35,4 +35,13 @@ internal class HextantFileManagerImpl(private val context: Context) : HextantFil
     override fun createDirectory(path: Path) {
         Files.createDirectory(context[projectRoot].resolve(path))
     }
+
+    override fun delete(path: ReactivePath) {
+        val f = cache.remove(path) ?: error("$path is not managed by this file manager")
+        f.delete()
+        val absolute = context[projectRoot].resolve(path.now)
+        if (Files.isDirectory(absolute)) {
+            Files.walk(absolute).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
+        } else Files.delete(absolute)
+    }
 }

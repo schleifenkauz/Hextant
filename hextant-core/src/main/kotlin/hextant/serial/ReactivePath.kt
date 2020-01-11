@@ -9,6 +9,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 sealed class ReactivePath {
+    override fun toString(): String = now.toString()
+
     companion object {
         fun empty(): ReactivePath = Nil
 
