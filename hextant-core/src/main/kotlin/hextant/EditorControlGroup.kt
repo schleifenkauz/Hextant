@@ -31,5 +31,7 @@ class EditorControlGroup : ViewGroup<EditorControl<*>> {
         throw NoSuchElementException("No view factory registered for $editor")
     }
 
+    override fun hasViewFor(editor: Editor<*>): Boolean = views.containsKey(editor)
+
     companion object : Property<EditorControlGroup, Public, Public>("editor control group")
 }

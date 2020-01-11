@@ -77,3 +77,8 @@ internal operator fun <T : Any> Context.set(property: Property<T, *, Internal>, 
  * Delegates to [HextantPlatform.runLater] of the [Context.platform] of this [Context]
  */
 fun Context.runLater(action: () -> Unit) = platform.runLater(action)
+
+/**
+ * Create a new context which has this [Context] as its parent and apply the given [block] to it.
+ */
+inline fun Context.extend(block: Context.() -> Unit): Context = Context.newInstance(this, block)

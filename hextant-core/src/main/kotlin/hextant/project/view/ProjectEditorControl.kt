@@ -11,7 +11,6 @@ import hextant.fx.on
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import hextant.util.DoubleWeakHashMap
-import javafx.application.Platform
 import javafx.scene.control.*
 import javafx.scene.control.SelectionMode.MULTIPLE
 import javafx.scene.input.KeyCode.*
@@ -23,7 +22,6 @@ import reaktive.list.unmodifiableReactiveList
 import reaktive.value.binding.map
 import reaktive.value.now
 import kotlin.collections.set
-import kotlin.concurrent.thread
 
 class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, arguments: Bundle) :
     EditorControl<TreeView<ProjectItemEditor<*, *>>>(editor, arguments) {
@@ -36,8 +34,12 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
     private inner class Cell : TreeCell<ProjectItemEditor<*, *>>() {
         override fun updateItem(item: ProjectItemEditor<*, *>?, empty: Boolean) {
             super.updateItem(item, empty)
-            graphic = item.takeUnless { empty }?.let {
-                context.createView(it)
+            if (item == null || empty) {
+                graphic = null
+            } else {
+                val v = context.createView(item)
+                graphic = v
+                v.receiveFocus()
             }
         }
     }
@@ -124,17 +126,9 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
 
     private fun addItemTo(p: ProjectItemListEditor<*>) {
         val new = p.addLast()
-        thread {
-            //TODO invent slightly less horrific hack
-            Thread.sleep(20) //EVIL! Waits for new view to rendered and added to view group.
-            Platform.runLater {
-                val item = items[new]
-                root.selectionModel.clearSelection()
-                root.selectionModel.select(item)
-                val view = context[EditorControlGroup].getViewOf(new)
-                view.receiveFocus()
-            }
-        }
+        val item = items[new] ?: error("Did not find tree item associated with $new")
+        root.selectionModel.clearSelection()
+        root.selectionModel.select(item)
     }
 
     private fun createTreeItem(e: ProjectItemEditor<*, *>): TreeItem<ProjectItemEditor<*, *>> {
