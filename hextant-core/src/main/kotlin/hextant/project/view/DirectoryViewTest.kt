@@ -18,16 +18,12 @@ import hextant.project.editor.*
 import hextant.serial.HextantFileManager
 import hextant.serial.HextantFileManagerImpl
 import hextant.serial.SerialProperties.projectRoot
-import hextant.serial.SerialProperties.serial
-import hextant.serial.SerialProperties.serialContext
 import javafx.scene.Parent
 import javafx.scene.control.SplitPane
 import javafx.scene.input.KeyCode.O
 import javafx.scene.input.KeyCode.S
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
-import kserial.createInput
-import kserial.createOutput
 import java.nio.file.Paths
 
 class DirectoryViewTest : HextantApplication() {
@@ -49,13 +45,13 @@ class DirectoryViewTest : HextantApplication() {
             menu("File") {
                 item("Save", shortcut(S) { control(DOWN) }) {
                     val path = context[projectRoot].resolve(".project")
-                    val output = context[serial].createOutput(path, context[serialContext])
+                    val output = context.createOutput(path)
                     output.writeUntyped(e)
                     output.close()
                 }
                 item("Open", shortcut(O) { control(DOWN) }) {
                     val path = context[projectRoot].resolve(".project")
-                    val input = context[serial].createInput(path, context[serialContext])
+                    val input = context.createInput(path)
                     input.readInplace(e)
                     input.close()
                 }

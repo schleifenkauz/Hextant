@@ -6,6 +6,8 @@ package hextant.main
 
 import hextant.Context
 import hextant.HextantPlatform
+import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.Property
 import hextant.fx.hextantScene
 import javafx.application.Application
 import javafx.application.Platform
@@ -44,4 +46,8 @@ abstract class HextantApplication : Application() {
     protected abstract fun createContext(platform: HextantPlatform): Context
 
     protected abstract fun createView(context: Context): Parent
+
+    companion object {
+        val stage = Property<Stage, Internal, Internal>("stage")
+    }
 }

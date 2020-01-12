@@ -13,20 +13,20 @@ import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
 import kserial.*
 import reaktive.dependencies
-import reaktive.list.ReactiveList
+import reaktive.list.*
 import reaktive.list.binding.values
-import reaktive.list.reactiveList
 import reaktive.value.binding.binding
 
 /**
  * An editor for multiple child editors of type [E] whose result type is [R]
  */
 abstract class ListEditor<R : Any, E : Editor<R>>(
-    context: Context
+    context: Context,
+    private val _editors: MutableReactiveList<E>
 ) : AbstractEditor<List<R>, ListEditorView>(context), Serializable {
-    private val undo = context[UndoManager]
+    constructor(context: Context) : this(context, reactiveList())
 
-    private val _editors = reactiveList<E>()
+    private val undo = context[UndoManager]
 
     private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
 
@@ -55,9 +55,9 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     }
 
     /**
-     * Create a new Editor for results of type [E]
+     * Create a new Editor for results of type [E], or null if no new editor should be created
      */
-    protected abstract fun createEditor(): E
+    protected abstract fun createEditor(): E?
 
 
     override fun copyForImpl(context: Context): Editor<List<R>> {
@@ -98,8 +98,8 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * Add a new editor at the given index using [createEditor] to create a new editor
      */
     @ProvideCommand(name = "Add editor", shortName = "add")
-    fun addAt(index: Int): E {
-        val editor = createEditor()
+    fun addAt(index: Int): E? {
+        val editor = createEditor() ?: return null
         addAt(index, editor)
         return editor
     }
@@ -111,23 +111,19 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         val edit = AddEdit(index, editor)
         doAddAt(index, editor)
         undo.push(edit)
-        editorAdded(editor, index)
     }
 
     /**
-     * Add a new editor at the end of the editor list
+     * Add the new [editor] at the end of the editor list
      */
-    fun addLast(editor: E = createEditor()): E {
+    fun addLast(editor: E) {
         addAt(editors.now.size, editor)
-        return editor
     }
 
-    /**
-     * Add a new editor in front of the editor list
-     */
-    fun addFirst(editor: E = createEditor()): E {
-        addAt(0, editor)
-        return editor
+    fun addLast(): E? {
+        val e = createEditor() ?: return null
+        addLast(e)
+        return e
     }
 
     /**

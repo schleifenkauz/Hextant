@@ -268,7 +268,7 @@ abstract class EditorControl<R : Node>(
 
     private fun setSelected(selected: Boolean) {
         _isSelected.set(selected)
-        pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
+        root.pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
     }
 
     private fun initShortcuts() {

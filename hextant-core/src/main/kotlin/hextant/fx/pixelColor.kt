@@ -12,6 +12,7 @@ fun main() {
     println("Ask your question!")
     while (true) {
         val question = sc.next()
+        Thread.sleep(10000)
         val color = getColorAtMousePointer()
         val answer = when (question) {
             "red"   -> color.red.toString()

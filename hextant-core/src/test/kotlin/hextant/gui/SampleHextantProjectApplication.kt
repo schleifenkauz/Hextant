@@ -1,0 +1,31 @@
+/**
+ *@author Nikolaus Knop
+ */
+
+package hextant.gui
+
+import hextant.Context
+import hextant.createView
+import hextant.main.HextantProjectApplication
+import hextant.main.ProjectType
+import hextant.project.view.DirectoryViewTest.IntEditor
+import javafx.scene.Parent
+import java.nio.file.Path
+import java.nio.file.Paths
+
+class SampleHextantProjectApplication : HextantProjectApplication<IntEditor>() {
+    override fun configurationDirectory(): Path = Paths.get("D:", "dev", "hextant")
+
+    override fun createView(editor: IntEditor): Parent = editor.context.createView(editor)
+
+    override fun projectType() = object : ProjectType<IntEditor> {
+        override fun createProjectRoot(context: Context): IntEditor = IntEditor(context)
+    }
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            launch(SampleHextantProjectApplication::class.java)
+        }
+    }
+}

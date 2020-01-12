@@ -80,6 +80,18 @@ interface HextantPlatform : Context {
         fun configured(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
             unconfigured(bundle).apply { configure() }
 
+        fun newInstance(): HextantPlatform = unconfigured().apply {
+            set(EditorControlFactory, EditorControlFactory.newInstance())
+            set(EditorFactory, EditorFactory.newInstance())
+            set(Commands, Commands.newInstance())
+            set(Inspections, Inspections.newInstance())
+            set(Stylesheets, Stylesheets())
+            val plugins = PluginRegistry(this, Settings.plugins)
+            set(PluginRegistry, plugins)
+            set(SerialProperties.serialContext, HextantSerialContext(this, plugins.compoundClassLoader))
+            set(SerialProperties.serial, KSerial.newInstance())
+        }
+
         private fun HextantPlatform.configure() {
             set(SelectionDistributor, SelectionDistributor.newInstance())
             set(EditorControlFactory, EditorControlFactory.newInstance())

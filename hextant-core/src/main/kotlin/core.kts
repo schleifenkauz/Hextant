@@ -7,6 +7,7 @@ import hextant.core.view.FilteredTokenEditorControl.Companion.ABORT_CHANGE
 import hextant.core.view.FilteredTokenEditorControl.Companion.BEGIN_CHANGE
 import hextant.core.view.FilteredTokenEditorControl.Companion.COMMIT_CHANGE
 import hextant.fx.shortcut
+import hextant.main.PathEditorControl
 import hextant.plugin.dsl.plugin
 import hextant.project.editor.FileNameEditor
 import hextant.project.view.DirectoryEditorControl
@@ -19,7 +20,7 @@ plugin {
     name = "Hextant Core"
     author = "Nikolaus Knop"
     view(::FXExpanderView)
-    view { e: ListEditor<*, *>, args -> FXListEditorView(e, args) }
+    view { e: ListEditor<*, *>, args -> ListEditorControl(e, args) }
     view { e: TokenEditor<*, TokenEditorView>, args -> FXTokenEditorView(e, args) }
     inspection(::SyntaxErrorInspection)
     registerInspection<FilteredTokenEditor<*>> {
@@ -38,5 +39,6 @@ plugin {
     view(::FileEditorControl)
     view(::DirectoryEditorControl)
     view(::FilteredTokenEditorControl)
+    view(::PathEditorControl)
     stylesheet("hextant/core/style.css")
 }

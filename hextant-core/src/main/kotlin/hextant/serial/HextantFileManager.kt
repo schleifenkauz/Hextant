@@ -4,6 +4,7 @@
 
 package hextant.serial
 
+import hextant.Context
 import hextant.Editor
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
@@ -49,5 +50,7 @@ interface HextantFileManager {
      */
     fun delete(path: ReactivePath)
 
-    companion object : Property<HextantFileManager, Public, Public>("file manager")
+    companion object : Property<HextantFileManager, Public, Public>("file manager") {
+        fun newInstance(context: Context): HextantFileManager = HextantFileManagerImpl(context)
+    }
 }
