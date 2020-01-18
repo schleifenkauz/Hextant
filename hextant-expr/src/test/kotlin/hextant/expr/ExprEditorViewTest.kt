@@ -117,11 +117,11 @@ class ExprEditorViewTest : HextantApplication() {
             shortName = "flip_op"
             description = "Flips the both operands in this operator application"
             applicableIf { oe ->
-                val oae = oe.parent.now as? OperatorApplicationEditor ?: return@applicableIf false
+                val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
                 oae.operator.result.now.map { it.isCommutative }.ifErr { false }
             }
             executing { oe, _ ->
-                val oae = oe.parent.now as OperatorApplicationEditor
+                val oae = oe.parent as OperatorApplicationEditor
                 val expander1 = oae.operand1
                 val editableOp1 = expander1.editor.now
                 val expander2 = oae.operand2
@@ -135,10 +135,10 @@ class ExprEditorViewTest : HextantApplication() {
             shortName = "collapse"
             description = "Partially evaluate the selected expression"
             applicableIf { oae ->
-                oae.result.now.isOk && oae.expander.now != null
+                oae.result.now.isOk && oae.expander != null
             }
             executing { oae, _ ->
-                val ex = oae.expander.now as ExprExpander
+                val ex = oae.expander as ExprExpander
                 val res = oae.result.now.force().value
                 val editable = IntLiteralEditor(context, res.toString())
                 ex.setEditor(editable)
@@ -149,10 +149,10 @@ class ExprEditorViewTest : HextantApplication() {
             shortName = "unwrap"
             description = "Unwrap an expression by replacing its outer application with itself"
             applicableIf {
-                it.parent.now is OperatorApplicationEditor && it.parent.now!!.expander.now is ExprExpander
+                it.parent is OperatorApplicationEditor && it.parent!!.expander is ExprExpander
             }
             executing { editor, _ ->
-                val parentExpander = editor.parent.now!!.expander.now as ExprExpander
+                val parentExpander = editor.parent!!.expander as ExprExpander
                 parentExpander.setEditor(editor)
             }
         }
@@ -169,10 +169,10 @@ class ExprEditorViewTest : HextantApplication() {
             addFix {
                 description = "Shorten expression"
                 applicableIf {
-                    inspected.expander.now is ExprExpander
+                    inspected.expander is ExprExpander
                 }
                 fixingBy {
-                    val expander = inspected.expander.now as ExprExpander
+                    val expander = inspected.expander as ExprExpander
                     expander.setEditor(inspected.operand1)
                 }
 
@@ -200,10 +200,10 @@ class ExprEditorViewTest : HextantApplication() {
                 description = "The operator being applied"
                 name = "operator"
             }
-            applicableIf { it.expander.now is ExprExpander }
+            applicableIf { it.expander is ExprExpander }
             executing { editor, (operator) ->
                 operator as Operator
-                val expander = editor.expander.now as ExprExpander
+                val expander = editor.expander as ExprExpander
                 val opEditor = OperatorEditor(context, operator)
                 val app = OperatorApplicationEditor(
                     context,

@@ -12,7 +12,6 @@ import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
-import reaktive.value.*
 
 /**
  * Skeletal implementation for [Editor]s
@@ -20,30 +19,31 @@ import reaktive.value.*
 @Suppress("OverridingDeprecatedMember")
 abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Context) : Editor<R>,
                                                                                         AbstractController<V>() {
-    private val _parent = reactiveVariable<Editor<*>?>(null)
-
-    final override val parent: ReactiveValue<Editor<*>?> get() = _parent
+    final override var parent: Editor<*>? = null
+        private set
 
     private val _children = reactiveList<Editor<*>>()
 
     override val children: ReactiveCollection<Editor<*>> get() = _children
 
-    private val _expander = reactiveVariable<Expander<R, *>?>(null)
+    final override var expander: Expander<*, *>? = null
+        private set
 
-    override val expander: ReactiveValue<Expander<*, *>?> get() = _expander
-
-    override fun setParent(newParent: Editor<*>?) {
-        _parent.set(newParent)
+    override fun initParent(parent: Editor<*>) {
+        check(this.parent == null)
+        this.parent = parent
     }
 
-    override fun setExpander(newExpander: Expander<@UnsafeVariance R, *>?) {
-        _expander.set(newExpander)
+    override fun initExpander(expander: Expander<@UnsafeVariance R, *>) {
+        check(this.expander == null)
+        this.expander = expander
     }
 
     final override var accessor: EditorAccessor? = null
         private set
 
-    override fun setAccessor(acc: EditorAccessor) {
+    override fun initAccessor(acc: EditorAccessor) {
+        check(accessor == null)
         accessor = acc
     }
 
@@ -56,7 +56,7 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
      */
     protected fun <E : Editor<*>> child(editor: E): E {
         @Suppress("DEPRECATION")
-        editor.setParent(this)
+        editor.initParent(this)
         _children.now.add(editor)
         return editor
     }
@@ -70,12 +70,13 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
 
     private var _file: FileEditor<*>? = null
 
-    override fun setFile(editor: FileEditor<*>) {
+    override fun initFile(editor: FileEditor<*>) {
+        check(_file == null)
         _file = editor
     }
 
     override val file: FileEditor<*>?
-        get() = _file ?: parent.now?.file
+        get() = _file ?: parent?.file
 
     override val isRoot: Boolean
         get() = _file != null

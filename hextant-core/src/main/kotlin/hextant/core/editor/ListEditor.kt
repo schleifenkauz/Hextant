@@ -167,7 +167,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     private fun updateIndicesFrom(index: Int) {
         for (i in index until editors.now.size) {
             @Suppress("DEPRECATION")
-            editors.now[i].setAccessor(IndexAccessor(index))
+            editors.now[i].initAccessor(IndexAccessor(index))
         }
     }
 

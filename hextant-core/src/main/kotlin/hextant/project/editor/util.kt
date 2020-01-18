@@ -21,11 +21,11 @@ fun ProjectItemEditor<*, *>.getItemNameEditor(): FileNameEditor? = when (this) {
 }
 
 fun ProjectItemEditor<*, *>.getProjectItemEditorParent(): ProjectItemEditor<*, *>? {
-    var cur = parent.now
+    var cur = parent
     while (true) {
         if (cur == null) return null
         if (cur is ProjectItemEditor<*, *>) return cur
-        else cur = cur.parent.now
+        else cur = cur.parent
     }
 }
 

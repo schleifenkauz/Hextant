@@ -56,7 +56,7 @@ abstract class CompoundEditor<R : Any>(context: Context) :
             thisRef: CompoundEditor<*>,
             property: KProperty<*>
         ): ReadOnlyProperty<CompoundEditor<*>, E> {
-            editor.setAccessor(PropertyAccessor(property.name))
+            editor.initAccessor(PropertyAccessor(property.name))
             return delegate(editor)
         }
     }

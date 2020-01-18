@@ -6,7 +6,6 @@ package hextant.serial
 
 import hextant.Editor
 import hextant.get
-import reaktive.value.now
 
 /**
  * Return the first editor in the sequence of parents which is a root editor.
@@ -15,7 +14,7 @@ val Editor<*>.root: Editor<*>
     get() {
         var cur = this
         while (!cur.isRoot) {
-            cur = cur.parent.now ?: error("Editor has no root")
+            cur = cur.parent ?: error("Editor has no root")
         }
         return cur
     }
@@ -28,12 +27,12 @@ val <E : Editor<*>> E.location: EditorLocation<E>
         var cur: Editor<*> = this
         val accessors = mutableListOf<EditorAccessor>()
         while (!cur.isRoot) {
-            while (cur.expander.now != null) {
-                cur = cur.expander.now!!
+            while (cur.expander != null) {
+                cur = cur.expander!!
                 accessors.add(ExpanderContent)
             }
             val acc = cur.accessor ?: error("Editor has no accessor")
-            cur = cur.parent.now ?: error("Editor has no parent")
+            cur = cur.parent ?: error("Editor has no parent")
             accessors.add(acc)
         }
         accessors.reverse()

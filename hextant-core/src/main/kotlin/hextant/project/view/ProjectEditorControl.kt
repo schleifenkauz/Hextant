@@ -91,11 +91,11 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
     private fun deleteItems(selected: List<TreeItem<ProjectItemEditor<*, *>>>) {
         for (item in selected) {
             val e = item.value
-            val list = e.parent.now
+            val list = e.parent
             if (list !is ProjectItemListEditor<*>) return
             list as ProjectItemListEditor<Any>
             list.remove(e as ProjectItemEditor<Any, *>)
-            val dir = list.parent.now
+            val dir = list.parent
             if (dir !is DirectoryEditor<*>) return
             val v = context[EditorControlGroup].getViewOf(dir)
             v.requestFocus()
@@ -106,18 +106,18 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
         when (e) {
             null                   -> return false
             is DirectoryEditor     -> {
-                val exp = e.expander.now
+                val exp = e.expander
                 if (exp is ProjectItemExpander<*>) {
                     items[exp]?.isExpanded = true
                 }
                 addItemTo(e.items)
             }
             is FileEditor          -> {
-                val p = e.parent.now as? ProjectItemListEditor<*> ?: return false
+                val p = e.parent as? ProjectItemListEditor<*> ?: return false
                 addItemTo(p)
             }
             is ProjectItemExpander -> if (!addNewItem(e.editor.now)) {
-                val p = e.parent.now as? ProjectItemListEditor<*> ?: return false
+                val p = e.parent as? ProjectItemListEditor<*> ?: return false
                 addItemTo(p)
             }
         }

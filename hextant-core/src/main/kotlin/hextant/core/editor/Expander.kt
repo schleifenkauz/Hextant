@@ -52,8 +52,6 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     private var resultDelegator: Observer? = null
 
-    private var parentBinder: Observer? = null
-
     /**
      * @return `true` only if the expander is expanded
      */
@@ -138,23 +136,26 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     private fun unexpand() {
         resultDelegator?.kill()
-        parentBinder?.kill()
         resultDelegator = null
-        parentBinder = null
         _editor.set(null)
         _result.set(childErr())
     }
 
     @Suppress("DEPRECATION")
     private fun doExpandTo(editor: E) {
+        this.parent?.let { editor.initParent(it) }
+        editor.initExpander(this)
+        editor.initAccessor(ExpanderContent)
         resultDelegator = _result.bind(editor.result.map { it.orElse { childErr() } })
-        parentBinder = this.parent.forEach { editor.setParent(it) }
         _editor.set(editor)
         _text.set(null)
-        editor.setParent(this.parent.now)
-        editor.setExpander(this)
-        editor.setAccessor(ExpanderContent)
         views { expanded(editor) }
+    }
+
+    @Suppress("DEPRECATION", "OverridingDeprecatedMember")
+    override fun initParent(parent: Editor<*>) {
+        super.initParent(parent)
+        editor.now?.initParent(parent)
     }
 
     private fun changeState(newState: State<E>, actionDescription: String) {

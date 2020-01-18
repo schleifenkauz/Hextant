@@ -69,7 +69,7 @@ class FileEditor<R : Any> private constructor(
 
     private fun updateEditor(e: Editor<R>) {
         obs = _result.bind(result2(fileName, e) { name, content -> ok(File(name, content)) })
-        e.setFile(this)
+        e.initFile(this)
     }
 
     override fun serialize(output: Output, context: SerialContext) {
