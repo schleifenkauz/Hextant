@@ -1,5 +1,5 @@
-import hextant.core.view.FXListEditorView
-import hextant.core.view.FXListEditorView.Orientation.Horizontal
+import hextant.core.view.ListEditorControl
+import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.edited.Expr
 import hextant.expr.edited.Operator
 import hextant.expr.editor.*
@@ -24,9 +24,9 @@ plugin {
     view(::FXSumEditorView)
     defaultEditor(::ExprExpander)
     defaultEditor(::ExprListEditor)
-    view<ExprListEditor, FXListEditorView> { editor, args ->
-        FXListEditorView.withAltGlyph(editor, FontAwesome.Glyph.PLUS, args, Horizontal).apply {
-            cellFactory = { FXListEditorView.SeparatorCell(", ") }
+    view<ExprListEditor, ListEditorControl> { editor, args ->
+        ListEditorControl.withAltGlyph(editor, FontAwesome.Glyph.PLUS, args, Horizontal).apply {
+            cellFactory = { ListEditorControl.SeparatorCell(", ") }
         }
     }
     registerConversion<Expr, Int> { expr -> ok(expr.value) }

@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference
 
 internal class VirtualEditorImpl<E : Editor<*>>(
     ref: E,
-    private val root: HextantFile<out RootEditor<*>>,
+    private val root: HextantFile<Editor<*>>,
     private val location: EditorLocation<E>
 ) : VirtualEditor<E> {
     private var weak = WeakReference(ref)

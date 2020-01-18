@@ -12,8 +12,10 @@ import hextant.impl.*
 import hextant.inspect.Inspections
 import hextant.main.InputMethod
 import hextant.plugin.PluginRegistry
+import hextant.serial.HextantSerialContext
+import hextant.serial.SerialProperties
 import hextant.undo.UndoManager
-import kserial.SerialContext
+import kserial.KSerial
 import java.util.concurrent.*
 import java.util.logging.Logger
 
@@ -69,7 +71,7 @@ interface HextantPlatform : Context {
          * * [Stylesheets] configurator
          * * [EditorControlGroup]
          * * [PluginRegistry]
-         * * [CoreProperties.serialContext]
+         * * [SerialProperties.serialContext]
          * * [CoreProperties.clipboard]
          * * [CoreProperties.classLoader]
          * * [UndoManager]
@@ -77,6 +79,18 @@ interface HextantPlatform : Context {
          */
         fun configured(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
             unconfigured(bundle).apply { configure() }
+
+        fun newInstance(): HextantPlatform = unconfigured().apply {
+            set(EditorControlFactory, EditorControlFactory.newInstance())
+            set(EditorFactory, EditorFactory.newInstance())
+            set(Commands, Commands.newInstance())
+            set(Inspections, Inspections.newInstance())
+            set(Stylesheets, Stylesheets())
+            val plugins = PluginRegistry(this, Settings.plugins)
+            set(PluginRegistry, plugins)
+            set(SerialProperties.serialContext, HextantSerialContext(this, plugins.compoundClassLoader))
+            set(SerialProperties.serial, KSerial.newInstance())
+        }
 
         private fun HextantPlatform.configure() {
             set(SelectionDistributor, SelectionDistributor.newInstance())
@@ -89,10 +103,8 @@ interface HextantPlatform : Context {
             set(EditorControlGroup, EditorControlGroup())
             val plugins = PluginRegistry(this, Settings.plugins)
             set(PluginRegistry, plugins)
-            set(CoreProperties.serialContext, SerialContext.newInstance {
-                classLoader = plugins.compoundClassLoader
-                useUnsafe = false
-            })
+            set(SerialProperties.serial, KSerial.newInstance())
+            set(SerialProperties.serialContext, HextantSerialContext(this, plugins.compoundClassLoader))
             set(CoreProperties.classLoader, plugins.compoundClassLoader)
             set(UndoManager, UndoManager.newInstance())
             set(InputMethod, InputMethod.REGULAR)

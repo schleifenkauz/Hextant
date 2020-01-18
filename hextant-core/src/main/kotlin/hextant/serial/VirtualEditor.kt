@@ -8,7 +8,7 @@ import hextant.Editor
 import kotlin.reflect.KProperty
 
 /**
- * Virtual editors consist of a [HextantFile] with a [RootEditor] and an [EditorLocation].
+ * Virtual editors consist of a [HextantFile] with a [Editor] and an [EditorLocation].
  * They weakly cache the editor denoted by the [EditorLocation] and localize it from the root if needed.
  */
 interface VirtualEditor<E : Editor<*>> {
@@ -18,7 +18,7 @@ interface VirtualEditor<E : Editor<*>> {
     fun get(): E
 
     /**
-     * Alias for [get]
+     * Alias for [getGet]
      */
     operator fun getValue(thisRef: Any?, property: KProperty<*>): E = get()
 }

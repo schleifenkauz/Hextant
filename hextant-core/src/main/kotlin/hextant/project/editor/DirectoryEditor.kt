@@ -7,6 +7,7 @@ package hextant.project.editor
 import hextant.*
 import hextant.base.CompoundEditor
 import hextant.project.Directory
+import hextant.serial.*
 import reaktive.value.now
 
 class DirectoryEditor<R : Any>(
@@ -17,8 +18,13 @@ class DirectoryEditor<R : Any>(
     val directoryName by child(name, context)
     val items by child(content, context)
 
+    override val path: ReactivePath by lazy {
+        val parentPath = getProjectItemEditorParent()?.path ?: ReactivePath.empty()
+        parentPath.resolve(directoryName.text)
+    }
+
     private fun nameEditor(item: ProjectItemEditor<*, *>): FileNameEditor? = when (item) {
-        is FileEditor          -> item.name
+        is FileEditor          -> item.fileName
         is DirectoryEditor     -> item.directoryName
         is ProjectItemExpander -> item.editor.now?.let { nameEditor(it) }
         else                   -> null
@@ -31,4 +37,8 @@ class DirectoryEditor<R : Any>(
 
     override val result: EditorResult<Directory<R>> =
         result2(directoryName, items) { name, items -> ok(Directory(name, items)) }
+
+    override fun deletePhysical() {
+        context[HextantFileManager].deleteDirectory(path)
+    }
 }

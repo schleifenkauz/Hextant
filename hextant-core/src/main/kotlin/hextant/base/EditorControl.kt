@@ -14,6 +14,7 @@ import hextant.fx.ModifierValue.MAYBE
 import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import hextant.inspect.gui.InspectionPopup
+import hextant.undo.UndoManager
 import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.control.Control
@@ -267,13 +268,27 @@ abstract class EditorControl<R : Node>(
 
     private fun setSelected(selected: Boolean) {
         _isSelected.set(selected)
-        pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
+        root.pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
     }
 
     private fun initShortcuts() {
         registerShortcuts {
             on(EXTEND_SELECTION) { extendSelection() }
             on(SHRINK_SELECTION) { shrinkSelection() }
+            maybeOn(shortcut(Z) { control(DOWN) }) {
+                val manager = context[UndoManager]
+                if (manager.canUndo) {
+                    manager.undo()
+                    true
+                } else false
+            }
+            maybeOn(shortcut(Z) { control(DOWN); shift(DOWN) }) {
+                val manager = context[UndoManager]
+                if (manager.canRedo) {
+                    manager.redo()
+                    true
+                } else false
+            }
             maybeOn(INSPECTIONS) { showInspections() }
         }
     }

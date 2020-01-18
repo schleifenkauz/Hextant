@@ -7,10 +7,15 @@ package hextant.fx
 import hextant.fx.ModifierValue.*
 import javafx.event.EventHandler
 import javafx.scene.Node
-import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
+import javafx.scene.input.*
 
 enum class ModifierValue { DOWN, UP, MAYBE }
+
+fun ModifierValue.fx(): KeyCombination.ModifierValue = when (this) {
+    DOWN  -> KeyCombination.ModifierValue.DOWN
+    UP    -> KeyCombination.ModifierValue.UP
+    MAYBE -> KeyCombination.ModifierValue.ANY
+}
 
 class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: ModifierValue, val shift: ModifierValue) {
     override fun toString(): String = if (key == null) "Never" else buildString {
@@ -35,6 +40,8 @@ class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: ModifierV
         !ev.isShiftDown && shift == DOWN     -> false
         else                                 -> true
     }
+
+    fun toCombination(): KeyCombination = KeyCodeCombination(key, shift.fx(), control.fx(), alt.fx(), UP.fx(), UP.fx())
 }
 
 class ShortcutBuilder @PublishedApi internal constructor(private val key: KeyCode) {

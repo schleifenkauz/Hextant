@@ -9,6 +9,9 @@ import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
+import hextant.serial.SerialProperties
+import kserial.*
+import java.nio.file.Path
 import kotlin.reflect.KClass
 
 /**
@@ -77,3 +80,20 @@ internal operator fun <T : Any> Context.set(property: Property<T, *, Internal>, 
  * Delegates to [HextantPlatform.runLater] of the [Context.platform] of this [Context]
  */
 fun Context.runLater(action: () -> Unit) = platform.runLater(action)
+
+/**
+ * Create a new context which has this [Context] as its parent and apply the given [block] to it.
+ */
+inline fun Context.extend(block: Context.() -> Unit): Context = Context.newInstance(this, block)
+
+fun Context.createOutput(path: Path): Output {
+    val ctx = get(SerialProperties.serialContext)
+    val serial = get(SerialProperties.serial)
+    return serial.createOutput(path, ctx)
+}
+
+fun Context.createInput(path: Path): Input {
+    val ctx = get(SerialProperties.serialContext)
+    val serial = get(SerialProperties.serial)
+    return serial.createInput(path, ctx)
+}

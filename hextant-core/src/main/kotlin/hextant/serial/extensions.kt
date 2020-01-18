@@ -5,16 +5,16 @@
 package hextant.serial
 
 import hextant.Editor
-import reaktive.value.now
+import hextant.get
 
 /**
- * Return the first editor in the sequence of parents which is a [RootEditor]. Note that [RootEditor]s may have parents
+ * Return the first editor in the sequence of parents which is a root editor.
  */
-val Editor<*>.root: RootEditor<*>
+val Editor<*>.root: Editor<*>
     get() {
         var cur = this
-        while (cur !is RootEditor) {
-            cur = cur.parent.now ?: error("Editor has no root")
+        while (!cur.isRoot) {
+            cur = cur.parent ?: error("Editor has no root")
         }
         return cur
     }
@@ -26,13 +26,13 @@ val <E : Editor<*>> E.location: EditorLocation<E>
     get() {
         var cur: Editor<*> = this
         val accessors = mutableListOf<EditorAccessor>()
-        while (cur !is RootEditor) {
-            while (cur.expander.now != null) {
-                cur = cur.expander.now!!
+        while (!cur.isRoot) {
+            while (cur.expander != null) {
+                cur = cur.expander!!
                 accessors.add(ExpanderContent)
             }
             val acc = cur.accessor ?: error("Editor has no accessor")
-            cur = cur.parent.now ?: error("Editor has no parent")
+            cur = cur.parent ?: error("Editor has no parent")
             accessors.add(acc)
         }
         accessors.reverse()
@@ -43,9 +43,7 @@ val <E : Editor<*>> E.location: EditorLocation<E>
  * Virtualize this editor
  */
 fun <E : Editor<*>> E.virtualize(): VirtualEditor<E> {
-    val r = root
-    val f = r.file()
-    @Suppress("UNCHECKED_CAST")
+    val f = context[HextantFileManager].get(root)
     val loc = location
     return VirtualEditorImpl(this, f, loc)
 }

@@ -19,6 +19,8 @@ import kserial.*
 import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.map
+import kotlin.reflect.KClass
+import kotlin.reflect.full.allSupertypes
 
 /**
  * An Expander acts like a wrapper around editors.
@@ -52,8 +54,6 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     private var resultDelegator: Observer? = null
 
-    private var parentBinder: Observer? = null
-
     /**
      * @return `true` only if the expander is expanded
      */
@@ -73,7 +73,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      */
     val text: ReactiveValue<String?> get() = _text
 
-    private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
+    private val constructor = this::class.getSimpleConstructor()
 
     /**
      * @return the editor that should be wrapped if the expander is expanded with the given [text] or `null` if the text
@@ -82,36 +82,59 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     protected abstract fun expand(text: String): E?
 
     /**
-     * Return `true` iff the given editor can be the content of this expander.
-     * Default implementation simply returns `false`
+     * Can be overwritten by extending classes to be notified when [expand] was successfully called
      */
-    protected open fun accepts(editor: Editor<*>): Boolean = false
+    protected open fun onExpansion(editor: E) {}
 
-    private fun doChangeState(newState: State<E>) {
+    /**
+     * Can be overwritten by extending classes to be notified when [reset] was successfully called
+     */
+    protected open fun onReset(editor: E) {}
+
+    /**
+     * Return `true` iff the given editor can be the content of this expander.
+     * Default implementation reflectively queries the value of type argument [E]
+     * and returns `true` if [editor] is an instance of this class
+     */
+    protected open fun accepts(editor: Editor<*>): Boolean {
+        val supertypes = this::class.allSupertypes
+        val expanderSupertype = supertypes.find { it.classifier == Expander::class } ?: throw AssertionError()
+        val editorCls = expanderSupertype.arguments[1].type?.classifier ?: throw AssertionError()
+        if (editorCls !is KClass<*>) return false
+        return editorCls.isInstance(editor)
+    }
+
+    private fun doChangeState(newState: State<E>, notify: Boolean = true) {
         val oldState = state
         state = newState
         when (oldState) {
             is Expanded   -> {
                 unexpand()
-                _result.set(childErr())
+                if (notify) onReset(oldState.editor)
                 when (newState) {
                     is Unexpanded -> {
-                        resetViews()
-                        onSetText(newState.text)
+                        views { reset() }
+                        doSetText(newState.text)
                     }
-                    is Expanded   -> doExpandTo(newState.editor)
+                    is Expanded   -> {
+                        doExpandTo(newState.editor)
+                        if (notify) onExpansion(newState.editor)
+                    }
                 }
             }
             is Unexpanded -> {
                 when (newState) {
-                    is Unexpanded -> onSetText(newState.text)
-                    is Expanded   -> doExpandTo(newState.editor)
+                    is Unexpanded -> doSetText(newState.text)
+                    is Expanded   -> {
+                        doExpandTo(newState.editor)
+                        if (notify) onExpansion(newState.editor)
+                    }
                 }
             }
         }
     }
 
-    private fun onSetText(text: String) {
+    private fun doSetText(text: String) {
         _text.set(text)
         views { displayText(text) }
     }
@@ -122,22 +145,26 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     private fun unexpand() {
         resultDelegator?.kill()
-        parentBinder?.kill()
         resultDelegator = null
-        parentBinder = null
         _editor.set(null)
+        _result.set(childErr())
     }
 
     @Suppress("DEPRECATION")
     private fun doExpandTo(editor: E) {
+        this.parent?.let { editor.initParent(it) }
+        editor.initExpander(this)
+        editor.initAccessor(ExpanderContent)
         resultDelegator = _result.bind(editor.result.map { it.orElse { childErr() } })
-        parentBinder = this.parent.forEach { editor.setParent(it) }
         _editor.set(editor)
         _text.set(null)
-        editor.setParent(this.parent.now)
-        editor.setExpander(this)
-        editor.setAccessor(ExpanderContent)
         views { expanded(editor) }
+    }
+
+    @Suppress("DEPRECATION", "OverridingDeprecatedMember")
+    override fun initParent(parent: Editor<*>) {
+        super.initParent(parent)
+        editor.now?.initParent(parent)
     }
 
     private fun changeState(newState: State<E>, actionDescription: String) {
@@ -183,22 +210,30 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     }
 
     override fun copyForImpl(context: Context): Editor<R> {
-        val copy = constructor.newInstance(context) as Expander<R, E>
+        val copy = constructor.invoke(context)
         copy.doChangeState(this.state.copyState())
         return copy
     }
 
     override fun serialize(output: Output, context: SerialContext) {
         output.writeObject(text.now)
-        output.writeObject(editor.now)
+        editor.now?.let { e ->
+            output.writeString(e::class.java.name!!)
+            output.writeUntyped(e)
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(input: Input, context: SerialContext) {
         val text = input.readTyped<String?>()
-        if (text != null) setText(text)
-        val editor = input.readObject() as E?
-        if (editor != null) setEditor(editor)
+        if (text != null) doChangeState(Unexpanded(text), notify = false)
+        else {
+            val name = input.readString()
+            val cls = Class.forName(name).kotlin
+            val editor = context.createInstance(cls)
+            doChangeState(Expanded(editor as E), notify = false)
+            input.readInplace(editor)
+        }
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {

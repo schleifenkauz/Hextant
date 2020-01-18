@@ -3,8 +3,6 @@ package hextant.bundle
 import hextant.bundle.CorePermissions.Internal
 import hextant.bundle.CorePermissions.Public
 import javafx.scene.layout.Region
-import kserial.KSerial
-import kserial.SerialContext
 import java.util.logging.Logger
 
 /**
@@ -15,11 +13,6 @@ object CoreProperties {
      * The logger property
      */
     val logger = Property<Logger, Public, Internal>("top level logger")
-
-    /**
-     * The [SerialContext]
-     */
-    val serialContext = Property<SerialContext, Public, Internal>("serial context")
 
     /**
      * The class loader used by the application
@@ -36,7 +29,6 @@ object CoreProperties {
      */
     val clipboard: Property<Any, Public, Internal> = Property("clipboard", NoClipboard)
 
-    val serial: Property<KSerial, Internal, Internal> = Property("internal")
 
     object NoClipboard
 }

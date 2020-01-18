@@ -5,17 +5,15 @@
 package hextant.project.editor
 
 import hextant.*
-import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
-import reaktive.value.now
+import hextant.core.editor.FilteredTokenEditor
 
-class FileNameEditor(context: Context, text: String) : TokenEditor<String, TokenEditorView>(context, text) {
+class FileNameEditor(context: Context, text: String) : FilteredTokenEditor<String>(context, text) {
     constructor(context: Context) : this(context, "")
 
     private fun parentDirectory(): DirectoryEditor<*>? {
-        val item = parent.now as? ProjectItemEditor<*, *> ?: return null
-        val list = item.parent.now as? ProjectItemListEditor<*> ?: return null
-        return list.parent.now as? DirectoryEditor<*>
+        val item = parent as? ProjectItemEditor<*, *> ?: return null
+        val list = item.parent as? ProjectItemListEditor<*> ?: return null
+        return list.parent as? DirectoryEditor<*>
     }
 
     override fun compile(token: String): CompileResult<String> = when {

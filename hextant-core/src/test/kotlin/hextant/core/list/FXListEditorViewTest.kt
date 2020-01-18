@@ -2,8 +2,8 @@ package hextant.core.list
 
 import hextant.*
 import hextant.core.editor.ListEditor
-import hextant.core.view.FXListEditorView
-import hextant.core.view.FXListEditorView.NumberedCell
+import hextant.core.view.ListEditorControl
+import hextant.core.view.ListEditorControl.NumberedCell
 import hextant.expr.editor.ExprListEditor
 import hextant.fx.hextantScene
 import javafx.application.Application
@@ -22,9 +22,9 @@ class FXListEditorViewTest : Application() {
             val list = ExprListEditor(context)
             val views = context[EditorControlFactory]
             views.register(ListEditor::class) { editor, args ->
-                FXListEditorView(editor, args)
+                ListEditorControl(editor, args)
             }
-            val view = context.createView(list) as FXListEditorView
+            val view = context.createView(list) as ListEditorControl
             view.cellFactory = { NumberedCell() }
             return view
         }

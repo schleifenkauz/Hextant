@@ -20,4 +20,9 @@ interface ViewGroup<V : EditorView> {
      * **Creates** an editor view for the given editor
      */
     fun createViewFor(editor: Editor<*>, context: Context, arguments: Bundle): V
+
+    /**
+     * Returns `true` only if this [ViewGroup] has cached a view for the given [editor]
+     */
+    fun hasViewFor(editor: Editor<*>): Boolean
 }

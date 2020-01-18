@@ -199,12 +199,15 @@ fun <A : Any, T> result1(dep1: Editor<A>, body: (A) -> CompileResult<T>): Editor
 /**
  * @return an [EditorResult] with the given dependencies computing [body]
  */
-fun <A : Any, B : Any, T> result2(dep1: Editor<A>, dep2: Editor<B>, body: (A, B) -> CompileResult<T>): EditorResult<T> =
-    result(dep1, dep2) {
+fun <A : Any, B : Any, T> result2(dep1: Editor<A>, dep2: Editor<B>, body: (A, B) -> CompileResult<T>): EditorResult<T> {
+    val res1 = dep1.result
+    val res2 = dep2.result
+    return result(dep1, dep2) {
         compile {
-            body(dep1.result.now.orTerminate { childErr() }, dep2.result.now.orTerminate { childErr() })
+            body(res1.now.orTerminate { childErr() }, res2.now.orTerminate { childErr() })
         }
     }
+}
 
 /**
  * @return an [EditorResult] with the given dependencies computing [body]
@@ -214,16 +217,20 @@ fun <A : Any, B : Any, C : Any, T> result3(
     dep2: Editor<B>,
     dep3: Editor<C>,
     body: (A, B, C) -> CompileResult<T>
-): EditorResult<T> =
-    result(dep1, dep2, dep3) {
+): EditorResult<T> {
+    val res1 = dep1.result
+    val res2 = dep2.result
+    val res3 = dep3.result
+    return result(dep1, dep2, dep3) {
         compile {
             body(
-                dep1.result.now.orTerminate { childErr() },
-                dep2.result.now.orTerminate { childErr() },
-                dep3.result.now.orTerminate { childErr() }
+                res1.now.orTerminate { childErr() },
+                res2.now.orTerminate { childErr() },
+                res3.now.orTerminate { childErr() }
             )
         }
     }
+}
 
 /**
  * @return an [EditorResult] with the given dependencies computing [body]
@@ -234,17 +241,22 @@ fun <A : Any, B : Any, C : Any, D : Any, T> result4(
     dep3: Editor<C>,
     dep4: Editor<D>,
     body: (A, B, C, D) -> CompileResult<T>
-): EditorResult<T> =
-    result(dep1, dep2, dep3, dep4) {
+): EditorResult<T> {
+    val res1 = dep1.result
+    val res2 = dep2.result
+    val res3 = dep3.result
+    val res4 = dep4.result
+    return result(dep1, dep2, dep3, dep4) {
         compile {
             body(
-                dep1.result.now.orTerminate { childErr() },
-                dep2.result.now.orTerminate { childErr() },
-                dep3.result.now.orTerminate { childErr() },
-                dep4.result.now.orTerminate { childErr() }
+                res1.now.orTerminate { childErr() },
+                res2.now.orTerminate { childErr() },
+                res3.now.orTerminate { childErr() },
+                res4.now.orTerminate { childErr() }
             )
         }
     }
+}
 
 
 /**

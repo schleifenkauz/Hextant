@@ -14,7 +14,7 @@ import hextant.bundle.*
 open class AbstractContext(final override val parent: Context?, private val bundle: Bundle = Bundle.newInstance()) :
     Context, ReactiveBundle by Bundle.reactive(bundle) {
     override val platform: HextantPlatform
-        get() = TODO("not implemented")
+        get() = parent?.platform ?: throw NoSuchElementException("No platform in this context")
 
     override fun <T : Any, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T =
         when {

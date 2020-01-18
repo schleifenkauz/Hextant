@@ -39,10 +39,10 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         view.displayText(text.now)
     }
 
-    private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
+    private val constructor = this::class.getSimpleConstructor()
 
     override fun copyForImpl(context: Context): Editor<R> {
-        val copy = constructor.newInstance(context)
+        val copy = constructor.invoke(context)
         copy.doSetText(this.text.now)
         return copy
     }
