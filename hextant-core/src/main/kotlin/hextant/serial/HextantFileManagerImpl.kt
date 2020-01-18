@@ -6,7 +6,6 @@ package hextant.serial
 
 import hextant.*
 import hextant.serial.SerialProperties.projectRoot
-import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -41,18 +40,15 @@ internal class HextantFileManagerImpl(private val context: Context) : HextantFil
         }
     }
 
-    override fun delete(path: ReactivePath) {
+    override fun deleteFile(path: ReactivePath) {
         safeIO {
-            val absolute = context[projectRoot].resolve(path.now)
-            when {
-                Files.isRegularFile(absolute) -> {
-                    val f = cache.remove(path) ?: error("$path is not managed by this file manager")
-                    f.delete()
-                }
-                Files.isDirectory(absolute)   ->
-                    Files.walk(absolute).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
-                else                          -> throw IOException("Illegal file type $absolute")
-            }
+            val f = cache.remove(path) ?: error("$path is not managed by this file manager")
+            f.delete()
         }
+    }
+
+    override fun deleteDirectory(path: ReactivePath) {
+        val absolute = context[projectRoot].resolve(path.now)
+        Files.walk(absolute).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
     }
 }

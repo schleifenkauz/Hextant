@@ -19,6 +19,8 @@ import kserial.*
 import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.map
+import kotlin.reflect.KClass
+import kotlin.reflect.full.allSupertypes
 
 /**
  * An Expander acts like a wrapper around editors.
@@ -71,7 +73,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      */
     val text: ReactiveValue<String?> get() = _text
 
-    private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
+    private val constructor = this::class.getSimpleConstructor()
 
     /**
      * @return the editor that should be wrapped if the expander is expanded with the given [text] or `null` if the text
@@ -91,9 +93,16 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     /**
      * Return `true` iff the given editor can be the content of this expander.
-     * Default implementation simply returns `false`
+     * Default implementation reflectively queries the value of type argument [E]
+     * and returns `true` if [editor] is an instance of this class
      */
-    protected open fun accepts(editor: Editor<*>): Boolean = false
+    protected open fun accepts(editor: Editor<*>): Boolean {
+        val supertypes = this::class.allSupertypes
+        val expanderSupertype = supertypes.find { it.classifier == Expander::class } ?: throw AssertionError()
+        val editorCls = expanderSupertype.arguments[1].type?.classifier ?: throw AssertionError()
+        if (editorCls !is KClass<*>) return false
+        return editorCls.isInstance(editor)
+    }
 
     private fun doChangeState(newState: State<E>, notify: Boolean = true) {
         val oldState = state
@@ -201,7 +210,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     }
 
     override fun copyForImpl(context: Context): Editor<R> {
-        val copy = constructor.newInstance(context) as Expander<R, E>
+        val copy = constructor.invoke(context)
         copy.doChangeState(this.state.copyState())
         return copy
     }

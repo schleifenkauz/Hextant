@@ -23,11 +23,12 @@ import reaktive.value.*
  */
 abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: String = "") :
     AbstractEditor<R, FilteredTokenEditorView>(context), TokenType<R>, Serializable {
-    private var oldText = initialText
+    private var oldText: String = initialText
     private val _text = reactiveVariable(initialText)
-    private val _editable = reactiveVariable(false)
+    private val _editable = reactiveVariable(true)
     private val _intermediateResult = reactiveVariable(this.compile(initialText))
-    private val _result = reactiveVariable(_intermediateResult.now)
+    private val _result = reactiveVariable(childErr<R>())
+
     private val beginChange = unitEvent()
     private val abortChange = unitEvent()
     private val commitChange = event<String>()
@@ -74,7 +75,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         _editable.set(true)
         beginChange.fire()
         views.forEach { v ->
-            v.beginChange()
+            v.setEditable(true)
         }
     }
 
@@ -89,7 +90,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         _intermediateResult.now = compile(oldText)
         abortChange.fire()
         views.forEach { v ->
-            v.endChange()
+            v.setEditable(false)
         }
     }
 
@@ -107,7 +108,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         oldText = text.now
         commitChange.fire(text.now)
         views.forEach { v ->
-            v.endChange()
+            v.setEditable(false)
         }
         context[UndoManager].push(edit)
     }
@@ -136,18 +137,20 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         }
     }
 
+    fun recompile() {
+        _intermediateResult.set(compile(text.now))
+    }
+
     override fun copyForImpl(context: Context): Editor<R> {
-        abortChange()
         return constructor.newInstance(context, text.now)
     }
 
     override fun viewAdded(view: FilteredTokenEditorView) {
-        if (editable.now) view.beginChange()
+        view.setEditable(editable.now)
         view.displayText(_text.now)
     }
 
     override fun serialize(output: Output, context: SerialContext) {
-        abortChange()
         output.writeString(text.now)
     }
 
@@ -155,6 +158,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         _text.now = input.readString()
         _intermediateResult.now = compile(text.now)
         _result.now = intermediateResult.now
+        _editable.now = false
     }
 
     private inner class CommitEdit(private val old: String, private val new: String) : AbstractEdit() {

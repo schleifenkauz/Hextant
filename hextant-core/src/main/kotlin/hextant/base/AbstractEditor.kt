@@ -30,7 +30,7 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
         private set
 
     override fun initParent(parent: Editor<*>) {
-        check(this.parent == null)
+        check(this.parent == null) { "$this already has a parent" }
         this.parent = parent
     }
 
@@ -43,7 +43,6 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
         private set
 
     override fun initAccessor(acc: EditorAccessor) {
-        check(accessor == null)
         accessor = acc
     }
 
@@ -70,8 +69,7 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
 
     private var _file: FileEditor<*>? = null
 
-    override fun initFile(editor: FileEditor<*>) {
-        check(_file == null)
+    override fun setFile(editor: FileEditor<*>) {
         _file = editor
     }
 

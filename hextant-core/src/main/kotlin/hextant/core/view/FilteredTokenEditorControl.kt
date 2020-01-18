@@ -25,20 +25,8 @@ class FilteredTokenEditorControl(val editor: FilteredTokenEditor<*>, arguments: 
         editor.addView(this)
     }
 
-    override fun beginChange() {
-        root.isEditable = true
-        root.isFocusTraversable = true
-        root.requestFocus()
-        root.selectAll()
-    }
-
     override fun displayText(text: String) {
         root.smartSetText(text)
-    }
-
-    override fun endChange() {
-        root.isEditable = false
-        root.isFocusTraversable = false
     }
 
     private fun listenForCommands() {
@@ -60,11 +48,15 @@ class FilteredTokenEditorControl(val editor: FilteredTokenEditor<*>, arguments: 
         }
     }
 
-
-    override fun createDefaultRoot(): HextantTextField = HextantTextField().apply {
-        isEditable = false
-        isFocusTraversable = false
+    override fun setEditable(editable: Boolean) {
+        root.isEditable = editable
+        if (editable) {
+            root.requestFocus()
+            root.selectAll()
+        }
     }
+
+    override fun createDefaultRoot(): HextantTextField = HextantTextField()
 
     companion object {
         val COMMIT_CHANGE = Property<Shortcut, Public, Public>("commit", default = never())

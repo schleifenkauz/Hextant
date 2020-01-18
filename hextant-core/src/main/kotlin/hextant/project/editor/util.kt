@@ -34,7 +34,6 @@ private fun ProjectItemEditor<*, *>.resolve(name: String): Path {
     return p.now.resolve(name)
 }
 
-
 internal fun ProjectItemEditor<*, *>.renamePhysicalOnNameChange(): Observer {
     val name = getItemNameEditor() ?: error("Invalid project item editor")
     return name.result.observe { _, old, new ->

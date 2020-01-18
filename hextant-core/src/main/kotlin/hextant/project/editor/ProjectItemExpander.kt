@@ -15,8 +15,10 @@ import reaktive.Observer
 import reaktive.event.Subscription
 import reaktive.value.now
 
-class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
+class ProjectItemExpander<R : Any>(context: Context, initialText: String) :
     Expander<ProjectItem<R>, ProjectItemEditor<R, *>>(context, initialText), ProjectItemEditor<R, ProjectItem<R>> {
+    constructor(context: Context) : this(context, "")
+
     private val cfg = context[config<R>()]
     private var commitChangeSubscription: Subscription? = null
     private var abortChangeSubscription: Subscription? = null
@@ -42,24 +44,24 @@ class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
                 val obj = RootExpander(ctx, cfg, null)
                 fileEditor(obj)
             }
-            registerConstant("dir") { ctx -> DirectoryEditor(ctx, FileNameEditor(ctx, "_")) }
+            registerConstant("dir") { ctx -> DirectoryEditor(ctx, FileNameEditor(ctx, "")) }
         }
 
     private fun fileEditor(editor: RootExpander<R>): FileEditor<R> {
-        val parentPath = getProjectItemEditorParent()?.path ?: ReactivePath.empty()
-        return FileEditor(context, FileNameEditor(context, "_"), editor, parentPath)
+        return FileEditor(context, FileNameEditor(context, ""), editor)
     }
 
     override fun onExpansion(editor: ProjectItemEditor<R, *>) {
         val name = editor.getItemNameEditor() ?: error("Unexpected project item editor")
         name.beginChange()
+        name.recompile()
         commitChangeSubscription = name.commitedChange.subscribe { _, _ ->
             renamer?.kill()
             renamer = editor.renamePhysicalOnNameChange()
             if (editor is FileEditor<*>) {
+                editor.initialize()
                 val pane = context[EditorPane]
-                editor.content.write()
-                pane.show(editor.content.get())
+                pane.show(editor.rootEditor)
             } else if (editor is DirectoryEditor<*>) {
                 context[HextantFileManager].createDirectory(editor.path.now)
             }
@@ -72,8 +74,11 @@ class ProjectItemExpander<R : Any>(context: Context, initialText: String = "") :
     }
 
     override fun onReset(editor: ProjectItemEditor<R, *>) {
-        val p = editor.path ?: error("Expanded project item editor must have path")
-        context[HextantFileManager].delete(p)
+        editor.deletePhysical()
+    }
+
+    override fun deletePhysical() {
+        editor.now?.deletePhysical()
     }
 
     private fun cancelSubscriptions() {

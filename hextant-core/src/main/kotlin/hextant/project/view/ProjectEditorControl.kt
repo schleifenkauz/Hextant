@@ -7,6 +7,7 @@ package hextant.project.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
+import hextant.fx.ModifierValue.DOWN
 import hextant.fx.on
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
@@ -78,6 +79,14 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             on(F2) {
                 val item = root.selectionModel.selectedItem.value
                 if (item != null) startRename(item)
+            }
+            on(C, { control(DOWN); shift(DOWN) }) {
+                val item = root.selectionModel.selectedItem.value
+                if (item is ProjectItemExpander) item.copy()
+            }
+            on(C) {
+                val item = root.selectionModel.selectedItem.value
+                if (item is ProjectItemExpander) item.copy()
             }
         }
     }

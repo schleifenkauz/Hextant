@@ -45,10 +45,14 @@ interface HextantFileManager {
     fun createDirectory(path: Path)
 
     /**
-     * Delete the directory or file associated with the given [path].
-     * @throws IllegalStateException if [path] represents a file and there is no [HextantFile] associated with it.
+     * Delete the physical file represented by [path] and remove the associated [HextantFile]
      */
-    fun delete(path: ReactivePath)
+    fun deleteFile(path: ReactivePath)
+
+    /**
+     * Delete the directory associated with the given [path]
+     */
+    fun deleteDirectory(path: ReactivePath)
 
     companion object : Property<HextantFileManager, Public, Public>("file manager") {
         fun newInstance(context: Context): HextantFileManager = HextantFileManagerImpl(context)

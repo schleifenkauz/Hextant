@@ -9,7 +9,6 @@ import hextant.core.editor.ListEditor
 import hextant.get
 import hextant.project.ProjectItem
 import hextant.project.view.EditorPane
-import hextant.serial.HextantFileManager
 import reaktive.value.now
 
 class ProjectItemListEditor<T : Any>(context: Context) :
@@ -20,9 +19,9 @@ class ProjectItemListEditor<T : Any>(context: Context) :
         val p = editor.path ?: return
         if (editor is ProjectItemExpander && editor.editor.now is FileEditor<*>) {
             val file = editor.editor.now as FileEditor<*>
-            val root = file.content.get()
+            val root = file.rootEditor
             context[EditorPane].deleted(root)
         }
-        context[HextantFileManager].delete(p)
+        editor.deletePhysical()
     }
 }

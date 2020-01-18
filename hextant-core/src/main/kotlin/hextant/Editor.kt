@@ -90,5 +90,5 @@ interface Editor<out R : Any> {
     fun getSubEditor(accessor: EditorAccessor): Editor<*>
 
     @Deprecated("Treat as private")
-    fun initFile(editor: FileEditor<*>)
+    fun setFile(editor: FileEditor<*>)
 }

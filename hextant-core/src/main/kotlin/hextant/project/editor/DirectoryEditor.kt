@@ -7,8 +7,7 @@ package hextant.project.editor
 import hextant.*
 import hextant.base.CompoundEditor
 import hextant.project.Directory
-import hextant.serial.ReactivePath
-import hextant.serial.resolve
+import hextant.serial.*
 import reaktive.value.now
 
 class DirectoryEditor<R : Any>(
@@ -38,4 +37,8 @@ class DirectoryEditor<R : Any>(
 
     override val result: EditorResult<Directory<R>> =
         result2(directoryName, items) { name, items -> ok(Directory(name, items)) }
+
+    override fun deletePhysical() {
+        context[HextantFileManager].deleteDirectory(path)
+    }
 }

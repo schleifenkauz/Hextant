@@ -60,10 +60,11 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     protected abstract fun createEditor(): E?
 
 
+    @Suppress("UNCHECKED_CAST")
     override fun copyForImpl(context: Context): Editor<List<R>> {
         val copy = constructor.newInstance(context)
         for ((i, e) in editors.now.withIndex()) {
-            addAt(i, e)
+            copy.doAddAt(i, e.copyForImpl(context) as E)
         }
         return copy
     }
