@@ -20,15 +20,15 @@ fun ModifierValue.fx(): KeyCombination.ModifierValue = when (this) {
 
 data class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: ModifierValue, val shift: ModifierValue) {
     override fun toString(): String = if (key == null) "Never" else buildString {
-        append(key.name)
         for ((name, value) in listOf("Ctrl" to control, "Alt" to alt, "Shift" to shift)) {
             when (value) {
-                DOWN  -> append(" + $name")
+                DOWN  -> append("$name + ")
                 UP    -> {
                 }
-                MAYBE -> append(" + ($name)")
+                MAYBE -> append("$name? + ")
             }
         }
+        append(key.name)
     }
 
     fun matches(ev: KeyEvent): Boolean = when {
@@ -105,32 +105,36 @@ fun parseShortcut(s: String): Shortcut {
     var alt = UP
     val builder = StringBuilder()
     fun tokenComplete(idx: Int) {
-        when (val tok = builder.toString().toLowerCase()) {
-            "ctrl"   -> {
+        when (val tok = builder.toString().toUpperCase()) {
+            "CTRL"   -> {
                 checkNotSet(ctrl, idx, tok)
                 ctrl = DOWN
             }
-            "ctrl?"  -> {
+            "CTRL?"  -> {
                 checkNotSet(ctrl, idx, tok)
                 ctrl = MAYBE
             }
-            "shift"  -> {
+            "SHIFT"  -> {
                 checkNotSet(shift, idx, tok)
                 shift = DOWN
             }
-            "shift?" -> {
+            "SHIFT?" -> {
                 checkNotSet(shift, idx, tok)
                 shift = MAYBE
             }
-            "alt"    -> {
+            "ALT"    -> {
                 checkNotSet(alt, idx, tok)
                 alt = DOWN
             }
-            "alt?"   -> {
+            "ALT?"   -> {
                 checkNotSet(alt, idx, tok)
                 alt = MAYBE
             }
-            else     -> code = KeyCode.getKeyCode(tok) ?: throw ParseException("Illegal token '$tok'", idx)
+            else     -> try {
+                code = KeyCode.valueOf(tok)
+            } catch (e: IllegalArgumentException) {
+                throw ParseException("Illegal token '$tok'", idx)
+            }
         }
         builder.clear()
     }
@@ -144,7 +148,7 @@ fun parseShortcut(s: String): Shortcut {
     }
     tokenComplete(s.length - 1)
     if (code == null) throw ParseException("Illegal shortcut, has no main key", 0)
-    return Shortcut(code, ctrl, shift, alt)
+    return Shortcut(code, ctrl, alt, shift)
 }
 
 fun Node.registerShortcuts(
