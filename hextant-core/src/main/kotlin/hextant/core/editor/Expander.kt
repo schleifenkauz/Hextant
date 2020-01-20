@@ -73,7 +73,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      */
     val text: ReactiveValue<String?> get() = _text
 
-    private val constructor = this::class.getSimpleConstructor()
+    private val constructor by lazy { this::class.getSimpleConstructor() }
 
     /**
      * @return the editor that should be wrapped if the expander is expanded with the given [text] or `null` if the text

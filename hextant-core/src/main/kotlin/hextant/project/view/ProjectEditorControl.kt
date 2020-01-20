@@ -7,14 +7,11 @@ package hextant.project.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.fx.ModifierValue.DOWN
-import hextant.fx.on
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import hextant.util.DoubleWeakHashMap
 import javafx.scene.control.*
 import javafx.scene.control.SelectionMode.MULTIPLE
-import javafx.scene.input.KeyCode.*
 import reaktive.Observer
 import reaktive.list.ListChange.*
 import reaktive.list.ReactiveList
@@ -68,23 +65,23 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
     init {
         root.selectionModel.selectionMode = MULTIPLE
         root.registerShortcuts {
-            on(INSERT) {
+            on("INSERT") {
                 val e = root.selectionModel.selectedItem.value
                 if (e != null) addNewItem(e)
             }
-            on(DELETE) {
+            on("DELETE") {
                 val selected = root.selectionModel.selectedItems.toList()
                 deleteItems(selected)
             }
-            on(F2) {
+            on("F2") {
                 val item = root.selectionModel.selectedItem.value
                 if (item != null) startRename(item)
             }
-            on(C, { control(DOWN); shift(DOWN) }) {
+            on("Ctrl+Shift+C") {
                 val item = root.selectionModel.selectedItem.value
                 if (item is ProjectItemExpander) item.copy()
             }
-            on(C) {
+            on("C") {
                 val item = root.selectionModel.selectedItem.value
                 if (item is ProjectItemExpander) item.copy()
             }

@@ -30,12 +30,10 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
         private set
 
     override fun initParent(parent: Editor<*>) {
-        check(this.parent == null) { "$this already has a parent" }
         this.parent = parent
     }
 
     override fun initExpander(expander: Expander<@UnsafeVariance R, *>) {
-        check(this.expander == null)
         this.expander = expander
     }
 

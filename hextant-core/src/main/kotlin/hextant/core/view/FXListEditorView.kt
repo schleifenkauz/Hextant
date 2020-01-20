@@ -9,14 +9,10 @@ import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.core.editor.ListEditor
 import hextant.createView
-import hextant.fx.ModifierValue.DOWN
-import hextant.fx.on
 import hextant.fx.registerShortcuts
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.control.SelectionMode.MULTIPLE
-import javafx.scene.input.KeyCode.DELETE
-import javafx.scene.input.KeyCode.INSERT
 import reaktive.list.fx.asObservableList
 
 class FXListEditorView(private val editor: ListEditor<*, *>, arguments: Bundle) :
@@ -25,17 +21,17 @@ class FXListEditorView(private val editor: ListEditor<*, *>, arguments: Bundle) 
         setCellFactory { Cell() }
         selectionModel.selectionMode = MULTIPLE
         registerShortcuts {
-            on(DELETE) {
+            on("Delete") {
                 val idx = selectionModel.selectedIndex
                 if (idx != -1) {
                     editor.removeAt(idx)
                 }
             }
-            on(INSERT) {
+            on("Insert") {
                 val idx = selectionModel.selectedIndex
                 editor.addAt(idx + 1) //also works if idx == -1
             }
-            on(INSERT, { shift(DOWN) }) {
+            on("Shift+Insert") {
                 val idx = selectionModel.selectedIndex
                 if (idx != -1) editor.addAt(idx)
             }

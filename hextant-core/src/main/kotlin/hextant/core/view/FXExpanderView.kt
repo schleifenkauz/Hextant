@@ -13,12 +13,10 @@ import hextant.completion.NoCompleter
 import hextant.completion.gui.CompleterPopupHelper
 import hextant.core.editor.Expander
 import hextant.createView
-import hextant.fx.*
-import hextant.fx.ModifierValue.DOWN
-import hextant.fx.ModifierValue.MAYBE
+import hextant.fx.HextantTextField
+import hextant.fx.registerShortcuts
 import hextant.main.InputMethod
 import javafx.scene.Node
-import javafx.scene.input.KeyCode.*
 import reaktive.event.Subscription
 import reaktive.event.subscribe
 import reaktive.value.now
@@ -78,10 +76,10 @@ open class FXExpanderView(
     init {
         with(textField) {
             registerShortcuts {
-                on(shortcut(V) { control(DOWN); shift(DOWN) }) { expander.paste() }
-                on(shortcut(V)) { expander.paste() }
-                on(shortcut(SPACE) { control(DOWN) }) { completionHelper.show(this@FXExpanderView) }
-                on(shortcut(ENTER)) { expander.expand() }
+                on("Ctrl + Shift + V") { expander.paste() }
+                on("V") { expander.paste() }
+                on("Ctrl + Space") { completionHelper.show(this@FXExpanderView) }
+                on("Enter") { expander.expand() }
             }
             textSubscription = userUpdatedText.subscribe { new -> expander.setText(new) }
         }
@@ -124,9 +122,9 @@ open class FXExpanderView(
         val v = context.createView(editor)
         view = v
         v.registerShortcuts {
-            on(shortcut(R) { control(MAYBE) }) { expander.reset() }
-            on(shortcut(C) { control(DOWN); shift(DOWN) }) { expander.copy() }
-            on(shortcut(C)) { expander.copy() }
+            on("Ctrl? + R") { expander.reset() }
+            on("Ctrl + Shift + C") { expander.copy() }
+            on("C") { expander.copy() }
         }
         root = v
         this.next?.let { v.setNext(it) }

@@ -6,12 +6,10 @@ package hextant.main
 
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.fx.on
 import hextant.fx.registerShortcuts
 import hextant.get
 import javafx.geometry.Pos
 import javafx.scene.control.Button
-import javafx.scene.input.KeyCode.F2
 import java.nio.file.Path
 
 class PathEditorControl(
@@ -20,7 +18,7 @@ class PathEditorControl(
 ) : EditorControl<Button>(editor, arguments), PathEditorView {
     init {
         registerShortcuts {
-            on(F2) {
+            on("F2") {
                 rename()
             }
         }

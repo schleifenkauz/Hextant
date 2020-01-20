@@ -16,7 +16,7 @@ import hextant.fx.ModifierValue.MAYBE
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
-import javafx.scene.input.*
+import javafx.scene.input.KeyCode
 import javafx.scene.layout.*
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
@@ -234,17 +234,12 @@ open class ListEditorControl(
     }
 
     private fun Cell<*>.initEventHandlers() {
-        addEventHandler(KeyEvent.KEY_RELEASED) { evt ->
-            var consume = true
-            when {
-                ADD_ITEM_AFTER.matches(evt)                                      -> editor.addAt(index + 1)
-                ADD_ITEM_BEFORE.matches(evt)                                     -> editor.addAt(index)
-                REMOVE_ITEM.matches(evt)                                         -> editor.removeAt(index)
-                orientation.nextCombination.match(evt) && cells.size > index + 1 -> cells[index + 1].requestFocus()
-                orientation.previousCombination.match(evt) && index > 0          -> cells[index - 1].requestFocus()
-                else                                                             -> consume = false
-            }
-            if (consume) evt.consume()
+        registerShortcuts {
+            on(ADD_ITEM_AFTER) { editor.addAt(index + 1) }
+            on(ADD_ITEM_BEFORE) { editor.addAt(index) }
+            on(REMOVE_ITEM) { editor.removeAt(index) }
+            if (cells.size > index + 1) on(orientation.nextCombination) { cells[index + 1].requestLayout() }
+            if (cells.size > index + 1) on(orientation.previousCombination) { cells[index - 1].requestLayout() }
         }
     }
 
@@ -273,26 +268,24 @@ open class ListEditorControl(
     interface Orientation {
         fun createLayout(): Pane
 
-        val nextCombination: KeyCombination
+        val nextCombination: Shortcut
 
-        val previousCombination: KeyCombination
+        val previousCombination: Shortcut
 
         object Horizontal : Orientation {
             override fun createLayout(): Pane = HBox()
 
-            override val nextCombination: KeyCombination =
-                KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHORTCUT_DOWN)
+            override val nextCombination = "Right".shortcut
 
-            override val previousCombination: KeyCombination =
-                KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHORTCUT_DOWN)
+            override val previousCombination = "Left".shortcut
         }
 
         object Vertical : Orientation {
             override fun createLayout(): Pane = VBox()
 
-            override val nextCombination: KeyCombination = KeyCodeCombination(KeyCode.DOWN)
+            override val nextCombination = "Down".shortcut
 
-            override val previousCombination: KeyCombination = KeyCodeCombination(KeyCode.UP)
+            override val previousCombination = "Up".shortcut
         }
     }
 
