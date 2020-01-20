@@ -10,14 +10,27 @@ import javafx.scene.Node
 import javafx.scene.input.*
 import java.text.ParseException
 
+/**
+ * Specifies whether a certain modifier key (e.g. shift) is up, down or it does not matter
+ */
 enum class ModifierValue { DOWN, UP, MAYBE }
 
+/**
+ * Map this [ModifierValue] to the JavaFX counterpart
+ */
 fun ModifierValue.fx(): KeyCombination.ModifierValue = when (this) {
     DOWN  -> KeyCombination.ModifierValue.DOWN
     UP    -> KeyCombination.ModifierValue.UP
     MAYBE -> KeyCombination.ModifierValue.ANY
 }
 
+/**
+ * Represents a shortcut
+ * @param key the main key, that the user pressed
+ * @param control specifies whether the Ctrl modifier is pressed
+ * @param alt specifies whether the Alt modifier is pressed
+ * @param shift specifies whether the Shift modifier is pressed
+ */
 data class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: ModifierValue, val shift: ModifierValue) {
     override fun toString(): String = if (key == null) "Never" else buildString {
         for ((name, value) in listOf("Ctrl" to control, "Alt" to alt, "Shift" to shift)) {
@@ -31,6 +44,9 @@ data class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: Modi
         append(key.name)
     }
 
+    /**
+     * Tests whether the given key event is recognized by this shortcut
+     */
     fun matches(ev: KeyEvent): Boolean = when {
         ev.code != key                       -> false
         ev.isAltDown && alt == UP            -> false
@@ -42,9 +58,15 @@ data class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: Modi
         else                                 -> true
     }
 
+    /**
+     * Map this shortcut to the JavaFX counterpart
+     */
     fun toCombination(): KeyCombination = KeyCodeCombination(key, shift.fx(), control.fx(), alt.fx(), UP.fx(), UP.fx())
 }
 
+/**
+ *
+ */
 class ShortcutBuilder @PublishedApi internal constructor(private val key: KeyCode) {
     private var control = UP
     private var alt = UP
@@ -69,7 +91,11 @@ inline fun shortcut(key: KeyCode, block: ShortcutBuilder.() -> Unit = {}) = Shor
 
 fun never() = Shortcut(null, UP, UP, UP)
 
-class KeyEventHandlerBody(private val event: KeyEvent) {
+class KeyEventHandlerBody @PublishedApi internal constructor(private val event: KeyEvent) {
+    /**
+     * If the key event matches the given [shortcut], the given [action] is executed.
+     * @param consume if `false` the user is responsible for consuming the key event
+     */
     fun on(shortcut: Shortcut, consume: Boolean = true, action: (KeyEvent) -> Unit) {
         if (shortcut.matches(event)) {
             action(event)
@@ -77,6 +103,10 @@ class KeyEventHandlerBody(private val event: KeyEvent) {
         }
     }
 
+    /**
+     * If the key event matches the given [shortcut], the given [action] is executed.
+     * @param consume if `false` the user is responsible for consuming the key event
+     */
     fun on(
         code: KeyCode,
         builder: ShortcutBuilder.() -> Unit = {},
@@ -87,18 +117,29 @@ class KeyEventHandlerBody(private val event: KeyEvent) {
         on(shortcut, consume, action)
     }
 
+    /**
+     * If the key event matches the given [shortcut], the given [action] is executed.
+     * @param consume if `false` the user is responsible for consuming the key event
+     */
     fun on(shortcut: String, consume: Boolean = true, action: (KeyEvent) -> Unit) {
         on(shortcut.shortcut, consume, action)
     }
 }
 
+/**
+ * Parse a [Shortcut] from this string.
+ * Examples:
+ *   - `"A"`
+ *   - `"Ctrl + A"`
+ *   - `"Ctrl? + A"` (the question mark indicates that it doesn't matter whether the control modifier is down)
+ */
 val String.shortcut get() = parseShortcut(this)
 
-fun checkNotSet(value: ModifierValue, idx: Int, tok: String) {
+private fun checkNotSet(value: ModifierValue, idx: Int, tok: String) {
     if (value != UP) throw ParseException("Duplicate modifier $tok", idx)
 }
 
-fun parseShortcut(s: String): Shortcut {
+private fun parseShortcut(s: String): Shortcut {
     var code: KeyCode? = null
     var ctrl = UP
     var shift = UP
@@ -151,9 +192,12 @@ fun parseShortcut(s: String): Shortcut {
     return Shortcut(code, ctrl, alt, shift)
 }
 
-fun Node.registerShortcuts(
+/**
+ * Register a new event handler for the given key event type
+ */
+inline fun Node.registerShortcuts(
     eventType: EventType<KeyEvent> = KeyEvent.KEY_RELEASED,
-    handle: KeyEventHandlerBody.() -> Unit
+    crossinline handle: KeyEventHandlerBody.() -> Unit
 ) {
     addEventHandler(eventType) { ev: KeyEvent ->
         KeyEventHandlerBody(ev).handle()
