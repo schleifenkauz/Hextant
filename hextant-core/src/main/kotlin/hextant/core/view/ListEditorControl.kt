@@ -10,8 +10,9 @@ import hextant.bundle.*
 import hextant.bundle.CorePermissions.Public
 import hextant.core.editor.ListEditor
 import hextant.createView
-import hextant.fx.Glyphs
-import hextant.fx.setRoot
+import hextant.fx.*
+import hextant.fx.ModifierValue.DOWN
+import hextant.fx.ModifierValue.MAYBE
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
@@ -188,7 +189,7 @@ open class ListEditorControl(
             editor.addAt(0)
         }
         emptyDisplay.setOnKeyReleased { evt ->
-            if (ADD_ITEM.match(evt)) {
+            if (ADD_ITEM_AFTER.matches(evt)) {
                 editor.addAt(0)
                 evt.consume()
             }
@@ -236,38 +237,15 @@ open class ListEditorControl(
         addEventHandler(KeyEvent.KEY_RELEASED) { evt ->
             var consume = true
             when {
-                ADD_ITEM.match(evt)                        -> addNew(evt)
-                REMOVE_ITEM.match(evt)                     -> removeCurrent(evt)
-                orientation.nextCombination.match(evt)     -> focusNext(evt)
-                orientation.previousCombination.match(evt) -> focusPrevious(evt)
-                else                                       -> consume = false
+                ADD_ITEM_AFTER.matches(evt)                                      -> editor.addAt(index + 1)
+                ADD_ITEM_BEFORE.matches(evt)                                     -> editor.addAt(index)
+                REMOVE_ITEM.matches(evt)                                         -> editor.removeAt(index)
+                orientation.nextCombination.match(evt) && cells.size > index + 1 -> cells[index + 1].requestFocus()
+                orientation.previousCombination.match(evt) && index > 0          -> cells[index - 1].requestFocus()
+                else                                                             -> consume = false
             }
             if (consume) evt.consume()
         }
-    }
-
-    private fun Cell<*>.addNew(evt: KeyEvent) {
-        editor.addAt(index + 1)
-        evt.consume()
-    }
-
-    private fun Cell<*>.focusPrevious(evt: KeyEvent) {
-        if (index > 0) {
-            cells[index - 1].requestFocus()
-            evt.consume()
-        }
-    }
-
-    private fun Cell<*>.focusNext(evt: KeyEvent) {
-        if (cells.size > index + 1) {
-            cells[index + 1].requestFocus()
-            evt.consume()
-        }
-    }
-
-    private fun Cell<*>.removeCurrent(evt: KeyEvent) {
-        editor.removeAt(index)
-        evt.consume()
     }
 
     override fun removed(idx: Int) {
@@ -319,9 +297,11 @@ open class ListEditorControl(
     }
 
     companion object {
-        private val ADD_ITEM = KeyCodeCombination(KeyCode.PLUS, KeyCombination.SHORTCUT_DOWN)
+        private val ADD_ITEM_AFTER = shortcut(KeyCode.INSERT) { control(MAYBE) }
 
-        private val REMOVE_ITEM = KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)
+        private val ADD_ITEM_BEFORE = shortcut(KeyCode.INSERT) { shift(DOWN); control(MAYBE) }
+
+        private val REMOVE_ITEM = shortcut(KeyCode.DELETE) { control(MAYBE) }
 
         fun withAltText(
             editor: ListEditor<*, *>,
