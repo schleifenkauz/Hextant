@@ -6,7 +6,6 @@ package hextant.main
 
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.fx.on
 import hextant.fx.registerShortcuts
 import hextant.get
 import javafx.geometry.Pos

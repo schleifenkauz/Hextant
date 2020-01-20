@@ -275,21 +275,21 @@ abstract class EditorControl<R : Node>(
         registerShortcuts {
             on(EXTEND_SELECTION) { extendSelection() }
             on(SHRINK_SELECTION) { shrinkSelection() }
-            maybeOn(shortcut(Z) { control(DOWN) }) {
+            on(shortcut(Z) { control(DOWN) }, consume = false) { ev ->
                 val manager = context[UndoManager]
                 if (manager.canUndo) {
                     manager.undo()
-                    true
-                } else false
+                    ev.consume()
+                }
             }
-            maybeOn(shortcut(Z) { control(DOWN); shift(DOWN) }) {
+            on(shortcut(Z) { control(DOWN); shift(DOWN) }) { ev ->
                 val manager = context[UndoManager]
                 if (manager.canRedo) {
                     manager.redo()
-                    true
-                } else false
+                    ev.consume()
+                }
             }
-            maybeOn(INSPECTIONS) { showInspections() }
+            on(INSPECTIONS, consume = false) { showInspections() }
         }
     }
 

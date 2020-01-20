@@ -10,7 +10,6 @@ import hextant.bundle.Bundle
 import hextant.core.editor.ListEditor
 import hextant.createView
 import hextant.fx.ModifierValue.DOWN
-import hextant.fx.on
 import hextant.fx.registerShortcuts
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView

@@ -5,9 +5,10 @@
 package hextant.fx
 
 import hextant.fx.ModifierValue.*
-import javafx.event.EventHandler
+import javafx.event.EventType
 import javafx.scene.Node
 import javafx.scene.input.*
+import java.text.ParseException
 
 enum class ModifierValue { DOWN, UP, MAYBE }
 
@@ -17,7 +18,7 @@ fun ModifierValue.fx(): KeyCombination.ModifierValue = when (this) {
     MAYBE -> KeyCombination.ModifierValue.ANY
 }
 
-class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: ModifierValue, val shift: ModifierValue) {
+data class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: ModifierValue, val shift: ModifierValue) {
     override fun toString(): String = if (key == null) "Never" else buildString {
         append(key.name)
         for ((name, value) in listOf("Ctrl" to control, "Alt" to alt, "Shift" to shift)) {
@@ -68,87 +69,89 @@ inline fun shortcut(key: KeyCode, block: ShortcutBuilder.() -> Unit = {}) = Shor
 
 fun never() = Shortcut(null, UP, UP, UP)
 
-private suspend fun SequenceScope<Matcher>.decidedAll(
-    ctrl: Boolean,
-    alt: Boolean,
-    shift: Boolean,
-    shortcut: Shortcut
+class KeyEventHandlerBody(private val event: KeyEvent) {
+    fun on(shortcut: Shortcut, consume: Boolean = true, action: (KeyEvent) -> Unit) {
+        if (shortcut.matches(event)) {
+            action(event)
+            if (consume) event.consume()
+        }
+    }
+
+    fun on(
+        code: KeyCode,
+        builder: ShortcutBuilder.() -> Unit = {},
+        consume: Boolean = true,
+        action: (KeyEvent) -> Unit
+    ) {
+        val shortcut = ShortcutBuilder(code).apply(builder).build()
+        on(shortcut, consume, action)
+    }
+
+    fun on(shortcut: String, consume: Boolean = true, action: (KeyEvent) -> Unit) {
+        on(shortcut.shortcut, consume, action)
+    }
+}
+
+val String.shortcut get() = parseShortcut(this)
+
+fun checkNotSet(value: ModifierValue, idx: Int, tok: String) {
+    if (value != UP) throw ParseException("Duplicate modifier $tok", idx)
+}
+
+fun parseShortcut(s: String): Shortcut {
+    var code: KeyCode? = null
+    var ctrl = UP
+    var shift = UP
+    var alt = UP
+    val builder = StringBuilder()
+    fun tokenComplete(idx: Int) {
+        when (val tok = builder.toString().toLowerCase()) {
+            "ctrl"   -> {
+                checkNotSet(ctrl, idx, tok)
+                ctrl = DOWN
+            }
+            "ctrl?"  -> {
+                checkNotSet(ctrl, idx, tok)
+                ctrl = MAYBE
+            }
+            "shift"  -> {
+                checkNotSet(shift, idx, tok)
+                shift = DOWN
+            }
+            "shift?" -> {
+                checkNotSet(shift, idx, tok)
+                shift = MAYBE
+            }
+            "alt"    -> {
+                checkNotSet(alt, idx, tok)
+                alt = DOWN
+            }
+            "alt?"   -> {
+                checkNotSet(alt, idx, tok)
+                alt = MAYBE
+            }
+            else     -> code = KeyCode.getKeyCode(tok) ?: throw ParseException("Illegal token '$tok'", idx)
+        }
+        builder.clear()
+    }
+    for ((idx, c) in s.withIndex()) {
+        when (c) {
+            '+'  -> tokenComplete(idx)
+            ' '  -> {
+            }
+            else -> builder.append(c)
+        }
+    }
+    tokenComplete(s.length - 1)
+    if (code == null) throw ParseException("Illegal shortcut, has no main key", 0)
+    return Shortcut(code, ctrl, shift, alt)
+}
+
+fun Node.registerShortcuts(
+    eventType: EventType<KeyEvent> = KeyEvent.KEY_RELEASED,
+    handle: KeyEventHandlerBody.() -> Unit
 ) {
-    yield(AMatcher(shortcut.key!!, ctrl, alt, shift))
-}
-
-private suspend fun SequenceScope<Matcher>.decidedControl(ctrl: Boolean, shortcut: Shortcut) {
-    when (shortcut.alt) {
-        DOWN  -> decidedAlt(ctrl, true, shortcut)
-        UP    -> decidedAlt(ctrl, false, shortcut)
-        MAYBE -> {
-            decidedAlt(ctrl, true, shortcut)
-            decidedAlt(ctrl, false, shortcut)
-        }
+    addEventHandler(eventType) { ev: KeyEvent ->
+        KeyEventHandlerBody(ev).handle()
     }
-}
-
-private suspend fun SequenceScope<Matcher>.decidedAlt(ctrl: Boolean, alt: Boolean, shortcut: Shortcut) {
-    when (shortcut.shift) {
-        DOWN  -> decidedAll(ctrl, alt, true, shortcut)
-        UP    -> decidedAll(ctrl, alt, false, shortcut)
-        MAYBE -> {
-            decidedAll(ctrl, alt, true, shortcut)
-            decidedAll(ctrl, alt, false, shortcut)
-        }
-    }
-}
-
-private fun matchers(shortcut: Shortcut): Sequence<Matcher> = sequence {
-    if (shortcut.key == null) yield(Never)
-    else when (shortcut.control) {
-        DOWN  -> decidedControl(true, shortcut)
-        UP    -> decidedControl(false, shortcut)
-        MAYBE -> {
-            decidedControl(true, shortcut)
-            decidedControl(false, shortcut)
-        }
-    }
-}
-
-sealed class Matcher
-
-private object Never : Matcher()
-
-private data class AMatcher(val key: KeyCode, val control: Boolean, val alt: Boolean, val shift: Boolean) : Matcher()
-
-private fun KeyEvent.getMatcher(): Matcher =
-    AMatcher(code, isControlDown, isAltDown, isShiftDown)
-
-class ShortcutRegistrar : EventHandler<KeyEvent> {
-    private val handlers = mutableMapOf<Matcher, () -> Boolean>()
-
-    override fun handle(event: KeyEvent) {
-        val handler = handlers[event.getMatcher()] ?: return
-        if (handler.invoke()) event.consume()
-    }
-
-    fun maybeOn(shortcut: Shortcut, handler: () -> Boolean) {
-        matchers(shortcut).forEach { matcher ->
-            handlers[matcher] = handler
-        }
-    }
-}
-
-inline fun ShortcutRegistrar.on(shortcut: Shortcut, crossinline handler: () -> Unit) {
-    maybeOn(shortcut) { handler(); true }
-}
-
-inline fun ShortcutRegistrar.on(
-    key: KeyCode,
-    modifiers: ShortcutBuilder.() -> Unit = {},
-    crossinline action: () -> Unit
-) {
-    on(shortcut(key, modifiers)) { action() }
-}
-
-inline fun Node.registerShortcuts(handlers: ShortcutRegistrar.() -> Unit) {
-    val handler = ShortcutRegistrar()
-    handler.handlers()
-    addEventHandler(KeyEvent.KEY_RELEASED, handler)
 }

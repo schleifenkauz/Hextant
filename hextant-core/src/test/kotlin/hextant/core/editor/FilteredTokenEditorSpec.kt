@@ -68,7 +68,7 @@ object FilteredTokenEditorSpec : Spek({
                     verify { handler.invoke(any(), any()) }
                 }
                 it("should notify the view") {
-                    verify { v.beginChange() }
+                    verify { v.setEditable(true) }
                 }
             }
             on("setting the text") {
@@ -101,7 +101,7 @@ object FilteredTokenEditorSpec : Spek({
                     verify { handler.invoke(e.abortedChange, Unit) }
                 }
                 it("should notify the view") {
-                    verify { v.endChange() }
+                    verify { v.setEditable(false) }
                 }
             }
             on("beginning a new change and setting the text") {
@@ -114,7 +114,7 @@ object FilteredTokenEditorSpec : Spek({
                     verify { handler.invoke(e.beganChange, Unit) }
                 }
                 it("should notify the view") {
-                    verify { v.beginChange() }
+                    verify { v.setEditable(true) }
                     verify { v.displayText("456") }
                 }
 
@@ -131,7 +131,7 @@ object FilteredTokenEditorSpec : Spek({
                     verify { handler.invoke(e.commitedChange, "456") }
                 }
                 it("should notify the view") {
-                    verify { v.endChange() }
+                    verify { v.setEditable(false) }
                 }
             }
         }

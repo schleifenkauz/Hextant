@@ -8,7 +8,6 @@ import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.fx.ModifierValue.DOWN
-import hextant.fx.on
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import hextant.util.DoubleWeakHashMap
