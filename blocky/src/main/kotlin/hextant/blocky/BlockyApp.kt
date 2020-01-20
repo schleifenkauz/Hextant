@@ -6,12 +6,10 @@ package hextant.blocky
 
 import hextant.*
 import hextant.blocky.editor.ProgramEditor
-import hextant.fx.*
-import hextant.fx.ModifierValue.DOWN
+import hextant.fx.registerShortcuts
 import hextant.main.HextantApplication
 import hextant.undo.UndoManager
 import javafx.scene.Parent
-import javafx.scene.input.KeyCode.E
 import reaktive.value.now
 
 class BlockyApp : HextantApplication() {
@@ -23,7 +21,7 @@ class BlockyApp : HextantApplication() {
         val e = ProgramEditor(context)
         val view = context.createView(e)
         view.registerShortcuts {
-            on(shortcut(E) { control(DOWN) }) {
+            on("Ctrl+E") {
                 val prog = e.result.now.ifErr { return@on }
                 execute(prog)
             }

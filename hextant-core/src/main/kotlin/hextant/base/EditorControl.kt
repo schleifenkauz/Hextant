@@ -10,7 +10,6 @@ import hextant.bundle.Property
 import hextant.command.gui.commandContextMenu
 import hextant.fx.*
 import hextant.fx.ModifierValue.DOWN
-import hextant.fx.ModifierValue.MAYBE
 import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import hextant.inspect.gui.InspectionPopup
@@ -19,7 +18,7 @@ import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
-import javafx.scene.input.KeyCode.*
+import javafx.scene.input.KeyCode.Z
 import reaktive.value.*
 
 /**
@@ -334,10 +333,10 @@ abstract class EditorControl<R : Node>(
     }
 
     companion object {
-        private val EXTEND_SELECTION = shortcut(M) { control(MAYBE) }
+        private val EXTEND_SELECTION = "Ctrl?+M"
 
-        private val SHRINK_SELECTION = shortcut(L) { control(MAYBE) }
+        private val SHRINK_SELECTION = "Ctrl?+L"
 
-        private val INSPECTIONS = shortcut(ENTER) { alt(DOWN) }
+        private val INSPECTIONS = "Alt + Enter"
     }
 }

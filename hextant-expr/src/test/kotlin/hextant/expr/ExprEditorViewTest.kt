@@ -15,8 +15,8 @@ import hextant.command.register
 import hextant.expr.edited.*
 import hextant.expr.edited.Operator.Plus
 import hextant.expr.editor.*
-import hextant.fx.*
-import hextant.fx.ModifierValue.DOWN
+import hextant.fx.applyInputMethod
+import hextant.fx.registerShortcuts
 import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import hextant.inspect.Severity.Warning
@@ -76,7 +76,7 @@ class ExprEditorViewTest : HextantApplication() {
         ).apply {
             userData = obs
             registerShortcuts {
-                on(P, { control(DOWN) }) {
+                on("Ctrl+P") {
                     context[InputMethod] = if (context[InputMethod] == VIM) REGULAR else VIM
                     applyInputMethod(context[InputMethod])
                 }
