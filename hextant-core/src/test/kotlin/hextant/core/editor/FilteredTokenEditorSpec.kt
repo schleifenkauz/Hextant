@@ -15,7 +15,6 @@ import kserial.KSerial
 import kserial.readTyped
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
-import org.junit.jupiter.api.assertThrows
 import reaktive.event.EventStream
 import reaktive.value.now
 import java.io.ByteArrayInputStream
@@ -36,26 +35,37 @@ object FilteredTokenEditorSpec : Spek({
                     e.text.now shouldEqual "123"
                 }
                 it("should compile the initial text") {
-                    e.result.now shouldEqual ok(123)
                     e.intermediateResult.now shouldEqual ok(123)
                 }
-                it("should not be editable") {
-                    e.editable.now shouldBe `false`
+                it("it should initialize the result with a child error") {
+                    e.result.now shouldEqual childErr()
                 }
-                test("setting the text should throw an exception") {
-                    assertThrows<IllegalStateException> { e.setText("1") }
-                }
-                test("aborting should have no effect") {
-                    e.abortChange()
-                }
-                test("committing should have no effect") {
-                    e.commitChange()
+                it("should not editable") {
+                    e.editable.now shouldBe `true`
                 }
             }
             on("adding a view") {
                 e.addView(v)
+                it("should make the view editable") {
+                    verify { v.setEditable(true) }
+                }
                 it("should display the text") {
                     verify { v.displayText("123") }
+                }
+            }
+            on("committing") {
+                e.commitChange()
+                it("should fire the change") {
+                    verify { handler.invoke(e.commitedChange, "123") }
+                }
+                it("should notify the view") {
+                    verify { v.setEditable(false) }
+                }
+                it("should set the result") {
+                    e.result.now shouldEqual Ok(123)
+                }
+                it("should not be editable") {
+                    e.editable.now shouldBe `false`
                 }
             }
             on("beginning a change") {
@@ -65,7 +75,7 @@ object FilteredTokenEditorSpec : Spek({
                     e.editable.now shouldBe `true`
                 }
                 it("should fire the event") {
-                    verify { handler.invoke(any(), any()) }
+                    verify { handler.invoke(e.beganChange, Unit) }
                 }
                 it("should notify the view") {
                     verify { v.setEditable(true) }
@@ -149,25 +159,39 @@ object FilteredTokenEditorSpec : Spek({
             e.beginChange()
             out.writeObject(e)
             val input = ser.createInput(ByteArrayInputStream(baos.toByteArray()), ctx)
-            test("serializing and deserializing should fully reconstruct object state but should abort changes") {
-                val new = input.readTyped<Test>()
-                e.editable.now shouldBe `false`
-                new.editable.now shouldBe `false`
-                new.text.now shouldEqual "123"
-                new.intermediateResult.now shouldEqual ok(123)
-                new.result.now shouldEqual ok(123)
+            val new = input.readTyped<Test>()
+            on("serializing and deserializing") {
+                test("the deserialized editor should not be editable") {
+                    new.editable.now shouldBe `false`
+                }
+                test("the text should be reconstructed") {
+                    new.text.now shouldEqual "123"
+                }
+                test("the intermediate result should be recompiled") {
+                    new.intermediateResult.now shouldEqual ok(123)
+                }
+                test("the result should be initialized") {
+                    new.result.now shouldEqual ok(123)
+                }
             }
         }
         describe("copying") {
             val ctx = testingContext()
             val original = Test(ctx, "123")
-            test("copying should fully reconstruct object state but should abort changes") {
-                val copy = original.copy()
-                original.editable.now shouldBe `false`
-                copy.editable.now shouldBe `false`
-                copy.text.now shouldEqual "123"
-                copy.intermediateResult.now shouldEqual ok(123)
-                copy.result.now shouldEqual ok(123)
+            val copy = original.copy()
+            on("copying") {
+                test("the copy should be editable") {
+                    copy.editable.now shouldBe `true`
+                }
+                test("the text should be copied") {
+                    copy.text.now shouldEqual "123"
+                }
+                test("the intermediate result should be copied") {
+                    copy.intermediateResult.now shouldEqual ok(123)
+                }
+                test("the result should be a child error") {
+                    copy.result.now shouldEqual childErr()
+                }
             }
         }
     }
