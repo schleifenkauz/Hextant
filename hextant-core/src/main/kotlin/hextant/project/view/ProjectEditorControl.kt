@@ -7,6 +7,9 @@ package hextant.project.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
+import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.CorePermissions.Public
+import hextant.bundle.CoreProperties.clipboard
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import hextant.util.DoubleWeakHashMap
@@ -15,12 +18,9 @@ import javafx.scene.control.SelectionMode.MULTIPLE
 import reaktive.Observer
 import reaktive.list.ListChange.*
 import reaktive.list.ReactiveList
-import reaktive.list.binding.flatten
-import reaktive.list.unmodifiableReactiveList
-import reaktive.value.binding.map
-import reaktive.value.now
 import kotlin.collections.set
 
+@Suppress("UNCHECKED_CAST")
 class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, arguments: Bundle) :
     EditorControl<TreeView<ProjectItemEditor<*, *>>>(editor, arguments) {
     private val items = DoubleWeakHashMap<ProjectItemEditor<*, *>, TreeItem<ProjectItemEditor<*, *>>>()
@@ -65,35 +65,47 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
     init {
         root.selectionModel.selectionMode = MULTIPLE
         root.registerShortcuts {
-            on("INSERT") {
-                val e = root.selectionModel.selectedItem.value
-                if (e != null) addNewItem(e)
+            on("Ctrl?+F") {
+                insertEditor(FileEditor.newInstance(context))
             }
-            on("DELETE") {
+            on("Ctrl?+D") {
+                insertEditor(DirectoryEditor(context))
+            }
+            on("Delete") {
                 val selected = root.selectionModel.selectedItems.toList()
                 deleteItems(selected)
             }
             on("F2") {
-                val item = root.selectionModel.selectedItem.value
+                val item = selectedEditor()
                 if (item != null) startRename(item)
             }
             on("Ctrl+Shift+C") {
-                val item = root.selectionModel.selectedItem.value
-                if (item is ProjectItemExpander) item.copy()
+                val item = selectedEditor() ?: return@on
+                context[Internal, clipboard] = item
             }
-            on("C") {
-                val item = root.selectionModel.selectedItem.value
-                if (item is ProjectItemExpander) item.copy()
+            on("Ctrl+Shift+V") {
+                val selected = selectedEditor() ?: return@on
+                val content = context[Public, clipboard] as? ProjectItemEditor<*, *> ?: return@on
+                val copy = content.copyFor(selected.context)
+                addNewItem(selected, copy)
             }
         }
     }
+
+    private fun insertEditor(new: ProjectItemEditor<Any, *>) {
+        val e = selectedEditor()
+        if (e != null) {
+            addNewItem(e, new)
+        }
+    }
+
+    private fun selectedEditor(): ProjectItemEditor<*, *>? = root.selectionModel.selectedItem.value
 
     private fun startRename(item: ProjectItemEditor<*, *>) {
         val name = item.getItemNameEditor() ?: return
         name.beginChange()
     }
 
-    @Suppress("UNCHECKED_CAST") //TODO maybe this can be done more elegantly
     private fun deleteItems(selected: List<TreeItem<ProjectItemEditor<*, *>>>) {
         for (item in selected) {
             val e = item.value
@@ -108,30 +120,29 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
         }
     }
 
-    private fun addNewItem(e: ProjectItemEditor<*, *>?): Boolean {
+    private fun addNewItem(
+        e: ProjectItemEditor<*, *>?,
+        new: ProjectItemEditor<*, *>
+    ): Boolean {
         when (e) {
-            null                   -> return false
-            is DirectoryEditor     -> {
-                val exp = e.expander
-                if (exp is ProjectItemExpander<*>) {
-                    items[exp]?.isExpanded = true
-                }
-                addItemTo(e.items)
+            null               -> return false
+            is DirectoryEditor -> {
+                addItemTo(e.items as ProjectItemListEditor<Any>, new)
+                items[e]!!.isExpanded = true
             }
-            is FileEditor          -> {
+            is FileEditor      -> {
                 val p = e.parent as? ProjectItemListEditor<*> ?: return false
-                addItemTo(p)
-            }
-            is ProjectItemExpander -> if (!addNewItem(e.editor.now)) {
-                val p = e.parent as? ProjectItemListEditor<*> ?: return false
-                addItemTo(p)
+                addItemTo(p as ProjectItemListEditor<Any>, new)
             }
         }
         return true
     }
 
-    private fun addItemTo(p: ProjectItemListEditor<*>) {
-        val new = p.addLast()
+    private fun addItemTo(
+        p: ProjectItemListEditor<Any>,
+        new: ProjectItemEditor<*, *>
+    ) {
+        p.addLast(new as ProjectItemEditor<Any, *>)
         val item = items[new] ?: error("Did not find tree item associated with $new")
         root.selectionModel.clearSelection()
         root.selectionModel.select(item)
@@ -139,15 +150,9 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
 
     private fun createTreeItem(e: ProjectItemEditor<*, *>): TreeItem<ProjectItemEditor<*, *>> {
         val item: TreeItem<ProjectItemEditor<*, *>> = when (e) {
-            is FileEditor          -> TreeItem(e)
-            is DirectoryEditor     -> DirectoryTreeItem(e, e.items.editors)
-            is ProjectItemExpander -> {
-                val editors = e.editor.map {
-                    if (it is DirectoryEditor) it.items.editors else unmodifiableReactiveList()
-                }.flatten()
-                DirectoryTreeItem(e, editors)
-            }
-            else                   -> throw AssertionError("Unexpected project item editor $e")
+            is FileEditor      -> TreeItem(e)
+            is DirectoryEditor -> DirectoryTreeItem(e, e.items.editors)
+            else               -> throw AssertionError("Unexpected project item editor $e")
         }
         items[e] = item
         return item

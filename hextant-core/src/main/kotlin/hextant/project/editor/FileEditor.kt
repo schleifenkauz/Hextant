@@ -6,6 +6,8 @@ package hextant.project.editor
 
 import hextant.*
 import hextant.base.CompoundEditor
+import hextant.core.editor.ConfiguredExpander
+import hextant.core.editor.ExpanderDelegate
 import hextant.project.File
 import hextant.serial.*
 import kserial.*
@@ -21,7 +23,7 @@ class FileEditor<R : Any> private constructor(
 ) : CompoundEditor<File<R>>(context), ProjectItemEditor<R, File<R>>, Serializable {
     private constructor(context: Context) : this(context, FileNameEditor(context, ""))
 
-    constructor(
+    private constructor(
         context: Context,
         name: FileNameEditor,
         editor: Editor<R>
@@ -34,10 +36,10 @@ class FileEditor<R : Any> private constructor(
     private var initialized = false
     override val path: ReactivePath by lazy {
         val p = getProjectItemEditorParent()!!
-        p.path!!.resolve(fileName.result.map { it.force() })
+        p.path!!.resolve(itemName.result.map { it.force() })
     }
 
-    val fileName by child(name, context)
+    override val itemName by child(name, context)
 
     private val _result = reactiveVariable<CompileResult<File<R>>>(childErr())
 
@@ -66,7 +68,7 @@ class FileEditor<R : Any> private constructor(
     }
 
     override fun deserialize(input: Input, context: SerialContext) {
-        input.readInplace(fileName)
+        input.readInplace(itemName)
         val manager = this.context[HextantFileManager]
         content = manager.from(path)
         bindResult()
@@ -87,17 +89,28 @@ class FileEditor<R : Any> private constructor(
 
     @Suppress("DEPRECATION")
     private fun updateEditor(e: Editor<R>) {
-        obs = _result.bind(result2(fileName, e) { name, content -> ok(File(name, content)) })
+        obs = _result.bind(result2(itemName, e) { name, content -> ok(File(name, content)) })
         e.setFile(this)
     }
 
     override fun serialize(output: Output, context: SerialContext) {
-        output.writeUntyped(fileName)
+        output.writeUntyped(itemName)
         content.write()
     }
 
     override fun copyForImpl(context: Context): FileEditor<R> =
-        FileEditor(context, fileName, content.get().copy())
+        FileEditor(context, itemName, content.get().copy())
 
     override val result: EditorResult<File<R>> get() = _result
+
+    private class RootExpander<R : Any>(
+        context: Context,
+        config: ExpanderDelegate<Editor<R>> = context[ProjectItemEditor.expanderConfig<R>()],
+        initial: Editor<R>? = null
+    ) : ConfiguredExpander<R, Editor<R>>(config, context, initial)
+
+    companion object {
+        fun <R : Any> newInstance(context: Context) =
+            FileEditor<R>(context, FileNameEditor(context), RootExpander(context))
+    }
 }

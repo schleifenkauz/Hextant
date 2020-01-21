@@ -37,7 +37,7 @@ class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) : 
         }
     }
 
-    val fileName = context.createView(editor.fileName)
+    val fileName = context.createView(editor.itemName)
 
     override fun receiveFocus() {
         fileName.receiveFocus()

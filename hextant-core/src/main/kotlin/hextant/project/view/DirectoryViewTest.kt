@@ -31,7 +31,7 @@ class DirectoryViewTest : HextantApplication() {
 
     override fun createContext(platform: HextantPlatform): Context = Context.newInstance {
         set(HextantFileManager, HextantFileManagerImpl(this))
-        set(Public, ProjectItemExpander.config(), ExpanderConfig<IntEditor>().apply {
+        set(Public, ProjectItemEditor.expanderConfig(), ExpanderConfig<IntEditor>().apply {
             registerInterceptor { text, context -> text.toIntOrNull()?.let { IntEditor(context, text) } }
         })
         set(projectRoot, Paths.get("D:", "dev", "hextant", "sample-project"))
