@@ -6,15 +6,19 @@ package hextant.serial
 
 import hextant.*
 import hextant.serial.SerialProperties.projectRoot
+import java.lang.ref.WeakReference
 import java.nio.file.Files
 import java.nio.file.Path
 
 @Suppress("UNCHECKED_CAST")
 internal class HextantFileManagerImpl(private val context: Context) : HextantFileManager {
-    private val cache = mutableMapOf<ReactivePath, HextantFileImpl<*>>()
+    private val cache = mutableMapOf<ReactivePath, WeakReference<HextantFileImpl<*>>>()
 
     override fun <T : Any> get(content: T, path: ReactivePath): HextantFile<T> =
-        cache.getOrPut(path) { HextantFileImpl(content, path, context) } as HextantFile<T>
+        cache.getOrPut(path) {
+            val f = HextantFileImpl(content, path, context)
+            WeakReference(f)
+        } as HextantFile<T>
 
     override fun <T : Editor<*>> get(editor: T): HextantFile<T> {
         check(editor.isRoot) { "Editor must be root of editor tree" }
@@ -42,7 +46,7 @@ internal class HextantFileManagerImpl(private val context: Context) : HextantFil
 
     override fun deleteFile(path: ReactivePath) {
         safeIO {
-            val f = cache.remove(path) ?: error("$path is not managed by this file manager")
+            val f = cache.remove(path)?.get() ?: error("$path is not managed by this file manager")
             f.delete()
         }
     }
