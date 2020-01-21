@@ -9,15 +9,13 @@ import hextant.ifOk
 import hextant.serial.HextantFileManager
 import hextant.serial.now
 import reaktive.Observer
-import reaktive.value.now
 import java.nio.file.Path
 import java.nio.file.Paths
 
 fun ProjectItemEditor<*, *>.getItemNameEditor(): FileNameEditor? = when (this) {
-    is ProjectItemExpander<*> -> editor.now?.getItemNameEditor()
-    is FileEditor<*>          -> fileName
-    is DirectoryEditor<*>     -> directoryName
-    else                      -> error("Invalid project item editor $this")
+    is FileEditor<*>      -> itemName
+    is DirectoryEditor<*> -> itemName
+    else                  -> error("Invalid project item editor $this")
 }
 
 fun ProjectItemEditor<*, *>.getProjectItemEditorParent(): ProjectItemEditor<*, *>? {

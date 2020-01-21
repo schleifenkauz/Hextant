@@ -15,19 +15,18 @@ class DirectoryEditor<R : Any>(
     name: FileNameEditor = FileNameEditor(context),
     content: ProjectItemListEditor<R> = ProjectItemListEditor(context)
 ) : CompoundEditor<Directory<R>>(context), ProjectItemEditor<R, Directory<R>> {
-    val directoryName by child(name, context)
+    override val itemName by child(name, context)
     val items by child(content, context)
 
     override val path: ReactivePath by lazy {
         val parentPath = getProjectItemEditorParent()?.path ?: ReactivePath.empty()
-        parentPath.resolve(directoryName.text)
+        parentPath.resolve(itemName.text)
     }
 
     private fun nameEditor(item: ProjectItemEditor<*, *>): FileNameEditor? = when (item) {
-        is FileEditor          -> item.fileName
-        is DirectoryEditor     -> item.directoryName
-        is ProjectItemExpander -> item.editor.now?.let { nameEditor(it) }
-        else                   -> null
+        is FileEditor      -> item.itemName
+        is DirectoryEditor -> item.itemName
+        else               -> null
     }
 
     fun isTaken(name: String, editor: FileNameEditor) = items.editors.now.any {
@@ -36,7 +35,7 @@ class DirectoryEditor<R : Any>(
     }
 
     override val result: EditorResult<Directory<R>> =
-        result2(directoryName, items) { name, items -> ok(Directory(name, items)) }
+        result2(itemName, items) { name, items -> ok(Directory(name, items)) }
 
     override fun deletePhysical() {
         context[HextantFileManager].deleteDirectory(path)

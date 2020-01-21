@@ -18,7 +18,7 @@ class DirectoryEditorControl(
     editor: DirectoryEditor<*>,
     arguments: Bundle
 ) : EditorControl<HBox>(editor, arguments) {
-    val directoryName = context.createView(editor.directoryName)
+    val directoryName = context.createView(editor.itemName)
 
     init {
         setChildren(directoryName)
