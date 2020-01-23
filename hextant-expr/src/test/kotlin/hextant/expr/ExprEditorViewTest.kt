@@ -19,6 +19,7 @@ import hextant.fx.applyInputMethod
 import hextant.fx.registerShortcuts
 import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
+import hextant.inspect.Severity.Error
 import hextant.inspect.Severity.Warning
 import hextant.inspect.of
 import hextant.main.HextantApplication
@@ -159,8 +160,7 @@ class ExprEditorViewTest : HextantApplication() {
         val inspections = context[Inspections]
         inspections.of<OperatorApplicationEditor>().registerInspection {
             description = "Prevent identical operations"
-            severity(Warning)
-            location(inspected.operand2)
+            severity(Error)
             val isPlus = inspected.operator.result.map { it.orNull() == Plus }
             val operandIs0 =
                 inspected.operand2.result.map { it.orNull() is IntLiteral && it.force().value == 0 }
