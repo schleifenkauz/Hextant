@@ -189,12 +189,12 @@
     -fx-text-fill: green;
 }
 
-.error * {
+.error .hextant-text {
     -fx-text-fill: red !important;
 }
 
-.warn * {
-    -fx-text-fill: yellow !important;
+.warning .hextant-text {
+    -fx-text-fill: yellow;
 }
 
 .tree-cell {

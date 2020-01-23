@@ -288,7 +288,9 @@ abstract class EditorControl<R : Node>(
                     ev.consume()
                 }
             }
-            on(INSPECTIONS, consume = false) { showInspections() }
+            on(INSPECTIONS, consume = false) { ev ->
+                if (showInspections()) ev.consume()
+            }
         }
     }
 
@@ -310,18 +312,22 @@ abstract class EditorControl<R : Node>(
         return inspectionPopup.isShowing
     }
 
+    private fun addStyleCls(name: String) {
+        if (name !in styleClass) styleClass.add(name)
+    }
+
     private fun handleProblem(error: Boolean, warn: Boolean) {
         when {
             error -> {
-                styleClass.add("error")
-                styleClass.remove("warn")
+                addStyleCls("error")
+                styleClass.remove("warning")
             }
             warn  -> {
-                styleClass.add("warn")
+                addStyleCls("warning")
                 styleClass.remove("error")
             }
             else  -> {
-                styleClass.remove("warn")
+                styleClass.remove("warning")
                 styleClass.remove("error")
             }
         }
