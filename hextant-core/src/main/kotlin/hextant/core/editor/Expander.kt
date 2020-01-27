@@ -6,9 +6,6 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.CoreProperties.clipboard
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Unexpanded
 import hextant.core.view.ExpanderView
@@ -21,6 +18,7 @@ import reaktive.value.*
 import reaktive.value.binding.map
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * An Expander acts like a wrapper around editors.
@@ -39,9 +37,6 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         class Unexpanded(val text: String) : State<Nothing>()
 
         class Expanded<E : Editor<*>>(val editor: E) : State<E>()
-
-        @Suppress("UNCHECKED_CAST")
-        fun copyState() = if (this is Expanded) Expanded(editor.copyForImpl(editor.context) as E) else this
     }
 
     private val undo = context[UndoManager]
@@ -73,7 +68,10 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      */
     val text: ReactiveValue<String?> get() = _text
 
-    private val constructor by lazy { this::class.getSimpleConstructor() }
+    private val constructor by lazy { this::class.getSimpleEditorConstructor() }
+
+    @Suppress("UNCHECKED_CAST")
+    private val editorClass by lazy { getTypeArgument(Expander::class, 1) }
 
     /**
      * @return the editor that should be wrapped if the expander is expanded with the given [text] or `null` if the text
@@ -209,10 +207,30 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         changeState(Unexpanded(""), "Reset")
     }
 
-    override fun copyForImpl(context: Context): Editor<R> {
-        val copy = constructor.invoke(context)
-        copy.doChangeState(this.state.copyState())
-        return copy
+    @Suppress("UNCHECKED_CAST")
+    override fun paste(editor: Editor<*>): Boolean = when {
+        editor is Expander<*, *> && editor.editorClass.isSubclassOf(this.editorClass) -> {
+            val text = editor.text.now
+            val e = editor.editor.now
+            when {
+                text != null -> {
+                    setText(text)
+                    true
+                }
+                e != null    -> pasteContent(e)
+                else         -> true
+            }
+        }
+        editor::class.isSubclassOf(this.editorClass)                                  -> pasteContent(editor)
+        else                                                                          -> false
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun pasteContent(e: Editor<*>): Boolean {
+        val new = e::class.getSimpleEditorConstructor().invoke(context)
+        val supported = new.paste(e)
+        if (supported) setEditor(new as E)
+        return supported
     }
 
     override fun serialize(output: Output, context: SerialContext) {
@@ -239,29 +257,6 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
         if (accessor !is ExpanderContent) throw InvalidAccessorException(accessor)
         return editor.now ?: throw InvalidAccessorException(accessor)
-    }
-
-    /**
-     * Put the current editor into the clipboard.
-     * If the expander is not expanded or the current editor doesn't support copying this method has no effect.
-     */
-    fun copy() {
-        val e = editor.now ?: return
-        if (!e.supportsCopy()) return
-        context[Internal, clipboard] = e
-    }
-
-    /**
-     * Set the editor of this expander to a copy of the clipboard editor this expander can accept it
-     */
-    fun paste() {
-        val content = context[Public, clipboard] as? Editor<*> ?: return
-        check(content.supportsCopy()) { "Content in clipboard does not support copying" }
-        if (!accepts(content)) return
-        val copy = content.copyForImpl(this.context)
-        check(copy.javaClass == content.javaClass) { "Copy returned object of different class" }
-        @Suppress("UNCHECKED_CAST")
-        setEditor(copy as E)
     }
 
     private inner class StateTransition(

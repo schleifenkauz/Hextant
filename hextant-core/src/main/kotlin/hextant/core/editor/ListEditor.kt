@@ -30,6 +30,8 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
     private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
 
+    private val editorClass by lazy { getTypeArgument(ListEditor::class, 1) }
+
     /**
      * All child editors of this [ListEditor]
      */
@@ -61,12 +63,13 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
 
     @Suppress("UNCHECKED_CAST")
-    override fun copyForImpl(context: Context): Editor<List<R>> {
-        val copy = constructor.newInstance(context)
-        for ((i, e) in editors.now.withIndex()) {
-            copy.doAddAt(i, e.copyForImpl(context) as E)
+    override fun paste(editor: Editor<*>): Boolean {
+        if (editor !is ListEditor<*, *>) return false
+        if (editor.editorClass != this.editorClass) return false
+        for ((i, e) in editor.editors.now.withIndex()) {
+            doAddAt(i, e.copyFor(context) as E)
         }
-        return copy
+        return true
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {

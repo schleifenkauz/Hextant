@@ -76,4 +76,6 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
 
     override val isRoot: Boolean
         get() = _file != null
+
+    override fun paste(editor: Editor<*>): Boolean = false
 }

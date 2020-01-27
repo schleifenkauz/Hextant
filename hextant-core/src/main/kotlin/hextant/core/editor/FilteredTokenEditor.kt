@@ -141,8 +141,11 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         _intermediateResult.set(compile(text.now))
     }
 
-    override fun copyForImpl(context: Context): Editor<R> {
-        return constructor.newInstance(context, text.now)
+    override fun paste(editor: Editor<*>): Boolean {
+        if (editor !is FilteredTokenEditor) return false
+        if (editable.now) setText(editor.text.now)
+        else setTextAndCommit(editor.text.now)
+        return true
     }
 
     override fun viewAdded(view: FilteredTokenEditorView) {

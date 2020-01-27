@@ -39,12 +39,12 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         view.displayText(text.now)
     }
 
-    private val constructor = this::class.getSimpleConstructor()
+    private val constructor = this::class.getSimpleEditorConstructor()
 
-    override fun copyForImpl(context: Context): Editor<R> {
-        val copy = constructor.invoke(context)
-        copy.doSetText(this.text.now)
-        return copy
+    override fun paste(editor: Editor<*>): Boolean {
+        if (editor !is TokenEditor<*, *>) return false
+        setText(editor.text.now)
+        return true
     }
 
     override fun serialize(output: Output, context: SerialContext) {

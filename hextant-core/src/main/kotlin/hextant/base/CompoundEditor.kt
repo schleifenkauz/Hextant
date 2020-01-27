@@ -18,7 +18,7 @@ abstract class CompoundEditor<R : Any>(context: Context) :
 
     protected fun <E : Editor<*>> child(editor: E, ctx: Context = context): ChildDelegator<E> {
         @Suppress("UNCHECKED_CAST")
-        val copy = editor.copyForImpl(ctx) as E
+        val copy = editor.copyFor(ctx)
         child(copy)
         return ChildDelegatorImpl(copy)
     }
@@ -41,7 +41,14 @@ abstract class CompoundEditor<R : Any>(context: Context) :
         }
     }
 
-    override fun copyForImpl(context: Context): Editor<R> = constructor.call(context, *children.now.toTypedArray())
+    override fun paste(editor: Editor<*>): Boolean {
+        if (editor.javaClass != this.javaClass) return false
+        for ((original, copy) in editor.children.now.zip(this.children.now)) {
+            val supported = copy.paste(original)
+            check(supported) { "Unsupported copy" }
+        }
+        return true
+    }
 
     interface ChildDelegator<E : Editor<*>> {
         operator fun provideDelegate(

@@ -6,8 +6,7 @@ package hextant.project.editor
 
 import hextant.*
 import hextant.base.CompoundEditor
-import hextant.core.editor.ConfiguredExpander
-import hextant.core.editor.ExpanderDelegate
+import hextant.core.editor.*
 import hextant.project.File
 import hextant.serial.*
 import kserial.*
@@ -38,6 +37,8 @@ class FileEditor<R : Any> private constructor(
         val p = getProjectItemEditorParent()!!
         p.path!!.resolve(itemName.result.map { it.force() })
     }
+
+    private val resultClass by lazy { getTypeArgument(FileEditor::class, 0) }
 
     override val itemName by child(name, context)
 
@@ -97,9 +98,6 @@ class FileEditor<R : Any> private constructor(
         output.writeUntyped(itemName)
         content.write()
     }
-
-    override fun copyForImpl(context: Context): FileEditor<R> =
-        FileEditor(context, itemName, content.get().copy())
 
     override val result: EditorResult<File<R>> get() = _result
 

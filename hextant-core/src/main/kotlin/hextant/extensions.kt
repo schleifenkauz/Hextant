@@ -1,6 +1,8 @@
 package hextant
 
+import hextant.bundle.CoreProperties.clipboard
 import hextant.core.editor.TransformedEditor
+import hextant.core.editor.getSimpleEditorConstructor
 
 /**
  * Synonym for [apply]
@@ -35,13 +37,40 @@ val Editor<*>.allChildren: Sequence<Editor<*>>
 /**
  * If this editor is already in the specified [newContext] just returns it, otherwise copies the editor to the new context
  */
-inline fun <reified E : Editor<*>> E.moveTo(newContext: Context): E =
-    if (this.context == newContext) this else this.copyForImpl(newContext) as E
+fun <E : Editor<*>> E.moveTo(newContext: Context): E =
+    if (this.context == newContext) this else this.copyFor(newContext)
 
 /**
- * Type safe version of [Editor.copyForImpl] casts the editor returned by [Editor.copyForImpl] to [E]
+ * Copy this editor for the given [newContext]
  */
-inline fun <reified E : Editor<*>> E.copyFor(newContext: Context): E = copyForImpl(newContext) as E
+fun <E : Editor<*>> E.copyFor(newContext: Context): E {
+    val cls = this::class
+    val cstr = cls.getSimpleEditorConstructor()
+    val new = cstr(newContext)
+    val supported = new.paste(this)
+    check(supported) { "Copy is not supported" }
+    return new
+}
+
+/**
+ * Copy this [Editor] to the [clipboard], if this is supported by the editor.
+ * Returns `true` only if the action was successful.
+ */
+fun Editor<*>.copyToClipboard(): Boolean {
+    if (!supportsCopyPaste()) return false
+    context[clipboard] = this
+    return true
+}
+
+/**
+ * Paste the [clipboard]-content into this editor.
+ * Returns `true` only if the action was successful.
+ */
+fun Editor<*>.pasteFromClipboard(): Boolean {
+    val content = context[clipboard]
+    if (content !is Editor<*>) return false
+    return paste(content)
+}
 
 /**
  * Returns a copy of the given Editor for the same [Context]
