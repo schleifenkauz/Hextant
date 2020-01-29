@@ -176,7 +176,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     private fun doAddAt(index: Int, editor: E, notify: Boolean = true) {
         val emptyBefore = emptyNow()
         _editors.now.add(index, editor)
-        child(editor)
+        addChild(editor)
         updateIndicesFrom(index)
         views {
             if (emptyBefore) notEmpty()

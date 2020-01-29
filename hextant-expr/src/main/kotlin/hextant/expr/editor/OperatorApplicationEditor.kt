@@ -13,32 +13,15 @@ import reaktive.value.binding.binding
 import reaktive.value.now
 
 class OperatorApplicationEditor(
-    context: Context,
-    op: OperatorEditor,
-    opnd1: ExprExpander,
-    opnd2: ExprExpander
+    context: Context
 ) : CompoundEditor<OperatorApplication>(context), ExprEditor<OperatorApplication> {
-    val operator by child(op, context)
-    val operand1 by child(opnd1, context)
-    val operand2 by child(opnd2, context)
+    val operator by child(OperatorEditor(context))
+    val operand1 by child(ExprExpander(context))
+    val operand2 by child(ExprExpander(context))
 
     constructor(operator: Operator, context: Context) : this(context) {
         this.operator.setText(operator.name)
     }
-
-    constructor(context: Context) : this(
-        context,
-        OperatorEditor(context),
-        ExprExpander(context),
-        ExprExpander(context)
-    )
-
-    constructor(context: Context, edited: OperatorApplication) : this(
-        context,
-        OperatorEditor(context, edited.operator),
-        ExprExpander(edited.op1, context),
-        ExprExpander(edited.op2, context)
-    )
 
     override val result: EditorResult<OperatorApplication> =
         binding<CompileResult<OperatorApplication>>(

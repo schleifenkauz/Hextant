@@ -51,7 +51,7 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
     /**
      * Makes the [editor] a child of this editor and just returns it
      */
-    protected fun <E : Editor<*>> child(editor: E): E {
+    protected fun <E : Editor<*>> addChild(editor: E): E {
         @Suppress("DEPRECATION")
         editor.initParent(this)
         _children.now.add(editor)
@@ -62,7 +62,7 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
      * Make all the given editors children of this editor
      */
     protected fun children(vararg children: Editor<*>) {
-        for (c in children) child(c)
+        for (c in children) addChild(c)
     }
 
     private var _file: FileEditor<*>? = null

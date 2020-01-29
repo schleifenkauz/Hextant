@@ -16,17 +16,12 @@ import reaktive.event.event
 import reaktive.value.binding.map
 import reaktive.value.reactiveVariable
 
-class FileEditor<R : Any> private constructor(
-    context: Context,
-    name: FileNameEditor
-) : CompoundEditor<File<R>>(context), ProjectItemEditor<R, File<R>>, Serializable {
-    private constructor(context: Context) : this(context, FileNameEditor(context, ""))
-
+class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor<File<R>>(context),
+                                                                  ProjectItemEditor<R, File<R>>, Serializable {
     private constructor(
         context: Context,
-        name: FileNameEditor,
         editor: Editor<R>
-    ) : this(context, name) {
+    ) : this(context) {
         this.editor = editor
     }
 
@@ -40,7 +35,7 @@ class FileEditor<R : Any> private constructor(
 
     private val resultClass by lazy { getTypeArgument(FileEditor::class, 0) }
 
-    override val itemName by child(name, context)
+    override val itemName by child(FileNameEditor(context))
 
     private val _result = reactiveVariable<CompileResult<File<R>>>(childErr())
 
@@ -108,7 +103,6 @@ class FileEditor<R : Any> private constructor(
     ) : ConfiguredExpander<R, Editor<R>>(config, context, initial)
 
     companion object {
-        fun <R : Any> newInstance(context: Context) =
-            FileEditor<R>(context, FileNameEditor(context), RootExpander(context))
+        fun <R : Any> newInstance(context: Context) = FileEditor<R>(context, RootExpander(context))
     }
 }

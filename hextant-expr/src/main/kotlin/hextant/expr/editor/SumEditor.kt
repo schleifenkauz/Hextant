@@ -7,15 +7,11 @@ package hextant.expr.editor
 import hextant.*
 import hextant.base.CompoundEditor
 import hextant.expr.edited.Sum
-import reaktive.value.binding.map
 
 class SumEditor(
-    context: Context,
-    exprs: ExprListEditor
+    context: Context
 ) : CompoundEditor<Sum>(context), ExprEditor<Sum> {
-    val expressions = exprs.moveTo(context)
+    val expressions by child(ExprListEditor(context))
 
-    constructor(context: Context) : this(context, ExprListEditor(context))
-
-    override val result: EditorResult<Sum> = exprs.result.map { exprs -> exprs.map(::Sum) }
+    override val result: EditorResult<Sum> = expressions.result.mapResult(::Sum)
 }
