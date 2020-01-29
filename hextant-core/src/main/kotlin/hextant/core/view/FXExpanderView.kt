@@ -4,7 +4,7 @@
 
 package hextant.core.view
 
-import hextant.*
+import hextant.Editor
 import hextant.base.EditorControl
 import hextant.bundle.*
 import hextant.bundle.CorePermissions.Public
@@ -12,6 +12,7 @@ import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompleterPopupHelper
 import hextant.core.editor.Expander
+import hextant.createView
 import hextant.fx.HextantTextField
 import hextant.fx.registerShortcuts
 import hextant.main.InputMethod
@@ -75,8 +76,6 @@ open class FXExpanderView(
     init {
         with(textField) {
             registerShortcuts {
-                on("Ctrl + Shift + V") { expander.pasteFromClipboard() }
-                on("V") { expander.pasteFromClipboard() }
                 on("Ctrl + Space") { completionHelper.show(this@FXExpanderView) }
                 on("Enter") { expander.expand() }
             }

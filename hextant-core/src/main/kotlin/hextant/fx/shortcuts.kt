@@ -7,6 +7,7 @@ package hextant.fx
 import hextant.fx.ModifierValue.*
 import javafx.event.EventType
 import javafx.scene.Node
+import javafx.scene.Scene
 import javafx.scene.input.*
 import java.text.ParseException
 
@@ -200,6 +201,18 @@ inline fun Node.registerShortcuts(
     crossinline handle: KeyEventHandlerBody.() -> Unit
 ) {
     addEventHandler(eventType) { ev: KeyEvent ->
+        KeyEventHandlerBody(ev).handle()
+    }
+}
+
+/**
+ * Register a new event filter for the given key event type
+ */
+inline fun Scene.registerShortcuts(
+    eventType: EventType<KeyEvent> = KeyEvent.KEY_RELEASED,
+    crossinline handle: KeyEventHandlerBody.() -> Unit
+) {
+    addEventFilter(eventType) { ev: KeyEvent ->
         KeyEventHandlerBody(ev).handle()
     }
 }

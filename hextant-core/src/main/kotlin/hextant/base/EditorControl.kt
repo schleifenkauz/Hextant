@@ -292,10 +292,18 @@ abstract class EditorControl<R : Node>(
                 if (showInspections()) ev.consume()
             }
             if (target is Editor<*>) {
-                on(COPY) { target.copyToClipboard() }
-                on(COPY_VIM) { target.copyToClipboard() }
-                on(PASTE) { target.pasteFromClipboard() }
-                on(PASTE_VIM) { target.pasteFromClipboard() }
+                on(COPY_VIM, consume = false) { ev ->
+                    val success = target.copyToClipboard()
+                    if (success) {
+                        ev.consume()
+                    }
+                }
+                on(PASTE_VIM, consume = false) { ev ->
+                    val success = target.pasteFromClipboard()
+                    if (success) {
+                        ev.consume()
+                    }
+                }
             }
         }
     }

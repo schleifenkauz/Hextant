@@ -42,6 +42,25 @@ private fun Scene.initEventHandlers() {
     listenForShift()
     changeTraversalEngine()
     traverseOnArrowWithCtrl()
+    registerCopyPaste()
+}
+
+private fun Scene.registerCopyPaste() {
+    registerShortcuts {
+        on("Ctrl + C") {
+            val view = getFocusedEditorControl()
+            val editor = view?.target
+            if (editor is Editor<*>) editor.copyToClipboard()
+        }
+        on("Ctrl + V") {
+            val view = getFocusedEditorControl()
+            val editor = view?.target
+            if (editor is Editor<*>) {
+                val success = editor.pasteFromClipboard()
+                if (!success) editor.expander?.pasteFromClipboard()
+            }
+        }
+    }
 }
 
 private fun Scene.listenForShift() {
