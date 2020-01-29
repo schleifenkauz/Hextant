@@ -6,6 +6,7 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.bundle.CoreProperties
 import hextant.command.meta.ProvideCommand
 import hextant.core.view.ListEditorView
 import hextant.serial.*
@@ -70,6 +71,22 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
             doAddAt(i, e.copyFor(context) as E)
         }
         return true
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun pasteMany(idx: Int, editors: List<*>) {
+        if (editors.any { !editorClass.isInstance(it) }) return
+        for ((i, e) in editors.withIndex()) {
+            e as E
+            val copy = e.copyFor(context)
+            addAt(idx + i, copy)
+        }
+    }
+
+    fun pasteManyFromClipboard(idx: Int) {
+        val content = context[CoreProperties.clipboard]
+        if (content !is List<*>) return
+        pasteMany(idx, content)
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
