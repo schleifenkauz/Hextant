@@ -72,17 +72,16 @@ interface Editor<out R : Any> {
     fun initAccessor(acc: EditorAccessor)
 
     /**
-     * Copy this editor such that the new editor has the given editor.
-     * The default implementation throws a [UnsupportedOperationException].
-     * Implementing classes must ensure that this method is supported iff [supportsCopy] returns `true`.
+     * Paste the given [editor] into this [Editor] if it is supported.
+     * @return `true` only if pasting the given [editor] is supported.
      */
-    fun copyForImpl(context: Context): Editor<R> = throw UnsupportedOperationException("Copying is not supported")
+    fun paste(editor: Editor<*>): Boolean
 
     /**
-     * Return `true` iff this editor supports copying.
-     * Default implementation returns `false`.
+     * Returns `true` only if this [Editor] supports copy/paste in principle.
+     * The default implementation returns `false`.
      */
-    fun supportsCopy(): Boolean = false
+    fun supportsCopyPaste(): Boolean = false
 
     /**
      * Return the child denoted by the given [accessor] or throw a [InvalidAccessorException] if there is no such child

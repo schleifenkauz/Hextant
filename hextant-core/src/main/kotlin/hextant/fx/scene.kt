@@ -12,7 +12,9 @@ import com.sun.javafx.scene.traversal.Direction.RIGHT
 import com.sun.javafx.scene.traversal.Direction.UP
 import hextant.*
 import hextant.base.EditorControl
+import hextant.bundle.CoreProperties
 import hextant.core.view.FXExpanderView
+import hextant.impl.SelectionDistributor
 import hextant.impl.Stylesheets
 import javafx.scene.*
 import javafx.scene.control.Label
@@ -34,14 +36,38 @@ fun hextantScene(
 }
 
 fun Scene.initHextantScene(context: Context) {
-    initEventHandlers()
+    initEventHandlers(context)
     context[Stylesheets].apply(this)
 }
 
-private fun Scene.initEventHandlers() {
+private fun Scene.initEventHandlers(ctx: Context) {
     listenForShift()
     changeTraversalEngine()
     traverseOnArrowWithCtrl()
+    registerCopyPaste(ctx)
+}
+
+private fun Scene.registerCopyPaste(context: Context) {
+    registerShortcuts {
+        on("Ctrl + C") {
+            val view = getFocusedEditorControl()
+            val editor = view?.target
+            if (editor is Editor<*>) editor.copyToClipboard()
+        }
+        on("Ctrl + Shift + C") {
+            val selected = context[SelectionDistributor].selectedTargets.now
+            if (selected.any { it !is Editor<*> }) return@on
+            context[CoreProperties.clipboard] = selected.toList()
+        }
+        on("Ctrl + V") {
+            val view = getFocusedEditorControl()
+            val editor = view?.target
+            if (editor is Editor<*>) {
+                val success = editor.pasteFromClipboard()
+                if (!success) editor.expander?.pasteFromClipboard()
+            }
+        }
+    }
 }
 
 private fun Scene.listenForShift() {

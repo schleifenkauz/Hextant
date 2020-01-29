@@ -6,6 +6,7 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.bundle.CoreProperties
 import hextant.command.meta.ProvideCommand
 import hextant.core.view.ListEditorView
 import hextant.serial.*
@@ -29,6 +30,8 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     private val undo = context[UndoManager]
 
     private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
+
+    private val editorClass by lazy { getTypeArgument(ListEditor::class, 1) }
 
     /**
      * All child editors of this [ListEditor]
@@ -61,12 +64,29 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
 
     @Suppress("UNCHECKED_CAST")
-    override fun copyForImpl(context: Context): Editor<List<R>> {
-        val copy = constructor.newInstance(context)
-        for ((i, e) in editors.now.withIndex()) {
-            copy.doAddAt(i, e.copyForImpl(context) as E)
+    override fun paste(editor: Editor<*>): Boolean {
+        if (editor !is ListEditor<*, *>) return false
+        if (editor.editorClass != this.editorClass) return false
+        for ((i, e) in editor.editors.now.withIndex()) {
+            doAddAt(i, e.copyFor(context) as E)
         }
-        return copy
+        return true
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun pasteMany(idx: Int, editors: List<*>) {
+        if (editors.any { !editorClass.isInstance(it) }) return
+        for ((i, e) in editors.withIndex()) {
+            e as E
+            val copy = e.copyFor(context)
+            addAt(idx + i, copy)
+        }
+    }
+
+    fun pasteManyFromClipboard(idx: Int) {
+        val content = context[CoreProperties.clipboard]
+        if (content !is List<*>) return
+        pasteMany(idx, content)
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
@@ -156,7 +176,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     private fun doAddAt(index: Int, editor: E, notify: Boolean = true) {
         val emptyBefore = emptyNow()
         _editors.now.add(index, editor)
-        child(editor)
+        addChild(editor)
         updateIndicesFrom(index)
         views {
             if (emptyBefore) notEmpty()

@@ -14,7 +14,8 @@ import hextant.fx.ModifierValue.DOWN
 import hextant.fx.menuBar
 import hextant.fx.shortcut
 import hextant.main.HextantApplication
-import hextant.project.editor.*
+import hextant.project.editor.DirectoryEditor
+import hextant.project.editor.ProjectItemEditor
 import hextant.serial.HextantFileManager
 import hextant.serial.HextantFileManagerImpl
 import hextant.serial.SerialProperties.projectRoot
@@ -39,7 +40,8 @@ class DirectoryViewTest : HextantApplication() {
     }
 
     override fun createView(context: Context): Parent {
-        val e = DirectoryEditor<Int>(context, FileNameEditor(context, "project"))
+        val e = DirectoryEditor<Int>(context)
+        e.itemName.setText("project")
         val explorer = ProjectEditorControl(e, Bundle.newInstance())
         val menu = menuBar {
             menu("File") {

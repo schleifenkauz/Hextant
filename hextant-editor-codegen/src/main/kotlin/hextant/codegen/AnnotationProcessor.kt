@@ -263,11 +263,6 @@ class AnnotationProcessor : AbstractProcessor() {
             name = simpleName,
             primaryConstructor = {
                 "context" of "Context"
-                for (p in primary.parameters) {
-                    val editorCls = getEditorClassName(p.asType(), p)
-                    val n = p.simpleName.toString()
-                    n of editorCls
-                }
             },
             inheritance = {
                 extend(
@@ -278,24 +273,10 @@ class AnnotationProcessor : AbstractProcessor() {
             }
         ) {
             val names = primary.parameters.map { it.toString() }
-            val componentClasses = primary.parameters.map { getEditorClassName(it.asType(), it) }
-            addConstructor(
-                { "context" of "Context" },
-                "context".e,
-                *componentClasses.mapToArray { call(it, "context".e) }
-            )
-            addConstructor(
-                { "context" of "Context"; "edited" of name },
-                "context".e,
-                *primary.parameters.mapToArray { p ->
-                    val editorCls = getEditorClassName(p.asType(), p)
-                    val n = p.simpleName.toString()
-                    call(editorCls, "context".e, "edited".e select n)
-                }
-            )
-            for (n in names) {
-                addVal(n) {
-                    by(call("child", n.e, "context".e))
+            for (p in primary.parameters) {
+                val editorCls = getEditorClassName(p.asType(), p)
+                addVal(p.simpleName.toString()) {
+                    by(call("child", call(editorCls, "context".e)))
                 }
             }
             val components = names.map { it.e }

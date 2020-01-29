@@ -291,6 +291,20 @@ abstract class EditorControl<R : Node>(
             on(INSPECTIONS, consume = false) { ev ->
                 if (showInspections()) ev.consume()
             }
+            if (target is Editor<*>) {
+                on(COPY_VIM, consume = false) { ev ->
+                    val success = target.copyToClipboard()
+                    if (success) {
+                        ev.consume()
+                    }
+                }
+                on(PASTE_VIM, consume = false) { ev ->
+                    val success = target.pasteFromClipboard()
+                    if (success) {
+                        ev.consume()
+                    }
+                }
+            }
         }
     }
 
@@ -339,10 +353,18 @@ abstract class EditorControl<R : Node>(
     }
 
     companion object {
-        private val EXTEND_SELECTION = "Ctrl?+M"
+        private const val EXTEND_SELECTION = "Ctrl?+M"
 
-        private val SHRINK_SELECTION = "Ctrl?+L"
+        private const val SHRINK_SELECTION = "Ctrl?+L"
 
-        private val INSPECTIONS = "Alt + Enter"
+        private const val INSPECTIONS = "Alt + Enter"
+
+        private const val COPY = "Ctrl + Shift + C"
+
+        private const val COPY_VIM = "C"
+
+        private const val PASTE = "Ctrl + Shift + V"
+
+        private const val PASTE_VIM = "V"
     }
 }

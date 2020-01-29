@@ -6,8 +6,7 @@ package hextant.project.editor
 
 import hextant.*
 import hextant.base.CompoundEditor
-import hextant.core.editor.ConfiguredExpander
-import hextant.core.editor.ExpanderDelegate
+import hextant.core.editor.*
 import hextant.project.File
 import hextant.serial.*
 import kserial.*
@@ -17,17 +16,12 @@ import reaktive.event.event
 import reaktive.value.binding.map
 import reaktive.value.reactiveVariable
 
-class FileEditor<R : Any> private constructor(
-    context: Context,
-    name: FileNameEditor
-) : CompoundEditor<File<R>>(context), ProjectItemEditor<R, File<R>>, Serializable {
-    private constructor(context: Context) : this(context, FileNameEditor(context, ""))
-
+class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor<File<R>>(context),
+                                                                  ProjectItemEditor<R, File<R>>, Serializable {
     private constructor(
         context: Context,
-        name: FileNameEditor,
         editor: Editor<R>
-    ) : this(context, name) {
+    ) : this(context) {
         this.editor = editor
     }
 
@@ -39,7 +33,9 @@ class FileEditor<R : Any> private constructor(
         p.path!!.resolve(itemName.result.map { it.force() })
     }
 
-    override val itemName by child(name, context)
+    private val resultClass by lazy { getTypeArgument(FileEditor::class, 0) }
+
+    override val itemName by child(FileNameEditor(context))
 
     private val _result = reactiveVariable<CompileResult<File<R>>>(childErr())
 
@@ -98,9 +94,6 @@ class FileEditor<R : Any> private constructor(
         content.write()
     }
 
-    override fun copyForImpl(context: Context): FileEditor<R> =
-        FileEditor(context, itemName, content.get().copy())
-
     override val result: EditorResult<File<R>> get() = _result
 
     private class RootExpander<R : Any>(
@@ -110,7 +103,6 @@ class FileEditor<R : Any> private constructor(
     ) : ConfiguredExpander<R, Editor<R>>(config, context, initial)
 
     companion object {
-        fun <R : Any> newInstance(context: Context) =
-            FileEditor<R>(context, FileNameEditor(context), RootExpander(context))
+        fun <R : Any> newInstance(context: Context) = FileEditor<R>(context, RootExpander(context))
     }
 }

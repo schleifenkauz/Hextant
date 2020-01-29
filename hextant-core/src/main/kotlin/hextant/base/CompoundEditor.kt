@@ -16,12 +16,7 @@ abstract class CompoundEditor<R : Any>(context: Context) :
     AbstractEditor<R, EditorView>(context), Serializable {
     private val constructor = this::class.primaryConstructor!!
 
-    protected fun <E : Editor<*>> child(editor: E, ctx: Context = context): ChildDelegator<E> {
-        @Suppress("UNCHECKED_CAST")
-        val copy = editor.copyForImpl(ctx) as E
-        child(copy)
-        return ChildDelegatorImpl(copy)
-    }
+    protected fun <E : Editor<*>> child(editor: E): ChildDelegator<E> = ChildDelegatorImpl(editor)
 
     override fun serialize(output: Output, context: SerialContext) {
         check(context is HextantSerialContext)
@@ -41,7 +36,14 @@ abstract class CompoundEditor<R : Any>(context: Context) :
         }
     }
 
-    override fun copyForImpl(context: Context): Editor<R> = constructor.call(context, *children.now.toTypedArray())
+    override fun paste(editor: Editor<*>): Boolean {
+        if (editor.javaClass != this.javaClass) return false
+        for ((original, copy) in editor.children.now.zip(this.children.now)) {
+            val supported = copy.paste(original)
+            check(supported) { "Unsupported copy" }
+        }
+        return true
+    }
 
     interface ChildDelegator<E : Editor<*>> {
         operator fun provideDelegate(

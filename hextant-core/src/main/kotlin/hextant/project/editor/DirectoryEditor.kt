@@ -11,12 +11,10 @@ import hextant.serial.*
 import reaktive.value.now
 
 class DirectoryEditor<R : Any>(
-    context: Context,
-    name: FileNameEditor = FileNameEditor(context),
-    content: ProjectItemListEditor<R> = ProjectItemListEditor(context)
+    context: Context
 ) : CompoundEditor<Directory<R>>(context), ProjectItemEditor<R, Directory<R>> {
-    override val itemName by child(name, context)
-    val items by child(content, context)
+    override val itemName by child(FileNameEditor(context))
+    val items by child(ProjectItemListEditor<R>(context))
 
     override val path: ReactivePath by lazy {
         val parentPath = getProjectItemEditorParent()?.path ?: ReactivePath.empty()

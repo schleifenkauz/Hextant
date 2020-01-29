@@ -8,5 +8,5 @@ import hextant.Editor
 import hextant.expr.edited.Expr
 
 interface ExprEditor<out E : Expr> : Editor<E> {
-    override fun supportsCopy(): Boolean = true
+    override fun supportsCopyPaste(): Boolean = true
 }

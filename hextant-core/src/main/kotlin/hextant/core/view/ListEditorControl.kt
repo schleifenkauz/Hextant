@@ -188,11 +188,11 @@ open class ListEditorControl(
         emptyDisplay.setOnMouseClicked {
             editor.addAt(0)
         }
-        emptyDisplay.setOnKeyReleased { evt ->
-            if (ADD_ITEM_AFTER.matches(evt)) {
-                editor.addAt(0)
-                evt.consume()
-            }
+        registerShortcuts {
+            on(PASTE_MANY) { editor.pasteManyFromClipboard(0) }
+        }
+        emptyDisplay.registerShortcuts {
+            on(ADD_ITEM_AFTER) { editor.addAt(0) }
         }
     }
 
@@ -238,6 +238,9 @@ open class ListEditorControl(
             on(ADD_ITEM_AFTER) { editor.addAt(index + 1) }
             on(ADD_ITEM_BEFORE) { editor.addAt(index) }
             on(REMOVE_ITEM) { editor.removeAt(index) }
+            on(PASTE_MANY) {
+                editor.pasteManyFromClipboard(index)
+            }
             if (cells.size > index + 1) on(orientation.nextCombination) { cells[index + 1].requestLayout() }
             if (cells.size > index + 1) on(orientation.previousCombination) { cells[index - 1].requestLayout() }
         }
@@ -295,6 +298,8 @@ open class ListEditorControl(
         private val ADD_ITEM_BEFORE = shortcut(KeyCode.INSERT) { shift(DOWN); control(MAYBE) }
 
         private val REMOVE_ITEM = shortcut(KeyCode.DELETE) { control(MAYBE) }
+
+        private const val PASTE_MANY = "Ctrl + Shift + V"
 
         fun withAltText(
             editor: ListEditor<*, *>,

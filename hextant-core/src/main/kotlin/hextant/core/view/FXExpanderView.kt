@@ -76,8 +76,6 @@ open class FXExpanderView(
     init {
         with(textField) {
             registerShortcuts {
-                on("Ctrl + Shift + V") { expander.paste() }
-                on("V") { expander.paste() }
                 on("Ctrl + Space") { completionHelper.show(this@FXExpanderView) }
                 on("Enter") { expander.expand() }
             }
@@ -123,8 +121,6 @@ open class FXExpanderView(
         view = v
         v.registerShortcuts {
             on("Ctrl? + R") { expander.reset() }
-            on("Ctrl + Shift + C") { expander.copy() }
-            on("C") { expander.copy() }
         }
         root = v
         this.next?.let { v.setNext(it) }

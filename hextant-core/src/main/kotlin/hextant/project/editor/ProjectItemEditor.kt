@@ -16,7 +16,7 @@ interface ProjectItemEditor<T : Any, I : ProjectItem<T>> : Editor<I> {
 
     val itemName: FileNameEditor
 
-    override fun supportsCopy(): Boolean = true
+    override fun supportsCopyPaste(): Boolean = true
 
     fun deletePhysical()
 
