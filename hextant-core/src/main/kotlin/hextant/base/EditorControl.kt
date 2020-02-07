@@ -10,9 +10,8 @@ import hextant.bundle.Property
 import hextant.command.gui.commandContextMenu
 import hextant.fx.*
 import hextant.fx.ModifierValue.DOWN
-import hextant.impl.SelectionDistributor
+import hextant.impl.*
 import hextant.inspect.Inspections
-import hextant.inspect.gui.InspectionPopup
 import hextant.undo.UndoManager
 import javafx.geometry.Side
 import javafx.scene.Node
@@ -43,17 +42,20 @@ abstract class EditorControl<R : Node>(
 
     private val inspections = context[Inspections]
 
-    private val inspectionPopup = InspectionPopup(context) { inspections.getProblems(target) }
+    //    private val inspectionPopup = run {
+    //        val inspections = this.inspections //Prevent capturing of this
+    //        InspectionPopup(context) { inspections.getProblems(target) }
+    //    }
 
     private val hasError = inspections.hasError(target)
 
     private val hasWarning = inspections.hasWarning(target)
 
-    private val errorObserver = hasError.observe { _, isError ->
+    private val errorObserver = hasError.observe(this) { _, _, isError ->
         handleProblem(isError, hasWarning.now)
     }
 
-    private val warningObserver = hasWarning.observe { _, isWarn ->
+    private val warningObserver = hasWarning.observe(this) { _, _, isWarn ->
         handleProblem(hasError.now, isWarn)
     }
 
@@ -84,16 +86,16 @@ abstract class EditorControl<R : Node>(
     init {
         styleClass.add("editor-control")
         val reactive = Bundle.reactive(arguments)
-        reactive.changed.subscribe { _, change ->
+        reactive.changed.subscribe(this) { _, change ->
             argumentChanged(change.property, change.newValue)
+        }
+        sceneProperty().addListener(this) { sc ->
+            if (sc != null) handleProblem(hasError.now, hasWarning.now)
         }
         this.arguments = reactive
         isFocusTraversable = false
         initShortcuts()
         //        activateContextMenu(target, context)
-        sceneProperty().addListener { _, _, sc ->
-            if (sc != null) handleProblem(hasError.now, hasWarning.now)
-        }
     }
 
     /**
@@ -191,7 +193,7 @@ abstract class EditorControl<R : Node>(
         protected set(newRoot) {
             _root = newRoot
             root.isFocusTraversable = true
-            root.focusedProperty().addListener { _, _, focused ->
+            root.focusedProperty().addListener(this) { focused ->
                 if (focused && !manuallySelecting) {
                     if (isShiftDown) doToggleSelection()
                     else doSelect()
@@ -271,7 +273,7 @@ abstract class EditorControl<R : Node>(
     }
 
     private fun initShortcuts() {
-        registerShortcuts {
+        registerShortcuts(this) {
             on(EXTEND_SELECTION) { extendSelection() }
             on(SHRINK_SELECTION) { shrinkSelection() }
             on(shortcut(Z) { control(DOWN) }, consume = false) { ev ->
@@ -291,14 +293,16 @@ abstract class EditorControl<R : Node>(
             on(INSPECTIONS, consume = false) { ev ->
                 if (showInspections()) ev.consume()
             }
-            if (target is Editor<*>) {
-                on(COPY_VIM, consume = false) { ev ->
+            on(COPY_VIM, consume = false) { ev ->
+                if (target is Editor<*>) {
                     val success = target.copyToClipboard()
                     if (success) {
                         ev.consume()
                     }
                 }
-                on(PASTE_VIM, consume = false) { ev ->
+            }
+            on(PASTE_VIM, consume = false) { ev ->
+                if (target is Editor<*>) {
                     val success = target.pasteFromClipboard()
                     if (success) {
                         ev.consume()
@@ -322,8 +326,9 @@ abstract class EditorControl<R : Node>(
     }
 
     private fun showInspections(): Boolean {
-        inspectionPopup.show(this)
-        return inspectionPopup.isShowing
+        //        inspectionPopup.show(this)
+        //        return inspectionPopup.isShowing
+        return false
     }
 
     private fun addStyleCls(name: String) {

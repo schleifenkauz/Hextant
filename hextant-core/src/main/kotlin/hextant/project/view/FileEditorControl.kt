@@ -9,6 +9,7 @@ import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
 import hextant.fx.*
+import hextant.impl.subscribe
 import hextant.project.editor.FileEditor
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
@@ -29,7 +30,7 @@ class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) : 
         children[0] = createIcon(g)
     }
 
-    private val rootObserver = editor.rootEditorChanged.subscribe { _, e ->
+    private val rootObserver = editor.rootEditorChanged.subscribe(this) { _, e ->
         currentGlyph = glyphBinding(e)
         glyphObserver.kill()
         glyphObserver = currentGlyph.observe { _, _, g ->
