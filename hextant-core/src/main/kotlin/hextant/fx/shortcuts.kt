@@ -9,6 +9,7 @@ import javafx.event.EventType
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.input.*
+import java.lang.ref.WeakReference
 import java.text.ParseException
 
 /**
@@ -92,14 +93,14 @@ inline fun shortcut(key: KeyCode, block: ShortcutBuilder.() -> Unit = {}) = Shor
 
 fun never() = Shortcut(null, UP, UP, UP)
 
-class KeyEventHandlerBody @PublishedApi internal constructor(private val event: KeyEvent) {
+class KeyEventHandlerBody<R> @PublishedApi internal constructor(private val receiver: R, private val event: KeyEvent) {
     /**
      * If the key event matches the given [shortcut], the given [action] is executed.
      * @param consume if `false` the user is responsible for consuming the key event
      */
-    fun on(shortcut: Shortcut, consume: Boolean = true, action: (KeyEvent) -> Unit) {
+    fun on(shortcut: Shortcut, consume: Boolean = true, action: R.(KeyEvent) -> Unit) {
         if (shortcut.matches(event)) {
-            action(event)
+            receiver.action(event)
             if (consume) event.consume()
         }
     }
@@ -112,7 +113,7 @@ class KeyEventHandlerBody @PublishedApi internal constructor(private val event: 
         code: KeyCode,
         builder: ShortcutBuilder.() -> Unit = {},
         consume: Boolean = true,
-        action: (KeyEvent) -> Unit
+        action: R.(KeyEvent) -> Unit
     ) {
         val shortcut = ShortcutBuilder(code).apply(builder).build()
         on(shortcut, consume, action)
@@ -122,7 +123,7 @@ class KeyEventHandlerBody @PublishedApi internal constructor(private val event: 
      * If the key event matches the given [shortcut], the given [action] is executed.
      * @param consume if `false` the user is responsible for consuming the key event
      */
-    fun on(shortcut: String, consume: Boolean = true, action: (KeyEvent) -> Unit) {
+    fun on(shortcut: String, consume: Boolean = true, action: R.(KeyEvent) -> Unit) {
         on(shortcut.shortcut, consume, action)
     }
 }
@@ -198,10 +199,25 @@ private fun parseShortcut(s: String): Shortcut {
  */
 inline fun Node.registerShortcuts(
     eventType: EventType<KeyEvent> = KeyEvent.KEY_RELEASED,
-    crossinline handle: KeyEventHandlerBody.() -> Unit
+    crossinline handle: KeyEventHandlerBody<Unit>.() -> Unit
 ) {
     addEventHandler(eventType) { ev: KeyEvent ->
-        KeyEventHandlerBody(ev).handle()
+        KeyEventHandlerBody(Unit, ev).handle()
+    }
+}
+
+/**
+ * Register a new event handler for the given key event type
+ */
+inline fun <R : Any> Node.registerShortcuts(
+    receiver: R,
+    eventType: EventType<KeyEvent> = KeyEvent.KEY_RELEASED,
+    crossinline handle: KeyEventHandlerBody<R>.() -> Unit
+) {
+    val ref = WeakReference(receiver)
+    addEventHandler(eventType) { ev ->
+        val referent = ref.get()
+        if (referent != null) KeyEventHandlerBody(referent, ev).handle()
     }
 }
 
@@ -210,9 +226,9 @@ inline fun Node.registerShortcuts(
  */
 inline fun Scene.registerShortcuts(
     eventType: EventType<KeyEvent> = KeyEvent.KEY_RELEASED,
-    crossinline handle: KeyEventHandlerBody.() -> Unit
+    crossinline handle: KeyEventHandlerBody<Unit>.() -> Unit
 ) {
     addEventFilter(eventType) { ev: KeyEvent ->
-        KeyEventHandlerBody(ev).handle()
+        KeyEventHandlerBody(Unit, ev).handle()
     }
 }
