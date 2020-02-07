@@ -5,6 +5,7 @@
 package hextant.completion.gui
 
 import hextant.completion.Completion
+import hextant.fx.registerShortcuts
 import javafx.scene.input.KeyCode.ENTER
 import javafx.scene.layout.VBox
 import javafx.stage.Popup
@@ -16,6 +17,11 @@ class CompletionPopup<C> : Popup() {
 
     init {
         isAutoHide = true
+        scene.registerShortcuts {
+            on("ESCAPE") {
+                hide()
+            }
+        }
     }
 
     fun setCompletions(completions: Collection<Completion<C>>) {
@@ -44,8 +50,7 @@ class CompletionPopup<C> : Popup() {
 
     private fun choose(c: Completion<C>) {
         choose.fire(c)
-        ownerNode.requestFocus()
+        hide()
     }
-
 }
 

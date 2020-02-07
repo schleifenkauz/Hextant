@@ -189,6 +189,12 @@ class ExprEditorViewTest : HextantApplication() {
                     inspected.setText("1")
                 }
             }
+            addFix {
+                description = "Set to '2'"
+                fixingBy {
+                    inspected.setText("2")
+                }
+            }
         }
         commands.of<ExprEditor<*>>().register<ExprEditor<*>, Unit> {
             description =

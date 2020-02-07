@@ -12,6 +12,7 @@ import hextant.fx.*
 import hextant.fx.ModifierValue.DOWN
 import hextant.impl.*
 import hextant.inspect.Inspections
+import hextant.inspect.gui.InspectionPopup
 import hextant.undo.UndoManager
 import javafx.geometry.Side
 import javafx.scene.Node
@@ -42,10 +43,10 @@ abstract class EditorControl<R : Node>(
 
     private val inspections = context[Inspections]
 
-    //    private val inspectionPopup = run {
-    //        val inspections = this.inspections //Prevent capturing of this
-    //        InspectionPopup(context) { inspections.getProblems(target) }
-    //    }
+    private val inspectionPopup = run {
+        val inspections = this.inspections //Prevent capturing of this
+        InspectionPopup(context) { inspections.getProblems(target) }
+    }
 
     private val hasError = inspections.hasError(target)
 
@@ -326,9 +327,8 @@ abstract class EditorControl<R : Node>(
     }
 
     private fun showInspections(): Boolean {
-        //        inspectionPopup.show(this)
-        //        return inspectionPopup.isShowing
-        return false
+        inspectionPopup.show(this)
+        return inspectionPopup.isShowing
     }
 
     private fun addStyleCls(name: String) {

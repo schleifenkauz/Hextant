@@ -83,26 +83,34 @@ private fun Scene.listenForShift() {
     }
 }
 
-fun Scene.traverseOnArrowWithCtrl() {
+internal fun Scene.traverseOnArrowWithCtrl() {
     addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
         if (ev.code == KeyCode.LEFT) {
-            val prev = getFocusedEditorControl()?.previous ?: return@addEventHandler
-            val lastChild = generateSequence(prev) {
-                if (it is FXExpanderView) it.root as? EditorControl<*>
-                else it.editorChildren().lastOrNull()
-            }.last()
-            ev.consume()
-            lastChild.focus()
+            if (focusPrevious()) ev.consume()
         } else if (ev.code == KeyCode.RIGHT) {
-            val next = getFocusedEditorControl()?.next ?: return@addEventHandler
-            val firstChild = generateSequence(next) {
-                if (it is FXExpanderView) it.root as? EditorControl<*>
-                else it.editorChildren().firstOrNull()
-            }.last()
-            ev.consume()
-            firstChild.focus()
+            if (focusNext()) ev.consume()
         }
     }
+}
+
+internal fun Scene.focusNext(): Boolean {
+    val next = getFocusedEditorControl()?.next ?: return false
+    val firstChild = generateSequence(next) {
+        if (it is FXExpanderView) it.root as? EditorControl<*>
+        else it.editorChildren().firstOrNull()
+    }.last()
+    firstChild.focus()
+    return true
+}
+
+internal fun Scene.focusPrevious(): Boolean {
+    val prev = getFocusedEditorControl()?.previous ?: return false
+    val lastChild = generateSequence(prev) {
+        if (it is FXExpanderView) it.root as? EditorControl<*>
+        else it.editorChildren().lastOrNull()
+    }.last()
+    lastChild.focus()
+    return true
 }
 
 private fun Scene.getFocusedEditorControl(): EditorControl<*>? {

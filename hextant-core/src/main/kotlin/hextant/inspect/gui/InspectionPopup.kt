@@ -6,6 +6,7 @@ package hextant.inspect.gui
 
 import hextant.Context
 import hextant.fx.registerShortcut
+import hextant.fx.registerShortcuts
 import hextant.get
 import hextant.impl.Stylesheets
 import hextant.inspect.Problem
@@ -27,7 +28,12 @@ class InspectionPopup(private val context: Context, problems: () -> Set<Problem>
         context[Stylesheets].apply(scene)
         container.styleClass.add("problem-list")
         setOnShowing { update() }
-        setOnHidden { ownerNode.requestFocus() }
+        isAutoHide = true
+        scene.registerShortcuts {
+            on("ESCAPE") {
+                hide()
+            }
+        }
         scene.root = container
     }
 
