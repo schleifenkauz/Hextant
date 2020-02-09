@@ -141,8 +141,9 @@ class FXCommandLineView(
         if (textField.isEditable) {
             textField.requestFocus()
         } else {
-            val argEditor = argEditors.children.first() as Label
-            argEditor.graphic.requestFocus()
+            val lbl = argEditors.children.first() as Label
+            val editor = lbl.graphic as EditorControl<*>
+            editor.receiveFocus()
         }
     }
 
@@ -158,7 +159,7 @@ class FXCommandLineView(
         val nodes = views.zip(parameters) { v, p -> argumentEditor(p, v) }
         argEditors.children.addAll(nodes)
         completionsPopup.hide()
-        Platform.runLater { focus() }
+        Platform.runLater { receiveFocus() }
     }
 
     override fun displayText(newText: String) {
