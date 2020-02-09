@@ -4,12 +4,6 @@
 
 package hextant.fx
 
-import com.sun.javafx.scene.traversal.*
-import com.sun.javafx.scene.traversal.Direction.*
-import com.sun.javafx.scene.traversal.Direction.DOWN
-import com.sun.javafx.scene.traversal.Direction.LEFT
-import com.sun.javafx.scene.traversal.Direction.RIGHT
-import com.sun.javafx.scene.traversal.Direction.UP
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.CoreProperties
@@ -18,7 +12,6 @@ import hextant.impl.SelectionDistributor
 import hextant.impl.Stylesheets
 import javafx.scene.*
 import javafx.scene.control.Label
-import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent
 
@@ -50,7 +43,7 @@ private fun Scene.initEventHandlers(ctx: Context) {
 private fun Scene.registerCopyPaste(context: Context) {
     registerShortcuts {
         on("Ctrl + C") {
-            val view = getFocusedEditorControl()
+            val view = focusedEditorControl
             val editor = view?.target
             if (editor is Editor<*>) editor.copyToClipboard()
         }
@@ -60,7 +53,7 @@ private fun Scene.registerCopyPaste(context: Context) {
             context[CoreProperties.clipboard] = selected.toList()
         }
         on("Ctrl + V") {
-            val view = getFocusedEditorControl()
+            val view = focusedEditorControl
             val editor = view?.target
             if (editor is Editor<*>) {
                 val success = editor.pasteFromClipboard()
@@ -84,17 +77,29 @@ private fun Scene.listenForShift() {
 }
 
 internal fun Scene.traverseOnArrowWithCtrl() {
-    addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
-        if (ev.code == KeyCode.LEFT) {
-            if (focusPrevious()) ev.consume()
-        } else if (ev.code == KeyCode.RIGHT) {
-            if (focusNext()) ev.consume()
+    registerShortcuts {
+        on("Ctrl + Left") {
+            focusPrevious()
+        }
+        //TODO(think about this)
+        //        on("Ctrl + Shift + Left") {
+        //            deselectFocusedAndFocusPrevious()
+        //        }
+        on("Ctrl + Shift? + Right") {
+            focusNext()
         }
     }
 }
 
+fun Scene.deselectFocusedAndFocusPrevious() {
+    val focused = focusedEditorControl ?: return
+    focused.toggleSelection()
+    val prev = focused.previousEditorControl
+    prev?.justFocus()
+}
+
 internal fun Scene.focusNext(): Boolean {
-    val next = getFocusedEditorControl()?.next ?: return false
+    val next = focusedEditorControl?.next ?: return false
     val firstChild = generateSequence(next) {
         if (it is FXExpanderView) it.root as? EditorControl<*>
         else it.editorChildren().firstOrNull()
@@ -103,63 +108,38 @@ internal fun Scene.focusNext(): Boolean {
     return true
 }
 
-internal fun Scene.focusPrevious(): Boolean {
-    val prev = getFocusedEditorControl()?.previous ?: return false
-    val lastChild = generateSequence(prev) {
+private val Node.previousEditorControl
+    get() = generateSequence(editorControlInParentChain(this)?.previous) {
         if (it is FXExpanderView) it.root as? EditorControl<*>
         else it.editorChildren().lastOrNull()
-    }.last()
-    lastChild.focus()
-    return true
+    }.lastOrNull()
+
+internal fun Scene.focusPrevious(): Boolean {
+    val prev = focusOwner.previousEditorControl
+    prev?.focus()
+    return prev != null
 }
 
-private fun Scene.getFocusedEditorControl(): EditorControl<*>? {
-    val editorControl = generateSequence(focusOwner) { it.parent }.firstOrNull { it is EditorControl<*> }
-    return editorControl as EditorControl<*>?
-}
+private val Scene.focusedEditorControl: EditorControl<*>?
+    get() = editorControlInParentChain(focusOwner)
+
+private fun editorControlInParentChain(node: Node) =
+    generateSequence(node) { it.parent }.firstOrNull { it is EditorControl<*> } as EditorControl<*>?
+
+private val TRAV_NEXT = "TAB".shortcut
+private val TRAV_PREV = "Shift + TAB".shortcut
 
 @Suppress("DEPRECATION")
 private fun Scene.changeTraversalEngine() {
-    root.impl_traversalEngine = ParentTraversalEngine(root, object : Algorithm {
-        override fun select(owner: Node, dir: Direction, context: TraversalContext?): Node? {
-            val editorControl = generateSequence(owner) { it.parent }.first { it is EditorControl<*> }
-            editorControl as EditorControl<*>
-            return when (dir) {
-                UP, DOWN, NEXT_IN_LINE -> owner
-                LEFT, PREVIOUS         -> editorControl.previous
-                RIGHT, NEXT            -> editorControl.next
-            }
+    registerShortcuts(KeyEvent.ANY) {
+        on(TRAV_NEXT) {
+            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.next?.select()
         }
-
-        override fun selectFirst(context: TraversalContext?): Node? =
-            firstEditorControl(root)
-
-        private fun firstEditorControl(node: Node): EditorControl<*>? = when (node) {
-            is Parent -> {
-                for (c in node.childrenUnmodifiable) {
-                    firstEditorControl(c)?.let { return it }
-                }
-                if (node is EditorControl<*>) node else null
-            }
-            else      -> node as? EditorControl<*>
+        on(TRAV_PREV) {
+            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.previous?.select()
         }
-
-        override fun selectLast(context: TraversalContext?): Node? =
-            lastEditorControl(root)
-
-        private fun lastEditorControl(node: Node): EditorControl<*>? = when (node) {
-            is EditorControl<*> -> node
-            is Parent           -> {
-                for (c in node.childrenUnmodifiable.asReversed()) {
-                    firstEditorControl(c)?.let { return it }
-                }
-                if (node is EditorControl<*>) node else null
-            }
-            else                -> node as? EditorControl<*>
-        }
-    })
+    }
 }
-
 
 fun lastShortcutLabel(scene: Scene): Label {
     val shortcutDisplay = Label().apply {

@@ -241,9 +241,7 @@ abstract class EditorControl<R : Node>(
      */
     fun select() {
         if (doSelect()) {
-            manuallySelecting = true
-            root.requestFocus()
-            manuallySelecting = false
+            justFocus()
         }
     }
 
@@ -258,10 +256,14 @@ abstract class EditorControl<R : Node>(
      */
     fun toggleSelection() {
         if (doToggleSelection()) {
-            manuallySelecting = true
-            root.requestFocus()
-            manuallySelecting = false
+            justFocus()
         }
+    }
+
+    fun justFocus() {
+        manuallySelecting = true
+        root.requestFocus()
+        manuallySelecting = false
     }
 
     override fun deselect() {

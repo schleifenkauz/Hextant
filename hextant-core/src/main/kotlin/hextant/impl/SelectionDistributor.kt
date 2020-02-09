@@ -19,15 +19,18 @@ interface SelectionDistributor {
 
     fun select(view: EditorView): Boolean
 
-    private class Impl: SelectionDistributor {
+    private class Impl : SelectionDistributor {
         override val selectedViews = reactiveSet<EditorView>()
 
         override val selectedTargets: ReactiveSet<Any> = selectedViews.map { it.target }
 
         @Synchronized override fun toggleSelection(view: EditorView): Boolean {
             if (selectedViews.now.add(view)) return true
-            if (selectedTargets.now.size > 1) removeSelection(view)
-            return false
+            if (selectedTargets.now.size > 1) {
+                removeSelection(view)
+                return false
+            }
+            return true
         }
 
         private fun removeSelection(
