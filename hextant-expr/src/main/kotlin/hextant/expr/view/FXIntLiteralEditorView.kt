@@ -6,7 +6,7 @@ import hextant.expr.editor.IntLiteralEditor
 
 class FXIntLiteralEditorView(
     intEditor: IntLiteralEditor, args: Bundle
-) : FXTokenEditorView(intEditor, args) {
+) : FXTokenEditorView(intEditor, args, IntLiteralEditor.Completer) {
     init {
         root.styleClass.add("decimal-editor")
     }

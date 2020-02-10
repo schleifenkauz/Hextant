@@ -1,3 +1,5 @@
+import hextant.completion.CompletionStrategy
+import hextant.core.view.FXExpanderView
 import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.edited.Expr
@@ -24,6 +26,9 @@ plugin {
     view(::FXSumEditorView)
     defaultEditor(::ExprExpander)
     defaultEditor(::ExprListEditor)
+    view { editor: ExprExpander, args ->
+        FXExpanderView(editor, args, ExprExpander.config.completer(CompletionStrategy.simple))
+    }
     view<ExprListEditor, ListEditorControl> { editor, args ->
         ListEditorControl.withAltGlyph(editor, FontAwesome.Glyph.PLUS, args, Horizontal).apply {
             cellFactory = { ListEditorControl.SeparatorCell(", ") }

@@ -11,7 +11,7 @@ import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.command.Command.Parameter
 import hextant.command.gui.argumentEditor
-import hextant.completion.gui.CompleterPopupHelper
+import hextant.completion.gui.CompletionPopup
 import hextant.fx.*
 import javafx.application.Platform
 import javafx.beans.Observable
@@ -30,8 +30,6 @@ class FXCommandLineView(
     context: Context,
     args: Bundle
 ) : EditorControl<VBox>(commandLine, context, args), CommandLineView {
-    private val completer = CommandCompleter { commandLine.availableCommands() }
-
     private val historyView = ListView<CommandApplication>().apply {
         styleClass.add("history-view")
         prefHeight = 0.0
@@ -86,13 +84,13 @@ class FXCommandLineView(
 
     private val textUpdater = textField.userUpdatedText.subscribe { new ->
         commandLine.editName(new)
-        completionsPopup.show(this)
+        popup.show(this)
     }
 
     private fun nameTextField(): HextantTextField = HextantTextField().apply {
         addEventHandler(KeyEvent.KEY_RELEASED) { k ->
             if (SHOW_COMPLETIONS_SHORTCUT.match(k) || k.code == SPACE) {
-                completer.completions(text)
+                popup.show(this)
                 k.consume()
             }
         }
@@ -130,10 +128,10 @@ class FXCommandLineView(
         commandLine.addView(this)
     }
 
-    private val completionsPopup = CompleterPopupHelper(completer, this.textField::getText)
+    private val popup = CompletionPopup(commandLine, context[IconManager], CommandCompleter)
 
-    private val completionsSubscription = completionsPopup.completionChosen.subscribe { c ->
-        commandLine.editName(c.completed.shortName!!)
+    private val completionsSubscription = popup.completionChosen.subscribe { c ->
+        commandLine.editName(c.completion.shortName!!)
         commandLine.executeOrExpand()
     }
 
@@ -158,7 +156,7 @@ class FXCommandLineView(
         val views = editors.map { editor -> context.createView(editor) }
         val nodes = views.zip(parameters) { v, p -> argumentEditor(p, v) }
         argEditors.children.addAll(nodes)
-        completionsPopup.hide()
+        popup.hide()
         Platform.runLater { receiveFocus() }
     }
 
@@ -179,7 +177,7 @@ class FXCommandLineView(
             history.removeAt(0)
         }
         historyView.scrollTo(history.lastIndex)
-        completionsPopup.hide()
+        popup.hide()
     }
 
     companion object {

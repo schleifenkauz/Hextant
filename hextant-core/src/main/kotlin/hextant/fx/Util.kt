@@ -10,6 +10,7 @@ import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
+import javafx.scene.layout.Region
 import javafx.stage.PopupWindow
 
 internal fun control(skin: Skin<out Control>): Control {
@@ -25,8 +26,7 @@ internal fun Control.setRoot(node: Node) {
     skin = skin(this, node)
 }
 
-internal
-fun skin(control: Control, node: Node): Skin<Control> = SimpleSkin(control, node)
+internal fun skin(control: Control, node: Node): Skin<Control> = SimpleSkin(control, node)
 
 
 private class SimpleSkin(
@@ -86,4 +86,10 @@ fun keyword(name: String) = Label(name).apply {
 fun operator(name: String) = Label(name).apply {
     styleClass.add("hextant-text")
     styleClass.add("operator")
+}
+
+internal fun Region.fixWidth(value: Double) {
+    prefWidth = value
+    minWidth = value
+    maxWidth = value
 }

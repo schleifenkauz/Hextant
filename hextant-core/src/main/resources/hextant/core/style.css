@@ -81,17 +81,16 @@
     -fx-background-color: #05437B;
 }
 
-/*Style class applied to auto completion lists*/
-.completions {
-    -fx-border-color: blue;
-    -fx-border-width: 1;
-}
+/*!*Style class applied to auto completion lists*!*/
+/*.completions {*/
+/*    -fx-border-color: blue;*/
+/*    -fx-border-width: 1;*/
+/*}*/
 
 /*Style class applied to auto completion items*/
 .completion {
     -fx-background-color: #292929;
-    -fx-border-color: #212121;
-    -fx-border-width: 5;
+    -fx-padding: 5;
 }
 
 .completion:focused {

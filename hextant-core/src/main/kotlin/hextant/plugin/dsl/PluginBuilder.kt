@@ -90,7 +90,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
      */
     inline fun <reified E : TokenEditor<*, TokenEditorView>> tokenEditorView(
         styleClass: String? = null,
-        completer: Completer<String> = NoCompleter,
+        completer: Completer<Context, String> = NoCompleter,
         crossinline extraConfig: FXTokenEditorView.() -> Unit = {}
     ) {
         view { e: E, args ->
