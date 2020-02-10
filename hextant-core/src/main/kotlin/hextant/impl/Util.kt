@@ -59,3 +59,24 @@ internal fun <R : Any, T : Any?> ObservableValue<T>.addListener(receiver: R, lis
     val ref = weak(receiver)
     addListener { _, _, newValue -> ref.referent?.listener(newValue) }
 }
+
+internal fun <T : Any> iterate(start: T?, next: (T) -> T?): T? {
+    var current = start ?: return null
+    var nxt = next(current)
+    while (nxt != null) {
+        current = nxt
+        nxt = next(current)
+    }
+    return current
+}
+
+@JvmName("iterateNonNullStart")
+internal fun <T : Any> iterate(start: T, next: (T) -> T?): T {
+    var current = start
+    var nxt = next(current)
+    while (nxt != null) {
+        current = nxt
+        nxt = next(current)
+    }
+    return current
+}

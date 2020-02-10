@@ -65,7 +65,7 @@ open class AbstractTokenEditorControl(
 
     private val obs = completionHelper.completionChosen.subscribe(this) { _, c ->
         editor.setText(c.completed)
-        scene.focusNext()
+        scene.selectNext()
     }
 
     final override fun createDefaultRoot() = textField

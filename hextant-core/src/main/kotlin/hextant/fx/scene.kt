@@ -8,14 +8,11 @@ import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.CoreProperties
 import hextant.core.view.FXExpanderView
-import hextant.impl.SelectionDistributor
-import hextant.impl.Stylesheets
+import hextant.impl.*
 import javafx.scene.*
-import javafx.scene.control.Label
-import javafx.scene.input.KeyCode.*
+import javafx.scene.input.KeyCode.SHIFT
 import javafx.scene.input.KeyEvent
-
-internal var isShiftDown = false; private set
+import reaktive.value.now
 
 fun hextantScene(
     root: (Context) -> Parent,
@@ -35,33 +32,128 @@ fun Scene.initHextantScene(context: Context) {
 
 private fun Scene.initEventHandlers(ctx: Context) {
     listenForShift()
-    changeTraversalEngine()
-    traverseOnArrowWithCtrl()
-    registerCopyPaste(ctx)
+    registerShortcuts(ctx)
 }
 
-private fun Scene.registerCopyPaste(context: Context) {
+private val TRAV_NEXT = "TAB".shortcut
+private val TRAV_PREV = "Shift + TAB".shortcut
+private val SELECT_PREV = "Ctrl + Left".shortcut
+private val MOVE_PREV = "Ctrl + Shift + Left".shortcut
+private val SELECT_NEXT = "Ctrl + Right".shortcut
+private val MOVE_NEXT = "Ctrl + Shift + Right".shortcut
+private val COPY = "Ctrl + C".shortcut
+private val COPY_MANY = "Ctrl + Shift + C".shortcut
+
+private val PASTE = "Ctrl + V".shortcut
+
+private fun Scene.registerShortcuts(context: Context) {
     registerShortcuts {
-        on("Ctrl + C") {
-            val view = focusedEditorControl
-            val editor = view?.target
-            if (editor is Editor<*>) editor.copyToClipboard()
+        on(COPY) {
+            copyToClipboard()
         }
-        on("Ctrl + Shift + C") {
-            val selected = context[SelectionDistributor].selectedTargets.now
-            if (selected.any { it !is Editor<*> }) return@on
-            context[CoreProperties.clipboard] = selected.toList()
+        on(COPY_MANY) {
+            copyManyToClipboard(context)
         }
-        on("Ctrl + V") {
-            val view = focusedEditorControl
-            val editor = view?.target
-            if (editor is Editor<*>) {
-                val success = editor.pasteFromClipboard()
-                if (!success) editor.expander?.pasteFromClipboard()
-            }
+        on(PASTE) {
+            pasteFromClipboard()
+        }
+        on(SELECT_PREV) {
+            selectPrevious()
+        }
+        on(MOVE_PREV) {
+            movePrev()
+        }
+        on(SELECT_NEXT) {
+            selectNext()
+        }
+        on(MOVE_NEXT) {
+            moveNext()
+        }
+    }
+    registerShortcuts(KeyEvent.ANY) {
+        on(TRAV_NEXT) {
+            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.next?.select()
+        }
+        on(TRAV_PREV) {
+            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.previous?.select()
         }
     }
 }
+
+private fun Scene.pasteFromClipboard() {
+    val view = focusedEditorControl
+    val editor = view?.target
+    if (editor is Editor<*>) {
+        val success = editor.pasteFromClipboard()
+        if (!success) editor.expander?.pasteFromClipboard()
+    }
+}
+
+private fun copyManyToClipboard(context: Context) {
+    val selected = context[SelectionDistributor].selectedTargets.now
+    if (selected.any { it !is Editor<*> }) return
+    context[CoreProperties.clipboard] = selected.toList()
+}
+
+private fun Scene.copyToClipboard() {
+    val view = focusedEditorControl
+    val editor = view?.target
+    if (editor is Editor<*>) editor.copyToClipboard()
+}
+
+private fun Scene.moveNext() {
+    val focused = focusedEditorControl ?: return
+    val next = focused.nextEditorControl ?: return
+    if (next.isSelected.now) {
+        focused.toggleSelection()
+        next.justFocus()
+    } else {
+        next.toggleSelection()
+    }
+}
+
+private fun Scene.movePrev() {
+    val focused = focusedEditorControl ?: return
+    val prev = focused.previousEditorControl ?: return
+    if (prev.isSelected.now) {
+        focused.toggleSelection()
+        prev.justFocus()
+    } else {
+        prev.toggleSelection()
+    }
+}
+
+internal fun Scene.selectNext(): Boolean {
+    val next = focusOwner.nextEditorControl
+    next?.select()
+    return true
+}
+
+internal fun Scene.selectPrevious(): Boolean {
+    val prev = focusOwner.previousEditorControl
+    prev?.focus()
+    return prev != null
+}
+
+private val Node.previousEditorControl
+    get() = iterate(editorControlInParentChain(this)?.previous) {
+        if (it is FXExpanderView) it.root as? EditorControl<*>
+        else it.editorChildren().lastOrNull()
+    }
+
+private val Node.nextEditorControl
+    get() = iterate(editorControlInParentChain(this)?.next) {
+        if (it is FXExpanderView) it.root as? EditorControl<*>
+        else it.editorChildren().firstOrNull()
+    }
+
+private val Scene.focusedEditorControl: EditorControl<*>?
+    get() = editorControlInParentChain(focusOwner)
+
+private fun editorControlInParentChain(node: Node) =
+    generateSequence(node) { it.parent }.firstOrNull { it is EditorControl<*> } as EditorControl<*>?
+
+internal var isShiftDown = false; private set
 
 private fun Scene.listenForShift() {
     addEventFilter(KeyEvent.KEY_PRESSED) {
@@ -75,90 +167,3 @@ private fun Scene.listenForShift() {
         }
     }
 }
-
-internal fun Scene.traverseOnArrowWithCtrl() {
-    registerShortcuts {
-        on("Ctrl + Left") {
-            focusPrevious()
-        }
-        //TODO(think about this)
-        //        on("Ctrl + Shift + Left") {
-        //            deselectFocusedAndFocusPrevious()
-        //        }
-        on("Ctrl + Shift? + Right") {
-            focusNext()
-        }
-    }
-}
-
-fun Scene.deselectFocusedAndFocusPrevious() {
-    val focused = focusedEditorControl ?: return
-    focused.toggleSelection()
-    val prev = focused.previousEditorControl
-    prev?.justFocus()
-}
-
-internal fun Scene.focusNext(): Boolean {
-    val next = focusedEditorControl?.next ?: return false
-    val firstChild = generateSequence(next) {
-        if (it is FXExpanderView) it.root as? EditorControl<*>
-        else it.editorChildren().firstOrNull()
-    }.last()
-    firstChild.focus()
-    return true
-}
-
-private val Node.previousEditorControl
-    get() = generateSequence(editorControlInParentChain(this)?.previous) {
-        if (it is FXExpanderView) it.root as? EditorControl<*>
-        else it.editorChildren().lastOrNull()
-    }.lastOrNull()
-
-internal fun Scene.focusPrevious(): Boolean {
-    val prev = focusOwner.previousEditorControl
-    prev?.focus()
-    return prev != null
-}
-
-private val Scene.focusedEditorControl: EditorControl<*>?
-    get() = editorControlInParentChain(focusOwner)
-
-private fun editorControlInParentChain(node: Node) =
-    generateSequence(node) { it.parent }.firstOrNull { it is EditorControl<*> } as EditorControl<*>?
-
-private val TRAV_NEXT = "TAB".shortcut
-private val TRAV_PREV = "Shift + TAB".shortcut
-
-@Suppress("DEPRECATION")
-private fun Scene.changeTraversalEngine() {
-    registerShortcuts(KeyEvent.ANY) {
-        on(TRAV_NEXT) {
-            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.next?.select()
-        }
-        on(TRAV_PREV) {
-            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.previous?.select()
-        }
-    }
-}
-
-fun lastShortcutLabel(scene: Scene): Label {
-    val shortcutDisplay = Label().apply {
-        style = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 20;"
-    }
-    scene.addEventFilter(KeyEvent.KEY_RELEASED) { e ->
-        if (e.isShortcut() || e.code == ENTER || e.code == TAB) {
-            shortcutDisplay.text = e.getShortcutString()
-        }
-    }
-    return shortcutDisplay
-}
-
-private fun KeyEvent.getShortcutString(): String = buildString {
-    if (isControlDown) append("Ctrl + ")
-    if (isAltDown) append("Alt + ")
-    if (isShiftDown) append("Shift + ")
-    if (isMetaDown) append("Meta + ")
-    append(code)
-}
-
-private fun KeyEvent.isShortcut() = isAltDown || isControlDown || isShortcutDown || isMetaDown
