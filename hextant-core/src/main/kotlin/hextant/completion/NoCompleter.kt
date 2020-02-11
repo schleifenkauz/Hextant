@@ -1,6 +1,5 @@
 package hextant.completion
 
-object NoCompleter : Completer<Nothing> {
-    override fun completions(input: String): Set<Nothing> =
-        emptySet()
+object NoCompleter : Completer<Any?, Nothing> {
+    override fun completions(context: Any?, input: String): Collection<Completion<Nothing>> = emptySet()
 }

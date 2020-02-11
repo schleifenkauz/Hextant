@@ -4,17 +4,15 @@
 
 package hextant.core.view
 
-import hextant.Editor
+import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.*
 import hextant.bundle.CorePermissions.Public
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
-import hextant.completion.gui.CompleterPopupHelper
+import hextant.completion.gui.CompletionPopup
 import hextant.core.editor.Expander
-import hextant.createView
-import hextant.fx.HextantTextField
-import hextant.fx.registerShortcuts
+import hextant.fx.*
 import hextant.main.InputMethod
 import javafx.scene.Node
 import reaktive.event.Subscription
@@ -28,7 +26,7 @@ open class FXExpanderView(
     private val expander: Expander<*, *>,
     args: Bundle
 ) : ExpanderView, EditorControl<Node>(expander, args) {
-    constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<String>) :
+    constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<Context, String>) :
             this(expander, args.also { it[Public, COMPLETER] = completer })
 
     private var view: EditorControl<*>? = null
@@ -48,11 +46,11 @@ open class FXExpanderView(
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
         when (property) {
-            COMPLETER -> completionHelper.completer = completer
+            COMPLETER -> popup.completer = completer
         }
     }
 
-    private val completionHelper = CompleterPopupHelper(completer, textField::getText)
+    private val popup = CompletionPopup(context, context[IconManager], completer)
 
     private val completionSubscription: Subscription
 
@@ -76,16 +74,20 @@ open class FXExpanderView(
     init {
         with(textField) {
             registerShortcuts {
-                on("Ctrl + Space") { completionHelper.show(this@FXExpanderView) }
+                on("Ctrl + Space") { popup.show(this@FXExpanderView) }
                 on("Enter") { expander.expand() }
             }
-            textSubscription = userUpdatedText.subscribe { new -> expander.setText(new) }
+            textSubscription = userUpdatedText.subscribe { new ->
+                expander.setText(new)
+                popup.updateInput(new)
+                popup.show(this)
+            }
         }
         expander.editor.now?.let { showContent(it) }
         expander.text.now?.let { displayText(it) }
         expander.addView(this)
-        completionSubscription = completionHelper.completionChosen.subscribe { comp ->
-            expander.setText(comp.completed)
+        completionSubscription = popup.completionChosen.subscribe { comp ->
+            expander.setText(comp.completion)
             expander.expand()
         }
     }
@@ -93,7 +95,7 @@ open class FXExpanderView(
     override fun displayText(text: String) {
         if (text != textField.text) {
             textField.text = text
-            completionHelper.show(this)
+            popup.show(this)
         }
     }
 
@@ -135,6 +137,6 @@ open class FXExpanderView(
         /**
          * This property controls the completer of the expander control
          */
-        val COMPLETER = Property<Completer<String>, Public, Public>("completer")
+        val COMPLETER = Property<Completer<Context, String>, Public, Public>("completer")
     }
 }

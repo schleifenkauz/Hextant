@@ -58,12 +58,16 @@ class SearchableListPopup<T : Any>(
         completionsBox.children.clear()
         root.children[1] = completionsBox
         for (completion in completions) {
-            val node = completion.createNode()
+            val node = createItem(completion)
             completionsBox.isFillWidth = true
             node.styleClass.add("completion")
             addSelectionHandlers(node, completion)
             completionsBox.children.add(node)
         }
+    }
+
+    private fun createItem(completion: Completion<T>): Control {
+        TODO("not implemented")
     }
 
     private fun addSelectionHandlers(node: Control, completion: Completion<T>) {

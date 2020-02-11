@@ -21,12 +21,14 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     constructor(fallback: ExpanderDelegate<E>? = null) : this(fallback, mutableMapOf(), LinkedList())
 
     /**
-     * @return a [Completer] which uses the registered choices and the given [strategy] and [factory]
+     * @return a [Completer] which uses the registered choices and the given [strategy]
      */
-    fun completer(strategy: CompletionStrategy, factory: CompletionFactory<String>): Completer<String> {
-        val keys = keys()
-        return ConfiguredCompleter(strategy, factory, pool = { keys })
-    }
+    fun completer(strategy: CompletionStrategy): Completer<Context, String> =
+        object : AbstractCompleter<Context, String>(strategy) {
+            override fun completionPool(context: Context): Set<String> = keys()
+
+            override fun extractText(context: Context, item: String): String? = item
+        }
 
     private fun keys(): Set<String> =
         if (fallback is ExpanderConfig) constant.keys + fallback.keys() else constant.keys

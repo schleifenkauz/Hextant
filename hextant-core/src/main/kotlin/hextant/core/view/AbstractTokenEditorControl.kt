@@ -4,20 +4,21 @@
 
 package hextant.core.view
 
+import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.*
 import hextant.bundle.CorePermissions.Public
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
-import hextant.completion.gui.CompleterPopupHelper
+import hextant.completion.gui.CompletionPopup
 import hextant.core.editor.TokenEditor
 import hextant.fx.*
+import hextant.get
 import hextant.impl.subscribe
 import hextant.main.InputMethod
 import javafx.scene.input.KeyCode.SPACE
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
-import java.lang.ref.WeakReference
 
 /**
  * An [EditorControl] for [TokenEditor]'s.
@@ -27,7 +28,7 @@ import java.lang.ref.WeakReference
 open class AbstractTokenEditorControl(
     private val editor: TokenEditor<*, *>,
     args: Bundle,
-    completer: Completer<String> = NoCompleter
+    completer: Completer<Context, String> = NoCompleter
 ) : EditorControl<HextantTextField>(editor, args), TokenEditorView {
     private val textField = HextantTextField(initialInputMethod = context[Public, InputMethod])
 
@@ -36,14 +37,15 @@ open class AbstractTokenEditorControl(
     }
 
     private fun registerShortcut() {
-        val ref = WeakReference(this)
         registerShortcut(KeyCodeCombination(SPACE, KeyCombination.CONTROL_DOWN)) {
-            ref.get()?.completionHelper?.show(ref.get()!!)
+            popup.show(this)
         }
     }
 
     private val textSubscription = textField.userUpdatedText.subscribe(this) { _, new ->
         editor.setText(new)
+        popup.updateInput(new)
+        popup.show(this)
     }
 
     /**
@@ -57,14 +59,14 @@ open class AbstractTokenEditorControl(
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
         when (property) {
-            COMPLETER -> completionHelper.completer = completer
+            COMPLETER -> popup.completer = completer
         }
     }
 
-    private val completionHelper = CompleterPopupHelper(completer, this.textField::getText)
+    private val popup = CompletionPopup(context, context[IconManager], completer)
 
-    private val obs = completionHelper.completionChosen.subscribe(this) { _, c ->
-        editor.setText(c.completed)
+    private val obs = popup.completionChosen.subscribe(this) { _, c ->
+        editor.setText(c.completion)
         scene.selectNext()
     }
 
@@ -72,7 +74,7 @@ open class AbstractTokenEditorControl(
 
     final override fun displayText(newText: String) {
         root.smartSetText(newText)
-        completionHelper.show(this)
+        popup.show(this)
     }
 
     override fun receiveFocus() {
@@ -83,6 +85,6 @@ open class AbstractTokenEditorControl(
         /**
          * This property controls the completer of the token editor control
          */
-        val COMPLETER = Property<Completer<String>, Public, Public>("completer")
+        val COMPLETER = Property<Completer<Context, String>, Public, Public>("completer")
     }
 }

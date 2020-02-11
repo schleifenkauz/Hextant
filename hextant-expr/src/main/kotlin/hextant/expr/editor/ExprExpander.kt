@@ -5,8 +5,6 @@
 package hextant.expr.editor
 
 import hextant.*
-import hextant.completion.CompletionFactory
-import hextant.completion.CompletionStrategy
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
 import hextant.expr.edited.Expr
@@ -38,7 +36,5 @@ class ExprExpander(
                 else null
             }
         }
-
-        val completer = config.completer(CompletionStrategy.simple, CompletionFactory.simple())
     }
 }
