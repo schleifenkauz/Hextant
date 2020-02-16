@@ -3,8 +3,8 @@ package hextant.gui
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockitokotlin2.*
-import hextant.completion.AbstractCompleter
 import hextant.completion.CompletionStrategy
+import hextant.completion.ConfiguredCompleter
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
 import java.util.logging.ConsoleHandler
@@ -17,7 +17,7 @@ class SearchableListControllerSpec : Spek({
         val handler = ConsoleHandler().also { it.level = Level.ALL }
         logger.addHandler(handler)
         val source = setOf(12, 12, 13, 14)
-        val completer = object : AbstractCompleter<Unit, Int>(CompletionStrategy.simple) {
+        val completer = object : ConfiguredCompleter<Unit, Int>(CompletionStrategy.simple) {
             override fun completionPool(context: Unit): Set<Int> = source
 
             override fun extractText(context: Unit, item: Int): String? = item.toString()

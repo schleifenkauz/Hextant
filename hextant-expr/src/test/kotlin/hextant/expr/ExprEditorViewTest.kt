@@ -5,18 +5,16 @@
 package hextant.expr
 
 import hextant.*
+import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.bundle.CorePermissions.Public
-import hextant.bundle.CoreProperties
-import hextant.command.Commands
-import hextant.command.line.CommandLine
-import hextant.command.line.FXCommandLineView
-import hextant.command.register
+import hextant.command.*
+import hextant.command.line.*
 import hextant.expr.edited.*
 import hextant.expr.edited.Operator.Plus
 import hextant.expr.editor.*
 import hextant.fx.applyInputMethod
-import hextant.fx.registerShortcuts
+import hextant.fx.menuBar
 import hextant.impl.SelectionDistributor
 import hextant.inspect.Inspections
 import hextant.inspect.Severity.Error
@@ -27,77 +25,32 @@ import hextant.main.InputMethod
 import hextant.main.InputMethod.REGULAR
 import hextant.main.InputMethod.VIM
 import hextant.serial.HextantSerialContext
-import hextant.undo.UndoManager
-import javafx.application.Platform
-import javafx.geometry.Orientation.VERTICAL
 import javafx.scene.Parent
-import javafx.scene.control.*
-import javafx.scene.input.KeyCode.*
-import javafx.scene.input.KeyCodeCombination
-import javafx.scene.input.KeyCombination
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.HBox
+import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import kserial.*
-import reaktive.Observer
 import reaktive.value.binding.and
 import reaktive.value.binding.map
 import reaktive.value.now
-import java.util.logging.Level
 
 class ExprEditorViewTest : HextantApplication() {
     private lateinit var serialContext: SerialContext
 
-    override fun createContext(platform: HextantPlatform): Context = Context.newInstance(platform) {
-        set(InputMethod, InputMethod.VIM)
-    }
+    override fun createContext(platform: HextantPlatform): Context = Context.newInstance(platform)
 
     override fun createView(context: Context): Parent {
         serialContext = HextantSerialContext(context.platform, ExprEditorViewTest::class.java.classLoader)
         registerCommandsAndInspections(context)
-        val expander = ExprExpander(context)
-        val expanderView = context.createView(expander)
+        val editor = ExprExpander(context)
+        val view = context.createView(editor)
         val clContext = Context.newInstance(context) {
             set(Public, SelectionDistributor, SelectionDistributor.newInstance())
         }
-        val sd = context[SelectionDistributor]
-        val cl = CommandLine.forSelectedEditors(sd, clContext)
-        val clView = FXCommandLineView(cl, clContext, Bundle.newInstance())
-        val (evaluationDisplay, obs) = evaluateOnExprChange(expander)
-        val menuBar = createMenuBar(expander, context)
-        val split = SplitPane(menuBar, expanderView, clView)
-        context[CoreProperties.logger].level = Level.INFO
-        split.orientation = VERTICAL
-        return BorderPane(
-            HBox(10.0, expanderView, Label("->"), evaluationDisplay),
-            menuBar,
-            null,
-            clView,
-            null
-        ).apply {
-            userData = obs
-            registerShortcuts {
-                on("Ctrl+P") {
-                    context[InputMethod] = if (context[InputMethod] == VIM) REGULAR else VIM
-                    applyInputMethod(context[InputMethod])
-                }
-            }
-        }
-    }
-
-    private fun evaluateOnExprChange(expandable: ExprExpander): Pair<Label, Observer> {
-        val evaluationDisplay = Label("Invalid expression")
-        val obs = expandable.result.observe { _, _, new ->
-            Platform.runLater {
-                if (new !is Ok) {
-                    evaluationDisplay.text = "Invalid expression"
-                } else {
-                    val v = new.value.value
-                    evaluationDisplay.text = "$v"
-                }
-            }
-        }
-        return Pair(evaluationDisplay, obs)
+        val source = ContextCommandSource(context)
+        val cl = CommandLine(clContext, source)
+        val clView = CommandLineControl(cl, Bundle.newInstance())
+        val menuBar = createMenuBar(editor, context, view)
+        return VBox(50.0, menuBar, view, clView)
     }
 
     private fun registerCommandsAndInspections(context: Context) {
@@ -117,6 +70,7 @@ class ExprEditorViewTest : HextantApplication() {
             name = "Flip operands"
             shortName = "flip_op"
             description = "Flips the both operands in this operator application"
+            type = Command.Type.SingleReceiver
             applicableIf { oe ->
                 val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
                 oae.operator.result.now.map { it.isCommutative }.ifErr { false }
@@ -220,53 +174,38 @@ class ExprEditorViewTest : HextantApplication() {
 
     private fun createMenuBar(
         parent: ExprExpander,
-        context: Context
-    ): MenuBar {
-        val save = createOpenBtn(parent)
-        val open = createSaveBtn(parent)
-        val file = Menu("File", null, save, open)
-        val undo = context[UndoManager]
-        val edit = Menu("Edit", null, undoBtn(undo), redoBtn(undo))
-        return MenuBar(file, edit)
-    }
-
-    private fun redoBtn(undo: UndoManager): MenuItem = MenuItem("Undo").apply {
-        setOnAction {
-            if (undo.canUndo) {
-                undo.undo()
+        context: Context,
+        view: EditorControl<*>
+    ) = menuBar {
+        menu("File") {
+            item("Save", "Ctrl + S") {
+                save(parent)
+            }
+            item("Open", "Ctrl + O") {
+                open(parent)
             }
         }
-        accelerator = KeyCodeCombination(Z, KeyCombination.SHORTCUT_DOWN)
-    }
-
-    private fun undoBtn(undo: UndoManager): MenuItem = MenuItem("Redo").apply {
-        setOnAction {
-            if (undo.canRedo) {
-                undo.redo()
+        menu("Edit") {
+            item("Toggle Vim Mode") {
+                context[InputMethod] = if (context[InputMethod] == VIM) REGULAR else VIM
+                view.applyInputMethod(context[InputMethod])
             }
         }
-        accelerator = KeyCodeCombination(Z, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)
     }
 
-    private fun createSaveBtn(parent: ExprExpander) = MenuItem("Save").apply {
-        setOnAction {
-            val chooser = FileChooser()
-            val file = chooser.showSaveDialog(stage) ?: return@setOnAction
-            val out = serial.createOutput(file, serialContext)
-            out.writeObject(parent.editor.now)
-        }
-        accelerator = KeyCodeCombination(S, KeyCombination.SHORTCUT_DOWN)
+    private fun open(parent: ExprExpander) {
+        val chooser = FileChooser()
+        val file = chooser.showOpenDialog(stage) ?: return
+        val input = serial.createInput(file, serialContext)
+        val editable = input.readTyped<ExprEditor<Expr>>()
+        parent.setEditor(editable)
     }
 
-    private fun createOpenBtn(parent: ExprExpander) = MenuItem("Open").apply {
-        setOnAction {
-            val chooser = FileChooser()
-            val file = chooser.showOpenDialog(stage) ?: return@setOnAction
-            val input = serial.createInput(file, serialContext)
-            val editable = input.readTyped<ExprEditor<Expr>>()
-            parent.setEditor(editable)
-        }
-        accelerator = KeyCodeCombination(O, KeyCombination.SHORTCUT_DOWN)
+    private fun save(parent: ExprExpander) {
+        val chooser = FileChooser()
+        val file = chooser.showSaveDialog(stage) ?: return
+        val out = serial.createOutput(file, serialContext)
+        out.writeObject(parent.editor.now)
     }
 
     companion object {

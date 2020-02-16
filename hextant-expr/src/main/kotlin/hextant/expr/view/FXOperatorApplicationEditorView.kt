@@ -24,7 +24,9 @@ class FXOperatorApplicationEditorView(
     override fun createDefaultRoot(): HBox {
         val openingParen = parenLabel("(")
         val closingParen = parenLabel(")")
-        return HBox(openingParen, op1View, operatorView, op2View, closingParen)
+        return HBox(openingParen, op1View, operatorView, op2View, closingParen).apply {
+            isFocusTraversable = true
+        }
     }
 
     init {
@@ -34,7 +36,7 @@ class FXOperatorApplicationEditorView(
 
     private fun parenLabel(paren: String) = OperatorLabel(paren).apply {
         setOnMouseClicked {
-            select()
+            focus()
         }
     }
 

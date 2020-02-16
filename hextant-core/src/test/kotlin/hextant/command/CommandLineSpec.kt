@@ -37,91 +37,98 @@ internal object CommandLineSpec: Spek({
                 target.execute(x.value)
             }
         }
-        val possibleCommands = { setOf(command, command2) }
         val target = mock<Target> { on { isApplicable }.then { true } }
         val targets = setOf(target)
         lateinit var intEditor: IntLiteralEditor
-        val cl = CommandLine(targets, possibleCommands, context)
+        val source = object : CommandSource {
+            override fun focusedTarget(): Any? = null
+
+            override fun selectedTargets(): Collection<Any> = targets
+
+            override fun commandsFor(target: Any): Collection<Command<*, *>> = setOf(command, command2)
+        }
+        val cl = CommandLine(context, source)
         val view = mock<CommandLineView> {
-            on { editingArguments(any(), any(), any()) }.then {
-                val editors = it.getArgument<List<Editor<*>>>(2)
-                intEditor = editors[0] as IntLiteralEditor
-                Unit
+            on { expanded(any(), any()) }.then {
+                if (it.getArgument<Command<*, *>>(0).shortName == "command2") {
+                    val editors = it.getArgument<List<Editor<*>>>(1)
+                    intEditor = editors[0] as IntLiteralEditor
+                }
             }
         }
         inOrder(view, target) {
             ON("adding a view") {
                 cl.addView(view)
                 IT("should display the text") {
-                    verify(view).editingName("")
+                    verify(view).displayCommandName("")
                 }
             }
             ON("editing the name") {
-                cl.editName("new")
+                cl.setCommandName("new")
                 IT("should display the text") {
-                    verify(view).displayText("new")
+                    verify(view).displayCommandName("new")
                 }
             }
             ON("trying to execute") {
-                cl.executeOrExpand()
+                cl.execute()
                 IT("should do nothing") {
                     verifyNoMoreInteractions()
                 }
             }
             ON("setting the text to a command without arguments") {
-                cl.editName("command")
+                cl.setCommandName("command")
                 IT("should display the text") {
-                    verify(view).displayText("command")
+                    verify(view).displayCommandName("command")
                 }
             }
             ON("executing the no-arg command") {
-                cl.executeOrExpand()
+                cl.execute()
                 IT("should execute the command") {
                     verify(target).execute()
                 }
                 IT("should notify the views about the executed command") {
-                    verify(view).executed(CommandApplication(command, emptyList(), listOf(Unit)))
+                    verify(view).addToHistory(command, emptyList(), Unit)
                 }
                 IT("should reset") {
-                    verify(view).editingName("")
+                    verify(view).reset()
                 }
             }
             ON("setting the text to a command with arguments") {
-                cl.editName("command2")
+                cl.setCommandName("command2")
                 IT("should display the name") {
-                    verify(view).displayText("command2")
+                    verify(view).displayCommandName("command2")
                 }
             }
             ON("expanding") {
-                cl.executeOrExpand()
+                cl.expand()
                 IT("should expand") {
-                    verify(view).editingArguments(eq("command2"), eq(command2.parameters), any())
+                    verify(view).expanded(eq(command2), any())
                 }
             }
             ON("executing when int editor is not ok") {
-                cl.executeOrExpand()
+                cl.execute()
                 IT("should do nothing") {
                     verifyNoMoreInteractions()
                 }
             }
             ON("executing after making int editor valid") {
                 intEditor.setText("123")
-                cl.executeOrExpand()
+                cl.execute()
                 IT("should execute the command") {
                     verify(target).execute(123)
                 }
                 IT("should notify the views about the executed command") {
-                    verify(view).executed(CommandApplication(command2, listOf(IntLiteral(123)), listOf(Unit)))
+                    verify(view).addToHistory(command2, listOf(IntLiteral(123)), Unit)
                 }
             }
             ON("expanding and then resetting") {
-                cl.editName("command2")
-                cl.executeOrExpand()
+                cl.setCommandName("command2")
+                cl.expand()
                 cl.reset()
                 IT("should edit the name, expand and reset") {
-                    verify(view).displayText("command2")
-                    verify(view).editingArguments(eq("command2"), eq(command2.parameters), any())
-                    verify(view).editingName("")
+                    verify(view).displayCommandName("command2")
+                    verify(view).expanded(eq(command2), any())
+                    verify(view).reset()
                 }
             }
         }

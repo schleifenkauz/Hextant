@@ -81,35 +81,43 @@
     -fx-background-color: #05437B;
 }
 
-/*!*Style class applied to auto completion lists*!*/
-/*.completions {*/
-/*    -fx-border-color: blue;*/
-/*    -fx-border-width: 1;*/
-/*}*/
+/*Style class applied to auto completion lists*/
+.completions {
+    -fx-border-color: blue;
+    -fx-border-width: 1;
+}
 
 /*Style class applied to auto completion items*/
 .completion {
-    -fx-background-color: #292929;
+    -fx-background-color: #212121;
     -fx-padding: 5;
 }
 
 .completion:focused {
-    -fx-background-color: #212121;
+    -fx-background-color: #05437B;
 }
 
-/*Style class applied to the history of command lines*/
-.history-view {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
+.command-history {
+    -fx-border-color: gray;
+    -fx-border-radius: 5px;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
 }
 
-.command-history-cell {
-    -fx-background-color: #171717
+.command-history-item {
+    -fx-padding: 5;
 }
 
-.command-history-cell:focused {
+.command-input {
+    -fx-border-style: solid;
+    -fx-border-color: gray;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-padding: 3px;
+}
+
+.command-history-item:focused {
     -fx-background-color: #292929;
-    -fx-border-width: 0;
 }
 
 .scroll-bar {

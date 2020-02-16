@@ -5,155 +5,149 @@
 package hextant.command.line
 
 import hextant.*
-import hextant.base.AbstractController
-import hextant.command.*
-import hextant.command.line.CommandLine.State.EditingArguments
-import hextant.command.line.CommandLine.State.EditingName
-import hextant.impl.SelectionDistributor
-import reaktive.value.now
+import hextant.base.AbstractEditor
+import hextant.command.Command
+import reaktive.Observer
+import reaktive.dependencies
+import reaktive.value.*
+import reaktive.value.binding.binding
 
 /**
- * Model for a command line.
- * The command line has two different states:
- * 1. The user is currently editing the name of the command to be executed. We will call this state the **search state**
- * 2. The user is currently editing the arguments for the command. We will call this state the **edit state**
+ * ### An editor for [Command]s.
+ *
+ *
  */
-class CommandLine(
-    private val targets: Collection<Any>,
-    private val commands: () -> Set<Command<*, *>>,
-    private val context: Context
-) : AbstractController<CommandLineView>() {
-    private sealed class State {
-        class EditingName(var currentName: String) : State()
+class CommandLine(context: Context, private val source: CommandSource) :
+    AbstractEditor<CommandApplication, CommandLineView>(context) {
+    private var commandName: String = ""
+    private var arguments: List<Editor<*>>? = null
+    private var expandedCommand: Command<*, *>? = null
+    private var history = mutableListOf<HistoryItem>()
 
-        class EditingArguments(
-            val command: Command<Any, *>,
-            val argumentEditors: List<Editor<*>>
-        ) : State()
+    val expanded get() = expandedCommand != null
+
+    private val _result: ReactiveVariable<CompileResult<CommandApplication>> = reactiveVariable(childErr())
+    private var obs: Observer? = null
+    override val result: EditorResult<CommandApplication> get() = _result
+
+    fun setCommandName(name: String) {
+        check(!expanded) { "Command already expanded, can't change name to '$name'" }
+        commandName = name
+        views { displayCommandName(name) }
     }
 
-    private var state: State = EditingName("")
+    fun availableCommands(): Collection<Command<*, *>> {
+        val available = mutableSetOf<Command<*, *>>()
+        val targets = source.selectedTargets()
+        if (targets.isNotEmpty()) available.addAll(source.commandsFor(targets.first()))
+        for (t in targets.drop(1)) available.retainAll(source.commandsFor(t))
+        val focused = source.focusedTarget()
+        if (focused != null) {
+            source.commandsFor(focused).filterTo(available) { it.commandType == Command.Type.SingleReceiver }
+        }
+        return available
+    }
+
+    fun expand(): Boolean {
+        if (expanded) return false
+        val cmd = availableCommands().find { it.shortName == commandName } ?: return false
+        return expand(cmd)
+    }
+
+    fun expand(cmd: Command<*, *>): Boolean {
+        if (expanded) return false
+        val editors = cmd.parameters.map { p -> context.createEditor(p.type) }
+        bindResult(cmd, editors.map { it.result })
+        expanded(cmd, editors)
+        return true
+    }
+
+    private fun expanded(
+        cmd: Command<*, *>,
+        editors: List<Editor<Any>>
+    ) {
+        arguments = editors
+        expandedCommand = cmd
+        views { expanded(cmd, editors) }
+    }
+
+    private fun bindResult(
+        cmd: Command<*, *>,
+        arguments: List<EditorResult<Any>>
+    ) {
+        obs = _result.bind(binding<CompileResult<CommandApplication>>(dependencies(arguments)) {
+            val args = mutableListOf<Any>()
+            for (result in arguments) {
+                val value = result.now.ifErr { return@binding childErr() }
+                args.add(value)
+            }
+            ok(CommandApplication(cmd, args))
+        })
+    }
+
+    fun execute(): Boolean {
+        if (!expanded && !expandNoArgCommand()) return false
+        val application = result.now.ifErr { return false }
+        val focused = source.focusedTarget()
+        if (focused != null && application.command.commandType == Command.Type.SingleReceiver) {
+            val res = application.execute(focused)
+            commandExecuted(application.command, application.args, res)
+        } else {
+            val results = source.selectedTargets().map { application.execute(it) }
+            commandExecuted(application.command, application.args, results.singleOrNull() ?: Unit)
+        }
+        reset()
+        return true
+    }
+
+    private fun commandExecuted(command: Command<*, *>, arguments: List<Any>, result: Any) {
+        history.add(HistoryItem(command, arguments, result))
+        views {
+            addToHistory(command, arguments, result)
+        }
+    }
+
+    private fun expandNoArgCommand(): Boolean {
+        val cmd = availableCommands().find { it.shortName == commandName && it.parameters.isEmpty() } ?: return false
+        _result.set(ok(CommandApplication(cmd, emptyList())))
+        expanded(cmd, emptyList())
+        return true
+    }
+
+    fun resume(
+        command: Command<*, *>,
+        args: List<Any>
+    ) {
+        reset()
+        setCommandName(command.shortName!!)
+        val editors = args.map { context.createEditor(it) }
+        bindResult(command, editors.map { it.result })
+        expanded(command, editors)
+    }
 
     override fun viewAdded(view: CommandLineView) {
-        when (val state = state) {
-            is EditingName      -> views { editingName(state.currentName) }
-            is EditingArguments -> views {
-                editingArguments(state.command.name, state.command.parameters, state.argumentEditors)
-            }
+        view.displayCommandName(commandName)
+        if (expanded) {
+            view.expanded(expandedCommand!!, arguments!!)
         }
+        for ((cmd, args, res) in history) view.addToHistory(cmd, args, res)
     }
 
-    /**
-     * Change the name of the command that should be executed.
-     * @throws IllegalStateException if command line is not in the search state
-     */
-    fun editName(newName: String) {
-        val state = state
-        check(state is EditingName) { "Cannot edit name while editing arguments" }
-        state.currentName = newName
-        views {
-            this.displayText(newName)
-        }
+    fun reset(): Boolean {
+        if (!expanded) return false
+        arguments = null
+        expandedCommand = null
+        commandName = ""
+        obs?.kill()
+        obs = null
+        _result.set(childErr())
+        views { reset() }
+        return true
     }
 
-    /**
-     * * If the command line is in the search state, the command with the current command name is looked up.
-     *      - If there is no command with the current command name, then the function returns without any effect.
-     *      - If the command with the current name has no arguments, it is executed immediately
-     *      - Otherwise the command line goes into edit state
-     * * If the command line is in the edit state
-     *      - The results of the argument editors are collected
-     *      - If all results are ok then the command is executed with the collected arguments
-     *      - Otherwise nothing happens
-     */
-    fun executeOrExpand() {
-        when (val state = state) {
-            is EditingName      -> expand(state)
-            is EditingArguments -> execute(state)
-        }
-    }
-
-    private fun execute(state: EditingArguments) {
-        val arguments = state.argumentEditors.map {
-            it.result.now.orElse { return@execute }.force()
-        }
-        val results = targets.map { receiver -> state.command.execute(receiver, arguments) }
-        val application = CommandApplication(state.command, arguments, results)
-        views { executed(application) }
-        setEditingName("")
-    }
-
-    private fun expand(state: EditingName) {
-        val command = commands().find {
-            it.shortName == state.currentName && targets.all { target -> it.isApplicableOn(target) }
-        } ?: return
-        @Suppress("UNCHECKED_CAST") //This is save because we checked, that it is applicable on all targets
-        command as Command<Any, *>
-        if (command.parameters.isEmpty()) {
-            val results = targets.map { receiver -> command.execute(receiver, emptyList()) }
-            val application = CommandApplication(command, emptyList(), results)
-            views { executed(application) }
-            state.currentName = ""
-            views { editingName("") }
-        } else {
-            val editors = command.parameters.map { p -> context.createEditor(p.type) }
-            this.state = EditingArguments(command, editors)
-            views { editingArguments(command.name, command.parameters, editors) }
-        }
-    }
-
-    /**
-     * Resume to the given command application by going into edit state and
-     * setting the command name and the arguments to that of the provided command application
-     */
-    fun resume(application: CommandApplication) {
-        val command = application.command
-        if (targets.any { !command.isApplicableOn(it) }) return
-        val name = command.shortName!!
-        if (application.args.isEmpty()) {
-            setEditingName(name)
-        } else {
-            val editors = application.args.map { context.createEditor(it) }
-            @Suppress("UNCHECKED_CAST")
-            state = EditingArguments(command as Command<Any, *>, editors)
-            views { editingArguments(name, command.parameters, editors) }
-        }
-    }
-
-    /**
-     * Reset the command line by going into search state and setting the command name to the empty string.
-     * This operation is legal in both states.
-     */
-    fun reset() {
-        setEditingName("")
-    }
-
-    private fun setEditingName(name: String) {
-        state = EditingName(name)
-        views { editingName(name) }
-    }
-
-    /**
-     * Return all commands available in the current context
-     */
-    fun availableCommands(): Set<Command<*, *>> = commands()
-
-    companion object {
-        /**
-         * Return a [CommandLine] with commands available on the editors selected in the given [SelectionDistributor]
-         */
-        fun forSelectedEditors(selection: SelectionDistributor, context: Context): CommandLine {
-            val commands = context[Commands]
-            val commandsFactory = {
-                val possibleCommands = selection.selectedTargets.now.asSequence().map {
-                    commands.applicableOn(it)
-                }
-                if (possibleCommands.none()) emptySet()
-                else possibleCommands.reduce { acc, s -> acc.intersect(s) }
-            }
-            return CommandLine(selection.selectedTargets.now, commandsFactory, context)
-        }
-
-        fun forSelectedEditors(context: Context) = forSelectedEditors(context[SelectionDistributor], context)
-    }
+    private data class HistoryItem(
+        val command: Command<*, *>,
+        val arguments: List<Any>,
+        val result: Any
+    )
 }

@@ -5,9 +5,9 @@
 package hextant.expr.editor
 
 import hextant.*
-import hextant.completion.AbstractCompleter
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
+import hextant.completion.ConfiguredCompleter
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.expr.edited.IntLiteral
@@ -23,7 +23,7 @@ class IntLiteralEditor(
     override fun compile(token: String): CompileResult<IntLiteral> =
         token.toIntOrNull().okOrErr { "Invalid int literal $token" }.map { IntLiteral(it) }
 
-    object Completer : AbstractCompleter<Context, String>(CompletionStrategy.simple) {
+    object Completer : ConfiguredCompleter<Context, String>(CompletionStrategy.simple) {
         override fun completionPool(context: Context): Set<String> = setOf("666")
 
         override fun extractText(context: Context, item: String): String? = item

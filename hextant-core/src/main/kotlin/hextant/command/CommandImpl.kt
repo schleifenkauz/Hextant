@@ -4,8 +4,7 @@
 
 package hextant.command
 
-import hextant.command.Command.Category
-import hextant.command.Command.Parameter
+import hextant.command.Command.*
 import kotlin.reflect.KClass
 
 internal class CommandImpl<R : Any, T>(
@@ -14,6 +13,7 @@ internal class CommandImpl<R : Any, T>(
     override val shortName: String?,
     override val parameters: List<Parameter>,
     override val description: String,
+    override val commandType: Type,
     private val execute: (R, List<Any?>) -> T,
     private val applicable: (R) -> Boolean,
     receiverCls: KClass<R>

@@ -28,8 +28,9 @@ private fun <R : Any> KFunction<*>.extractCommand(receiver: KClass<R>, ann: Prov
     val shortName = ann.shortName.takeIf { it != DEFAULT } ?: this.name
     val params = valueParameters.map { it.extractParameter() }
     val desc = ann.description.takeIf { it != DEFAULT } ?: "No description provided"
+    val type = ann.type
     val alwaysApplicable: (Any) -> Boolean = { true }
-    return CommandImpl(name, cat, shortName, params, desc, this::executeCommand, alwaysApplicable, receiver)
+    return CommandImpl(name, cat, shortName, params, desc, type, this::executeCommand, alwaysApplicable, receiver)
 }
 
 private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any? {

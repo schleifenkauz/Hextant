@@ -5,6 +5,8 @@
 package hextant.command
 
 import hextant.command.Command.Category
+import hextant.command.Command.Type
+import hextant.command.Command.Type.MultipleReceivers
 import kotlin.reflect.KClass
 
 /**
@@ -16,6 +18,9 @@ abstract class AbstractCommand<R : Any, T>(override val receiverCls: KClass<R>) 
         get() = null
     override val category: Category?
         get() = null
+
+    override val commandType: Type
+        get() = MultipleReceivers
 
     private fun checkArgs(args: List<Any?>) {
         if (args.size > parameters.size) throw ArgumentMismatchException("To many arguments for command $this")

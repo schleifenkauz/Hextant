@@ -33,5 +33,9 @@ class MenuBuilder(private val name: String) {
         items.add(item)
     }
 
+    fun item(name: String, shortcut: String, action: () -> Unit) {
+        item(name, shortcut.shortcut, action)
+    }
+
     fun build() = Menu(name, null, *items.toTypedArray())
 }
