@@ -37,7 +37,6 @@ internal object CommandLineSpec: Spek({
                 target.execute(x.value)
             }
         }
-        val possibleCommands = { setOf(command, command2) }
         val target = mock<Target> { on { isApplicable }.then { true } }
         val targets = setOf(target)
         lateinit var intEditor: IntLiteralEditor
@@ -46,14 +45,15 @@ internal object CommandLineSpec: Spek({
 
             override fun selectedTargets(): Collection<Any> = targets
 
-            override fun commandsFor(target: Any): Collection<Command<*, *>> = context[Commands].applicableOn(target)
+            override fun commandsFor(target: Any): Collection<Command<*, *>> = setOf(command, command2)
         }
         val cl = CommandLine(context, source)
         val view = mock<CommandLineView> {
             on { expanded(any(), any()) }.then {
-                val editors = it.getArgument<List<Editor<*>>>(1)
-                intEditor = editors[0] as IntLiteralEditor
-                Unit
+                if (it.getArgument<Command<*, *>>(0).shortName == "command2") {
+                    val editors = it.getArgument<List<Editor<*>>>(1)
+                    intEditor = editors[0] as IntLiteralEditor
+                }
             }
         }
         inOrder(view, target) {
@@ -128,7 +128,7 @@ internal object CommandLineSpec: Spek({
                 IT("should edit the name, expand and reset") {
                     verify(view).displayCommandName("command2")
                     verify(view).expanded(eq(command2), any())
-                    verify(view).displayCommandName("command2")
+                    verify(view).reset()
                 }
             }
         }
