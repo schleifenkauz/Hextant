@@ -4,11 +4,23 @@
 
 package hextant.completion
 
+/**
+ * A completer that uses a specific completion [strategy] to get completions from a completion pool.
+ */
 abstract class ConfiguredCompleter<in Ctx, T>(private val strategy: CompletionStrategy) : Completer<Ctx, T> {
+    /**
+     * Return a collection of possible completions in the given [context].
+     */
     protected abstract fun completionPool(context: Ctx): Collection<T>
 
+    /**
+     * Extract the textual representation of the given [item]
+     */
     protected abstract fun extractText(context: Ctx, item: T): String?
 
+    /**
+     * Can be overridden by extending classes to configure completions.
+     */
     protected open fun Completion.Builder<T>.configure(context: Ctx) {}
 
     final override fun completions(context: Ctx, input: String): Collection<Completion<T>> {
@@ -25,6 +37,9 @@ abstract class ConfiguredCompleter<in Ctx, T>(private val strategy: CompletionSt
     }
 
     companion object {
+        /**
+         * Return a [ConfiguredCompleter] that uses the specified [strategy] and the given completion [pool] of strings.
+         */
         fun withStringPool(strategy: CompletionStrategy, pool: Collection<String>) =
             object : ConfiguredCompleter<Unit, String>(strategy) {
                 override fun completionPool(context: Unit): Collection<String> = pool

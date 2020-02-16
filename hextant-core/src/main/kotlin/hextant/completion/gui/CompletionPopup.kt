@@ -15,6 +15,9 @@ import javafx.scene.text.TextFlow
 import javafx.stage.Popup
 import reaktive.event.event
 
+/**
+ * A [Popup] that displays completion items.
+ */
 class CompletionPopup<Ctx, T>(
     private val context: Ctx,
     private val iconManager: IconManager,
@@ -22,8 +25,15 @@ class CompletionPopup<Ctx, T>(
 ) : Popup() {
     private var input = ""
     private val choose = event<Completion<T>>()
+    /**
+     * Emits events when a completion was chosen by the user.
+     */
     val completionChosen = choose.stream
     private var valid = false
+
+    /**
+     * The completer used to find completion items
+     */
     var completer = completer
         set(value) {
             field = value
@@ -40,12 +50,18 @@ class CompletionPopup<Ctx, T>(
         }
     }
 
+    /**
+     * Show the completions if there are any
+     */
     override fun show() {
         if (!valid) updateCompletions()
         if (scene.root.childrenUnmodifiable.isEmpty()) return
         super.show()
     }
 
+    /**
+     * Update the input typed by the user
+     */
     fun updateInput(text: String) {
         input = text
         valid = false
