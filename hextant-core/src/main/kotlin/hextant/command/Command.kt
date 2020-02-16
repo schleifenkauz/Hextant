@@ -95,7 +95,14 @@ interface Command<in R : Any, out T> {
      * Specifies whether a command is applicable to multiple targets at once or only to one at a time
      */
     enum class Type {
-        SingleReceiver, MultipleReceivers
+        /**
+         * Indicates that the command is applicable only on one receiver at a time.
+         */
+        SingleReceiver,
+        /**
+         * Indicates that the command is applicable on multiple receivers at a time.
+         */
+        MultipleReceivers
     }
 
     /**

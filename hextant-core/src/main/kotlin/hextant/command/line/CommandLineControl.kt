@@ -16,6 +16,9 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import reaktive.event.subscribe
 
+/**
+ * A JavaFX implemenation of the [CommandLineView]
+ */
 class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLineView, EditorControl<VBox>(cl, args) {
     private val history = VBox().withStyleClass("command-history")
     private val commandName = HextantTextField().withStyleClass("command-name")
