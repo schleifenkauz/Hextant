@@ -26,13 +26,19 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
 
     /**
      * The [Command.shortName] of the built command
-    */
+     */
     var shortName: String? = null
 
     /**
      * The [Command.category] of the built command
-    */
+     */
     var category: Category? = null
+
+    /**
+     * The [Command.Type] of the built command
+     * * Defaults to [Command.Type.MultipleReceivers]
+     */
+    var type: Command.Type = Command.Type.MultipleReceivers
 
     private lateinit var execute: (R, List<Any?>) -> T
     private var applicable: (R) -> Boolean = { true }
@@ -40,7 +46,7 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
 
     /**
      * Sets the executed function of the built command to [block]
-    */
+     */
     fun executing(block: (R, List<Any?>) -> T) {
         execute = block
     }
@@ -74,6 +80,6 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
     }
 
     @PublishedApi internal fun build(): Command<R, T> {
-        return CommandImpl(name, category, shortName, parameters, description, execute, applicable, cls)
+        return CommandImpl(name, category, shortName, parameters, description, type, execute, applicable, cls)
     }
 }

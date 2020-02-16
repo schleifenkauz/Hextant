@@ -150,7 +150,7 @@ private val Node.nextEditorControl
 private val Scene.focusedEditorControl: EditorControl<*>?
     get() = editorControlInParentChain(focusOwner)
 
-private fun editorControlInParentChain(node: Node) =
+fun editorControlInParentChain(node: Node) =
     generateSequence(node) { it.parent }.firstOrNull { it is EditorControl<*> } as EditorControl<*>?
 
 internal var isShiftDown = false; private set

@@ -5,7 +5,7 @@ import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.edited.Expr
 import hextant.expr.edited.Operator
 import hextant.expr.editor.*
-import hextant.expr.view.*
+import hextant.expr.view.FXOperatorApplicationEditorView
 import hextant.ok
 import hextant.plugin.dsl.plugin
 import org.controlsfx.glyphfont.FontAwesome
@@ -13,21 +13,23 @@ import org.controlsfx.glyphfont.FontAwesome
 plugin {
     author = "Nikolaus Knop"
     name = "Hextant Expressions"
-    //Int Literals
     defaultEditor(::IntLiteralEditor)
-    view(::FXIntLiteralEditorView)
-    //Editable expressions
     defaultEditor(::OperatorEditor)
     editor<Operator, OperatorEditor>(::OperatorEditor)
-    view(::FXOperatorEditorView)
     defaultEditor(::OperatorApplicationEditor)
     view(::FXOperatorApplicationEditorView)
     defaultEditor(::SumEditor)
-    view(::FXSumEditorView)
     defaultEditor(::ExprExpander)
     defaultEditor(::ExprListEditor)
     view { editor: ExprExpander, args ->
         FXExpanderView(editor, args, ExprExpander.config.completer(CompletionStrategy.simple))
+    }
+    tokenEditorView<OperatorEditor>("operator")
+    tokenEditorView<IntLiteralEditor>("decimal-editor")
+    compoundView { e: SumEditor ->
+        keyword("sum")
+        space()
+        view(e.expressions)
     }
     view<ExprListEditor, ListEditorControl> { editor, args ->
         ListEditorControl.withAltGlyph(editor, FontAwesome.Glyph.PLUS, args, Horizontal).apply {

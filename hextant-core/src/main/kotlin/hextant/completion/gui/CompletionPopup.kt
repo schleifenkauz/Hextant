@@ -44,7 +44,6 @@ class CompletionPopup<Ctx, T>(
         if (!valid) updateCompletions()
         if (scene.root.childrenUnmodifiable.isEmpty()) return
         super.show()
-        if (isShowing) scene.root.childrenUnmodifiable[0].requestFocus()
     }
 
     fun updateInput(text: String) {
@@ -118,40 +117,16 @@ class CompletionPopup<Ctx, T>(
         }
     }
 
-    private fun createTextFlow(text: String, match: List<IntRange>): TextFlow {
-        val flow = TextFlow()
-        val labels = text.map { Label(it.toString()) }
-        for (region in match) {
-            for (i in region) {
-                labels[i].style = "-fx-text-fill: blue;"
-            }
-        }
-        flow.children.addAll(labels)
-        return flow
-    }
-
     private fun addChoice(c: Completion<T>, container: VBox) {
         val n = createCompletionItem(c)
         container.children.add(n)
-        n.registerShortcuts {
-            on(CHOOSE_COMPLETION) {
-                choose(c)
-            }
+        n.onAction {
+            choose.fire(c)
+            hide()
         }
-        n.setOnMouseClicked {
-            choose(c)
-            it.consume()
-        }
-    }
-
-    private fun choose(c: Completion<T>) {
-        choose.fire(c)
-        hide()
     }
 
     companion object {
-        private val CHOOSE_COMPLETION = "Enter".shortcut
-
         private const val FIXED_COMPLETION_ITEM_WIDTH = 500.0
     }
 }

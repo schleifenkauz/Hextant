@@ -5,12 +5,12 @@
 package hextant.command.line
 
 import hextant.command.Command
-import hextant.completion.AbstractCompleter
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
+import hextant.completion.ConfiguredCompleter
 
-internal object CommandCompleter : AbstractCompleter<CommandLine, Command<*, *>>(CompletionStrategy.simple) {
-    override fun completionPool(context: CommandLine): Set<Command<*, *>> = context.availableCommands()
+internal object CommandCompleter : ConfiguredCompleter<CommandLine, Command<*, *>>(CompletionStrategy.simple) {
+    override fun completionPool(context: CommandLine): Collection<Command<*, *>> = context.availableCommands()
 
     override fun extractText(context: CommandLine, item: Command<*, *>): String? = item.shortName
 

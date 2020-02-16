@@ -8,6 +8,7 @@ package hextant.fx
 
 import javafx.scene.Node
 import javafx.scene.control.*
+import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
 import javafx.scene.layout.Region
@@ -93,3 +94,13 @@ internal fun Region.fixWidth(value: Double) {
     minWidth = value
     maxWidth = value
 }
+
+internal fun <N : Node> N.withStyleClass(vararg names: String) = apply { styleClass.addAll(*names) }
+
+internal fun <C : Control> C.withTooltip(tooltip: Tooltip) = apply { this.tooltip = tooltip }
+
+internal fun <C : Control> C.withTooltip(text: String) = withTooltip(Tooltip(text))
+
+internal fun label(text: String, graphic: Node? = null) = Label(text, graphic).withStyleClass("hextant-text")
+
+internal fun Label.graphicToRight() = apply { contentDisplay = RIGHT }

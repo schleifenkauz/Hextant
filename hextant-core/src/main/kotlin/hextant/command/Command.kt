@@ -27,7 +27,7 @@ interface Command<in R : Any, out T> {
      * @return the name of this [Command]
      * * It should be a imperative description of the action this command executes
      * * For example: 'Refactor this Method'
-    */
+     */
     val name: String
 
     /**
@@ -39,7 +39,7 @@ interface Command<in R : Any, out T> {
 
     /**
      * The parameters of this [Command]
-    */
+     */
     val parameters: List<Parameter>
 
     /**
@@ -54,8 +54,13 @@ interface Command<in R : Any, out T> {
     val receiverCls: KClass<in R>
 
     /**
+     * The [Type] of this command
+     */
+    val commandType: Type
+
+    /**
      * @return whether this [Command] can be executed on the specified [receiver]
-    */
+     */
     fun isApplicableOn(receiver: Any): Boolean
 
     /**
@@ -84,6 +89,13 @@ interface Command<in R : Any, out T> {
              */
             val VIEW = withName("View")
         }
+    }
+
+    /**
+     * Specifies whether a command is applicable to multiple targets at once or only to one at a time
+     */
+    enum class Type {
+        SingleReceiver, MultipleReceivers
     }
 
     /**
