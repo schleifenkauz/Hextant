@@ -29,13 +29,11 @@ import reaktive.value.*
 abstract class EditorControl<R : Node>(
     final override val target: Any,
     val context: Context,
-    arguments: Bundle
+    final override val arguments: Bundle
 ) : Control(), EditorView {
     constructor(editor: Editor<*>, arguments: Bundle) : this(editor, editor.context, arguments)
 
     private var _root: R? = null
-
-    final override val arguments: Bundle
 
     override val group: EditorControlGroup = context[EditorControlGroup]
 
@@ -89,14 +87,12 @@ abstract class EditorControl<R : Node>(
 
     init {
         styleClass.add("editor-control")
-        val reactive = Bundle.reactive(arguments)
-        reactive.changed.subscribe(this) { _, change ->
+        arguments.changed.subscribe(this) { _, change ->
             argumentChanged(change.property, change.newValue)
         }
         sceneProperty().addListener(this) { sc ->
             if (sc != null) handleProblem(hasError.now, hasWarning.now)
         }
-        this.arguments = reactive
         isFocusTraversable = false
         initShortcuts()
         //        activateContextMenu(target, context)

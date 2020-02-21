@@ -6,7 +6,7 @@ import hextant.EditorView
 /**
  * An [EditorView] for list editors
  */
-interface ListEditorView: EditorView {
+interface ListEditorView : EditorView {
     /**
      * Is called when a new child [editor] was added to the associated list editor at the specified [idx]
      */

@@ -5,7 +5,6 @@
 package hextant.serial
 
 import hextant.Editor
-import hextant.get
 
 /**
  * Return the first editor in the sequence of parents which is a root editor.

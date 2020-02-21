@@ -8,7 +8,8 @@ import hextant.*
 import hextant.base.CompoundEditorControl
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.bundle.CorePermissions.Public
+import hextant.bundle.Internal
+
 import hextant.command.*
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
@@ -21,7 +22,7 @@ import hextant.inspect.*
 import hextant.plugin.Plugin
 
 @PluginDsl
-class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlatform) {
+class PluginBuilder @PublishedApi internal constructor(val platform: Context) {
     /**
      * The name of the plugin
      */
@@ -36,7 +37,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
      * Register the specified [factory] for editors of the class [R]
      */
     inline fun <reified R : Any, reified E : Editor<R>> editor(noinline factory: (Context, R) -> E) {
-        platform[Public, EditorFactory].register(R::class, factory)
+        platform[EditorFactory].register(R::class, factory)
         val editableName = R::class.qualifiedName
         val editorName = E::class.qualifiedName
         logger.config { "Registered $editorName for $editableName" }
@@ -46,7 +47,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
      * Register the specified [factory] for editors for class [R]
      */
     inline fun <reified R : Any, reified E : Editor<R>> defaultEditor(noinline factory: (Context) -> E) {
-        platform[Public, EditorFactory].register(R::class, factory)
+        platform[EditorFactory].register(R::class, factory)
     }
 
     /**
@@ -60,7 +61,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
      * Register the specified [factory] for views of the class [E]
      */
     inline fun <reified E : Editor<*>, reified V : EditorControl<*>> view(noinline factory: (E, Bundle) -> V) {
-        platform[Public, EditorControlFactory].register(E::class, factory)
+        platform[EditorControlFactory].register(E::class, factory)
         val viewName = V::class.qualifiedName
         val editableName = E::class.qualifiedName
         logger.config { "Registered $viewName for $editableName" }
@@ -104,7 +105,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
     /**
      * Execute a custom [block] on the [HextantPlatform]
      */
-    inline fun costum(block: HextantPlatform.() -> Unit) {
+    inline fun costum(block: Context.() -> Unit) {
         platform.block()
     }
 
@@ -112,20 +113,20 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
      * Register the specified [factory] for an inspection [I] inspecting instances of class [T]
      */
     inline fun <reified T : Any, reified I : Inspection> inspection(noinline factory: (T) -> I) {
-        platform[Public, Inspections].of(T::class).register(factory)
+        platform[Inspections].of(T::class).register(factory)
         val name = I::class.qualifiedName
         logger.config { "Inspection $name registered" }
     }
 
     inline fun <reified T : Any> registerInspection(noinline configuration: InspectionBuilder<T>.() -> Unit) {
-        platform[Public, Inspections].of(T::class).registerInspection(configuration)
+        platform[Inspections].of(T::class).registerInspection(configuration)
     }
 
     /**
      * Register the specified [command]
      */
     inline fun <reified R : Any> command(command: Command<R, *>) {
-        platform[Public, Commands].of(R::class).register(command)
+        platform[Commands].of(R::class).register(command)
         logger.config { "Command ${command.name} registered" }
     }
 
@@ -137,7 +138,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: HextantPlat
     }
 
     fun stylesheet(path: String) {
-        platform[Stylesheets].add(path)
+        platform[Internal, Stylesheets].add(path)
     }
 
     @PublishedApi internal fun build() = Plugin(name, author).also {

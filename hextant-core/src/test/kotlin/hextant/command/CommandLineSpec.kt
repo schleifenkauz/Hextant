@@ -12,7 +12,7 @@ import hextant.expr.editor.IntLiteralEditor
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
 
-internal object CommandLineSpec: Spek({
+internal object CommandLineSpec : Spek({
     GIVEN("a command line") {
         val context = testingContext {
             get(EditorFactory).register { context -> IntLiteralEditor(context) }

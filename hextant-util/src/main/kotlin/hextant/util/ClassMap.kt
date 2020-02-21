@@ -42,7 +42,7 @@ sealed class ClassMap<V> {
         }
     }
 
-    private class Contravariant<V>: ClassMap<V>() {
+    private class Contravariant<V> : ClassMap<V>() {
         private val map = mutableMapOf<KClass<*>, V>()
 
         override fun get(cls: KClass<*>): V? = map[cls]

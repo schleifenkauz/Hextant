@@ -4,7 +4,8 @@
 
 package hextant.project.view
 
-import hextant.*
+import hextant.Editor
+import hextant.createView
 import hextant.fx.setRoot
 import hextant.serial.HextantFileManager
 import javafx.scene.control.Control

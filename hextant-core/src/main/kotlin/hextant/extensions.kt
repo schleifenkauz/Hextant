@@ -1,6 +1,7 @@
 package hextant
 
 import hextant.bundle.CoreProperties.clipboard
+import hextant.bundle.Internal
 import hextant.core.editor.TransformedEditor
 import hextant.core.editor.getSimpleEditorConstructor
 
@@ -58,7 +59,7 @@ fun <E : Editor<*>> E.copyFor(newContext: Context): E {
  */
 fun Editor<*>.copyToClipboard(): Boolean {
     if (!supportsCopyPaste()) return false
-    context[clipboard] = this
+    context[Internal, clipboard] = this
     return true
 }
 

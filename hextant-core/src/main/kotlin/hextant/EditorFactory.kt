@@ -4,8 +4,8 @@
 
 package hextant
 
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
+import hextant.bundle.Internal
+
 import hextant.bundle.Property
 import hextant.impl.myLogger
 import hextant.util.ClassMap
@@ -44,7 +44,7 @@ interface EditorFactory {
     /**
      * The Editor factory property
      */
-    companion object : Property<EditorFactory, Public, Internal>("Editor factory") {
+    companion object : Property<EditorFactory, Any, Internal>("Editor factory") {
         /**
          * @return a new [EditorFactory]
          */

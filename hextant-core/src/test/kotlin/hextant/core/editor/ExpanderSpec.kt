@@ -1,10 +1,11 @@
 package hextant.core.editor
 
 import com.nhaarman.mockitokotlin2.inOrder
-import hextant.*
+import hextant.Context
 import hextant.core.view.ExpanderView
 import hextant.expr.edited.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
+import hextant.ok
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
@@ -93,14 +94,13 @@ object ExpanderSpec : Spek({
                         verify().reset()
                     }
                 }
-                afterGroup { context.platform.exit() }
             }
         }
         DESCRIBE("undoing and redoing") {
             val context = testingContext()
             val undo = context[UndoManager]
             val ex = ExpanderSpec.expander(context)
-            val content1: IntLiteralEditor
+            lateinit var content1: IntLiteralEditor
             ON("expanding") {
                 ex.setText("123")
                 ex.expand()
@@ -157,7 +157,6 @@ object ExpanderSpec : Spek({
                     ex.text.now shouldEqual "abc"
                 }
             }
-            afterGroup { context.platform.exit() }
         }
     }
 }) {

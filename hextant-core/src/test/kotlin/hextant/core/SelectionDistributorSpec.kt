@@ -8,7 +8,7 @@ import hextant.impl.SelectionDistributor
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
 
-internal object SelectionDistributorSpec: Spek({
+internal object SelectionDistributorSpec : Spek({
     val sut = SelectionDistributor.newInstance()
     GIVEN("a selection distributor") {
         test("no editors should be selected") {

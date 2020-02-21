@@ -7,7 +7,6 @@ package hextant.command.gui
 import hextant.Context
 import hextant.command.Command
 import hextant.command.Commands
-import hextant.get
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.MenuBar
 

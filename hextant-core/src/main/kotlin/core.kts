@@ -1,5 +1,5 @@
 import hextant.*
-import hextant.bundle.CorePermissions.Public
+
 import hextant.core.editor.*
 import hextant.core.inspect.SyntaxErrorInspection
 import hextant.core.view.*
@@ -31,9 +31,9 @@ plugin {
     }
     view { e: TransformedEditor<*, *>, bundle -> e.context.createView(e.source, bundle) }
     view { e: FileNameEditor, bundle ->
-        bundle[Public, BEGIN_CHANGE] = shortcut(F2)
-        bundle[Public, ABORT_CHANGE] = shortcut(ESCAPE)
-        bundle[Public, COMMIT_CHANGE] = shortcut(ENTER)
+        bundle[BEGIN_CHANGE] = shortcut(F2)
+        bundle[ABORT_CHANGE] = shortcut(ESCAPE)
+        bundle[COMMIT_CHANGE] = shortcut(ENTER)
         FilteredTokenEditorControl(e, bundle)
     }
     view(::FileEditorControl)

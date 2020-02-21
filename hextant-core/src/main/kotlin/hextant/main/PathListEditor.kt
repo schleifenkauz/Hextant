@@ -4,8 +4,10 @@
 
 package hextant.main
 
-import hextant.*
+import hextant.Context
+import hextant.bundle.Internal
 import hextant.core.editor.ListEditor
+import hextant.force
 import hextant.serial.SerialProperties
 import kserial.createOutput
 import reaktive.value.now
@@ -15,7 +17,7 @@ import java.nio.file.Path
 class PathListEditor(context: Context) :
     ListEditor<Path, PathEditor>(context) {
     override fun createEditor(): PathEditor? {
-        val pc = context[PathChooser]
+        val pc = context[Internal, PathChooser]
         val initial = pc.choosePath(context) ?: return null
         return PathEditor(context, initial)
     }

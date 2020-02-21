@@ -7,13 +7,12 @@ package hextant.core.view
 import hextant.Context
 import hextant.base.EditorControl
 import hextant.bundle.*
-import hextant.bundle.CorePermissions.Public
+
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
 import hextant.core.editor.TokenEditor
 import hextant.fx.*
-import hextant.get
 import hextant.impl.subscribe
 import hextant.main.InputMethod
 import javafx.scene.input.KeyCode.SPACE
@@ -30,7 +29,7 @@ open class AbstractTokenEditorControl(
     args: Bundle,
     completer: Completer<Context, String> = NoCompleter
 ) : EditorControl<HextantTextField>(editor, args), TokenEditorView {
-    private val textField = HextantTextField(initialInputMethod = context[Public, InputMethod])
+    private val textField = HextantTextField(initialInputMethod = context[InputMethod])
 
     init {
         registerShortcut()
@@ -49,12 +48,12 @@ open class AbstractTokenEditorControl(
     }
 
     /**
-     * The completer used by this FXExpanderView
+     * The completer used by this TokenEditorControl
      */
     var completer
-        get() = arguments.getOrNull(Public, COMPLETER) ?: NoCompleter
+        get() = arguments[COMPLETER]
         set(value) {
-            arguments[Public, COMPLETER] = value
+            arguments[COMPLETER] = value
         }
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
@@ -85,6 +84,6 @@ open class AbstractTokenEditorControl(
         /**
          * This property controls the completer of the token editor control
          */
-        val COMPLETER = Property<Completer<Context, String>, Public, Public>("completer")
+        val COMPLETER = SimpleProperty<Completer<Context, String>>("completer")
     }
 }

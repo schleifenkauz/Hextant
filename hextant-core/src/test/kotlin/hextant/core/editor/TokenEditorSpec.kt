@@ -7,7 +7,6 @@ package hextant.core.editor
 import com.nhaarman.mockitokotlin2.*
 import hextant.core.view.TokenEditorView
 import hextant.expr.editor.IntLiteralEditor
-import hextant.get
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
@@ -58,7 +57,6 @@ object TokenEditorSpec : Spek({
                     verify(view, never()).displayText(any())
                 }
             }
-            afterGroup { context.platform.exit() }
         }
     }
 })

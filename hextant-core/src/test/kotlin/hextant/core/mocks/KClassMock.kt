@@ -7,7 +7,7 @@ package hextant.core.mocks
 import kotlin.reflect.*
 import kotlin.reflect.KVisibility.PUBLIC
 
-internal abstract class KClassMock: KClass<Nothing> {
+internal abstract class KClassMock : KClass<Nothing> {
     override val annotations: List<Annotation>
         get() = emptyList()
     override val constructors: Collection<KFunction<Nothing>>

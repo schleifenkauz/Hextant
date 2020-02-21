@@ -11,7 +11,7 @@ import hextant.impl.myLogger
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
 
-internal object UtilSpec: Spek({
+internal object UtilSpec : Spek({
     DESCRIBE("myLogger") {
         ON("calling it from a non companion class") {
             class Error {

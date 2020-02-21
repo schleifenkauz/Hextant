@@ -22,7 +22,7 @@ static String spek(Object dep) {
 }
 
 allprojects {
-    group =  "org.hextant"
+    group = "org.hextant"
     version = "1.2-SNAPSHOT"
 }
 
@@ -32,12 +32,12 @@ subprojects {
         jcenter()
         mavenLocal()
     }
-    
+
     apply plugin: 'java'
     apply plugin: 'kotlin'
 
     sourceCompatibility = 1.8
-    
+
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }

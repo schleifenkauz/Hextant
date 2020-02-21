@@ -39,7 +39,7 @@ class SearchableListPopup<T : Any>(
 
     init {
         scene.root = root
-        scene.initHextantScene(context.platform)
+        scene.initHextantScene(context)
         listenForSearchTextChange()
     }
 

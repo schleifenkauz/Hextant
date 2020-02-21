@@ -6,9 +6,7 @@ package hextant
 
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Property
+import hextant.bundle.createBundle
 import hextant.serial.SerialProperties
 import kserial.*
 import java.nio.file.Path
@@ -17,7 +15,7 @@ import kotlin.reflect.KClass
 /**
  * Uses the [EditorControlGroup] of this [Context] to create a view for the given [editor] with the specified [arguments]
  */
-fun Context.createView(editor: Editor<*>, arguments: Bundle = Bundle.newInstance()): EditorControl<*> {
+fun Context.createView(editor: Editor<*>, arguments: Bundle = createBundle()): EditorControl<*> {
     val group = get(EditorControlGroup)
     return group.createViewFor(editor, this, arguments)
 }
@@ -25,8 +23,8 @@ fun Context.createView(editor: Editor<*>, arguments: Bundle = Bundle.newInstance
 /**
  * Create a view for the given [editor]. The [configure]-block is used to initialize the [EditorView.arguments].
  */
-fun Context.createView(editor: Editor<*>, configure: Bundle.() -> Unit): EditorControl<*> =
-    createView(editor, Bundle.configure(configure))
+inline fun Context.createView(editor: Editor<*>, configure: Bundle.() -> Unit): EditorControl<*> =
+    createView(editor, createBundle(configure))
 
 /**
  * Uses the [EditorFactory] of this [Context] to create an [Editor] with the result type [R].
@@ -38,7 +36,7 @@ fun Context.createView(editor: Editor<*>, configure: Bundle.() -> Unit): EditorC
  */
 fun <R : Any> Context.createEditor(resultCls: KClass<R>): Editor<R> =
     try {
-        get(Public, EditorFactory).getEditor(resultCls, this)
+        get(EditorFactory).getEditor(resultCls, this)
     } catch (e: NoSuchElementException) {
         parent?.createEditor(resultCls) ?: throw e
     }
@@ -52,37 +50,10 @@ fun <R : Any> Context.createEditor(resultCls: KClass<R>): Editor<R> =
  */
 fun <R : Any> Context.createEditor(result: R): Editor<R> =
     try {
-        get(Public, EditorFactory).getEditor(result, this)
+        get(EditorFactory).getEditor(result, this)
     } catch (e: NoSuchElementException) {
         parent?.createEditor(result) ?: throw e
     }
-
-/**
- * Syntactic sugar for `get(Public, property)`
- */
-@JvmName("getPublic")
-operator fun <T : Any> Context.get(property: Property<T, Public, *>): T = get(Public, property)
-
-/**
- * Syntactic sugar for `set(Public, property, value)`
- */
-@JvmName("setPublic")
-operator fun <T : Any> Context.set(property: Property<T, *, Public>, value: T) =
-    set(Public, property, value)
-
-@JvmName("getInternal")
-internal operator fun <T : Any> Context.get(property: Property<T, Internal, *>): T = get(
-    Internal, property
-)
-
-@JvmName("setInternal")
-internal operator fun <T : Any> Context.set(property: Property<T, *, Internal>, value: T) =
-    set(Internal, property, value)
-
-/**
- * Delegates to [HextantPlatform.runLater] of the [Context.platform] of this [Context]
- */
-fun Context.runLater(action: () -> Unit) = platform.runLater(action)
 
 /**
  * Create a new context which has this [Context] as its parent and apply the given [block] to it.

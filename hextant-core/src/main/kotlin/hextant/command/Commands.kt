@@ -4,15 +4,15 @@
 
 package hextant.command
 
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
+import hextant.bundle.Internal
+
 import hextant.bundle.Property
 import kotlin.reflect.KClass
 import kotlin.reflect.full.superclasses
 
 /**
  * An aggregate of [CommandRegistrar]s
-*/
+ */
 class Commands private constructor() {
     private val commandRegistrars = mutableMapOf<KClass<*>, CommandRegistrar<*>>()
 
@@ -26,7 +26,7 @@ class Commands private constructor() {
 
     /**
      * @return the [CommandRegistrar] for receivers of type [R]
-    */
+     */
     fun <R : Any> of(cls: KClass<out R>): CommandRegistrar<R> = forClass(cls)
 
     /**
@@ -39,7 +39,7 @@ class Commands private constructor() {
      */
     operator fun <R : Any> get(cls: KClass<R>) = of(cls)
 
-    companion object: Property<Commands, Public, Internal>("commands") {
+    companion object : Property<Commands, Any, Internal>("commands") {
         /**
          * Return a new [Commands] object
          */

@@ -4,11 +4,12 @@
 
 package hextant.command.line
 
-import hextant.*
+import hextant.Editor
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
 import hextant.command.Command
 import hextant.completion.gui.CompletionPopup
+import hextant.createView
 import hextant.fx.*
 import hextant.impl.subscribe
 import javafx.application.Platform

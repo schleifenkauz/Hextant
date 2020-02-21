@@ -4,7 +4,6 @@
 
 package hextant.project.editor
 
-import hextant.get
 import hextant.ifOk
 import hextant.serial.HextantFileManager
 import hextant.serial.now

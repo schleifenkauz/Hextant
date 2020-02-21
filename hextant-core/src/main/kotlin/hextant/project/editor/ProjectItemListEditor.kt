@@ -6,7 +6,6 @@ package hextant.project.editor
 
 import hextant.Context
 import hextant.core.editor.ListEditor
-import hextant.get
 import hextant.project.ProjectItem
 import hextant.project.view.EditorPane
 import hextant.serial.HextantFileManager

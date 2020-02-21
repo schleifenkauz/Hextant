@@ -5,9 +5,9 @@
 package hextant.inspect.gui
 
 import hextant.Context
+import hextant.bundle.Internal
 import hextant.fx.registerShortcut
 import hextant.fx.registerShortcuts
-import hextant.get
 import hextant.impl.Stylesheets
 import hextant.inspect.Problem
 import hextant.inspect.ProblemFix
@@ -28,7 +28,7 @@ class InspectionPopup(private val context: Context, problems: () -> Set<Problem>
     private val container = VBox()
 
     init {
-        context[Stylesheets].apply(scene)
+        context[Internal, Stylesheets].apply(scene)
         container.styleClass.add("problem-list")
         setOnShowing { update() }
         isAutoHide = true
@@ -78,7 +78,7 @@ class InspectionPopup(private val context: Context, problems: () -> Set<Problem>
 
     private class FixesPopup(context: Context, private val fixes: Collection<ProblemFix>) : Popup() {
         init {
-            context[Stylesheets].apply(scene)
+            context[Internal, Stylesheets].apply(scene)
             content.add(createFixList(fixes))
         }
 

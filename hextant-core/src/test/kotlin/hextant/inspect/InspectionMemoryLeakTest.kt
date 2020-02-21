@@ -54,7 +54,7 @@ class InspectionMemoryLeakTest {
 
     @Test
     fun `constructing view of editor causes no memory leak`() {
-        val ctx = HextantPlatform.configured()
+        val ctx = HextantPlatform.rootContext()
         val w = wrapper(strong(IntLiteralEditor(ctx)))
         val e by w
         val v = WeakReference(ctx.createView(e!!), ReferenceQueue())
@@ -66,7 +66,7 @@ class InspectionMemoryLeakTest {
 
     @Test
     fun `expanding and resetting expander causes no leak`() {
-        val ctx = HextantPlatform.configured()
+        val ctx = HextantPlatform.rootContext()
         ctx[UndoManager] = NoUndoManager
         val exp = ExprExpander(ctx)
         val view = ctx.createView(exp)

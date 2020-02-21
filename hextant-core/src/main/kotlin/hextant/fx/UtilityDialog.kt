@@ -5,7 +5,7 @@
 package hextant.fx
 
 import hextant.Context
-import hextant.get
+import hextant.bundle.Internal
 import hextant.impl.Stylesheets
 import javafx.scene.Node
 import javafx.scene.control.Alert
@@ -27,7 +27,7 @@ class UtilityDialog(
 ) : Alert(CONFIRMATION, "", ButtonType.OK, ButtonType.CANCEL) {
     init {
         initOwner(owner)
-        context[Stylesheets].apply(dialogPane.scene)
+        context[Internal, Stylesheets].apply(dialogPane.scene)
         dialogPane.styleClass.add("utility-dialog-pane")
         this.headerText = headerText
         this.title = title

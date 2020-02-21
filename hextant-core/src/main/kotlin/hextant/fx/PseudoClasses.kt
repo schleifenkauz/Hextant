@@ -4,7 +4,7 @@ import javafx.css.PseudoClass
 
 /**
  * Common pseudo classes
-*/
+ */
 object PseudoClasses {
     /**
      * Used when a Node should display an error

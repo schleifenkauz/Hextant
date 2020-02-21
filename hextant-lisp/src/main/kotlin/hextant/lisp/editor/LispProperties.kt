@@ -4,15 +4,14 @@
 
 package hextant.lisp.editor
 
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Permission
-import hextant.bundle.Property
+
+import hextant.bundle.SimpleProperty
 import hextant.lisp.FileScope
 
 object LispProperties {
-    sealed class Internal : Permission() {
+    sealed class Internal {
         internal companion object : Internal()
     }
 
-    val fileScope = Property<FileScope, Public, Public>("file scope")
+    val fileScope = SimpleProperty<FileScope>("file scope")
 }

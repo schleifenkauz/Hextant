@@ -5,10 +5,8 @@
 package hextant
 
 import hextant.base.EditorControl
-import hextant.bundle.Bundle
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Property
+import hextant.bundle.*
+
 import hextant.impl.myLogger
 import hextant.util.ClassMap
 import kotlin.reflect.KClass
@@ -28,7 +26,7 @@ interface EditorControlFactory {
      */
     fun <E : Editor<*>> createControl(
         editor: E,
-        arguments: Bundle = Bundle.newInstance()
+        arguments: Bundle = createBundle()
     ): EditorControl<*>?
 
     @Suppress("UNCHECKED_CAST") private class Impl : EditorControlFactory {
@@ -51,7 +49,7 @@ interface EditorControlFactory {
         }
     }
 
-    companion object : Property<EditorControlFactory, Public, Internal>("editor-view-factory") {
+    companion object : Property<EditorControlFactory, Any, Internal>("editor-view-factory") {
         /**
          * Creates a new [EditorControlFactory]
          */

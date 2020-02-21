@@ -5,8 +5,7 @@
 package hextant.project.view
 
 import hextant.Editor
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Property
+import hextant.bundle.SimpleProperty
 
 /**
  * An editor pane displays editors.
@@ -22,5 +21,5 @@ interface EditorPane {
      */
     fun deleted(editor: Editor<*>)
 
-    companion object : Property<EditorPane, Public, Public>("editor pane")
+    companion object : SimpleProperty<EditorPane>("editor pane")
 }

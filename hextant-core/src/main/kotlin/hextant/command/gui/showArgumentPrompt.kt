@@ -47,6 +47,6 @@ fun showArgumentPrompt(
 
 internal fun argumentEditor(parameter: Parameter, view: EditorControl<*>): Node =
     Label("${parameter.name}: ", view).apply {
-            tooltip = Tooltip(parameter.toString())
-            contentDisplay = RIGHT
-        }
+        tooltip = Tooltip(parameter.toString())
+        contentDisplay = RIGHT
+    }

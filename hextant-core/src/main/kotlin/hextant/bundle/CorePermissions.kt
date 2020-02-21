@@ -1,21 +1,11 @@
 package hextant.bundle
 
 /**
- * The permissions of the core module
+ * Internal permission only usable from the core module
  */
-object CorePermissions {
+sealed class Internal {
     /**
-     * Internal permission only usable from the core module
+     * Only instance of the [Internal] permission
      */
-    sealed class Internal : Permission() {
-        /**
-         * Only instance of the [Internal] permission
-         */
-        internal companion object : Internal()
-    }
-
-    /**
-     * Public permission usable by everybody
-     */
-    object Public : Permission()
+    internal companion object : Internal()
 }

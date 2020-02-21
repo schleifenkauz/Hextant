@@ -5,14 +5,14 @@ import hextant.command.Command.ParameterBuilder
 
 /**
  * Builder for [Parameter]s
-*/
+ */
 @Builder
 class ParametersBuilder @PublishedApi internal constructor() {
     @PublishedApi internal val parameters: MutableList<Parameter> = mutableListOf()
 
     /**
      * Add a parameter build with [block]
-    */
+     */
     inline fun add(block: ParameterBuilder.() -> Unit) {
         val p = parameter(block)
         parameters.add(p)
@@ -20,7 +20,7 @@ class ParametersBuilder @PublishedApi internal constructor() {
 
     /**
      * Add a parameter with the specified [name] applying [block] to it
-    */
+     */
     inline fun add(name: String, block: ParameterBuilder.() -> Unit) {
         add {
             this.name = name

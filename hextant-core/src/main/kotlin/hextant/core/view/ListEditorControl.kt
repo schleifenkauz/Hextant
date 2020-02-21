@@ -7,7 +7,7 @@ package hextant.core.view
 import hextant.Editor
 import hextant.base.EditorControl
 import hextant.bundle.*
-import hextant.bundle.CorePermissions.Public
+
 import hextant.core.editor.ListEditor
 import hextant.createView
 import hextant.fx.*
@@ -31,13 +31,13 @@ open class ListEditorControl(
     /**
      * The orientation in which the sub-editors are displayed.
      */
-    var orientation = arguments.getOrNull(Public, ORIENTATION) ?: Orientation.Vertical
+    var orientation = arguments[ORIENTATION]
         set(new) {
             field = new
             orientationChanged(new)
         }
 
-    private val emptyDisplay = arguments[Public, EMPTY_DISPLAY]
+    private val emptyDisplay = arguments[EMPTY_DISPLAY]
 
     private var items = orientation.createLayout()
 
@@ -55,7 +55,7 @@ open class ListEditorControl(
     /**
      * The cell factory that is used to create [Cell]s for individual editors.
      */
-    var cellFactory: () -> Cell<*> = arguments.getOrNull(Public, CELL_FACTORY) ?: { DefaultCell() }
+    var cellFactory: () -> Cell<*> = arguments[CELL_FACTORY]
         set(value) {
             field = value
             cellFactoryChanged()
@@ -84,7 +84,7 @@ open class ListEditorControl(
     /**
      *
      */
-    class DefaultCell : Cell<EditorControl<*>>() {
+    class DefaultCell<T> : Cell<EditorControl<*>>() {
         override fun updateItem(item: EditorControl<*>) {
             root = item
         }
@@ -346,9 +346,9 @@ open class ListEditorControl(
         fun withAltText(
             editor: ListEditor<*, *>,
             emptyText: String = "Add item",
-            args: Bundle = Bundle.newInstance()
+            args: Bundle = createBundle()
         ) = ListEditorControl(editor, args.also {
-            it[Public, EMPTY_DISPLAY] = Button(emptyText)
+            it[EMPTY_DISPLAY] = Button(emptyText)
         })
 
         /**
@@ -357,26 +357,26 @@ open class ListEditorControl(
         fun withAltGlyph(
             editor: ListEditor<*, *>,
             glyph: FontAwesome.Glyph,
-            args: Bundle = Bundle.newInstance(),
+            args: Bundle = createBundle(),
             orientation: Orientation = Orientation.Vertical
         ) = ListEditorControl(editor, args.also {
-            it[Public, ORIENTATION] = orientation
-            it[Public, EMPTY_DISPLAY] = Glyphs.create(glyph)
+            it[ORIENTATION] = orientation
+            it[EMPTY_DISPLAY] = Glyphs.create(glyph)
         })
 
         /**
          * The [ListEditorControl.orientation] of items
          */
-        val ORIENTATION = Property<Orientation, Public, Public>("list view orientation")
+        val ORIENTATION = SimpleProperty<Orientation>("list view orientation")
 
         /**
          * The [ListEditorControl.cellFactory] used to display items
          */
-        val CELL_FACTORY = Property<() -> Cell<*>, Public, Public>("list view cell factory")
+        val CELL_FACTORY = SimpleProperty<() -> Cell<*>>("list view cell factory") { DefaultCell<Any>() }
 
         /**
          * The [Node] that is displayed when no items are in the [ListEditor]
          */
-        val EMPTY_DISPLAY = Property<Node, Public, Public>("empty display", Glyphs.create(PLUS))
+        val EMPTY_DISPLAY = SimpleProperty<Node>("empty display", Glyphs.create(PLUS))
     }
 }

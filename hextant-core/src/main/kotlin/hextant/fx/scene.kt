@@ -7,6 +7,7 @@ package hextant.fx
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.CoreProperties
+import hextant.bundle.Internal
 import hextant.core.view.FXExpanderView
 import hextant.impl.*
 import javafx.scene.*
@@ -16,10 +17,10 @@ import reaktive.value.now
 
 internal fun hextantScene(
     root: (Context) -> Parent,
-    createContext: (HextantPlatform) -> Context
+    createContext: (Context) -> Context
 ): Scene {
-    val platform = HextantPlatform.configured()
-    val context = createContext(platform)
+    val rootCtx = HextantPlatform.rootContext()
+    val context = createContext(rootCtx)
     val scene = Scene(root(context))
     scene.initHextantScene(context)
     return scene
@@ -31,7 +32,7 @@ internal fun hextantScene(
 fun Scene.initHextantScene(context: Context) {
     listenForShift()
     registerShortcuts(context)
-    context[Stylesheets].apply(this)
+    context[Internal, Stylesheets].apply(this)
 }
 
 private val TRAV_NEXT = "TAB".shortcut
@@ -91,7 +92,7 @@ private fun Scene.pasteFromClipboard() {
 private fun copyManyToClipboard(context: Context) {
     val selected = context[SelectionDistributor].selectedTargets.now
     if (selected.any { it !is Editor<*> }) return
-    context[CoreProperties.clipboard] = selected.toList()
+    context[Internal, CoreProperties.clipboard] = selected.toList()
 }
 
 private fun Scene.copyToClipboard() {

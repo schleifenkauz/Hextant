@@ -5,7 +5,7 @@
 package hextant.main
 
 import hextant.Context
-import hextant.get
+import hextant.bundle.Internal
 import javafx.stage.DirectoryChooser
 import java.nio.file.Path
 
@@ -17,7 +17,7 @@ class FXPathChooser : PathChooser {
     }
 
     override fun choosePath(context: Context): Path? {
-        val stage = context[HextantApplication.stage]
+        val stage = context[Internal, HextantApplication.stage]
         val file = dc.showDialog(stage) ?: return null
         return file.toPath()
     }

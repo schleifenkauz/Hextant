@@ -6,7 +6,8 @@ package hextant.main
 
 import hextant.*
 import hextant.base.EditorControl
-import hextant.bundle.CorePermissions.Public
+import hextant.bundle.Internal
+
 import hextant.core.view.ListEditorControl
 import hextant.fx.*
 import hextant.impl.SelectionDistributor
@@ -31,16 +32,16 @@ import kotlin.reflect.full.cast
 abstract class HextantProjectApplication<R : Editor<*>> : Application() {
     private val rootType = extractRootEditorType(this::class)
 
-    private val platform = HextantPlatform.newInstance()
+    private val platform = HextantPlatform.rootContext()
     private val toplevelContext = Context.newInstance(platform) {
         defaultConfig()
-        set(PathChooser, FXPathChooser())
+        set(Internal, PathChooser, FXPathChooser())
     }
 
     private val projects = PathListEditor(toplevelContext)
 
     init {
-        platform[ProjectType] = this.projectType()
+        platform[Internal, ProjectType] = this.projectType()
         platform[SerialProperties.serialContext].pushContext(toplevelContext)
         val path = projectsPath()
         if (Files.exists(path)) {
@@ -74,7 +75,7 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
     protected open fun MenuBarBuilder.configureMenuBar(editor: R) {}
 
     override fun start(primaryStage: Stage) {
-        platform[HextantApplication.stage] = primaryStage
+        platform[Internal, HextantApplication.stage] = primaryStage
         primaryStage.isResizable = false
         showStartView()
     }
@@ -94,12 +95,12 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
             true, true
         )
         val v = context.createView(projects) {
-            set(Public, ListEditorControl.ORIENTATION, ListEditorControl.Orientation.Vertical)
-            set(Public, ListEditorControl.EMPTY_DISPLAY, Button("Open or create new project"))
-            set(Public, ListEditorControl.CELL_FACTORY, ::Cell)
+            set(ListEditorControl.ORIENTATION, ListEditorControl.Orientation.Vertical)
+            set(ListEditorControl.EMPTY_DISPLAY, Button("Open or create new project"))
+            set(ListEditorControl.CELL_FACTORY, ::Cell)
         }
         val root = HBox(v, ImageView(logo))
-        val stage = platform[HextantApplication.stage]
+        val stage = platform[Internal, HextantApplication.stage]
         stage.scene = Scene(root)
         stage.scene.initHextantScene(context)
         stage.show()
@@ -129,7 +130,7 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
     private fun showProject(root: R) {
         val view = createView(root)
         val menu = createMenuBar(root)
-        val stage = platform[HextantApplication.stage]
+        val stage = platform[Internal, HextantApplication.stage]
         stage.scene.root = VBox(menu, view)
     }
 

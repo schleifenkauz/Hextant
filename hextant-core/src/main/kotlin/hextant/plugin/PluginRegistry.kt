@@ -4,9 +4,9 @@
 
 package hextant.plugin
 
-import hextant.HextantPlatform
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
+import hextant.Context
+import hextant.bundle.Internal
+
 import hextant.bundle.Property
 import hextant.impl.myLogger
 import hextant.plugin.dsl.PluginBuilder
@@ -14,7 +14,7 @@ import hextant.plugin.impl.CompoundClassLoader
 import java.net.URLClassLoader
 import java.nio.file.*
 
-class PluginRegistry(private val platform: HextantPlatform, private val pluginsFile: Path) {
+class PluginRegistry(private val platform: Context, private val pluginsFile: Path) {
     private val plugins = mutableMapOf<String, Plugin>()
 
     val compoundClassLoader: ClassLoader get() = _compoundClassLoader
@@ -95,7 +95,7 @@ class PluginRegistry(private val platform: HextantPlatform, private val pluginsF
         loadPlugin(classLoader, "Plugin$1")
     }
 
-    companion object : Property<PluginRegistry, Public, Internal>("plugin registry") {
+    companion object : Property<PluginRegistry, Any, Internal>("plugin registry") {
         val logger by myLogger()
     }
 }

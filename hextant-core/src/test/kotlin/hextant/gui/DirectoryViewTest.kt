@@ -5,8 +5,7 @@
 package hextant.gui
 
 import hextant.*
-import hextant.bundle.Bundle
-import hextant.bundle.CorePermissions.Public
+import hextant.bundle.createBundle
 import hextant.core.editor.ExpanderConfig
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
@@ -31,9 +30,9 @@ import java.nio.file.Paths
 class DirectoryViewTest : HextantApplication() {
     private val pane = SimpleEditorPane()
 
-    override fun createContext(platform: HextantPlatform): Context = Context.newInstance {
+    override fun createContext(root: Context): Context = Context.newInstance {
         set(HextantFileManager, HextantFileManagerImpl(this))
-        set(Public, ProjectItemEditor.expanderConfig(), ExpanderConfig<IntEditor>().apply {
+        set(ProjectItemEditor.expanderConfig(), ExpanderConfig<IntEditor>().apply {
             registerInterceptor { text, context ->
                 text.toIntOrNull()?.let {
                     IntEditor(
@@ -50,7 +49,7 @@ class DirectoryViewTest : HextantApplication() {
     override fun createView(context: Context): Parent {
         val e = DirectoryEditor<Int>(context)
         e.itemName.setText("project")
-        val explorer = ProjectEditorControl(e, Bundle.newInstance())
+        val explorer = ProjectEditorControl(e, createBundle())
         val menu = menuBar {
             menu("File") {
                 item("Save", shortcut(S) { control(DOWN) }) {

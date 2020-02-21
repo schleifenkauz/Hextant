@@ -4,7 +4,7 @@ interface Expr {
     val value: Int
 }
 
-data class IntLiteral(override val value: Int): Expr {
+data class IntLiteral(override val value: Int) : Expr {
     override fun toString(): String = value.toString()
 }
 
@@ -19,9 +19,9 @@ data class OperatorApplication(val op1: Expr, val op2: Expr, val operator: Opera
 sealed class Operator(private val operation: (Int, Int) -> Int, val name: String, val isCommutative: Boolean) {
     fun apply(op1: Int, op2: Int) = operation(op1, op2)
 
-    object Plus: Operator(Int::plus, "+", isCommutative = true)
-    object Minus: Operator(Int::minus, "-", isCommutative = false)
-    object Times: Operator(Int::times, "*", isCommutative = true)
+    object Plus : Operator(Int::plus, "+", isCommutative = true)
+    object Minus : Operator(Int::minus, "-", isCommutative = false)
+    object Times : Operator(Int::times, "*", isCommutative = true)
     object Div : Operator(Int::div, "/", isCommutative = false)
 
     override fun toString(): String = name

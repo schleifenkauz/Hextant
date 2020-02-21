@@ -4,8 +4,8 @@
 
 package hextant.fx
 
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
+import hextant.bundle.Internal
+
 import hextant.bundle.Property
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -30,5 +30,5 @@ class IconManager {
         return ImageView(image)
     }
 
-    companion object : Property<IconManager, Public, Internal>("icon manager", default = IconManager())
+    companion object : Property<IconManager, Any, Internal>("icon manager", default = IconManager())
 }

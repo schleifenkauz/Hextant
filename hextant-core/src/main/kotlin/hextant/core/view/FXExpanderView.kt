@@ -7,9 +7,7 @@ package hextant.core.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.*
-import hextant.bundle.CorePermissions.Public
 import hextant.completion.Completer
-import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
 import hextant.core.editor.Expander
 import hextant.fx.*
@@ -27,11 +25,11 @@ open class FXExpanderView(
     args: Bundle
 ) : ExpanderView, EditorControl<Node>(expander, args) {
     constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<Context, String>) :
-            this(expander, args.also { it[Public, COMPLETER] = completer })
+            this(expander, args.also { it[COMPLETER] = completer })
 
     private var view: EditorControl<*>? = null
 
-    private val textField = HextantTextField(initialInputMethod = context[Public, InputMethod])
+    private val textField = HextantTextField(initialInputMethod = context[InputMethod])
 
     private val textSubscription: Subscription
 
@@ -39,9 +37,9 @@ open class FXExpanderView(
      * The completer used by this FXExpanderView
      */
     var completer
-        get() = arguments.getOrNull(Public, COMPLETER) ?: NoCompleter
+        get() = arguments[COMPLETER]
         set(value) {
-            arguments[Public, COMPLETER] = value
+            arguments[COMPLETER] = value
         }
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
@@ -141,6 +139,6 @@ open class FXExpanderView(
         /**
          * This property controls the completer of the expander control
          */
-        val COMPLETER = Property<Completer<Context, String>, Public, Public>("completer")
+        val COMPLETER = SimpleProperty<Completer<Context, String>>("completer")
     }
 }
