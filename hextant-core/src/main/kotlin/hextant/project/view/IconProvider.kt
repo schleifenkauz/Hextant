@@ -5,8 +5,7 @@
 package hextant.project.view
 
 import hextant.Editor
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Property
+import hextant.bundle.SimpleProperty
 import org.controlsfx.glyphfont.FontAwesome.Glyph
 import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
@@ -19,9 +18,9 @@ interface IconProvider<in E : Editor<*>> {
     }
 
     companion object {
-        private val prop = Property<IconProvider<*>, Public, Public>("icon provider", default = NoIconProvider)
+        private val prop = SimpleProperty<IconProvider<*>>("icon provider", default = NoIconProvider)
 
         @Suppress("UNCHECKED_CAST")
-        fun <E : Editor<*>> property() = prop as Property<IconProvider<E>, Public, Public>
+        fun <E : Editor<*>> property() = prop as SimpleProperty<IconProvider<E>>
     }
 }

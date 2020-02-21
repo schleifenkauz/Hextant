@@ -5,7 +5,7 @@
 package hextant.main
 
 import hextant.Context
-import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.Internal
 import hextant.bundle.Property
 import java.nio.file.Path
 

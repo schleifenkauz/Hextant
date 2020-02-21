@@ -6,8 +6,8 @@ package hextant.main
 
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
+import hextant.bundle.Internal
 import hextant.fx.registerShortcuts
-import hextant.get
 import javafx.geometry.Pos
 import javafx.scene.control.Button
 import java.nio.file.Path
@@ -26,7 +26,7 @@ class PathEditorControl(
     }
 
     private fun rename() {
-        val path = context[PathChooser].choosePath(context)
+        val path = context[Internal, PathChooser].choosePath(context)
         if (path != null) editor.choosePath(path)
     }
 

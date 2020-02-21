@@ -1,6 +1,7 @@
 package hextant.serial
 
-import hextant.*
+import hextant.Context
+import hextant.Editor
 import kserial.SerialContext
 import kserial.SerializationException
 import java.util.*
@@ -13,7 +14,7 @@ import kotlin.reflect.jvm.javaConstructor
  * Extends the [SerialContext] by providing a stack of Hextant [Context]'s for serializing and deserializing editors
  */
 class HextantSerialContext(
-    private val platform: HextantPlatform,
+    private val platform: Context,
     classLoader: ClassLoader
 ) : SerialContext(classLoader = classLoader) {
     /**

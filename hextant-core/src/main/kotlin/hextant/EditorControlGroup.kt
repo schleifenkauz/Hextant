@@ -6,8 +6,7 @@ package hextant
 
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Property
+import hextant.bundle.SimpleProperty
 import hextant.util.DoubleWeakHashMap
 
 /**
@@ -33,5 +32,5 @@ class EditorControlGroup : ViewGroup<EditorControl<*>> {
 
     override fun hasViewFor(editor: Editor<*>): Boolean = views.containsKey(editor)
 
-    companion object : Property<EditorControlGroup, Public, Public>("editor control group")
+    companion object : SimpleProperty<EditorControlGroup>("editor control group")
 }

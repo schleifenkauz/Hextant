@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
 
-internal object CommandsSpec: Spek({
+internal object CommandsSpec : Spek({
     GIVEN("commands") {
         val cs = Commands.newInstance()
         val registrar = cs.of<ICommandTarget>()
@@ -28,7 +28,7 @@ internal object CommandsSpec: Spek({
                 description = "never applicable"
                 name = "x"
                 applicableIf { false }
-                executing { _, _ ->  }
+                executing { _, _ -> }
             }
             registrar.register(notApplicable)
             test("the commands applicable on the CommandTarget should not contain the new command") {
@@ -46,7 +46,7 @@ internal object CommandsSpec: Spek({
         fun c()
     }
 
-    object CommandTarget: ICommandTarget {
+    object CommandTarget : ICommandTarget {
         override fun c() {}
     }
 }

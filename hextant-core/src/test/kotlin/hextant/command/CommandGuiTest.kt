@@ -4,7 +4,8 @@
 
 package hextant.command
 
-import hextant.*
+import hextant.EditorFactory
+import hextant.HextantPlatform
 import hextant.command.Command.Category
 import hextant.command.gui.commandContextMenu
 import hextant.command.gui.commandMenuBar
@@ -18,6 +19,7 @@ import javafx.scene.control.Button
 import javafx.scene.input.*
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import kotlin.collections.component1
 
 internal class CommandGuiTest : Application() {
     override fun start(stage: Stage) {
@@ -29,7 +31,7 @@ internal class CommandGuiTest : Application() {
     private object Receiver
     companion object {
         private fun createContent(): Parent {
-            val platform = HextantPlatform.configured()
+            val platform = HextantPlatform.rootContext()
             val editableFactory = platform.get(EditorFactory)
             editableFactory.apply {
                 register(IntLiteral::class) { context -> IntLiteralEditor(context) }

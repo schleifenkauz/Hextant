@@ -1,8 +1,7 @@
 package hextant.serial
 
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Property
+import hextant.bundle.*
+
 import kserial.KSerial
 import kserial.SerialContext
 import java.nio.file.Path
@@ -14,15 +13,15 @@ object SerialProperties {
     /**
      * The serial configuration
      */
-    val serial: Property<KSerial, Public, Internal> = Property("serial")
+    val serial: Property<KSerial, Any, Internal> = Property("serial")
 
     /**
      * The [SerialContext]
      */
-    val serialContext = Property<HextantSerialContext, Public, Internal>("serial context")
+    val serialContext = Property<HextantSerialContext, Any, Internal>("serial context")
 
     /**
      * The [Path] of the project root
      */
-    val projectRoot = Property<Path, Public, Public>("project root")
+    val projectRoot = SimpleProperty<Path>("project root")
 }

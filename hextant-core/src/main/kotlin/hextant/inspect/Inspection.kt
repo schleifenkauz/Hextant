@@ -12,12 +12,12 @@ import reaktive.value.ReactiveBoolean
 interface Inspection {
     /**
      * @return the description of this [Inspection]
-    */
+     */
     val description: String
 
     /**
      * @return a [ReactiveBoolean] holding `true` if this inspection reports a problem
-    */
+     */
     val isProblem: ReactiveBoolean
 
     /**

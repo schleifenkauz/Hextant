@@ -4,8 +4,8 @@
 
 package hextant.plugin
 
-import hextant.HextantPlatform
+import hextant.Context
 
 interface PluginInit {
-    fun initialize(platform: HextantPlatform)
+    fun initialize(platform: Context)
 }

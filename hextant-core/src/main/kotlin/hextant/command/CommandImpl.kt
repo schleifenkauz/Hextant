@@ -23,5 +23,5 @@ internal class CommandImpl<R : Any, T>(
     override fun doExecute(receiver: R, args: List<Any?>): T = execute.invoke(receiver, args)
 
     @Suppress("UNCHECKED_CAST") override fun isApplicableOn(receiver: Any) =
-            super.isApplicableOn(receiver) && applicable(receiver as R)
+        super.isApplicableOn(receiver) && applicable(receiver as R)
 }

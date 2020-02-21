@@ -9,7 +9,7 @@ import hextant.base.EditorControl
 import hextant.blocky.editor.ExecutableEditor
 import hextant.blocky.editor.NextExecutableEditor
 import hextant.bundle.Bundle
-import hextant.bundle.CorePermissions.Public
+
 import javafx.scene.Parent
 import javafx.scene.control.*
 
@@ -25,7 +25,7 @@ abstract class ExecutableEditorControl<R : Parent>(private val editor: Executabl
             val origin = arrowStart ?: return@setOnAction
             origin.setNext(editor)
             val from = origin.parent!!
-            val controlGroup = context[Public, EditorControlGroup]
+            val controlGroup = context[EditorControlGroup]
             val originView = controlGroup.getViewOf(from)
             parentView.displayArrow(originView, this)
         }

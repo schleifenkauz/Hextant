@@ -7,9 +7,8 @@ package hextant.project.view
 import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
 import hextant.bundle.CoreProperties.clipboard
+import hextant.bundle.Internal
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import hextant.util.DoubleWeakHashMap
@@ -85,7 +84,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             }
             on("Ctrl+Shift+V") {
                 val selected = selectedEditor() ?: return@on
-                val content = context[Public, clipboard] as? ProjectItemEditor<*, *> ?: return@on
+                val content = context[clipboard] as? ProjectItemEditor<*, *> ?: return@on
                 val copy = content.copyFor(selected.context)
                 addNewItem(selected, copy)
             }

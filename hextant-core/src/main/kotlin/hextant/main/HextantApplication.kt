@@ -6,12 +6,13 @@ package hextant.main
 
 import hextant.Context
 import hextant.HextantPlatform
-import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.Internal
 import hextant.bundle.Property
-import hextant.fx.hextantScene
+import hextant.fx.initHextantScene
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Parent
+import javafx.scene.Scene
 import javafx.stage.Stage
 import kotlin.concurrent.thread
 
@@ -22,7 +23,11 @@ abstract class HextantApplication : Application() {
     final override fun start(primaryStage: Stage) {
         val preloader = HextantPreloader()
         preloader.start(Stage())
-        primaryStage.scene = hextantScene(this::createView, this::createContext)
+        val rootCtx = HextantPlatform.rootContext()
+        val context = createContext(rootCtx)
+        val scene = Scene(createView(context))
+        scene.initHextantScene(context)
+        primaryStage.scene = scene
         stage = primaryStage
         showPreloader(preloader, primaryStage)
     }
@@ -42,7 +47,7 @@ abstract class HextantApplication : Application() {
         }
     }
 
-    protected abstract fun createContext(platform: HextantPlatform): Context
+    protected open fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
 
     protected abstract fun createView(context: Context): Parent
 

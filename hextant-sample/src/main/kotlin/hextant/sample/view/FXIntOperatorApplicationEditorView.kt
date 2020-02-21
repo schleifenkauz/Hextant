@@ -12,9 +12,9 @@ class FXIntOperatorApplicationEditorView(
     editor: IntOperatorApplicationEditor,
     args: Bundle
 ) : CompoundEditorControl(editor, args, {
-        line {
-            view(editor.left)
-            view(editor.op)
-            view(editor.right)
-        }
-    })
+    line {
+        view(editor.left)
+        view(editor.op)
+        view(editor.right)
+    }
+})

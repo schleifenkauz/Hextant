@@ -11,7 +11,7 @@ import hextant.completion.CompletionResult.NoMatch
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 
-internal object CompletionStrategySpec: Spek({
+internal object CompletionStrategySpec : Spek({
     fun test(
         testData: List<Pair<Pair<String, String>, CompletionResult>>,
         s: CompletionStrategy

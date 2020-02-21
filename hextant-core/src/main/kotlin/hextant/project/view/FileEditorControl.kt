@@ -4,10 +4,10 @@
 
 package hextant.project.view
 
-import hextant.*
+import hextant.Editor
 import hextant.base.EditorControl
 import hextant.bundle.Bundle
-import hextant.bundle.CorePermissions.Public
+import hextant.createView
 import hextant.fx.*
 import hextant.impl.subscribe
 import hextant.project.editor.FileEditor
@@ -49,7 +49,7 @@ class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) : 
         root.children.add(createIcon(currentGlyph.now))
         root.children.add(fileName)
         onAction {
-            val pane = context[Public, EditorPane]
+            val pane = context[EditorPane]
             pane.show(editor.rootEditor)
         }
     }

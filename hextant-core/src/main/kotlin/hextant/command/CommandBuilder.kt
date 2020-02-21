@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
 class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val cls: KClass<R>) {
     /**
      * The name of the built command
-    */
+     */
     lateinit var name: String
     /**
      * The description of the built command
@@ -53,28 +53,28 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
 
     /**
      * Adds the specified [parameter] to the built command
-    */
+     */
     fun addParameter(parameter: Command.Parameter) {
         parameters.add(parameter)
     }
 
     /**
      * Adds a [Command.Parameter] build with [build] to the built command
-    */
+     */
     inline fun addParameter(build: ParameterBuilder.() -> Unit) {
         addParameter(parameter(build))
     }
 
     /**
      * Adds parameters built with [block] to the build command
-    */
+     */
     inline fun addParameters(block: ParametersBuilder.() -> Unit) {
         parameters.addAll(parameters(block))
     }
 
     /**
      * Causes the built command to be only applicable on receivers satisfying the specified [predicate]
-    */
+     */
     fun applicableIf(predicate: (R) -> Boolean) {
         applicable = predicate
     }

@@ -5,25 +5,25 @@
 package hextant.base
 
 import hextant.Context
-import hextant.HextantPlatform
 import hextant.bundle.*
 
 /**
  * Skeletal implementation of [Context] using the specified [parent] and [bundle]
  */
-open class AbstractContext(final override val parent: Context?, private val bundle: Bundle = Bundle.newInstance()) :
-    Context, ReactiveBundle by Bundle.reactive(bundle) {
-    override val platform: HextantPlatform
-        get() = parent?.platform ?: throw NoSuchElementException("No platform in this context")
+open class AbstractContext(final override val parent: Context?, private val bundle: Bundle = createBundle()) :
+    Context, Bundle by bundle {
 
-    override fun <T : Any, Read : Permission> get(permission: Read, property: Property<out T, Read, *>): T =
+    override fun <Read : Any, T : Any> get(permission: Read, property: Property<out T, Read, *>): T =
         when {
-            bundle.hasProperty(property) -> bundle[permission, property]
-            parent != null               -> parent[permission, property]
-            property.default != null     -> property.default
-            else                         -> throw NoSuchPropertyException("Property $property is not configured")
+            bundle.hasProperty(permission, property) -> bundle[permission, property]
+            parent != null                           -> parent[permission, property]
+            else                                     -> {
+                property.default() ?: throw NoSuchElementException("Property $property is not configured")
+            }
         }
 
-    override fun hasProperty(property: Property<*, *, *>): Boolean =
-        bundle.hasProperty(property) || parent?.hasProperty(property) ?: false
+    override fun <T : Any> get(property: Property<out T, Any, *>): T = get(Any(), property)
+
+    override fun <Read : Any> hasProperty(permission: Read, property: Property<*, Read, *>): Boolean =
+        bundle.hasProperty(permission, property) || parent?.hasProperty(permission, property) ?: false
 }

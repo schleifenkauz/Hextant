@@ -150,7 +150,7 @@ object FilteredTokenEditorSpec : Spek({
         }
         describe("serialization") {
             val ser = KSerial.newInstance()
-            val platform = HextantPlatform.forTesting
+            val platform = testingContext()
             val context = Context.newInstance(platform)
             val ctx = HextantSerialContext(platform, classLoader = FilteredTokenEditorSpec::class.java.classLoader)
             val baos = ByteArrayOutputStream()

@@ -15,13 +15,13 @@ abstract class AbstractInspection<T : Any>(inspected: T, location: Any) : Inspec
 
     /**
      * The object inspected by this inspection
-    */
+     */
     val inspected by forcedWeak(inspected)
 
     /**
      * Return the message for the problem reported by this [Inspection]
      * * Is only called when [isProblem] is `true`
-    */
+     */
     protected abstract fun message(): String
 
     /**
@@ -32,7 +32,7 @@ abstract class AbstractInspection<T : Any>(inspected: T, location: Any) : Inspec
 
     /**
      * @return the problem reported by this inspection or `null` if there is no problem
-    */
+     */
     override fun getProblem(): Problem? {
         if (!isProblem.now) return null
         val msg = message()

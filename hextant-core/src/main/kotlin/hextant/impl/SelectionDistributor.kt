@@ -5,8 +5,7 @@
 package hextant.impl
 
 import hextant.EditorView
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Property
+import hextant.bundle.SimpleProperty
 import reaktive.set.ReactiveSet
 import reaktive.set.reactiveSet
 import reaktive.value.*
@@ -100,7 +99,7 @@ interface SelectionDistributor {
         }
     }
 
-    companion object : Property<SelectionDistributor, Public, Public>("Selection Distributor") {
+    companion object : SimpleProperty<SelectionDistributor>("Selection Distributor") {
         /**
          * Return a new [SelectionDistributor]
          */

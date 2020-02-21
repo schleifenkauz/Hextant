@@ -4,8 +4,8 @@
 
 package hextant.inspect
 
-import hextant.bundle.CorePermissions.Internal
-import hextant.bundle.CorePermissions.Public
+import hextant.bundle.Internal
+
 import hextant.bundle.Property
 import reaktive.value.ReactiveBoolean
 import kotlin.reflect.KClass
@@ -49,7 +49,7 @@ class Inspections private constructor() {
 
     internal fun getManagerFor(obj: Any) = of(obj::class).getManagerFor(obj)
 
-    companion object : Property<Inspections, Public, Internal>("inspections") {
+    companion object : Property<Inspections, Any, Internal>("inspections") {
         /**
          * Create a new [Inspections] object.
          */

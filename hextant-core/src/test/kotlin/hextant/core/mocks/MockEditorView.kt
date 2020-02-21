@@ -3,9 +3,10 @@ package hextant.core.mocks
 import hextant.EditorView
 import hextant.ViewGroup
 import hextant.bundle.Bundle
+import hextant.bundle.createBundle
 
-internal class MockEditorView: EditorView {
-    override val arguments: Bundle = Bundle.newInstance()
+internal class MockEditorView : EditorView {
+    override val arguments: Bundle = createBundle()
 
     override val target: Any
         get() = Any()

@@ -6,8 +6,7 @@ package hextant.expr
 
 import hextant.*
 import hextant.base.EditorControl
-import hextant.bundle.Bundle
-import hextant.bundle.CorePermissions.Public
+import hextant.bundle.createBundle
 import hextant.command.*
 import hextant.command.line.*
 import hextant.expr.edited.*
@@ -36,19 +35,19 @@ import reaktive.value.now
 class ExprEditorViewTest : HextantApplication() {
     private lateinit var serialContext: SerialContext
 
-    override fun createContext(platform: HextantPlatform): Context = Context.newInstance(platform)
+    override fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
 
     override fun createView(context: Context): Parent {
-        serialContext = HextantSerialContext(context.platform, ExprEditorViewTest::class.java.classLoader)
+        serialContext = HextantSerialContext(context, ExprEditorViewTest::class.java.classLoader)
         registerCommandsAndInspections(context)
         val editor = ExprExpander(context)
         val view = context.createView(editor)
         val clContext = Context.newInstance(context) {
-            set(Public, SelectionDistributor, SelectionDistributor.newInstance())
+            set(SelectionDistributor, SelectionDistributor.newInstance())
         }
         val source = ContextCommandSource(context)
         val cl = CommandLine(clContext, source)
-        val clView = CommandLineControl(cl, Bundle.newInstance())
+        val clView = CommandLineControl(cl, createBundle())
         val menuBar = createMenuBar(editor, context, view)
         return VBox(50.0, menuBar, view, clView)
     }

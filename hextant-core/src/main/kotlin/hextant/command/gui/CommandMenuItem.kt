@@ -18,7 +18,7 @@ internal class CommandMenuItem<T : Any>(
     registrar: CommandRegistrar<out T>,
     private val context: Context
 ) :
-        MenuItem() {
+    MenuItem() {
     init {
         logger.fine("New command menu item")
         text = getText(command, registrar)

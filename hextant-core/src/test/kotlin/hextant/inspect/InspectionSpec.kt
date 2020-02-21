@@ -11,7 +11,7 @@ import hextant.test.IT
 import org.jetbrains.spek.api.Spek
 import reaktive.value.reactiveVariable
 
-internal object InspectionSpec: Spek({
+internal object InspectionSpec : Spek({
     val i: Inspection
     val inspected = Inspected()
     DESCRIBE("build inspection") {

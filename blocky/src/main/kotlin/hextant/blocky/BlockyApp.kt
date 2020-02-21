@@ -13,7 +13,7 @@ import javafx.scene.Parent
 import reaktive.value.now
 
 class BlockyApp : HextantApplication() {
-    override fun createContext(platform: HextantPlatform): Context = Context.newInstance(platform) {
+    override fun createContext(root: Context): Context = Context.newInstance(root) {
         set(UndoManager, UndoManager.newInstance())
     }
 

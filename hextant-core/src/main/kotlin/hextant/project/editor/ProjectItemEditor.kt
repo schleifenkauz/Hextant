@@ -5,8 +5,7 @@
 package hextant.project.editor
 
 import hextant.Editor
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Property
+import hextant.bundle.SimpleProperty
 import hextant.core.editor.ExpanderConfig
 import hextant.project.ProjectItem
 import hextant.serial.ReactivePath
@@ -21,9 +20,9 @@ interface ProjectItemEditor<T : Any, I : ProjectItem<T>> : Editor<I> {
     fun deletePhysical()
 
     companion object {
-        private val config = Property<ExpanderConfig<*>, Public, Public>("project item expander config")
+        private val config = SimpleProperty<ExpanderConfig<*>>("project item expander config")
 
         @Suppress("UNCHECKED_CAST")
-        fun <R : Any> expanderConfig() = config as Property<ExpanderConfig<out Editor<R>>, Public, Public>
+        fun <R : Any> expanderConfig() = config as SimpleProperty<ExpanderConfig<out Editor<R>>>
     }
 }

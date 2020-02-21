@@ -4,8 +4,8 @@
 
 package hextant.plugin
 
-import hextant.HextantPlatform
+import hextant.Context
 
 interface PluginExit {
-    fun exit(platform: HextantPlatform)
+    fun exit(platform: Context)
 }

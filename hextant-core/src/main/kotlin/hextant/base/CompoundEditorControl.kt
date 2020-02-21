@@ -6,8 +6,7 @@ package hextant.base
 
 import hextant.*
 import hextant.base.CompoundEditorControl.Vertical
-import hextant.bundle.Bundle
-import hextant.bundle.Property
+import hextant.bundle.*
 import hextant.fx.*
 import javafx.scene.Node
 import javafx.scene.control.Label
@@ -50,7 +49,7 @@ abstract class CompoundEditorControl(
          * Creates a view for the given [editor] with the specified [args] and add it to this compound control
          * @return the created view for further configuration
          */
-        fun view(editor: Editor<*>, args: Bundle = Bundle.newInstance()): EditorControl<*>
+        fun view(editor: Editor<*>, args: Bundle = createBundle()): EditorControl<*>
 
         /**
          * Add a [Label] containing a single space to this compound control
@@ -218,7 +217,7 @@ abstract class CompoundEditorControl(
          */
         fun build(
             editor: Editor<*>,
-            args: Bundle = Bundle.newInstance(),
+            args: Bundle = createBundle(),
             build: Vertical.(Bundle) -> Unit
         ): CompoundEditorControl = object : CompoundEditorControl(editor, args, build) {
 

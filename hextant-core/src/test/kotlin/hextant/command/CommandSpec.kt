@@ -6,7 +6,7 @@ import com.natpryce.hamkrest.throws
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
 
-internal object CommandSpec: Spek({
+internal object CommandSpec : Spek({
     GIVEN("a command") {
         val c = command<CommandSpec, Int> {
             description = "double the passed argument"

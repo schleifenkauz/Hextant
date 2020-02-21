@@ -4,8 +4,8 @@
 
 package hextant.main
 
-import hextant.bundle.CorePermissions.Public
-import hextant.bundle.Property
+
+import hextant.bundle.SimpleProperty
 
 /**
  * Specifies the way the user interacts with text fields
@@ -20,5 +20,5 @@ enum class InputMethod {
      */
     REGULAR;
 
-    companion object : Property<InputMethod, Public, Public>("input method", default = REGULAR)
+    companion object : SimpleProperty<InputMethod>("input method", default = REGULAR)
 }

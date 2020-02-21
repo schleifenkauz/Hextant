@@ -5,7 +5,6 @@ import hextant.core.editor.ListEditor
 import hextant.core.view.ListEditorView
 import hextant.expr.edited.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
-import hextant.get
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
@@ -64,7 +63,6 @@ object ListEditorSpec : Spek({
                     }
                 }
             }
-            afterGroup { ctx.platform.exit() }
         }
         DESCRIBE("undo/redo") {
             val ctx = testingContext()
@@ -111,7 +109,6 @@ object ListEditorSpec : Spek({
                     editor.results.now.size shouldEqual 0
                 }
             }
-            afterGroup { ctx.platform.exit() }
         }
     }
 })

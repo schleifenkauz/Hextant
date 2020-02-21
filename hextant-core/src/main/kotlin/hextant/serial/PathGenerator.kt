@@ -4,7 +4,7 @@
 
 package hextant.serial
 
-import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.Internal
 import hextant.bundle.Property
 import kserial.*
 

@@ -30,7 +30,7 @@ class OtherTokenEditor(context: Context, t: TestToken = TestToken("Hello World")
 @EditableList(classLocation = "hextant.sample.editor.AltEditorList")
 sealed class Alt {
     @Token(subtypeOf = Alt::class)
-    data class TestToken(val str: String): Alt() {
+    data class TestToken(val str: String) : Alt() {
         companion object : TokenType<TestToken> {
             override fun compile(token: String): CompileResult<TestToken> = ok(TestToken(token))
         }

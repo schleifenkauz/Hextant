@@ -1,6 +1,6 @@
 package hextant.impl
 
-import hextant.bundle.CorePermissions.Internal
+import hextant.bundle.Internal
 import hextant.bundle.Property
 import javafx.scene.Scene
 
