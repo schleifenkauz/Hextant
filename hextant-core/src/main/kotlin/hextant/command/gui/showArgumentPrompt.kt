@@ -16,6 +16,9 @@ import javafx.scene.layout.VBox
 import javafx.stage.Window
 import reaktive.value.now
 
+/**
+ * Show a prompt with argument editors for the parameters of the given [command].
+ */
 fun showArgumentPrompt(
     ownerWindow: Window,
     command: Command<*, *>,

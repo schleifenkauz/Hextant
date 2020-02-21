@@ -12,13 +12,13 @@ import reaktive.Observer
 import java.nio.file.Path
 import java.nio.file.Paths
 
-fun ProjectItemEditor<*, *>.getItemNameEditor(): FileNameEditor? = when (this) {
+internal fun ProjectItemEditor<*, *>.getItemNameEditor(): FileNameEditor? = when (this) {
     is FileEditor<*>      -> itemName
     is DirectoryEditor<*> -> itemName
     else                  -> error("Invalid project item editor $this")
 }
 
-fun ProjectItemEditor<*, *>.getProjectItemEditorParent(): ProjectItemEditor<*, *>? {
+internal fun ProjectItemEditor<*, *>.getProjectItemEditorParent(): ProjectItemEditor<*, *>? {
     var cur = parent
     while (true) {
         if (cur == null) return null

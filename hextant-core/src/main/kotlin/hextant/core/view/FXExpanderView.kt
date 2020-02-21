@@ -116,6 +116,10 @@ open class FXExpanderView(
         onExpansion(editor, v)
     }
 
+    /**
+     * Called when the [Expander] has been expanded to the given [editor].
+     * The default implementation does nothing.
+     */
     protected open fun onExpansion(editor: Editor<*>, control: EditorControl<*>) {}
 
     private fun showContent(editor: Editor<*>): EditorControl<*> {

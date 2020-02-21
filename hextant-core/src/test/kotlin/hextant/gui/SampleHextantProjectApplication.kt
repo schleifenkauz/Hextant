@@ -6,9 +6,9 @@ package hextant.gui
 
 import hextant.Context
 import hextant.createView
+import hextant.gui.DirectoryViewTest.IntEditor
 import hextant.main.HextantProjectApplication
 import hextant.main.ProjectType
-import hextant.project.view.DirectoryViewTest.IntEditor
 import javafx.scene.Parent
 import java.nio.file.Path
 import java.nio.file.Paths

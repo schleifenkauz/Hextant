@@ -9,14 +9,14 @@ package hextant.serial
  */
 sealed class EditorAccessor
 
-data class PropertyAccessor(val propertyName: String) : EditorAccessor() {
+internal data class PropertyAccessor(val propertyName: String) : EditorAccessor() {
     override fun toString(): String = ".$propertyName"
 }
 
-data class IndexAccessor(val index: Int) : EditorAccessor() {
+internal data class IndexAccessor(val index: Int) : EditorAccessor() {
     override fun toString(): String = "[$index]"
 }
 
-object ExpanderContent : EditorAccessor() {
+internal object ExpanderContent : EditorAccessor() {
     override fun toString(): String = ".editor.now"
 }

@@ -62,7 +62,6 @@ internal class CommandGuiTest : Application() {
             val contextMenu = Receiver.commandContextMenu(platform)
             val button = Button("Receiver")
             button.setOnContextMenuRequested { contextMenu.show(button, Side.RIGHT, 0.0, 0.0) }
-            registrar.listen(button, Receiver, platform)
             return VBox(menuBar, button)
         }
 

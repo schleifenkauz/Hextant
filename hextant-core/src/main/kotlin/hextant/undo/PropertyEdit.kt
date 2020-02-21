@@ -6,6 +6,9 @@ package hextant.undo
 
 import kotlin.reflect.KMutableProperty0
 
+/**
+ * An [Edit] that indicates that the value of the given [property] has changed.
+ */
 class PropertyEdit<T>(
     private val property: KMutableProperty0<T>,
     private val oldValue: T,

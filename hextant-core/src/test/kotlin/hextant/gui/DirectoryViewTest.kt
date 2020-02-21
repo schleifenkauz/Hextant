@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package hextant.project.view
+package hextant.gui
 
 import hextant.*
 import hextant.bundle.Bundle
@@ -16,6 +16,7 @@ import hextant.fx.shortcut
 import hextant.main.HextantApplication
 import hextant.project.editor.DirectoryEditor
 import hextant.project.editor.ProjectItemEditor
+import hextant.project.view.*
 import hextant.serial.HextantFileManager
 import hextant.serial.HextantFileManagerImpl
 import hextant.serial.SerialProperties.projectRoot
@@ -33,7 +34,14 @@ class DirectoryViewTest : HextantApplication() {
     override fun createContext(platform: HextantPlatform): Context = Context.newInstance {
         set(HextantFileManager, HextantFileManagerImpl(this))
         set(Public, ProjectItemEditor.expanderConfig(), ExpanderConfig<IntEditor>().apply {
-            registerInterceptor { text, context -> text.toIntOrNull()?.let { IntEditor(context, text) } }
+            registerInterceptor { text, context ->
+                text.toIntOrNull()?.let {
+                    IntEditor(
+                        context,
+                        text
+                    )
+                }
+            }
         })
         set(projectRoot, Paths.get("D:", "dev", "hextant", "sample-project"))
         set(EditorPane, pane)

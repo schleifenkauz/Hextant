@@ -137,6 +137,9 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         }
     }
 
+    /**
+     * Recompile the [intermediateResult].
+     */
     fun recompile() {
         _intermediateResult.set(compile(text.now))
     }

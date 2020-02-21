@@ -22,6 +22,9 @@ fun Context.createView(editor: Editor<*>, arguments: Bundle = Bundle.newInstance
     return group.createViewFor(editor, this, arguments)
 }
 
+/**
+ * Create a view for the given [editor]. The [configure]-block is used to initialize the [EditorView.arguments].
+ */
 fun Context.createView(editor: Editor<*>, configure: Bundle.() -> Unit): EditorControl<*> =
     createView(editor, Bundle.configure(configure))
 
@@ -86,12 +89,18 @@ fun Context.runLater(action: () -> Unit) = platform.runLater(action)
  */
 inline fun Context.extend(block: Context.() -> Unit): Context = Context.newInstance(this, block)
 
+/**
+ * Create an [Output] to the given [path] with the [SerialProperties.serialContext] and [SerialProperties.serial] of this [Context].
+ */
 fun Context.createOutput(path: Path): Output {
     val ctx = get(SerialProperties.serialContext)
     val serial = get(SerialProperties.serial)
     return serial.createOutput(path, ctx)
 }
 
+/**
+ * Create an [Input] from the given [path] with the [SerialProperties.serialContext] and [SerialProperties.serial] of this [Context].
+ */
 fun Context.createInput(path: Path): Input {
     val ctx = get(SerialProperties.serialContext)
     val serial = get(SerialProperties.serial)

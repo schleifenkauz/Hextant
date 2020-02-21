@@ -12,17 +12,41 @@ import reaktive.set.reactiveSet
 import reaktive.value.*
 import reaktive.value.binding.map
 
+/**
+ * A [SelectionDistributor] keeps track of targets and views which are selected.
+ */
 interface SelectionDistributor {
+    /**
+     * All the targets which are selected
+     */
     val selectedTargets: ReactiveSet<Any>
 
+    /**
+     * All the views which are selected
+     */
     val selectedViews: ReactiveSet<EditorView>
 
+    /**
+     * The target that was selected most recently
+     */
     val selectedTarget: ReactiveValue<Any?>
 
+    /**
+     * The view that was selected most recently
+     */
     val selectedView: ReactiveValue<EditorView?>
 
+    /**
+     * Toggles the selection of the given [view] and its target.
+     * If the view was selected before and there are other selected views than it is deselected.
+     * If it is not selected currently it is selected in addition to the other selected views.
+     */
     fun toggleSelection(view: EditorView): Boolean
 
+    /**
+     * Select the given [view].
+     * Causes the view to be the only selected view of this distributor.
+     */
     fun select(view: EditorView): Boolean
 
     private class Impl : SelectionDistributor {
@@ -77,6 +101,9 @@ interface SelectionDistributor {
     }
 
     companion object : Property<SelectionDistributor, Public, Public>("Selection Distributor") {
+        /**
+         * Return a new [SelectionDistributor]
+         */
         fun newInstance(): SelectionDistributor = Impl()
     }
 }

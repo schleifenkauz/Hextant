@@ -6,6 +6,9 @@ package hextant.undo
 
 import reaktive.value.Variable
 
+/**
+ * An edit that indicates that the value of the given [variable] has changed.
+ */
 class VariableEdit<T>(
     private val variable: Variable<T>,
     private val oldValue: T,
