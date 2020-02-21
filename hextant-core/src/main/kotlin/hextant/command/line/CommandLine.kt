@@ -14,8 +14,6 @@ import reaktive.value.binding.binding
 
 /**
  * ### An editor for [Command]s.
- *
- *
  */
 class CommandLine(context: Context, private val source: CommandSource) :
     AbstractEditor<CommandApplication, CommandLineView>(context) {
@@ -24,18 +22,28 @@ class CommandLine(context: Context, private val source: CommandSource) :
     private var expandedCommand: Command<*, *>? = null
     private var history = mutableListOf<HistoryItem>()
 
+    /**
+     * Returns `true` only if this [CommandLine] is in the expanded state.
+     */
     val expanded get() = expandedCommand != null
 
     private val _result: ReactiveVariable<CompileResult<CommandApplication>> = reactiveVariable(childErr())
     private var obs: Observer? = null
     override val result: EditorResult<CommandApplication> get() = _result
 
+    /**
+     * Change the input command name to the given [name].
+     * @throws IllegalStateException if this [CommandLine] is expanded.
+     */
     fun setCommandName(name: String) {
         check(!expanded) { "Command already expanded, can't change name to '$name'" }
         commandName = name
         views { displayCommandName(name) }
     }
 
+    /**
+     * Returns a collection of all the command applicable on the current targets.
+     */
     fun availableCommands(): Collection<Command<*, *>> {
         val available = mutableSetOf<Command<*, *>>()
         val targets = source.selectedTargets()
@@ -48,17 +56,26 @@ class CommandLine(context: Context, private val source: CommandSource) :
         return available
     }
 
+    /**
+     * Expand this [CommandLine] by searching for an applicable command with the current [commandName] and instantiating
+     * the editors needed for the command arguments.
+     * @return `true` only if this [CommandLine] was successfully expanded.
+     */
     fun expand(): Boolean {
         if (expanded) return false
         val cmd = availableCommands().find { it.shortName == commandName } ?: return false
         return expand(cmd)
     }
 
-    fun expand(cmd: Command<*, *>): Boolean {
+    /**
+     * Expand this [CommandLine] by instantiating the argument editors for the given [command]
+     * @return `true` only if this [CommandLine] was successfully expanded.
+     */
+    fun expand(command: Command<*, *>): Boolean {
         if (expanded) return false
-        val editors = cmd.parameters.map { p -> context.createEditor(p.type) }
-        bindResult(cmd, editors.map { it.result })
-        expanded(cmd, editors)
+        val editors = command.parameters.map { p -> context.createEditor(p.type) }
+        bindResult(command, editors.map { it.result })
+        expanded(command, editors)
         return true
     }
 
@@ -85,6 +102,13 @@ class CommandLine(context: Context, private val source: CommandSource) :
         })
     }
 
+    /**
+     * Execute the current edited command.
+     * If this command line is not expanded an attempt is made to [expand] it.
+     * When the arguments are not all ok this method has no effect.
+     * After the command is executed the command line is [reset].
+     * @return `true` only if the command was successfully executed.
+     */
     fun execute(): Boolean {
         if (!expanded && !expandNoArgCommand()) return false
         val application = result.now.ifErr { return false }
@@ -114,13 +138,16 @@ class CommandLine(context: Context, private val source: CommandSource) :
         return true
     }
 
+    /**
+     * Expand to the given [command] and instantiate the editors for the given [arguments].
+     */
     fun resume(
         command: Command<*, *>,
-        args: List<Any>
+        arguments: List<Any>
     ) {
         reset()
         setCommandName(command.shortName!!)
-        val editors = args.map { context.createEditor(it) }
+        val editors = arguments.map { context.createEditor(it) }
         bindResult(command, editors.map { it.result })
         expanded(command, editors)
     }
@@ -133,6 +160,13 @@ class CommandLine(context: Context, private val source: CommandSource) :
         for ((cmd, args, res) in history) view.addToHistory(cmd, args, res)
     }
 
+    /**
+     * Reset this command line by:
+     * * Deleting the argument editors
+     * * Resetting the command name to an empty string
+     * * Clearing the [result]
+     * @return `true` only if the command line was successfully reset.
+     */
     fun reset(): Boolean {
         if (!expanded) return false
         arguments = null

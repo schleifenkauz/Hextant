@@ -12,10 +12,16 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 
+/**
+ * Base class for editors that are composed of multiple sub-editors.
+ */
 abstract class CompoundEditor<R : Any>(context: Context) :
     AbstractEditor<R, EditorView>(context), Serializable {
     private val constructor = this::class.primaryConstructor!!
 
+    /**
+     * Make the given [editor] a child of this [CompoundEditor].
+     */
     protected fun <E : Editor<*>> child(editor: E): ChildDelegator<E> = ChildDelegatorImpl(editor)
 
     override fun serialize(output: Output, context: SerialContext) {
@@ -59,6 +65,7 @@ abstract class CompoundEditor<R : Any>(context: Context) :
             property: KProperty<*>
         ): ReadOnlyProperty<CompoundEditor<*>, E> {
             editor.initAccessor(PropertyAccessor(property.name))
+            editor.initParent(this@CompoundEditor)
             return delegate(editor)
         }
     }

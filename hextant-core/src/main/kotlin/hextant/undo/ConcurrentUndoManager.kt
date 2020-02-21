@@ -4,16 +4,19 @@
 
 package hextant.undo
 
-class ConcurrentUndoManager(private val undo: UndoManager) : UndoManager by undo {
+/**
+ * An [UndoManager] the delegates to the given [wrapped] manager but synchronizes calls.
+ */
+class ConcurrentUndoManager(private val wrapped: UndoManager) : UndoManager by wrapped {
     @Synchronized override fun undo() {
-        undo.undo()
+        wrapped.undo()
     }
 
     @Synchronized override fun redo() {
-        undo.redo()
+        wrapped.redo()
     }
 
     @Synchronized override fun push(edit: Edit) {
-        undo.push(edit)
+        wrapped.push(edit)
     }
 }

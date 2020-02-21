@@ -79,11 +79,17 @@ internal fun Node.onAction(action: () -> Unit) {
     }
 }
 
+/**
+ * Return a [Label] with the given text and with the 'hextant-text' and the 'keyword' style class.
+ */
 fun keyword(name: String) = Label(name).apply {
     styleClass.add("hextant-text")
     styleClass.add("keyword")
 }
 
+/**
+ * Return a [Label] with the given text and with the 'hextant-text' and the 'operator' style class.
+ */
 fun operator(name: String) = Label(name).apply {
     styleClass.add("hextant-text")
     styleClass.add("operator")

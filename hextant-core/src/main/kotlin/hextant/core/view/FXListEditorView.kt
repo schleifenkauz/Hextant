@@ -15,6 +15,9 @@ import javafx.scene.control.ListView
 import javafx.scene.control.SelectionMode.MULTIPLE
 import reaktive.list.fx.asObservableList
 
+/**
+ * An [EditorControl] that uses a [ListView] to display a [ListEditor]
+ */
 class FXListEditorView(private val editor: ListEditor<*, *>, arguments: Bundle) :
     EditorControl<ListView<Editor<*>>>(editor, arguments) {
     override fun createDefaultRoot(): ListView<Editor<*>> = ListView(editor.editors.asObservableList()).apply {

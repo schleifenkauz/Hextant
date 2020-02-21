@@ -80,6 +80,9 @@ interface HextantPlatform : Context {
         fun configured(bundle: Bundle = Bundle.newInstance()): HextantPlatform =
             unconfigured(bundle).apply { configure() }
 
+        /**
+         * Create a [HextantPlatform] with only the most basic properties configured.
+         */
         fun newInstance(): HextantPlatform = unconfigured().apply {
             set(EditorControlFactory, EditorControlFactory.newInstance())
             set(EditorFactory, EditorFactory.newInstance())

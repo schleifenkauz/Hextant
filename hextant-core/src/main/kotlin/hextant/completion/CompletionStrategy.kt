@@ -7,6 +7,9 @@ import hextant.completion.CompletionResult.NoMatch
  * A completion strategy
  */
 interface CompletionStrategy {
+    /**
+     * Match the given input string and the [completion] and return a [CompletionResult].
+     */
     fun match(now: String, completion: String): CompletionResult
 
     private object Simple : CompletionStrategy {
@@ -74,6 +77,9 @@ interface CompletionStrategy {
     }
 
     companion object {
+        /**
+         * An equality predicate on chars that ignores the case of letters
+         */
         val equalityIgnoreCase = { c1: Char, c2: Char -> c1.equals(c2, ignoreCase = true) }
 
         /**

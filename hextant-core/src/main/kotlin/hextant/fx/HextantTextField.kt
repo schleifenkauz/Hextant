@@ -31,8 +31,16 @@ open class HextantTextField(
 
     private val userUpdatesText = event<String>()
 
+    /**
+     * This event stream emits strings when the **user** changes the text by typing.
+     */
     val userUpdatedText = userUpdatesText.stream
 
+    /**
+     * The [InputMethod] of this [HextantTextField]
+     *
+     * If it is [InputMethod.VIM] than the text field is uneditable by default.
+     */
     var inputMethod = initialInputMethod
         internal set(value) {
             field = value

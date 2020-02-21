@@ -20,7 +20,7 @@ internal operator fun <T> KMutableProperty<T>.setValue(receiver: Any?, prop: KPr
 
 internal operator fun <T> KProperty<T>.getValue(receiver: Any?, prop: KProperty<*>): T = getter.call()
 
-inline fun <reified T : Any> myLogger(): ReadOnlyProperty<T, Logger> {
+internal inline fun <reified T : Any> myLogger(): ReadOnlyProperty<T, Logger> {
     val cls = T::class
     val qualifiedName = cls.qualifiedName ?: throw IllegalStateException("myLogger invoked from anonymous class")
     val ownerClsName = when {

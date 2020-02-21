@@ -68,8 +68,19 @@ interface Editor<out R : Any> {
     @Deprecated("Treat as private")
     fun initExpander(expander: Expander<@UnsafeVariance R, *>)
 
+    /**
+     * This method should be considered an implementation detail.
+     * It is likely to be removed soon and using it can cause all sorts of bugs.
+     */
     @Deprecated("Treat as private")
     fun initAccessor(acc: EditorAccessor)
+
+    /**
+     * This method should be considered an implementation detail.
+     * It is likely to be removed soon and using it can cause all sorts of bugs.
+     */
+    @Deprecated("Treat as private")
+    fun setFile(editor: FileEditor<*>)
 
     /**
      * Paste the given [editor] into this [Editor] if it is supported.
@@ -87,7 +98,4 @@ interface Editor<out R : Any> {
      * Return the child denoted by the given [accessor] or throw a [InvalidAccessorException] if there is no such child
      */
     fun getSubEditor(accessor: EditorAccessor): Editor<*>
-
-    @Deprecated("Treat as private")
-    fun setFile(editor: FileEditor<*>)
 }

@@ -19,6 +19,9 @@ import javafx.scene.input.KeyCodeCombination
 import javafx.scene.layout.VBox
 import javafx.stage.Popup
 
+/**
+ * A [Popup] that displays the problems of the assigned target.
+ */
 class InspectionPopup(private val context: Context, problems: () -> Set<Problem>) : Popup() {
     private val problems = { problems().sortedBy { it.severity } }
 

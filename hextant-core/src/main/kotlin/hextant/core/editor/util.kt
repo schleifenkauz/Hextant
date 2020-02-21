@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.jvm.isAccessible
 
-fun <E : Editor<*>> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {
+internal fun <E : Editor<*>> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {
     val cstr = this.constructors.find { cstr ->
         val params = cstr.parameters.filter { !it.isOptional }
         params.size == 1 && params[0].type.classifier == Context::class
@@ -20,7 +20,7 @@ fun <E : Editor<*>> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {
     return { ctx: Context -> cstr.callBy(mapOf(param to ctx)) }
 }
 
-fun Any.getTypeArgument(superclass: KClass<*>, index: Int): KClass<*> {
+internal fun Any.getTypeArgument(superclass: KClass<*>, index: Int): KClass<*> {
     val supertype = this::class.allSupertypes.first { it.classifier == superclass }
     val arg = supertype.arguments[index].type!!
     return arg.classifier as KClass<*>

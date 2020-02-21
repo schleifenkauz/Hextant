@@ -13,7 +13,7 @@ import reaktive.value.binding.binding
  * A bundle that reports changes
  */
 internal open class ReactiveBundleImpl(private val bundle: Bundle) : Bundle by bundle, ReactiveBundle {
-    final override val change = event<BundleChange<*>>()
+    private val change = event<BundleChange<*>>()
 
     /**
      * Emits [BundleChange] when [set] is called (not when [setBy] or [setFactory] is called)

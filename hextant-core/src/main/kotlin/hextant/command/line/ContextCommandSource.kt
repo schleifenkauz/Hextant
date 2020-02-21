@@ -10,6 +10,9 @@ import hextant.get
 import hextant.impl.SelectionDistributor
 import reaktive.value.now
 
+/**
+ * A [CommandSource] the uses the [SelectionDistributor] and the [Commands] of the given [context].
+ */
 class ContextCommandSource(private val context: Context) : CommandSource {
     override fun focusedTarget(): Any? = context[SelectionDistributor].selectedTarget.now
 

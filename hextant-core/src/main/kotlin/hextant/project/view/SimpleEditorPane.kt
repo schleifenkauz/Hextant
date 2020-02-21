@@ -10,6 +10,9 @@ import hextant.serial.HextantFileManager
 import javafx.scene.control.Control
 import javafx.scene.control.Label
 
+/**
+ * A JavaFX [EditorPane] which simply changes its root when a new editor is shown.
+ */
 class SimpleEditorPane : EditorPane, Control() {
     private var currentEditor: Editor<*>? = null
     private val empty = Label("Please open a file")

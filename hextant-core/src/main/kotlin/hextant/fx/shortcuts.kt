@@ -74,25 +74,43 @@ class ShortcutBuilder @PublishedApi internal constructor(private val key: KeyCod
     private var alt = UP
     private var shift = UP
 
+    /**
+     * Set the modifier value for the control key
+     */
     fun control(v: ModifierValue) {
         control = v
     }
 
+    /**
+     * Set the modifier value for the alt key
+     */
     fun alt(v: ModifierValue) {
         alt = v
     }
 
+    /**
+     * Set the modifier value for the shift key
+     */
     fun shift(v: ModifierValue) {
         shift = v
     }
 
-    fun build() = Shortcut(key, control, alt, shift)
+    @PublishedApi internal fun build() = Shortcut(key, control, alt, shift)
 }
 
+/**
+ * Return a shortcut with the given [key] and configure it with a [ShortcutBuilder].
+ */
 inline fun shortcut(key: KeyCode, block: ShortcutBuilder.() -> Unit = {}) = ShortcutBuilder(key).apply(block).build()
 
+/**
+ * Return a [Shortcut] the never matches any key event.
+ */
 fun never() = Shortcut(null, UP, UP, UP)
 
+/**
+ * Used to configure shortcuts.
+ */
 class KeyEventHandlerBody<R> @PublishedApi internal constructor(private val receiver: R, private val event: KeyEvent) {
     /**
      * If the key event matches the given [shortcut], the given [action] is executed.

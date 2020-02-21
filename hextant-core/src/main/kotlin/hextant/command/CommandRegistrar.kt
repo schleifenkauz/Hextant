@@ -120,10 +120,4 @@ class CommandRegistrar<R : Any> internal constructor(
 
         } else parents.any { p -> p.handle(keyEvent, target, node, context) }
     }
-
-    fun listen(node: Node, target: R, context: Context) {
-        node.addEventHandler(KeyEvent.KEY_RELEASED) { event: KeyEvent ->
-            handle(event, target, node, context)
-        }
-    }
 }

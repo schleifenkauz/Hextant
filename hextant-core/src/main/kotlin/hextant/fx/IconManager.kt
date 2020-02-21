@@ -10,6 +10,9 @@ import hextant.bundle.Property
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 
+/**
+ * Acts as a cache for images
+ */
 class IconManager {
     private val images = HashMap<String, Image>()
 
@@ -19,6 +22,9 @@ class IconManager {
         return Image(url.toExternalForm())
     }
 
+    /**
+     * Resolves the given the given [resource] and constructs an [ImageView].
+     */
     fun viewIcon(resource: String): ImageView {
         val image = images.getOrPut(resource) { loadImage(resource) }
         return ImageView(image)

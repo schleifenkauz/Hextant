@@ -15,6 +15,9 @@ private fun Node.forEachHextantTextField(action: (HextantTextField) -> Unit) {
     }
 }
 
+/**
+ * Apply the given input-[mode] to all [HextantTextField]'s which are children of this node.
+ */
 fun Node.applyInputMethod(mode: InputMethod) {
     forEachHextantTextField {
         it.inputMethod = mode

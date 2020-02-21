@@ -8,6 +8,9 @@ import hextant.Editor
 import hextant.bundle.CorePermissions.Public
 import hextant.bundle.Property
 
+/**
+ * An editor pane displays editors.
+ */
 interface EditorPane {
     /**
      * Create a view for the given [editor] and show it on the screen.

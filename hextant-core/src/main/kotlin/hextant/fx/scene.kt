@@ -14,7 +14,7 @@ import javafx.scene.input.KeyCode.SHIFT
 import javafx.scene.input.KeyEvent
 import reaktive.value.now
 
-fun hextantScene(
+internal fun hextantScene(
     root: (Context) -> Parent,
     createContext: (HextantPlatform) -> Context
 ): Scene {
@@ -25,14 +25,13 @@ fun hextantScene(
     return scene
 }
 
+/**
+ * Initializes this scene with the given [context] by registering top level shortcuts and applying registered stylesheets.
+ */
 fun Scene.initHextantScene(context: Context) {
-    initEventHandlers(context)
-    context[Stylesheets].apply(this)
-}
-
-private fun Scene.initEventHandlers(ctx: Context) {
     listenForShift()
-    registerShortcuts(ctx)
+    registerShortcuts(context)
+    context[Stylesheets].apply(this)
 }
 
 private val TRAV_NEXT = "TAB".shortcut
@@ -150,7 +149,7 @@ private val Node.nextEditorControl
 private val Scene.focusedEditorControl: EditorControl<*>?
     get() = editorControlInParentChain(focusOwner)
 
-fun editorControlInParentChain(node: Node) =
+internal fun editorControlInParentChain(node: Node) =
     generateSequence(node) { it.parent }.firstOrNull { it is EditorControl<*> } as EditorControl<*>?
 
 internal var isShiftDown = false; private set

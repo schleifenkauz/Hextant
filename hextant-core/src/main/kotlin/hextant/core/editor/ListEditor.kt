@@ -73,6 +73,9 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         return true
     }
 
+    /**
+     * Insert all the given [editors] at the specified [idx] into this [ListEditor].
+     */
     @Suppress("UNCHECKED_CAST")
     fun pasteMany(idx: Int, editors: List<*>) {
         if (editors.any { !editorClass.isInstance(it) }) return
@@ -83,6 +86,9 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         }
     }
 
+    /**
+     * Inserts all the editors currently copied with at the specified [idx] into this [ListEditor].
+     */
     fun pasteManyFromClipboard(idx: Int) {
         val content = context[CoreProperties.clipboard]
         if (content !is List<*>) return
@@ -141,6 +147,9 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         addAt(editors.now.size, editor)
     }
 
+    /**
+     * Create a new editor with [createEditor] and insert it as the last editor.
+     */
     fun addLast(): E? {
         val e = createEditor() ?: return null
         addLast(e)
@@ -158,6 +167,9 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         undo.push(edit)
     }
 
+    /**
+     * Remove the given [editor] from this [ListEditor].
+     */
     fun remove(editor: E) {
         val idx = editors.now.indexOf(editor)
         removeAt(idx)

@@ -6,7 +6,7 @@ package hextant.undo
 
 import java.util.*
 
-class UndoManagerImpl : UndoManager {
+internal class UndoManagerImpl : UndoManager {
     private val redoable = LinkedList<Edit>()
 
     private val undoable = LinkedList<Edit>()

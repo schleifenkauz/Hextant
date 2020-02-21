@@ -65,6 +65,9 @@ abstract class EditorControl<R : Node>(
 
     private val editorChildren = mutableListOf<EditorControl<*>>()
 
+    /**
+     * Return a list of child [EditorControl]'s
+     */
     fun editorChildren(): List<EditorControl<*>> = editorChildren
 
     internal var next: EditorControl<*>? = null
@@ -149,6 +152,9 @@ abstract class EditorControl<R : Node>(
         }
     }
 
+    /**
+     * Make the given [EditorControl] a child of this editor control.
+     */
     protected fun addChild(child: EditorControl<*>, idx: Int) {
         val prev = editorChildren.getOrNull(idx - 1)
         val next = editorChildren.getOrNull(idx)
@@ -164,12 +170,15 @@ abstract class EditorControl<R : Node>(
         editorChildren.clear()
     }
 
-    protected fun removeChild(idx: Int) {
-        val prev = editorChildren.getOrNull(idx - 1)
-        val next = editorChildren.getOrNull(idx + 1)
+    /**
+     * Remove the editor child at the given [index]
+     */
+    protected fun removeChild(index: Int) {
+        val prev = editorChildren.getOrNull(index - 1)
+        val next = editorChildren.getOrNull(index + 1)
         prev?.next = next
         next?.previous = previous
-        editorChildren.removeAt(idx)
+        editorChildren.removeAt(index)
     }
 
     /**
@@ -205,6 +214,9 @@ abstract class EditorControl<R : Node>(
 
     private var lastExtendingChild: EditorControl<*>? = null
 
+    /**
+     * Uses [createDefaultRoot] to create a skin.
+     */
     override fun createDefaultSkin(): Skin<*> {
         root = createDefaultRoot()
         return skin
@@ -260,6 +272,9 @@ abstract class EditorControl<R : Node>(
         }
     }
 
+    /**
+     * Just focus this [EditorControl] without selecting.
+     */
     fun justFocus() {
         manuallySelecting = true
         root.requestFocus()
