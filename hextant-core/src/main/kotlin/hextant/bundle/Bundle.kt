@@ -68,4 +68,10 @@ interface Bundle {
      * Calls of `get(permission, property)` will return this [value] until a new value is set.
      */
     operator fun <T : Any> set(property: Property<in T, *, Any>, value: T)
+
+    /**
+     * Deletes the value of the given [property] from this bundle.
+     * @throws NoSuchElementException if the given [property] is not associated with any value
+     */
+    fun <Write : Any> delete(property: Property<*, Write, *>)
 }

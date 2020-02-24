@@ -8,6 +8,7 @@ import hextant.*
 import hextant.base.EditorControl
 import hextant.bundle.*
 import hextant.completion.Completer
+import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
 import hextant.core.editor.Expander
 import hextant.fx.*
@@ -139,6 +140,6 @@ open class FXExpanderView(
         /**
          * This property controls the completer of the expander control
          */
-        val COMPLETER = SimpleProperty<Completer<Context, String>>("completer")
+        val COMPLETER = SimpleProperty<Completer<Context, String>>("completer", NoCompleter)
     }
 }
