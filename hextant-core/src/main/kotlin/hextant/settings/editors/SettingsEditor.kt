@@ -15,11 +15,18 @@ import reaktive.list.ListChange.Added
 import reaktive.list.ListChange.Removed
 import reaktive.value.*
 
+/**
+ * An editor that can be used to configure properties. It is implemented as a list of property-value entries.
+ */
 class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
     private val bundle = createBundle()
 
     private val valueEditor = mutableMapOf<Property<*, *, *>, BidirectionalEditor<*>>()
 
+    /**
+     * The [Bundle] configured by this editor.
+     * Settings the value of a property of this [Bundle] causes this [Editor] to add or modify an entry accordingly.
+     */
     val settings = object : Bundle by bundle {
         override fun <Write : Any, T : Any> set(write: Write, property: Property<in T, *, Write>, value: T) {
             bundle[write, property] = value
@@ -40,7 +47,7 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
         }
     }
 
-    val entries = SettingsEntryListEditor(context)
+    internal val entries = SettingsEntryListEditor(context)
 
     private val expanderObservers = mutableMapOf<SettingsEntryExpander, Observer>()
     private val valueObservers = mutableMapOf<SettingsEntryEditor, Observer>()

@@ -10,7 +10,7 @@ import hextant.bundle.Internal
 import hextant.settings.model.*
 import kserial.*
 
-class SettingsEntryEditor private constructor(context: Context) : CompoundEditor<SettingsEntry>(context) {
+internal class SettingsEntryEditor private constructor(context: Context) : CompoundEditor<SettingsEntry>(context) {
     constructor(context: Context, property: ConfigurableProperty) : this(context) {
         init(property)
     }

@@ -11,7 +11,7 @@ import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.settings.model.ConfigurableProperties
 
-class PropertyEditor(context: Context) : TokenEditor<Property<*, *, *>, TokenEditorView>(context) {
+internal class PropertyEditor(context: Context) : TokenEditor<Property<*, *, *>, TokenEditorView>(context) {
     private val properties = context[Internal, ConfigurableProperties]
 
     override fun compile(token: String): CompileResult<Property<*, *, *>> =

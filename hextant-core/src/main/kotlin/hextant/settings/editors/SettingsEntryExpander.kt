@@ -9,7 +9,7 @@ import hextant.bundle.Internal
 import hextant.core.editor.Expander
 import hextant.settings.model.*
 
-class SettingsEntryExpander(context: Context) : Expander<SettingsEntry, SettingsEntryEditor>(context) {
+internal class SettingsEntryExpander(context: Context) : Expander<SettingsEntry, SettingsEntryEditor>(context) {
     override fun expand(text: String): SettingsEntryEditor? {
         val properties = context[Internal, ConfigurableProperties]
         val property = properties.byName(text) ?: return null
