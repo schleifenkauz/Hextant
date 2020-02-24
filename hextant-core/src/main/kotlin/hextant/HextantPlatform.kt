@@ -12,6 +12,7 @@ import hextant.main.InputMethod
 import hextant.plugin.PluginRegistry
 import hextant.serial.HextantSerialContext
 import hextant.serial.SerialProperties
+import hextant.settings.model.ConfigurableProperties
 import hextant.undo.UndoManager
 import kserial.KSerial
 
@@ -26,6 +27,11 @@ object HextantPlatform {
         set(Internal, PluginRegistry, plugins)
         set(Internal, SerialProperties.serialContext, HextantSerialContext(this, plugins.compoundClassLoader))
         set(Internal, SerialProperties.serial, KSerial.newInstance())
+        set(
+            Internal,
+            ConfigurableProperties,
+            ConfigurableProperties()
+        )
     }
 
     fun defaultContext(root: Context) = root.extend {

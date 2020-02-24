@@ -68,4 +68,16 @@ internal class BundleImpl : Bundle {
             new
         } else reactive as ReactiveValue<T>
     }
+
+    override fun <Write : Any> delete(property: Property<*, Write, *>) {
+        properties.remove(property) ?: throw NoSuchElementException("Cannot delete $property")
+        if (property is ReactiveProperty) {
+            val v = managed[property]?.reactive
+            if (v != null) {
+                val default = property.default()
+                if (default != null) v.set(default)
+                else throw NoSuchElementException("Value of reactive property was deleted")
+            }
+        }
+    }
 }

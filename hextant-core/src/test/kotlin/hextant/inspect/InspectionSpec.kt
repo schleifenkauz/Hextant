@@ -12,7 +12,7 @@ import org.jetbrains.spek.api.Spek
 import reaktive.value.reactiveVariable
 
 internal object InspectionSpec : Spek({
-    val i: Inspection
+    lateinit var i: Inspection
     val inspected = Inspected()
     DESCRIBE("build inspection") {
         i = inspection(inspected) {
