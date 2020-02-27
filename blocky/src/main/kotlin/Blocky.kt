@@ -3,9 +3,9 @@ import hextant.blocky.view.*
 import hextant.core.view.EditorControlWrapper
 import hextant.core.view.FXTokenEditorView
 import hextant.createView
-import hextant.plugin.dsl.plugin
+import hextant.plugin.dsl.PluginInitializer
 
-plugin {
+object Blocky : PluginInitializer({
     name = "Blocky"
     author = "Nikolaus Knop"
     view { e: IdEditor, args ->
@@ -75,4 +75,4 @@ plugin {
     view(::BranchEditorControl)
     view(::ProgramEditorControl)
     stylesheet("hextant/blocky/style.css")
-}
+})

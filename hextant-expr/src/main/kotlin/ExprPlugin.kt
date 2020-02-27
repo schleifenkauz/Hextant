@@ -7,10 +7,10 @@ import hextant.expr.edited.Operator
 import hextant.expr.editor.*
 import hextant.expr.view.FXOperatorApplicationEditorView
 import hextant.ok
-import hextant.plugin.dsl.plugin
+import hextant.plugin.dsl.PluginInitializer
 import org.controlsfx.glyphfont.FontAwesome
 
-plugin {
+object ExprPlugin : PluginInitializer({
     author = "Nikolaus Knop"
     name = "Hextant Expressions"
     defaultEditor(::IntLiteralEditor)
@@ -38,4 +38,4 @@ plugin {
     }
     registerConversion<Expr, Int> { expr -> ok(expr.value) }
     stylesheet("expr.css")
-}
+})

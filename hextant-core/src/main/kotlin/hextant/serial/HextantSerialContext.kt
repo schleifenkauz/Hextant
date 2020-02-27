@@ -14,9 +14,8 @@ import kotlin.reflect.jvm.javaConstructor
  * Extends the [SerialContext] by providing a stack of Hextant [Context]'s for serializing and deserializing editors
  */
 class HextantSerialContext(
-    private val platform: Context,
-    classLoader: ClassLoader
-) : SerialContext(classLoader = classLoader) {
+    private val platform: Context
+) : SerialContext(classLoader = Thread.currentThread().contextClassLoader) {
     /**
      * Create an instance of the specified class.
      * If the class is a sub-class of [Editor] the constructor with the [Context]-parameter is called with the stack's top context.

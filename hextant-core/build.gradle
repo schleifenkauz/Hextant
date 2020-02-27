@@ -31,7 +31,6 @@ publishing {
 dependencies {
     compile nikok("reaktive", "1.0")
     compile nikok("kserial", "1.1.2")
-    compile "org.jetbrains.kotlin:kotlin-script-runtime:1.3.0"
     compile kotlin("stdlib")
     compile kotlin("reflect")
     compile nikok("kref", "1.0.0")

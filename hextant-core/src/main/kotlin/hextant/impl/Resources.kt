@@ -27,7 +27,7 @@ internal object Resources {
     private fun getResourceRoots(): Set<Path> =
         javaClass.classLoader.getResources("").asSequence()
             .filter { root ->
-                root.toExternalForm().endsWith("resources/")
+                root.toExternalForm().endsWith("resources/main/")
             }.map { url -> Paths.get(url.toURI()) }.toSet()
 
     val logger by myLogger()

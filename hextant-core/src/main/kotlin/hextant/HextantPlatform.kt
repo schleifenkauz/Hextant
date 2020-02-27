@@ -6,10 +6,11 @@ package hextant
 
 import hextant.bundle.Internal
 import hextant.command.Commands
-import hextant.impl.*
+import hextant.impl.SelectionDistributor
+import hextant.impl.Stylesheets
 import hextant.inspect.Inspections
 import hextant.main.InputMethod
-import hextant.plugin.PluginRegistry
+import hextant.plugin.impl.Plugins
 import hextant.serial.HextantSerialContext
 import hextant.serial.SerialProperties
 import hextant.settings.model.ConfigurableProperties
@@ -22,16 +23,11 @@ object HextantPlatform {
         set(Internal, EditorFactory, EditorFactory.newInstance())
         set(Internal, Commands, Commands.newInstance())
         set(Internal, Inspections, Inspections.newInstance())
-        set(Internal, Stylesheets, Stylesheets())
-        val plugins = PluginRegistry(this, Settings.plugins)
-        set(Internal, PluginRegistry, plugins)
-        set(Internal, SerialProperties.serialContext, HextantSerialContext(this, plugins.compoundClassLoader))
+        set(Stylesheets, Stylesheets())
+        set(Plugins, Plugins(this))
+        set(Internal, SerialProperties.serialContext, HextantSerialContext(this))
         set(Internal, SerialProperties.serial, KSerial.newInstance())
-        set(
-            Internal,
-            ConfigurableProperties,
-            ConfigurableProperties()
-        )
+        set(Internal, ConfigurableProperties, ConfigurableProperties())
     }
 
     fun defaultContext(root: Context) = root.extend {

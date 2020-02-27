@@ -8,7 +8,7 @@ import hextant.core.view.FilteredTokenEditorControl.Companion.BEGIN_CHANGE
 import hextant.core.view.FilteredTokenEditorControl.Companion.COMMIT_CHANGE
 import hextant.fx.shortcut
 import hextant.main.PathEditorControl
-import hextant.plugin.dsl.plugin
+import hextant.plugin.dsl.PluginInitializer
 import hextant.project.editor.FileNameEditor
 import hextant.project.view.DirectoryEditorControl
 import hextant.project.view.FileEditorControl
@@ -17,7 +17,7 @@ import javafx.scene.input.KeyCode.*
 import reaktive.value.binding.map
 import reaktive.value.now
 
-plugin {
+object Core : PluginInitializer({
     name = "Hextant Core"
     author = "Nikolaus Knop"
     editor(::StringEditor)
@@ -58,4 +58,4 @@ plugin {
     view(::FilteredTokenEditorControl)
     view(::PathEditorControl)
     stylesheet("hextant/core/style.css")
-}
+})

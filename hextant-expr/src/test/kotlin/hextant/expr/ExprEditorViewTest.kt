@@ -23,7 +23,7 @@ import hextant.main.HextantApplication
 import hextant.main.InputMethod
 import hextant.main.InputMethod.REGULAR
 import hextant.main.InputMethod.VIM
-import hextant.serial.HextantSerialContext
+import hextant.serial.SerialProperties
 import javafx.scene.Parent
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
@@ -38,7 +38,8 @@ class ExprEditorViewTest : HextantApplication() {
     override fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
 
     override fun createView(context: Context): Parent {
-        serialContext = HextantSerialContext(context, ExprEditorViewTest::class.java.classLoader)
+        serialContext = context[SerialProperties.serialContext]
+        println(Thread.currentThread().contextClassLoader)
         registerCommandsAndInspections(context)
         val editor = ExprExpander(context)
         val view = context.createView(editor)
@@ -211,8 +212,7 @@ class ExprEditorViewTest : HextantApplication() {
         private val serial = KSerial.newInstance {}
 
         @JvmStatic fun main(args: Array<String>) {
-            launch(ExprEditorViewTest::class.java, *args)
+            launch<ExprEditorViewTest>()
         }
     }
-
 }

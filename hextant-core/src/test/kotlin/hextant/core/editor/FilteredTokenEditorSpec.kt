@@ -152,7 +152,7 @@ object FilteredTokenEditorSpec : Spek({
             val ser = KSerial.newInstance()
             val platform = testingContext()
             val context = Context.newInstance(platform)
-            val ctx = HextantSerialContext(platform, classLoader = FilteredTokenEditorSpec::class.java.classLoader)
+            val ctx = HextantSerialContext(platform)
             val baos = ByteArrayOutputStream()
             val out = ser.createOutput(baos, ctx)
             val e = Test(context, "123")
