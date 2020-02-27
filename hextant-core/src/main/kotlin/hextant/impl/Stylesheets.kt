@@ -1,7 +1,6 @@
 package hextant.impl
 
-import hextant.bundle.Internal
-import hextant.bundle.Property
+import hextant.bundle.SimpleProperty
 import javafx.scene.Scene
 
 internal class Stylesheets {
@@ -19,5 +18,5 @@ internal class Stylesheets {
         paths.add(stylesheet)
     }
 
-    companion object : Property<Stylesheets, Internal, Internal>("stylesheets")
+    companion object : SimpleProperty<Stylesheets>("stylesheets")
 }

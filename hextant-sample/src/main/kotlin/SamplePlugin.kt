@@ -1,7 +1,7 @@
-import hextant.plugin.dsl.plugin
+import hextant.plugin.dsl.PluginInitializer
 import hextant.sample.ast.editor.CompEditor
 
-plugin {
+object SamplePlugin : PluginInitializer({
     author = "Nikolaus Knop"
     name = "Sample App"
     compoundView<CompEditor> { e ->
@@ -12,4 +12,4 @@ plugin {
             view(e.y)
         }
     }
-}
+})

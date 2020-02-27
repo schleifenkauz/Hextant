@@ -15,6 +15,7 @@ import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.stage.Stage
 import kotlin.concurrent.thread
+import kotlin.reflect.KClass
 
 abstract class HextantApplication : Application() {
     protected lateinit var stage: Stage
@@ -53,5 +54,19 @@ abstract class HextantApplication : Application() {
 
     companion object {
         val stage = Property<Stage, Internal, Internal>("stage")
+
+        /**
+         * Launches the [HextantApplication] [A].
+         */
+        inline fun <reified A : HextantApplication> launch() {
+            launch(A::class)
+        }
+
+        /**
+         * Launches the [HextantApplication] with the given class.
+         */
+        fun launch(cls: KClass<out HextantApplication>) {
+            launch(cls.java)
+        }
     }
 }

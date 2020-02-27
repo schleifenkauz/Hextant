@@ -2,10 +2,10 @@ import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.lisp.editor.*
 import hextant.lisp.view.*
-import hextant.plugin.dsl.plugin
+import hextant.plugin.dsl.PluginInitializer
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 
-plugin {
+object Lisp : PluginInitializer({
     //Editors
     defaultEditor(::IntLiteralEditor)
     defaultEditor(::ApplyEditor)
@@ -25,4 +25,4 @@ plugin {
     view<SExprListEditor, ListEditorControl> { editable, args ->
         ListEditorControl.withAltGlyph(editable, glyph = PLUS, args = args, orientation = Horizontal)
     }
-}
+})
