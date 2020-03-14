@@ -39,7 +39,6 @@ class ExprEditorViewTest : HextantApplication() {
 
     override fun createView(context: Context): Parent {
         serialContext = context[SerialProperties.serialContext]
-        println(Thread.currentThread().contextClassLoader)
         registerCommandsAndInspections(context)
         val editor = ExprExpander(context)
         val view = context.createView(editor)

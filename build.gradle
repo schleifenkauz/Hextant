@@ -1,20 +1,26 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.17'
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
     }
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.70'
     id 'java'
+    id 'io.codearte.nexus-staging' version '0.21.2'
 }
 
 static String nikok(Object dep, Object version) {
-    return "org.nikok:$dep:$version"
+    return "com.github.nkb03:$dep:$version"
 }
 
 static String kotlin(Object dep) {
-    return "org.jetbrains.kotlin:kotlin-$dep:1.3.50"
+    return "org.jetbrains.kotlin:kotlin-$dep:1.3.70"
 }
 
 static String spek(Object dep) {
@@ -22,15 +28,16 @@ static String spek(Object dep) {
 }
 
 allprojects {
-    group = "org.hextant"
-    version = "1.2-SNAPSHOT"
+    group = 'com.github.nkb03'
 }
 
 subprojects {
     repositories {
         mavenCentral()
         jcenter()
-        mavenLocal()
+        maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
     }
 
     apply plugin: 'java'

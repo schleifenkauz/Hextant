@@ -11,3 +11,13 @@ dependencies {
     kapt project(":hextant-editor-codegen")
     compile project(":hextant-editor-codegen")
 }
+
+jar {
+    manifest {
+        attributes('Main-Class': 'hextant.blocky.BlockyApp', 'Plugin-Initializer': 'Blocky')
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

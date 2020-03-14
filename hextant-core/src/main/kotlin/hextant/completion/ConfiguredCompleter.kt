@@ -41,10 +41,10 @@ abstract class ConfiguredCompleter<in Ctx, T>(private val strategy: CompletionSt
          * Return a [ConfiguredCompleter] that uses the specified [strategy] and the given completion [pool] of strings.
          */
         fun withStringPool(strategy: CompletionStrategy, pool: Collection<String>) =
-            object : ConfiguredCompleter<Unit, String>(strategy) {
-                override fun completionPool(context: Unit): Collection<String> = pool
+            object : ConfiguredCompleter<Any?, String>(strategy) {
+                override fun completionPool(context: Any?): Collection<String> = pool
 
-                override fun extractText(context: Unit, item: String): String? = item
+                override fun extractText(context: Any?, item: String): String? = item
             }
     }
 }

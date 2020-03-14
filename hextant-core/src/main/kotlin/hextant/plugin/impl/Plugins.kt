@@ -1,5 +1,6 @@
 package hextant.plugin.impl
 
+import Core
 import hextant.Context
 import hextant.bundle.SimpleProperty
 import hextant.plugin.Plugin
@@ -13,6 +14,7 @@ internal class Plugins(context: Context, classLoader: ClassLoader = Plugins::cla
     val allPlugins = initializePlugins(context, classLoader)
 
     private fun initializePlugins(context: Context, classLoader: ClassLoader): List<Plugin> {
+        Core.apply(context)
         val all = mutableListOf<Plugin>()
         val urls = classLoader.getResources("META-INF/MANIFEST.MF")
         for (url in urls) {
@@ -22,13 +24,21 @@ internal class Plugins(context: Context, classLoader: ClassLoader = Plugins::cla
             val attributes = m.mainAttributes
             val className = attributes[PLUGIN_INITIALIZER]
             if (className !is String) continue
-            val cls = classLoader.loadClass(className).kotlin
+            val cls = try {
+                classLoader.loadClass(className).kotlin
+            } catch (e: ClassNotFoundException) {
+                throw PluginException("Plugin initializer class $className not found", e)
+            }
             if (!cls.isSubclassOf(PluginInitializer::class))
                 throw PluginException("$cls referenced in plugin manifest is not a subclass of Plugin")
             val instance = cls.objectInstance
                 ?: throw PluginException("$cls referenced in plugin manifest has no object instance")
             instance as PluginInitializer
-            val plugin = instance.apply(context)
+            val plugin = try {
+                instance.apply(context)
+            } catch (e: Throwable) {
+                throw PluginException("Error in plugin initialization", e)
+            }
             all.add(plugin)
         }
         return all

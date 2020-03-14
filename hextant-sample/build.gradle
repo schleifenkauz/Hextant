@@ -1,5 +1,7 @@
 apply plugin: 'kotlin-kapt'
 
+version = '0.1'
+
 kapt {
     generateStubs = true
     useBuildCache = true

@@ -8,14 +8,11 @@ import hextant.*
 import hextant.blocky.editor.ProgramEditor
 import hextant.fx.registerShortcuts
 import hextant.main.HextantApplication
-import hextant.undo.UndoManager
 import javafx.scene.Parent
 import reaktive.value.now
 
 class BlockyApp : HextantApplication() {
-    override fun createContext(root: Context): Context = Context.newInstance(root) {
-        set(UndoManager, UndoManager.newInstance())
-    }
+    override fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
 
     override fun createView(context: Context): Parent {
         val e = ProgramEditor(context)

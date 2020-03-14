@@ -1,39 +1,17 @@
-buildscript {
-    dependencies {
-        classpath: 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.17'
-    }
-    repositories {
-        mavenCentral()
-    }
-}
+apply plugin: HextantLibrary
 
-plugins {
-    id 'maven-publish'
-}
-
-apply plugin: 'maven-publish'
-
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-        }
+jar {
+    manifest {
+        attributes('Plugin-Initializer' : 'Core')
     }
 }
 
 dependencies {
-    compile nikok("reaktive", "1.0")
-    compile nikok("kserial", "1.1.2")
+    compile nikok("reaktive", "0.1-SNAPSHOT")
+    compile nikok("kserial", "0.1-SNAPSHOT")
     compile kotlin("stdlib")
     compile kotlin("reflect")
-    compile nikok("kref", "1.0.0")
+    compile nikok("kref", "0.1-SNAPSHOT")
     compile "org.controlsfx:controlsfx:8.40.14"
     implementation project(":hextant-util")
     testImplementation project(":hextant-expr")

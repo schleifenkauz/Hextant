@@ -1,0 +1,20 @@
+apply plugin: HextantLibrary
+
+hextant_lib {
+    description = 'Launcher for Hextant'
+}
+
+dependencies {
+    compile project(":hextant-core")
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': 'hextant.HextantMain')
+    }
+
+    from {
+        println(configurations.compile)
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

@@ -37,7 +37,7 @@ open class ListEditorControl(
             orientationChanged(new)
         }
 
-    private val emptyDisplay = arguments[EMPTY_DISPLAY]
+    private val emptyDisplay = arguments[EMPTY_DISPLAY]()
 
     private var items = orientation.createLayout()
 
@@ -348,7 +348,7 @@ open class ListEditorControl(
             emptyText: String = "Add item",
             args: Bundle = createBundle()
         ) = ListEditorControl(editor, args.also {
-            it[EMPTY_DISPLAY] = Button(emptyText)
+            it[EMPTY_DISPLAY] = { Button(emptyText) }
         })
 
         /**
@@ -361,7 +361,7 @@ open class ListEditorControl(
             orientation: Orientation = Orientation.Vertical
         ) = ListEditorControl(editor, args.also {
             it[ORIENTATION] = orientation
-            it[EMPTY_DISPLAY] = Glyphs.create(glyph)
+            it[EMPTY_DISPLAY] = { Glyphs.create(glyph) }
         })
 
         /**
@@ -377,6 +377,6 @@ open class ListEditorControl(
         /**
          * The [Node] that is displayed when no items are in the [ListEditor]
          */
-        val EMPTY_DISPLAY = SimpleProperty<Node>("empty display", Glyphs.create(PLUS))
+        val EMPTY_DISPLAY = SimpleProperty<() -> Node>("empty display", { Glyphs.create(PLUS) })
     }
 }

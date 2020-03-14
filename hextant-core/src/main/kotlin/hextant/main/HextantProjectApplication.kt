@@ -96,7 +96,7 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
         )
         val v = context.createView(projects) {
             set(ListEditorControl.ORIENTATION, ListEditorControl.Orientation.Vertical)
-            set(ListEditorControl.EMPTY_DISPLAY, Button("Open or create new project"))
+            set(ListEditorControl.EMPTY_DISPLAY) { Button("Open or create new project") }
             set(ListEditorControl.CELL_FACTORY, ::Cell)
         }
         val root = HBox(v, ImageView(logo))

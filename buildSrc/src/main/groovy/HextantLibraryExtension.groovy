@@ -1,0 +1,3 @@
+class HextantLibraryExtension {
+    String description
+}

@@ -96,7 +96,7 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
 
     override val result: EditorResult<File<R>> get() = _result
 
-    private class RootExpander<R : Any>(
+    internal class RootExpander<R : Any>(
         context: Context,
         config: ExpanderDelegate<Editor<R>> = context[ProjectItemEditor.expanderConfig<R>()],
         initial: Editor<R>? = null

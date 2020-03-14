@@ -1,5 +1,5 @@
 import hextant.*
-
+import hextant.completion.CompletionStrategy
 import hextant.core.editor.*
 import hextant.core.inspect.SyntaxErrorInspection
 import hextant.core.view.*
@@ -9,7 +9,9 @@ import hextant.core.view.FilteredTokenEditorControl.Companion.COMMIT_CHANGE
 import hextant.fx.shortcut
 import hextant.main.PathEditorControl
 import hextant.plugin.dsl.PluginInitializer
+import hextant.project.editor.FileEditor.RootExpander
 import hextant.project.editor.FileNameEditor
+import hextant.project.editor.ProjectItemEditor
 import hextant.project.view.DirectoryEditorControl
 import hextant.project.view.FileEditorControl
 import hextant.settings.editors.*
@@ -23,7 +25,9 @@ object Core : PluginInitializer({
     editor(::StringEditor)
     defaultEditor(::StringEditor)
     view(::FXExpanderView)
-    view { e: ListEditor<*, *>, args -> ListEditorControl(e, args) }
+    view { e: ListEditor<*, *>, args ->
+        ListEditorControl(e, args.apply { set(ListEditorControl.ORIENTATION, ListEditorControl.Orientation.Vertical) })
+    }
     view { e: TokenEditor<*, TokenEditorView>, args -> FXTokenEditorView(e, args) }
     inspection(::SyntaxErrorInspection)
     registerInspection<FilteredTokenEditor<*>> {
@@ -38,6 +42,10 @@ object Core : PluginInitializer({
         bundle[ABORT_CHANGE] = shortcut(ESCAPE)
         bundle[COMMIT_CHANGE] = shortcut(ENTER)
         FilteredTokenEditorControl(e, bundle)
+    }
+    view { e: RootExpander<*>, bundle ->
+        val completer = e.context[ProjectItemEditor.expanderConfig<Any>()].completer(CompletionStrategy.simple)
+        FXExpanderView(e, bundle, completer)
     }
     compoundView { e: SettingsEntryEditor ->
         line {

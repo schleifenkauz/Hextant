@@ -15,7 +15,12 @@ internal class Stylesheets {
     }
 
     fun add(stylesheet: String) {
-        paths.add(stylesheet)
+        val resource = javaClass.classLoader.getResource(stylesheet)
+        if (resource == null) {
+            System.err.println("Can not find stylesheet $stylesheet")
+            return
+        }
+        paths.add(resource.toExternalForm())
     }
 
     companion object : SimpleProperty<Stylesheets>("stylesheets")

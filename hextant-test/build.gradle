@@ -1,5 +1,7 @@
-plugins {
-    id 'maven-publish'
+apply plugin: HextantLibrary
+
+hextant_lib {
+    description = 'Testing library for Hextant'
 }
 
 dependencies {
@@ -14,27 +16,4 @@ dependencies {
     compile "org.junit.jupiter:junit-jupiter-api:5.4.2"
     compile "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
     compile "io.mockk:mockk:1.9.3.kotlin12"
-}
-
-apply plugin: 'maven-publish'
-
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-        }
-    }
-}
-
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-    kotlinOptions {
-        freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
-    }
 }
