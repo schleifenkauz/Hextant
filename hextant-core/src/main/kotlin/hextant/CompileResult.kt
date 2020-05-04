@@ -125,6 +125,16 @@ inline fun <T> CompileResult<T>.ifErr(def: (CompileResult<Nothing>) -> T): T = w
 }
 
 /**
+ * Casts the generic parameter of this compile result from [T] to [R] assuming that is an error.
+ * @throws IllegalArgumentException if it is [Ok]
+ */
+fun <T, R> CompileResult<T>.castError(): CompileResult<R> = when (this) {
+    is Ok       -> throw IllegalArgumentException("$this is not an error")
+    is Err      -> this
+    is ChildErr -> this
+}
+
+/**
  * Execute the given action with the value of this result if it is ok
  */
 inline fun <T> CompileResult<T>.ifOk(action: (T) -> Unit) {
