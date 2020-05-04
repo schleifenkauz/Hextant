@@ -1,4 +1,5 @@
 apply plugin: HextantLibrary
+apply plugin: 'maven-publish'
 
 jar {
     manifest {
@@ -7,7 +8,7 @@ jar {
 }
 
 dependencies {
-    compile nikok("reaktive", "0.1-SNAPSHOT")
+    compile nikok("reaktive", "0.1.1-SNAPSHOT")
     compile nikok("kserial", "0.1-SNAPSHOT")
     compile kotlin("stdlib")
     compile kotlin("reflect")
@@ -16,4 +17,24 @@ dependencies {
     implementation project(":hextant-util")
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")
+}
+
+task sourcesJar_(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar_(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact sourcesJar_
+            artifact javadocJar_
+        }
+    }
 }

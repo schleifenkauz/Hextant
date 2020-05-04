@@ -66,6 +66,7 @@ abstract class CompoundEditor<R : Any>(context: Context) :
         ): ReadOnlyProperty<CompoundEditor<*>, E> {
             editor.initAccessor(PropertyAccessor(property.name))
             editor.initParent(this@CompoundEditor)
+            addChild(editor)
             return delegate(editor)
         }
     }

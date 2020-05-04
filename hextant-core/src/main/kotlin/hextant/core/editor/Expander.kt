@@ -227,7 +227,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     @Suppress("UNCHECKED_CAST")
     private fun pasteContent(e: Editor<*>): Boolean {
-        val new = e::class.getSimpleEditorConstructor().invoke(context)
+        val new = e::class.getSimpleEditorConstructor().invoke(e.context)
         val supported = new.paste(e)
         if (supported) setEditor(new as E)
         return supported
@@ -236,7 +236,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     override fun serialize(output: Output, context: SerialContext) {
         output.writeObject(text.now)
         editor.now?.let { e ->
-            output.writeString(e::class.java.name!!)
+            output.writeString(e::class.java.name)
             output.writeUntyped(e)
         }
     }
