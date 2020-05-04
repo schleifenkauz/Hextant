@@ -27,6 +27,10 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 ) : AbstractEditor<List<R>, ListEditorView>(context), Serializable {
     constructor(context: Context) : this(context, reactiveList())
 
+    private var mayBeEmpty = false
+
+    private fun mayRemove() = mayBeEmpty || editors.now.size > 1
+
     private val undo = context[UndoManager]
 
     private val constructor by lazy { javaClass.getConstructor(Context::class.java) }
@@ -169,11 +173,10 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * Remove the editor at the specified [index]
      */
     @ProvideCommand(name = "Remove editor", shortName = "remove")
-    fun removeAt(index: Int) {
+    open fun removeAt(index: Int) {
         val editor = editors.now[index]
         val edit = RemoveEdit(index, editor)
-        doRemoveAt(index)
-        undo.push(edit)
+        if (doRemoveAt(index)) undo.push(edit)
     }
 
     /**
@@ -182,6 +185,17 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     fun remove(editor: E) {
         val idx = editors.now.indexOf(editor)
         removeAt(idx)
+    }
+
+    /**
+     * Ensures that this list of editors is not empty now and will never be.
+     */
+    fun ensureNotEmpty() {
+        mayBeEmpty = false
+        if (editors.now.isEmpty()) {
+            val e = createEditor() ?: error("createEditor() returned false")
+            doAddAt(0, e, notify = false)
+        }
     }
 
     /**
@@ -194,7 +208,10 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     protected open fun editorRemoved(editor: E, index: Int) {}
 
-    private fun doAddAt(index: Int, editor: E, notify: Boolean = true) {
+    /**
+     * Adds the given [editor] at the specified [index]. If [notify] is `false` [editorAdded] is not called.
+     */
+    protected fun doAddAt(index: Int, editor: E, notify: Boolean = true) {
         val emptyBefore = emptyNow()
         _editors.now.add(index, editor)
         addChild(editor)
@@ -213,12 +230,14 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         }
     }
 
-    private fun doRemoveAt(index: Int) {
+    private fun doRemoveAt(index: Int): Boolean {
+        if (!mayRemove()) return false
         val old = _editors.now.removeAt(index)
         updateIndicesFrom(index)
         views { removed(index) }
         if (emptyNow()) views { empty() }
         editorRemoved(old, index)
+        return true
     }
 
     override fun viewAdded(view: ListEditorView) {
