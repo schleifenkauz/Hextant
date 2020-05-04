@@ -53,6 +53,10 @@ class CommandLine(context: Context, private val source: CommandSource) :
         if (focused != null) {
             source.commandsFor(focused).filterTo(available) { it.commandType == Command.Type.SingleReceiver }
         }
+        if (focused is Editor<*> && focused.expander != null) {
+            val exp = focused.expander!!
+            available.addAll(source.commandsFor(exp))
+        }
         return available
     }
 
@@ -114,7 +118,16 @@ class CommandLine(context: Context, private val source: CommandSource) :
         val application = result.now.ifErr { return false }
         val focused = source.focusedTarget()
         if (focused != null && application.command.commandType == Command.Type.SingleReceiver) {
-            val res = application.execute(focused)
+            val applicable = application.command.isApplicableOn(focused)
+            var target = focused
+            if (!applicable) {
+                if (focused !is Editor<*>) return false
+                if (focused.expander == null) return false
+                val e = focused.expander!!
+                if (!application.command.isApplicableOn(e)) return false
+                target = e
+            }
+            val res = application.execute(target)
             commandExecuted(application.command, application.args, res)
         } else {
             val results = source.selectedTargets().map { application.execute(it) }
