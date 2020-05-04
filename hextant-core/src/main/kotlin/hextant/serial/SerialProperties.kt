@@ -18,7 +18,7 @@ object SerialProperties {
     /**
      * The [SerialContext]
      */
-    val serialContext = Property<HextantSerialContext, Any, Internal>("serial context")
+    val serialContext = Property<SerialContext, Any, Internal>("serial context")
 
     /**
      * The [Path] of the project root

@@ -5,12 +5,11 @@
 package hextant.core.editor
 
 import hextant.Context
-import hextant.Editor
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.jvm.isAccessible
 
-internal fun <E : Editor<*>> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {
+internal fun <E : Any> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {
     val cstr = this.constructors.find { cstr ->
         val params = cstr.parameters.filter { !it.isOptional }
         params.size == 1 && params[0].type.classifier == Context::class

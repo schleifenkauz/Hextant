@@ -5,7 +5,6 @@
 package hextant.lisp.editor
 
 import hextant.Context
-import hextant.Editor
 import hextant.core.editor.Expander
 import hextant.lisp.SExpr
 
@@ -35,6 +34,4 @@ class SExprExpander(context: Context) : Expander<SExpr, SExprEditor<*>>(context)
     }
 
     private fun String.asApply() = if (this == "(") ApplyEditor(context) else null
-
-    override fun accepts(editor: Editor<*>): Boolean = editor is SExprEditor<*>
 }

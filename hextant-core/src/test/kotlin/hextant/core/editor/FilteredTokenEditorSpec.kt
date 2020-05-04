@@ -7,12 +7,10 @@ package hextant.core.editor
 import com.natpryce.hamkrest.should.shouldMatch
 import hextant.*
 import hextant.core.view.FilteredTokenEditorView
-import hextant.serial.HextantSerialContext
 import hextant.test.*
 import io.mockk.mockk
 import io.mockk.verify
-import kserial.KSerial
-import kserial.readTyped
+import kserial.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.event.EventStream
@@ -152,7 +150,7 @@ object FilteredTokenEditorSpec : Spek({
             val ser = KSerial.newInstance()
             val platform = testingContext()
             val context = Context.newInstance(platform)
-            val ctx = HextantSerialContext(platform)
+            val ctx = SerialContext(classLoader = SerialContext::class.java.classLoader)
             val baos = ByteArrayOutputStream()
             val out = ser.createOutput(baos, ctx)
             val e = Test(context, "123")

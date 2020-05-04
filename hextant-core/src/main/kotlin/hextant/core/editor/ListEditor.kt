@@ -62,13 +62,18 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     protected abstract fun createEditor(): E?
 
+    /**
+     * Return the [Context] used for children of this [ListEditor].
+     * The default implementation simply returns the [context] of this editor.
+     */
+    protected open fun childContext(): Context = context
 
     @Suppress("UNCHECKED_CAST")
     override fun paste(editor: Editor<*>): Boolean {
         if (editor !is ListEditor<*, *>) return false
         if (editor.editorClass != this.editorClass) return false
         for ((i, e) in editor.editors.now.withIndex()) {
-            doAddAt(i, e.copyFor(context) as E)
+            doAddAt(i, e.copyFor(childContext()) as E)
         }
         return true
     }
@@ -81,8 +86,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         if (editors.any { !editorClass.isInstance(it) }) return
         for ((i, e) in editors.withIndex()) {
             e as E
-            val copy = e.copyFor(context)
-            addAt(idx + i, copy)
+            doAddAt(idx + i, e.copyFor(childContext()))
         }
     }
 
@@ -115,7 +119,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         for (idx in 0 until size) {
             val name = input.readString()
             val cls = Class.forName(name).kotlin
-            val ed = context.createInstance(cls)
+            val ed = cls.getSimpleEditorConstructor().invoke(childContext())
             doAddAt(idx, ed as E, notify = false)
             input.readInplace(ed)
         }
@@ -127,7 +131,9 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     @ProvideCommand(name = "Add editor", shortName = "add")
     fun addAt(index: Int): E? {
         val editor = createEditor() ?: return null
-        addAt(index, editor)
+        val edit = AddEdit(index, editor)
+        doAddAt(index, editor)
+        undo.push(edit)
         return editor
     }
 
@@ -136,7 +142,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     fun addAt(index: Int, editor: E) {
         val edit = AddEdit(index, editor)
-        doAddAt(index, editor)
+        doAddAt(index, editor.moveTo(childContext()))
         undo.push(edit)
     }
 

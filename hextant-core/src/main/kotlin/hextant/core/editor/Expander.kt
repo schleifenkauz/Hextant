@@ -16,8 +16,6 @@ import kserial.*
 import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.map
-import kotlin.reflect.KClass
-import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.full.isSubclassOf
 
 /**
@@ -91,16 +89,15 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     /**
      * Return `true` iff the given editor can be the content of this expander.
-     * Default implementation reflectively queries the value of type argument [E]
-     * and returns `true` if [editor] is an instance of this class
+     * The defaults implementation always returns `true`
      */
-    protected open fun accepts(editor: Editor<*>): Boolean {
-        val supertypes = this::class.allSupertypes
-        val expanderSupertype = supertypes.find { it.classifier == Expander::class } ?: throw AssertionError()
-        val editorCls = expanderSupertype.arguments[1].type?.classifier ?: throw AssertionError()
-        if (editorCls !is KClass<*>) return false
-        return editorCls.isInstance(editor)
-    }
+    protected open fun accepts(editor: E): Boolean = true
+
+    /**
+     * Returns the [Context] that expanded editors should be using.
+     * The default implementation returns the `context` of this Expander.
+     */
+    protected open fun contentContext(): Context = context
 
     private fun doChangeState(newState: State<E>, notify: Boolean = true) {
         val oldState = state
@@ -195,7 +192,8 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      * Set the wrapped editor to the specified one
      */
     fun setEditor(editor: E) {
-        changeState(Expanded(editor), "Change content")
+        val e = editor.moveTo(contentContext())
+        changeState(Expanded(e), "Change content")
     }
 
     /**
@@ -221,15 +219,15 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
                 else         -> true
             }
         }
-        editor::class.isSubclassOf(this.editorClass)                                  -> pasteContent(editor)
+        editorClass.isInstance(editor) && accepts(editor as E)                        -> pasteContent(editor)
         else                                                                          -> false
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun pasteContent(e: Editor<*>): Boolean {
-        val new = e::class.getSimpleEditorConstructor().invoke(e.context)
+        val new = e::class.getSimpleEditorConstructor().invoke(contentContext())
         val supported = new.paste(e)
-        if (supported) setEditor(new as E)
+        if (supported) changeState(Expanded(new as E), "Paste")
         return supported
     }
 
@@ -248,7 +246,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         else {
             val name = input.readString()
             val cls = Class.forName(name).kotlin
-            val editor = context.createInstance(cls)
+            val editor = cls.getSimpleEditorConstructor().invoke(contentContext())
             doChangeState(Expanded(editor as E), notify = false)
             input.readInplace(editor)
         }

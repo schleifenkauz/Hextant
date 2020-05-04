@@ -3,13 +3,3 @@ version = '0.1'
 dependencies {
     compileOnly project(":hextant-core")
 }
-
-jar {
-    manifest {
-        attributes('Main-Class': 'hextant.expr.ExprEditorViewTest', 'Plugin-Initializer': 'ExprPlugin')
-    }
-
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}

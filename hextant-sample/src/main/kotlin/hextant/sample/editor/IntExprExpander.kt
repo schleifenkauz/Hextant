@@ -18,8 +18,6 @@ class IntExprExpander(context: Context) : ConfiguredExpander<IntExpr, Editor<Int
     override val expr: ReactiveValue<IntExpr?>
         get() = result.map { it.orNull() }
 
-    override fun accepts(editor: Editor<*>): Boolean = editor is IntExprEditor
-
     companion object {
         val config = ExpanderConfig<Editor<IntExpr>>().apply {
             registerConstant("+") { context -> createOperatorApplication(Plus, context) }

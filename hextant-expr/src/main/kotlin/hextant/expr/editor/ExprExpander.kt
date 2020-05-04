@@ -4,9 +4,10 @@
 
 package hextant.expr.editor
 
-import hextant.*
+import hextant.Context
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
+import hextant.createEditor
 import hextant.expr.edited.Expr
 import hextant.expr.edited.Operator.*
 
@@ -19,8 +20,6 @@ class ExprExpander(
         context,
         context.createEditor(edited) as ExprEditor<Expr>
     )
-
-    override fun accepts(editor: Editor<*>): Boolean = editor is ExprEditor
 
     companion object {
         val config = ExpanderConfig<ExprEditor<Expr>>().apply {

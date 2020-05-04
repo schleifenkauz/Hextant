@@ -387,12 +387,6 @@ class AnnotationProcessor : AbstractProcessor() {
                 parameters = { "text" of "String" }) {
                 "config".e.call("expand", "text".e, "context".e)
             }
-            addSingleExprFunction(
-                "accepts",
-                { override() },
-                parameters = { "editor" of "Editor".t.parameterizedBy { star() } }) {
-                "editor".e instanceOf commonInterface.t.parameterizedBy { star() }
-            }
         }
         writeToFile(pkg, simpleName, file)
     }

@@ -25,20 +25,14 @@ abstract class CompoundEditor<R : Any>(context: Context) :
     protected fun <E : Editor<*>> child(editor: E): ChildDelegator<E> = ChildDelegatorImpl(editor)
 
     override fun serialize(output: Output, context: SerialContext) {
-        check(context is HextantSerialContext)
         for (c in children.now) {
-            context.pushContext(c.context)
             output.writeUntyped(c)
-            context.popContext()
         }
     }
 
     override fun deserialize(input: Input, context: SerialContext) {
-        check(context is HextantSerialContext)
         for (c in children.now) {
-            context.pushContext(c.context)
             input.readInplace(c)
-            context.popContext()
         }
     }
 

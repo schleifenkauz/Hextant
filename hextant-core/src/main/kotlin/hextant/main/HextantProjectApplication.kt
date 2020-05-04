@@ -42,7 +42,6 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
 
     init {
         platform[Internal, ProjectType] = this.projectType()
-        platform[SerialProperties.serialContext].pushContext(toplevelContext)
         val path = projectsPath()
         if (Files.exists(path)) {
             val input = platform.createInput(path)
@@ -122,7 +121,6 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
         val input = toplevelContext.createInput(path.resolve(PROJECT_FILE))
         val ctx = createContext()
         ctx[SerialProperties.projectRoot] = path
-        toplevelContext[SerialProperties.serialContext].pushContext(ctx)
         val project = rootType.cast(input.readObject())
         showProject(project)
     }
