@@ -139,18 +139,22 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
     /**
      * Add the specified [editor] at the specified [index]
+     * @return the moved editor
      */
-    fun addAt(index: Int, editor: E) {
+    fun addAt(index: Int, editor: E): E {
         val edit = AddEdit(index, editor)
-        doAddAt(index, editor.moveTo(childContext()))
+        val e = editor.moveTo(childContext())
+        doAddAt(index, e)
         undo.push(edit)
+        return e
     }
 
     /**
      * Add the new [editor] at the end of the editor list
+     * @return the moved editor
      */
-    fun addLast(editor: E) {
-        addAt(editors.now.size, editor)
+    fun addLast(editor: E): E {
+        return addAt(editors.now.size, editor)
     }
 
     /**
@@ -158,8 +162,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     fun addLast(): E? {
         val e = createEditor() ?: return null
-        addLast(e)
-        return e
+        return addLast(e)
     }
 
     /**
