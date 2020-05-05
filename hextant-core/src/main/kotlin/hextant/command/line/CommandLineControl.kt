@@ -66,9 +66,7 @@ class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLin
     override fun expanded(command: Command<*, *>, editors: List<Editor<*>>) {
         commandName.isEditable = false
         val controls = editors.map { context.createView(it) }
-        for ((param, arg) in command.parameters.zip(controls)) {
-            current.children.add(arg.withTooltip(param.toString()))
-        }
+        current.children.addAll(controls)
         Platform.runLater { controls.firstOrNull()?.receiveFocus() }
     }
 
@@ -95,6 +93,13 @@ class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLin
             }
         }
         history.children.add(item)
+    }
+
+    override fun receiveFocus() {
+        if (current.children.size > 1) {
+            val editor = current.children[1] as EditorControl<*>
+            editor.requestFocus()
+        } else commandName.requestFocus()
     }
 
     override fun createDefaultRoot(): VBox = VBox(history, current)
