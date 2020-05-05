@@ -26,7 +26,7 @@ object Core : PluginInitializer({
     defaultEditor(::StringEditor)
     view(::FXExpanderView)
     view { e: ListEditor<*, *>, args ->
-        ListEditorControl(e, args.apply { set(ListEditorControl.ORIENTATION, ListEditorControl.Orientation.Vertical) })
+        ListEditorControl(e, args)
     }
     view { e: TokenEditor<*, TokenEditorView>, args -> FXTokenEditorView(e, args) }
     inspection(::SyntaxErrorInspection)

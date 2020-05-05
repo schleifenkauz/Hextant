@@ -7,7 +7,6 @@ package hextant.core.view
 import hextant.Editor
 import hextant.base.EditorControl
 import hextant.bundle.*
-
 import hextant.core.editor.ListEditor
 import hextant.createView
 import hextant.fx.*
@@ -377,6 +376,6 @@ open class ListEditorControl(
         /**
          * The [Node] that is displayed when no items are in the [ListEditor]
          */
-        val EMPTY_DISPLAY = SimpleProperty<() -> Node>("empty display", { Glyphs.create(PLUS) })
+        val EMPTY_DISPLAY = SimpleProperty<() -> Node>("empty display") { Glyphs.create(PLUS) }
     }
 }
