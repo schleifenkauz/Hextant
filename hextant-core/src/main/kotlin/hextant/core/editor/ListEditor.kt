@@ -76,9 +76,14 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     override fun paste(editor: Editor<*>): Boolean {
         if (editor !is ListEditor<*, *>) return false
         if (editor.editorClass != this.editorClass) return false
+        if (!mayBeEmpty && editor.editors.now.isEmpty()) return false
+        val temp = mayBeEmpty
+        mayBeEmpty = true
+        for (i in editors.now.indices.reversed()) removeAt(i)
         for ((i, e) in editor.editors.now.withIndex()) {
             doAddAt(i, e.copyFor(childContext()) as E)
         }
+        mayBeEmpty = temp
         return true
     }
 
