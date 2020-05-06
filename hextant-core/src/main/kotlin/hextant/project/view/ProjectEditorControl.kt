@@ -54,8 +54,8 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             obs = editors.observeList { ch ->
                 when (ch) {
                     is Removed  -> children.removeAt(ch.index)
-                    is Added    -> children.add(ch.index, createTreeItem(ch.element))
-                    is Replaced -> children[ch.index] = createTreeItem(ch.new)
+                    is Added    -> children.add(ch.index, createTreeItem(ch.added))
+                    is Replaced -> children[ch.index] = createTreeItem(ch.added)
                 }
             }
         }

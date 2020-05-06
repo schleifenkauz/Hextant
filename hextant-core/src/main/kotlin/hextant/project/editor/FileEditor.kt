@@ -11,7 +11,6 @@ import hextant.project.File
 import hextant.serial.*
 import kserial.*
 import reaktive.Observer
-import reaktive.event.Subscription
 import reaktive.event.event
 import reaktive.value.binding.map
 import reaktive.value.reactiveVariable
@@ -40,7 +39,7 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
     private val _result = reactiveVariable<CompileResult<File<R>>>(childErr())
 
     private var obs: Observer? = null
-    private lateinit var subscription: Subscription
+    private lateinit var observer: Observer
 
     val rootEditor get() = editor ?: content.get()
 
@@ -49,7 +48,7 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
 
     fun dispose() {
         obs?.kill()
-        subscription.cancel()
+        observer.kill()
     }
 
     fun initialize() {
@@ -76,7 +75,7 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
 
     private fun bindResult() {
         updateEditor(content.get())
-        subscription = content.read.subscribe { _, e ->
+        observer = content.read.observe { _, e ->
             obs?.kill()
             updateEditor(e)
             rootEditorChange.fire(e)

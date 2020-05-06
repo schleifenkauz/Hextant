@@ -14,8 +14,7 @@ import hextant.core.editor.Expander
 import hextant.fx.*
 import hextant.main.InputMethod
 import javafx.scene.Node
-import reaktive.event.Subscription
-import reaktive.event.subscribe
+import reaktive.Observer
 import reaktive.value.now
 
 /**
@@ -32,7 +31,7 @@ open class FXExpanderView(
 
     private val textField = HextantTextField(initialInputMethod = context[InputMethod])
 
-    private val textSubscription: Subscription
+    private val textObserver: Observer
 
     /**
      * The completer used by this FXExpanderView
@@ -51,7 +50,7 @@ open class FXExpanderView(
 
     private val popup = CompletionPopup(context, context[IconManager], completer)
 
-    private val completionSubscription: Subscription
+    private val completionObserver: Observer
 
     override fun createDefaultRoot(): Node = textField
 
@@ -76,7 +75,7 @@ open class FXExpanderView(
                 on("Ctrl + Space") { popup.show(this@FXExpanderView) }
                 on("Enter") { expander.expand() }
             }
-            textSubscription = userUpdatedText.subscribe { new ->
+            textObserver = userUpdatedText.observe { _, new ->
                 expander.setText(new)
                 popup.updateInput(new)
                 popup.show(this)
@@ -85,7 +84,7 @@ open class FXExpanderView(
         expander.editor.now?.let { showContent(it) }
         expander.text.now?.let { displayText(it) }
         expander.addView(this)
-        completionSubscription = popup.completionChosen.subscribe { comp ->
+        completionObserver = popup.completionChosen.observe { _, comp ->
             expander.setText(comp.completion)
             expander.expand()
         }

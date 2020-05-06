@@ -11,11 +11,10 @@ import hextant.command.Command
 import hextant.completion.gui.CompletionPopup
 import hextant.createView
 import hextant.fx.*
-import hextant.impl.subscribe
+import hextant.impl.observe
 import javafx.application.Platform
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import reaktive.event.subscribe
 
 /**
  * A JavaFX implemenation of the [CommandLineView]
@@ -27,12 +26,12 @@ class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLin
 
     private val popup = CompletionPopup(cl, context[IconManager], CommandCompleter)
 
-    private val completionSubscription = popup.completionChosen.subscribe { completion ->
+    private val completionObserver = popup.completionChosen.observe { _, completion ->
         cl.setCommandName(completion.completionText)
         cl.expand(completion.completion)
     }
 
-    private val textSubscription = commandName.userUpdatedText.subscribe(this) { _, txt ->
+    private val textObserver = commandName.userUpdatedText.observe(this) { _, txt ->
         cl.setCommandName(txt)
         popup.updateInput(txt)
         popup.show(this)

@@ -24,9 +24,9 @@ object FilteredTokenEditorSpec : Spek({
             val ctx = testingContext()
             val e = Test(ctx, "123")
             val handler = mockk<(EventStream<*>, Any?) -> Unit>(relaxed = true)
-            val o1 = e.beganChange.subscribe(handler)
-            val o2 = e.abortedChange.subscribe(handler)
-            val o3 = e.commitedChange.subscribe(handler)
+            val o1 = e.beganChange.observe(handler)
+            val o2 = e.abortedChange.observe(handler)
+            val o3 = e.commitedChange.observe(handler)
             val v = mockk<FilteredTokenEditorView>(relaxed = true)
             group("initially") {
                 it("should take the initial text") {

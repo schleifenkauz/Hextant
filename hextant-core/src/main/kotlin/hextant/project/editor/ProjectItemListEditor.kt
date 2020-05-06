@@ -11,12 +11,11 @@ import hextant.project.view.EditorPane
 import hextant.serial.HextantFileManager
 import hextant.serial.now
 import reaktive.Observer
-import reaktive.event.Subscription
 
 class ProjectItemListEditor<T : Any>(context: Context) :
     ListEditor<ProjectItem<T>, ProjectItemEditor<T, *>>(context) {
-    private var commitChangeSubscription: Subscription? = null
-    private var abortChangeSubscription: Subscription? = null
+    private var commitChangeObserver: Observer? = null
+    private var abortChangeObserver: Observer? = null
     private var renamer: Observer? = null
 
     override fun createEditor(): ProjectItemEditor<T, *> = FileEditor.newInstance(context)
@@ -33,7 +32,7 @@ class ProjectItemListEditor<T : Any>(context: Context) :
         val name = editor.getItemNameEditor() ?: error("Unexpected project item editor")
         name.beginChange()
         name.recompile()
-        commitChangeSubscription = name.commitedChange.subscribe { _, _ ->
+        commitChangeObserver = name.commitedChange.observe { _, _ ->
             renamer?.kill()
             renamer = editor.renamePhysicalOnNameChange()
             if (editor is FileEditor<*>) {
@@ -43,18 +42,18 @@ class ProjectItemListEditor<T : Any>(context: Context) :
             } else if (editor is DirectoryEditor<*>) {
                 context[HextantFileManager].createDirectory(editor.path.now)
             }
-            cancelSubscriptions()
+            killObservers()
         }
-        abortChangeSubscription = name.abortedChange.subscribe { _, _ ->
+        abortChangeObserver = name.abortedChange.observe { _, _ ->
             remove(editor)
-            cancelSubscriptions()
+            killObservers()
         }
     }
 
-    private fun cancelSubscriptions() {
-        abortChangeSubscription?.cancel()
-        commitChangeSubscription?.cancel()
-        abortChangeSubscription = null
-        commitChangeSubscription = null
+    private fun killObservers() {
+        abortChangeObserver?.kill()
+        commitChangeObserver?.kill()
+        abortChangeObserver = null
+        commitChangeObserver = null
     }
 }

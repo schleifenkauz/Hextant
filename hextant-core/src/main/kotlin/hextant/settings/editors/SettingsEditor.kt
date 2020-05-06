@@ -58,7 +58,7 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
     init {
         entryObserver = entries.editors.observeList { ch ->
             if (ch is Added) {
-                expanderObservers[ch.element] = ch.element.editor.observe { _, old, new ->
+                expanderObservers[ch.added] = ch.added.editor.observe { _, old, new ->
                     if (old != null) {
                         valueObservers.remove(old)!!.kill()
                         val prop = old.property.property
@@ -74,13 +74,13 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
                 }
             }
             if (ch is Removed) {
-                val e = ch.element.editor.now
+                val e = ch.removed.editor.now
                 if (e != null) {
                     valueObservers.remove(e)!!.kill()
                     val prop = e.property.property
                     if (bundle.hasProperty(prop)) bundle.delete(prop)
                 }
-                expanderObservers.remove(ch.element)!!.kill()
+                expanderObservers.remove(ch.removed)!!.kill()
             }
         }
     }

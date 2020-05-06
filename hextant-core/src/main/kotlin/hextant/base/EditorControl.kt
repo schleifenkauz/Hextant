@@ -87,7 +87,7 @@ abstract class EditorControl<R : Node>(
 
     init {
         styleClass.add("editor-control")
-        arguments.changed.subscribe(this) { _, change ->
+        arguments.changed.observe(this) { _, change ->
             argumentChanged(change.property, change.newValue)
         }
         sceneProperty().addListener(this) { sc ->

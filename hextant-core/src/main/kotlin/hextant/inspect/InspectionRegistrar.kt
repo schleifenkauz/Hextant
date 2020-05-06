@@ -4,7 +4,8 @@
 
 package hextant.inspect
 
-import reaktive.event.*
+import reaktive.Observer
+import reaktive.event.event
 import reaktive.value.ReactiveBoolean
 import java.util.*
 
@@ -20,15 +21,15 @@ class InspectionRegistrar<T : Any> internal constructor(private val inspections:
 
     private val addedInspection = addInspection.stream
 
-    private val passdownSubscriptions = mutableListOf<Subscription>()
+    private val passdownObservers = mutableListOf<Observer>()
 
     internal fun getManagerFor(obj: T): InspectionManager<T> = getInspectionManager(obj)
 
     @Deprecated("Treat as private")
     internal fun <C : T> passdownInspectionsTo(child: InspectionRegistrar<C>) {
         inspectionFactories.forEach { child.register(it) }
-        val subscription = addedInspection.subscribe { factory -> child.register(factory) }
-        passdownSubscriptions.add(subscription)
+        val observer = addedInspection.observe { _, factory -> child.register(factory) }
+        passdownObservers.add(observer)
     }
 
     /**

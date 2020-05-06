@@ -10,7 +10,6 @@ import hextant.command.CommandRegistrar
 import hextant.impl.myLogger
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
-import reaktive.event.subscribe
 
 internal class CommandMenuBar<T : Any> private constructor(
     private val target: T,
@@ -31,7 +30,7 @@ internal class CommandMenuBar<T : Any> private constructor(
     }
 
     private fun listenForNewCategories(registrar: CommandRegistrar<T>) {
-        registrar.addedCategory.subscribe { newCategory ->
+        registrar.addedCategory.observe { _, newCategory ->
             addMenu(registrar, newCategory)
         }
     }

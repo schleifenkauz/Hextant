@@ -13,7 +13,7 @@ import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
 import hextant.core.editor.TokenEditor
 import hextant.fx.*
-import hextant.impl.subscribe
+import hextant.impl.observe
 import hextant.main.InputMethod
 import javafx.scene.input.KeyCode.SPACE
 import javafx.scene.input.KeyCodeCombination
@@ -41,7 +41,7 @@ open class AbstractTokenEditorControl(
         }
     }
 
-    private val textSubscription = textField.userUpdatedText.subscribe(this) { _, new ->
+    private val textObserver = textField.userUpdatedText.observe(this) { _, new ->
         editor.setText(new)
         popup.updateInput(new)
         popup.show(this)
@@ -64,7 +64,7 @@ open class AbstractTokenEditorControl(
 
     private val popup = CompletionPopup(context, context[IconManager], completer)
 
-    private val obs = popup.completionChosen.subscribe(this) { _, c ->
+    private val obs = popup.completionChosen.observe(this) { _, c ->
         editor.setText(c.completion)
         scene.selectNext()
     }

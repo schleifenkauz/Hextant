@@ -10,12 +10,11 @@ import hextant.bundle.SimpleProperty
 import hextant.core.editor.FilteredTokenEditor
 import hextant.fx.*
 import javafx.scene.input.KeyEvent
-import reaktive.event.subscribe
 import reaktive.value.now
 
 class FilteredTokenEditorControl(val editor: FilteredTokenEditor<*>, arguments: Bundle) :
     EditorControl<HextantTextField>(editor, arguments), FilteredTokenEditorView {
-    private val textSubscription = root.userUpdatedText.subscribe { new ->
+    private val textObserver = root.userUpdatedText.observe { _, new ->
         editor.setText(new)
     }
 

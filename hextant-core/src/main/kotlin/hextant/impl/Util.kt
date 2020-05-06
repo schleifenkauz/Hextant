@@ -8,7 +8,6 @@ import javafx.beans.value.ObservableValue
 import org.nikok.kref.weak
 import reaktive.Observer
 import reaktive.event.EventStream
-import reaktive.event.Subscription
 import reaktive.value.ReactiveValue
 import java.util.logging.Logger
 import kotlin.properties.ReadOnlyProperty
@@ -45,12 +44,12 @@ internal fun <T, R : Any> ReactiveValue<T>.observe(
     }
 }
 
-internal fun <T, R : Any> EventStream<T>.subscribe(
+internal fun <T, R : Any> EventStream<T>.observe(
     referent: R,
     handler: R.(stream: EventStream<T>, value: T) -> Unit
-): Subscription {
+): Observer {
     val ref = weak(referent)
-    return subscribe { stream: EventStream<T>, value: T ->
+    return observe { stream: EventStream<T>, value: T ->
         ref.referent?.handler(stream, value)
     }
 }
