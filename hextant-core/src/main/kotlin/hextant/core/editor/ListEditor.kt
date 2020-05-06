@@ -76,15 +76,33 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     override fun paste(editor: Editor<*>): Boolean {
         if (editor !is ListEditor<*, *>) return false
         if (editor.editorClass != this.editorClass) return false
-        if (!mayBeEmpty && editor.editors.now.isEmpty()) return false
+        if (!setEditors(editor.editors.now as List<E>)) return false
+        return true
+    }
+
+    /**
+     * Clears the children and then adds all the given new children.
+     */
+    fun setEditors(editors: List<E>): Boolean {
+        if (!mayBeEmpty && editors.isEmpty()) return false
         val temp = mayBeEmpty
         mayBeEmpty = true
-        for (i in editors.now.indices.reversed()) removeAt(i)
-        for ((i, e) in editor.editors.now.withIndex()) {
-            doAddAt(i, e.copyFor(childContext()) as E)
-        }
+        clear()
         mayBeEmpty = temp
+        for ((i, e) in editors.withIndex()) {
+            doAddAt(i, e.copyFor(childContext()))
+        }
         return true
+    }
+
+    /**
+     * Removes all editors
+     */
+    fun clear() {
+        if (!mayBeEmpty) return
+        for (e in editors.now) editorRemoved(e, 0)
+        _editors.now.clear()
+        views { empty() }
     }
 
     /**
@@ -278,6 +296,19 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
         override val actionDescription: String
             get() = "Remove element"
+    }
+
+    private inner class ClearEdit(private val editors: List<E>) : AbstractEdit() {
+        override fun doRedo() {
+            clear()
+        }
+
+        override fun doUndo() {
+            for (e in editors) addLast(e)
+        }
+
+        override val actionDescription: String
+            get() = "Clear"
     }
 
     companion object {

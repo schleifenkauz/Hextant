@@ -285,6 +285,8 @@ open class ListEditorControl(
     }
 
     override fun empty() {
+        items.children.clear()
+        cells.clear()
         root = emptyDisplay
     }
 
