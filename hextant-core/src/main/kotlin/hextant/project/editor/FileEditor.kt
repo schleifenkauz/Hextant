@@ -6,6 +6,7 @@ package hextant.project.editor
 
 import hextant.*
 import hextant.base.CompoundEditor
+import hextant.base.EditorSnapshot
 import hextant.core.editor.*
 import hextant.project.File
 import hextant.serial.*
@@ -32,8 +33,6 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
         p.path!!.resolve(itemName.result.map { it.force() })
     }
 
-    private val resultClass by lazy { getTypeArgument(FileEditor::class, 0) }
-
     override val itemName by child(FileNameEditor(context))
 
     private val _result = reactiveVariable<CompileResult<File<R>>>(childErr())
@@ -46,11 +45,6 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
     private val rootEditorChange = event<Editor<R>>()
     val rootEditorChanged get() = rootEditorChange.stream
 
-    fun dispose() {
-        obs?.kill()
-        observer.kill()
-    }
-
     fun initialize() {
         check(!initialized)
         initialized = true
@@ -59,13 +53,6 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
         val m = context[HextantFileManager]
         content = m.get(e, path)
         content.write()
-        bindResult()
-    }
-
-    override fun deserialize(input: Input, context: SerialContext) {
-        input.readInplace(itemName)
-        val manager = this.context[HextantFileManager]
-        content = manager.from(path)
         bindResult()
     }
 
@@ -92,6 +79,15 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
         output.writeUntyped(itemName)
         content.write()
     }
+
+    override fun deserialize(input: Input, context: SerialContext) {
+        input.readInplace(itemName)
+        val manager = this.context[HextantFileManager]
+        content = manager.from(path)
+        bindResult()
+    }
+
+    override fun createSnapshot(): EditorSnapshot<*> = TODO()
 
     override val result: EditorResult<File<R>> get() = _result
 

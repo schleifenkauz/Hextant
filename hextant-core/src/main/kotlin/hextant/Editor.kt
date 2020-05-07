@@ -4,6 +4,7 @@
 
 package hextant
 
+import hextant.base.EditorSnapshot
 import hextant.core.editor.Expander
 import hextant.project.editor.FileEditor
 import hextant.serial.EditorAccessor
@@ -98,4 +99,10 @@ interface Editor<out R : Any> {
      * Return the child denoted by the given [accessor] or throw a [InvalidAccessorException] if there is no such child
      */
     fun getSubEditor(accessor: EditorAccessor): Editor<*>
+
+    /**
+     * Creates a snapshot of this [Editor].
+     */
+    fun createSnapshot(): EditorSnapshot<*> =
+        throw UnsupportedOperationException("$javaClass does not implement snapshots")
 }

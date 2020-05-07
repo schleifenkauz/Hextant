@@ -6,6 +6,7 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.base.EditorSnapshot
 import hextant.bundle.CoreProperties
 import hextant.command.meta.ProvideCommand
 import hextant.core.view.ListEditorView
@@ -85,10 +86,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     fun setEditors(editors: List<E>): Boolean {
         if (!mayBeEmpty && editors.isEmpty()) return false
-        val temp = mayBeEmpty
-        mayBeEmpty = true
-        clear()
-        mayBeEmpty = temp
+        doClear()
         for ((i, e) in editors.withIndex()) {
             doAddAt(i, e.copyFor(childContext()))
         }
@@ -100,6 +98,12 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     fun clear() {
         if (!mayBeEmpty) return
+        val edit = ClearEdit(editors.now)
+        doClear()
+        undo.push(edit)
+    }
+
+    private fun doClear() {
         for (e in editors.now) editorRemoved(e, 0)
         _editors.now.clear()
         views { empty() }
@@ -151,6 +155,8 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
             input.readInplace(ed)
         }
     }
+
+    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
     /**
      * Add a new editor at the given index using [createEditor] to create a new editor
@@ -309,6 +315,17 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
         override val actionDescription: String
             get() = "Clear"
+    }
+
+    private class Snapshot<E : Editor<*>>(original: ListEditor<*, E>) :
+        EditorSnapshot<ListEditor<*, E>>(original) {
+        private val snapshots = original.editors.now.map { it.createSnapshot() }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun reconstruct(editor: ListEditor<*, E>) {
+            val editors = snapshots.map { it.reconstruct(editor.childContext()) }
+            editor.setEditors(editors as List<E>)
+        }
     }
 
     companion object {

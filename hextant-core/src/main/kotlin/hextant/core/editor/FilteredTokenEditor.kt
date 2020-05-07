@@ -6,6 +6,7 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.base.EditorSnapshot
 import hextant.core.TokenType
 import hextant.core.view.FilteredTokenEditorView
 import hextant.undo.AbstractEdit
@@ -161,10 +162,25 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
     }
 
     override fun deserialize(input: Input, context: SerialContext) {
-        _text.now = input.readString()
-        _intermediateResult.now = compile(text.now)
+        val t = input.readString()
+        reconstructState(t)
+    }
+
+    private fun reconstructState(text: String) {
+        _text.now = text
+        _intermediateResult.now = compile(this.text.now)
         _result.now = intermediateResult.now
         _editable.now = false
+    }
+
+    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+
+    private class Snapshot(original: FilteredTokenEditor<*>) : EditorSnapshot<FilteredTokenEditor<*>>(original) {
+        private val text = original.text.now
+
+        override fun reconstruct(editor: FilteredTokenEditor<*>) {
+            editor.reconstructState(text)
+        }
     }
 
     private inner class CommitEdit(private val old: String, private val new: String) : AbstractEdit() {

@@ -6,6 +6,7 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.base.EditorSnapshot
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Unexpanded
 import hextant.core.view.ExpanderView
@@ -252,9 +253,23 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         }
     }
 
+    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
         if (accessor !is ExpanderContent) throw InvalidAccessorException(accessor)
         return editor.now ?: throw InvalidAccessorException(accessor)
+    }
+
+    private class Snapshot(original: Expander<*, *>) : EditorSnapshot<Expander<*, *>>(original) {
+        private val text = original.text.now
+        private val content = original.editor.now?.createSnapshot()
+
+        @Suppress("UNCHECKED_CAST")
+        override fun reconstruct(editor: Expander<*, *>) {
+            editor as Expander<*, Editor<*>>
+            if (text != null) editor.setText(text)
+            else editor.setEditor(content!!.reconstruct(editor.context))
+        }
     }
 
     private inner class StateTransition(

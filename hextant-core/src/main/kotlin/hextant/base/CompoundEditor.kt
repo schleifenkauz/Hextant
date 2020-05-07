@@ -74,6 +74,8 @@ abstract class CompoundEditor<R : Any>(context: Context) :
         return res
     }
 
+    override fun createSnapshot(): EditorSnapshot<*> = CompoundEditorSnapshot(this)
+
     companion object {
         private fun <T, R> delegate(value: T): ReadOnlyProperty<R, T> = object : ReadOnlyProperty<R, T> {
             override fun getValue(thisRef: R, property: KProperty<*>): T = value

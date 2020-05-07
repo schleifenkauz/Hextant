@@ -6,6 +6,7 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.base.EditorSnapshot
 import hextant.core.TokenType
 import hextant.core.view.TokenEditorView
 import hextant.undo.*
@@ -56,6 +57,8 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         setText(txt)
     }
 
+    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+
     /**
      * Set the text of this editor, such that the result is automatically updated
      */
@@ -87,6 +90,15 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         override fun mergeWith(other: Edit): Edit? =
             if (other !is TextEdit || other.editor !== this.editor) null
             else TextEdit(editor, this.old, other.new)
+    }
+
+    private class Snapshot(original: TokenEditor<*, *>) :
+        EditorSnapshot<TokenEditor<*, *>>(original) {
+        private val text = original.text.now
+
+        override fun reconstruct(editor: TokenEditor<*, *>) {
+            editor.doSetText(text)
+        }
     }
 
     companion object {
