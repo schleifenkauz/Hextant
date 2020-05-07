@@ -4,6 +4,7 @@
 
 package hextant.inspect
 
+import hextant.command.Command
 import org.nikok.kref.forcedWeak
 import org.nikok.kref.mutableWeak
 import reaktive.value.ReactiveBoolean
@@ -82,6 +83,13 @@ class InspectionBuilder<out T : Any> @PublishedApi internal constructor(inspecte
      */
     inline fun addFix(block: ProblemFixBuilder.() -> Unit) {
         addFix(problemFix(block))
+    }
+
+    /**
+     * Adds a [CommandProblemFix]
+     */
+    fun addFix(description: String, command: Command<*, *>, target: Any = inspected, vararg arguments: Any) {
+        addFix(CommandProblemFix(description, command, arguments.asList(), target))
     }
 
     @PublishedApi internal fun build(): Inspection {
