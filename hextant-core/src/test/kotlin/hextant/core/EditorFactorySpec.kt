@@ -7,7 +7,7 @@ package hextant.core
 import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
 import hextant.EditorFactory
-import hextant.expr.edited.IntLiteral
+import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.register
 import hextant.test.*

@@ -9,8 +9,7 @@ import hextant.base.EditorControl
 import hextant.bundle.createBundle
 import hextant.command.*
 import hextant.command.line.*
-import hextant.expr.edited.*
-import hextant.expr.edited.Operator.Plus
+import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.fx.applyInputMethod
 import hextant.fx.menuBar

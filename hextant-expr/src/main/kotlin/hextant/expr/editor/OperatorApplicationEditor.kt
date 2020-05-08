@@ -6,8 +6,8 @@ package hextant.expr.editor
 
 import hextant.*
 import hextant.base.CompoundEditor
-import hextant.expr.edited.Operator
-import hextant.expr.edited.OperatorApplication
+import hextant.expr.Operator
+import hextant.expr.OperatorApplication
 import reaktive.dependencies
 import reaktive.value.binding.binding
 import reaktive.value.now

@@ -3,7 +3,7 @@ package hextant.core.list
 import com.nhaarman.mockitokotlin2.*
 import hextant.core.editor.ListEditor
 import hextant.core.view.ListEditorView
-import hextant.expr.edited.IntLiteral
+import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.test.*
 import hextant.undo.UndoManager

@@ -1,7 +1,7 @@
 package hextant.core.editable
 
 import hextant.Ok
-import hextant.expr.edited.IntLiteral
+import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.isOk
 import hextant.test.*

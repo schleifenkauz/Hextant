@@ -7,7 +7,7 @@ package hextant.command
 import com.nhaarman.mockitokotlin2.*
 import hextant.*
 import hextant.command.line.*
-import hextant.expr.edited.IntLiteral
+import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.test.*
 import org.jetbrains.spek.api.Spek

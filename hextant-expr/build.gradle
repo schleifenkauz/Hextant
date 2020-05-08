@@ -1,5 +1,5 @@
 version = '0.1'
 
 dependencies {
-    compileOnly project(":hextant-core")
+    compile project(":hextant-core")
 }

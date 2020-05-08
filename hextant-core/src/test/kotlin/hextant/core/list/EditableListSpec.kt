@@ -7,7 +7,7 @@ package hextant.core.list
 //
 //import hextant.*
 //import hextant.expr.editor.IntLiteralEditor
-//import hextant.expr.edited.IntLiteral
+//import hextant.expr.IntLiteral
 //import hextant.test.matchers.*
 //import org.jetbrains.spek.api.Spek
 //import org.jetbrains.spek.api.dsl.given

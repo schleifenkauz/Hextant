@@ -2,9 +2,8 @@ import hextant.completion.CompletionStrategy
 import hextant.core.view.FXExpanderView
 import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
-import hextant.expr.edited.Expr
+import hextant.expr.Expr
 import hextant.expr.editor.*
-import hextant.expr.view.FXOperatorApplicationEditorView
 import hextant.ok
 import hextant.plugin.dsl.PluginInitializer
 import org.controlsfx.glyphfont.FontAwesome
@@ -15,10 +14,18 @@ object ExprPlugin : PluginInitializer({
     defaultEditor(::IntLiteralEditor)
     defaultEditor(::OperatorEditor)
     defaultEditor(::OperatorApplicationEditor)
-    view(::FXOperatorApplicationEditorView)
     defaultEditor(::SumEditor)
     defaultEditor(::ExprExpander)
     defaultEditor(::ExprListEditor)
+    compoundView { e: OperatorApplicationEditor ->
+        line {
+            operator("(")
+            view(e.operand1)
+            view(e.operator)
+            view(e.operand2)
+            operator(")")
+        }
+    }
     view { editor: ExprExpander, args ->
         FXExpanderView(editor, args, ExprExpander.config.completer(CompletionStrategy.simple))
     }

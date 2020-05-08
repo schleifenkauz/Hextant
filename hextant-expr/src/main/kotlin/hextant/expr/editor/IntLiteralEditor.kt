@@ -10,7 +10,7 @@ import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
-import hextant.expr.edited.IntLiteral
+import hextant.expr.IntLiteral
 
 class IntLiteralEditor(
     context: Context,

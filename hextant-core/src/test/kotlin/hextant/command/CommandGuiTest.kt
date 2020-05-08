@@ -9,7 +9,7 @@ import hextant.HextantPlatform
 import hextant.command.Command.Category
 import hextant.command.gui.commandContextMenu
 import hextant.command.gui.commandMenuBar
-import hextant.expr.edited.IntLiteral
+import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import javafx.application.Application
 import javafx.geometry.Side

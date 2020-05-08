@@ -1,4 +1,4 @@
-package hextant.expr.edited
+package hextant.expr
 
 interface Expr {
     val value: Int

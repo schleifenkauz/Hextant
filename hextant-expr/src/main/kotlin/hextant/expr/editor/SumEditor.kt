@@ -6,7 +6,7 @@ package hextant.expr.editor
 
 import hextant.*
 import hextant.base.CompoundEditor
-import hextant.expr.edited.Sum
+import hextant.expr.Sum
 
 class SumEditor(
     context: Context

@@ -8,8 +8,8 @@ import hextant.Context
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
 import hextant.createEditor
-import hextant.expr.edited.Expr
-import hextant.expr.edited.Operator.*
+import hextant.expr.Expr
+import hextant.expr.Operator.*
 
 class ExprExpander(
     context: Context, editor: ExprEditor<Expr>?
