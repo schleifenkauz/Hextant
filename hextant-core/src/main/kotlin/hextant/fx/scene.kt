@@ -6,8 +6,7 @@ package hextant.fx
 
 import hextant.*
 import hextant.base.EditorControl
-import hextant.bundle.CoreProperties
-import hextant.bundle.Internal
+import hextant.bundle.*
 import hextant.core.view.FXExpanderView
 import hextant.impl.*
 import javafx.scene.*
@@ -92,7 +91,8 @@ private fun Scene.pasteFromClipboard() {
 private fun copyManyToClipboard(context: Context) {
     val selected = context[SelectionDistributor].selectedTargets.now
     if (selected.any { it !is Editor<*> }) return
-    context[Internal, CoreProperties.clipboard] = selected.toList()
+    val snapshots = selected.map { (it as Editor<*>).createSnapshot() }
+    context[Internal, CoreProperties.clipboard] = ClipboardContent.MultipleEditors(snapshots)
 }
 
 private fun Scene.copyToClipboard() {

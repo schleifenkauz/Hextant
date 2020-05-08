@@ -13,17 +13,14 @@ import hextant.core.view.ExpanderView
 import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kserial.*
 import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.map
-import kotlin.reflect.full.isSubclassOf
 
 /**
  * An Expander acts like a wrapper around editors.
  */
-abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context),
-                                                                        Serializable {
+abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
     constructor(context: Context, editor: E?) : this(context) {
         if (editor != null) doChangeState(Expanded(editor))
     }
@@ -207,49 +204,29 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun paste(editor: Editor<*>): Boolean = when {
-        editor is Expander<*, *> && editor.editorClass.isSubclassOf(this.editorClass) -> {
-            val text = editor.text.now
-            val e = editor.editor.now
-            when {
-                text != null -> {
-                    setText(text)
-                    true
+    override fun paste(snapshot: EditorSnapshot<*>): Boolean {
+        val editor = snapshot.reconstruct(contentContext())
+        return when {
+            editor is Expander<*, *>                               -> {
+                val text = editor.text.now
+                val e = editor.editor.now
+                when {
+                    text != null                                              -> {
+                        setText(text)
+                        true
+                    }
+                    e != null && editorClass.isInstance(e) && accepts(e as E) -> {
+                        setEditor(e)
+                        true
+                    }
+                    else                                                      -> false
                 }
-                e != null    -> pasteContent(e)
-                else         -> true
             }
-        }
-        editorClass.isInstance(editor) && accepts(editor as E)                        -> pasteContent(editor)
-        else                                                                          -> false
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun pasteContent(e: Editor<*>): Boolean {
-        val new = e::class.getSimpleEditorConstructor().invoke(contentContext())
-        val supported = new.paste(e)
-        if (supported) changeState(Expanded(new as E), "Paste")
-        return supported
-    }
-
-    override fun serialize(output: Output, context: SerialContext) {
-        output.writeObject(text.now)
-        editor.now?.let { e ->
-            output.writeString(e::class.java.name)
-            output.writeUntyped(e)
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun deserialize(input: Input, context: SerialContext) {
-        val text = input.readTyped<String?>()
-        if (text != null) doChangeState(Unexpanded(text), notify = false)
-        else {
-            val name = input.readString()
-            val cls = Class.forName(name).kotlin
-            val editor = cls.getSimpleEditorConstructor().invoke(contentContext())
-            doChangeState(Expanded(editor as E), notify = false)
-            input.readInplace(editor)
+            editorClass.isInstance(editor) && accepts(editor as E) -> {
+                setEditor(editor)
+                true
+            }
+            else                                                   -> false
         }
     }
 
@@ -267,8 +244,8 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         @Suppress("UNCHECKED_CAST")
         override fun reconstruct(editor: Expander<*, *>) {
             editor as Expander<*, Editor<*>>
-            if (text != null) editor.setText(text)
-            else editor.setEditor(content!!.reconstruct(editor.context))
+            if (text != null) editor.doChangeState(Unexpanded(text))
+            else editor.doChangeState(Expanded(content!!.reconstruct(editor.context)))
         }
     }
 

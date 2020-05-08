@@ -13,7 +13,7 @@ import hextant.core.view.ListEditorView
 import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kserial.*
+import kserial.Serializable
 import reaktive.dependencies
 import reaktive.list.*
 import reaktive.list.binding.values
@@ -73,14 +73,6 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     protected open fun childContext(): Context = context
 
-    @Suppress("UNCHECKED_CAST")
-    override fun paste(editor: Editor<*>): Boolean {
-        if (editor !is ListEditor<*, *>) return false
-        if (editor.editorClass != this.editorClass) return false
-        if (!setEditors(editor.editors.now as List<E>)) return false
-        return true
-    }
-
     /**
      * Clears the children and then adds all the given new children.
      */
@@ -134,26 +126,6 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         if (accessor !is IndexAccessor) throw InvalidAccessorException(accessor)
         if (accessor.index >= editors.now.size) throw InvalidAccessorException(accessor)
         return editors.now[accessor.index]
-    }
-
-    override fun serialize(output: Output, context: SerialContext) {
-        output.writeInt(editors.now.size)
-        for (e in editors.now) {
-            output.writeString(e::class.java.name)
-            output.writeUntyped(e)
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun deserialize(input: Input, context: SerialContext) {
-        val size = input.readInt()
-        for (idx in 0 until size) {
-            val name = input.readString()
-            val cls = Class.forName(name).kotlin
-            val ed = cls.getSimpleEditorConstructor().invoke(childContext())
-            doAddAt(idx, ed as E, notify = false)
-            input.readInplace(ed)
-        }
     }
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)

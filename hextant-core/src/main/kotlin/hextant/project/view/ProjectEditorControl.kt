@@ -6,9 +6,8 @@ package hextant.project.view
 
 import hextant.*
 import hextant.base.EditorControl
-import hextant.bundle.Bundle
+import hextant.bundle.*
 import hextant.bundle.CoreProperties.clipboard
-import hextant.bundle.Internal
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import hextant.util.DoubleWeakHashMap
@@ -80,7 +79,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             }
             on("Ctrl+Shift+C") {
                 val item = selectedEditor() ?: return@on
-                context[Internal, clipboard] = item
+                context[Internal, clipboard] = ClipboardContent.OneEditor(item.createSnapshot())
             }
             on("Ctrl+Shift+V") {
                 val selected = selectedEditor() ?: return@on

@@ -25,10 +25,5 @@ object CoreProperties {
     /**
      * The clipboard content
      */
-    val clipboard: Property<Any, Any, Internal> = Property("clipboard", NoClipboard)
-
-    /**
-     * An object that indicates that there is no content in the [clipboard]
-     */
-    object NoClipboard
+    val clipboard: Property<ClipboardContent, Any, Internal> = Property("clipboard", null)
 }

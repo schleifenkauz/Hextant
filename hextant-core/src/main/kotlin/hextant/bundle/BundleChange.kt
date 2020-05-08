@@ -11,7 +11,7 @@ package hextant.bundle
  * @property oldValue the old value of the property
  * @property newValue the new value of the property
  */
-data class BundleChange<T : Any>(
+data class BundleChange<T>(
     val bundle: Bundle,
     val property: ReactiveProperty<in T, *, *>,
     val oldValue: T?,

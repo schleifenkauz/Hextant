@@ -6,8 +6,8 @@ package hextant.project.editor
 
 import hextant.*
 import hextant.base.CompoundEditor
-import hextant.base.EditorSnapshot
-import hextant.core.editor.*
+import hextant.core.editor.ConfiguredExpander
+import hextant.core.editor.ExpanderDelegate
 import hextant.project.File
 import hextant.serial.*
 import kserial.*
@@ -86,8 +86,6 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
         content = manager.from(path)
         bindResult()
     }
-
-    override fun createSnapshot(): EditorSnapshot<*> = TODO()
 
     override val result: EditorResult<File<R>> get() = _result
 

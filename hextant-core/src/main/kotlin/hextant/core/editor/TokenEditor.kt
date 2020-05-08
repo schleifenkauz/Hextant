@@ -10,15 +10,14 @@ import hextant.base.EditorSnapshot
 import hextant.core.TokenType
 import hextant.core.view.TokenEditorView
 import hextant.undo.*
-import kserial.*
 import reaktive.value.*
 
 /**
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
-abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) :
-    AbstractEditor<R, V>(context), TokenType<R>, Serializable {
+abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
+                                                                                    TokenType<R> {
     constructor(context: Context, text: String) : this(context) {
         doSetText(text)
     }
@@ -41,21 +40,6 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
     }
 
     private val constructor = this::class.getSimpleEditorConstructor()
-
-    override fun paste(editor: Editor<*>): Boolean {
-        if (editor !is TokenEditor<*, *>) return false
-        setText(editor.text.now)
-        return true
-    }
-
-    override fun serialize(output: Output, context: SerialContext) {
-        output.writeString(text.now)
-    }
-
-    override fun deserialize(input: Input, context: SerialContext) {
-        val txt = input.readString()
-        setText(txt)
-    }
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 

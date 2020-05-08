@@ -84,10 +84,10 @@ interface Editor<out R : Any> {
     fun setFile(editor: FileEditor<*>)
 
     /**
-     * Paste the given [editor] into this [Editor] if it is supported.
-     * @return `true` only if pasting the given [editor] is supported.
+     * Paste the given [snapshot] into this [Editor] if it is supported.
+     * @return `true` only if pasting the given [snapshot] is supported.
      */
-    fun paste(editor: Editor<*>): Boolean
+    fun paste(snapshot: EditorSnapshot<*>): Boolean
 
     /**
      * Returns `true` only if this [Editor] supports copy/paste in principle.

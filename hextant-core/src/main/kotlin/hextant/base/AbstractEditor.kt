@@ -7,9 +7,11 @@ package hextant.base
 import hextant.Context
 import hextant.Editor
 import hextant.core.editor.Expander
+import hextant.core.editor.getTypeArgument
 import hextant.project.editor.FileEditor
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
+import kserial.*
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
 
@@ -17,8 +19,9 @@ import reaktive.list.reactiveList
  * Skeletal implementation for [Editor]s
  */
 @Suppress("OverridingDeprecatedMember")
-abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Context) : Editor<R>,
-                                                                                        AbstractController<V>() {
+abstract class AbstractEditor<out R : Any, in V : Any>(
+    override val context: Context
+) : Editor<R>, AbstractController<V>(), Serializable {
     final override var parent: Editor<*>? = null
         private set
 
@@ -77,5 +80,21 @@ abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Con
     override val isRoot: Boolean
         get() = _file != null
 
-    override fun paste(editor: Editor<*>): Boolean = false
+    override fun serialize(output: Output, context: SerialContext) {
+        output.writeObject(createSnapshot())
+    }
+
+    override fun deserialize(input: Input, context: SerialContext) {
+        val snapshot = input.readTyped<EditorSnapshot<AbstractEditor<*, *>>>()
+        snapshot.reconstruct(this)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun paste(snapshot: EditorSnapshot<*>): Boolean {
+        val cls = snapshot::class.getTypeArgument(EditorSnapshot::class, 0)
+        if (cls != this::class) return false
+        snapshot as EditorSnapshot<Editor<*>>
+        snapshot.reconstruct(this)
+        return true
+    }
 }

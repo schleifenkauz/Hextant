@@ -28,7 +28,8 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
      * Settings the value of a property of this [Bundle] causes this [Editor] to add or modify an entry accordingly.
      */
     val settings = object : Bundle by bundle {
-        override fun <Write : Any, T : Any> set(write: Write, property: Property<in T, *, Write>, value: T) {
+        override fun <Write : Any, T> set(write: Write, property: Property<in T, *, Write>, value: T) {
+            if (value == null) throw AssertionError()
             bundle[write, property] = value
             val editor = valueEditor[property] as BidirectionalEditor<Any>?
             if (editor != null) editor.setResult(value)

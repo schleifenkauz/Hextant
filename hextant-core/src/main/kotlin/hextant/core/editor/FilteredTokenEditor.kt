@@ -11,7 +11,7 @@ import hextant.core.TokenType
 import hextant.core.view.FilteredTokenEditorView
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kserial.*
+import kserial.Serializable
 import reaktive.event.event
 import reaktive.event.unitEvent
 import reaktive.value.*
@@ -145,25 +145,16 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         _intermediateResult.set(compile(text.now))
     }
 
-    override fun paste(editor: Editor<*>): Boolean {
-        if (editor !is FilteredTokenEditor) return false
-        if (editable.now) setText(editor.text.now)
-        else setTextAndCommit(editor.text.now)
+    override fun paste(snapshot: EditorSnapshot<*>): Boolean {
+        if (snapshot !is Snapshot) return false
+        if (editable.now) setText(snapshot.text)
+        else setTextAndCommit(snapshot.text)
         return true
     }
 
     override fun viewAdded(view: FilteredTokenEditorView) {
         view.setEditable(editable.now)
         view.displayText(_text.now)
-    }
-
-    override fun serialize(output: Output, context: SerialContext) {
-        output.writeString(text.now)
-    }
-
-    override fun deserialize(input: Input, context: SerialContext) {
-        val t = input.readString()
-        reconstructState(t)
     }
 
     private fun reconstructState(text: String) {
@@ -176,7 +167,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
     private class Snapshot(original: FilteredTokenEditor<*>) : EditorSnapshot<FilteredTokenEditor<*>>(original) {
-        private val text = original.text.now
+        val text = original.text.now
 
         override fun reconstruct(editor: FilteredTokenEditor<*>) {
             editor.reconstructState(text)

@@ -13,7 +13,7 @@ import hextant.bundle.*
 open class AbstractContext(final override val parent: Context?, private val bundle: Bundle = createBundle()) :
     Context, Bundle by bundle {
 
-    override fun <Read : Any, T : Any> get(permission: Read, property: Property<out T, Read, *>): T =
+    override fun <Read : Any, T> get(permission: Read, property: Property<out T, Read, *>): T =
         when {
             bundle.hasProperty(permission, property) -> bundle[permission, property]
             parent != null                           -> parent[permission, property]
@@ -22,7 +22,7 @@ open class AbstractContext(final override val parent: Context?, private val bund
             }
         }
 
-    override fun <T : Any> get(property: Property<out T, Any, *>): T = get(Any(), property)
+    override fun <T> get(property: Property<out T, Any, *>): T = get(Any(), property)
 
     override fun <Read : Any> hasProperty(permission: Read, property: Property<*, Read, *>): Boolean =
         bundle.hasProperty(permission, property) || parent?.hasProperty(permission, property) ?: false

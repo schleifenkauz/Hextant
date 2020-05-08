@@ -25,7 +25,7 @@ class ConfigurableProperties {
      * Register a [ConfigurableProperty] with the specified [property] and the type [T].
      */
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : Any> register(property: Property<T, *, *>) {
+    inline fun <reified T> register(property: Property<T, *, *>) {
         register(
             ConfigurableProperty(
                 property as Property<Any, Any, Any>,

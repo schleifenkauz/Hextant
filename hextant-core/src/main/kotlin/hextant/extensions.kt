@@ -1,9 +1,10 @@
 package hextant
 
+import hextant.bundle.ClipboardContent
+import hextant.bundle.ClipboardContent.OneEditor
 import hextant.bundle.CoreProperties.clipboard
 import hextant.bundle.Internal
 import hextant.core.editor.TransformedEditor
-import hextant.core.editor.getSimpleEditorConstructor
 
 /**
  * Synonym for [apply]
@@ -44,14 +45,8 @@ fun <E : Editor<*>> E.moveTo(newContext: Context): E =
 /**
  * Copy this editor for the given [newContext]
  */
-fun <E : Editor<*>> E.copyFor(newContext: Context): E {
-    val cls = this::class
-    val cstr = cls.getSimpleEditorConstructor()
-    val new = cstr(newContext)
-    val supported = new.paste(this)
-    check(supported) { "Copy is not supported" }
-    return new
-}
+@Suppress("UNCHECKED_CAST")
+fun <E : Editor<*>> E.copyFor(newContext: Context): E = createSnapshot().reconstruct(newContext) as E
 
 /**
  * Copy this [Editor] to the [clipboard], if this is supported by the editor.
@@ -59,7 +54,7 @@ fun <E : Editor<*>> E.copyFor(newContext: Context): E {
  */
 fun Editor<*>.copyToClipboard(): Boolean {
     if (!supportsCopyPaste()) return false
-    context[Internal, clipboard] = this
+    context[Internal, clipboard] = ClipboardContent.OneEditor(createSnapshot())
     return true
 }
 
@@ -69,8 +64,8 @@ fun Editor<*>.copyToClipboard(): Boolean {
  */
 fun Editor<*>.pasteFromClipboard(): Boolean {
     val content = context[clipboard]
-    if (content !is Editor<*>) return false
-    return paste(content)
+    if (content !is OneEditor) return false
+    return paste(content.snapshot)
 }
 
 /**
