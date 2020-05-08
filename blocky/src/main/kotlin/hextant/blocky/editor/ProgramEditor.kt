@@ -6,6 +6,7 @@ package hextant.blocky.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.base.EditorSnapshot
 import hextant.blocky.Program
 import hextant.blocky.view.ProgramEditorView
 
@@ -40,4 +41,16 @@ class ProgramEditor(context: Context) :
     }
 
     override val result: EditorResult<Program> = result1(entry) { s -> ok(Program(s)) }
+
+    private class Snapshot(original: ProgramEditor) : EditorSnapshot<ProgramEditor>(original) {
+        private val entry = original.entry.createSnapshot()
+        private val components = original.components.map { it.createSnapshot() }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun reconstruct(editor: ProgramEditor) {
+            entry as EditorSnapshot<Editor<*>>
+            entry.reconstruct(editor.entry)
+            editor.components.addAll(components.map { it.reconstruct(editor.context) })
+        }
+    }
 }

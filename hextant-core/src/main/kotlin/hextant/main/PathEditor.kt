@@ -6,6 +6,7 @@ package hextant.main
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.base.EditorSnapshot
 import kserial.*
 import reaktive.value.now
 import reaktive.value.reactiveVariable
@@ -39,5 +40,15 @@ class PathEditor private constructor(context: Context) : AbstractEditor<Path, Pa
     override fun deserialize(input: Input, context: SerialContext) {
         val p = input.readString()
         _result.now = ok(Paths.get(p))
+    }
+
+    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+
+    private class Snapshot(original: PathEditor) : EditorSnapshot<PathEditor>(original) {
+        private val p = original._result.now
+
+        override fun reconstruct(editor: PathEditor) {
+            editor._result.now = p
+        }
     }
 }

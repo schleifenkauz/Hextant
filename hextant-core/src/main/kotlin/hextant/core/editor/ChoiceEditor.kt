@@ -6,7 +6,9 @@ package hextant.core.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.base.EditorSnapshot
 import hextant.core.view.ChoiceEditorView
+import reaktive.value.now
 import reaktive.value.reactiveVariable
 
 /**
@@ -24,5 +26,15 @@ abstract class ChoiceEditor<C : Any>(default: C, context: Context) : AbstractEdi
     fun select(choice: C) {
         selected.set(ok(choice))
         views { selected(choice) }
+    }
+
+    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+
+    private class Snapshot<C : Any>(original: ChoiceEditor<C>) : EditorSnapshot<ChoiceEditor<C>>(original) {
+        private val selected = original.selected.now
+
+        override fun reconstruct(editor: ChoiceEditor<C>) {
+            editor.selected.now = selected
+        }
     }
 }

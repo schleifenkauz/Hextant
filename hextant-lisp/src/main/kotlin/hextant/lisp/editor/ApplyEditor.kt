@@ -5,15 +5,15 @@
 package hextant.lisp.editor
 
 import hextant.*
-import hextant.base.AbstractEditor
+import hextant.base.CompoundEditor
 import hextant.lisp.*
 import reaktive.collection.binding.all
 import reaktive.dependencies
 import reaktive.value.binding.binding
 import reaktive.value.now
 
-class ApplyEditor(context: Context) : AbstractEditor<Apply, EditorView>(context), SExprEditor<Apply> {
-    val editableExpressions = SExprListEditor(context)
+class ApplyEditor(context: Context) : CompoundEditor<Apply>(context), SExprEditor<Apply> {
+    val editableExpressions by child(SExprListEditor(context))
 
     private val expressions get() = editableExpressions.results
 

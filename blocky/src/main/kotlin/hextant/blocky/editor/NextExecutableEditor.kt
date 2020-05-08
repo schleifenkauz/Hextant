@@ -6,14 +6,14 @@ package hextant.blocky.editor
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.base.EditorSnapshot
 import hextant.blocky.End
 import hextant.blocky.Executable
+import reaktive.value.*
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
-import reaktive.value.reactiveValue
-import reaktive.value.reactiveVariable
 
-class NextExecutableEditor(context: Context, nxt: Executable? = null) :
+class NextExecutableEditor(context: Context) :
     AbstractEditor<Executable, EditorView>(context) {
     private val next = reactiveVariable(null as ExecutableEditor<*>?)
 
@@ -27,5 +27,14 @@ class NextExecutableEditor(context: Context, nxt: Executable? = null) :
 
     fun clearNext() {
         next.set(null)
+    }
+
+    private class Snapshot(original: NextExecutableEditor) : EditorSnapshot<NextExecutableEditor>(original) {
+        private val nxt = original.next.now?.createSnapshot()
+
+        override fun reconstruct(editor: NextExecutableEditor) {
+            val e = nxt?.reconstruct(editor.context)
+            if (e is ExecutableEditor<*>) editor.setNext(e)
+        }
     }
 }
