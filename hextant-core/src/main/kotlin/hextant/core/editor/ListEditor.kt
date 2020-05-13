@@ -90,7 +90,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     fun clear() {
         if (!mayBeEmpty) return
-        val edit = ClearEdit(editors.now)
+        val edit = ClearEdit(editors.now.map { it.createSnapshot() })
         doClear()
         undo.push(edit)
     }
@@ -136,7 +136,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     @ProvideCommand(name = "Add editor", shortName = "add")
     fun addAt(index: Int): E? {
         val editor = createEditor() ?: return null
-        val edit = AddEdit(index, editor)
+        val edit = AddEdit(index, editor.createSnapshot())
         doAddAt(index, editor)
         undo.push(edit)
         return editor
@@ -147,7 +147,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * @return the moved editor
      */
     fun addAt(index: Int, editor: E): E {
-        val edit = AddEdit(index, editor)
+        val edit = AddEdit(index, editor.createSnapshot())
         val e = editor.moveTo(childContext())
         doAddAt(index, e)
         undo.push(edit)
@@ -176,7 +176,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     @ProvideCommand(name = "Remove editor", shortName = "remove")
     open fun removeAt(index: Int) {
         val editor = editors.now[index]
-        val edit = RemoveEdit(index, editor)
+        val edit = RemoveEdit(index, editor.createSnapshot())
         if (doRemoveAt(index)) undo.push(edit)
     }
 
@@ -250,9 +250,9 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
     private fun emptyNow(): Boolean = editors.now.isEmpty()
 
-    private inner class AddEdit(private val index: Int, private val editor: E) : AbstractEdit() {
+    private inner class AddEdit(private val index: Int, private val editor: EditorSnapshot<*>) : AbstractEdit() {
         override fun doRedo() {
-            doAddAt(index, editor)
+            doAddAt(index, reconstruct(editor))
         }
 
         override fun doUndo() {
@@ -263,26 +263,29 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
             get() = "Add element"
     }
 
-    private inner class RemoveEdit(private val index: Int, private val editor: E) : AbstractEdit() {
+    @Suppress("UNCHECKED_CAST")
+    private fun reconstruct(snapshot: EditorSnapshot<*>) = snapshot.reconstruct(childContext()) as E
+
+    private inner class RemoveEdit(private val index: Int, private val editor: EditorSnapshot<*>) : AbstractEdit() {
         override fun doRedo() {
             doRemoveAt(index)
         }
 
         override fun doUndo() {
-            doAddAt(index, editor)
+            doAddAt(index, reconstruct(editor))
         }
 
         override val actionDescription: String
             get() = "Remove element"
     }
 
-    private inner class ClearEdit(private val editors: List<E>) : AbstractEdit() {
+    private inner class ClearEdit(private val editors: List<EditorSnapshot<*>>) : AbstractEdit() {
         override fun doRedo() {
             clear()
         }
 
         override fun doUndo() {
-            for (e in editors) addLast(e)
+            setEditors(editors.map { reconstruct(it) })
         }
 
         override val actionDescription: String

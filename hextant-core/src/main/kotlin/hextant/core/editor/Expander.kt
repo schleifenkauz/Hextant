@@ -29,10 +29,10 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         doChangeState(Unexpanded(text))
     }
 
-    private sealed class State<out E : Editor<*>> {
+    private sealed class State<out E> {
         class Unexpanded(val text: String) : State<Nothing>()
 
-        class Expanded<E : Editor<*>>(val editor: E) : State<E>()
+        class Expanded<E>(val editor: E) : State<E>()
     }
 
     private val undo = context[UndoManager]
@@ -161,7 +161,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     }
 
     private fun changeState(newState: State<E>, actionDescription: String) {
-        val edit = StateTransition(state, newState, actionDescription)
+        val edit = StateTransition(state.createSnapshot(), newState.createSnapshot(), actionDescription)
         doChangeState(newState)
         undo.push(edit)
     }
@@ -250,16 +250,27 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     }
 
     private inner class StateTransition(
-        private val old: State<E>,
-        private val new: State<E>,
+        private val old: State<EditorSnapshot<*>>,
+        private val new: State<EditorSnapshot<*>>,
         override val actionDescription: String
     ) : AbstractEdit() {
         override fun doRedo() {
-            doChangeState(new)
+            doChangeState(new.reconstruct())
         }
 
         override fun doUndo() {
-            doChangeState(old)
+            doChangeState(old.reconstruct())
         }
+    }
+
+    private fun State<E>.createSnapshot(): State<EditorSnapshot<*>> = when (this) {
+        is Unexpanded -> this
+        is Expanded   -> Expanded(editor.createSnapshot())
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun State<EditorSnapshot<*>>.reconstruct(): State<E> = when (this) {
+        is Unexpanded -> this
+        is Expanded   -> Expanded(editor.reconstruct(contentContext()) as E)
     }
 }
