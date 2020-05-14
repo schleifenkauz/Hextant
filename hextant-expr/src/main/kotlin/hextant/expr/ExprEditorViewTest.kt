@@ -21,6 +21,7 @@ import hextant.main.InputMethod.REGULAR
 import hextant.main.InputMethod.VIM
 import hextant.serial.SerialProperties
 import hextant.serial.makeRoot
+import hextant.undo.compoundEdit
 import javafx.scene.Parent
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
@@ -72,7 +73,7 @@ class ExprEditorViewTest : HextantApplication() {
                 val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
                 oae.operator.result.now.map { it.isCommutative }.ifErr { false }
             }
-            executing { oe, _ ->
+            executingCompoundEdit { oe, _ ->
                 val oae = oe.parent as OperatorApplicationEditor
                 val expander1 = oae.operand1
                 val editableOp1 = expander1.editor.now
@@ -89,7 +90,7 @@ class ExprEditorViewTest : HextantApplication() {
             applicableIf { oae ->
                 oae.result.now.isOk && oae.expander != null
             }
-            executing { oae, _ ->
+            executingCompoundEdit { oae, _ ->
                 val ex = oae.expander as ExprExpander
                 val res = oae.result.now.force().value
                 val editable = IntLiteralEditor(context, res.toString())
@@ -103,7 +104,7 @@ class ExprEditorViewTest : HextantApplication() {
             applicableIf {
                 it.parent is OperatorApplicationEditor && it.parent!!.expander is ExprExpander
             }
-            executing { editor, _ ->
+            executingCompoundEdit { editor, _ ->
                 val parentExpander = editor.parent!!.expander as ExprExpander
                 parentExpander.setEditor(editor)
             }
@@ -159,12 +160,14 @@ class ExprEditorViewTest : HextantApplication() {
             }
             applicableIf { it.expander is ExprExpander }
             executing { editor, (operator) ->
-                operator as Operator
-                val expander = editor.expander as ExprExpander
-                val app = OperatorApplicationEditor(context)
-                app.operator.setText(operator.toString())
-                app.operand1.setEditor(editor)
-                expander.setEditor(app)
+                editor.context.compoundEdit("Wrap with $operator") {
+                    operator as Operator
+                    val expander = editor.expander as ExprExpander
+                    val app = OperatorApplicationEditor(context)
+                    expander.setEditor(app)
+                    app.operator.setText(operator.toString())
+                    app.operand1.setEditor(editor)
+                }
             }
         }
     }

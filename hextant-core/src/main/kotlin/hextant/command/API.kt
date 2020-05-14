@@ -4,7 +4,9 @@
 
 package hextant.command
 
+import hextant.Editor
 import hextant.command.Command.ParameterBuilder
+import hextant.undo.compoundEdit
 import kotlin.reflect.KClass
 
 
@@ -45,6 +47,16 @@ fun <R : Any> Commands.applicableOn(receiver: R): Set<Command<R, Any?>> {
  */
 inline fun <reified R : Any, T> CommandRegistrar<R>.register(build: CommandBuilder<R, T>.() -> Unit) {
     register(command(build))
+}
+
+/**
+ * Makes the resulting command execute the given action combining the done edits
+ * to a compound edit with the name of this command as the action description.
+ */
+inline fun <E : Editor<*>, T> CommandBuilder<E, T>.executingCompoundEdit(crossinline actions: (E, List<Any?>) -> T) {
+    executing { e, list ->
+        e.context.compoundEdit(name) { actions(e, list) }
+    }
 }
 
 /**

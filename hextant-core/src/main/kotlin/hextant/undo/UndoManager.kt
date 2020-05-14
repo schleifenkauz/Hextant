@@ -39,6 +39,21 @@ interface UndoManager {
     fun push(edit: Edit)
 
     /**
+     * Begins a compound edit.
+     * Edits pushed between calls of [beginCompoundEdit] and [finishCompoundEdit] are combined in a single compound edit.
+     * @throws IllegalStateException if [finishCompoundEdit] has already been called after the last call to [finishCompoundEdit].
+     */
+    fun beginCompoundEdit()
+
+    /**
+     * Finishes a compound edit began with [beginCompoundEdit].
+     * If no edits have been pushed since then this method has no effect.
+     * @param description the [Edit.actionDescription] of the compound edit
+     * @throws IllegalStateException if [beginCompoundEdit] was not called previously.
+     */
+    fun finishCompoundEdit(description: String)
+
+    /**
      * The human-readable description of the currently undoable [Edit]
      */
     val undoText: String

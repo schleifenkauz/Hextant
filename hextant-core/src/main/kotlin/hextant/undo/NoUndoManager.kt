@@ -19,4 +19,8 @@ object NoUndoManager : UndoManager {
         get() = "No undo"
     override val redoText: String
         get() = "No redo"
+
+    override fun beginCompoundEdit() {}
+
+    override fun finishCompoundEdit(description: String) {}
 }

@@ -7,6 +7,7 @@ package hextant.command.line
 import hextant.*
 import hextant.base.AbstractEditor
 import hextant.command.Command
+import hextant.serial.makeRoot
 import reaktive.Observer
 import reaktive.dependencies
 import reaktive.value.*
@@ -77,7 +78,9 @@ class CommandLine(context: Context, private val source: CommandSource) :
      */
     fun expand(command: Command<*, *>): Boolean {
         if (expanded) return false
-        val editors = command.parameters.map { p -> context.createEditor(p.type) }
+        val editors = command.parameters.map { p ->
+            context.createEditor(p.type).also { it.makeRoot() }
+        }
         bindResult(command, editors.map { it.result })
         expanded(command, editors)
         return true
