@@ -9,6 +9,8 @@ import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.core.TokenType
 import hextant.core.view.FilteredTokenEditorView
+import hextant.serial.VirtualEditor
+import hextant.serial.virtualize
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
 import kserial.Serializable
@@ -103,7 +105,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         if (!editable.now) return
         val res = intermediateResult.now
         if (res !is Ok) return
-        val edit = CommitEdit(oldText, text.now)
+        val edit = CommitEdit(virtualize(), oldText, text.now)
         _editable.set(false)
         _result.set(res)
         oldText = text.now
@@ -170,13 +172,17 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         }
     }
 
-    private inner class CommitEdit(private val old: String, private val new: String) : AbstractEdit() {
+    private class CommitEdit(
+        private val editor: VirtualEditor<FilteredTokenEditor<*>>,
+        private val old: String,
+        private val new: String
+    ) : AbstractEdit() {
         override fun doUndo() {
-            setTextAndCommit(old)
+            editor.get().setTextAndCommit(old)
         }
 
         override fun doRedo() {
-            setTextAndCommit(new)
+            editor.get().setTextAndCommit(new)
         }
 
         override val actionDescription: String

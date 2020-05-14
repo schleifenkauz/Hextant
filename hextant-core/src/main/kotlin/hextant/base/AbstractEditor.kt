@@ -72,7 +72,7 @@ abstract class AbstractEditor<out R : Any, in V : Any>(
     }
 
     override val file: VirtualFile<Editor<*>>?
-        get() = _file ?: parent?.file
+        get() = _file ?: parent?.file ?: expander?.file
 
     override val isRoot: Boolean
         get() = _file != null

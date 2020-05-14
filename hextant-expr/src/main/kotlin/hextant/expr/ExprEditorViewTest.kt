@@ -20,6 +20,7 @@ import hextant.main.InputMethod
 import hextant.main.InputMethod.REGULAR
 import hextant.main.InputMethod.VIM
 import hextant.serial.SerialProperties
+import hextant.serial.makeRoot
 import javafx.scene.Parent
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
@@ -37,6 +38,7 @@ class ExprEditorViewTest : HextantApplication() {
         serialContext = context[SerialProperties.serialContext]
         registerCommandsAndInspections(context)
         val editor = ExprExpander(context)
+        editor.makeRoot()
         val view = context.createView(editor)
         val clContext = Context.newInstance(context) {
             set(SelectionDistributor, SelectionDistributor.newInstance())

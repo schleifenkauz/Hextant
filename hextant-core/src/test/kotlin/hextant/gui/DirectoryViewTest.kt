@@ -16,8 +16,7 @@ import hextant.main.HextantApplication
 import hextant.project.editor.DirectoryEditor
 import hextant.project.editor.ProjectItemEditor
 import hextant.project.view.*
-import hextant.serial.FileManager
-import hextant.serial.PhysicalFileManager
+import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
 import javafx.scene.Parent
 import javafx.scene.control.SplitPane
@@ -48,6 +47,7 @@ class DirectoryViewTest : HextantApplication() {
 
     override fun createView(context: Context): Parent {
         val e = DirectoryEditor<Int>(context)
+        e.makeRoot()
         e.itemName.setText("project")
         val explorer = ProjectEditorControl(e, createBundle())
         val menu = menuBar {

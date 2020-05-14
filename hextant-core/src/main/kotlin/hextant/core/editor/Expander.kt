@@ -32,7 +32,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     private sealed class State<out E> {
         class Unexpanded(val text: String) : State<Nothing>()
 
-        class Expanded<E>(val editor: E) : State<E>()
+        class Expanded<out E>(val editor: E) : State<E>()
     }
 
     private val undo = context[UndoManager]
@@ -161,7 +161,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     }
 
     private fun changeState(newState: State<E>, actionDescription: String) {
-        val edit = StateTransition(state.createSnapshot(), newState.createSnapshot(), actionDescription)
+        val edit = StateTransition(virtualize(), state.createSnapshot(), newState.createSnapshot(), actionDescription)
         doChangeState(newState)
         undo.push(edit)
     }
@@ -247,22 +247,25 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         }
     }
 
-    private inner class StateTransition(
-        private val old: State<EditorSnapshot<*>>,
-        private val new: State<EditorSnapshot<*>>,
+    private class StateTransition<E : Editor<*>>(
+        private val expander: VirtualEditor<Expander<*, E>>,
+        private val old: State<EditorSnapshot<E>>,
+        private val new: State<EditorSnapshot<E>>,
         override val actionDescription: String
     ) : AbstractEdit() {
         override fun doRedo() {
-            doChangeState(new.reconstruct(contentContext()))
+            val e = expander.get()
+            e.doChangeState(new.reconstruct(e.contentContext()))
         }
 
         override fun doUndo() {
-            doChangeState(old.reconstruct(contentContext()))
+            val e = expander.get()
+            e.doChangeState(old.reconstruct(e.contentContext()))
         }
     }
 
     companion object {
-        private fun <E : Editor<*>> State<E>.createSnapshot(): State<EditorSnapshot<*>> = when (this) {
+        private fun <E : Editor<*>> State<E>.createSnapshot(): State<EditorSnapshot<E>> = when (this) {
             is Unexpanded -> this
             is Expanded   -> Expanded(editor.snapshot())
         }

@@ -64,8 +64,7 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         private val editor: VirtualEditor<TokenEditor<*, *>>,
         private val old: String,
         private val new: String
-    ) :
-        AbstractEdit() {
+    ) : AbstractEdit() {
         override fun doRedo() {
             editor.get().doSetText(new)
         }

@@ -11,7 +11,7 @@ import kotlin.reflect.KProperty
  * Virtual editors consist of a [VirtualFile] with a [Editor] and an [EditorLocation].
  * They weakly cache the editor denoted by the [EditorLocation] and localize it from the root if needed.
  */
-interface VirtualEditor<E : Editor<*>> {
+interface VirtualEditor<out E : Editor<*>> {
     /**
      * If the wrapped editors is still in memory, just return it. Otherwise get the root and resolve it from there.
      */

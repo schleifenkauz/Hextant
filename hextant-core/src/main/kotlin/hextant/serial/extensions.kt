@@ -25,11 +25,14 @@ val <E : Editor<*>> E.location: EditorLocation<E>
     get() {
         var cur: Editor<*> = this
         val accessors = mutableListOf<EditorAccessor>()
-        while (!cur.isRoot) {
+        while (true) {
+            if (cur.isRoot) break
             while (cur.expander != null) {
                 cur = cur.expander!!
+                if (cur.isRoot) break
                 accessors.add(ExpanderContent)
             }
+            if (cur.isRoot) break
             val acc = cur.accessor ?: error("Editor has no accessor")
             cur = cur.parent ?: error("Editor has no parent")
             accessors.add(acc)
@@ -41,6 +44,11 @@ val <E : Editor<*>> E.location: EditorLocation<E>
 /**
  * Virtualize this editor
  */
-fun <E : Editor<*>> E.virtualize(): VirtualEditor<E> {
-    return LocatedVirtualEditor(this, file!!, location)
+fun <E : Editor<*>> E.virtualize(): VirtualEditor<E> = LocatedVirtualEditor(this, file!!, location)
+
+/**
+ * Makes this editor a root of the editor tree by assigning an [InMemoryFile]
+ */
+fun Editor<*>.makeRoot() {
+    setFile(InMemoryFile(this))
 }
