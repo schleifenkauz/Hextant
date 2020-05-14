@@ -4,13 +4,10 @@
 
 package hextant.base
 
-import hextant.Context
-import hextant.Editor
+import hextant.*
 import hextant.core.editor.Expander
 import hextant.core.editor.getTypeArgument
-import hextant.project.editor.FileEditor
-import hextant.serial.EditorAccessor
-import hextant.serial.InvalidAccessorException
+import hextant.serial.*
 import kserial.*
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
@@ -68,23 +65,23 @@ abstract class AbstractEditor<out R : Any, in V : Any>(
         for (c in children) addChild(c)
     }
 
-    private var _file: FileEditor<*>? = null
+    private var _file: VirtualFile<Editor<*>>? = null
 
-    override fun setFile(editor: FileEditor<*>) {
-        _file = editor
+    override fun setFile(file: VirtualFile<Editor<*>>) {
+        _file = file
     }
 
-    override val file: FileEditor<*>?
+    override val file: VirtualFile<Editor<*>>?
         get() = _file ?: parent?.file
 
     override val isRoot: Boolean
         get() = _file != null
 
-    override fun serialize(output: Output, context: SerialContext) {
-        output.writeObject(createSnapshot())
+    override fun serialize(output: Output) {
+        output.writeObject(snapshot())
     }
 
-    override fun deserialize(input: Input, context: SerialContext) {
+    override fun deserialize(input: Input) {
         val snapshot = input.readTyped<EditorSnapshot<AbstractEditor<*, *>>>()
         snapshot.reconstruct(this)
     }

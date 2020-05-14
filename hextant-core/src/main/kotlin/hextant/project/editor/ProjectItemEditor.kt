@@ -4,15 +4,12 @@
 
 package hextant.project.editor
 
+import bundles.SimpleProperty
 import hextant.Editor
-import hextant.bundle.SimpleProperty
 import hextant.core.editor.ExpanderConfig
 import hextant.project.ProjectItem
-import hextant.serial.ReactivePath
 
 interface ProjectItemEditor<T : Any, I : ProjectItem<T>> : Editor<I> {
-    val path: ReactivePath?
-
     val itemName: FileNameEditor
 
     override fun supportsCopyPaste(): Boolean = true

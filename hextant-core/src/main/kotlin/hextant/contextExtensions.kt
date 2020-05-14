@@ -4,9 +4,9 @@
 
 package hextant
 
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
-import hextant.bundle.createBundle
+import bundles.Bundle
+import bundles.createBundle
+import hextant.fx.EditorControl
 import hextant.serial.SerialProperties
 import kserial.*
 import java.nio.file.Path

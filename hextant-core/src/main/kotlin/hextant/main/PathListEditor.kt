@@ -5,7 +5,7 @@
 package hextant.main
 
 import hextant.Context
-import hextant.bundle.Internal
+import hextant.core.Internal
 import hextant.core.editor.ListEditor
 import hextant.force
 import hextant.serial.SerialProperties

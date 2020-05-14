@@ -4,10 +4,10 @@
 
 package hextant.lisp.view
 
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
-import hextant.bundle.CoreProperties.editorParentRegion
+import bundles.Bundle
+import hextant.core.CoreProperties.editorParentRegion
 import hextant.createView
+import hextant.fx.EditorControl
 import hextant.lisp.editor.ApplyEditor
 import javafx.beans.Observable
 import javafx.scene.layout.*

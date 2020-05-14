@@ -238,14 +238,12 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
     }
 
     private class Snapshot(original: Expander<*, *>) : EditorSnapshot<Expander<*, *>>(original) {
-        private val text = original.text.now
-        private val content = original.editor.now?.createSnapshot()
+        private val state = original.state.createSnapshot()
 
         @Suppress("UNCHECKED_CAST")
         override fun reconstruct(editor: Expander<*, *>) {
             editor as Expander<*, Editor<*>>
-            if (text != null) editor.doChangeState(Unexpanded(text))
-            else editor.doChangeState(Expanded(content!!.reconstruct(editor.context)))
+            editor.doChangeState(state.reconstruct(editor.contentContext()))
         }
     }
 
@@ -255,22 +253,24 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         override val actionDescription: String
     ) : AbstractEdit() {
         override fun doRedo() {
-            doChangeState(new.reconstruct())
+            doChangeState(new.reconstruct(contentContext()))
         }
 
         override fun doUndo() {
-            doChangeState(old.reconstruct())
+            doChangeState(old.reconstruct(contentContext()))
         }
     }
 
-    private fun State<E>.createSnapshot(): State<EditorSnapshot<*>> = when (this) {
-        is Unexpanded -> this
-        is Expanded   -> Expanded(editor.createSnapshot())
-    }
+    companion object {
+        private fun <E : Editor<*>> State<E>.createSnapshot(): State<EditorSnapshot<*>> = when (this) {
+            is Unexpanded -> this
+            is Expanded   -> Expanded(editor.snapshot())
+        }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun State<EditorSnapshot<*>>.reconstruct(): State<E> = when (this) {
-        is Unexpanded -> this
-        is Expanded   -> Expanded(editor.reconstruct(contentContext()) as E)
+        @Suppress("UNCHECKED_CAST")
+        private fun <E : Editor<*>> State<EditorSnapshot<*>>.reconstruct(context: Context): State<E> = when (this) {
+            is Unexpanded -> this
+            is Expanded   -> Expanded(editor.reconstruct(context) as E)
+        }
     }
 }

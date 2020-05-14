@@ -4,9 +4,8 @@
 
 package hextant.command.line
 
+import bundles.Bundle
 import hextant.Editor
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
 import hextant.command.Command
 import hextant.completion.gui.CompletionPopup
 import hextant.createView

@@ -4,9 +4,9 @@
 
 package hextant.main
 
+import bundles.Property
 import hextant.Context
-import hextant.bundle.Internal
-import hextant.bundle.Property
+import hextant.core.Internal
 import java.nio.file.Path
 
 interface PathChooser {

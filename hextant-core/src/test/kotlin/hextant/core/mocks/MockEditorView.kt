@@ -1,9 +1,9 @@
 package hextant.core.mocks
 
+import bundles.Bundle
+import bundles.createBundle
 import hextant.EditorView
 import hextant.ViewGroup
-import hextant.bundle.Bundle
-import hextant.bundle.createBundle
 
 internal class MockEditorView : EditorView {
     override val arguments: Bundle = createBundle()

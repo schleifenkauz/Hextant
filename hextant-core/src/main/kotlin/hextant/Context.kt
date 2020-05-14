@@ -4,8 +4,8 @@
 
 package hextant
 
+import bundles.Bundle
 import hextant.base.AbstractContext
-import hextant.bundle.Bundle
 
 /**
  * A context is used for passing down dependencies used by editors and views

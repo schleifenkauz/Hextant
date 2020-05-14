@@ -2,15 +2,15 @@
  *@author Nikolaus Knop
  */
 
-package hextant.base
+package hextant.fx
 
+import bundles.Bundle
+import bundles.Property
 import hextant.*
-import hextant.bundle.Bundle
-import hextant.bundle.Property
 import hextant.command.gui.commandContextMenu
-import hextant.fx.*
 import hextant.fx.ModifierValue.DOWN
-import hextant.impl.*
+import hextant.impl.addListener
+import hextant.impl.observe
 import hextant.inspect.Inspections
 import hextant.inspect.gui.InspectionPopup
 import hextant.undo.UndoManager

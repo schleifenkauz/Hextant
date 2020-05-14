@@ -4,9 +4,9 @@
 
 package hextant.settings.editors
 
+import bundles.Property
 import hextant.*
-import hextant.bundle.Internal
-import hextant.bundle.Property
+import hextant.core.Internal
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.settings.model.ConfigurableProperties

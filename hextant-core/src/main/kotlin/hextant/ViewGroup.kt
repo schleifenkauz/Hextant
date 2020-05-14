@@ -4,7 +4,7 @@
 
 package hextant
 
-import hextant.bundle.Bundle
+import bundles.Bundle
 
 /**
  * A group of [EditorView]'s of a common base type [V] that display a hierarchy of editors

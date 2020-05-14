@@ -5,9 +5,9 @@
 package hextant.command.gui
 
 import hextant.*
-import hextant.base.EditorControl
 import hextant.command.Command
 import hextant.command.Command.Parameter
+import hextant.fx.EditorControl
 import hextant.fx.UtilityDialog
 import javafx.scene.Node
 import javafx.scene.control.*

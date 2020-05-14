@@ -4,9 +4,8 @@
 
 package hextant.fx
 
-import hextant.bundle.Internal
-
-import hextant.bundle.Property
+import bundles.Property
+import hextant.core.Internal
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 

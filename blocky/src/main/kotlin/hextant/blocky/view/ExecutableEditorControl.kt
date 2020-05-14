@@ -4,12 +4,11 @@
 
 package hextant.blocky.view
 
+import bundles.Bundle
 import hextant.EditorControlGroup
-import hextant.base.EditorControl
 import hextant.blocky.editor.ExecutableEditor
 import hextant.blocky.editor.NextExecutableEditor
-import hextant.bundle.Bundle
-
+import hextant.fx.EditorControl
 import javafx.scene.Parent
 import javafx.scene.control.*
 

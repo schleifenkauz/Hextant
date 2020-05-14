@@ -4,10 +4,10 @@
 
 package hextant.core.view
 
+import bundles.Bundle
+import bundles.Property
 import hextant.Editor
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
-import hextant.bundle.Property
+import hextant.fx.EditorControl
 
 /**
  * Wraps the given [view]

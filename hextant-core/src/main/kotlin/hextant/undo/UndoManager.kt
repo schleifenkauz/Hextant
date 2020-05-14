@@ -5,7 +5,7 @@
 package hextant.undo
 
 
-import hextant.bundle.SimpleProperty
+import bundles.SimpleProperty
 
 /**
  * The UndoManager is responsible for managing stacks of edits and undo and redo them

@@ -1,7 +1,9 @@
 package hextant.serial
 
-import hextant.bundle.*
-
+import bundles.Property
+import bundles.SimpleProperty
+import hextant.Context
+import hextant.core.Internal
 import kserial.KSerial
 import kserial.SerialContext
 import java.nio.file.Path
@@ -24,4 +26,9 @@ object SerialProperties {
      * The [Path] of the project root
      */
     val projectRoot = SimpleProperty<Path>("project root")
+
+    /**
+     * The [Context] that is used for creating editors during deserialization.
+     */
+    internal val deserializationContext = SimpleProperty<Context>("serialization context")
 }

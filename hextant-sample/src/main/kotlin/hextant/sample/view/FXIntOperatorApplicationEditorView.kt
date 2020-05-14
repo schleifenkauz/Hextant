@@ -4,8 +4,8 @@
 
 package hextant.sample.view
 
-import hextant.base.CompoundEditorControl
-import hextant.bundle.Bundle
+import bundles.Bundle
+import hextant.fx.CompoundEditorControl
 import hextant.sample.editor.IntOperatorApplicationEditor
 
 class FXIntOperatorApplicationEditorView(

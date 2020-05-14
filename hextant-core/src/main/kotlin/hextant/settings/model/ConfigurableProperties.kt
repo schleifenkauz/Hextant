@@ -4,8 +4,8 @@
 
 package hextant.settings.model
 
-import hextant.bundle.Internal
-import hextant.bundle.Property
+import bundles.Property
+import hextant.core.Internal
 
 /**
  * This class manages properties that can be configured in a settings editor.

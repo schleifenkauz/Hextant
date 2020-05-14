@@ -7,7 +7,6 @@ package hextant.project.view
 import hextant.Editor
 import hextant.createView
 import hextant.fx.setRoot
-import hextant.serial.HextantFileManager
 import javafx.scene.control.Control
 import javafx.scene.control.Label
 
@@ -32,8 +31,7 @@ class SimpleEditorPane : EditorPane, Control() {
     override fun show(editor: Editor<*>) {
         if (editor == currentEditor) return
         currentEditor?.let {
-            val manager = it.context[HextantFileManager]
-            val file = manager.get(it)
+            val file = it.file ?: error("editor has no file")
             file.write()
         }
         currentEditor = editor

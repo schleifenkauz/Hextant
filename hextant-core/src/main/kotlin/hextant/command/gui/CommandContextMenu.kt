@@ -6,7 +6,6 @@ package hextant.command.gui
 
 import hextant.Context
 import hextant.command.CommandRegistrar
-import hextant.impl.myLogger
 import javafx.scene.control.ContextMenu
 
 internal class CommandContextMenu<T : Any> internal constructor(
@@ -25,9 +24,5 @@ internal class CommandContextMenu<T : Any> internal constructor(
             val item = CommandMenuItem(target, c, commandRegistrar, context)
             items.add(item)
         }
-    }
-
-    companion object {
-        val logger by myLogger()
     }
 }

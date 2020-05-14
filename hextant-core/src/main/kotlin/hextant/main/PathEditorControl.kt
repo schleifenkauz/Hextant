@@ -4,9 +4,9 @@
 
 package hextant.main
 
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
-import hextant.bundle.Internal
+import bundles.Bundle
+import hextant.core.Internal
+import hextant.fx.EditorControl
 import hextant.fx.registerShortcuts
 import javafx.geometry.Pos
 import javafx.scene.control.Button

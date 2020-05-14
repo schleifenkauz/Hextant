@@ -4,11 +4,10 @@
 
 package hextant
 
-import hextant.bundle.Internal
-
-import hextant.bundle.Property
+import bundles.Property
+import hextant.core.Internal
 import hextant.impl.myLogger
-import hextant.util.ClassMap
+import kollektion.ClassMap
 import kotlin.reflect.KClass
 
 /**

@@ -1,9 +1,0 @@
-apply plugin: HextantLibrary
-
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-reflect:1.3.70"
-}
-
-hextant_lib {
-    description = 'Utility library for Hextant'
-}

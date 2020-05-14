@@ -150,7 +150,9 @@ object FilteredTokenEditorSpec : Spek({
             val ser = KSerial.newInstance()
             val platform = testingContext()
             val context = Context.newInstance(platform)
-            val ctx = SerialContext(classLoader = SerialContext::class.java.classLoader)
+            val ctx = SerialContext.newInstance {
+                useUnsafe = true
+            }
             val baos = ByteArrayOutputStream()
             val out = ser.createOutput(baos, ctx)
             val e = Test(context, "123")

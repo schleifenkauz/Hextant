@@ -1,6 +1,6 @@
-package hextant.impl
+package hextant.fx
 
-import hextant.bundle.SimpleProperty
+import bundles.SimpleProperty
 import javafx.scene.Scene
 
 internal class Stylesheets {

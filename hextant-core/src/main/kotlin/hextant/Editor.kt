@@ -6,9 +6,7 @@ package hextant
 
 import hextant.base.EditorSnapshot
 import hextant.core.editor.Expander
-import hextant.project.editor.FileEditor
-import hextant.serial.EditorAccessor
-import hextant.serial.InvalidAccessorException
+import hextant.serial.*
 import reaktive.collection.ReactiveCollection
 
 /**
@@ -48,7 +46,7 @@ interface Editor<out R : Any> {
     /**
      * The file of this editor
      */
-    val file: FileEditor<*>?
+    val file: VirtualFile<Editor<*>>?
 
     /**
      * Returns `true` only if this editor can be the root of an editor tree
@@ -81,7 +79,7 @@ interface Editor<out R : Any> {
      * It is likely to be removed soon and using it can cause all sorts of bugs.
      */
     @Deprecated("Treat as private")
-    fun setFile(editor: FileEditor<*>)
+    fun setFile(file: VirtualFile<Editor<*>>)
 
     /**
      * Paste the given [snapshot] into this [Editor] if it is supported.

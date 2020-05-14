@@ -4,9 +4,8 @@
 
 package hextant.inspect
 
-import hextant.bundle.Internal
-
-import hextant.bundle.Property
+import bundles.Property
+import hextant.core.Internal
 import reaktive.value.ReactiveBoolean
 import kotlin.reflect.KClass
 import kotlin.reflect.full.superclasses

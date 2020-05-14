@@ -4,7 +4,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockitokotlin2.verify
 import hextant.EditorView
-import hextant.impl.SelectionDistributor
+import hextant.SelectionDistributor
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
 

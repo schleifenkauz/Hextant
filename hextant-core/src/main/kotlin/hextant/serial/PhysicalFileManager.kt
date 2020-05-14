@@ -12,28 +12,22 @@ import org.nikok.kref.weak
 import java.nio.file.Files
 import java.nio.file.Path
 
-@Suppress("UNCHECKED_CAST")
-internal class HextantFileManagerImpl(private val context: Context) : HextantFileManager {
-    private val cache = mutableMapOf<ReactivePath, Ref<HextantFileImpl<*>>>()
+internal class PhysicalFileManager(private val context: Context) : FileManager {
+    private val cache = mutableMapOf<Path, Ref<PhysicalFile<*>>>()
 
-    override fun <T : Any> get(content: T, path: ReactivePath): HextantFile<T> {
+    @Suppress("UNCHECKED_CAST")
+    override fun <E : Editor<*>> get(content: E, path: Path): VirtualFile<E> {
         val cached = cache[path]?.referent
         return if (cached == null) {
-            val f = HextantFileImpl(content, path, context)
+            val f = PhysicalFile(content, path, content.context)
             cache[path] = weak(f)
             f
-        } else cached as HextantFile<T>
+        } else cached as VirtualFile<E>
     }
 
-    override fun <T : Editor<*>> get(editor: T): HextantFile<T> {
-        check(editor.isRoot) { "Editor must be root of editor tree" }
-        val f = editor.file ?: error("Editor is not part of a file")
-        return get(editor, f.path)
-    }
-
-    override fun <T : Any> from(path: ReactivePath): HextantFile<T> {
+    override fun <E : Editor<*>> from(path: Path, context: Context): VirtualFile<E> {
         check(path !in cache) { "Already read $path" }
-        return HextantFileImpl(null, path, context)
+        return PhysicalFile(null, path, context)
     }
 
     override fun rename(old: Path, new: Path) {
@@ -49,15 +43,15 @@ internal class HextantFileManagerImpl(private val context: Context) : HextantFil
         }
     }
 
-    override fun deleteFile(path: ReactivePath) {
+    override fun deleteFile(path: Path) {
         safeIO {
             val f = cache.remove(path)?.referent ?: error("$path is not managed by this file manager")
             f.delete()
         }
     }
 
-    override fun deleteDirectory(path: ReactivePath) {
-        val absolute = context[projectRoot].resolve(path.now)
+    override fun deleteDirectory(path: Path) {
+        val absolute = context[projectRoot].resolve(path)
         Files.walk(absolute).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
     }
 }

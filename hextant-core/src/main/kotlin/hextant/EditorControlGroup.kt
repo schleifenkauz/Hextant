@@ -4,10 +4,10 @@
 
 package hextant
 
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
-import hextant.bundle.SimpleProperty
-import hextant.util.DoubleWeakHashMap
+import bundles.Bundle
+import bundles.SimpleProperty
+import hextant.fx.EditorControl
+import kollektion.DoubleWeakHashMap
 
 /**
  * An [EditorControlGroup] is a [ViewGroup] of [EditorControl]s

@@ -18,11 +18,10 @@ internal class TransformedEditor<T : Any, R : Any>(
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
     private class Snapshot(original: TransformedEditor<*, *>) : EditorSnapshot<TransformedEditor<*, *>>(original) {
-        private val snapshot = original.source.createSnapshot()
+        private val snapshot = original.source.snapshot()
 
         @Suppress("UNCHECKED_CAST")
         override fun reconstruct(editor: TransformedEditor<*, *>) {
-            snapshot as EditorSnapshot<Editor<*>>
             snapshot.reconstruct(editor.source)
         }
     }

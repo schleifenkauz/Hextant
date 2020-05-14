@@ -5,7 +5,7 @@
 package hextant.main
 
 import hextant.Context
-import hextant.bundle.Internal
+import hextant.core.Internal
 import javafx.stage.DirectoryChooser
 import java.nio.file.Path
 

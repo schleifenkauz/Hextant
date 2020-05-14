@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package hextant.bundle
+package hextant.core
 
 import hextant.base.EditorSnapshot
 

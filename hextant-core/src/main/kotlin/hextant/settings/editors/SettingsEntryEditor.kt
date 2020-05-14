@@ -6,9 +6,10 @@ package hextant.settings.editors
 
 import hextant.*
 import hextant.base.CompoundEditor
-import hextant.bundle.Internal
+import hextant.core.Internal
 import hextant.settings.model.*
-import kserial.*
+import kserial.Input
+import kserial.Output
 
 internal class SettingsEntryEditor private constructor(context: Context) : CompoundEditor<SettingsEntry>(context) {
     constructor(context: Context, property: ConfigurableProperty) : this(context) {
@@ -34,12 +35,12 @@ internal class SettingsEntryEditor private constructor(context: Context) : Compo
         }
     }
 
-    override fun serialize(output: Output, context: SerialContext) {
+    override fun serialize(output: Output) {
         output.writeString(property.property.name!!)
         output.writeObject(value)
     }
 
-    override fun deserialize(input: Input, context: SerialContext) {
+    override fun deserialize(input: Input) {
         val name = input.readString()
         val properties = this.context[Internal, ConfigurableProperties]
         val prop = properties.byName(name) ?: error("No property configurable with name '$name'")

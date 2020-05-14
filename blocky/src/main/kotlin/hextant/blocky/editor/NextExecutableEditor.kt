@@ -30,7 +30,7 @@ class NextExecutableEditor(context: Context) :
     }
 
     private class Snapshot(original: NextExecutableEditor) : EditorSnapshot<NextExecutableEditor>(original) {
-        private val nxt = original.next.now?.createSnapshot()
+        private val nxt = original.next.now?.snapshot()
 
         override fun reconstruct(editor: NextExecutableEditor) {
             val e = nxt?.reconstruct(editor.context)

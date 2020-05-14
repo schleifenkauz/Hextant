@@ -6,7 +6,7 @@ package hextant.lisp.editor
 
 import hextant.lisp.Identifier
 import hextant.lisp.SExpr
-import hextant.util.WeakValuesMap
+import kollektion.WeakValuesMap
 import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.orElse

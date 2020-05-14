@@ -43,8 +43,8 @@ class ProgramEditor(context: Context) :
     override val result: EditorResult<Program> = result1(entry) { s -> ok(Program(s)) }
 
     private class Snapshot(original: ProgramEditor) : EditorSnapshot<ProgramEditor>(original) {
-        private val entry = original.entry.createSnapshot()
-        private val components = original.components.map { it.createSnapshot() }
+        private val entry = original.entry.snapshot()
+        private val components = original.components.map { it.snapshot() }
 
         @Suppress("UNCHECKED_CAST")
         override fun reconstruct(editor: ProgramEditor) {

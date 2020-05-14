@@ -4,9 +4,9 @@
 
 package hextant.core.view
 
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
+import bundles.Bundle
 import hextant.core.editor.ChoiceEditor
+import hextant.fx.EditorControl
 import javafx.collections.FXCollections
 import javafx.scene.control.ComboBox
 import javafx.scene.control.ListCell

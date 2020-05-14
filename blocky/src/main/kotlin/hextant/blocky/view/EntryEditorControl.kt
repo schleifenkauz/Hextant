@@ -4,8 +4,8 @@
 
 package hextant.blocky.view
 
+import bundles.Bundle
 import hextant.blocky.editor.EntryEditor
-import hextant.bundle.Bundle
 import javafx.scene.control.Label
 
 class EntryEditorControl(editor: EntryEditor, args: Bundle) :

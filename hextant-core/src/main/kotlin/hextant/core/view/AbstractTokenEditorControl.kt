@@ -4,10 +4,8 @@
 
 package hextant.core.view
 
+import bundles.*
 import hextant.Context
-import hextant.base.EditorControl
-import hextant.bundle.*
-
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup

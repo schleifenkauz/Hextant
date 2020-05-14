@@ -6,9 +6,10 @@
 
 package hextant.settings.editors
 
+import bundles.*
 import hextant.*
 import hextant.base.CompoundEditor
-import hextant.bundle.*
+import hextant.core.Internal
 import hextant.settings.model.ConfigurableProperties
 import reaktive.Observer
 import reaktive.list.ListChange.Added

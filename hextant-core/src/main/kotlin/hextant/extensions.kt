@@ -1,9 +1,9 @@
 package hextant
 
-import hextant.bundle.ClipboardContent
-import hextant.bundle.ClipboardContent.OneEditor
-import hextant.bundle.CoreProperties.clipboard
-import hextant.bundle.Internal
+import hextant.base.EditorSnapshot
+import hextant.core.ClipboardContent.OneEditor
+import hextant.core.CoreProperties.clipboard
+import hextant.core.Internal
 import hextant.core.editor.TransformedEditor
 
 /**
@@ -45,8 +45,7 @@ fun <E : Editor<*>> E.moveTo(newContext: Context): E =
 /**
  * Copy this editor for the given [newContext]
  */
-@Suppress("UNCHECKED_CAST")
-fun <E : Editor<*>> E.copyFor(newContext: Context): E = createSnapshot().reconstruct(newContext) as E
+fun <E : Editor<*>> E.copyFor(newContext: Context): E = snapshot().reconstruct(newContext)
 
 /**
  * Copy this [Editor] to the [clipboard], if this is supported by the editor.
@@ -54,7 +53,7 @@ fun <E : Editor<*>> E.copyFor(newContext: Context): E = createSnapshot().reconst
  */
 fun Editor<*>.copyToClipboard(): Boolean {
     if (!supportsCopyPaste()) return false
-    context[Internal, clipboard] = ClipboardContent.OneEditor(createSnapshot())
+    context[Internal, clipboard] = OneEditor(snapshot())
     return true
 }
 
@@ -83,3 +82,9 @@ fun <T : Any, R : Any> Editor<T>.map(f: (T) -> CompileResult<R>): Editor<R> = Tr
  */
 @JvmName("simpleMap")
 fun <T : Any, R : Any> Editor<T>.map(f: (T) -> R): Editor<R> = map { ok(f(it)) }
+
+/**
+ * Typesafe version of [Editor.createSnapshot]
+ */
+@Suppress("UNCHECKED_CAST")
+fun <E : Editor<*>> E.snapshot(): EditorSnapshot<E> = createSnapshot() as EditorSnapshot<E>

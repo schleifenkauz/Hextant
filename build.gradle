@@ -15,7 +15,7 @@ plugins {
     id 'io.codearte.nexus-staging' version '0.21.2'
 }
 
-static String nikok(Object dep, Object version) {
+static String nkb03(Object dep, Object version) {
     return "com.github.nkb03:$dep:$version"
 }
 

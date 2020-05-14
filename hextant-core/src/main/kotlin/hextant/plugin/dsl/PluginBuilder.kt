@@ -4,25 +4,22 @@
 
 package hextant.plugin.dsl
 
+import bundles.Bundle
 import hextant.*
-import hextant.base.CompoundEditorControl
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
-import hextant.bundle.Internal
-
 import hextant.command.*
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
+import hextant.core.Internal
 import hextant.core.editor.TokenEditor
 import hextant.core.view.FXTokenEditorView
 import hextant.core.view.TokenEditorView
-import hextant.impl.Stylesheets
+import hextant.fx.*
 import hextant.impl.myLogger
 import hextant.inspect.*
 import hextant.plugin.Plugin
 
 @PluginDsl
-class PluginBuilder @PublishedApi internal constructor(val platform: Context) {
+class PluginBuilder @PublishedApi internal constructor(val context: Context) {
     /**
      * The name of the plugin
      */
@@ -37,7 +34,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: Context) {
      * Register the specified [factory] for editors of the class [R]
      */
     inline fun <reified R : Any, reified E : Editor<R>> editor(noinline factory: (Context, R) -> E) {
-        platform[EditorFactory].register(R::class, factory)
+        context[EditorFactory].register(R::class, factory)
         val editableName = R::class.qualifiedName
         val editorName = E::class.qualifiedName
         logger.config { "Registered $editorName for $editableName" }
@@ -47,7 +44,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: Context) {
      * Register the specified [factory] for editors for class [R]
      */
     inline fun <reified R : Any, reified E : Editor<R>> defaultEditor(noinline factory: (Context) -> E) {
-        platform[EditorFactory].register(R::class, factory)
+        context[EditorFactory].register(R::class, factory)
     }
 
     /**
@@ -61,7 +58,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: Context) {
      * Register the specified [factory] for views of the class [E]
      */
     inline fun <reified E : Editor<*>, reified V : EditorControl<*>> view(noinline factory: (E, Bundle) -> V) {
-        platform[EditorControlFactory].register(E::class, factory)
+        context[EditorControlFactory].register(E::class, factory)
         val viewName = V::class.qualifiedName
         val editableName = E::class.qualifiedName
         logger.config { "Registered $viewName for $editableName" }
@@ -106,27 +103,27 @@ class PluginBuilder @PublishedApi internal constructor(val platform: Context) {
      * Execute a custom [block] on the [HextantPlatform]
      */
     inline fun costum(block: Context.() -> Unit) {
-        platform.block()
+        context.block()
     }
 
     /**
      * Register the specified [factory] for an inspection [I] inspecting instances of class [T]
      */
     inline fun <reified T : Any, reified I : Inspection> inspection(noinline factory: (T) -> I) {
-        platform[Inspections].of(T::class).register(factory)
+        context[Inspections].of(T::class).register(factory)
         val name = I::class.qualifiedName
         logger.config { "Inspection $name registered" }
     }
 
     inline fun <reified T : Any> registerInspection(noinline configuration: InspectionBuilder<T>.() -> Unit) {
-        platform[Inspections].of(T::class).registerInspection(configuration)
+        context[Inspections].of(T::class).registerInspection(configuration)
     }
 
     /**
      * Register the specified [command]
      */
     inline fun <reified R : Any> command(command: Command<R, *>) {
-        platform[Commands].of(R::class).register(command)
+        context[Commands].of(R::class).register(command)
         logger.config { "Command ${command.name} registered" }
     }
 
@@ -138,7 +135,7 @@ class PluginBuilder @PublishedApi internal constructor(val platform: Context) {
     }
 
     fun stylesheet(path: String) {
-        platform[Internal, Stylesheets].add(path)
+        context[Internal, Stylesheets].add(path)
     }
 
     @PublishedApi internal fun build() = Plugin(name, author).also {

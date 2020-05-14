@@ -5,6 +5,7 @@
 package hextant.base
 
 import hextant.*
+import hextant.fx.CompoundEditorSnapshot
 import hextant.serial.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty

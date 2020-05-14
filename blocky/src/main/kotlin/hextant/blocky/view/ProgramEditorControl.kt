@@ -4,10 +4,10 @@
 
 package hextant.blocky.view
 
+import bundles.Bundle
 import hextant.*
-import hextant.base.EditorControl
 import hextant.blocky.editor.*
-import hextant.bundle.Bundle
+import hextant.fx.EditorControl
 import javafx.scene.Cursor
 import javafx.scene.Node
 import javafx.scene.control.ContextMenu

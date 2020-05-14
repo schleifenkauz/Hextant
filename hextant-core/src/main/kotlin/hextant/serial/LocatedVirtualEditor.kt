@@ -7,9 +7,9 @@ package hextant.serial
 import hextant.Editor
 import java.lang.ref.WeakReference
 
-internal class VirtualEditorImpl<E : Editor<*>>(
+internal class LocatedVirtualEditor<E : Editor<*>>(
     ref: E,
-    private val root: HextantFile<Editor<*>>,
+    private val root: VirtualFile<Editor<*>>,
     private val location: EditorLocation<E>
 ) : VirtualEditor<E> {
     private var weak = WeakReference(ref)

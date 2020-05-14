@@ -4,8 +4,8 @@
 
 package hextant.gui
 
+import bundles.createBundle
 import hextant.*
-import hextant.bundle.createBundle
 import hextant.core.editor.ExpanderConfig
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
@@ -16,8 +16,8 @@ import hextant.main.HextantApplication
 import hextant.project.editor.DirectoryEditor
 import hextant.project.editor.ProjectItemEditor
 import hextant.project.view.*
-import hextant.serial.HextantFileManager
-import hextant.serial.HextantFileManagerImpl
+import hextant.serial.FileManager
+import hextant.serial.PhysicalFileManager
 import hextant.serial.SerialProperties.projectRoot
 import javafx.scene.Parent
 import javafx.scene.control.SplitPane
@@ -30,8 +30,8 @@ import java.nio.file.Paths
 class DirectoryViewTest : HextantApplication() {
     private val pane = SimpleEditorPane()
 
-    override fun createContext(root: Context): Context = Context.newInstance {
-        set(HextantFileManager, HextantFileManagerImpl(this))
+    override fun createContext(root: Context): Context = root.extend {
+        set(FileManager, PhysicalFileManager(this))
         set(ProjectItemEditor.expanderConfig(), ExpanderConfig<IntEditor>().apply {
             registerInterceptor { text, context ->
                 text.toIntOrNull()?.let {

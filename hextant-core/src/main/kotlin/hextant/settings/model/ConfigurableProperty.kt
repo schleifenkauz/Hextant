@@ -4,7 +4,7 @@
 
 package hextant.settings.model
 
-import hextant.bundle.Property
+import bundles.Property
 import kotlin.reflect.KClass
 
 /**

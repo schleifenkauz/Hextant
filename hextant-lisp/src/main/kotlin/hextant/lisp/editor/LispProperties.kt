@@ -5,7 +5,7 @@
 package hextant.lisp.editor
 
 
-import hextant.bundle.SimpleProperty
+import bundles.SimpleProperty
 import hextant.lisp.FileScope
 
 object LispProperties {

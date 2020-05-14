@@ -6,32 +6,23 @@ package hextant.project.editor
 
 import hextant.*
 import hextant.base.CompoundEditor
+import hextant.base.EditorSnapshot
+import hextant.core.Internal
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderDelegate
 import hextant.project.File
 import hextant.serial.*
-import kserial.*
+import hextant.serial.SerialProperties.projectRoot
 import reaktive.Observer
 import reaktive.event.event
-import reaktive.value.binding.map
 import reaktive.value.reactiveVariable
+import java.nio.file.Path
 
 class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor<File<R>>(context),
-                                                                  ProjectItemEditor<R, File<R>>, Serializable {
-    private constructor(
-        context: Context,
-        editor: Editor<R>
-    ) : this(context) {
-        this.editor = editor
-    }
-
-    private var editor: Editor<R>? = null
-    private lateinit var content: HextantFile<Editor<R>>
-    private var initialized = false
-    override val path: ReactivePath by lazy {
-        val p = getProjectItemEditorParent()!!
-        p.path!!.resolve(itemName.result.map { it.force() })
-    }
+                                                                  ProjectItemEditor<R, File<R>> {
+    private lateinit var id: String
+    private lateinit var path: Path
+    private lateinit var content: VirtualFile<Editor<R>>
 
     override val itemName by child(FileNameEditor(context))
 
@@ -40,24 +31,13 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
     private var obs: Observer? = null
     private lateinit var observer: Observer
 
-    val rootEditor get() = editor ?: content.get()
-
     private val rootEditorChange = event<Editor<R>>()
     val rootEditorChanged get() = rootEditorChange.stream
+    val rootEditor get() = content.get()
 
-    fun initialize() {
-        check(!initialized)
-        initialized = true
-        val e = editor ?: error("Editor must be present")
-        editor = null
-        val m = context[HextantFileManager]
-        content = m.get(e, path)
-        content.write()
-        bindResult()
-    }
 
     override fun deletePhysical() {
-        if (initialized) context[HextantFileManager].deleteFile(path)
+        context[FileManager].deleteFile(path)
     }
 
     private fun bindResult() {
@@ -69,23 +49,30 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
         }
     }
 
+    private class Snapshot<R : Any>(original: FileEditor<R>) : EditorSnapshot<FileEditor<R>>(original) {
+        private val id = original.id
+        private val itemName = original.itemName.snapshot()
+
+        init {
+            original.content.write()
+        }
+
+        override fun reconstruct(editor: FileEditor<R>) {
+            itemName.reconstruct(editor.itemName)
+            editor.id = id
+            editor.path = editor.context[projectRoot].resolve(id)
+            editor.content = editor.context[FileManager].from(editor.path, editor.context)
+            editor.bindResult()
+        }
+    }
+
     @Suppress("DEPRECATION")
     private fun updateEditor(e: Editor<R>) {
         obs = _result.bind(result2(itemName, e) { name, content -> ok(File(name, content)) })
-        e.setFile(this)
+        e.setFile(content)
     }
 
-    override fun serialize(output: Output, context: SerialContext) {
-        output.writeUntyped(itemName)
-        content.write()
-    }
-
-    override fun deserialize(input: Input, context: SerialContext) {
-        input.readInplace(itemName)
-        val manager = this.context[HextantFileManager]
-        content = manager.from(path)
-        bindResult()
-    }
+    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
     override val result: EditorResult<File<R>> get() = _result
 
@@ -96,6 +83,14 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
     ) : ConfiguredExpander<R, Editor<R>>(config, context, initial)
 
     companion object {
-        fun <R : Any> newInstance(context: Context) = FileEditor<R>(context, RootExpander(context))
+        fun <R : Any> newInstance(context: Context): FileEditor<R> {
+            val e = FileEditor<R>(context)
+            e.id = context[Internal, IdGenerator].generateID()
+            e.path = context[projectRoot].resolve(e.id)
+            e.content = context[FileManager].get(RootExpander(context), e.path)
+            e.content.write()
+            e.bindResult()
+            return e
+        }
     }
 }

@@ -4,9 +4,8 @@
 
 package hextant.core.view
 
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
-import hextant.bundle.SimpleProperty
+import bundles.Bundle
+import bundles.SimpleProperty
 import hextant.core.editor.FilteredTokenEditor
 import hextant.fx.*
 import javafx.scene.input.KeyEvent

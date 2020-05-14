@@ -9,6 +9,8 @@ import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.core.TokenType
 import hextant.core.view.TokenEditorView
+import hextant.serial.VirtualEditor
+import hextant.serial.virtualize
 import hextant.undo.*
 import reaktive.value.*
 
@@ -47,7 +49,7 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
      * Set the text of this editor, such that the result is automatically updated
      */
     fun setText(newText: String) {
-        val edit = TextEdit(this, text.now, newText)
+        val edit = TextEdit(virtualize(), text.now, newText)
         doSetText(newText)
         undo.push(edit)
     }
@@ -58,14 +60,18 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         views { displayText(newText) }
     }
 
-    private class TextEdit(private val editor: TokenEditor<*, *>, private val old: String, private val new: String) :
+    private class TextEdit(
+        private val editor: VirtualEditor<TokenEditor<*, *>>,
+        private val old: String,
+        private val new: String
+    ) :
         AbstractEdit() {
         override fun doRedo() {
-            editor.doSetText(new)
+            editor.get().doSetText(new)
         }
 
         override fun doUndo() {
-            editor.doSetText(old)
+            editor.get().doSetText(old)
         }
 
         override val actionDescription: String

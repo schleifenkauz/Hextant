@@ -2,12 +2,11 @@
  *@author Nikolaus Knop
  */
 
-package hextant.base
+package hextant.fx
 
+import bundles.*
 import hextant.*
-import hextant.base.CompoundEditorControl.Vertical
-import hextant.bundle.*
-import hextant.fx.*
+import hextant.fx.CompoundEditorControl.Vertical
 import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.layout.*
@@ -99,9 +98,11 @@ abstract class CompoundEditorControl(
 
         override fun space() = space(this)
 
-        override fun keyword(name: String): Node = keyword(name, this)
+        override fun keyword(name: String): Node =
+            keyword(name, this)
 
-        override fun operator(str: String): Node = operator(str, this)
+        override fun operator(str: String): Node =
+            operator(str, this)
 
         /**
          * Add a [Horizontal] box to this control and configure it with the given [build] block.
@@ -148,7 +149,8 @@ abstract class CompoundEditorControl(
     /**
      * A horizontal box
      */
-    inner class Horizontal internal constructor() : HBox(), Compound {
+    inner class Horizontal internal constructor() : HBox(),
+                                                    Compound {
         internal val editorChildren: MutableList<EditorControl<*>> = mutableListOf()
 
         internal var firstEditorChild: EditorControl<*>? = null
@@ -177,9 +179,11 @@ abstract class CompoundEditorControl(
 
         override fun space() = space(this)
 
-        override fun keyword(name: String): Node = keyword(name, this)
+        override fun keyword(name: String): Node =
+            keyword(name, this)
 
-        override fun operator(str: String): Node = operator(str, this)
+        override fun operator(str: String): Node =
+            operator(str, this)
     }
 
     companion object {

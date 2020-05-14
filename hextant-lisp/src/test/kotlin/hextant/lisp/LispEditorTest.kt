@@ -6,7 +6,7 @@ package hextant.lisp
 
 import hextant.*
 
-import hextant.bundle.CoreProperties.editorParentRegion
+import hextant.core.CoreProperties.editorParentRegion
 import hextant.lisp.editor.LispProperties.fileScope
 import hextant.lisp.editor.SExprExpander
 import hextant.main.HextantApplication

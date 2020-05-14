@@ -1,5 +1,7 @@
-package hextant.bundle
+package hextant.core
 
+import bundles.Property
+import bundles.SimpleProperty
 import javafx.scene.layout.Region
 import java.util.logging.Logger
 
@@ -25,5 +27,6 @@ object CoreProperties {
     /**
      * The clipboard content
      */
-    val clipboard: Property<ClipboardContent, Any, Internal> = Property("clipboard", null)
+    val clipboard: Property<ClipboardContent, Any, Internal> =
+        Property("clipboard", null)
 }

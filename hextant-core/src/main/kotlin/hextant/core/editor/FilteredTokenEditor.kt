@@ -157,20 +157,16 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         view.displayText(_text.now)
     }
 
-    private fun reconstructState(text: String) {
-        _text.now = text
-        _intermediateResult.now = compile(this.text.now)
-        _result.now = intermediateResult.now
-        _editable.now = false
-    }
-
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
     private class Snapshot(original: FilteredTokenEditor<*>) : EditorSnapshot<FilteredTokenEditor<*>>(original) {
         val text = original.text.now
 
         override fun reconstruct(editor: FilteredTokenEditor<*>) {
-            editor.reconstructState(text)
+            editor._text.now = text
+            editor._intermediateResult.now = editor.compile(editor.text.now)
+            editor._result.now = editor.intermediateResult.now
+            editor._editable.now = false
         }
     }
 

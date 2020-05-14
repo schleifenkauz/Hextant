@@ -4,11 +4,9 @@
 
 package hextant.project.view
 
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
+import bundles.Bundle
 import hextant.createView
-import hextant.fx.Glyphs
-import hextant.fx.fontSize
+import hextant.fx.*
 import hextant.project.editor.DirectoryEditor
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color

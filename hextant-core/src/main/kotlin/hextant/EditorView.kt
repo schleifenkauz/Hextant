@@ -4,7 +4,7 @@
 
 package hextant
 
-import hextant.bundle.Bundle
+import bundles.Bundle
 
 /**
  * A graphical view of an [Editor]

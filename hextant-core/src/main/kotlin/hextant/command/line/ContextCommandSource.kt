@@ -5,8 +5,8 @@
 package hextant.command.line
 
 import hextant.Context
+import hextant.SelectionDistributor
 import hextant.command.*
-import hextant.impl.SelectionDistributor
 import reaktive.value.now
 
 /**

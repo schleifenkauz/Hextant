@@ -8,13 +8,14 @@ jar {
 }
 
 dependencies {
-    compile nikok("reaktive", "0.1.1-SNAPSHOT")
-    compile nikok("kserial", "0.1-SNAPSHOT")
+    compile nkb03("reaktive", "0.1.1-SNAPSHOT")
+    compile nkb03("kserial", "0.2-SNAPSHOT")
+    compile nkb03("kref", "0.1-SNAPSHOT")
+    compile nkb03("bundles", "0.1-SNAPSHOT")
+    compile nkb03("kollektion", "0.1-SNAPSHOT")
     compile kotlin("stdlib")
     compile kotlin("reflect")
-    compile nikok("kref", "0.1-SNAPSHOT")
     compile "org.controlsfx:controlsfx:8.40.14"
-    implementation project(":hextant-util")
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")
 }

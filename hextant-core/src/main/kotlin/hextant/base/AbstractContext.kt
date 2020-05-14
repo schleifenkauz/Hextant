@@ -4,8 +4,8 @@
 
 package hextant.base
 
+import bundles.*
 import hextant.Context
-import hextant.bundle.*
 
 /**
  * Skeletal implementation of [Context] using the specified [parent] and [bundle]

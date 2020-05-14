@@ -5,7 +5,7 @@
 package hextant.main
 
 
-import hextant.bundle.SimpleProperty
+import bundles.SimpleProperty
 
 /**
  * Specifies the way the user interacts with text fields

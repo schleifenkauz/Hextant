@@ -4,8 +4,8 @@
 
 package hextant.project.view
 
+import bundles.SimpleProperty
 import hextant.Editor
-import hextant.bundle.SimpleProperty
 import org.controlsfx.glyphfont.FontAwesome.Glyph
 import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue

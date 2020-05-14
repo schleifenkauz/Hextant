@@ -4,11 +4,9 @@
 
 package hextant.lisp.view
 
-import hextant.base.EditorControl
-import hextant.bundle.Bundle
+import bundles.Bundle
 import hextant.core.view.TokenEditorView
-import hextant.fx.HextantTextField
-import hextant.fx.keyword
+import hextant.fx.*
 import hextant.lisp.editor.StringLiteralEditor
 import javafx.scene.layout.HBox
 

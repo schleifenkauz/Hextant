@@ -2,10 +2,9 @@
  *@author Nikolaus Knop
  */
 
-package hextant.impl
+package hextant
 
-import hextant.EditorView
-import hextant.bundle.SimpleProperty
+import bundles.SimpleProperty
 import reaktive.set.ReactiveSet
 import reaktive.set.reactiveSet
 import reaktive.value.*
@@ -103,6 +102,7 @@ interface SelectionDistributor {
         /**
          * Return a new [SelectionDistributor]
          */
-        fun newInstance(): SelectionDistributor = Impl()
+        fun newInstance(): SelectionDistributor =
+            Impl()
     }
 }

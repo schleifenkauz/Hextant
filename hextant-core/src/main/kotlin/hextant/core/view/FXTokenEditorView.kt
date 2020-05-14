@@ -4,8 +4,8 @@
 
 package hextant.core.view
 
+import bundles.Bundle
 import hextant.Context
-import hextant.bundle.Bundle
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.core.editor.TokenEditor

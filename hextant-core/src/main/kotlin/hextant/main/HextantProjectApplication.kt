@@ -5,12 +5,9 @@
 package hextant.main
 
 import hextant.*
-import hextant.base.EditorControl
-import hextant.bundle.Internal
-
+import hextant.core.Internal
 import hextant.core.view.ListEditorControl
 import hextant.fx.*
-import hextant.impl.SelectionDistributor
 import hextant.serial.SerialProperties
 import hextant.undo.UndoManager
 import javafx.application.Application
@@ -32,8 +29,8 @@ import kotlin.reflect.full.cast
 abstract class HextantProjectApplication<R : Editor<*>> : Application() {
     private val rootType = extractRootEditorType(this::class)
 
-    private val platform = HextantPlatform.rootContext()
-    private val toplevelContext = Context.newInstance(platform) {
+    private val context = HextantPlatform.rootContext()
+    private val toplevelContext = Context.newInstance(context) {
         defaultConfig()
         set(Internal, PathChooser, FXPathChooser())
     }
@@ -41,17 +38,17 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
     private val projects = PathListEditor(toplevelContext)
 
     init {
-        platform[Internal, ProjectType] = this.projectType()
+        context[Internal, ProjectType] = this.projectType()
         val path = projectsPath()
         if (Files.exists(path)) {
-            val input = platform.createInput(path)
+            val input = context.createInput(path)
             input.readInplace(projects)
             input.close()
         }
     }
 
     override fun stop() {
-        val output = platform.createOutput(projectsPath())
+        val output = context.createOutput(projectsPath())
         output.writeUntyped(projects)
         output.close()
     }
@@ -74,7 +71,7 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
     protected open fun MenuBarBuilder.configureMenuBar(editor: R) {}
 
     override fun start(primaryStage: Stage) {
-        platform[Internal, HextantApplication.stage] = primaryStage
+        context[Internal, HextantApplication.stage] = primaryStage
         primaryStage.isResizable = false
         showStartView()
     }
@@ -99,7 +96,7 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
             set(ListEditorControl.CELL_FACTORY, ::Cell)
         }
         val root = HBox(v, ImageView(logo))
-        val stage = platform[Internal, HextantApplication.stage]
+        val stage = this.context[Internal, HextantApplication.stage]
         stage.scene = Scene(root)
         stage.scene.initHextantScene(context)
         stage.show()
@@ -128,7 +125,7 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
     private fun showProject(root: R) {
         val view = createView(root)
         val menu = createMenuBar(root)
-        val stage = platform[Internal, HextantApplication.stage]
+        val stage = context[Internal, HextantApplication.stage]
         stage.scene.root = VBox(menu, view)
     }
 

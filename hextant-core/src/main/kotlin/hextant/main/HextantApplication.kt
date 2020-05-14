@@ -4,10 +4,11 @@
 
 package hextant.main
 
+import bundles.Property
 import hextant.Context
-import hextant.HextantPlatform
-import hextant.bundle.Internal
-import hextant.bundle.Property
+import hextant.HextantPlatform.defaultContext
+import hextant.HextantPlatform.rootContext
+import hextant.core.Internal
 import hextant.fx.initHextantScene
 import javafx.application.Application
 import javafx.application.Platform
@@ -24,7 +25,7 @@ abstract class HextantApplication : Application() {
     final override fun start(primaryStage: Stage) {
         val preloader = HextantPreloader()
         preloader.start(Stage())
-        val rootCtx = HextantPlatform.rootContext()
+        val rootCtx = defaultContext(rootContext())
         val context = createContext(rootCtx)
         val scene = Scene(createView(context))
         scene.initHextantScene(context)
@@ -48,7 +49,7 @@ abstract class HextantApplication : Application() {
         }
     }
 
-    protected open fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
+    protected open fun createContext(root: Context): Context = root
 
     protected abstract fun createView(context: Context): Parent
 

@@ -4,8 +4,8 @@
 
 package hextant.blocky.view
 
+import bundles.Bundle
 import hextant.blocky.editor.BranchEditor
-import hextant.bundle.Bundle
 import hextant.createView
 import hextant.fx.HextantTextField
 import javafx.scene.control.Label

@@ -4,8 +4,8 @@
 
 package hextant.project.view
 
+import bundles.SimpleProperty
 import hextant.Editor
-import hextant.bundle.SimpleProperty
 
 /**
  * An editor pane displays editors.

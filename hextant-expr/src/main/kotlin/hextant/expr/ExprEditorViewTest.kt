@@ -4,16 +4,13 @@
 
 package hextant.expr
 
+import bundles.createBundle
 import hextant.*
-import hextant.base.EditorControl
-import hextant.bundle.createBundle
 import hextant.command.*
 import hextant.command.line.*
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
-import hextant.fx.applyInputMethod
-import hextant.fx.menuBar
-import hextant.impl.SelectionDistributor
+import hextant.fx.*
 import hextant.inspect.Inspections
 import hextant.inspect.Severity.Error
 import hextant.inspect.Severity.Warning

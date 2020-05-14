@@ -4,11 +4,10 @@
 
 package hextant.main
 
+import bundles.Property
 import hextant.Context
 import hextant.Editor
-import hextant.bundle.Internal
-
-import hextant.bundle.Property
+import hextant.core.Internal
 
 interface ProjectType<out R : Editor<*>> {
     fun createProjectRoot(context: Context): R

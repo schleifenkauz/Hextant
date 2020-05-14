@@ -4,11 +4,10 @@
 
 package hextant
 
-import hextant.base.EditorControl
-import hextant.bundle.*
-
-import hextant.impl.myLogger
-import hextant.util.ClassMap
+import bundles.*
+import hextant.core.Internal
+import hextant.fx.EditorControl
+import kollektion.ClassMap
 import kotlin.reflect.KClass
 
 /**
@@ -55,11 +54,6 @@ interface EditorControlFactory {
          */
         fun newInstance(): EditorControlFactory =
             Impl()
-
-        /**
-         * Logger used by all instances of [EditorControlFactory]
-         */
-        val logger by myLogger()
     }
 }
 

@@ -4,7 +4,7 @@
 
 package hextant.lisp.view
 
-import hextant.bundle.Bundle
+import bundles.Bundle
 import hextant.core.view.FXTokenEditorView
 import hextant.lisp.editor.DoubleLiteralEditor
 

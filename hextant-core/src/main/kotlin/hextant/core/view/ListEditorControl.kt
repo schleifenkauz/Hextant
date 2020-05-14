@@ -4,9 +4,8 @@
 
 package hextant.core.view
 
+import bundles.*
 import hextant.Editor
-import hextant.base.EditorControl
-import hextant.bundle.*
 import hextant.core.editor.ListEditor
 import hextant.createView
 import hextant.fx.*

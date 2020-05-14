@@ -4,14 +4,15 @@
 
 package hextant
 
-import hextant.bundle.Internal
 import hextant.command.Commands
-import hextant.impl.SelectionDistributor
-import hextant.impl.Stylesheets
+import hextant.core.Internal
+import hextant.core.editor.getSimpleEditorConstructor
+import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.main.InputMethod
 import hextant.plugin.impl.Plugins
 import hextant.serial.SerialProperties
+import hextant.serial.SerialProperties.deserializationContext
 import hextant.settings.model.ConfigurableProperties
 import hextant.undo.UndoManager
 import kserial.KSerial
@@ -28,7 +29,12 @@ object HextantPlatform {
         set(
             Internal,
             SerialProperties.serialContext,
-            SerialContext(classLoader = HextantPlatform.javaClass.classLoader)
+            SerialContext.newInstance {
+                useUnsafe = true
+                registerConstructor<Editor<*>> { bundle, cls ->
+                    cls.getSimpleEditorConstructor().invoke(bundle[deserializationContext])
+                }
+            }
         )
         set(Internal, SerialProperties.serial, KSerial.newInstance())
         set(Internal, ConfigurableProperties, ConfigurableProperties())

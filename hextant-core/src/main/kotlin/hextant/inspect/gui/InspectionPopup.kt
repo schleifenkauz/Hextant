@@ -5,10 +5,8 @@
 package hextant.inspect.gui
 
 import hextant.Context
-import hextant.bundle.Internal
-import hextant.fx.registerShortcut
-import hextant.fx.registerShortcuts
-import hextant.impl.Stylesheets
+import hextant.core.Internal
+import hextant.fx.*
 import hextant.inspect.Problem
 import hextant.inspect.ProblemFix
 import javafx.scene.Node

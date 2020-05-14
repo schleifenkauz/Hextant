@@ -5,25 +5,27 @@
 package hextant.serial
 
 import hextant.*
+import hextant.serial.SerialProperties.deserializationContext
 import hextant.serial.SerialProperties.projectRoot
 import reaktive.event.EventStream
 import reaktive.event.event
 import java.lang.ref.WeakReference
 import java.nio.file.Files
+import java.nio.file.Path
 
-internal class HextantFileImpl<T : Any>(
-    obj: T?,
-    private val path: ReactivePath,
+internal class PhysicalFile<E : Editor<*>>(
+    obj: E?,
+    private val path: Path,
     private val context: Context
-) : HextantFile<T> {
+) : VirtualFile<E> {
     private var ref = WeakReference(obj)
     private var deleted = false
-    private val _read = event<T>()
-    private val _write = event<T>()
+    private val _read = event<E>()
+    private val _write = event<E>()
 
-    override val read: EventStream<T>
+    override val read: EventStream<E>
         get() = _read.stream
-    override val write: EventStream<T>
+    override val write: EventStream<E>
         get() = _write.stream
 
     override fun write() {
@@ -38,15 +40,16 @@ internal class HextantFileImpl<T : Any>(
         }
     }
 
-    override fun get(): T {
+    override fun get(): E {
         checkNotDeleted()
         return ref.get() ?: read()
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun read(): T {
+    private fun read(): E {
         val input = context.createInput(getRealPath())
-        val obj = input.readObject() as T
+        input.bundle[deserializationContext] = context
+        val obj = input.readObject() as E
         input.close()
         _read.fire(obj)
         ref = WeakReference(obj)
@@ -57,14 +60,14 @@ internal class HextantFileImpl<T : Any>(
 
     override fun delete() {
         checkNotDeleted()
-        val absolute = context[projectRoot].resolve(path.now)
+        val absolute = context[projectRoot].resolve(path)
         safeIO {
             Files.delete(absolute)
         }
         deleted = true
     }
 
-    private fun getRealPath() = context[projectRoot].resolve(path.now)
+    private fun getRealPath() = context[projectRoot].resolve(path)
 
     private fun checkNotDeleted() {
         check(!deleted) { "File already deleted" }

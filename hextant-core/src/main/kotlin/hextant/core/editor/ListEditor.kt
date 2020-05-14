@@ -7,8 +7,8 @@ package hextant.core.editor
 import hextant.*
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
-import hextant.bundle.CoreProperties
 import hextant.command.meta.ProvideCommand
+import hextant.core.CoreProperties
 import hextant.core.view.ListEditorView
 import hextant.serial.*
 import hextant.undo.AbstractEdit
@@ -90,7 +90,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      */
     fun clear() {
         if (!mayBeEmpty) return
-        val edit = ClearEdit(editors.now.map { it.createSnapshot() })
+        val edit = ClearEdit(editors.now.map { it.snapshot() })
         doClear()
         undo.push(edit)
     }
@@ -136,7 +136,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     @ProvideCommand(name = "Add editor", shortName = "add")
     fun addAt(index: Int): E? {
         val editor = createEditor() ?: return null
-        val edit = AddEdit(index, editor.createSnapshot())
+        val edit = AddEdit(index, editor.snapshot())
         doAddAt(index, editor)
         undo.push(edit)
         return editor
@@ -147,7 +147,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * @return the moved editor
      */
     fun addAt(index: Int, editor: E): E {
-        val edit = AddEdit(index, editor.createSnapshot())
+        val edit = AddEdit(index, editor.snapshot())
         val e = editor.moveTo(childContext())
         doAddAt(index, e)
         undo.push(edit)
@@ -176,7 +176,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     @ProvideCommand(name = "Remove editor", shortName = "remove")
     open fun removeAt(index: Int) {
         val editor = editors.now[index]
-        val edit = RemoveEdit(index, editor.createSnapshot())
+        val edit = RemoveEdit(index, editor.snapshot())
         if (doRemoveAt(index)) undo.push(edit)
     }
 
@@ -294,12 +294,12 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
     private class Snapshot<E : Editor<*>>(original: ListEditor<*, E>) :
         EditorSnapshot<ListEditor<*, E>>(original) {
-        private val snapshots = original.editors.now.map { it.createSnapshot() }
+        private val snapshots = original.editors.now.map { it.snapshot() }
 
         @Suppress("UNCHECKED_CAST")
         override fun reconstruct(editor: ListEditor<*, E>) {
             val editors = snapshots.map { it.reconstruct(editor.childContext()) }
-            editor.setEditors(editors as List<E>)
+            editor.setEditors(editors)
         }
     }
 

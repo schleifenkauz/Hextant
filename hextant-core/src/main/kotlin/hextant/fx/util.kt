@@ -6,6 +6,10 @@
 
 package hextant.fx
 
+import bundles.Bundle
+import bundles.createBundle
+import hextant.Editor
+import hextant.fx.CompoundEditorControl.Compound
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
@@ -110,3 +114,11 @@ internal fun <C : Control> C.withTooltip(text: String) = withTooltip(Tooltip(tex
 internal fun label(text: String, graphic: Node? = null) = Label(text, graphic).withStyleClass("hextant-text")
 
 internal fun Label.graphicToRight() = apply { contentDisplay = RIGHT }
+
+/**
+ * Add the editor control for the given [editor] to this compound view.
+ * The [config] block is used to initialize properties of the [hextant.EditorView.arguments] bundle.
+ */
+fun Compound.view(editor: Editor<*>, bundle: Bundle = createBundle(), config: Bundle.() -> Unit) {
+    view(editor, bundle.apply(config))
+}

@@ -5,7 +5,7 @@
 package hextant.settings.editors
 
 import hextant.Context
-import hextant.bundle.Internal
+import hextant.core.Internal
 import hextant.core.editor.Expander
 import hextant.settings.model.*
 
