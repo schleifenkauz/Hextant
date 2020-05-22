@@ -1,9 +1,8 @@
 package hextant.fx
 
 import hextant.*
+import hextant.core.Clipboard
 import hextant.core.ClipboardContent.MultipleEditors
-import hextant.core.CoreProperties
-import hextant.core.Internal
 import javafx.scene.Scene
 
 private val COPY = "Ctrl + C".shortcut
@@ -22,8 +21,7 @@ private fun copyManyToClipboard(context: Context) {
     val selected = context[SelectionDistributor].selectedTargets.now
     if (selected.any { it !is Editor<*> }) return
     val snapshots = selected.map { (it as Editor<*>).snapshot() }
-    context[Internal, CoreProperties.clipboard] =
-        MultipleEditors(snapshots)
+    context[Clipboard].copy(MultipleEditors(snapshots))
 }
 
 private fun Scene.copyToClipboard() {

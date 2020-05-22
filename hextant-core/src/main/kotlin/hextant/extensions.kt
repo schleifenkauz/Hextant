@@ -1,9 +1,8 @@
 package hextant
 
 import hextant.base.EditorSnapshot
+import hextant.core.Clipboard
 import hextant.core.ClipboardContent.OneEditor
-import hextant.core.CoreProperties.clipboard
-import hextant.core.Internal
 import hextant.core.editor.TransformedEditor
 
 /**
@@ -48,21 +47,21 @@ fun <E : Editor<*>> E.moveTo(newContext: Context): E =
 fun <E : Editor<*>> E.copyFor(newContext: Context): E = snapshot().reconstruct(newContext)
 
 /**
- * Copy this [Editor] to the [clipboard], if this is supported by the editor.
+ * Copy this [Editor] to the [Clipboard], if this is supported by the editor.
  * Returns `true` only if the action was successful.
  */
 fun Editor<*>.copyToClipboard(): Boolean {
     if (!supportsCopyPaste()) return false
-    context[Internal, clipboard] = OneEditor(snapshot())
+    context[Clipboard].copy(OneEditor(snapshot()))
     return true
 }
 
 /**
- * Paste the [clipboard]-content into this editor.
+ * Paste the [Clipboard]-content into this editor.
  * Returns `true` only if the action was successful.
  */
 fun Editor<*>.pasteFromClipboard(): Boolean {
-    val content = context[clipboard]
+    val content = context[Clipboard].get()
     if (content !is OneEditor) return false
     return paste(content.snapshot)
 }

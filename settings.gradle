@@ -1,7 +1,6 @@
 rootProject.name = 'hextant'
 include 'hextant-lisp'
 include 'hextant-core'
-include 'hextant-util'
 include 'hextant-sample'
 include 'hextant-expr'
 include 'hextant-test'

@@ -23,10 +23,4 @@ object CoreProperties {
      * The parent region of the visual editor
      */
     val editorParentRegion = SimpleProperty<Region>("editor parent region")
-
-    /**
-     * The clipboard content
-     */
-    val clipboard: Property<ClipboardContent, Any, Internal> =
-        Property("clipboard", null)
 }

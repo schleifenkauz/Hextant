@@ -17,10 +17,17 @@ open class AbstractContext(final override val parent: Context?, private val bund
         when {
             bundle.hasProperty(permission, property) -> bundle[permission, property]
             parent != null                           -> parent[permission, property]
-            else                                     -> {
+            else                                     ->
                 property.default() ?: throw NoSuchElementException("Property $property is not configured")
-            }
         }
+
+    override fun <Read : Any, Write : Read> delete(permission: Write, property: Property<*, Read, Write>) {
+        when {
+            bundle.hasProperty(permission, property) -> bundle.delete(permission, property)
+            parent != null                           -> parent.delete(permission, property)
+            else                                     -> throw NoSuchElementException("Property $property is not configured")
+        }
+    }
 
     override fun <T> get(property: Property<out T, Any, *>): T = get(Any(), property)
 

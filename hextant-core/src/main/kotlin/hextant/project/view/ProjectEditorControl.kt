@@ -6,9 +6,8 @@ package hextant.project.view
 
 import bundles.Bundle
 import hextant.*
-import hextant.core.ClipboardContent
-import hextant.core.CoreProperties.clipboard
-import hextant.core.Internal
+import hextant.core.Clipboard
+import hextant.core.ClipboardContent.OneEditor
 import hextant.fx.EditorControl
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
@@ -82,13 +81,15 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             }
             on("Ctrl+Shift+C") {
                 val item = selectedEditor() ?: return@on
-                context[Internal, clipboard] = ClipboardContent.OneEditor(item.snapshot())
+                context[Clipboard].copy(OneEditor(item.snapshot()))
             }
             on("Ctrl+Shift+V") {
                 val selected = selectedEditor() ?: return@on
-                val content = context[clipboard] as? ProjectItemEditor<*, *> ?: return@on
-                val copy = content.copyFor(selected.context)
-                addNewItem(selected, copy)
+                val content = context[Clipboard].get()
+                if (content is OneEditor) {
+                    val copy = content.snapshot.reconstruct(context)
+                    addNewItem(selected, copy as ProjectItemEditor<*, *>)
+                }
             }
         }
     }

@@ -8,7 +8,8 @@ import hextant.*
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.command.meta.ProvideCommand
-import hextant.core.CoreProperties
+import hextant.core.Clipboard
+import hextant.core.ClipboardContent.MultipleEditors
 import hextant.core.view.ListEditorView
 import hextant.serial.*
 import hextant.undo.AbstractEdit
@@ -117,9 +118,9 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * Inserts all the editors currently copied with at the specified [idx] into this [ListEditor].
      */
     fun pasteManyFromClipboard(idx: Int) {
-        val content = context[CoreProperties.clipboard]
-        if (content !is List<*>) return
-        pasteMany(idx, content)
+        val content = context[Clipboard].get()
+        if (content !is MultipleEditors) return
+        pasteMany(idx, content.snapshots)
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {

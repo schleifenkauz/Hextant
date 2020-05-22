@@ -64,7 +64,7 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
                     if (old != null) {
                         valueObservers.remove(old)!!.kill()
                         val prop = old.property.property
-                        if (bundle.hasProperty(prop)) bundle.delete(prop)
+                        if (bundle.hasProperty(prop)) bundle.delete(Any(), prop)
                     }
                     if (new != null) {
                         val prop = new.property.property

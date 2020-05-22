@@ -4,13 +4,23 @@
 
 package hextant
 
-import bundles.Bundle
-import bundles.createBundle
+import bundles.*
 import hextant.fx.EditorControl
 import hextant.serial.SerialProperties
 import kserial.*
 import java.nio.file.Path
 import kotlin.reflect.KClass
+
+/**
+ *
+ */
+fun <T, Read : Any, Write : Read> Context.replace(permission: Write, property: Property<T, Read, Write>, value: T) {
+    when {
+        hasProperty(permission, property) -> set(permission, property, value)
+        parent != null                    -> parent!!.replace(permission, property, value)
+        else                              -> throw NoSuchElementException("Property $property not configured")
+    }
+}
 
 /**
  * Uses the [EditorControlGroup] of this [Context] to create a view for the given [editor] with the specified [arguments]

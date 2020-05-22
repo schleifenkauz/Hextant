@@ -5,7 +5,7 @@
 package hextant
 
 import hextant.command.Commands
-import hextant.core.Internal
+import hextant.core.*
 import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
@@ -44,6 +44,7 @@ object HextantPlatform {
         set(SelectionDistributor, SelectionDistributor.newInstance())
         set(EditorControlGroup, EditorControlGroup())
         set(UndoManager, UndoManager.newInstance())
+        set(Clipboard, SimpleClipboard())
         set(InputMethod, InputMethod.REGULAR)
     }
 }
