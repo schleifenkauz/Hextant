@@ -24,10 +24,18 @@ import javafx.scene.input.KeyCombination
  */
 open class AbstractTokenEditorControl(
     private val editor: TokenEditor<*, *>,
-    args: Bundle,
-    completer: Completer<Context, String> = NoCompleter
+    args: Bundle
 ) : EditorControl<HextantTextField>(editor, args), TokenEditorView {
     private val textField = HextantTextField(initialInputMethod = context[InputMethod])
+
+    /**
+     * The completer used by this TokenEditorControl
+     */
+    var completer
+        get() = arguments[COMPLETER]
+        set(value) {
+            arguments[COMPLETER] = value
+        }
 
     init {
         registerShortcut()
@@ -45,14 +53,7 @@ open class AbstractTokenEditorControl(
         popup.show(this)
     }
 
-    /**
-     * The completer used by this TokenEditorControl
-     */
-    var completer
-        get() = arguments[COMPLETER]
-        set(value) {
-            arguments[COMPLETER] = value
-        }
+
 
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
         when (property) {
@@ -60,10 +61,10 @@ open class AbstractTokenEditorControl(
         }
     }
 
-    private val popup = CompletionPopup(context, context[IconManager], completer)
+    private val popup = CompletionPopup(context, context[IconManager], this.completer)
 
     private val obs = popup.completionChosen.observe(this) { _, c ->
-        editor.setText(c.completion)
+        editor.setText(c.completionText)
         scene.selectNext()
     }
 
@@ -82,6 +83,6 @@ open class AbstractTokenEditorControl(
         /**
          * This property controls the completer of the token editor control
          */
-        val COMPLETER = SimpleProperty<Completer<Context, String>>("completer")
+        val COMPLETER = SimpleProperty<Completer<Context, Any?>>("completer", default = NoCompleter)
     }
 }

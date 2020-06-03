@@ -11,8 +11,7 @@ import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.core.Internal
 import hextant.core.editor.TokenEditor
-import hextant.core.view.FXTokenEditorView
-import hextant.core.view.TokenEditorView
+import hextant.core.view.*
 import hextant.fx.*
 import hextant.impl.myLogger
 import hextant.inspect.*
@@ -89,11 +88,12 @@ class PluginBuilder @PublishedApi internal constructor(val context: Context) {
      */
     inline fun <reified E : TokenEditor<*, TokenEditorView>> tokenEditorView(
         styleClass: String? = null,
-        completer: Completer<Context, String> = NoCompleter,
+        completer: Completer<Context, Any?> = NoCompleter,
         crossinline extraConfig: FXTokenEditorView.() -> Unit = {}
     ) {
         view { e: E, args ->
-            FXTokenEditorView(e, args, completer).apply {
+            args[AbstractTokenEditorControl.COMPLETER] = completer
+            FXTokenEditorView(e, args).apply {
                 if (styleClass != null) root.styleClass.add(styleClass)
                 extraConfig()
             }

@@ -26,8 +26,6 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     fun completer(strategy: CompletionStrategy): Completer<Context, String> =
         object : ConfiguredCompleter<Context, String>(strategy) {
             override fun completionPool(context: Context): Set<String> = keys()
-
-            override fun extractText(context: Context, item: String): String? = item
         }
 
     private fun keys(): Set<String> =

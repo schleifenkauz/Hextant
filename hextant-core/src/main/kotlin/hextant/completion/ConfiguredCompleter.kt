@@ -16,7 +16,7 @@ abstract class ConfiguredCompleter<in Ctx, T>(private val strategy: CompletionSt
     /**
      * Extract the textual representation of the given [item]
      */
-    protected abstract fun extractText(context: Ctx, item: T): String?
+    protected open fun extractText(context: Ctx, item: T): String? = item.toString()
 
     /**
      * Can be overridden by extending classes to configure completions.
@@ -43,8 +43,6 @@ abstract class ConfiguredCompleter<in Ctx, T>(private val strategy: CompletionSt
         fun withStringPool(strategy: CompletionStrategy, pool: Collection<String>) =
             object : ConfiguredCompleter<Any?, String>(strategy) {
                 override fun completionPool(context: Any?): Collection<String> = pool
-
-                override fun extractText(context: Any?, item: String): String? = item
             }
     }
 }

@@ -27,8 +27,6 @@ class IntLiteralEditor(
     object Completer : ConfiguredCompleter<Context, String>(CompletionStrategy.simple) {
         override fun completionPool(context: Context): Set<String> = setOf("666")
 
-        override fun extractText(context: Context, item: String): String? = item
-
         override fun Builder<String>.configure(context: Context) {
             tooltipText = "666 is the number of satan"
             infoText = "Cool number"

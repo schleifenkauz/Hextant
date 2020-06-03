@@ -23,7 +23,7 @@ open class FXExpanderView(
     private val expander: Expander<*, *>,
     args: Bundle
 ) : ExpanderView, EditorControl<Node>(expander, args) {
-    constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<Context, String>) :
+    constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<Context, Any?>) :
             this(expander, args.also { it[COMPLETER] = completer })
 
     private var view: EditorControl<*>? = null
@@ -84,7 +84,7 @@ open class FXExpanderView(
         expander.text.now?.let { displayText(it) }
         expander.addView(this)
         completionObserver = popup.completionChosen.observe { _, comp ->
-            expander.setText(comp.completion)
+            expander.setText(comp.completionText)
             expander.expand()
         }
     }
@@ -138,6 +138,6 @@ open class FXExpanderView(
         /**
          * This property controls the completer of the expander control
          */
-        val COMPLETER = SimpleProperty<Completer<Context, String>>("completer", NoCompleter)
+        val COMPLETER = SimpleProperty<Completer<Context, Any?>>("completer", default = NoCompleter)
     }
 }
