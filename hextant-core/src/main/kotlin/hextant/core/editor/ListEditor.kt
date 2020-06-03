@@ -33,7 +33,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 ) : AbstractEditor<List<R>, ListEditorView>(context), Serializable {
     constructor(context: Context) : this(context, reactiveList())
 
-    private var mayBeEmpty = false
+    private var mayBeEmpty = true
 
     private fun mayRemove() = mayBeEmpty || editors.now.size > 1
 
