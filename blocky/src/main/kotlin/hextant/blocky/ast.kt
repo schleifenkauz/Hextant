@@ -4,19 +4,19 @@
 
 package hextant.blocky
 
-import hextant.*
 import hextant.blocky.editor.*
 import hextant.codegen.*
 import hextant.core.TokenType
+import validated.*
 
 @Token
 data class Id(private val str: String) {
     override fun toString(): String = str
 
     companion object : TokenType<Id> {
-        override fun compile(token: String): CompileResult<Id> = token
+        override fun compile(token: String): Validated<Id> = token
             .takeIf { it.all { c -> c.isLetter() } }
-            .okOrErr { "Invalid identifier '$token'" }
+            .validated { invalid("Invalid identifier '$token'") }
             .map(::Id)
     }
 }
@@ -28,8 +28,8 @@ sealed class Expr
 @Token(subtypeOf = Expr::class)
 data class IntLiteral(val value: Int) : Expr() {
     companion object : TokenType<IntLiteral> {
-        override fun compile(token: String): CompileResult<IntLiteral> =
-            token.toIntOrNull()?.let(::IntLiteral).okOrErr { "Invalid integer literal $token" }
+        override fun compile(token: String): Validated<IntLiteral> =
+            token.toIntOrNull()?.let(::IntLiteral).validated { invalid("Invalid integer literal $token") }
     }
 }
 
@@ -48,8 +48,8 @@ enum class BinaryOperator(private val str: String) {
     companion object : TokenType<BinaryOperator> {
         private val operators = values().associateBy { it.str }
 
-        override fun compile(token: String): CompileResult<BinaryOperator> =
-            operators[token].okOrErr { "Invalid binary operator $token" }
+        override fun compile(token: String): Validated<BinaryOperator> =
+            operators[token].validated { invalid("Invalid binary operator $token") }
     }
 }
 
@@ -65,8 +65,8 @@ enum class UnaryOperator(private val str: String) {
     companion object : TokenType<UnaryOperator> {
         private val operators = values().associateBy { it.str }
 
-        override fun compile(token: String): CompileResult<UnaryOperator> =
-            operators[token].okOrErr { "Invalid binary operator $token" }
+        override fun compile(token: String): Validated<UnaryOperator> =
+            operators[token].validated { invalid("Invalid binary operator $token") }
     }
 }
 

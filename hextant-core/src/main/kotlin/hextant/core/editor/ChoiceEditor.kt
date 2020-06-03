@@ -4,27 +4,30 @@
 
 package hextant.core.editor
 
-import hextant.*
+import hextant.Context
+import hextant.Editor
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.core.view.ChoiceEditorView
 import reaktive.value.now
 import reaktive.value.reactiveVariable
+import validated.reaktive.ReactiveValidated
+import validated.valid
 
 /**
  * An [Editor] which supports choosing different items of type [C]
  */
 abstract class ChoiceEditor<C : Any>(default: C, context: Context) : AbstractEditor<C, ChoiceEditorView<C>>(context) {
-    private val selected = reactiveVariable(ok(default))
+    private val selected = reactiveVariable(valid(default))
 
-    override val result: EditorResult<C>
+    override val result: ReactiveValidated<C>
         get() = selected
 
     /**
      * Select the given [choice]
      */
     fun select(choice: C) {
-        selected.set(ok(choice))
+        selected.set(valid(choice))
         views { selected(choice) }
     }
 

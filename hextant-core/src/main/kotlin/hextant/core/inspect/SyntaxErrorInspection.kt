@@ -4,19 +4,21 @@
 
 package hextant.core.inspect
 
-import hextant.*
+import hextant.Editor
 import hextant.inspect.AbstractInspection
 import hextant.inspect.Severity
 import reaktive.value.ReactiveBoolean
 import reaktive.value.binding.map
 import reaktive.value.now
+import validated.Validated.Invalid
+import validated.isInvalid
 
 internal class SyntaxErrorInspection(inspected: Editor<*>) : AbstractInspection<Editor<*>>(inspected, inspected) {
-    override val isProblem: ReactiveBoolean = inspected.result.map { it.isErr }
+    override val isProblem: ReactiveBoolean = inspected.result.map { it.isInvalid }
 
     override fun message(): String {
-        val er = inspected.result.now as Err
-        val msg = er.message
+        val invalid = inspected.result.now as Invalid
+        val msg = invalid.reason
         return "Syntax error: $msg"
     }
 

@@ -4,10 +4,11 @@
 
 package hextant.lisp.editor
 
-import hextant.*
+import hextant.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.lisp.DoubleLiteral
+import validated.*
 
 class DoubleLiteralEditor(context: Context) : TokenEditor<DoubleLiteral, TokenEditorView>(context),
                                               SExprEditor<DoubleLiteral> {
@@ -17,6 +18,6 @@ class DoubleLiteralEditor(context: Context) : TokenEditor<DoubleLiteral, TokenEd
 
     constructor(value: DoubleLiteral, context: Context) : this(value.value, context)
 
-    override fun compile(token: String): CompileResult<DoubleLiteral> =
-        token.toDoubleOrNull().okOrErr { "Invalid double literal $token" }.map(::DoubleLiteral)
+    override fun compile(token: String): Validated<DoubleLiteral> =
+        token.toDoubleOrNull().validated { invalid("Invalid double literal $token") }.map(::DoubleLiteral)
 }

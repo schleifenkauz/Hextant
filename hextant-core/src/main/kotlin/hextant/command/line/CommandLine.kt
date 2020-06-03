@@ -12,6 +12,8 @@ import reaktive.Observer
 import reaktive.dependencies
 import reaktive.value.*
 import reaktive.value.binding.binding
+import validated.*
+import validated.reaktive.ReactiveValidated
 
 /**
  * ### An editor for [Command]s.
@@ -28,9 +30,9 @@ class CommandLine(context: Context, private val source: CommandSource) :
      */
     val expanded get() = expandedCommand != null
 
-    private val _result: ReactiveVariable<CompileResult<CommandApplication>> = reactiveVariable(childErr())
+    private val _result: ReactiveVariable<Validated<CommandApplication>> = reactiveVariable(invalidComponent())
     private var obs: Observer? = null
-    override val result: EditorResult<CommandApplication> get() = _result
+    override val result: ReactiveValidated<CommandApplication> get() = _result
 
     /**
      * Change the input command name to the given [name].
@@ -97,15 +99,15 @@ class CommandLine(context: Context, private val source: CommandSource) :
 
     private fun bindResult(
         cmd: Command<*, *>,
-        arguments: List<EditorResult<Any>>
+        arguments: List<ReactiveValidated<Any>>
     ) {
-        obs = _result.bind(binding<CompileResult<CommandApplication>>(dependencies(arguments)) {
+        obs = _result.bind(binding<Validated<CommandApplication>>(dependencies(arguments)) {
             val args = mutableListOf<Any>()
             for (result in arguments) {
-                val value = result.now.ifErr { return@binding childErr() }
+                val value = result.now.ifInvalid { return@binding invalidComponent() }
                 args.add(value)
             }
-            ok(CommandApplication(cmd, args))
+            valid(CommandApplication(cmd, args))
         })
     }
 
@@ -118,7 +120,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
      */
     fun execute(): Boolean {
         if (!expanded && !expandNoArgCommand()) return false
-        val application = result.now.ifErr { return false }
+        val application = result.now.ifInvalid { return false }
         val focused = source.focusedTarget()
         if (focused != null && application.command.commandType == Command.Type.SingleReceiver) {
             val applicable = application.command.isApplicableOn(focused)
@@ -149,7 +151,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
 
     private fun expandNoArgCommand(): Boolean {
         val cmd = availableCommands().find { it.shortName == commandName && it.parameters.isEmpty() } ?: return false
-        _result.set(ok(CommandApplication(cmd, emptyList())))
+        _result.set(valid(CommandApplication(cmd, emptyList())))
         expanded(cmd, emptyList())
         return true
     }
@@ -190,7 +192,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
         commandName = ""
         obs?.kill()
         obs = null
-        _result.set(childErr())
+        _result.set(invalidComponent())
         views { reset() }
         return true
     }

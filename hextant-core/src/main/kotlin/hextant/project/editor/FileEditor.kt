@@ -16,6 +16,10 @@ import hextant.serial.SerialProperties.projectRoot
 import reaktive.Observer
 import reaktive.event.event
 import reaktive.value.reactiveVariable
+import validated.Validated
+import validated.invalidComponent
+import validated.reaktive.ReactiveValidated
+import validated.reaktive.composeReactive
 import java.nio.file.Path
 
 class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor<File<R>>(context),
@@ -26,7 +30,7 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
 
     override val itemName by child(FileNameEditor(context))
 
-    private val _result = reactiveVariable<CompileResult<File<R>>>(childErr())
+    private val _result = reactiveVariable<Validated<File<R>>>(invalidComponent())
 
     private var obs: Observer? = null
     private lateinit var observer: Observer
@@ -68,13 +72,13 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
 
     @Suppress("DEPRECATION")
     private fun updateEditor(e: Editor<R>) {
-        obs = _result.bind(result2(itemName, e) { name, content -> ok(File(name, content)) })
+        obs = _result.bind(composeReactive(itemName.result, e.result, ::File))
         e.setFile(content)
     }
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
-    override val result: EditorResult<File<R>> get() = _result
+    override val result: ReactiveValidated<File<R>> get() = _result
 
     internal class RootExpander<R : Any>(
         context: Context,

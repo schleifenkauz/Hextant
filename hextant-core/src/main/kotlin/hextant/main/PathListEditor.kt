@@ -7,10 +7,10 @@ package hextant.main
 import hextant.Context
 import hextant.core.Internal
 import hextant.core.editor.ListEditor
-import hextant.force
 import hextant.serial.SerialProperties
 import kserial.createOutput
 import reaktive.value.now
+import validated.force
 import java.nio.file.Files
 import java.nio.file.Path
 

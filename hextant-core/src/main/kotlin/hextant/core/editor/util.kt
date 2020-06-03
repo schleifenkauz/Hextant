@@ -5,8 +5,13 @@
 package hextant.core.editor
 
 import hextant.Context
+import hextant.Editor
+import reaktive.value.now
+import validated.reaktive.ReactiveValidated
+import validated.reaktive.composeReactive
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
 internal fun <E : Any> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {
@@ -23,4 +28,14 @@ internal fun Any.getTypeArgument(superclass: KClass<*>, index: Int): KClass<*> {
     val supertype = this::class.allSupertypes.first { it.classifier == superclass }
     val arg = supertype.arguments[index].type!!
     return arg.classifier as KClass<*>
+}
+
+inline fun <reified R : Any> composeResult(vararg components: Editor<*>): ReactiveValidated<R> {
+    val cls = R::class
+    val results = components.map { it.result }.toTypedArray()
+    val cstr = cls.primaryConstructor ?: error("$cls has no primary constructor")
+    return composeReactive(*results) {
+        val now = results.map { it.now.get() }.toTypedArray()
+        cstr.call(*now)
+    }
 }

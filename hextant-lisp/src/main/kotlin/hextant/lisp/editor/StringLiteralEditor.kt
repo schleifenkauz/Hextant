@@ -4,10 +4,12 @@
 
 package hextant.lisp.editor
 
-import hextant.*
+import hextant.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.lisp.StringLiteral
+import validated.Validated
+import validated.Validated.Valid
 
 class StringLiteralEditor(context: Context) : TokenEditor<StringLiteral, TokenEditorView>(context),
                                               SExprEditor<StringLiteral> {
@@ -17,5 +19,6 @@ class StringLiteralEditor(context: Context) : TokenEditor<StringLiteral, TokenEd
 
     constructor(value: StringLiteral, context: Context) : this(value.value, context)
 
-    override fun compile(token: String): CompileResult<StringLiteral> = Ok(StringLiteral(token))
+    override fun compile(token: String): Validated<StringLiteral> =
+        Valid(StringLiteral(token))
 }

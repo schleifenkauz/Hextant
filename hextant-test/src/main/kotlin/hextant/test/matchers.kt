@@ -8,7 +8,9 @@ import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.MatchResult.Match
 import com.natpryce.hamkrest.MatchResult.Mismatch
 import com.natpryce.hamkrest.should.shouldMatch
-import hextant.*
+import validated.Validated
+import validated.Validated.*
+import validated.isInvalid
 import kotlin.reflect.KClass
 
 /**
@@ -102,10 +104,10 @@ fun <E> aListOf(vararg elementMatchers: Matcher<E>) = object : Matcher.Primitive
 }
 
 //CompileResult matchers
-val error = Matcher(CompileResult<*>::isError)
+val notValid = Matcher(Validated<*>::isInvalid)
 
-val err: Matcher<CompileResult<*>> = instanceOf<Err>()
+val invalid: Matcher<Validated<*>> = instanceOf<Invalid>()
 
-val childErr: Matcher<CompileResult<*>> = equalTo(ChildErr)
+val invalidComponent: Matcher<Validated<*>> = equalTo(InvalidComponent)
 
-val ok: Matcher<CompileResult<*>> = instanceOf<Ok<*>>()
+val valid: Matcher<Validated<*>> = instanceOf<Valid<*>>()

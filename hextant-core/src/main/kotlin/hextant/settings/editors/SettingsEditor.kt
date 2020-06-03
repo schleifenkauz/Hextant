@@ -15,6 +15,9 @@ import reaktive.Observer
 import reaktive.list.ListChange.Added
 import reaktive.list.ListChange.Removed
 import reaktive.value.*
+import validated.Validated.Valid
+import validated.reaktive.ReactiveValidated
+import validated.valid
 
 /**
  * An editor that can be used to configure properties. It is implemented as a list of property-value entries.
@@ -55,7 +58,11 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
     private val valueObservers = mutableMapOf<SettingsEntryEditor, Observer>()
     private val entryObserver: Observer
 
-    override val result: EditorResult<Bundle> = reactiveValue(ok(settings))
+    override val result: ReactiveValidated<Bundle> = reactiveValue(
+        valid(
+            settings
+        )
+    )
 
     init {
         entryObserver = entries.editors.observeList { ch ->
@@ -69,7 +76,7 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
                     if (new != null) {
                         val prop = new.property.property
                         valueObservers[new] = new.value.result.forEach { r ->
-                            if (r is Ok) bundle[prop] = r.value
+                            if (r is Valid) bundle[prop] = r.value
                             else if (bundle.hasProperty(prop)) bundle.delete(prop)
                         }
                     }

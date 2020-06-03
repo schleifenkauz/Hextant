@@ -8,12 +8,15 @@ import hextant.*
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import reaktive.value.binding.map
+import validated.Validated
+import validated.flatMap
+import validated.reaktive.ReactiveValidated
 
 internal class TransformedEditor<T : Any, R : Any>(
     internal val source: Editor<T>,
-    transform: (T) -> CompileResult<R>
+    transform: (T) -> Validated<R>
 ) : AbstractEditor<R, EditorView>(source.context) {
-    override val result: EditorResult<R> = source.result.map { it.flatMap(transform) }
+    override val result: ReactiveValidated<R> = source.result.map { it.flatMap(transform) }
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 

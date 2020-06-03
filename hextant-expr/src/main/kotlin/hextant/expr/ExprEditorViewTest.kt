@@ -29,6 +29,7 @@ import kserial.*
 import reaktive.value.binding.and
 import reaktive.value.binding.map
 import reaktive.value.now
+import validated.*
 
 class ExprEditorViewTest : HextantApplication() {
     private lateinit var serialContext: SerialContext
@@ -56,7 +57,7 @@ class ExprEditorViewTest : HextantApplication() {
         commands.of<ExprEditor<*>>().register<ExprEditor<*>, Int> {
             name = "Evaluate Expression"
             shortName = "eval"
-            applicableIf { exprEditor -> exprEditor.result.now.isOk }
+            applicableIf { exprEditor -> exprEditor.result.now.isValid }
             description = "Evaluates the selected expression and prints it to the console"
             executing { editor, _ ->
                 val e = editor.result.now.force()
@@ -71,7 +72,7 @@ class ExprEditorViewTest : HextantApplication() {
             type = Command.Type.SingleReceiver
             applicableIf { oe ->
                 val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
-                oae.operator.result.now.map { it.isCommutative }.ifErr { false }
+                oae.operator.result.now.map { it.isCommutative }.ifInvalid { false }
             }
             executingCompoundEdit { oe, _ ->
                 val oae = oe.parent as OperatorApplicationEditor
@@ -88,7 +89,7 @@ class ExprEditorViewTest : HextantApplication() {
             shortName = "collapse"
             description = "Partially evaluate the selected expression"
             applicableIf { oae ->
-                oae.result.now.isOk && oae.expander != null
+                oae.result.now.isValid && oae.expander != null
             }
             executingCompoundEdit { oae, _ ->
                 val ex = oae.expander as ExprExpander

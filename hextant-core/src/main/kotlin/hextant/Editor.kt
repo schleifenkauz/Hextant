@@ -8,6 +8,7 @@ import hextant.base.EditorSnapshot
 import hextant.core.editor.Expander
 import hextant.serial.*
 import reaktive.collection.ReactiveCollection
+import validated.reaktive.ReactiveValidated
 
 /**
  * An editor for results of type [R]
@@ -16,7 +17,7 @@ interface Editor<out R : Any> {
     /**
      * A [reaktive.value.ReactiveValue] holding the result of compiling the content of the editor
      */
-    val result: EditorResult<R>
+    val result: ReactiveValidated<R>
 
     /**
      * The parent of this Editor or `null` if this Editor is the root

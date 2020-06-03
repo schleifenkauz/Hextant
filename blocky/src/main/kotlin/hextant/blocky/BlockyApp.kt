@@ -10,6 +10,7 @@ import hextant.fx.registerShortcuts
 import hextant.main.HextantApplication
 import javafx.scene.Parent
 import reaktive.value.now
+import validated.ifInvalid
 
 class BlockyApp : HextantApplication() {
     override fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
@@ -19,7 +20,7 @@ class BlockyApp : HextantApplication() {
         val view = context.createView(e)
         view.registerShortcuts {
             on("Ctrl+E") {
-                val prog = e.result.now.ifErr { return@on }
+                val prog = e.result.now.ifInvalid { return@on }
                 execute(prog)
             }
         }

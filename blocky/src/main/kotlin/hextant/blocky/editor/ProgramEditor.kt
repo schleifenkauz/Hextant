@@ -9,6 +9,8 @@ import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.blocky.Program
 import hextant.blocky.view.ProgramEditorView
+import validated.reaktive.ReactiveValidated
+import validated.reaktive.composeReactive
 
 class ProgramEditor(context: Context) :
     AbstractEditor<Program, ProgramEditorView>(context) {
@@ -40,7 +42,9 @@ class ProgramEditor(context: Context) :
         components.forEachIndexed { idx, comp -> view.addedComponent(idx, comp) }
     }
 
-    override val result: EditorResult<Program> = result1(entry) { s -> ok(Program(s)) }
+    override val result: ReactiveValidated<Program> = composeReactive(entry.result, ::Program)
+
+    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
     private class Snapshot(original: ProgramEditor) : EditorSnapshot<ProgramEditor>(original) {
         private val entry = original.entry.snapshot()

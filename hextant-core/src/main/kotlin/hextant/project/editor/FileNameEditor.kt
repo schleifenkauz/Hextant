@@ -4,8 +4,9 @@
 
 package hextant.project.editor
 
-import hextant.*
+import hextant.Context
 import hextant.core.editor.FilteredTokenEditor
+import validated.*
 
 class FileNameEditor(context: Context, text: String) : FilteredTokenEditor<String>(context, text) {
     constructor(context: Context) : this(context, "")
@@ -16,11 +17,11 @@ class FileNameEditor(context: Context, text: String) : FilteredTokenEditor<Strin
         return list.parent as? DirectoryEditor<*>
     }
 
-    override fun compile(token: String): CompileResult<String> = when {
-        token.isBlank()                                 -> err("Blank file names are invalid")
-        token.any { it in forbiddenCharacters }         -> err("Invalid file name '$token'")
-        parentDirectory()?.isTaken(token, this) == true -> err("Name '$token' already taken")
-        else                                            -> ok(token)
+    override fun compile(token: String): Validated<String> = when {
+        token.isBlank()                                 -> invalid("Blank file names are invalid")
+        token.any { it in forbiddenCharacters }         -> invalid("Invalid file name '$token'")
+        parentDirectory()?.isTaken(token, this) == true -> invalid("Name '$token' already taken")
+        else                                            -> valid(token)
     }
 
     companion object {

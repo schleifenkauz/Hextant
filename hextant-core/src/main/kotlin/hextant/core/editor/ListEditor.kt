@@ -19,6 +19,10 @@ import reaktive.dependencies
 import reaktive.list.*
 import reaktive.list.binding.values
 import reaktive.value.binding.binding
+import validated.*
+import validated.Validated.InvalidComponent
+import validated.Validated.Valid
+import validated.reaktive.ReactiveValidated
 
 /**
  * An editor for multiple child editors of type [E] whose result type is [R]
@@ -53,11 +57,11 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     val results = editors.map { it.result }.values()
 
     /**
-     * The [result] only contains an [Ok] value, if all child results are [Ok]. Otherwise it contains a [ChildErr]
+     * The [result] only contains an [Valid] value, if all child results are [Valid]. Otherwise it contains a [InvalidComponent]
      */
-    override val result: EditorResult<List<R>> = binding<CompileResult<List<R>>>(dependencies(results)) {
-        results.now.takeIf { it.all { r -> r.isOk } }
-            .okOrChildErr()
+    override val result: ReactiveValidated<List<R>> = binding<Validated<List<R>>>(dependencies(results)) {
+        results.now.takeIf { it.all { r -> r.isValid } }
+            .validated { invalidComponent() }
             .map { results ->
                 results.map { res -> res.force() }
             }
@@ -82,6 +86,19 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         doClear()
         for ((i, e) in editors.withIndex()) {
             doAddAt(i, e.copyFor(childContext()))
+        }
+        return true
+    }
+
+    /**
+     * Adds or removes children such that this list editor has exactly [size] children.
+     */
+    fun resize(size: Int): Boolean {
+        if (!mayBeEmpty && size == 0) return false
+        val old = editors.now.size
+        when {
+            old < size -> repeat(size - old) { addLast() }
+            old > size -> for (i in size downTo old) removeAt(i)
         }
         return true
     }

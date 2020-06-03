@@ -4,14 +4,16 @@
 
 package hextant.expr.editor
 
-import hextant.*
+import hextant.Context
 import hextant.base.CompoundEditor
 import hextant.expr.Sum
+import validated.reaktive.ReactiveValidated
+import validated.reaktive.composeReactive
 
 class SumEditor(
     context: Context
 ) : CompoundEditor<Sum>(context), ExprEditor<Sum> {
     val expressions by child(ExprListEditor(context))
 
-    override val result: EditorResult<Sum> = expressions.result.mapResult(::Sum)
+    override val result: ReactiveValidated<Sum> = composeReactive(expressions.result, ::Sum)
 }

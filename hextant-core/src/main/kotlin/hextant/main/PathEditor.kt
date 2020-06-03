@@ -4,32 +4,34 @@
 
 package hextant.main
 
-import hextant.*
+import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import kserial.Serializable
 import reaktive.value.now
 import reaktive.value.reactiveVariable
+import validated.*
+import validated.reaktive.ReactiveValidated
 import java.nio.file.Path
 
 class PathEditor private constructor(context: Context) : AbstractEditor<Path, PathEditorView>(context), Serializable {
     constructor(context: Context, initial: Path) : this(context) {
-        _result.now = ok(initial)
+        _result.now = valid(initial)
     }
 
-    private val _result = reactiveVariable<CompileResult<Path>>(childErr())
+    private val _result = reactiveVariable<Validated<Path>>(invalidComponent())
 
-    override val result: EditorResult<Path> get() = _result
+    override val result: ReactiveValidated<Path> get() = _result
 
     fun choosePath(new: Path) {
-        _result.now = ok(new)
+        _result.now = valid(new)
         views {
             displayPath(new)
         }
     }
 
     override fun viewAdded(view: PathEditorView) {
-        result.now.ifOk { view.displayPath(it) }
+        result.now.ifValid { view.displayPath(it) }
     }
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)

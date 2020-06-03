@@ -24,6 +24,7 @@ import javafx.scene.input.KeyCode.O
 import javafx.scene.input.KeyCode.S
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
+import validated.*
 import java.nio.file.Paths
 
 class DirectoryViewTest : HextantApplication() {
@@ -71,8 +72,8 @@ class DirectoryViewTest : HextantApplication() {
 
     class IntEditor(context: Context, text: String = "") :
         TokenEditor<Int, TokenEditorView>(context, text) {
-        override fun compile(token: String): CompileResult<Int> =
-            token.toIntOrNull().okOrErr { "Invalid literal $token" }
+        override fun compile(token: String): Validated<Int> =
+            token.toIntOrNull().validated { invalid("Invalid literal $token") }
     }
 
     companion object {

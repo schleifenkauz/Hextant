@@ -4,9 +4,9 @@ import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.Expr
 import hextant.expr.editor.*
-import hextant.ok
 import hextant.plugin.dsl.PluginInitializer
 import org.controlsfx.glyphfont.FontAwesome
+import validated.valid
 
 object ExprPlugin : PluginInitializer({
     author = "Nikolaus Knop"
@@ -43,6 +43,6 @@ object ExprPlugin : PluginInitializer({
             cellFactory = { ListEditorControl.SeparatorCell(", ") }
         }
     }
-    registerConversion<Expr, Int> { expr -> ok(expr.value) }
+    registerConversion<Expr, Int> { expr -> valid(expr.value) }
     stylesheet("expr.css")
 })

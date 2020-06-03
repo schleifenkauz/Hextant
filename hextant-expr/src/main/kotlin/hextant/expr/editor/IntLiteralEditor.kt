@@ -4,13 +4,14 @@
 
 package hextant.expr.editor
 
-import hextant.*
+import hextant.Context
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.expr.IntLiteral
+import validated.*
 
 class IntLiteralEditor(
     context: Context,
@@ -20,8 +21,8 @@ class IntLiteralEditor(
 
     constructor(v: IntLiteral, context: Context) : this(context, v.value.toString())
 
-    override fun compile(token: String): CompileResult<IntLiteral> =
-        token.toIntOrNull().okOrErr { "Invalid int literal $token" }.map { IntLiteral(it) }
+    override fun compile(token: String): Validated<IntLiteral> =
+        token.toIntOrNull().validated { invalid("Invalid int literal $token") }.map { IntLiteral(it) }
 
     object Completer : ConfiguredCompleter<Context, String>(CompletionStrategy.simple) {
         override fun completionPool(context: Context): Set<String> = setOf("666")

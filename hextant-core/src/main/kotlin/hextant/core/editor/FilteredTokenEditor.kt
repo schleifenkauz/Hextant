@@ -4,7 +4,7 @@
 
 package hextant.core.editor
 
-import hextant.*
+import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.core.TokenType
@@ -17,9 +17,12 @@ import kserial.Serializable
 import reaktive.event.event
 import reaktive.event.unitEvent
 import reaktive.value.*
+import validated.Validated.Valid
+import validated.invalidComponent
+import validated.reaktive.ReactiveValidated
 
 /**
- * A [FilteredTokenEditor] is an editor whose result is always [Ok]. It can be either editable or not editable.
+ * A [FilteredTokenEditor] is an editor whose result is always [Valid]. It can be either editable or not editable.
  * In the editable state setting the text is allowed, but the change is not immediately reflected in the [result].
  * One can commit or abort a change to get in the not editable state again and call [beginChange] to make the editor editable.
  * @param [initialText] the initial text, which has to be a valid token. Otherwise an [IllegalArgumentException] is thrown.
@@ -30,7 +33,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
     private val _text = reactiveVariable(initialText)
     private val _editable = reactiveVariable(true)
     private val _intermediateResult = reactiveVariable(this.compile(initialText))
-    private val _result = reactiveVariable(childErr<R>())
+    private val _result = reactiveVariable(invalidComponent<R>())
 
     private val beginChange = unitEvent()
     private val abortChange = unitEvent()
@@ -48,12 +51,12 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
      */
     val editable: ReactiveBoolean get() = _editable
 
-    final override val result: EditorResult<R> get() = _result
+    final override val result: ReactiveValidated<R> get() = _result
 
     /**
      * The result compiled from the current [text]
      */
-    val intermediateResult: EditorResult<R> get() = _intermediateResult
+    val intermediateResult: ReactiveValidated<R> get() = _intermediateResult
 
     /**
      * Emits events when the editor becomes editable
@@ -104,7 +107,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
     fun commitChange() {
         if (!editable.now) return
         val res = intermediateResult.now
-        if (res !is Ok) return
+        if (res !is Valid) return
         val edit = CommitEdit(virtualize(), oldText, text.now)
         _editable.set(false)
         _result.set(res)
@@ -119,7 +122,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
     private fun setTextAndCommit(new: String) {
         check(!editable.now)
         val res = compile(new)
-        if (res !is Ok) error("Illegal token $new")
+        if (res !is Valid) error("Illegal token $new")
         _text.set(new)
         _intermediateResult.set(res)
         _result.set(res)

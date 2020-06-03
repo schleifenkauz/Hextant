@@ -4,7 +4,8 @@
 
 package hextant.sample.editor
 
-import hextant.*
+import hextant.Context
+import hextant.Editor
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
 import hextant.sample.ast.IntExpr
@@ -12,6 +13,7 @@ import hextant.sample.ast.IntOperator
 import hextant.sample.ast.IntOperator.*
 import reaktive.value.ReactiveValue
 import reaktive.value.binding.map
+import validated.orNull
 
 class IntExprExpander(context: Context) : ConfiguredExpander<IntExpr, Editor<IntExpr>>(config, context),
                                           IntExprEditor {

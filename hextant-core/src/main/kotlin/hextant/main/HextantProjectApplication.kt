@@ -20,6 +20,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import reaktive.value.now
+import validated.force
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.reflect.KClass

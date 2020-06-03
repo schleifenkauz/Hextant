@@ -5,7 +5,6 @@
 package hextant.lisp
 
 import hextant.*
-
 import hextant.core.CoreProperties.editorParentRegion
 import hextant.lisp.editor.LispProperties.fileScope
 import hextant.lisp.editor.SExprExpander
@@ -16,6 +15,7 @@ import javafx.scene.control.Alert.AlertType.INFORMATION
 import javafx.scene.control.Button
 import javafx.scene.layout.VBox
 import reaktive.value.now
+import validated.orNull
 
 class LispEditorTest : HextantApplication() {
     override fun createContext(root: Context): Context = root.extend {

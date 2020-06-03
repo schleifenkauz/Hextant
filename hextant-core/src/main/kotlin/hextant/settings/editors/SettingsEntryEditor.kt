@@ -10,6 +10,8 @@ import hextant.core.Internal
 import hextant.settings.model.*
 import kserial.Input
 import kserial.Output
+import validated.reaktive.ReactiveValidated
+import validated.reaktive.mapValidated
 
 internal class SettingsEntryEditor private constructor(context: Context) : CompoundEditor<SettingsEntry>(context) {
     constructor(context: Context, property: ConfigurableProperty) : this(context) {
@@ -27,12 +29,7 @@ internal class SettingsEntryEditor private constructor(context: Context) : Compo
         value = context.createEditor(prop.type) as? BidirectionalEditor
             ?: throw RuntimeException("Editors for property value must be bidirectional")
         addChild(value)
-        result = value.result.mapResult { v ->
-            SettingsEntry(
-                property.property,
-                v
-            )
-        }
+        result = value.result.mapValidated { v -> SettingsEntry(property.property, v) }
     }
 
     override fun serialize(output: Output) {
@@ -47,6 +44,6 @@ internal class SettingsEntryEditor private constructor(context: Context) : Compo
         init(prop)
     }
 
-    override lateinit var result: EditorResult<SettingsEntry>
+    override lateinit var result: ReactiveValidated<SettingsEntry>
         private set
 }

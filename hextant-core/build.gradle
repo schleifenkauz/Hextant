@@ -13,6 +13,8 @@ dependencies {
     compile nkb03("kref", "0.1-SNAPSHOT")
     compile nkb03("bundles", "0.1-SNAPSHOT")
     compile nkb03("kollektion", "0.1-SNAPSHOT")
+    compile nkb03("validated", "0.1-SNAPSHOT")
+    compile nkb03("validated-reaktive", "0.1-SNAPSHOT")
     compile kotlin("stdlib")
     compile kotlin("reflect")
     compile "org.controlsfx:controlsfx:8.40.14"

@@ -5,11 +5,11 @@ import hextant.Context
 import hextant.core.view.ExpanderView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
-import hextant.ok
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
 import reaktive.value.now
+import validated.valid
 
 object ExpanderSpec : Spek({
     GIVEN("an expander") {
@@ -20,19 +20,19 @@ object ExpanderSpec : Spek({
                 ex.editor.now shouldBe `null`
             }
             TEST("result.now should be child error") {
-                ex.result.now shouldBe childErr
+                ex.result.now shouldBe invalidComponent
             }
             val editor = IntLiteralEditor(context)
             ON("expanding to an editor with error result") {
                 ex.setEditor(editor)
                 TEST("result.now should be child error") {
-                    ex.result.now shouldBe childErr
+                    ex.result.now shouldBe invalidComponent
                 }
             }
             ON("wrapped editor gets ok result") {
                 editor.setText("123")
                 TEST("result.now should be the result of the wrapped editor") {
-                    ex.result.now shouldEqual ok(IntLiteral(123))
+                    ex.result.now shouldEqual valid(IntLiteral(123))
                 }
             }
             ON("resetting the expander") {
@@ -41,7 +41,7 @@ object ExpanderSpec : Spek({
                     ex.editor.now shouldBe `null`
                 }
                 TEST("result.now should be child error") {
-                    ex.result.now shouldBe childErr
+                    ex.result.now shouldBe invalidComponent
                 }
             }
         }
@@ -71,7 +71,7 @@ object ExpanderSpec : Spek({
                 ON("expanding") {
                     ex.expand()
                     IT("should set the result") {
-                        ex.result.now shouldEqual ok(IntLiteral(123))
+                        ex.result.now shouldEqual valid(IntLiteral(123))
                     }
                     IT("should notify the views") {
                         verify().expanded(ex.editor.now!!)
@@ -88,7 +88,7 @@ object ExpanderSpec : Spek({
                         ex.editor.now shouldBe `null`
                     }
                     IT("should set the result to a child error") {
-                        ex.result.now shouldBe childErr
+                        ex.result.now shouldBe invalidComponent
                     }
                     IT("should notify the view") {
                         verify().reset()

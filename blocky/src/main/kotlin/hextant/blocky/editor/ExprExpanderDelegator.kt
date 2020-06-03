@@ -6,7 +6,7 @@ package hextant.blocky.editor
 
 import hextant.blocky.*
 import hextant.codegen.ExpanderConfigurator
-import hextant.orNull
+import validated.orNull
 
 object ExprExpanderDelegator : ExpanderConfigurator<ExprEditor<Expr>>({
     registerInterceptor { text, context -> IntLiteral.compile(text).orNull()?.let { IntLiteralEditor(context, text) } }

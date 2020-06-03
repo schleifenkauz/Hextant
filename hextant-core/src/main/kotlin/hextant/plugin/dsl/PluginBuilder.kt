@@ -17,6 +17,7 @@ import hextant.fx.*
 import hextant.impl.myLogger
 import hextant.inspect.*
 import hextant.plugin.Plugin
+import validated.Validated
 
 @PluginDsl
 class PluginBuilder @PublishedApi internal constructor(val context: Context) {
@@ -50,7 +51,7 @@ class PluginBuilder @PublishedApi internal constructor(val context: Context) {
     /**
      * Register an [Editor] for values of type [R] using an editor for type [T] and transforming with the given function
      */
-    inline fun <reified T : Any, reified R : Any> registerConversion(noinline transform: (T) -> CompileResult<R>) {
+    inline fun <reified T : Any, reified R : Any> registerConversion(noinline transform: (T) -> Validated<R>) {
         defaultEditor { context -> context.createEditor(T::class).map(transform) }
     }
 

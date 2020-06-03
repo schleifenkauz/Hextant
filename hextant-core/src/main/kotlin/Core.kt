@@ -1,4 +1,3 @@
-import hextant.*
 import hextant.completion.CompletionStrategy
 import hextant.core.editor.*
 import hextant.core.inspect.SyntaxErrorInspection
@@ -6,6 +5,7 @@ import hextant.core.view.*
 import hextant.core.view.FilteredTokenEditorControl.Companion.ABORT_CHANGE
 import hextant.core.view.FilteredTokenEditorControl.Companion.BEGIN_CHANGE
 import hextant.core.view.FilteredTokenEditorControl.Companion.COMMIT_CHANGE
+import hextant.createView
 import hextant.fx.shortcut
 import hextant.main.PathEditorControl
 import hextant.plugin.dsl.PluginInitializer
@@ -18,6 +18,8 @@ import hextant.settings.editors.*
 import javafx.scene.input.KeyCode.*
 import reaktive.value.binding.map
 import reaktive.value.now
+import validated.Validated.Invalid
+import validated.isValid
 
 object Core : PluginInitializer({
     name = "Hextant Core"
@@ -32,8 +34,8 @@ object Core : PluginInitializer({
     inspection(::SyntaxErrorInspection)
     registerInspection<FilteredTokenEditor<*>> {
         description = "Reports invalid intermediate result"
-        checkingThat(inspected.intermediateResult.map { it.isOk })
-        message { (inspected.intermediateResult.now as Err).message }
+        checkingThat(inspected.intermediateResult.map { it.isValid })
+        message { (inspected.intermediateResult.now as Invalid).reason }
         isSevere(true)
     }
     view { e: TransformedEditor<*, *>, bundle -> e.context.createView(e.source, bundle) }

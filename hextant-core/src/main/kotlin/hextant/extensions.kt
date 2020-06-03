@@ -4,6 +4,8 @@ import hextant.base.EditorSnapshot
 import hextant.core.Clipboard
 import hextant.core.ClipboardContent.OneEditor
 import hextant.core.editor.TransformedEditor
+import validated.Validated
+import validated.valid
 
 /**
  * Synonym for [apply]
@@ -74,13 +76,13 @@ inline fun <reified E : Editor<*>> E.copy(): E = copyFor(context)
 /**
  * Return an editor that transforms the [Editor.result] of this editor with the given function.
  */
-fun <T : Any, R : Any> Editor<T>.map(f: (T) -> CompileResult<R>): Editor<R> = TransformedEditor(this, f)
+fun <T : Any, R : Any> Editor<T>.map(f: (T) -> Validated<R>): Editor<R> = TransformedEditor(this, f)
 
 /**
  * Return an editor that transforms the [Editor.result] of this editor with the given function.
  */
 @JvmName("simpleMap")
-fun <T : Any, R : Any> Editor<T>.map(f: (T) -> R): Editor<R> = map { ok(f(it)) }
+fun <T : Any, R : Any> Editor<T>.map(f: (T) -> R): Editor<R> = map { valid(f(it)) }
 
 /**
  * Typesafe version of [Editor.createSnapshot]

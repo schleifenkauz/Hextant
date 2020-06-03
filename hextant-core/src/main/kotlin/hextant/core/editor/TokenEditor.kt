@@ -4,7 +4,7 @@
 
 package hextant.core.editor
 
-import hextant.*
+import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.core.TokenType
@@ -13,6 +13,8 @@ import hextant.serial.VirtualEditor
 import hextant.serial.virtualize
 import hextant.undo.*
 import reaktive.value.*
+import validated.Validated
+import validated.reaktive.ReactiveValidated
 
 /**
  * A token editor transforms text to tokens.
@@ -26,7 +28,7 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
 
     private val _result = reactiveVariable(this.compile(""))
 
-    override val result: EditorResult<R> get() = _result
+    override val result: ReactiveValidated<R> get() = _result
 
     private var _text = reactiveVariable("")
 
@@ -98,7 +100,7 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
             type: TokenType<R>,
             context: Context
         ) = object : TokenEditor<R, TokenEditorView>(context) {
-            override fun compile(token: String): CompileResult<R> = type.compile(token)
+            override fun compile(token: String): Validated<R> = type.compile(token)
         }
     }
 }

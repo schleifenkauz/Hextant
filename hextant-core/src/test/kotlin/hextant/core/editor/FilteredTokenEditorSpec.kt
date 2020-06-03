@@ -4,10 +4,11 @@
 
 package hextant.core.editor
 
-import com.natpryce.hamkrest.should.shouldMatch
-import hextant.*
+import hextant.Context
+import hextant.copy
 import hextant.core.view.FilteredTokenEditorView
 import hextant.test.*
+import hextant.test.invalidComponent
 import io.mockk.mockk
 import io.mockk.verify
 import kserial.*
@@ -15,6 +16,8 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.event.EventStream
 import reaktive.value.now
+import validated.*
+import validated.Validated.Valid
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
@@ -33,10 +36,10 @@ object FilteredTokenEditorSpec : Spek({
                     e.text.now shouldEqual "123"
                 }
                 it("should compile the initial text") {
-                    e.intermediateResult.now shouldEqual ok(123)
+                    e.intermediateResult.now shouldEqual valid(123)
                 }
                 it("it should initialize the result with a child error") {
-                    e.result.now shouldEqual childErr()
+                    e.result.now shouldEqual invalidComponent
                 }
                 it("should not editable") {
                     e.editable.now shouldBe `true`
@@ -60,7 +63,7 @@ object FilteredTokenEditorSpec : Spek({
                     verify { v.setEditable(false) }
                 }
                 it("should set the result") {
-                    e.result.now shouldEqual Ok(123)
+                    e.result.now shouldEqual Valid(123)
                 }
                 it("should not be editable") {
                     e.editable.now shouldBe `false`
@@ -82,10 +85,10 @@ object FilteredTokenEditorSpec : Spek({
             on("setting the text") {
                 e.setText("invalid")
                 it("should update the intermediate result") {
-                    e.intermediateResult.now shouldMatch err
+                    e.intermediateResult.now shouldBe invalid
                 }
                 it("should not update the result") {
-                    e.result.now shouldEqual ok(123)
+                    e.result.now shouldEqual valid(123)
                 }
                 it("should update the text") {
                     e.text.now shouldEqual "invalid"
@@ -100,7 +103,7 @@ object FilteredTokenEditorSpec : Spek({
                     e.text.now shouldEqual "123"
                 }
                 it("should revert the intermediate result") {
-                    e.intermediateResult.now shouldEqual ok(123)
+                    e.intermediateResult.now shouldEqual valid(123)
                 }
                 it("should not editable") {
                     e.editable.now shouldBe `false`
@@ -130,7 +133,7 @@ object FilteredTokenEditorSpec : Spek({
             on("committing the change") {
                 e.commitChange()
                 it("should update the result") {
-                    e.result.now shouldEqual ok(456)
+                    e.result.now shouldEqual valid(456)
                 }
                 it("should not be editable") {
                     e.editable.now shouldBe `false`
@@ -168,10 +171,10 @@ object FilteredTokenEditorSpec : Spek({
                     new.text.now shouldEqual "123"
                 }
                 test("the intermediate result should be recompiled") {
-                    new.intermediateResult.now shouldEqual ok(123)
+                    new.intermediateResult.now shouldEqual valid(123)
                 }
                 test("the result should be initialized") {
-                    new.result.now shouldEqual ok(123)
+                    new.result.now shouldEqual valid(123)
                 }
             }
         }
@@ -187,16 +190,17 @@ object FilteredTokenEditorSpec : Spek({
                     copy.text.now shouldEqual "123"
                 }
                 test("the intermediate result should be copied") {
-                    copy.intermediateResult.now shouldEqual ok(123)
+                    copy.intermediateResult.now shouldEqual valid(123)
                 }
                 test("the result should be a child error") {
-                    copy.result.now shouldEqual childErr()
+                    copy.result.now shouldEqual invalidComponent()
                 }
             }
         }
     }
 }) {
     class Test(context: Context, initialText: String = "") : FilteredTokenEditor<Int>(context, initialText) {
-        override fun compile(token: String): CompileResult<Int> = token.toIntOrNull().okOrErr { "Invalid int literal" }
+        override fun compile(token: String): Validated<Int> =
+            token.toIntOrNull().validated { invalid("Invalid int literal") }
     }
 }

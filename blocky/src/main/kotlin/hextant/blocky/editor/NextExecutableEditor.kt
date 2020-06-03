@@ -12,13 +12,15 @@ import hextant.blocky.Executable
 import reaktive.value.*
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
+import validated.*
+import validated.reaktive.ReactiveValidated
 
 class NextExecutableEditor(context: Context) :
     AbstractEditor<Executable, EditorView>(context) {
     private val next = reactiveVariable(null as ExecutableEditor<*>?)
 
-    override val result: EditorResult<Executable> = next.flatMap {
-        it?.result?.map { res -> res.or(childErr()) } ?: reactiveValue(ok(End))
+    override val result: ReactiveValidated<Executable> = next.flatMap {
+        it?.result?.map { res -> res.or(invalidComponent) } ?: reactiveValue(valid(End))
     }
 
     fun setNext(next: ExecutableEditor<*>) {

@@ -257,8 +257,7 @@ class AnnotationProcessor : AbstractProcessor() {
                 import<CompoundEditor<*>>()
                 import(annotated.toString())
                 import("hextant.*")
-                import<EditorView>()
-                import("reaktive.value.now")
+                import("validated.reaktive.*")
             },
             name = simpleName,
             primaryConstructor = {
@@ -279,21 +278,11 @@ class AnnotationProcessor : AbstractProcessor() {
                     by(call("child", call(editorCls, "context".e)))
                 }
             }
-            val components = names.map { it.e }
             addVal(
                 "result",
-                "EditorResult".t.parameterizedBy { covariant(name) }, { override() }) {
+                "ReactiveValidated".t.parameterizedBy { covariant(name) }, { override() }) {
                 initializeWith(
-                    call(
-                        "result",
-                        *components.toTypedArray(),
-                        lambda(body = call("compile", lambda {
-                            for (n in names) {
-                                addVal("${n}Res") initializedWith (n.e select "result" select "now" call "orTerminate")
-                            }
-                            callFunction("ok", {}, call(name, {}, *names.mapToArray { n -> "${n}Res".e }))
-                        }))
-                    )
+                    call("composeReactive", *names.mapToArray { n -> n.e select "result" }, "::$name".e)
                 )
             }
 

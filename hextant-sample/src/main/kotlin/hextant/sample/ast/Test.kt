@@ -4,7 +4,8 @@
 
 package hextant.sample.ast
 
-import hextant.*
+import hextant.Context
+import hextant.EditorView
 import hextant.base.AbstractEditor
 import hextant.codegen.*
 import hextant.core.TokenType
@@ -14,6 +15,9 @@ import hextant.sample.ast.Alt.O
 import hextant.sample.ast.Alt.TestToken
 import hextant.sample.ast.editor.*
 import reaktive.value.reactiveValue
+import validated.Validated
+import validated.reaktive.ReactiveValidated
+import validated.valid
 
 object AltExpanderDelegator : ExpanderConfigurator<AltEditor<Alt>>({
     registerConstant("token") { TestTokenEditor(it) }
@@ -22,7 +26,8 @@ object AltExpanderDelegator : ExpanderConfigurator<AltEditor<Alt>>({
 
 class OtherTokenEditor(context: Context, t: TestToken = TestToken("Hello World")) :
     TokenEditor<TestToken, TokenEditorView>(context) {
-    override fun compile(token: String): CompileResult<TestToken> = ok(TestToken("Hello World"))
+    override fun compile(token: String): Validated<TestToken> =
+        valid(TestToken("Hello World"))
 }
 
 @Alternative
@@ -32,7 +37,8 @@ sealed class Alt {
     @Token(subtypeOf = Alt::class)
     data class TestToken(val str: String) : Alt() {
         companion object : TokenType<TestToken> {
-            override fun compile(token: String): CompileResult<TestToken> = ok(TestToken(token))
+            override fun compile(token: String): Validated<TestToken> =
+                valid(TestToken(token))
         }
     }
 
@@ -49,5 +55,9 @@ sealed class Alt {
 }
 
 class CustomEditor(context: Context, o: Alt.O = Alt.O) : AbstractEditor<Alt.O, EditorView>(context) {
-    override val result: EditorResult<O> = reactiveValue(ok(O))
+    override val result: ReactiveValidated<O> = reactiveValue(
+        valid(
+            O
+        )
+    )
 }
