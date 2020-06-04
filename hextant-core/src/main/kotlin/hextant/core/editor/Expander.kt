@@ -105,7 +105,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         state = newState
         when (oldState) {
             is Expanded   -> {
-                unexpand()
+                doReset()
                 if (notify) onReset(oldState.editor)
                 when (newState) {
                     is Unexpanded -> {
@@ -139,7 +139,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         views { reset() }
     }
 
-    private fun unexpand() {
+    private fun doReset() {
         resultDelegator?.kill()
         resultDelegator = null
         _editor.set(null)
@@ -163,47 +163,54 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         editor.now?.initParent(parent)
     }
 
-    private fun changeState(newState: State<E>, actionDescription: String) {
-        val edit = StateTransition(virtualize(), state.createSnapshot(), newState.createSnapshot(), actionDescription)
+    private fun changeState(newState: State<E>, actionDescription: String, undoable: Boolean) {
+        if (undoable) {
+            val edit = StateTransition(
+                expander = virtualize(),
+                old = state.createSnapshot(),
+                new = newState.createSnapshot(),
+                actionDescription = actionDescription
+            )
+            undo.push(edit)
+        }
         doChangeState(newState)
-        undo.push(edit)
     }
 
     /**
      * Set the text of this expander
      * @throws IllegalStateException if the expander is expanded
      */
-    fun setText(newText: String) {
+    fun setText(newText: String, undoable: Boolean = true) {
         check(state is Unexpanded) { "Cannot set text on expanded expander" }
-        changeState(Unexpanded(newText), "Type")
+        changeState(Unexpanded(newText), "Type", undoable)
     }
 
     /**
      * Expand the current text
      * @throws IllegalStateException if already expanded
      */
-    fun expand() {
+    fun expand(undoable: Boolean = true) {
         val state = state
         check(state is Unexpanded) { "Cannot expand expanded expander" }
         val editor = expand(state.text) ?: return
-        changeState(Expanded(editor), "Expand")
+        changeState(Expanded(editor), "Expand", undoable)
     }
 
     /**
      * Set the wrapped editor to the specified one
      */
-    fun setEditor(editor: E) {
+    fun setEditor(editor: E, undoable: Boolean = true) {
         val e = editor.moveTo(contentContext())
-        changeState(Expanded(e), "Change content")
+        changeState(Expanded(e), "Change content", undoable)
     }
 
     /**
      * Reset the expander by setting the text to the empty string
      * @throws IllegalStateException if not expanded
      */
-    fun reset() {
+    fun reset(undoable: Boolean = true) {
         check(state is Expanded) { "Cannot reset unexpanded expander" }
-        changeState(Unexpanded(""), "Reset")
+        changeState(Unexpanded(""), "Reset", undoable)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -246,7 +253,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         @Suppress("UNCHECKED_CAST")
         override fun reconstruct(editor: Expander<*, *>) {
             editor as Expander<*, Editor<*>>
-            editor.doChangeState(state.reconstruct(editor.contentContext()))
+            editor.doChangeState(state.reconstruct(editor.contentContext()), notify = false)
         }
     }
 

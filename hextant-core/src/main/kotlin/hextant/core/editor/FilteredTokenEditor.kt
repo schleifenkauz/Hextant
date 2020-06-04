@@ -104,11 +104,14 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
      * Commit the current change by updating the [result].
      * If the editor is not editable or the current token is not valid this method just returns.
      */
-    fun commitChange() {
+    fun commitChange(undoable: Boolean = true) {
+        if (undoable) {
+            val edit = CommitEdit(virtualize(), oldText, text.now)
+            context[UndoManager].push(edit)
+        }
         if (!editable.now) return
         val res = intermediateResult.now
         if (res !is Valid) return
-        val edit = CommitEdit(virtualize(), oldText, text.now)
         _editable.set(false)
         _result.set(res)
         oldText = text.now
@@ -116,7 +119,7 @@ abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: Strin
         views.forEach { v ->
             v.setEditable(false)
         }
-        context[UndoManager].push(edit)
+        return
     }
 
     private fun setTextAndCommit(new: String) {

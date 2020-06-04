@@ -97,20 +97,26 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         if (!mayBeEmpty && size == 0) return false
         val old = editors.now.size
         when {
-            old < size -> repeat(size - old) { addLast() }
-            old > size -> for (i in size downTo old) removeAt(i)
+            old < size -> repeat(size - old) { i ->
+                doAddAt(old + i, createEditor() ?: error("createEditor() returned null"))
+            }
+            old > size -> for (i in size downTo old) {
+                removeAt(i, undoable = false)
+            }
         }
         return true
     }
 
     /**
-     * Removes all editors
+     * Removes all editors. The method has no effect if [ensureNotEmpty] has been called before.
      */
-    fun clear() {
+    fun clear(undoable: Boolean = true) {
         if (!mayBeEmpty) return
-        val edit = ClearEdit(virtualize(), editors.now.map { it.snapshot() })
+        if (undoable) {
+            val edit = ClearEdit(virtualize(), editors.now.map { it.snapshot() })
+            undo.push(edit)
+        }
         doClear()
-        undo.push(edit)
     }
 
     private fun doClear() {
@@ -123,11 +129,15 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * Insert all the given [editors] at the specified [idx] into this [ListEditor].
      */
     @Suppress("UNCHECKED_CAST")
-    fun pasteMany(idx: Int, editors: List<*>) {
+    fun pasteMany(idx: Int, editors: List<EditorSnapshot<*>>, undoable: Boolean = true) {
+        editors as List<EditorSnapshot<E>>
+        if (undoable) {
+            val edit = PasteManyEdit(virtualize(), idx, editors)
+            undo.push(edit)
+        }
         if (editors.any { !editorClass.isInstance(it) }) return
         for ((i, e) in editors.withIndex()) {
-            e as E
-            doAddAt(idx + i, e.copyFor(childContext()))
+            doAddAt(idx + i, e.reconstruct(childContext()))
         }
     }
 
@@ -152,11 +162,13 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * Add a new editor at the given index using [createEditor] to create a new editor
      */
     @ProvideCommand(name = "Add editor", shortName = "add")
-    fun addAt(index: Int): E? {
+    fun addAt(index: Int, undoable: Boolean = true): E? {
         val editor = createEditor() ?: return null
-        val edit = AddEdit(virtualize(), index, editor.snapshot())
+        if (undoable) {
+            val edit = AddEdit(virtualize(), index, editor.snapshot())
+            undo.push(edit)
+        }
         doAddAt(index, editor)
-        undo.push(edit)
         return editor
     }
 
@@ -164,11 +176,13 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * Add the specified [editor] at the specified [index]
      * @return the moved editor
      */
-    fun addAt(index: Int, editor: E): E {
-        val edit = AddEdit(virtualize(), index, editor.snapshot())
+    fun addAt(index: Int, editor: E, undoable: Boolean = true): E {
+        if (undoable) {
+            val edit = AddEdit(virtualize(), index, editor.snapshot())
+            undo.push(edit)
+        }
         val e = editor.moveTo(childContext())
         doAddAt(index, e)
-        undo.push(edit)
         return e
     }
 
@@ -176,44 +190,53 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
      * Add the new [editor] at the end of the editor list
      * @return the moved editor
      */
-    fun addLast(editor: E): E {
-        return addAt(editors.now.size, editor)
+    fun addLast(editor: E, undoable: Boolean = true): E {
+        return addAt(editors.now.size, editor, undoable)
     }
 
     /**
      * Create a new editor with [createEditor] and insert it as the last editor.
      */
-    fun addLast(): E? {
+    fun addLast(undoable: Boolean = true): E? {
         val e = createEditor() ?: return null
-        return addLast(e)
+        return addLast(e, undoable)
     }
 
     /**
      * Remove the editor at the specified [index]
      */
     @ProvideCommand(name = "Remove editor", shortName = "remove")
-    open fun removeAt(index: Int) {
-        val editor = editors.now[index]
-        val edit = RemoveEdit(virtualize(), index, editor.snapshot())
-        if (doRemoveAt(index)) undo.push(edit)
+    fun removeAt(index: Int, undoable: Boolean = true) {
+        if (!mayRemove()) return
+        val old = _editors.now.removeAt(index)
+        updateIndicesFrom(index)
+        views { removed(index) }
+        if (emptyNow()) views { empty() }
+        editorRemoved(old, index)
+        if (undoable) {
+            val edit = RemoveEdit(virtualize(), index, old.snapshot())
+            undo.push(edit)
+        }
     }
 
     /**
      * Remove the given [editor] from this [ListEditor].
      */
-    fun remove(editor: E) {
+    fun remove(editor: E, undoable: Boolean = true) {
         val idx = editors.now.indexOf(editor)
-        removeAt(idx)
+        removeAt(idx, undoable)
     }
 
     /**
      * Ensures that this list of editors is not empty now and will never be.
+     * Repeated calls have no effect.
      */
     fun ensureNotEmpty() {
+        if (!mayBeEmpty) return //already called
         mayBeEmpty = false
         if (editors.now.isEmpty()) {
             val e = createEditor() ?: error("createEditor() returned false")
-            doAddAt(0, e, notify = false)
+            doAddAt(0, e)
         }
     }
 
@@ -230,7 +253,7 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     /**
      * Adds the given [editor] at the specified [index]. If [notify] is `false` [editorAdded] is not called.
      */
-    protected fun doAddAt(index: Int, editor: E, notify: Boolean = true) {
+    private fun doAddAt(index: Int, editor: E, notify: Boolean = true) {
         val emptyBefore = emptyNow()
         _editors.now.add(index, editor)
         addChild(editor)
@@ -249,16 +272,6 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         }
     }
 
-    private fun doRemoveAt(index: Int): Boolean {
-        if (!mayRemove()) return false
-        val old = _editors.now.removeAt(index)
-        updateIndicesFrom(index)
-        views { removed(index) }
-        if (emptyNow()) views { empty() }
-        editorRemoved(old, index)
-        return true
-    }
-
     override fun viewAdded(view: ListEditorView) {
         if (emptyNow()) view.empty()
         else editors.now.forEachIndexed { i, editor ->
@@ -275,11 +288,11 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
     ) : AbstractEdit() {
         override fun doRedo() {
             val e = editor.get()
-            e.doAddAt(index, added.reconstruct(e.context))
+            e.addAt(index, added.reconstruct(e.context), undoable = false)
         }
 
         override fun doUndo() {
-            editor.get().removeAt(index)
+            editor.get().removeAt(index, undoable = false)
         }
 
         override val actionDescription: String
@@ -292,12 +305,12 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
         private val removed: EditorSnapshot<E>
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.get().doRemoveAt(index)
+            editor.get().removeAt(index, undoable = false)
         }
 
         override fun doUndo() {
             val e = editor.get()
-            e.doAddAt(index, removed.reconstruct(e.context))
+            e.addAt(index, removed.reconstruct(e.context), undoable = false)
         }
 
         override val actionDescription: String
@@ -314,11 +327,32 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
 
         override fun doUndo() {
             val e = editor.get()
-            e.setEditors(removed.map { it.reconstruct(e.childContext()) })
+            e.pasteMany(0, removed, undoable = false)
         }
 
         override val actionDescription: String
             get() = "Clear"
+    }
+
+    private class PasteManyEdit<E : Editor<*>>(
+        private val editor: VirtualEditor<ListEditor<*, E>>,
+        private val index: Int,
+        private val pasted: List<EditorSnapshot<E>>
+    ) : AbstractEdit() {
+        override fun doRedo() {
+            val e = editor.get()
+            e.pasteMany(index, pasted, undoable = false)
+        }
+
+        override fun doUndo() {
+            val e = editor.get()
+            repeat(pasted.size) {
+                e.removeAt(index, undoable = false)
+            }
+        }
+
+        override val actionDescription: String
+            get() = "Paste many"
     }
 
     private class Snapshot<E : Editor<*>>(original: ListEditor<*, E>) :

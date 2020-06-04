@@ -23,7 +23,7 @@ import validated.reaktive.ReactiveValidated
 abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
                                                                                     TokenType<R> {
     constructor(context: Context, text: String) : this(context) {
-        doSetText(text)
+        setText(text, undoable = false)
     }
 
     private val _result = reactiveVariable(this.compile(""))
@@ -50,13 +50,11 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
     /**
      * Set the text of this editor, such that the result is automatically updated
      */
-    fun setText(newText: String) {
-        val edit = TextEdit(virtualize(), text.now, newText)
-        doSetText(newText)
-        undo.push(edit)
-    }
-
-    private fun doSetText(newText: String) {
+    fun setText(newText: String, undoable: Boolean = true) {
+        if (undoable) {
+            val edit = TextEdit(virtualize(), text.now, newText)
+            undo.push(edit)
+        }
         _text.now = newText
         _result.set(compile(text.now))
         views { displayText(newText) }
@@ -68,11 +66,11 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         private val new: String
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.get().doSetText(new)
+            editor.get().setText(new, undoable = false)
         }
 
         override fun doUndo() {
-            editor.get().doSetText(old)
+            editor.get().setText(old, undoable = false)
         }
 
         override val actionDescription: String
@@ -88,7 +86,7 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         private val text = original.text.now
 
         override fun reconstruct(editor: TokenEditor<*, *>) {
-            editor.doSetText(text)
+            editor.setText(text, undoable = false)
         }
     }
 
