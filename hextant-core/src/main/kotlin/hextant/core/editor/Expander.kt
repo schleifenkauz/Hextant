@@ -16,8 +16,7 @@ import hextant.undo.UndoManager
 import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.map
-import validated.invalidComponent
-import validated.orElse
+import validated.*
 import validated.reaktive.ReactiveValidated
 
 /**
@@ -42,7 +41,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
 
     private var state: State<E> = Unexpanded("")
 
-    private val _result = reactiveVariable(invalidComponent<R>())
+    private val _result = reactiveVariable(defaultResult())
 
     override val result: ReactiveValidated<R> get() = _result
 
@@ -87,6 +86,11 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
      * Can be overwritten by extending classes to be notified when [reset] was successfully called
      */
     protected open fun onReset(editor: E) {}
+
+    /**
+     * Returns the result that this expander should have if it is not expanded.
+     */
+    protected open fun defaultResult(): Validated<R> = invalidComponent()
 
     /**
      * Return `true` iff the given editor can be the content of this expander.
@@ -143,7 +147,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         resultDelegator?.kill()
         resultDelegator = null
         _editor.set(null)
-        _result.set(invalidComponent())
+        _result.set(defaultResult())
     }
 
     @Suppress("DEPRECATION")
@@ -151,7 +155,7 @@ abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : Abstract
         this.parent?.let { editor.initParent(it) }
         editor.initExpander(this)
         editor.initAccessor(ExpanderContent)
-        resultDelegator = _result.bind(editor.result.map { it.orElse { invalidComponent() } })
+        resultDelegator = _result.bind(editor.result.map { it.or(invalidComponent()) })
         _editor.set(editor)
         _text.set(null)
         views { expanded(editor) }
