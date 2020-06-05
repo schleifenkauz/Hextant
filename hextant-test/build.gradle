@@ -1,5 +1,4 @@
 apply plugin: HextantLibrary
-apply plugin: 'maven-publish'
 
 hextant_lib {
     description = 'Testing library for Hextant'
@@ -17,23 +16,4 @@ dependencies {
     compile "org.junit.jupiter:junit-jupiter-api:5.4.2"
     compile "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
     compile "io.mockk:mockk:1.9.3.kotlin12"
-}
-task sourcesJar_(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar_(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-            artifact sourcesJar_
-            artifact javadocJar_
-        }
-    }
 }
