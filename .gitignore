@@ -3,6 +3,7 @@
 .gradle
 gradle
 build
-bin/org.nikok.hextant-lisp.main.jar
 .idea
 gradle.properties
+*.jar
+sample-project
