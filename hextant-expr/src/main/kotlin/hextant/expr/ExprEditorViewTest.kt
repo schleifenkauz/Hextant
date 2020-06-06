@@ -54,7 +54,7 @@ class ExprEditorViewTest : HextantApplication() {
 
     private fun registerCommandsAndInspections(context: Context) {
         val commands = context[Commands]
-        commands.of<ExprEditor<*>>().register<ExprEditor<*>, Int> {
+        commands.registerCommand<ExprEditor<*>, Int> {
             name = "Evaluate Expression"
             shortName = "eval"
             applicableIf { exprEditor -> exprEditor.result.now.isValid }
@@ -65,7 +65,7 @@ class ExprEditorViewTest : HextantApplication() {
                 v
             }
         }
-        commands.of<OperatorEditor>().register<OperatorEditor, Unit> {
+        commands.registerCommand<OperatorEditor, Unit> {
             name = "Flip operands"
             shortName = "flip_op"
             description = "Flips the both operands in this operator application"
@@ -84,7 +84,7 @@ class ExprEditorViewTest : HextantApplication() {
                 if (editableOp1 != null) expander2.setEditor(editableOp1)
             }
         }
-        commands.of<OperatorApplicationEditor>().register<OperatorApplicationEditor, Unit> {
+        commands.registerCommand<OperatorApplicationEditor, Unit> {
             name = "Collapse expression"
             shortName = "collapse"
             description = "Partially evaluate the selected expression"
@@ -98,7 +98,7 @@ class ExprEditorViewTest : HextantApplication() {
                 ex.setEditor(editable)
             }
         }
-        commands.of<ExprEditor<*>>().register<ExprEditor<*>, Unit> {
+        commands.registerCommand<ExprEditor<*>, Unit> {
             name = "Unwrap expression"
             shortName = "unwrap"
             description = "Unwrap an expression by replacing its outer application with itself"
@@ -149,7 +149,7 @@ class ExprEditorViewTest : HextantApplication() {
                 }
             }
         }
-        commands.of<ExprEditor<*>>().register<ExprEditor<*>, Unit> {
+        commands.registerCommand<ExprEditor<*>, Unit> {
             description =
                 "Wraps the current expression in an operator expression with the current expression being the left operand"
             name = "Wrap in operator expression"

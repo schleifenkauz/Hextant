@@ -5,6 +5,7 @@ import hextant.core.editor.ListEditor
 import hextant.core.view.ListEditorView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
+import hextant.serial.makeRoot
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
@@ -18,6 +19,7 @@ object ListEditorSpec : Spek({
             val editor = object : ListEditor<IntLiteral, IntLiteralEditor>(ctx) {
                 override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
             }
+            editor.makeRoot()
             val view = mockView<ListEditorView>()
             view.inOrder {
                 on("adding a view") {
@@ -74,6 +76,7 @@ object ListEditorSpec : Spek({
                 ListEditor<IntLiteral, IntLiteralEditor>(ctx) {
                 override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
             }
+            editor.makeRoot()
             val view = mockView<ListEditorView>()
             editor.addView(view)
             on("adding an editable") {

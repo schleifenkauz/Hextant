@@ -7,21 +7,20 @@ import org.jetbrains.spek.api.dsl.*
 
 internal object CommandsSpec : Spek({
     given("commands") {
-        val cs = Commands.newInstance()
-        val registrar = cs.of<ICommandTarget>()
+        val commands = Commands.newInstance()
         val command = command<ICommandTarget, Unit> {
             description = "another command"
             name = "cmd"
             executing { _, _ -> println("Executed another command") }
         }
         on("registering a new command") {
-            registrar.register(command)
+            commands.register(command)
             test("the new command should be available") {
-                registrar.commands shouldMatch Matcher(Set<*>::contains, command)
+                commands.forClass<ICommandTarget>() shouldMatch Matcher(Collection<*>::contains, command)
             }
         }
         it("should also use the commands of superclasses") {
-            cs.of<CommandTarget>().commands shouldMatch Matcher(Set<*>::contains, command)
+            commands.forClass<CommandTarget>() shouldMatch Matcher(Collection<*>::contains, command)
         }
         on("registering a command that is never applicable") {
             val notApplicable = command<ICommandTarget, Unit> {
@@ -30,15 +29,12 @@ internal object CommandsSpec : Spek({
                 applicableIf { false }
                 executing { _, _ -> }
             }
-            registrar.register(notApplicable)
+            commands.register(notApplicable)
             test("the commands applicable on the CommandTarget should not contain the new command") {
-                val applicableCommands = registrar.commandsFor(CommandTarget)
+                val applicableCommands = commands.applicableOn(CommandTarget)
                 applicableCommands shouldMatch hasSize(equalTo(1))
-                applicableCommands shouldMatch !Matcher(Set<*>::contains, notApplicable)
+                applicableCommands shouldMatch !Matcher(Collection<*>::contains, notApplicable)
             }
-        }
-        it("should cache registrars") {
-            cs.of<CommandTarget>() shouldMatch equalTo(cs.of(CommandTarget::class))
         }
     }
 }) {

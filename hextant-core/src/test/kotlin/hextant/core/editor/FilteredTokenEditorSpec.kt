@@ -7,11 +7,14 @@ package hextant.core.editor
 import hextant.Context
 import hextant.copy
 import hextant.core.view.FilteredTokenEditorView
+import hextant.serial.SerialProperties.deserializationContext
+import hextant.serial.SerialProperties.serialContext
+import hextant.serial.makeRoot
 import hextant.test.*
-import hextant.test.invalidComponent
 import io.mockk.mockk
 import io.mockk.verify
-import kserial.*
+import kserial.KSerial
+import kserial.readTyped
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.event.EventStream
@@ -26,6 +29,7 @@ object FilteredTokenEditorSpec : Spek({
         describe("basic interactions") {
             val ctx = testingContext()
             val e = Test(ctx, "123")
+            e.makeRoot()
             val handler = mockk<(EventStream<*>, Any?) -> Unit>(relaxed = true)
             val o1 = e.beganChange.observe(handler)
             val o2 = e.abortedChange.observe(handler)
@@ -39,7 +43,7 @@ object FilteredTokenEditorSpec : Spek({
                     e.intermediateResult.now shouldEqual valid(123)
                 }
                 it("it should initialize the result with a child error") {
-                    e.result.now shouldEqual invalidComponent
+                    e.result.now shouldEqual invalidComponent()
                 }
                 it("should not editable") {
                     e.editable.now shouldBe `true`
@@ -151,17 +155,15 @@ object FilteredTokenEditorSpec : Spek({
         }
         describe("serialization") {
             val ser = KSerial.newInstance()
-            val platform = testingContext()
-            val context = Context.newInstance(platform)
-            val ctx = SerialContext.newInstance {
-                useUnsafe = true
-            }
+            val context = testingContext()
             val baos = ByteArrayOutputStream()
-            val out = ser.createOutput(baos, ctx)
+            val out = ser.createOutput(baos, context[serialContext])
             val e = Test(context, "123")
+            e.makeRoot()
             e.beginChange()
             out.writeObject(e)
-            val input = ser.createInput(ByteArrayInputStream(baos.toByteArray()), ctx)
+            val input = ser.createInput(ByteArrayInputStream(baos.toByteArray()), context[serialContext])
+            input.bundle[deserializationContext] = context
             val new = input.readTyped<Test>()
             on("serializing and deserializing") {
                 test("the deserialized editor should not be editable") {
@@ -183,8 +185,8 @@ object FilteredTokenEditorSpec : Spek({
             val original = Test(ctx, "123")
             val copy = original.copy()
             on("copying") {
-                test("the copy should be editable") {
-                    copy.editable.now shouldBe `true`
+                test("the copy should not be editable") {
+                    copy.editable.now shouldBe `false`
                 }
                 test("the text should be copied") {
                     copy.text.now shouldEqual "123"
@@ -192,8 +194,8 @@ object FilteredTokenEditorSpec : Spek({
                 test("the intermediate result should be copied") {
                     copy.intermediateResult.now shouldEqual valid(123)
                 }
-                test("the result should be a child error") {
-                    copy.result.now shouldEqual invalidComponent()
+                test("the result should be copied") {
+                    copy.result.now shouldEqual valid(123)
                 }
             }
         }

@@ -5,6 +5,7 @@ import hextant.Context
 import hextant.core.view.ExpanderView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
+import hextant.serial.makeRoot
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
@@ -18,6 +19,7 @@ object ExpanderSpec : Spek({
         describe("compiling result") {
             val context = testingContext()
             val ex = ExpanderSpec.expander(context)
+            ex.makeRoot()
             test("editor.now should be null", No) {
                 ex.editor.now shouldBe `null`
             }
@@ -50,6 +52,7 @@ object ExpanderSpec : Spek({
         describe("notifying views") {
             val context = testingContext()
             val ex = ExpanderSpec.expander(context)
+            ex.makeRoot()
             val view = mockView<ExpanderView>()
             ex.addView(view)
             view.inOrder {
@@ -96,18 +99,16 @@ object ExpanderSpec : Spek({
                         verify().reset()
                     }
                 }
-                Unit
             }
         }
         describe("undoing and redoing") {
             val context = testingContext()
             val undo = context[UndoManager]
             val ex = ExpanderSpec.expander(context)
-            lateinit var content1: IntLiteralEditor
+            ex.makeRoot()
             on("expanding") {
                 ex.setText("123")
                 ex.expand()
-                content1 = ex.editor.now!!
                 it("should push an edit") {
                     undo.canUndo shouldBe `true`
                 }
@@ -121,7 +122,7 @@ object ExpanderSpec : Spek({
             on("redoing") {
                 undo.redo()
                 it("should expand to the last editable") {
-                    ex.editor.now shouldEqual content1
+                    ex.result.now shouldEqual valid(IntLiteral(123))
                 }
             }
             on("resetting") {
@@ -133,7 +134,7 @@ object ExpanderSpec : Spek({
             on("undoing reset") {
                 undo.undo()
                 it("should expand to the last editable") {
-                    ex.editor.now shouldEqual content1
+                    ex.result.now shouldEqual valid(IntLiteral(123))
                 }
             }
             on("redoing reset") {

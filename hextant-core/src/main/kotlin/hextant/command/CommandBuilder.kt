@@ -6,6 +6,8 @@ package hextant.command
 
 import hextant.command.Command.Category
 import hextant.command.Command.ParameterBuilder
+import hextant.fx.Shortcut
+import hextant.fx.shortcut
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -18,6 +20,7 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
      * The name of the built command
      */
     lateinit var name: String
+
     /**
      * The description of the built command
      * * Defaults to "No description specified"
@@ -33,6 +36,18 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
      * The [Command.category] of the built command
      */
     var category: Category? = null
+
+    /**
+     * The [Command.defaultShortcut] of the build command
+     */
+    var defaultShortcut: Shortcut? = null
+
+    /**
+     * Set the [defaultShortcut]
+     */
+    fun defaultShortcut(shortcut: String) {
+        defaultShortcut = shortcut.shortcut
+    }
 
     /**
      * The [Command.Type] of the built command
@@ -79,7 +94,6 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
         applicable = predicate
     }
 
-    @PublishedApi internal fun build(): Command<R, T> {
-        return CommandImpl(name, category, shortName, parameters, description, type, execute, applicable, cls)
-    }
+    @PublishedApi internal fun build(): Command<R, T> =
+        CommandImpl(name, category, defaultShortcut, shortName, parameters, description, type, execute, applicable, cls)
 }

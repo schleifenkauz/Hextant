@@ -17,7 +17,7 @@ import javafx.scene.control.MenuBar
  * * When a command is not applicable (but registered) on the receiver the associated menu item will be disabled
  */
 fun <T : Any> T.commandContextMenu(context: Context)
-        : ContextMenu = CommandContextMenu(this, context[Commands].of(this::class), context)
+        : ContextMenu = CommandContextMenu(this, context[Commands], context)
 
 /**
  * @return a [MenuBar] with the commands registered for the receiver as items
@@ -27,4 +27,4 @@ fun <T : Any> T.commandContextMenu(context: Context)
  * * The menu items will be ordered in the different menus by their [Command.category]
  */
 fun <T : Any> T.commandMenuBar(context: Context)
-        : MenuBar = CommandMenuBar.newInstance(this, context[Commands].of(this::class), context)
+        : MenuBar = CommandMenuBar(this, context[Commands], context)

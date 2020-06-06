@@ -15,15 +15,15 @@ import javafx.geometry.Side
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Button
-import javafx.scene.input.*
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import kotlin.collections.component1
+import kotlin.system.exitProcess
 
 internal class CommandGuiTest : Application() {
     override fun start(stage: Stage) {
         stage.scene = Scene(createContent())
-        stage.setOnHidden { System.exit(0) }
+        stage.setOnHidden { exitProcess(0) }
         stage.show()
     }
 
@@ -36,15 +36,15 @@ internal class CommandGuiTest : Application() {
                 register { context -> IntLiteralEditor(context) }
             }
             val commands = Commands.newInstance()
-            commands.of<Receiver>().apply {
-                register(command<Receiver, Unit> {
+            commands.apply {
+                registerCommand<Receiver, Unit> {
                     executing { _, _ -> println("1") }
                     description = "prints 1"
                     name = "Print 1"
                     shortName = "p1"
                     category = Category.EDIT
-                }, shortcut = KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN))
-                register(command<Receiver, Unit> {
+                }
+                registerCommand<Receiver, Unit> {
                     name = "Print Argument"
                     shortName = "printarg"
                     description = "Prints the specified argument"
@@ -57,7 +57,7 @@ internal class CommandGuiTest : Application() {
                         arg as IntLiteral
                         println(arg.value)
                     }
-                }, shortcut = KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN))
+                }
             }
             val menuBar = Receiver.commandMenuBar(platform)
             val contextMenu = Receiver.commandContextMenu(platform)

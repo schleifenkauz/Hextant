@@ -30,13 +30,13 @@ internal object EditorFactorySpec : Spek({
             }
         }
         on("asking for a editable of a subtype of a registered type") {
-            val anyEditor = ef.createEditor(Any::class, context)
+            val anyEditor = ef.createEditor<Any>(context)
             it("should return an editable of the nearest registered subclass") {
                 anyEditor shouldMatch instanceOf<IntLiteralEditor>()
             }
         }
         on("getting an editable for an unregistered class") {
-            val error = { ef.createEditor(Int::class, context); Unit }
+            val error = { ef.createEditor<Int>(context); Unit }
             it("should throw a NoSuchElementException") {
                 error shouldMatch throws<NoSuchElementException>()
             }

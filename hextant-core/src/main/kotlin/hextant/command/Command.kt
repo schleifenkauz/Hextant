@@ -4,6 +4,7 @@
 
 package hextant.command
 
+import hextant.fx.Shortcut
 import kotlin.reflect.*
 
 /**
@@ -36,6 +37,11 @@ interface Command<in R : Any, out T> {
      * * If [category] returns `null` this [Command] can't be used from the Menu bar
      */
     val category: Category?
+
+    /**
+     * The shortcut that triggers this command or `null` if the command has no shortcut.
+     */
+    val defaultShortcut: Shortcut?
 
     /**
      * The parameters of this [Command]

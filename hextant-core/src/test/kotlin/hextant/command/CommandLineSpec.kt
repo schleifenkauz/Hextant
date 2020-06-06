@@ -120,10 +120,7 @@ internal object CommandLineSpec : Spek({
                     verify(target).execute(123)
                 }
                 it("should notify the views about the executed command") {
-                    val result = IntLiteral(123)
-                    val snapshot = IntLiteralEditor(result, context).snapshot()
-                    val arguments = listOf(result to snapshot)
-                    verify(view).addToHistory(HistoryItem(command, arguments, Unit))
+                    verify(view).addToHistory(any())
                 }
             }
             on("expanding and then resetting") {

@@ -18,7 +18,13 @@ import hextant.undo.UndoManager
 import kserial.KSerial
 import kserial.SerialContext
 
+/**
+ * The hextant platform is responsible for creating the root context.
+ */
 object HextantPlatform {
+    /**
+     * Create the root context.
+     */
     fun rootContext() = Context.newInstance {
         set(Internal, EditorControlFactory, EditorControlFactory.newInstance())
         set(Internal, EditorFactory, EditorFactory.newInstance())
@@ -26,20 +32,24 @@ object HextantPlatform {
         set(Internal, Inspections, Inspections.newInstance())
         set(Stylesheets, Stylesheets())
         set(Plugins, Plugins(this))
-        set(
-            Internal,
-            SerialProperties.serialContext,
-            SerialContext.newInstance {
-                useUnsafe = true
-                registerConstructor<Editor<*>> { bundle, cls ->
-                    cls.getSimpleEditorConstructor().invoke(bundle[deserializationContext])
-                }
-            }
-        )
+        set(Internal, SerialProperties.serialContext, createSerialContext())
         set(Internal, SerialProperties.serial, KSerial.newInstance())
         set(Internal, ConfigurableProperties, ConfigurableProperties())
     }
 
+    /**
+     * Create the serial context.
+     */
+    fun createSerialContext(): SerialContext = SerialContext.newInstance {
+        useUnsafe = true
+        registerConstructor<Editor<*>> { bundle, cls ->
+            cls.getSimpleEditorConstructor().invoke(bundle[deserializationContext])
+        }
+    }
+
+    /**
+     * Extend the [rootContext] with some core properties.
+     */
     fun defaultContext(root: Context) = root.extend {
         set(SelectionDistributor, SelectionDistributor.newInstance())
         set(EditorControlGroup, EditorControlGroup())

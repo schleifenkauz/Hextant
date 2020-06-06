@@ -122,7 +122,7 @@ class PluginBuilder @PublishedApi internal constructor(val context: Context) {
      * Register the specified [command]
      */
     inline fun <reified R : Any> command(command: Command<R, *>) {
-        context[Commands].of(R::class).register(command)
+        context[Commands].register(R::class, command)
     }
 
     /**

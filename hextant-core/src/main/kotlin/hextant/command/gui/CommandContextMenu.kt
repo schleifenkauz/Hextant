@@ -5,23 +5,22 @@
 package hextant.command.gui
 
 import hextant.Context
-import hextant.command.CommandRegistrar
+import hextant.command.Commands
 import javafx.scene.control.ContextMenu
 
 internal class CommandContextMenu<T : Any> internal constructor(
     private val target: T,
-    private val commandRegistrar: CommandRegistrar<T>,
+    private val commands: Commands,
     private val context: Context
 ) : ContextMenu() {
     init {
-        update()
         setOnShowing { update() }
     }
 
     private fun update() {
         items.clear()
-        for (c in commandRegistrar.commands) {
-            val item = CommandMenuItem(target, c, commandRegistrar, context)
+        for (c in commands.applicableOn(target)) {
+            val item = CommandMenuItem(target, c, context)
             items.add(item)
         }
     }
