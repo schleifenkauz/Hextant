@@ -52,7 +52,7 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
         }
     }
 
-    internal val entries = SettingsEntryListEditor(context)
+    internal val entries by child(SettingsEntryListEditor(context))
 
     private val expanderObservers = mutableMapOf<SettingsEntryExpander, Observer>()
     private val valueObservers = mutableMapOf<SettingsEntryEditor, Observer>()

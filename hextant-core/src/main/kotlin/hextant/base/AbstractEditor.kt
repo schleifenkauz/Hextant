@@ -59,6 +59,14 @@ abstract class AbstractEditor<out R : Any, in V : Any>(
     }
 
     /**
+     * Removes the given [editor] from the [children].
+     * @throws IllegalStateException if [editor] is not a child of this editor.
+     */
+    protected fun <E : Editor<*>> removeChild(editor: E) {
+        if (!_children.now.remove(editor)) throw IllegalStateException("$editor is not a child of $this")
+    }
+
+    /**
      * Make all the given editors children of this editor
      */
     protected fun children(vararg children: Editor<*>) {

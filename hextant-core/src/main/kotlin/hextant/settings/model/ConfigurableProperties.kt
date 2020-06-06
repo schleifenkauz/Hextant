@@ -26,12 +26,7 @@ class ConfigurableProperties {
      */
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T> register(property: Property<T, *, *>) {
-        register(
-            ConfigurableProperty(
-                property as Property<Any, Any, Any>,
-                T::class
-            )
-        )
+        register(ConfigurableProperty(property as Property<Any, Any, Any>, T::class))
     }
 
     internal fun byName(name: String) = properties[name]

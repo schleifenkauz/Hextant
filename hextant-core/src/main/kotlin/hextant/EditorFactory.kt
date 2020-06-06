@@ -57,7 +57,7 @@ interface EditorFactory {
 
     @Suppress("UNCHECKED_CAST")
     private class Impl : EditorFactory {
-        private val oneArgFactories = ClassMap.invariant<(Context, Any) -> Editor<Any>>()
+        private val oneArgFactories = mutableMapOf<KClass<*>, (Context, Any) -> Editor<Any>>()
 
         override fun <T : Any> register(editedCls: KClass<T>, factory: (Context, T) -> Editor<T>) {
             logger.config { "register factory for $editedCls" }

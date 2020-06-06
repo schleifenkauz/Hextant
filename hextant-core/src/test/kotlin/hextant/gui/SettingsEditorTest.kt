@@ -10,6 +10,7 @@ import hextant.core.Internal
 import hextant.createView
 import hextant.fx.registerShortcuts
 import hextant.main.HextantApplication
+import hextant.serial.makeRoot
 import hextant.settings.editors.SettingsEditor
 import hextant.settings.model.ConfigurableProperties
 import hextant.settings.model.Settings
@@ -21,6 +22,7 @@ class SettingsEditorTest : HextantApplication() {
     override fun createView(context: Context): Parent {
         context[ConfigurableProperties].register(test)
         val editor = SettingsEditor(context)
+        editor.makeRoot()
         context[Internal, Settings] = editor.settings
         return context.createView(editor).apply {
             registerShortcuts {

@@ -29,7 +29,7 @@ interface EditorControlFactory {
     ): EditorControl<*>?
 
     @Suppress("UNCHECKED_CAST") private class Impl : EditorControlFactory {
-        private val viewFactories = ClassMap.invariant<(Editor<*>, Bundle) -> EditorControl<*>>()
+        private val viewFactories = ClassMap.contravariant<(Editor<*>, Bundle) -> EditorControl<*>>()
 
         override fun <E : Editor<*>> register(
             editableCls: KClass<out E>,
