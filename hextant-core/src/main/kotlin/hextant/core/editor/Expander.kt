@@ -23,7 +23,7 @@ import validated.reaktive.ReactiveValidated
 /**
  * An Expander acts like a wrapper around editors.
  */
-abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
+abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
     constructor(context: Context, editor: E?) : this(context) {
         if (editor != null) doChangeState(Expanded(editor))
     }

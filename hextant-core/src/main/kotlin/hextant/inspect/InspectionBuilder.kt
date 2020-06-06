@@ -88,7 +88,7 @@ class InspectionBuilder<out T : Any> @PublishedApi internal constructor(inspecte
     /**
      * Adds a [CommandProblemFix]
      */
-    fun addFix(description: String, command: Command<*, *>, target: Any = inspected, vararg arguments: Any) {
+    fun addFix(description: String, command: Command<*, *>, target: Any = inspected, vararg arguments: Any?) {
         addFix(CommandProblemFix(description, command, arguments.asList(), target))
     }
 

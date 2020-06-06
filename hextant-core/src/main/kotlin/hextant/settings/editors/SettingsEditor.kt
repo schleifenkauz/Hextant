@@ -44,7 +44,7 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
                 val p = properties.byName(name)
                     ?: throw RuntimeException("Property configured in settings must be configurable!")
                 val entry = SettingsEntryEditor(context, p)
-                val ed = entry.value as BidirectionalEditor<Any>
+                val ed = entry.value as BidirectionalEditor<Any?>
                 ed.setResult(value)
                 ex.setEditor(entry)
                 entries.addLast(ex)
@@ -71,7 +71,7 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
                     if (old != null) {
                         valueObservers.remove(old)!!.kill()
                         val prop = old.property.property
-                        if (bundle.hasProperty(prop)) bundle.delete(Any(), prop)
+                        if (bundle.hasProperty(prop)) bundle.delete(prop)
                     }
                     if (new != null) {
                         val prop = new.property.property

@@ -4,7 +4,7 @@
 
 package hextant.core
 
-import bundles.Property
+import bundles.SimpleProperty
 
 /**
  * A clipboard is used to store contents copied by the user.
@@ -20,5 +20,5 @@ interface Clipboard {
      */
     fun get(): ClipboardContent
 
-    companion object : Property<Clipboard, Any, Any>("clipboard")
+    companion object : SimpleProperty<Clipboard>("clipboard")
 }

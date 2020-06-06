@@ -19,16 +19,16 @@ inline fun EditorControlFactory.configure(config: EditorControlFactory.() -> Uni
  * Syntactic sugar for `register(typeOf<T>(), factory)`
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T : Any> EditorFactory.register(noinline factory: (Context, T) -> Editor<T>) {
+inline fun <reified T> EditorFactory.register(noinline factory: (Context, T) -> Editor<T>) {
     @Suppress("UNCHECKED_CAST")
-    register(typeOf<T>(), factory as (Context, Any) -> Editor<Any>)
+    register(typeOf<T>(), factory as (Context, Any?) -> Editor<Any?>)
 }
 
 /**
  * Syntactic sugar for `register(typeOf<T>(), factory)`
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T : Any> EditorFactory.register(noinline factory: (Context) -> Editor<T>) {
+inline fun <reified T> EditorFactory.register(noinline factory: (Context) -> Editor<T>) {
     register(typeOf<T>(), factory)
 }
 
@@ -36,13 +36,13 @@ inline fun <reified T : Any> EditorFactory.register(noinline factory: (Context) 
  * Syntactic sugar for `createEditor(typeOf<T>(), context)`
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T : Any> EditorFactory.createEditor(context: Context) = createEditor(typeOf<T>(), context)
+inline fun <reified T> EditorFactory.createEditor(context: Context) = createEditor(typeOf<T>(), context)
 
 /**
  * Syntactic sugar for `createEditor(typeOf<T>(), result, context)`
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T : Any> EditorFactory.createEditor(result: T, context: Context) =
+inline fun <reified T> EditorFactory.createEditor(result: T, context: Context) =
     createEditor(typeOf<T>(), result, context)
 
 /**
@@ -93,13 +93,13 @@ inline fun <reified E : Editor<*>> E.copy(): E = copyFor(context)
 /**
  * Return an editor that transforms the [Editor.result] of this editor with the given function.
  */
-fun <T : Any, R : Any> Editor<T>.map(f: (T) -> Validated<R>): Editor<R> = TransformedEditor(this, f)
+fun <T, R> Editor<T>.map(f: (T) -> Validated<R>): Editor<R> = TransformedEditor(this, f)
 
 /**
  * Return an editor that transforms the [Editor.result] of this editor with the given function.
  */
 @JvmName("simpleMap")
-fun <T : Any, R : Any> Editor<T>.map(f: (T) -> R): Editor<R> = map { valid(f(it)) }
+fun <T, R> Editor<T>.map(f: (T) -> R): Editor<R> = map { valid(f(it)) }
 
 /**
  * Typesafe version of [Editor.createSnapshot]

@@ -20,8 +20,8 @@ import validated.reaktive.ReactiveValidated
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
-abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
-                                                                                    TokenType<R> {
+abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
+                                                                              TokenType<R> {
     constructor(context: Context, text: String) : this(context) {
         setText(text, undoable = false)
     }
@@ -94,7 +94,7 @@ abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context
         /**
          * Return a [TokenEditor] which delegates text compilation to the given token [type]
          */
-        fun <R : Any> forTokenType(
+        fun <R> forTokenType(
             type: TokenType<R>,
             context: Context
         ) = object : TokenEditor<R, TokenEditorView>(context) {

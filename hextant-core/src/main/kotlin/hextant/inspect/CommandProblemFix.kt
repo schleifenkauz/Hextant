@@ -12,7 +12,7 @@ import hextant.command.Command
 class CommandProblemFix(
     override val description: String,
     private val command: Command<*, *>,
-    private val arguments: List<Any>,
+    private val arguments: List<Any?>,
     private val target: Any
 ) : ProblemFix {
     override fun isApplicable(): Boolean = command.isApplicableOn(target)

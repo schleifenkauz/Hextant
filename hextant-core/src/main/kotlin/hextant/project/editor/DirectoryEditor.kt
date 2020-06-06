@@ -11,13 +11,16 @@ import hextant.project.Directory
 import reaktive.value.now
 import validated.reaktive.ReactiveValidated
 
-class DirectoryEditor<R : Any>(
+/**
+ * An editor for directories.
+ */
+class DirectoryEditor<R>(
     context: Context
 ) : CompoundEditor<Directory<R>>(context), ProjectItemEditor<R, Directory<R>> {
     override val itemName by child(FileNameEditor(context))
-    val items by child(ProjectItemListEditor<R>(context))
+    internal val items by child(ProjectItemListEditor<R>(context))
 
-    fun isTaken(name: String, editor: FileNameEditor) = items.editors.now.any {
+    internal fun isTaken(name: String, editor: FileNameEditor) = items.editors.now.any {
         val ed = it.itemName
         ed !== editor && ed.text.now == name
     }

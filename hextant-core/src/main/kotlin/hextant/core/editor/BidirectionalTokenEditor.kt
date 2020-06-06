@@ -11,7 +11,7 @@ import hextant.core.view.TokenEditorView
 /**
  * A bidirectional token editor
  */
-abstract class BidirectionalTokenEditor<R : Any>(context: Context, text: String) :
+abstract class BidirectionalTokenEditor<R>(context: Context, text: String) :
     TokenEditor<R, TokenEditorView>(context, text), BidirectionalEditor<R> {
     override fun setResult(value: R) {
         setText(display(value))

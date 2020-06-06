@@ -21,6 +21,9 @@ import reaktive.value.now
 import validated.Validated.Invalid
 import validated.isValid
 
+/**
+ * The core plugin registers basic editors, views and commands.
+ */
 object Core : PluginInitializer({
     name = "Hextant Core"
     author = "Nikolaus Knop"
@@ -46,7 +49,7 @@ object Core : PluginInitializer({
         FilteredTokenEditorControl(e, bundle)
     }
     view { e: RootExpander<*>, bundle ->
-        val completer = e.context[ProjectItemEditor.expanderConfig<Any>()].completer(CompletionStrategy.simple)
+        val completer = e.context[ProjectItemEditor.expanderConfig<Any?>()].completer(CompletionStrategy.simple)
         FXExpanderView(e, bundle, completer)
     }
     compoundView { e: SettingsEntryEditor ->

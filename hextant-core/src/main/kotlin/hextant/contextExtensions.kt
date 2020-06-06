@@ -45,7 +45,7 @@ inline fun Context.createView(editor: Editor<*>, configure: Bundle.() -> Unit): 
  * @throws NoSuchElementException if neither this context nor any of its parent contexts can create an [Editor]
  * for the given result type.
  */
-fun <R : Any> Context.createEditor(resultType: KType): Editor<R> =
+fun <R> Context.createEditor(resultType: KType): Editor<R> =
     try {
         @Suppress("UNCHECKED_CAST")
         get(EditorFactory).createEditor(resultType, this) as Editor<R>
@@ -58,7 +58,7 @@ fun <R : Any> Context.createEditor(resultType: KType): Editor<R> =
  * Syntactic sugar for createEditor<R>(typeOf<R>())
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified R : Any> Context.createEditor() = createEditor<R>(typeOf<R>())
+inline fun <reified R> Context.createEditor() = createEditor<R>(typeOf<R>())
 
 /**
  * Uses the [EditorFactory] of this [Context] to create an [Editor] with the result type [R], having the initial specified [result].
@@ -67,7 +67,7 @@ inline fun <reified R : Any> Context.createEditor() = createEditor<R>(typeOf<R>(
  * @throws NoSuchElementException if neither this context nor any of its parent contexts can create an [Editor]
  * for result type [R]
  */
-fun <R : Any> Context.createEditor(type: KType, result: R): Editor<R> =
+fun <R> Context.createEditor(type: KType, result: R): Editor<R> =
     try {
         get(EditorFactory).createEditor(type, result, this)
     } catch (e: NoSuchElementException) {
@@ -78,7 +78,7 @@ fun <R : Any> Context.createEditor(type: KType, result: R): Editor<R> =
  * Syntactic sugar for createEditor(typeOf<R>(), result)
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified R : Any> Context.createEditor(result: R) = createEditor(typeOf<R>(), result)
+inline fun <reified R> Context.createEditor(result: R) = createEditor(typeOf<R>(), result)
 
 /**
  * Create a new context which has this [Context] as its parent and apply the given [block] to it.

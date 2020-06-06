@@ -22,8 +22,8 @@ import validated.reaktive.ReactiveValidated
 import validated.reaktive.composeReactive
 import java.nio.file.Path
 
-class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor<File<R>>(context),
-                                                                  ProjectItemEditor<R, File<R>> {
+internal class FileEditor<R> private constructor(context: Context) : CompoundEditor<File<R>>(context),
+                                                                     ProjectItemEditor<R, File<R>> {
     private lateinit var id: String
     private lateinit var path: Path
     private lateinit var content: VirtualFile<Editor<R>>
@@ -36,8 +36,8 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
     private lateinit var observer: Observer
 
     private val rootEditorChange = event<Editor<R>>()
-    val rootEditorChanged get() = rootEditorChange.stream
-    val rootEditor get() = content.get()
+    internal val rootEditorChanged get() = rootEditorChange.stream
+    internal val rootEditor get() = content.get()
 
 
     override fun deletePhysical() {
@@ -53,7 +53,7 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
         }
     }
 
-    private class Snapshot<R : Any>(original: FileEditor<R>) : EditorSnapshot<FileEditor<R>>(original) {
+    private class Snapshot<R>(original: FileEditor<R>) : EditorSnapshot<FileEditor<R>>(original) {
         private val id = original.id
         private val itemName = original.itemName.snapshot()
 
@@ -80,14 +80,14 @@ class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor
 
     override val result: ReactiveValidated<File<R>> get() = _result
 
-    internal class RootExpander<R : Any>(
+    internal class RootExpander<R>(
         context: Context,
         config: ExpanderDelegate<Editor<R>> = context[ProjectItemEditor.expanderConfig<R>()],
         initial: Editor<R>? = null
     ) : ConfiguredExpander<R, Editor<R>>(config, context, initial)
 
     companion object {
-        fun <R : Any> newInstance(context: Context): FileEditor<R> {
+        fun <R> newInstance(context: Context): FileEditor<R> {
             val e = FileEditor<R>(context)
             e.id = context[Internal, IdGenerator].generateID()
             e.path = context[projectRoot].resolve(e.id)

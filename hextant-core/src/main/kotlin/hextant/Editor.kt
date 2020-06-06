@@ -13,7 +13,7 @@ import validated.reaktive.ReactiveValidated
 /**
  * An editor for results of type [R]
  */
-interface Editor<out R : Any> {
+interface Editor<out R> {
     /**
      * A [reaktive.value.ReactiveValue] holding the result of compiling the content of the editor
      */

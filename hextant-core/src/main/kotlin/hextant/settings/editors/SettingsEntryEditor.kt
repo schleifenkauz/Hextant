@@ -34,7 +34,7 @@ internal class SettingsEntryEditor private constructor(context: Context) : Compo
 
     private fun init(prop: ConfigurableProperty) {
         property = prop
-        val e = context.createEditor<Any>(prop.type) as? BidirectionalEditor
+        val e = context.createEditor<Any?>(prop.type) as? BidirectionalEditor
             ?: throw RuntimeException("Editors for property value must be bidirectional")
         setValueEditor(e)
     }
@@ -46,6 +46,7 @@ internal class SettingsEntryEditor private constructor(context: Context) : Compo
             observer.kill()
         }
         addChild(value)
+        @Suppress("DEPRECATION")
         value.initAccessor(PropertyAccessor("value"))
         val res = value.result
             .mapValidated { v -> SettingsEntry(property.property, v) }

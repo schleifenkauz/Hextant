@@ -12,4 +12,4 @@ import kotlin.reflect.KType
  * @property property the property that can be configured
  * @property type the type of the property
  */
-class ConfigurableProperty(val property: Property<Any, Any, Any>, val type: KType)
+class ConfigurableProperty(val property: Property<Any?, Any, Any>, val type: KType)

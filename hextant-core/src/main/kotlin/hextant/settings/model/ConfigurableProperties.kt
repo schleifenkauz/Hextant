@@ -28,7 +28,7 @@ class ConfigurableProperties {
     @OptIn(ExperimentalStdlibApi::class)
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T> register(property: Property<T, *, *>) {
-        register(ConfigurableProperty(property as Property<Any, Any, Any>, typeOf<T>()))
+        register(ConfigurableProperty(property as Property<Any?, Any, Any>, typeOf<T>()))
     }
 
     internal fun byName(name: String) = properties[name]

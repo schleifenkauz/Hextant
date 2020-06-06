@@ -36,21 +36,21 @@ class PluginBuilder @PublishedApi internal constructor(val context: Context) {
     /**
      * Register the specified [factory] for editors of the class [R]
      */
-    inline fun <reified R : Any> editor(noinline factory: (Context, R) -> Editor<R>) {
+    inline fun <reified R> editor(noinline factory: (Context, R) -> Editor<R>) {
         context[EditorFactory].register(factory)
     }
 
     /**
      * Register the specified [factory] for editors for class [R]
      */
-    inline fun <reified R : Any> defaultEditor(noinline factory: (Context) -> Editor<R>) {
+    inline fun <reified R> defaultEditor(noinline factory: (Context) -> Editor<R>) {
         context[EditorFactory].register(factory)
     }
 
     /**
      * Register an [Editor] for values of type [R] using an editor for type [T] and transforming with the given function
      */
-    inline fun <reified T : Any, reified R : Any> registerConversion(noinline transform: (T) -> Validated<R>) {
+    inline fun <reified T, reified R> registerConversion(noinline transform: (T) -> Validated<R>) {
         defaultEditor { context -> context.createEditor<T>().map(transform) }
     }
 

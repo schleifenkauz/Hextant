@@ -80,14 +80,17 @@ open class ListEditorControl(
         items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, context.createView(e)) }
 
     /**
-     *
+     * The default type of cell. It just displays the editor control of the contained editor.
      */
-    class DefaultCell<T> : Cell<EditorControl<*>>() {
+    class DefaultCell : Cell<EditorControl<*>>() {
         override fun updateItem(item: EditorControl<*>) {
             root = item
         }
     }
 
+    /**
+     * The numbered cell prefixes the view of the editor with its 1-based index in the list.
+     */
     class NumberedCell : Cell<Label>() {
         init {
             root = Label()
@@ -103,6 +106,9 @@ open class ListEditorControl(
         }
     }
 
+    /**
+     * The prefix cell displays the view of the editor right of a given prefix-[Node].
+     */
     class PrefixCell(prefix: Node) : Cell<HBox>() {
         constructor(text: String) : this(Label(text))
 
@@ -119,6 +125,9 @@ open class ListEditorControl(
         }
     }
 
+    /**
+     * The separator cell separates editor views with a given [separator] node.
+     */
     class SeparatorCell(private val separator: Node) : Cell<HBox>() {
         constructor(text: String) : this(Label(text))
 
@@ -192,6 +201,7 @@ open class ListEditorControl(
                 setRoot(value)
             }
 
+        @Suppress("KDocMissingDocumentation")
         override fun requestFocus() {
             item?.receiveFocus()
         }
@@ -372,7 +382,7 @@ open class ListEditorControl(
         /**
          * The [ListEditorControl.cellFactory] used to display items
          */
-        val CELL_FACTORY = SimpleProperty<() -> Cell<*>>("list view cell factory") { DefaultCell<Any>() }
+        val CELL_FACTORY = SimpleProperty<() -> Cell<*>>("list view cell factory") { DefaultCell() }
 
         /**
          * The [Node] that is displayed when no items are in the [ListEditor]

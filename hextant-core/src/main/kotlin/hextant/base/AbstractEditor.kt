@@ -16,7 +16,7 @@ import reaktive.list.reactiveList
  * Skeletal implementation for [Editor]s
  */
 @Suppress("OverridingDeprecatedMember")
-abstract class AbstractEditor<out R : Any, in V : Any>(
+abstract class AbstractEditor<out R, in V : Any>(
     override val context: Context
 ) : Editor<R>, AbstractController<V>(), Serializable {
     final override var parent: Editor<*>? = null

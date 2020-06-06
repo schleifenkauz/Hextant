@@ -12,7 +12,7 @@ import validated.Validated
 import validated.flatMap
 import validated.reaktive.ReactiveValidated
 
-internal class TransformedEditor<T : Any, R : Any>(
+internal class TransformedEditor<T, R>(
     internal val source: Editor<T>,
     transform: (T) -> Validated<R>
 ) : AbstractEditor<R, EditorView>(source.context) {

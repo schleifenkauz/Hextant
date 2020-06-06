@@ -27,7 +27,7 @@ import validated.reaktive.ReactiveValidated
  * One can commit or abort a change to get in the not editable state again and call [beginChange] to make the editor editable.
  * @param [initialText] the initial text, which has to be a valid token. Otherwise an [IllegalArgumentException] is thrown.
  */
-abstract class FilteredTokenEditor<R : Any>(context: Context, initialText: String = "") :
+abstract class FilteredTokenEditor<R>(context: Context, initialText: String = "") :
     AbstractEditor<R, FilteredTokenEditorView>(context), TokenType<R>, Serializable {
     private var oldText: String = initialText
     private val _text = reactiveVariable(initialText)

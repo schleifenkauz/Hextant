@@ -14,7 +14,7 @@ import kotlin.reflect.KType
  */
 class EditorFactory private constructor() {
     private val noArgFactories = TypeMap.covariant<(Context) -> Editor<*>>()
-    private val oneArgFactories = mutableMapOf<KType, (Context, Any) -> Editor<Any>>()
+    private val oneArgFactories = mutableMapOf<KType, (Context, Any?) -> Editor<Any?>>()
 
     /**
      * Register the [factory] for the [resultType],
@@ -22,7 +22,7 @@ class EditorFactory private constructor() {
      * where `type` denotes the specified [resultType] or of its supertypes,
      * unless another factory has been registered.
      */
-    fun register(resultType: KType, factory: (Context) -> Editor<Any>) {
+    fun register(resultType: KType, factory: (Context) -> Editor<Any?>) {
         noArgFactories[resultType] = factory
     }
 
@@ -32,7 +32,7 @@ class EditorFactory private constructor() {
      * where `result` denotes an instance of exactly [resultType] not a sub- or supertype instance,
      * unless another factory has been registered.
      */
-    fun register(resultType: KType, factory: (Context, Any) -> Editor<Any>) {
+    fun register(resultType: KType, factory: (Context, Any?) -> Editor<Any?>) {
         oneArgFactories[resultType] = factory
     }
 
@@ -40,7 +40,7 @@ class EditorFactory private constructor() {
      * Creates a new editor for results of the specified [resultType] using one of the registered factories.
      * @throws NoSuchElementException if no appropriate factory was registered.
      */
-    fun createEditor(resultType: KType, context: Context): Editor<Any> {
+    fun createEditor(resultType: KType, context: Context): Editor<Any?> {
         val factory = noArgFactories[resultType]
         if (factory != null) return factory(context)
         throw NoSuchElementException("No no-arg factory found for $resultType")
@@ -50,11 +50,11 @@ class EditorFactory private constructor() {
      * Creates a new editor which produces the given [result] using one of the registered factories.
      * @throws NoSuchElementException if no appropriate factory was registered.
      */
-    fun <T : Any> createEditor(type: KType, result: T, context: Context): Editor<T> {
+    fun <T> createEditor(type: KType, result: T, context: Context): Editor<T> {
         val factory = oneArgFactories[type]
         @Suppress("UNCHECKED_CAST")
         (if (factory != null) return factory(context, result) as Editor<T>
-        else throw NoSuchElementException("No one-arg factory found for ${result.javaClass}"))
+        else throw NoSuchElementException("No one-arg factory found for $type"))
     }
 
     /**

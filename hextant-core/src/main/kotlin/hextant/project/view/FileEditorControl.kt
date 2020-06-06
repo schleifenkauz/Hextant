@@ -18,7 +18,8 @@ import reaktive.Observer
 import reaktive.value.binding.orElse
 import reaktive.value.now
 
-class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) : EditorControl<HBox>(editor, arguments) {
+internal class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) :
+    EditorControl<HBox>(editor, arguments) {
     private val iconProvider = context[IconProvider.property<Editor<*>>()]
 
     private var currentGlyph = glyphBinding(editor.rootEditor)

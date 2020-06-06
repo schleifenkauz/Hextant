@@ -15,7 +15,7 @@ import kotlin.reflect.full.primaryConstructor
 /**
  * Base class for editors that are composed of multiple sub-editors.
  */
-abstract class CompoundEditor<R : Any>(context: Context) : AbstractEditor<R, EditorView>(context) {
+abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorView>(context) {
     private val constructor = this::class.primaryConstructor!!
 
     /**
@@ -23,7 +23,13 @@ abstract class CompoundEditor<R : Any>(context: Context) : AbstractEditor<R, Edi
      */
     protected fun <E : Editor<*>> child(editor: E): ChildDelegator<E> = ChildDelegatorImpl(editor)
 
+    /**
+     * Used as a delegate for children of this [CompoundEditor]
+     */
     interface ChildDelegator<E : Editor<*>> {
+        /**
+         * Provides the delegate
+         */
         operator fun provideDelegate(
             thisRef: CompoundEditor<*>,
             property: KProperty<*>

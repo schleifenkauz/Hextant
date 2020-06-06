@@ -82,17 +82,14 @@ class CommandLine(context: Context, private val source: CommandSource) :
     fun expand(command: Command<*, *>): Boolean {
         if (expanded) return false
         val editors = command.parameters.map { p ->
-            context.createEditor<Any>(p.type).also { it.makeRoot() }
+            context.createEditor<Any?>(p.type).also { it.makeRoot() }
         }
         bindResult(command, editors.map { it.result })
         expanded(command, editors)
         return true
     }
 
-    private fun expanded(
-        cmd: Command<*, *>,
-        editors: List<Editor<Any>>
-    ) {
+    private fun expanded(cmd: Command<*, *>, editors: List<Editor<Any?>>) {
         arguments = editors
         expandedCommand = cmd
         views { expanded(cmd, editors) }
@@ -100,10 +97,10 @@ class CommandLine(context: Context, private val source: CommandSource) :
 
     private fun bindResult(
         cmd: Command<*, *>,
-        arguments: List<ReactiveValidated<Any>>
+        arguments: List<ReactiveValidated<Any?>>
     ) {
         obs = _result.bind(binding<Validated<CommandApplication>>(dependencies(arguments)) {
-            val args = mutableListOf<Any>()
+            val args = mutableListOf<Any?>()
             for (result in arguments) {
                 val value = result.now.ifInvalid { return@binding invalidComponent() }
                 args.add(value)
@@ -143,7 +140,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
         return true
     }
 
-    private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any>>, result: Any) {
+    private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any?>>, result: Any) {
         val item = HistoryItem(command, arguments.map { it.result.now.force() to it.snapshot() }, result)
         history.add(item)
         views {
@@ -161,7 +158,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
     /**
      * Expand to the given [command] and instantiate the editors for the given [arguments].
      */
-    fun resume(command: Command<*, *>, arguments: List<EditorSnapshot<out Editor<Any>>>) {
+    fun resume(command: Command<*, *>, arguments: List<EditorSnapshot<out Editor<Any?>>>) {
         reset()
         setCommandName(command.shortName!!)
         val editors = arguments.map { it.reconstruct(context) }
@@ -208,7 +205,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
         /**
          * The supplied arguments
          */
-        val arguments: List<Pair<Any, EditorSnapshot<out Editor<Any>>>>,
+        val arguments: List<Pair<Any?, EditorSnapshot<out Editor<Any?>>>>,
         /**
          * The result of the application
          */
