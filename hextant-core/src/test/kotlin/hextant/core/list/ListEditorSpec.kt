@@ -8,63 +8,66 @@ import hextant.expr.editor.IntLiteralEditor
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.*
+import org.jetbrains.spek.api.dsl.Pending.No
 
 object ListEditorSpec : Spek({
-    GIVEN("a ListEditor") {
-        DESCRIBE("adding, removing and clearing") {
+    given("a ListEditor") {
+        describe("adding, removing and clearing") {
             val ctx = testingContext()
             val editor = object : ListEditor<IntLiteral, IntLiteralEditor>(ctx) {
                 override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
             }
             val view = mockView<ListEditorView>()
             view.inOrder {
-                ON("adding a view") {
+                on("adding a view") {
                     editor.addView(view)
-                    IT("should notify the view to be empty") {
+                    it("should notify the view to be empty") {
                         verify().empty()
                     }
                 }
-                ON("adding a new element") {
+                on("adding a new element") {
                     editor.addAt(0)
-                    IT("should create a new editable and add it") {
+                    it("should create a new editable and add it") {
                         editor.results.now.size shouldEqual 1
                     }
-                    IT("should notify the views") {
+                    it("should notify the views") {
                         verify().notEmpty()
                         verify().added(any(), eq(0))
                     }
                 }
-                ON("adding another element") {
+                on("adding another element") {
                     editor.addAt(1)
-                    IT("should create a new editable and add it") {
+                    it("should create a new editable and add it") {
                         editor.results.now.size shouldEqual 2
                     }
-                    IT("should notify the views") {
+                    it("should notify the views") {
                         verify().added(any(), eq(1))
                     }
                 }
-                ON("removing an element") {
+                on("removing an element") {
                     editor.removeAt(0)
-                    IT("should remove an element from the editable list") {
+                    it("should remove an element from the editable list") {
                         editor.results.now.size shouldEqual 1
                     }
-                    IT("should notify the views") {
+                    it("should notify the views") {
                         verify().removed(0)
                     }
                 }
-                ON("removing the last element") {
+                on("removing the last element") {
                     editor.removeAt(0)
-                    TEST("the results list should be empty") {
+                    test("the results list should be empty", No) {
                         editor.results.now.size shouldEqual 0
                     }
-                    IT("should notify the views about being empty") {
+                    it("should notify the views about being empty") {
                         verify().removed(0)
                         verify().empty()
                     }
                 }
+                Unit
             }
         }
-        DESCRIBE("undo/redo") {
+        describe("undo/redo") {
             val ctx = testingContext()
             val undo = ctx[UndoManager]
             val editor = object :
@@ -73,39 +76,39 @@ object ListEditorSpec : Spek({
             }
             val view = mockView<ListEditorView>()
             editor.addView(view)
-            ON("adding an editable") {
+            on("adding an editable") {
                 editor.addAt(0)
-                IT("should be able to undo") {
+                it("should be able to undo") {
                     undo.canUndo shouldBe `true`
                 }
             }
-            ON("undoing") {
+            on("undoing") {
                 undo.undo()
-                IT("should remove the editable") {
+                it("should remove the editable") {
                     editor.results.now.size shouldEqual 0
                 }
             }
-            ON("redoing") {
+            on("redoing") {
                 undo.redo()
-                IT("should add the editable again") {
+                it("should add the editable again") {
                     editor.results.now.size shouldEqual 1
                 }
             }
-            ON("removing an element") {
+            on("removing an element") {
                 editor.removeAt(0)
-                IT("should be able to undo") {
+                it("should be able to undo") {
                     undo.canUndo shouldBe `true`
                 }
             }
-            ON("undoing removing the element") {
+            on("undoing removing the element") {
                 undo.undo()
-                IT("should add the element again") {
+                it("should add the element again") {
                     editor.results.now.size shouldEqual 1
                 }
             }
-            ON("redoing removing the element") {
+            on("redoing removing the element") {
                 undo.redo()
-                IT("should remove the element again") {
+                it("should remove the element again") {
                     editor.results.now.size shouldEqual 0
                 }
             }

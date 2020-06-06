@@ -10,53 +10,56 @@ import hextant.expr.editor.IntLiteralEditor
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.*
+import org.jetbrains.spek.api.dsl.Pending.No
 import reaktive.value.now
 
 object TokenEditorSpec : Spek({
-    GIVEN("a token editor") {
+    given("a token editor") {
         val context = testingContext()
         val undo: UndoManager = context[UndoManager]
         val editor = IntLiteralEditor(context)
         val view = mockView<TokenEditorView>()
         view.inOrder {
-            ON("adding a view") {
+            on("adding a view") {
                 editor.addView(view)
-                IT("should display the text") {
+                it("should display the text") {
                     verify().displayText("")
                 }
             }
-            ON("setting the text") {
+            on("setting the text") {
                 editor.setText("abc")
-                IT("should notify the view") {
+                it("should notify the view") {
                     verify().displayText("abc")
                 }
                 test("the undo manager should be able to undo") {
                     undo.canUndo shouldBe `true`
                 }
             }
-            ON("undoing") {
+            on("undoing") {
                 undo.undo()
-                IT("should set text back to the empty string") {
+                it("should set text back to the empty string") {
                     editor.text.now shouldEqual ""
                 }
                 test("the view should be notified") {
                     verify().displayText("")
                 }
             }
-            ON("redoing") {
+            on("redoing") {
                 undo.redo()
-                IT("should set text to the undone text") {
+                it("should set text to the undone text") {
                     editor.text.now shouldEqual "abc"
                 }
                 test("the view should be notified") {
                     verify().displayText("abc")
                 }
             }
-            ACTION("after") {
+            action("after", No) {
                 test("no more interactions") {
                     verify(view, never()).displayText(any())
                 }
             }
+            Unit
         }
     }
 })

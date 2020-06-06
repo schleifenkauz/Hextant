@@ -6,15 +6,15 @@ package hextant.inspect
 
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
-import hextant.test.DESCRIBE
-import hextant.test.IT
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.describe
+import org.jetbrains.spek.api.dsl.it
 import reaktive.value.reactiveVariable
 
 internal object InspectionSpec : Spek({
     lateinit var i: Inspection
     val inspected = Inspected()
-    DESCRIBE("build inspection") {
+    describe("build inspection") {
         i = inspection(inspected) {
             description = "Is Ok inspection, reports inspected values that aren't ok"
             message { "$inspected is not OK" }
@@ -27,7 +27,7 @@ internal object InspectionSpec : Spek({
                 }
             }
         }
-        IT("should correctly pass the set values") {
+        it("should correctly pass the set values") {
             i.description shouldMatch equalTo("Is Ok inspection, reports inspected values that aren't ok")
         }
     }

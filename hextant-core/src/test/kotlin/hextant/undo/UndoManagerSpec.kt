@@ -2,34 +2,43 @@ package hextant.undo
 
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.*
 
 internal object UndoManagerSpec : Spek({
-    GIVEN("a new undo manager") {
+    given("a new undo manager") {
         val subject = UndoManager.newInstance()
         fun testCanUndo(expected: Boolean) {
-            if (expected) IT("should be able to undo") {
-                subject.canUndo shouldBe `true`
-            } else IT("should not be able to undo") {
-                subject.canUndo shouldBe `false`
+            if (expected) {
+                it("should be able to undo") {
+                    subject.canUndo shouldBe `true`
+                }
+            } else {
+                it("should not be able to undo") {
+                    subject.canUndo shouldBe `false`
+                }
             }
         }
 
         fun testCanRedo(expected: Boolean) {
-            if (expected) IT("should be able to redo") {
-                subject.canRedo shouldBe `true`
-            } else IT("should not be able to redo") {
-                subject.canRedo shouldBe `false`
+            if (expected) {
+                it("should be able to redo") {
+                    subject.canRedo shouldBe `true`
+                }
+            } else {
+                it("should not be able to redo") {
+                    subject.canRedo shouldBe `false`
+                }
             }
         }
         testCanRedo(false)
         testCanUndo(false)
         val e1 = AnEdit()
-        ON("pushing an edit") {
+        on("pushing an edit") {
             subject.push(e1)
-            IT("should be able to undo") {
+            it("should be able to undo") {
                 testCanUndo(true)
             }
-            IT("should not be able to redo") {
+            it("should not be able to redo") {
                 testCanRedo(false)
             }
         }

@@ -7,13 +7,15 @@ package hextant.command
 import com.nhaarman.mockitokotlin2.*
 import hextant.*
 import hextant.command.line.*
+import hextant.command.line.CommandLine.HistoryItem
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
-import hextant.test.*
+import hextant.test.testingContext
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.*
 
 internal object CommandLineSpec : Spek({
-    GIVEN("a command line") {
+    given("a command line") {
         val context = testingContext {
             get(EditorFactory).register { context -> IntLiteralEditor(context) }
         }
@@ -57,75 +59,78 @@ internal object CommandLineSpec : Spek({
             }
         }
         inOrder(view, target) {
-            ON("adding a view") {
+            on("adding a view") {
                 cl.addView(view)
-                IT("should display the text") {
+                it("should display the text") {
                     verify(view).displayCommandName("")
                 }
             }
-            ON("editing the name") {
+            on("editing the name") {
                 cl.setCommandName("new")
-                IT("should display the text") {
+                it("should display the text") {
                     verify(view).displayCommandName("new")
                 }
             }
-            ON("trying to execute") {
+            on("trying to execute") {
                 cl.execute()
-                IT("should do nothing") {
+                it("should do nothing") {
                     verifyNoMoreInteractions()
                 }
             }
-            ON("setting the text to a command without arguments") {
+            on("setting the text to a command without arguments") {
                 cl.setCommandName("command")
-                IT("should display the text") {
+                it("should display the text") {
                     verify(view).displayCommandName("command")
                 }
             }
-            ON("executing the no-arg command") {
+            on("executing the no-arg command") {
                 cl.execute()
-                IT("should execute the command") {
+                it("should execute the command") {
                     verify(target).execute()
                 }
-                IT("should notify the views about the executed command") {
-                    verify(view).addToHistory(command, emptyList(), Unit)
+                it("should notify the views about the executed command") {
+                    verify(view).addToHistory(HistoryItem(command, emptyList(), Unit))
                 }
-                IT("should reset") {
+                it("should reset") {
                     verify(view).reset()
                 }
             }
-            ON("setting the text to a command with arguments") {
+            on("setting the text to a command with arguments") {
                 cl.setCommandName("command2")
-                IT("should display the name") {
+                it("should display the name") {
                     verify(view).displayCommandName("command2")
                 }
             }
-            ON("expanding") {
+            on("expanding") {
                 cl.expand()
-                IT("should expand") {
+                it("should expand") {
                     verify(view).expanded(eq(command2), any())
                 }
             }
-            ON("executing when int editor is not ok") {
+            on("executing when int editor is not ok") {
                 cl.execute()
-                IT("should do nothing") {
+                it("should do nothing") {
                     verifyNoMoreInteractions()
                 }
             }
-            ON("executing after making int editor valid") {
+            on("executing after making int editor valid") {
                 intEditor.setText("123")
                 cl.execute()
-                IT("should execute the command") {
+                it("should execute the command") {
                     verify(target).execute(123)
                 }
-                IT("should notify the views about the executed command") {
-                    verify(view).addToHistory(command2, listOf(IntLiteral(123)), Unit)
+                it("should notify the views about the executed command") {
+                    val result = IntLiteral(123)
+                    val snapshot = IntLiteralEditor(result, context).snapshot()
+                    val arguments = listOf(result to snapshot)
+                    verify(view).addToHistory(HistoryItem(command, arguments, Unit))
                 }
             }
-            ON("expanding and then resetting") {
+            on("expanding and then resetting") {
                 cl.setCommandName("command2")
                 cl.expand()
                 cl.reset()
-                IT("should edit the name, expand and reset") {
+                it("should edit the name, expand and reset") {
                     verify(view).displayCommandName("command2")
                     verify(view).expanded(eq(command2), any())
                     verify(view).reset()

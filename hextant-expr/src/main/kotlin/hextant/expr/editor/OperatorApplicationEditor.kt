@@ -22,5 +22,5 @@ class OperatorApplicationEditor(
     val operand1 by child(ExprExpander(context))
     val operand2 by child(ExprExpander(context))
 
-    override val result: ReactiveValidated<OperatorApplication> = composeResult(operator, operand1, operand2)
+    override val result: ReactiveValidated<OperatorApplication> = composeResult(operand1, operand2, operator)
 }

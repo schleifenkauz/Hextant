@@ -6,6 +6,7 @@ package hextant.settings.model
 
 import bundles.Property
 import hextant.core.Internal
+import kotlin.reflect.typeOf
 
 /**
  * This class manages properties that can be configured in a settings editor.
@@ -24,9 +25,10 @@ class ConfigurableProperties {
     /**
      * Register a [ConfigurableProperty] with the specified [property] and the type [T].
      */
+    @OptIn(ExperimentalStdlibApi::class)
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T> register(property: Property<T, *, *>) {
-        register(ConfigurableProperty(property as Property<Any, Any, Any>, T::class))
+        register(ConfigurableProperty(property as Property<Any, Any, Any>, typeOf<T>()))
     }
 
     internal fun byName(name: String) = properties[name]

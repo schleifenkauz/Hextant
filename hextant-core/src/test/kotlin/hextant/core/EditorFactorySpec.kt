@@ -6,37 +6,38 @@ package hextant.core
 
 import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
-import hextant.EditorFactory
+import hextant.*
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
-import hextant.register
-import hextant.test.*
+import hextant.test.instanceOf
+import hextant.test.testingContext
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.*
 
 @Suppress("UNUSED_PARAMETER")
 internal object EditorFactorySpec : Spek({
-    DESCRIBE("registering") {
+    describe("registering") {
         val ef = EditorFactory.newInstance()
         val context = testingContext()
-        ON("registering a editable for a class") {
+        on("registering a editable for a class") {
             ef.register { context, il: IntLiteral -> IntLiteralEditor(il, context) }
             ef.register { context -> IntLiteralEditor(context) }
-            IT("should return the registered editable when getting an editable for the registered class") {
-                ef.getEditor(IntLiteral::class, context) shouldMatch instanceOf<IntLiteralEditor>()
+            it("should return the registered editable when getting an editable for the registered class") {
+                ef.createEditor<IntLiteral>(context) shouldMatch instanceOf<IntLiteralEditor>()
             }
-            IT("should return the registered editable when getting an editable for the registered value") {
-                ef.getEditor(IntLiteral(2), context) shouldMatch instanceOf<IntLiteralEditor>()
+            it("should return the registered editable when getting an editable for the registered value") {
+                ef.createEditor(IntLiteral(2), context) shouldMatch instanceOf<IntLiteralEditor>()
             }
         }
-        ON("asking for a editable of a subtype of a registered type") {
-            val anyEditor = ef.getEditor(Any::class, context)
-            IT("should return an editable of the nearest registered subclass") {
+        on("asking for a editable of a subtype of a registered type") {
+            val anyEditor = ef.createEditor(Any::class, context)
+            it("should return an editable of the nearest registered subclass") {
                 anyEditor shouldMatch instanceOf<IntLiteralEditor>()
             }
         }
-        ON("getting an editable for an unregistered class") {
-            val error = { ef.getEditor(Int::class, context); Unit }
-            IT("should throw a nosuchelementexception") {
+        on("getting an editable for an unregistered class") {
+            val error = { ef.createEditor(Int::class, context); Unit }
+            it("should throw a NoSuchElementException") {
                 error shouldMatch throws<NoSuchElementException>()
             }
         }

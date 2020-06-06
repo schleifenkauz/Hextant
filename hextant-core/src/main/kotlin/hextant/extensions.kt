@@ -6,6 +6,7 @@ import hextant.core.ClipboardContent.OneEditor
 import hextant.core.editor.TransformedEditor
 import validated.Validated
 import validated.valid
+import kotlin.reflect.typeOf
 
 /**
  * Synonym for [apply]
@@ -15,18 +16,34 @@ inline fun EditorControlFactory.configure(config: EditorControlFactory.() -> Uni
 }
 
 /**
- * Syntactic sugar for `register(T::class, factory)`
+ * Syntactic sugar for `register(typeOf<T>(), factory)`
  */
+@OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T : Any> EditorFactory.register(noinline factory: (Context, T) -> Editor<T>) {
-    register(T::class, factory)
+    @Suppress("UNCHECKED_CAST")
+    register(typeOf<T>(), factory as (Context, Any) -> Editor<Any>)
 }
 
 /**
- * Syntactic sugar for `register(T::class, factory)`
+ * Syntactic sugar for `register(typeOf<T>(), factory)`
  */
+@OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T : Any> EditorFactory.register(noinline factory: (Context) -> Editor<T>) {
-    register(T::class, factory)
+    register(typeOf<T>(), factory)
 }
+
+/**
+ * Syntactic sugar for `createEditor(typeOf<T>(), context)`
+ */
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified T : Any> EditorFactory.createEditor(context: Context) = createEditor(typeOf<T>(), context)
+
+/**
+ * Syntactic sugar for `createEditor(typeOf<T>(), result, context)`
+ */
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified T : Any> EditorFactory.createEditor(result: T, context: Context) =
+    createEditor(typeOf<T>(), result, context)
 
 /**
  * Return a sequence iterating over all immediate and recursive children of this editor

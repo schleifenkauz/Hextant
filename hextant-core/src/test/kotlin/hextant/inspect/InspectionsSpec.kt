@@ -5,22 +5,22 @@ import hextant.inspect.Problem.Error
 import hextant.inspect.Problem.Warning
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.ActionBody
+import org.jetbrains.spek.api.dsl.*
 import reaktive.value.*
 import reaktive.value.binding.*
 
 internal object InspectionsSpec : Spek({
-    GIVEN("inspections") {
+    given("inspections") {
         val inspections = Inspections.newInstance()
         val inspected = Inspected()
         fun ActionBody.checkNoErrors() {
-            IT("should report no error") {
+            it("should report no error") {
                 inspections.hasError(inspected).now shouldEqual false
             }
         }
 
         fun ActionBody.checkNoWarning() {
-            IT("should have no warnings") {
+            it("should have no warnings") {
                 inspections.hasWarning(inspected).now shouldEqual false
             }
         }
@@ -28,14 +28,14 @@ internal object InspectionsSpec : Spek({
         fun ActionBody.checkNoProblems() {
             checkNoWarning()
             checkNoErrors()
-            IT("should have no problems") {
+            it("should have no problems") {
                 inspections.getProblems(inspected) shouldMatch isEmpty
             }
         }
-        ON("initially") {
+        on("initially") {
             checkNoProblems()
         }
-        ON("registering an inspection that doesn't report a problem initially") {
+        on("registering an inspection that doesn't report a problem initially") {
             inspections.of<Inspected>().registerInspection {
                 description = "Prevents even integers"
                 isSevere(false)
@@ -44,21 +44,21 @@ internal object InspectionsSpec : Spek({
             }
             checkNoProblems()
         }
-        ON("changing the inspected object such that it is reported") {
+        on("changing the inspected object such that it is reported") {
             inspected.number.set(2) //even number
-            IT("should report a warning") {
+            it("should report a warning") {
                 inspections.hasWarning(inspected).now shouldEqual true
             }
             checkNoErrors()
-            IT("should report one problem") {
+            it("should report one problem") {
                 inspections.getProblems(inspected) shouldBe aSetOf(instanceOf<Warning>())
             }
         }
-        ON("changing the inspected object such that it is not reported anymore") {
+        on("changing the inspected object such that it is not reported anymore") {
             inspected.number.set(3) //odd even
             checkNoProblems()
         }
-        ON("registering another inspection for a superclass and making the inspected object reportable") {
+        on("registering another inspection for a superclass and making the inspected object reportable") {
             inspected.number.set(0) //even and non-positive
             inspections.of<IInspected>().registerInspection {
                 description = "Prevents non-positive integers"
@@ -66,20 +66,20 @@ internal object InspectionsSpec : Spek({
                 message { "Number is non-positive" }
                 preventingThat(!inspected.isPositive)
             }
-            IT("should have an error") {
+            it("should have an error") {
                 inspections.hasError(inspected).now shouldEqual true
             }
-            IT("should have a warning") {
+            it("should have a warning") {
                 inspections.hasWarning(inspected).now shouldEqual true
             }
-            IT("should report both a warning and problem") {
+            it("should report both a warning and problem") {
                 inspections.getProblems(inspected) shouldBe aSetOf(
                     instanceOf<Warning>(),
                     instanceOf<Error>()
                 )
             }
         }
-        ON("making the inspected object unproblematic again") {
+        on("making the inspected object unproblematic again") {
             inspected.number.set(5)
             checkNoProblems()
         }

@@ -8,152 +8,155 @@ import hextant.expr.editor.IntLiteralEditor
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.*
+import org.jetbrains.spek.api.dsl.Pending.No
 import reaktive.value.now
 import validated.valid
 
 object ExpanderSpec : Spek({
-    GIVEN("an expander") {
-        DESCRIBE("compiling result") {
+    given("an expander") {
+        describe("compiling result") {
             val context = testingContext()
             val ex = ExpanderSpec.expander(context)
-            TEST("editor.now should be null") {
+            test("editor.now should be null", No) {
                 ex.editor.now shouldBe `null`
             }
-            TEST("result.now should be child error") {
+            test("result.now should be child error", No) {
                 ex.result.now shouldBe invalidComponent
             }
             val editor = IntLiteralEditor(context)
-            ON("expanding to an editor with error result") {
+            on("expanding to an editor with error result") {
                 ex.setEditor(editor)
-                TEST("result.now should be child error") {
+                test("result.now should be child error", No) {
                     ex.result.now shouldBe invalidComponent
                 }
             }
-            ON("wrapped editor gets ok result") {
+            on("wrapped editor gets ok result") {
                 editor.setText("123")
-                TEST("result.now should be the result of the wrapped editor") {
+                test("result.now should be the result of the wrapped editor", No) {
                     ex.result.now shouldEqual valid(IntLiteral(123))
                 }
             }
-            ON("resetting the expander") {
+            on("resetting the expander") {
                 ex.reset()
-                TEST("editor.now should be null") {
+                test("editor.now should be null", No) {
                     ex.editor.now shouldBe `null`
                 }
-                TEST("result.now should be child error") {
+                test("result.now should be child error", No) {
                     ex.result.now shouldBe invalidComponent
                 }
             }
         }
-        DESCRIBE("notifying views") {
+        describe("notifying views") {
             val context = testingContext()
             val ex = ExpanderSpec.expander(context)
             val view = mockView<ExpanderView>()
             ex.addView(view)
             view.inOrder {
-                ON("resetting when not expanded") {
-                    IT("should thrown an exception") {
+                on("resetting when not expanded") {
+                    it("should thrown an exception") {
                         { ex.reset() }.shouldThrow<IllegalStateException>()
                     }
                 }
-                ON("expanding invalid text") {
+                on("expanding invalid text") {
                     ex.expand()
-                    IT("should not expand") {
+                    it("should not expand") {
                         verifyNoMoreInteractions()
                     }
                 }
-                ON("setting text") {
+                on("setting text") {
                     ex.setText("123")
-                    IT("should notify the views") {
+                    it("should notify the views") {
                         verify().displayText("123")
                     }
                 }
-                ON("expanding") {
+                on("expanding") {
                     ex.expand()
-                    IT("should set the result") {
+                    it("should set the result") {
                         ex.result.now shouldEqual valid(IntLiteral(123))
                     }
-                    IT("should notify the views") {
+                    it("should notify the views") {
                         verify().expanded(ex.editor.now!!)
                     }
                 }
-                ON("expanding again") {
-                    IT("should throw an exception") {
+                on("expanding again") {
+                    it("should throw an exception") {
                         { ex.expand() }.shouldThrow<IllegalStateException>()
                     }
                 }
-                ON("reset") {
+                on("reset") {
                     ex.reset()
-                    IT("should set the editor to null") {
+                    it("should set the editor to null") {
                         ex.editor.now shouldBe `null`
                     }
-                    IT("should set the result to a child error") {
+                    it("should set the result to a child error") {
                         ex.result.now shouldBe invalidComponent
                     }
-                    IT("should notify the view") {
+                    it("should notify the view") {
                         verify().reset()
                     }
                 }
+                Unit
             }
         }
-        DESCRIBE("undoing and redoing") {
+        describe("undoing and redoing") {
             val context = testingContext()
             val undo = context[UndoManager]
             val ex = ExpanderSpec.expander(context)
             lateinit var content1: IntLiteralEditor
-            ON("expanding") {
+            on("expanding") {
                 ex.setText("123")
                 ex.expand()
                 content1 = ex.editor.now!!
-                IT("should push an edit") {
+                it("should push an edit") {
                     undo.canUndo shouldBe `true`
                 }
             }
-            ON("undoing") {
+            on("undoing") {
                 undo.undo()
-                IT("should reset") {
+                it("should reset") {
                     ex.editor.now shouldBe `null`
                 }
             }
-            ON("redoing") {
+            on("redoing") {
                 undo.redo()
-                IT("should expand to the last editable") {
+                it("should expand to the last editable") {
                     ex.editor.now shouldEqual content1
                 }
             }
-            ON("resetting") {
+            on("resetting") {
                 ex.reset()
-                IT("should push an edit") {
+                it("should push an edit") {
                     undo.canUndo shouldBe `true`
                 }
             }
-            ON("undoing reset") {
+            on("undoing reset") {
                 undo.undo()
-                IT("should expand to the last editable") {
+                it("should expand to the last editable") {
                     ex.editor.now shouldEqual content1
                 }
             }
-            ON("redoing reset") {
+            on("redoing reset") {
                 undo.redo()
-                IT("should reset") {
+                it("should reset") {
                     ex.editor.now shouldBe `null`
                 }
             }
-            ON("setting the text") {
+            on("setting the text") {
                 ex.setText("abc")
-                IT("should push an edit") {
+                it("should push an edit") {
                     undo.canUndo shouldBe `true`
                 }
             }
-            ON("undoing set text") {
+            on("undoing set text") {
                 undo.undo()
-                IT("should set the text to the previous string") {
+                it("should set the text to the previous string") {
                     ex.text.now shouldEqual ""
                 }
             }
-            ON("redoing set text") {
+            on("redoing set text") {
                 undo.redo()
-                IT("should set the text to the text set by settext") {
+                it("should set the text to the text set by settext") {
                     ex.text.now shouldEqual "abc"
                 }
             }

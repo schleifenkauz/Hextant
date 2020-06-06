@@ -4,7 +4,7 @@
 
 package hextant.command
 
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 /**
  * A Command that is executable on a receiver of type [R]
@@ -113,12 +113,12 @@ interface Command<in R : Any, out T> {
      * @property description explains what this parameter is used for
      */
     data class Parameter(
-        val name: String, val type: KClass<*>, val nullable: Boolean = false, val description: String
+        val name: String, val type: KType, val nullable: Boolean = false, val description: String
     ) {
         override fun toString() = buildString {
             append(name)
             append(": ")
-            append(type.simpleName ?: "<ERROR>")
+            append(type.toString())
             if (nullable) append("?")
             appendln()
             append(description)
@@ -134,14 +134,17 @@ interface Command<in R : Any, out T> {
          * The name of the parameter
          */
         lateinit var name: String
+
         /**
          * The type of the parameter
          */
-        lateinit var type: KClass<*>
+        lateinit var type: KType
+
         /**
          * `true` iff the parameter is nullable
          */
         var nullable = false
+
         /**
          * The description of this parameter, an explanation of what the parameter influences.
          * The default description is "No description provided"
@@ -151,8 +154,9 @@ interface Command<in R : Any, out T> {
         /**
          * Set the type to the class of [T]
          */
+        @OptIn(ExperimentalStdlibApi::class)
         inline fun <reified T> ofType() {
-            type = T::class
+            type = typeOf<T>()
         }
 
         @PublishedApi internal fun build(): Parameter = Parameter(name, type, nullable, description)

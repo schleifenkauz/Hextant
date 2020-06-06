@@ -2,11 +2,11 @@ package hextant.command
 
 import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.should.shouldMatch
-import hextant.test.*
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.*
 
 internal object CommandsSpec : Spek({
-    GIVEN("commands") {
+    given("commands") {
         val cs = Commands.newInstance()
         val registrar = cs.of<ICommandTarget>()
         val command = command<ICommandTarget, Unit> {
@@ -14,16 +14,16 @@ internal object CommandsSpec : Spek({
             name = "cmd"
             executing { _, _ -> println("Executed another command") }
         }
-        ON("registering a new command") {
+        on("registering a new command") {
             registrar.register(command)
             test("the new command should be available") {
                 registrar.commands shouldMatch Matcher(Set<*>::contains, command)
             }
         }
-        IT("should also use the commands of superclasses") {
+        it("should also use the commands of superclasses") {
             cs.of<CommandTarget>().commands shouldMatch Matcher(Set<*>::contains, command)
         }
-        ON("registering a command that is never applicable") {
+        on("registering a command that is never applicable") {
             val notApplicable = command<ICommandTarget, Unit> {
                 description = "never applicable"
                 name = "x"
@@ -37,7 +37,7 @@ internal object CommandsSpec : Spek({
                 applicableCommands shouldMatch !Matcher(Set<*>::contains, notApplicable)
             }
         }
-        IT("should cache registrars") {
+        it("should cache registrars") {
             cs.of<CommandTarget>() shouldMatch equalTo(cs.of(CommandTarget::class))
         }
     }

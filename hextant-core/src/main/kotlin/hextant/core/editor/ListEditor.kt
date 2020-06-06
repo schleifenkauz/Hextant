@@ -23,6 +23,7 @@ import validated.*
 import validated.Validated.InvalidComponent
 import validated.Validated.Valid
 import validated.reaktive.ReactiveValidated
+import kotlin.reflect.typeOf
 
 /**
  * An editor for multiple child editors of type [E] whose result type is [R]
@@ -371,9 +372,10 @@ abstract class ListEditor<R : Any, E : Editor<R>>(
          * Create a [ListEditor] which overrides [createEditor] such that it returns an editor for type results of [R]
          * using the specified [context]
          */
+        @OptIn(ExperimentalStdlibApi::class)
         inline fun <reified R : Any> forType(context: Context): ListEditor<R, Editor<R>> =
             object : ListEditor<R, Editor<R>>(context) {
-                override fun createEditor(): Editor<R> = context.createEditor(R::class)
+                override fun createEditor(): Editor<R> = context.createEditor(typeOf<R>())
             }
     }
 }

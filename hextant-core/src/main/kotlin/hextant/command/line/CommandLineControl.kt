@@ -7,6 +7,7 @@ package hextant.command.line
 import bundles.Bundle
 import hextant.Editor
 import hextant.command.Command
+import hextant.command.line.CommandLine.HistoryItem
 import hextant.completion.gui.CompletionPopup
 import hextant.createView
 import hextant.fx.*
@@ -74,23 +75,24 @@ class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLin
         commandName.isEditable = true
     }
 
-    override fun addToHistory(command: Command<*, *>, arguments: List<Any>, result: Any) {
-        val item = HBox().withStyleClass("command-history-item")
-        item.isFocusTraversable = true
-        item.onAction { cl.resume(command, arguments) }
-        item.setOnMouseClicked { item.requestFocus() }
-        with(item.children) {
+    override fun addToHistory(item: HistoryItem) {
+        val (command, arguments, result) = item
+        val box = HBox().withStyleClass("command-history-item")
+        box.isFocusTraversable = true
+        box.onAction { cl.resume(command, arguments.map { (_, snapshot) -> snapshot }) }
+        box.setOnMouseClicked { box.requestFocus() }
+        with(box.children) {
             add(label(command.shortName!!))
             add(label(" "))
             for ((param, arg) in command.parameters.zip(arguments)) {
-                add(label(arg.toString()).withTooltip(param.toString()))
+                add(label(arg.first.toString()).withTooltip(param.toString()))
             }
             if (result != Unit) {
                 add(label(" -> "))
                 add(label(result.toString()))
             }
         }
-        history.children.add(item)
+        history.children.add(box)
     }
 
     override fun receiveFocus() {

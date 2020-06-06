@@ -4,8 +4,7 @@
 
 package hextant.command
 
-import hextant.EditorFactory
-import hextant.HextantPlatform
+import hextant.*
 import hextant.command.Command.Category
 import hextant.command.gui.commandContextMenu
 import hextant.command.gui.commandMenuBar
@@ -32,12 +31,12 @@ internal class CommandGuiTest : Application() {
     companion object {
         private fun createContent(): Parent {
             val platform = HextantPlatform.rootContext()
-            val editableFactory = platform.get(EditorFactory)
+            val editableFactory = platform[EditorFactory]
             editableFactory.apply {
-                register(IntLiteral::class) { context -> IntLiteralEditor(context) }
+                register { context -> IntLiteralEditor(context) }
             }
             val commands = Commands.newInstance()
-            val registrar = commands.of<Receiver>().apply {
+            commands.of<Receiver>().apply {
                 register(command<Receiver, Unit> {
                     executing { _, _ -> println("1") }
                     description = "prints 1"

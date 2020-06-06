@@ -9,7 +9,8 @@ import hextant.fx.EditorControl
 import hextant.serial.SerialProperties
 import kserial.*
 import java.nio.file.Path
-import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 /**
  *
@@ -37,19 +38,27 @@ inline fun Context.createView(editor: Editor<*>, configure: Bundle.() -> Unit): 
     createView(editor, createBundle(configure))
 
 /**
- * Uses the [EditorFactory] of this [Context] to create an [Editor] with the result type [R].
+ * Uses the [EditorFactory] of this [Context] to create an [Editor] with the given [resultType].
  * If this [Context] has no [EditorFactory] or there isn't an editor registered in the [EditorFactory],
  * this method recursively tries to create an [Editor] with the [Context.parent] [Context].
- * This method is invariant in the sense that it could also create an [Editor] for results of type `S` if `S` is a subtype of `R`.
+ * This method is covariant in the sense that it could also create an [Editor] for results of type `S` if `S` is a subtype of `R`.
  * @throws NoSuchElementException if neither this context nor any of its parent contexts can create an [Editor]
- * for result type [R]
+ * for the given result type.
  */
-fun <R : Any> Context.createEditor(resultCls: KClass<R>): Editor<R> =
+fun <R : Any> Context.createEditor(resultType: KType): Editor<R> =
     try {
-        get(EditorFactory).getEditor(resultCls, this)
+        @Suppress("UNCHECKED_CAST")
+        get(EditorFactory).createEditor(resultType, this) as Editor<R>
     } catch (e: NoSuchElementException) {
-        parent?.createEditor(resultCls) ?: throw e
+        parent?.createEditor(resultType) ?: throw e
     }
+
+
+/**
+ * Syntactic sugar for createEditor<R>(typeOf<R>())
+ */
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified R : Any> Context.createEditor() = createEditor<R>(typeOf<R>())
 
 /**
  * Uses the [EditorFactory] of this [Context] to create an [Editor] with the result type [R], having the initial specified [result].
@@ -58,12 +67,18 @@ fun <R : Any> Context.createEditor(resultCls: KClass<R>): Editor<R> =
  * @throws NoSuchElementException if neither this context nor any of its parent contexts can create an [Editor]
  * for result type [R]
  */
-fun <R : Any> Context.createEditor(result: R): Editor<R> =
+fun <R : Any> Context.createEditor(type: KType, result: R): Editor<R> =
     try {
-        get(EditorFactory).getEditor(result, this)
+        get(EditorFactory).createEditor(type, result, this)
     } catch (e: NoSuchElementException) {
-        parent?.createEditor(result) ?: throw e
+        parent?.createEditor(type, result) ?: throw e
     }
+
+/**
+ * Syntactic sugar for createEditor(typeOf<R>(), result)
+ */
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified R : Any> Context.createEditor(result: R) = createEditor(typeOf<R>(), result)
 
 /**
  * Create a new context which has this [Context] as its parent and apply the given [block] to it.

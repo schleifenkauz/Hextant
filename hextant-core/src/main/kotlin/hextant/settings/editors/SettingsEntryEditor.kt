@@ -34,8 +34,8 @@ internal class SettingsEntryEditor private constructor(context: Context) : Compo
 
     private fun init(prop: ConfigurableProperty) {
         property = prop
-        val e = (context.createEditor(prop.type) as? BidirectionalEditor
-            ?: throw RuntimeException("Editors for property value must be bidirectional"))
+        val e = context.createEditor<Any>(prop.type) as? BidirectionalEditor
+            ?: throw RuntimeException("Editors for property value must be bidirectional")
         setValueEditor(e)
     }
 

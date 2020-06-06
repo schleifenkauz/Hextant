@@ -6,39 +6,56 @@ package hextant
 
 import bundles.Property
 import hextant.core.Internal
-import hextant.impl.myLogger
-import kollektion.ClassMap
-import kotlin.reflect.KClass
+import kollektion.TypeMap
+import kotlin.reflect.KType
 
 /**
- * Used to resolve and register editables for edited objects
+ * Used to resolve and register editor for specific result types.
  */
-interface EditorFactory {
+class EditorFactory private constructor() {
+    private val noArgFactories = TypeMap.covariant<(Context) -> Editor<*>>()
+    private val oneArgFactories = mutableMapOf<KType, (Context, Any) -> Editor<Any>>()
+
     /**
-     * Register the [factory] for the [editedCls],
-     * such that for any call of `getEditor(editedCls)` this [EditorFactory] uses the specified [factory],
-     * where `editedCls` denotes the specified [editedCls] or any superclasses,
+     * Register the [factory] for the [resultType],
+     * such that for any call of `getEditor(type)` this [EditorFactory] uses the specified [factory],
+     * where `type` denotes the specified [resultType] or of its supertypes,
      * unless another factory has been registered.
      */
-    fun <T : Any> register(editedCls: KClass<T>, factory: (Context) -> Editor<T>)
+    fun register(resultType: KType, factory: (Context) -> Editor<Any>) {
+        noArgFactories[resultType] = factory
+    }
 
     /**
-     * Register the [factory] for the [editedCls],
-     * such that for any call of getEditor(edited) this [EditorFactory] uses the specified [factory],
-     * where `edited` denotes an instance of exactly [editedCls] not a sub- or superclass instance,
+     * Register the [factory] for the [resultType],
+     * such that for any call of getEditor(resultType, result) this [EditorFactory] uses the specified [factory],
+     * where `result` denotes an instance of exactly [resultType] not a sub- or supertype instance,
      * unless another factory has been registered.
      */
-    fun <T : Any> register(editedCls: KClass<T>, factory: (Context, T) -> Editor<T>)
+    fun register(resultType: KType, factory: (Context, Any) -> Editor<Any>) {
+        oneArgFactories[resultType] = factory
+    }
 
     /**
-     * Tries to find a factory registered with [register]
+     * Creates a new editor for results of the specified [resultType] using one of the registered factories.
+     * @throws NoSuchElementException if no appropriate factory was registered.
      */
-    fun <T : Any> getEditor(editedCls: KClass<T>, context: Context): Editor<T>
+    fun createEditor(resultType: KType, context: Context): Editor<Any> {
+        val factory = noArgFactories[resultType]
+        if (factory != null) return factory(context)
+        throw NoSuchElementException("No no-arg factory found for $resultType")
+    }
 
     /**
-     * Tries to find a factory registered with [register]
+     * Creates a new editor which produces the given [result] using one of the registered factories.
+     * @throws NoSuchElementException if no appropriate factory was registered.
      */
-    fun <T : Any> getEditor(edited: T, context: Context): Editor<T>
+    fun <T : Any> createEditor(type: KType, result: T, context: Context): Editor<T> {
+        val factory = oneArgFactories[type]
+        @Suppress("UNCHECKED_CAST")
+        (if (factory != null) return factory(context, result) as Editor<T>
+        else throw NoSuchElementException("No one-arg factory found for ${result.javaClass}"))
+    }
 
     /**
      * The Editor factory property
@@ -47,48 +64,7 @@ interface EditorFactory {
         /**
          * @return a new [EditorFactory]
          */
-        fun newInstance(): EditorFactory = Impl()
-
-        /**
-         * Logger for all instances of [EditorFactory]
-         */
-        val logger by myLogger()
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private class Impl : EditorFactory {
-        private val oneArgFactories = mutableMapOf<KClass<*>, (Context, Any) -> Editor<Any>>()
-
-        override fun <T : Any> register(editedCls: KClass<T>, factory: (Context, T) -> Editor<T>) {
-            logger.config { "register factory for $editedCls" }
-            oneArgFactories[editedCls] = factory as (Context, Any) -> Editor<Any>
-        }
-
-        @Synchronized override fun <T : Any> getEditor(edited: T, context: Context): Editor<T> {
-            val editedCls = edited::class
-            val factory = oneArgFactories[editedCls]
-            if (factory != null) return factory(context, edited) as Editor<T>
-            else {
-                val msg = "No one-arg factory found for ${edited.javaClass}"
-                logger.severe(msg)
-                throw NoSuchElementException(msg)
-            }
-        }
-
-        private val noArgFactories = ClassMap.contravariant<(Context) -> Editor<*>>()
-
-        override fun <T : Any> register(editedCls: KClass<T>, factory: (Context) -> Editor<T>) {
-            noArgFactories[editedCls] = factory
-        }
-
-        @Synchronized override fun <T : Any> getEditor(
-            editedCls: KClass<T>,
-            context: Context
-        ): Editor<T> {
-            val factory = noArgFactories[editedCls]
-            if (factory != null) return factory(context) as Editor<T>
-            throw NoSuchElementException("No no-arg factory found for $editedCls")
-        }
+        fun newInstance(): EditorFactory = EditorFactory()
     }
 }
 

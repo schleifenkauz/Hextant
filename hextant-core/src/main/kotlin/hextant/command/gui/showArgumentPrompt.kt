@@ -26,7 +26,7 @@ fun showArgumentPrompt(
 ): List<Any?>? {
     val parameters = command.parameters
     val editableFactory = context[EditorFactory]
-    val editableArguments = parameters.map { p -> p to editableFactory.getEditor(p.type, context) }
+    val editableArguments = parameters.map { p -> p to editableFactory.createEditor(p.type, context) }
     val views = editableArguments.map { (p, e) -> p to context.createView(e) }
     val vbox = VBox()
     for ((p, v) in views) {

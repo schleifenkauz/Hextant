@@ -20,3 +20,9 @@ dependencies {
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")
 }
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+    }
+}

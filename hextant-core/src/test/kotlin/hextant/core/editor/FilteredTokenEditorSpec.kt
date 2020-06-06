@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 object FilteredTokenEditorSpec : Spek({
-    GIVEN("a FilteredTokenEditor") {
+    given("a FilteredTokenEditor") {
         describe("basic interactions") {
             val ctx = testingContext()
             val e = Test(ctx, "123")

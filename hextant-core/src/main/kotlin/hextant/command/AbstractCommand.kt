@@ -8,6 +8,7 @@ import hextant.command.Command.Category
 import hextant.command.Command.Type
 import hextant.command.Command.Type.MultipleReceivers
 import kotlin.reflect.KClass
+import kotlin.reflect.jvm.jvmErasure
 
 /**
  * Skeletal implementation of [Command]
@@ -27,7 +28,7 @@ abstract class AbstractCommand<R : Any, T>(override val receiverCls: KClass<R>) 
         if (args.size < parameters.size) throw ArgumentMismatchException("To few arguments for command $this")
         for ((a, p) in args.zip(parameters)) {
             if (a == null && !p.nullable) throw ArgumentMismatchException("Null argument for non-nullable parameter $p")
-            if (!p.type.isInstance(a)) throw ArgumentMismatchException("Parameter $a is not an instance of ${p.type}")
+            if (!p.type.jvmErasure.isInstance(a)) throw ArgumentMismatchException("Parameter $a is not an instance of ${p.type}")
         }
     }
 

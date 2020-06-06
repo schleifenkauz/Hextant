@@ -22,7 +22,7 @@ object Lisp : PluginInitializer({
     view(::GetValEditorControl)
     view(::StringLiteralEditorControl)
     view(::ApplyEditorControl)
-    view<SExprListEditor, ListEditorControl> { editable, args ->
-        ListEditorControl.withAltGlyph(editable, glyph = PLUS, args = args, orientation = Horizontal)
+    view<SExprListEditor> { editor, args ->
+        ListEditorControl.withAltGlyph(editor, glyph = PLUS, args = args, orientation = Horizontal)
     }
 })

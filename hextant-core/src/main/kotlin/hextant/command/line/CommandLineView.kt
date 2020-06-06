@@ -7,6 +7,7 @@ package hextant.command.line
 import hextant.Editor
 import hextant.EditorView
 import hextant.command.Command
+import hextant.command.line.CommandLine.HistoryItem
 
 /**
  * Displays a [CommandLine]
@@ -28,7 +29,7 @@ interface CommandLineView : EditorView {
     fun reset()
 
     /**
-     * Add an application of [command] to the given [arguments] with the given [result] to the execution history.
+     * Add the given [item] to the history.
      */
-    fun addToHistory(command: Command<*, *>, arguments: List<Any>, result: Any)
+    fun addToHistory(item: HistoryItem)
 }

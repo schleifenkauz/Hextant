@@ -38,7 +38,7 @@ object ExprPlugin : PluginInitializer({
             view(e.expressions)
         }
     }
-    view<ExprListEditor, ListEditorControl> { editor, args ->
+    view<ExprListEditor> { editor, args ->
         ListEditorControl.withAltGlyph(editor, FontAwesome.Glyph.PLUS, args, Horizontal).apply {
             cellFactory = { ListEditorControl.SeparatorCell(", ") }
         }

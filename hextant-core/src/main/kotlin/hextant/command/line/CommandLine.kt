@@ -6,6 +6,7 @@ package hextant.command.line
 
 import hextant.*
 import hextant.base.AbstractEditor
+import hextant.base.EditorSnapshot
 import hextant.command.Command
 import hextant.serial.makeRoot
 import reaktive.Observer
@@ -16,7 +17,7 @@ import validated.*
 import validated.reaktive.ReactiveValidated
 
 /**
- * ### An editor for [Command]s.
+ * An editor for [Command]s.
  */
 class CommandLine(context: Context, private val source: CommandSource) :
     AbstractEditor<CommandApplication, CommandLineView>(context) {
@@ -81,7 +82,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
     fun expand(command: Command<*, *>): Boolean {
         if (expanded) return false
         val editors = command.parameters.map { p ->
-            context.createEditor(p.type).also { it.makeRoot() }
+            context.createEditor<Any>(p.type).also { it.makeRoot() }
         }
         bindResult(command, editors.map { it.result })
         expanded(command, editors)
@@ -133,19 +134,20 @@ class CommandLine(context: Context, private val source: CommandSource) :
                 target = e
             }
             val res = application.execute(target)
-            commandExecuted(application.command, application.args, res)
+            commandExecuted(application.command, arguments ?: emptyList(), res)
         } else {
             val results = source.selectedTargets().map { application.execute(it) }
-            commandExecuted(application.command, application.args, results.singleOrNull() ?: Unit)
+            commandExecuted(application.command, arguments ?: emptyList(), results.singleOrNull() ?: Unit)
         }
         reset()
         return true
     }
 
-    private fun commandExecuted(command: Command<*, *>, arguments: List<Any>, result: Any) {
-        history.add(HistoryItem(command, arguments, result))
+    private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any>>, result: Any) {
+        val item = HistoryItem(command, arguments.map { it.result.now.force() to it.snapshot() }, result)
+        history.add(item)
         views {
-            addToHistory(command, arguments, result)
+            addToHistory(item)
         }
     }
 
@@ -159,13 +161,11 @@ class CommandLine(context: Context, private val source: CommandSource) :
     /**
      * Expand to the given [command] and instantiate the editors for the given [arguments].
      */
-    fun resume(
-        command: Command<*, *>,
-        arguments: List<Any>
-    ) {
+    fun resume(command: Command<*, *>, arguments: List<EditorSnapshot<out Editor<Any>>>) {
         reset()
         setCommandName(command.shortName!!)
-        val editors = arguments.map { context.createEditor(it) }
+        val editors = arguments.map { it.reconstruct(context) }
+        editors.forEach { it.makeRoot() }
         bindResult(command, editors.map { it.result })
         expanded(command, editors)
     }
@@ -175,7 +175,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
         if (expanded) {
             view.expanded(expandedCommand!!, arguments!!)
         }
-        for ((cmd, args, res) in history) view.addToHistory(cmd, args, res)
+        for (item in history) view.addToHistory(item)
     }
 
     /**
@@ -197,9 +197,21 @@ class CommandLine(context: Context, private val source: CommandSource) :
         return true
     }
 
-    private data class HistoryItem(
+    /**
+     * Used to store the history of a command line.
+     */
+    data class HistoryItem(
+        /**
+         * The executed [Command]
+         */
         val command: Command<*, *>,
-        val arguments: List<Any>,
+        /**
+         * The supplied arguments
+         */
+        val arguments: List<Pair<Any, EditorSnapshot<out Editor<Any>>>>,
+        /**
+         * The result of the application
+         */
         val result: Any
     )
 }

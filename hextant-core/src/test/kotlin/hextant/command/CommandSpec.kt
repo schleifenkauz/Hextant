@@ -3,11 +3,11 @@ package hextant.command
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
-import hextant.test.*
 import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.*
 
 internal object CommandSpec : Spek({
-    GIVEN("a command") {
+    given("a command") {
         val c = command<CommandSpec, Int> {
             description = "double the passed argument"
             name = "dbl"
@@ -21,15 +21,15 @@ internal object CommandSpec : Spek({
                 spec.double(args[0] as Int)
             }
         }
-        ON("executing it") {
+        on("executing it") {
             val r = c.execute(CommandSpec, listOf(2))
-            IT("should apply the configured function") {
+            it("should apply the configured function") {
                 r shouldMatch equalTo(4)
             }
         }
-        ON("executing it with invalid arguments") {
+        on("executing it with invalid arguments") {
             val err = { c.execute(CommandSpec, listOf("invalid", null)); Unit }
-            IT("should throw an ArgumentMismatchException") {
+            it("should throw an ArgumentMismatchException") {
                 err shouldMatch throws<ArgumentMismatchException>()
             }
         }

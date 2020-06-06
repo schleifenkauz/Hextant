@@ -63,7 +63,6 @@ private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any? {
 private fun KParameter.extractParameter(): Command.Parameter {
     val ann = findAnnotation<CommandParameter>()
     val name = ann?.name?.takeIf { it != DEFAULT } ?: this.name ?: throw Exception("Parameter $this has no name")
-    val cls = type.classifier as? KClass<*> ?: throw Exception("Type of parameter $this is illegal")
     val desc = ann?.description ?: "No description provided"
-    return Command.Parameter(name, cls, this.isOptional || type.isMarkedNullable, desc)
+    return Command.Parameter(name, type, this.isOptional || type.isMarkedNullable, desc)
 }
