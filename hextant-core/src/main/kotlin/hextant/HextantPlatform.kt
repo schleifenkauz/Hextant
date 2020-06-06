@@ -5,6 +5,8 @@
 package hextant
 
 import hextant.command.Commands
+import hextant.command.line.CommandLine
+import hextant.command.line.ContextCommandSource
 import hextant.core.*
 import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Stylesheets
@@ -56,5 +58,9 @@ object HextantPlatform {
         set(UndoManager, UndoManager.newInstance())
         set(Clipboard, SimpleClipboard())
         set(InputMethod, InputMethod.REGULAR)
+        val clContext = extend {
+            set(SelectionDistributor, SelectionDistributor.newInstance())
+        }
+        set(CommandLine.forEditors, CommandLine(clContext, ContextCommandSource(this)))
     }
 }

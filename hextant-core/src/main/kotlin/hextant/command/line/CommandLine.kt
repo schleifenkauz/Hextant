@@ -4,6 +4,7 @@
 
 package hextant.command.line
 
+import bundles.SimpleProperty
 import hextant.*
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
@@ -211,4 +212,11 @@ class CommandLine(context: Context, private val source: CommandSource) :
          */
         val result: Any
     )
+
+    companion object {
+        /**
+         * The command line that is used for editors.
+         */
+        val forEditors = SimpleProperty<CommandLine>("editor-command-line")
+    }
 }

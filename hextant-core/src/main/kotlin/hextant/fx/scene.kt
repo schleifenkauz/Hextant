@@ -7,6 +7,7 @@ package hextant.fx
 import hextant.Context
 import hextant.core.Internal
 import javafx.scene.Scene
+import javafx.scene.input.ContextMenuEvent
 
 /**
  * Initializes this scene with the given [context] by registering top level shortcuts and applying registered stylesheets.
@@ -14,6 +15,12 @@ import javafx.scene.Scene
 fun Scene.initHextantScene(context: Context) {
     registerNavigationShortcuts()
     registerCopyPasteShortcuts(context)
+    addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED) { ev ->
+        focusedEditorControl?.let {
+            it.commandsPopup.show(it)
+            ev.consume()
+        }
+    }
     context[Internal, Stylesheets].apply(this)
 }
 

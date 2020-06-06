@@ -2,7 +2,7 @@
     -fx-text-fill: green;
 }
 
-.hextant-text..lisp-int-literal {
+.hextant-text.lisp-int-literal {
     -fx-text-fill: red;
 }
 

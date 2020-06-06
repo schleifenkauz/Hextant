@@ -7,7 +7,8 @@ package hextant.expr
 import bundles.createBundle
 import hextant.*
 import hextant.command.*
-import hextant.command.line.*
+import hextant.command.line.CommandLine
+import hextant.command.line.CommandLineControl
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.fx.*
@@ -42,12 +43,7 @@ class ExprEditorViewTest : HextantApplication() {
         val editor = ExprExpander(context)
         editor.makeRoot()
         val view = context.createView(editor)
-        val clContext = Context.newInstance(context) {
-            set(SelectionDistributor, SelectionDistributor.newInstance())
-        }
-        val source = ContextCommandSource(context)
-        val cl = CommandLine(clContext, source)
-        val clView = CommandLineControl(cl, createBundle())
+        val clView = CommandLineControl(context[CommandLine.forEditors], createBundle())
         val menuBar = createMenuBar(editor, context, view)
         return VBox(50.0, menuBar, view, clView)
     }
