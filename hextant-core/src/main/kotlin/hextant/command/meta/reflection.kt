@@ -6,6 +6,7 @@ package hextant.command.meta
 
 import hextant.command.*
 import hextant.command.Command.Category
+import hextant.fx.shortcut
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.*
 import kotlin.reflect.full.*
@@ -25,12 +26,14 @@ private fun <R : Any> KFunction<*>.extractCommand(receiver: KClass<R>, ann: Prov
     javaMethod?.isAccessible = true
     val name = ann.name.takeIf { it != DEFAULT } ?: this.name
     val cat = ann.category.takeIf { it != DEFAULT }?.let { Category.withName(it) }
+    val shortcut = ann.defaultShortcut.takeIf { it != DEFAULT }?.shortcut
     val shortName = ann.shortName.takeIf { it != DEFAULT } ?: this.name
     val params = valueParameters.map { it.extractParameter() }
     val desc = ann.description.takeIf { it != DEFAULT } ?: "No description provided"
     val type = ann.type
-    val alwaysApplicable: (Any) -> Boolean = { true }
-    return CommandImpl(name, cat, shortName, params, desc, type, this::executeCommand, alwaysApplicable, receiver)
+    val execute = this::executeCommand
+    val applicable: (Any) -> Boolean = { true }
+    return CommandImpl(name, cat, shortcut, shortName, params, desc, type, execute, applicable, receiver)
 }
 
 private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any? {

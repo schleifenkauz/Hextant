@@ -7,7 +7,8 @@ package hextant.expr
 import bundles.createBundle
 import hextant.*
 import hextant.command.*
-import hextant.command.line.*
+import hextant.command.line.CommandLine
+import hextant.command.line.CommandLineControl
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.fx.*
@@ -42,19 +43,14 @@ class ExprEditorViewTest : HextantApplication() {
         val editor = ExprExpander(context)
         editor.makeRoot()
         val view = context.createView(editor)
-        val clContext = Context.newInstance(context) {
-            set(SelectionDistributor, SelectionDistributor.newInstance())
-        }
-        val source = ContextCommandSource(context)
-        val cl = CommandLine(clContext, source)
-        val clView = CommandLineControl(cl, createBundle())
+        val clView = CommandLineControl(context[CommandLine.forEditors], createBundle())
         val menuBar = createMenuBar(editor, context, view)
         return VBox(50.0, menuBar, view, clView)
     }
 
     private fun registerCommandsAndInspections(context: Context) {
         val commands = context[Commands]
-        commands.of<ExprEditor<*>>().register<ExprEditor<*>, Int> {
+        commands.registerCommand<ExprEditor<*>, Int> {
             name = "Evaluate Expression"
             shortName = "eval"
             applicableIf { exprEditor -> exprEditor.result.now.isValid }
@@ -65,7 +61,7 @@ class ExprEditorViewTest : HextantApplication() {
                 v
             }
         }
-        commands.of<OperatorEditor>().register<OperatorEditor, Unit> {
+        commands.registerCommand<OperatorEditor, Unit> {
             name = "Flip operands"
             shortName = "flip_op"
             description = "Flips the both operands in this operator application"
@@ -84,7 +80,7 @@ class ExprEditorViewTest : HextantApplication() {
                 if (editableOp1 != null) expander2.setEditor(editableOp1)
             }
         }
-        commands.of<OperatorApplicationEditor>().register<OperatorApplicationEditor, Unit> {
+        commands.registerCommand<OperatorApplicationEditor, Unit> {
             name = "Collapse expression"
             shortName = "collapse"
             description = "Partially evaluate the selected expression"
@@ -98,7 +94,7 @@ class ExprEditorViewTest : HextantApplication() {
                 ex.setEditor(editable)
             }
         }
-        commands.of<ExprEditor<*>>().register<ExprEditor<*>, Unit> {
+        commands.registerCommand<ExprEditor<*>, Unit> {
             name = "Unwrap expression"
             shortName = "unwrap"
             description = "Unwrap an expression by replacing its outer application with itself"
@@ -149,7 +145,7 @@ class ExprEditorViewTest : HextantApplication() {
                 }
             }
         }
-        commands.of<ExprEditor<*>>().register<ExprEditor<*>, Unit> {
+        commands.registerCommand<ExprEditor<*>, Unit> {
             description =
                 "Wraps the current expression in an operator expression with the current expression being the left operand"
             name = "Wrap in operator expression"

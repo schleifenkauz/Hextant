@@ -6,37 +6,49 @@ package hextant.command
 
 import bundles.Property
 import hextant.core.Internal
+import kollektion.ClassDAG
 import kotlin.reflect.KClass
-import kotlin.reflect.full.superclasses
 
 /**
- * An aggregate of [CommandRegistrar]s
+ * Used to register commands for specific classes
  */
 class Commands private constructor() {
-    private val commandRegistrars = mutableMapOf<KClass<*>, CommandRegistrar<*>>()
+    private val commands = mutableMapOf<KClass<*>, MutableSet<Command<*, *>>>()
+    private val dag = ClassDAG()
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <R : Any> forClass(cls: KClass<out R>): CommandRegistrar<R> {
-        return commandRegistrars.getOrPut(cls) {
-            val parents = cls.superclasses.map { superCls -> forClass(superCls) }
-            CommandRegistrar(cls, parents)
-        } as CommandRegistrar<R>
+    private fun commandsOf(cls: KClass<*>): MutableSet<Command<*, *>> = commands.getOrPut(cls) { mutableSetOf() }
+
+    /**
+     * Register the given [command] for all instances of the specified class.
+     */
+    fun <R : Any> register(cls: KClass<R>, command: Command<R, *>) {
+        dag.insert(cls)
+        dag.subclassesOf(cls).forEach { c -> commandsOf(c).add(command) }
     }
 
     /**
-     * @return the [CommandRegistrar] for receivers of type [R]
+     * Return a collection of all available commands that are applicable on the given [receiver].
      */
-    fun <R : Any> of(cls: KClass<out R>): CommandRegistrar<R> = forClass(cls)
+    fun <R : Any> applicableOn(receiver: R): Collection<Command<R, *>> {
+        val cls = receiver::class
+        return forClass(cls).filter { it.isApplicableOn(receiver) }
+    }
 
     /**
-     * @return the [CommandRegistrar] for receivers of type [R]
+     * Return a collection of all available commands that are applicable on instances of the given class.
      */
-    inline fun <reified R : Any> of() = of(R::class)
+    fun <R : Any> forClass(cls: KClass<out R>): Collection<Command<R, *>> {
+        if (dag.insert(cls)) {
+            for (superclass in dag.superclassesOf(cls)) commandsOf(cls).addAll(commandsOf(superclass))
+        }
+        @Suppress("UNCHECKED_CAST")
+        return commandsOf(cls) as Collection<Command<R, *>>
+    }
 
     /**
-     * @return the [CommandRegistrar] for receivers of type [R]
+     * Return a collection of **all** registered commands.
      */
-    operator fun <R : Any> get(cls: KClass<R>) = of(cls)
+    fun all(): Collection<Command<*, *>> = commands.flatMap { it.value }
 
     companion object : Property<Commands, Any, Internal>("commands") {
         /**

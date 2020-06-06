@@ -30,5 +30,5 @@ object SerialProperties {
     /**
      * The [Context] that is used for creating editors during deserialization.
      */
-    internal val deserializationContext = SimpleProperty<Context>("serialization context")
+    internal val deserializationContext = SimpleProperty<Context>("deserialization context")
 }

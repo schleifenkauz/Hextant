@@ -2,13 +2,11 @@
  *@author Nikolaus Knop
  */
 
-package hextant.inspect.gui
+package hextant.fx
 
 import hextant.Context
 import hextant.core.Internal
-import hextant.fx.*
-import hextant.inspect.Problem
-import hextant.inspect.ProblemFix
+import hextant.inspect.*
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.control.Button
@@ -20,8 +18,8 @@ import javafx.stage.Popup
 /**
  * A [Popup] that displays the problems of the assigned target.
  */
-class InspectionPopup(private val context: Context, problems: () -> Set<Problem>) : Popup() {
-    private val problems = { problems().sortedBy { it.severity } }
+class InspectionPopup(private val context: Context, private val target: Any) : Popup() {
+    private fun problems() = context[Inspections].getProblems(target).sortedBy { it.severity }
 
     private val container = VBox()
 

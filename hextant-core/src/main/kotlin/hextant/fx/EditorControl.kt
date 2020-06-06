@@ -7,14 +7,11 @@ package hextant.fx
 import bundles.Bundle
 import bundles.Property
 import hextant.*
-import hextant.command.gui.commandContextMenu
 import hextant.fx.ModifierValue.DOWN
 import hextant.impl.addListener
 import hextant.impl.observe
 import hextant.inspect.Inspections
-import hextant.inspect.gui.InspectionPopup
 import hextant.undo.UndoManager
-import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
@@ -41,10 +38,8 @@ abstract class EditorControl<R : Node>(
 
     private val inspections = context[Inspections]
 
-    private val inspectionPopup = run {
-        val inspections = this.inspections //Prevent capturing of this
-        InspectionPopup(context) { inspections.getProblems(target) }
-    }
+    private val inspectionPopup = InspectionPopup(context, target)
+    internal val commandsPopup = CommandsPopup(context, target)
 
     private val hasError = inspections.hasError(target)
 
@@ -95,7 +90,6 @@ abstract class EditorControl<R : Node>(
         }
         isFocusTraversable = false
         initShortcuts()
-        //        activateContextMenu(target, context)
     }
 
     /**
@@ -305,7 +299,8 @@ abstract class EditorControl<R : Node>(
                 }
             }
             on(INSPECTIONS, consume = false) { ev ->
-                if (showInspections()) ev.consume()
+                inspectionPopup.show(this)
+                if (inspectionPopup.isShowing) ev.consume()
             }
             on(COPY_VIM, consume = false) { ev ->
                 if (target is Editor<*>) {
@@ -339,11 +334,6 @@ abstract class EditorControl<R : Node>(
         parent.lastExtendingChild = this
     }
 
-    private fun showInspections(): Boolean {
-        inspectionPopup.show(this)
-        return inspectionPopup.isShowing
-    }
-
     private fun addStyleCls(name: String) {
         if (name !in styleClass) styleClass.add(name)
     }
@@ -363,11 +353,6 @@ abstract class EditorControl<R : Node>(
                 styleClass.remove("error")
             }
         }
-    }
-
-    private fun <T : Any> activateContextMenu(target: T, context: Context) {
-        val contextMenu = target.commandContextMenu(context)
-        setOnContextMenuRequested { contextMenu.show(this, Side.BOTTOM, 0.0, 0.0) }
     }
 
     companion object {

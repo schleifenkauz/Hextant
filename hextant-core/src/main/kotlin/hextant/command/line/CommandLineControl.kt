@@ -63,6 +63,7 @@ class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLin
     }
 
     override fun expanded(command: Command<*, *>, editors: List<Editor<*>>) {
+        commandName.text = command.shortName!!
         commandName.isEditable = false
         val controls = editors.map { context.createView(it) }
         current.children.addAll(controls)

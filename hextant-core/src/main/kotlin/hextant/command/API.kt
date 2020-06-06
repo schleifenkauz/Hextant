@@ -33,21 +33,24 @@ inline fun parameter(block: ParameterBuilder.() -> Unit) = ParameterBuilder().ap
  */
 inline fun parameters(block: ParametersBuilder.() -> Unit) = ParametersBuilder().apply(block).build()
 
-
 /**
- * @return all [Command]s applicable on the specified [receiver]
+ * Syntactic sugar for `register(R::class, command)`
  */
-fun <R : Any> Commands.applicableOn(receiver: R): Set<Command<R, Any?>> {
-    val reg = of(receiver::class)
-    return reg.commandsFor(receiver)
+inline fun <reified R : Any> Commands.register(command: Command<R, *>) {
+    register(R::class, command)
 }
 
 /**
  * Register a command built with [build]
  */
-inline fun <reified R : Any, T> CommandRegistrar<R>.register(build: CommandBuilder<R, T>.() -> Unit) {
+inline fun <reified R : Any, T> Commands.registerCommand(build: CommandBuilder<R, T>.() -> Unit) {
     register(command(build))
 }
+
+/**
+ * Syntactic sugar for forClass(R::class)
+ */
+inline fun <reified R : Any> Commands.forClass() = forClass(R::class)
 
 /**
  * Makes the resulting command execute the given action combining the done edits

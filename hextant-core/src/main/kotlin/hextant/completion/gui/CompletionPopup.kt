@@ -101,7 +101,7 @@ class CompletionPopup<Ctx, T>(
         val labels = completion.completionText.map { Label(it.toString()) }
         for (region in completion.match) {
             for (i in region) {
-                labels[i].style = "-fx-text-fill: blue;"
+                labels[i].style = "-fx-text-fill: #3657FF"
             }
         }
         flow.children.addAll(labels)

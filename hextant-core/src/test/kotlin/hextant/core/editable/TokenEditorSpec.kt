@@ -2,6 +2,7 @@ package hextant.core.editable
 
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
+import hextant.serial.makeRoot
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
@@ -13,6 +14,7 @@ object TokenEditorSpec : Spek({
     given("an editable int literal") {
         val context = testingContext()
         val e = IntLiteralEditor(context)
+        e.makeRoot()
         test("it should not be ok") {
             e.result.now.isValid shouldBe `false`
         }
