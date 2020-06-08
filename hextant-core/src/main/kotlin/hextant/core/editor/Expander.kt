@@ -104,13 +104,13 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     protected open fun contentContext(): Context = context
 
-    private fun doChangeState(newState: State<E>, notify: Boolean = true) {
+    private fun doChangeState(newState: State<E>) {
         val oldState = state
         state = newState
         when (oldState) {
             is Expanded   -> {
                 doReset()
-                if (notify) onReset(oldState.editor)
+                onReset(oldState.editor)
                 when (newState) {
                     is Unexpanded -> {
                         views { reset() }
@@ -118,7 +118,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
                     }
                     is Expanded   -> {
                         doExpandTo(newState.editor)
-                        if (notify) onExpansion(newState.editor)
+                        onExpansion(newState.editor)
                     }
                 }
             }
@@ -127,7 +127,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
                     is Unexpanded -> doSetText(newState.text)
                     is Expanded   -> {
                         doExpandTo(newState.editor)
-                        if (notify) onExpansion(newState.editor)
+                        onExpansion(newState.editor)
                     }
                 }
             }
@@ -257,7 +257,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         @Suppress("UNCHECKED_CAST")
         override fun reconstruct(editor: Expander<*, *>) {
             editor as Expander<*, Editor<*>>
-            editor.doChangeState(state.reconstruct(editor.contentContext()), notify = false)
+            editor.doChangeState(state.reconstruct(editor.contentContext()))
         }
     }
 

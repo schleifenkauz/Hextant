@@ -252,9 +252,9 @@ abstract class ListEditor<R, E : Editor<R>>(
     protected open fun editorRemoved(editor: E, index: Int) {}
 
     /**
-     * Adds the given [editor] at the specified [index]. If [notify] is `false` [editorAdded] is not called.
+     * Adds the given [editor] at the specified [index].
      */
-    private fun doAddAt(index: Int, editor: E, notify: Boolean = true) {
+    private fun doAddAt(index: Int, editor: E) {
         val emptyBefore = emptyNow()
         _editors.now.add(index, editor)
         addChild(editor)
@@ -263,7 +263,7 @@ abstract class ListEditor<R, E : Editor<R>>(
             if (emptyBefore) notEmpty()
             added(editor, index)
         }
-        if (notify) editorAdded(editor, index)
+        editorAdded(editor, index)
     }
 
     private fun updateIndicesFrom(index: Int) {
