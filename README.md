@@ -1,10 +1,11 @@
 # Hextant - A structural editor
 
-**Hextant is in a very early stage of development. It is neither recommended nor possible to use Hextant for production.**
-If you want to try an example to grasp the key concepts of Hextant,  
-please refer to [this](https://github.com/NKb03/Hextant/wiki/The-calculator-example) wiki page.   
-If you want to learn what I mean with structural editor you can read [this](https://github.com/NKb03/Hextant/wiki/What-is-a-structural-editor).  
-Generally the [wiki](https://github.com/NKb03/Hextant/wiki) is the best source for information.    
+**Hextant is in a very early stage of development. It is neither recommended nor possible to use Hextant for production.**  
+If you want to try an example to grasp the key concepts of Hextant,
+please refer to [this](https://github.com/NKb03/Hextant/wiki/The-calculator-example) wiki page.
+If you want to learn what I mean with structural editor you can read [this](https://github.com/NKb03/Hextant/wiki/What-is-a-structural-editor).
+Generally the [wiki](https://github.com/NKb03/Hextant/wiki) is the best source for information.
+To see Hextant in action watch [this](https://www.youtube.com/watch?v=09ni_mwsipc) youtube video.
 
 ## Getting Started
 
