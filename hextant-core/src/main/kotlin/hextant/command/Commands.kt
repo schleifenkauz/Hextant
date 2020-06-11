@@ -5,24 +5,42 @@
 package hextant.command
 
 import bundles.Property
+import hextant.command.meta.collectProvidedCommands
 import hextant.core.Internal
 import kollektion.ClassDAG
 import kotlin.reflect.KClass
+import kotlin.reflect.full.superclasses
 
 /**
  * Used to register commands for specific classes
  */
 class Commands private constructor() {
     private val commands = mutableMapOf<KClass<*>, MutableSet<Command<*, *>>>()
+    private val declaredCommands = mutableMapOf<KClass<*>, MutableSet<Command<*, *>>>()
     private val dag = ClassDAG()
 
-    private fun commandsOf(cls: KClass<*>): MutableSet<Command<*, *>> = commands.getOrPut(cls) { mutableSetOf() }
+    private fun commandsOf(cls: KClass<*>) = commands.getOrPut(cls) { mutableSetOf() }
+
+    private fun declaredCommands(cls: KClass<*>) = declaredCommands.getOrPut(cls) { mutableSetOf() }
+
+    private fun visitClass(cls: KClass<*>) {
+        if (dag.insert(cls)) {
+            val provided = cls.collectProvidedCommands()
+            declaredCommands(cls).addAll(provided)
+            commandsOf(cls).addAll(provided)
+            for (c in cls.superclasses) {
+                visitClass(c)
+                commandsOf(cls).addAll(commandsOf(c))
+            }
+        }
+    }
 
     /**
      * Register the given [command] for all instances of the specified class.
      */
     fun <R : Any> register(cls: KClass<R>, command: Command<R, *>) {
-        dag.insert(cls)
+        visitClass(cls)
+        declaredCommands(cls).add(command)
         dag.subclassesOf(cls).forEach { c -> commandsOf(c).add(command) }
     }
 
@@ -38,9 +56,7 @@ class Commands private constructor() {
      * Return a collection of all available commands that are applicable on instances of the given class.
      */
     fun <R : Any> forClass(cls: KClass<out R>): Collection<Command<R, *>> {
-        if (dag.insert(cls)) {
-            for (superclass in dag.superclassesOf(cls)) commandsOf(cls).addAll(commandsOf(superclass))
-        }
+        visitClass(cls)
         @Suppress("UNCHECKED_CAST")
         return commandsOf(cls) as Collection<Command<R, *>>
     }
