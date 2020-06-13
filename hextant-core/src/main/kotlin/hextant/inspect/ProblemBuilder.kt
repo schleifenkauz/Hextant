@@ -10,11 +10,12 @@ import hextant.command.Builder
  * Builder for a [Problem]
  */
 @Builder
-class ProblemBuilder @PublishedApi internal constructor() {
+class ProblemBuilder<T : Any> @PublishedApi internal constructor() {
     /**
      * The severity of the built problem, defaults to [Severity.Warning]
      */
     var severity: Severity = Severity.Warning
+
     /**
      * The message of the built problem, must be specified
      */
@@ -25,23 +26,23 @@ class ProblemBuilder @PublishedApi internal constructor() {
      */
     lateinit var location: Any
 
-    private val fixes: MutableCollection<ProblemFix> = mutableSetOf()
+    private val fixes: MutableCollection<ProblemFix<T>> = mutableSetOf()
 
     /**
      * Add a possible problem-[fix]
      */
-    fun addFix(fix: ProblemFix) {
+    fun addFix(fix: ProblemFix<T>) {
         fixes.add(fix)
     }
 
     /**
      * Add multiple possible problem-[fixes]
      */
-    fun addFixes(fixes: Collection<ProblemFix>) {
+    fun addFixes(fixes: Collection<ProblemFix<T>>) {
         this.fixes.addAll(fixes)
     }
 
-    @PublishedApi internal fun build(): Problem {
+    @PublishedApi internal fun build(): Problem<T> {
         return Problem.of(severity, message, fixes)
     }
 }

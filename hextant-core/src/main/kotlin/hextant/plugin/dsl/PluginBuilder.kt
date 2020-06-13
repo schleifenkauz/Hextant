@@ -105,17 +105,17 @@ class PluginBuilder @PublishedApi internal constructor(val context: Context) {
     }
 
     /**
-     * Register the specified [factory] for an inspection inspecting instances of class [T]
+     * Register the specified [inspection] for instances of class [T]
      */
-    inline fun <reified T : Any> inspection(noinline factory: (T) -> Inspection) {
-        context[Inspections].of(T::class).register(factory)
+    inline fun <reified T : Any> inspection(inspection: Inspection<T>) {
+        context[Inspections].register(T::class, inspection)
     }
 
     /**
      * Register an inspection using the given inspection [configuration].
      */
-    inline fun <reified T : Any> registerInspection(noinline configuration: InspectionBuilder<T>.() -> Unit) {
-        context[Inspections].of(T::class).registerInspection(configuration)
+    inline fun <reified T : Any> registerInspection(configuration: InspectionBuilder<T>.() -> Unit) {
+        context[Inspections].registerInspection(configuration)
     }
 
     /**

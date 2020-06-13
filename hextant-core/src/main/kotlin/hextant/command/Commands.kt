@@ -16,17 +16,13 @@ import kotlin.reflect.full.superclasses
  */
 class Commands private constructor() {
     private val commands = mutableMapOf<KClass<*>, MutableSet<Command<*, *>>>()
-    private val declaredCommands = mutableMapOf<KClass<*>, MutableSet<Command<*, *>>>()
     private val dag = ClassDAG()
 
     private fun commandsOf(cls: KClass<*>) = commands.getOrPut(cls) { mutableSetOf() }
 
-    private fun declaredCommands(cls: KClass<*>) = declaredCommands.getOrPut(cls) { mutableSetOf() }
-
     private fun visitClass(cls: KClass<*>) {
         if (dag.insert(cls)) {
             val provided = cls.collectProvidedCommands()
-            declaredCommands(cls).addAll(provided)
             commandsOf(cls).addAll(provided)
             for (c in cls.superclasses) {
                 visitClass(c)
@@ -40,7 +36,6 @@ class Commands private constructor() {
      */
     fun <R : Any> register(cls: KClass<R>, command: Command<R, *>) {
         visitClass(cls)
-        declaredCommands(cls).add(command)
         dag.subclassesOf(cls).forEach { c -> commandsOf(c).add(command) }
     }
 

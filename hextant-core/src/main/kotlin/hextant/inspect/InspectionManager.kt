@@ -13,32 +13,36 @@ import reaktive.value.now
 import reaktive.value.reactiveVariable
 import java.util.*
 
-internal class InspectionManager<T : Any>(inspected: T, private val inspections: Inspections) {
-    private val inspected by forcedWeak(inspected)
+internal class InspectionManager<T : Any>(inspected: T, private val inspections: Inspections) : InspectionBody<T> {
+    override val inspected by forcedWeak(inspected)
 
     private val warningCount = reactiveVariable(0)
 
     private val errorCount = reactiveVariable(0)
 
-    private val reportingInspections = mutableSetOf<Inspection>()
+    private val reportingInspections = mutableSetOf<Inspection<T>>()
+
+    private fun reportingInspections(): MutableSet<in Inspection<T>> = reportingInspections
 
     private val observers = LinkedList<Observer>()
 
-    fun addInspection(inspectionFactory: (T) -> Inspection) {
-        val inspection = inspectionFactory.invoke(inspected)
+    fun addInspection(inspection: Inspection<T>) = inspection.run {
+        @Suppress("UNCHECKED_CAST")
+        inspection as Inspection<Any>
         val actualTarget =
-            if (inspected === inspection.location) this
-            else inspections.getManagerFor(inspection.location)
-        if (inspection.isProblem.now) {
-            actualTarget.reportingInspections.add(inspection)
+            if (inspected === location()) this@InspectionManager
+            else inspections.getManagerFor(location())
+        val problem = isProblem()
+        if (problem.now) {
+            actualTarget.reportingInspections().add(inspection)
             actualTarget.changeCount(inspection.severity, +1)
         }
-        val obs = inspection.isProblem.observe { _, _, problem ->
-            if (problem) {
-                actualTarget.reportingInspections.add(inspection)
+        val obs = problem.observe { _, _, isProblem ->
+            if (isProblem) {
+                actualTarget.reportingInspections().add(inspection)
                 actualTarget.changeCount(inspection.severity, +1)
             } else {
-                actualTarget.reportingInspections.remove(inspection)
+                actualTarget.reportingInspections().remove(inspection)
                 actualTarget.changeCount(inspection.severity, -1)
             }
         }
@@ -53,7 +57,5 @@ internal class InspectionManager<T : Any>(inspected: T, private val inspections:
     val hasError = errorCount.notEqualTo(0)
     val hasWarning = warningCount.notEqualTo(0)
 
-    fun problems(): Set<Problem> = reportingInspections.mapTo(mutableSetOf<Problem>()) {
-        it.getProblem() ?: error("Inspection $it reported reported but returned null on getProblem()")
-    }
+    fun problems(): Set<Problem<T>> = reportingInspections.mapTo(mutableSetOf()) { it.run { getProblem() } }
 }

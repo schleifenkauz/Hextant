@@ -34,10 +34,10 @@ object Core : PluginInitializer({
         ListEditorControl(e, args)
     }
     view { e: TokenEditor<*, TokenEditorView>, args -> FXTokenEditorView(e, args) }
-    inspection(::SyntaxErrorInspection)
+    inspection(SyntaxErrorInspection)
     registerInspection<FilteredTokenEditor<*>> {
         description = "Reports invalid intermediate result"
-        checkingThat(inspected.intermediateResult.map { it.isValid })
+        checkingThat { inspected.intermediateResult.map { it.isValid } }
         message { (inspected.intermediateResult.now as Invalid).reason }
         isSevere(true)
     }

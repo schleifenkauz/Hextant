@@ -4,14 +4,14 @@
 
 package hextant.inspect
 
-internal class ProblemFixImpl(
+internal class ProblemFixImpl<in T : Any>(
     override val description: String,
-    private val doFix: () -> Unit,
-    private val applicable: () -> Boolean
-) : AbstractProblemFix() {
-    override fun fix() {
+    private val doFix: InspectionBody<T>.() -> Unit,
+    private val applicable: InspectionBody<T>.() -> Boolean
+) : AbstractProblemFix<T>() {
+    override fun InspectionBody<T>.fix() {
         doFix()
     }
 
-    override fun isApplicable() = applicable()
+    override fun InspectionBody<T>.isApplicable() = applicable()
 }

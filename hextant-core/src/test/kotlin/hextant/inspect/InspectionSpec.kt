@@ -12,14 +12,14 @@ import org.jetbrains.spek.api.dsl.it
 import reaktive.value.reactiveVariable
 
 internal object InspectionSpec : Spek({
-    lateinit var i: Inspection
+    lateinit var i: Inspection<Inspected>
     val inspected = Inspected()
     describe("build inspection") {
-        i = inspection(inspected) {
+        i = inspection {
             description = "Is Ok inspection, reports inspected values that aren't ok"
             message { "$inspected is not OK" }
             isSevere(true)
-            checkingThat(inspected.isOk)
+            checkingThat { inspected.isOk }
             addFix {
                 description = "Make inspected ok"
                 fixingBy {

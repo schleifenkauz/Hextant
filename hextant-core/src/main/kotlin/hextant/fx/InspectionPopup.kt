@@ -43,14 +43,14 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
         }
     }
 
-    private fun problemLabel(problem: Problem): Node = Button().apply {
+    private fun problemLabel(problem: Problem<Any>): Node = Button().apply {
         styleClass.add("problem")
         styleClass.add("${problem.severity}-item")
         text = problem.message
         isFocusTraversable = true
         val fixes = problem.fixes
         if (fixes.isNotEmpty()) {
-            val fixesPopup = FixesPopup(context, fixes)
+            val fixesPopup = FixesPopup(target, context, fixes)
             setOnAction { showFixes(fixesPopup) }
             registerShortcut(KeyCodeCombination(ENTER)) { showFixes(fixesPopup) }
         }
@@ -62,6 +62,7 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
         fixesPopup.show(owner, anchor.maxX, anchor.minY)
     }
 
+    @Suppress("KDocMissingDocumentation")
     override fun show() {
         if (problems().isNotEmpty()) {
             super.show()
@@ -72,7 +73,11 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
         }
     }
 
-    private class FixesPopup(context: Context, private val fixes: Collection<ProblemFix>) : Popup() {
+    private class FixesPopup(
+        private val target: Any,
+        context: Context,
+        private val fixes: Collection<ProblemFix<Any>>
+    ) : Popup() {
         init {
             context[Internal, Stylesheets].apply(scene)
             content.add(createFixList(fixes))
@@ -82,7 +87,7 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
             if (fixes.isNotEmpty()) super.show()
         }
 
-        private fun createFixList(fixes: Collection<ProblemFix>): Parent {
+        private fun createFixList(fixes: Collection<ProblemFix<Any>>): Parent {
             val container = VBox()
             container.styleClass.add("fix-list")
             for (f in fixes) {
@@ -91,17 +96,16 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
             return container
         }
 
-        private fun fixLabel(fix: ProblemFix): Node = Button().apply {
+        private fun fixLabel(fix: ProblemFix<Any>): Node = Button().apply {
             styleClass.add("problem-fix")
             text = fix.description
-            isDisable = !fix.isApplicable()
             isFocusTraversable = true
             registerShortcut(KeyCodeCombination(ENTER)) { applyAndHide(fix) }
             setOnMouseClicked { applyAndHide(fix) }
         }
 
-        private fun applyAndHide(fix: ProblemFix) {
-            fix.fix()
+        private fun applyAndHide(fix: ProblemFix<Any>) {
+            fix.run { InspectionBody.of(target).fix() }
             hide()
             ownerWindow.hide()
         }

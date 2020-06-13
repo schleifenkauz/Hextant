@@ -36,11 +36,11 @@ internal object InspectionsSpec : Spek({
             checkNoProblems()
         }
         on("registering an inspection that doesn't report a problem initially") {
-            inspections.of<Inspected>().registerInspection {
+            inspections.registerInspection<Inspected> {
                 description = "Prevents even integers"
                 isSevere(false)
                 message { "${inspected.number.now} is even" }
-                preventingThat(inspected.number.map { n -> n % 2 == 0 })
+                preventingThat { inspected.number.map { n -> n % 2 == 0 } }
             }
             checkNoProblems()
         }
@@ -51,7 +51,7 @@ internal object InspectionsSpec : Spek({
             }
             checkNoErrors()
             it("should report one problem") {
-                inspections.getProblems(inspected) shouldBe aSetOf(instanceOf<Warning>())
+                inspections.getProblems(inspected) shouldBe aSetOf(instanceOf<Warning<Any>>())
             }
         }
         on("changing the inspected object such that it is not reported anymore") {
@@ -60,11 +60,11 @@ internal object InspectionsSpec : Spek({
         }
         on("registering another inspection for a superclass and making the inspected object reportable") {
             inspected.number.set(0) //even and non-positive
-            inspections.of<IInspected>().registerInspection {
+            inspections.registerInspection<IInspected> {
                 description = "Prevents non-positive integers"
                 isSevere(true)
                 message { "Number is non-positive" }
-                preventingThat(!inspected.isPositive)
+                preventingThat { !inspected.isPositive }
             }
             it("should have an error") {
                 inspections.hasError(inspected).now shouldEqual true
@@ -74,8 +74,8 @@ internal object InspectionsSpec : Spek({
             }
             it("should report both a warning and problem") {
                 inspections.getProblems(inspected) shouldBe aSetOf(
-                    instanceOf<Warning>(),
-                    instanceOf<Error>()
+                    instanceOf<Warning<Any>>(),
+                    instanceOf<Error<Any>>()
                 )
             }
         }

@@ -35,12 +35,11 @@ class InspectionMemoryLeakTest {
         val w = wrapper(strong(Inspected(reactiveValue(true))))
         val e by w
         val i = Inspections.newInstance()
-        i.of<Inspected>().registerInspection {
-            location(inspected)
+        i.registerInspection<Inspected> {
             description = "An inspection"
             message { "error" }
             isSevere(true)
-            preventingThat(inspected.error)
+            preventingThat { inspected.error }
             addFix {
                 description = "Fix"
                 fixingBy { println(inspected) }

@@ -7,28 +7,30 @@ package hextant.inspect
 /**
  * A Problem that reports a possible error
  */
-sealed class Problem {
+sealed class Problem<in T : Any> {
     /**
      * @return the message of this [Problem]
      */
     abstract val message: String
+
     /**
      * @return the severity of this [Problem]
      */
     abstract val severity: Severity
+
     /**
      * @return the possible [ProblemFix]es to fix this [Problem]
      */
-    abstract val fixes: Collection<ProblemFix>
+    abstract val fixes: Collection<ProblemFix<T>>
 
     /**
      * A Warning which indicates a possible error
      * * Does not prevent programs from being runnable
      */
-    data class Warning(
+    data class Warning<T : Any>(
         override val message: String,
-        override val fixes: Collection<ProblemFix>
-    ) : Problem() {
+        override val fixes: Collection<ProblemFix<T>>
+    ) : Problem<T>() {
         override val severity: Severity
             get() = Severity.Warning
     }
@@ -36,10 +38,10 @@ sealed class Problem {
     /**
      * An Error which prevents programs from being runnable
      */
-    data class Error(
+    data class Error<T : Any>(
         override val message: String,
-        override val fixes: Collection<ProblemFix>
-    ) : Problem() {
+        override val fixes: Collection<ProblemFix<T>>
+    ) : Problem<T>() {
         override val severity: Severity
             get() = Severity.Error
     }
@@ -48,11 +50,11 @@ sealed class Problem {
         /**
          * @return [Problem] with the specified [severity], [message] and [fixes] defaulting to an [emptyList]
          */
-        fun of(
+        fun <T : Any> of(
             severity: Severity,
             message: String,
-            fixes: Collection<ProblemFix> = emptyList()
-        ): Problem {
+            fixes: Collection<ProblemFix<T>> = emptyList()
+        ): Problem<T> {
             return if (severity.isSevere) Error(message, fixes)
             else Warning(message, fixes)
         }

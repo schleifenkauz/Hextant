@@ -3,7 +3,7 @@ package hextant.inspect
 /**
  * A fix for a problem used repair the problem
  */
-interface ProblemFix {
+interface ProblemFix<in T : Any> {
     /**
      * @return the description of this [ProblemFix]
      */
@@ -12,10 +12,10 @@ interface ProblemFix {
     /**
      * @return `true` if and only if this [ProblemFix] can be used in the current context
      */
-    fun isApplicable(): Boolean
+    fun InspectionBody<T>.isApplicable(): Boolean
 
     /**
      * Actually fix the problem
      */
-    fun fix()
+    fun InspectionBody<T>.fix()
 }

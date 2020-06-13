@@ -15,7 +15,7 @@ import hextant.fx.*
 import hextant.inspect.Inspections
 import hextant.inspect.Severity.Error
 import hextant.inspect.Severity.Warning
-import hextant.inspect.of
+import hextant.inspect.registerInspection
 import hextant.main.HextantApplication
 import hextant.main.InputMethod
 import hextant.main.InputMethod.REGULAR
@@ -107,13 +107,14 @@ class ExprEditorViewTest : HextantApplication() {
             }
         }
         val inspections = context[Inspections]
-        inspections.of<OperatorApplicationEditor>().registerInspection {
+        inspections.registerInspection<OperatorApplicationEditor> {
             description = "Prevent identical operations"
             severity(Error)
-            val isPlus = inspected.operator.result.map { it.orNull() == Plus }
-            val operandIs0 =
-                inspected.operand2.result.map { it.orNull() is IntLiteral && it.force().value == 0 }
-            preventingThat(isPlus.and(operandIs0))
+            preventingThat {
+                val operandIsZero = inspected.operand2.result.map { it.orNull() is IntLiteral && it.force().value == 0 }
+                val operatorIsPlus = inspected.operator.result.map { it.orNull() == Plus }
+                operatorIsPlus.and(operandIsZero)
+            }
             message { "Operation doesn't change the result" }
             addFix {
                 description = "Shorten expression"
@@ -127,11 +128,11 @@ class ExprEditorViewTest : HextantApplication() {
 
             }
         }
-        inspections.of<IntLiteralEditor>().registerInspection {
+        inspections.registerInspection<IntLiteralEditor> {
             description = "Prevent '0' Literals"
             message { "Literal is '0'" }
             severity(Warning)
-            preventingThat(inspected.result.map { it.orNull()?.value == 0 })
+            preventingThat { inspected.result.map { it.orNull()?.value == 0 } }
             addFix {
                 description = "Set to '1'"
                 fixingBy {

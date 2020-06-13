@@ -9,16 +9,16 @@ import reaktive.value.ReactiveBoolean
 /**
  * Interface for Inspections
  */
-interface Inspection {
+interface Inspection<in T : Any> {
     /**
      * @return the description of this [Inspection]
      */
     val description: String
 
     /**
-     * @return a [ReactiveBoolean] holding `true` if this inspection reports a problem
+     * @return a [ReactiveBoolean] holding `true` if this inspection reports a problem on the inspected object.
      */
-    val isProblem: ReactiveBoolean
+    fun InspectionBody<T>.isProblem(): ReactiveBoolean
 
     /**
      * @return the severity of this problem
@@ -26,12 +26,13 @@ interface Inspection {
     val severity: Severity
 
     /**
-     * If a problem is reported this problem is registered for this target
+     * If a problem is reported this problem is registered for the given returned target.
      */
-    val location: Any
+    fun InspectionBody<T>.location(): Any
 
     /**
-     * @return the problem reported by this inspection or `null` if there is no problem
+     * @return the problem reported by this inspection on the given target.
+     * If this inspection does not report on the given target the behaviour is implementation-specific.
      */
-    fun getProblem(): Problem?
+    fun InspectionBody<T>.getProblem(): Problem<T>
 }
