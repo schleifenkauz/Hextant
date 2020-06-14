@@ -11,6 +11,11 @@ import reaktive.value.*
  */
 interface Enabled {
     /**
+     * The name of this object.
+     */
+    val name: String
+
+    /**
      * Holds `true` only if this object is enabled, `false` if it is disabled.
      */
     val isEnabled: ReactiveBoolean
@@ -25,7 +30,7 @@ interface Enabled {
      */
     fun disable()
 
-    private class Impl(initial: Boolean) : Enabled {
+    private class Impl(override val name: String, initial: Boolean) : Enabled {
         override val isEnabled = reactiveVariable(initial)
 
         override fun enable() {
@@ -39,9 +44,9 @@ interface Enabled {
 
     companion object {
         /**
-         * Return an [Enabled] object that can act as a delegate for other [Enabled] objects.1
+         * Return an [Enabled] object that can act as a delegate for other [Enabled] objects.
          * @param initial `true` if the object should be enabled by default.
          */
-        fun delegate(initial: Boolean): Enabled = Impl(initial)
+        fun delegate(name: String, initial: Boolean): Enabled = Impl(name, initial)
     }
 }

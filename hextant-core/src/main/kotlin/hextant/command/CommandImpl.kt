@@ -9,7 +9,7 @@ import hextant.fx.Shortcut
 import kotlin.reflect.KClass
 
 internal class CommandImpl<R : Any, T>(
-    override val name: String,
+    name: String,
     override val category: Category?,
     override val defaultShortcut: Shortcut?,
     override val shortName: String?,
@@ -20,7 +20,7 @@ internal class CommandImpl<R : Any, T>(
     private val applicable: (R) -> Boolean,
     receiverCls: KClass<R>,
     initiallyEnabled: Boolean
-) : AbstractCommand<R, T>(receiverCls, initiallyEnabled) {
+) : AbstractCommand<R, T>(receiverCls, name, initiallyEnabled) {
     override fun doExecute(receiver: R, args: List<Any?>): T = execute.invoke(receiver, args)
 
     @Suppress("UNCHECKED_CAST") override fun isApplicableOn(receiver: Any) =

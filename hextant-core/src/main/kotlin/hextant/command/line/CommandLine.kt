@@ -218,5 +218,10 @@ class CommandLine(context: Context, private val source: CommandSource) :
          * The command line that is used for editors.
          */
         val forEditors = SimpleProperty<CommandLine>("editor-command-line")
+
+        /**
+         * The global command line that has the top level context as its receiver.
+         */
+        val global = SimpleProperty<CommandLine>("global command-line")
     }
 }

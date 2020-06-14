@@ -1,5 +1,6 @@
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
+import hextant.config.*
 import hextant.core.editor.*
 import hextant.core.inspect.SyntaxErrorInspection
 import hextant.core.view.*
@@ -77,4 +78,11 @@ object Core : PluginInitializer({
     view(::FilteredTokenEditorControl)
     view(::PathEditorControl)
     stylesheet("hextant/core/style.css")
+    defaultEditor(::EnabledEditor)
+    view { e: EnabledEditor, args ->
+        args[AbstractTokenEditorControl.COMPLETER] = EnabledCompleter
+        FXTokenEditorView(e, args)
+    }
+    command(enable)
+    command(disable)
 })

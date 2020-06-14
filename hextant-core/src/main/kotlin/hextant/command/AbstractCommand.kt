@@ -17,8 +17,9 @@ import kotlin.reflect.jvm.jvmErasure
  */
 abstract class AbstractCommand<R : Any, T>(
     override val receiverCls: KClass<R>,
+    name: String,
     initiallyEnabled: Boolean = true
-) : Command<R, T>, Enabled by Enabled.delegate(initiallyEnabled) {
+) : Command<R, T>, Enabled by Enabled.delegate(name, initiallyEnabled) {
     override val shortName: String?
         get() = null
     override val category: Category?
@@ -31,7 +32,7 @@ abstract class AbstractCommand<R : Any, T>(
         if (args.size > parameters.size) throw ArgumentMismatchException("To many arguments for command $this")
         if (args.size < parameters.size) throw ArgumentMismatchException("To few arguments for command $this")
         for ((a, p) in args.zip(parameters)) {
-            if (a == null && !p.nullable) throw ArgumentMismatchException("Null argument for non-nullable parameter $p")
+            if (a == null && !p.type.isMarkedNullable) throw ArgumentMismatchException("Null argument for non-nullable parameter $p")
             if (!p.type.jvmErasure.isInstance(a)) throw ArgumentMismatchException("Parameter $a is not an instance of ${p.type}")
         }
     }

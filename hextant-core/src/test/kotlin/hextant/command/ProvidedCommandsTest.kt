@@ -8,9 +8,11 @@ import com.natpryce.hamkrest.should.shouldMatch
 import hextant.command.Command.Category
 import hextant.command.meta.CommandParameter
 import hextant.command.meta.ProvideCommand
-import hextant.test.*
+import hextant.test.isEmpty
+import hextant.test.shouldEqual
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.reflect.full.createType
 
 class ProvidedCommandsTest {
     private val commands = Commands.newInstance()
@@ -26,8 +28,7 @@ class ProvidedCommandsTest {
         val p = cmd.parameters[0]
         p.name shouldEqual "x"
         p.description shouldEqual "No description provided"
-        p.nullable shouldBe `false`
-        p.type shouldEqual Int::class
+        p.type shouldEqual Int::class.createType()
         cmd.execute(t, listOf(1)) shouldEqual 1
     }
 
@@ -35,8 +36,7 @@ class ProvidedCommandsTest {
         val t = Target2()
         val cmd = commands.applicableOn(t).first()
         val p = cmd.parameters[0]
-        p.nullable shouldBe `true`
-        p.type shouldEqual String::class
+        p.type shouldEqual String::class.createType(nullable = true)
     }
 
     @Test fun `command throwing exception`() {
@@ -55,8 +55,7 @@ class ProvidedCommandsTest {
         val p = cmd.parameters[0]
         p.name shouldEqual "arg"
         p.description shouldEqual "Completely useless"
-        p.nullable shouldEqual false
-        p.type shouldEqual Int::class
+        p.type shouldEqual Int::class.createType()
         cmd.execute(t, listOf(1)) shouldEqual 1
     }
 

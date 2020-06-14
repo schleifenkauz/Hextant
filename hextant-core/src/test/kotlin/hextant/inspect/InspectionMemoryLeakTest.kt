@@ -6,10 +6,13 @@ package hextant.inspect
 
 import com.natpryce.hamkrest.absent
 import com.sun.javafx.application.PlatformImpl
-import hextant.*
+import hextant.EditorControlGroup
+import hextant.createView
 import hextant.expr.editor.ExprExpander
 import hextant.expr.editor.IntLiteralEditor
+import hextant.serial.makeRoot
 import hextant.test.shouldBe
+import hextant.test.testingContext
 import hextant.undo.NoUndoManager
 import hextant.undo.UndoManager
 import org.junit.jupiter.api.BeforeAll
@@ -53,7 +56,7 @@ class InspectionMemoryLeakTest {
 
     @Test
     fun `constructing view of editor causes no memory leak`() {
-        val ctx = HextantPlatform.rootContext()
+        val ctx = testingContext()
         val w = wrapper(strong(IntLiteralEditor(ctx)))
         val e by w
         val v = WeakReference(ctx.createView(e!!), ReferenceQueue())
@@ -65,9 +68,10 @@ class InspectionMemoryLeakTest {
 
     @Test
     fun `expanding and resetting expander causes no leak`() {
-        val ctx = HextantPlatform.rootContext()
+        val ctx = testingContext()
         ctx[UndoManager] = NoUndoManager
         val exp = ExprExpander(ctx)
+        exp.makeRoot()
         val view = ctx.createView(exp)
         exp.setText("1")
         exp.expand()

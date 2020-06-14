@@ -5,8 +5,8 @@
 package hextant
 
 import hextant.command.Commands
-import hextant.command.line.CommandLine
-import hextant.command.line.ContextCommandSource
+import hextant.command.line.*
+import hextant.config.EnabledSource
 import hextant.core.*
 import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Stylesheets
@@ -32,11 +32,14 @@ object HextantPlatform {
         set(Internal, EditorFactory, EditorFactory.newInstance())
         set(Internal, Commands, Commands.newInstance())
         set(Internal, Inspections, Inspections.newInstance())
-        set(Stylesheets, Stylesheets())
+        set(Internal, Stylesheets, Stylesheets())
         set(Plugins, Plugins(this))
         set(Internal, SerialProperties.serialContext, createSerialContext())
         set(Internal, SerialProperties.serial, KSerial.newInstance())
         set(Internal, ConfigurableProperties, ConfigurableProperties())
+        val src = EnabledSource()
+        src.addSource { get(Commands).all() }
+        set(Internal, EnabledSource, src)
     }
 
     /**
@@ -62,5 +65,6 @@ object HextantPlatform {
             set(SelectionDistributor, SelectionDistributor.newInstance())
         }
         set(CommandLine.forEditors, CommandLine(clContext, ContextCommandSource(this)))
+        set(CommandLine.global, CommandLine(clContext, GlobalCommandSource(root)))
     }
 }

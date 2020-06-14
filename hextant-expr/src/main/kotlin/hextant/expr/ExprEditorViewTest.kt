@@ -44,8 +44,9 @@ class ExprEditorViewTest : HextantApplication() {
         editor.makeRoot()
         val view = context.createView(editor)
         val clView = CommandLineControl(context[CommandLine.forEditors], createBundle())
+        val globalCLView = CommandLineControl(context[CommandLine.global], createBundle())
         val menuBar = createMenuBar(editor, context, view)
-        return VBox(50.0, menuBar, view, clView)
+        return VBox(50.0, menuBar, view, globalCLView, clView)
     }
 
     private fun registerCommandsAndInspections(context: Context) {

@@ -30,7 +30,7 @@ interface Command<in R : Any, out T> : Enabled {
      * * It should be a imperative description of the action this command executes
      * * For example: 'Refactor this Method'
      */
-    val name: String
+    override val name: String
 
     /**
      * @return he category of this [Command]
@@ -119,17 +119,15 @@ interface Command<in R : Any, out T> : Enabled {
      * A Parameter of a [Command]
      * @property name the name of this parameter
      * @property type the expected type for this parameter
-     * @property nullable specifies whether the type should be nullable
      * @property description explains what this parameter is used for
      */
     data class Parameter(
-        val name: String, val type: KType, val nullable: Boolean = false, val description: String
+        val name: String, val type: KType, val description: String
     ) {
         override fun toString() = buildString {
             append(name)
             append(": ")
             append(type.toString())
-            if (nullable) append("?")
             appendln()
             append(description)
         }
@@ -151,11 +149,6 @@ interface Command<in R : Any, out T> : Enabled {
         lateinit var type: KType
 
         /**
-         * `true` iff the parameter is nullable
-         */
-        var nullable = false
-
-        /**
          * The description of this parameter, an explanation of what the parameter influences.
          * The default description is "No description provided"
          */
@@ -169,6 +162,6 @@ interface Command<in R : Any, out T> : Enabled {
             type = typeOf<T>()
         }
 
-        @PublishedApi internal fun build(): Parameter = Parameter(name, type, nullable, description)
+        @PublishedApi internal fun build(): Parameter = Parameter(name, type, description)
     }
 }
