@@ -1,11 +1,15 @@
 package hextant.config
 
 import hextant.Context
-import hextant.completion.CompletionStrategy
-import hextant.completion.ConfiguredCompleter
+import hextant.command.Commands
+import hextant.command.line.CommandCompleter
+import hextant.completion.CompoundCompleter
 
-internal object EnabledCompleter : ConfiguredCompleter<Context, Enabled>(CompletionStrategy.simple) {
-    override fun completionPool(context: Context): Collection<Enabled> = context[EnabledSource].all()
-
-    override fun extractText(context: Context, item: Enabled): String? = item.name
+/**
+ * Completer for [Enabled]-objects.
+ */
+class EnabledCompleter(context: Context) : CompoundCompleter<Context, Enabled>() {
+    init {
+        addCompleter(CommandCompleter { context[Commands].all() })
+    }
 }

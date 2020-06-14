@@ -10,6 +10,7 @@ import hextant.core.view.TokenEditorView
 import validated.*
 
 internal class EnabledEditor(context: Context) : TokenEditor<Enabled, TokenEditorView>(context) {
-    override fun compile(token: String): Validated<Enabled> = context[EnabledSource].all().find { it.name == token }
-        .validated { invalid("No object with name '$token' found") }
+    override fun compile(item: Any): Validated<Enabled> = (item as? Enabled).validated { invalidComponent }
+
+    override fun compile(token: String): Validated<Enabled> = invalidComponent
 }

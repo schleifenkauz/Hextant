@@ -6,7 +6,6 @@ package hextant
 
 import hextant.command.Commands
 import hextant.command.line.*
-import hextant.config.EnabledSource
 import hextant.core.*
 import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Stylesheets
@@ -37,9 +36,6 @@ object HextantPlatform {
         set(Internal, SerialProperties.serialContext, createSerialContext())
         set(Internal, SerialProperties.serial, KSerial.newInstance())
         set(Internal, ConfigurableProperties, ConfigurableProperties())
-        val src = EnabledSource()
-        src.addSource { get(Commands).all() }
-        set(Internal, EnabledSource, src)
     }
 
     /**

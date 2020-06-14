@@ -17,14 +17,15 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 
 /**
- * A JavaFX implemenation of the [CommandLineView]
+ * A JavaFX implementation of the [CommandLineView]
  */
 class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLineView, EditorControl<VBox>(cl, args) {
     private val history = VBox().withStyleClass("command-history")
     private val commandName = HextantTextField().withStyleClass("command-name")
     private val current = HBox(commandName).withStyleClass("command-input")
 
-    private val popup = CompletionPopup(cl, context[IconManager], CommandCompleter)
+    private val completer = CommandCompleter { cl.availableCommands() }
+    private val popup = CompletionPopup(Unit, context[IconManager], completer)
 
     private val completionObserver = popup.completionChosen.observe { _, completion ->
         cl.setCommandName(completion.completionText)

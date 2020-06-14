@@ -30,7 +30,7 @@ interface Command<in R : Any, out T> : Enabled {
      * * It should be a imperative description of the action this command executes
      * * For example: 'Refactor this Method'
      */
-    override val name: String
+    val name: String
 
     /**
      * @return he category of this [Command]

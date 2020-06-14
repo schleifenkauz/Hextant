@@ -1,5 +1,4 @@
 import hextant.completion.CompletionStrategy
-import hextant.completion.ConfiguredCompleter
 import hextant.config.*
 import hextant.core.editor.*
 import hextant.core.inspect.SyntaxErrorInspection
@@ -69,18 +68,13 @@ object Core : PluginInitializer({
     }
     compoundView { e: SettingsEditor -> view(e.entries) }
     view(::FileEditorControl)
-    view { e: FileNameEditor, args ->
-        args[FilteredTokenEditorControl.COMPLETER] =
-            ConfiguredCompleter.withStringPool(CompletionStrategy.simple, listOf("file"))
-        FilteredTokenEditorControl(e, args)
-    }
     view(::DirectoryEditorControl)
     view(::FilteredTokenEditorControl)
     view(::PathEditorControl)
     stylesheet("hextant/core/style.css")
     defaultEditor(::EnabledEditor)
     view { e: EnabledEditor, args ->
-        args[AbstractTokenEditorControl.COMPLETER] = EnabledCompleter
+        args[AbstractTokenEditorControl.COMPLETER] = EnabledCompleter(e.context)
         FXTokenEditorView(e, args)
     }
     command(enable)

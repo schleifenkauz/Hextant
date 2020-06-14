@@ -33,7 +33,7 @@ open class FXExpanderView(
 
     private val textObserver: Observer
 
-    private val popup = CompletionPopup(context, context[IconManager], context[COMPLETER])
+    private val popup = CompletionPopup(context, context[IconManager], arguments[COMPLETER])
 
     private val completionObserver: Observer
 

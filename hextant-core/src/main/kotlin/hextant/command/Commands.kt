@@ -17,6 +17,7 @@ import kotlin.reflect.full.superclasses
  */
 class Commands private constructor() {
     private val commands = mutableMapOf<KClass<*>, MutableSet<Command<*, *>>>()
+    private val all = mutableSetOf<Command<*, *>>()
     private val dag = ClassDAG()
 
     private fun commandsOf(cls: KClass<*>) = commands.getOrPut(cls) { mutableSetOf() }
@@ -36,6 +37,7 @@ class Commands private constructor() {
      * Register the given [command] for all instances of the specified class.
      */
     fun <R : Any> register(cls: KClass<R>, command: Command<R, *>) {
+        all.add(command)
         visitClass(cls)
         dag.subclassesOf(cls).forEach { c -> commandsOf(c).add(command) }
     }
@@ -60,7 +62,7 @@ class Commands private constructor() {
     /**
      * Return a collection of **all** registered commands.
      */
-    fun all(): Collection<Command<*, *>> = commands.flatMap { it.value }
+    fun all(): Collection<Command<*, *>> = all
 
     companion object : Property<Commands, Any, Internal>("commands") {
         /**

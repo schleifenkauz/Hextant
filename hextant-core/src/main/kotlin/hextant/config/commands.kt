@@ -22,7 +22,7 @@ internal val enable = command<Context, String> {
         if (enabled.isEnabled.now) "Already enabled"
         else {
             enabled.enable()
-            "Enabled ${enabled.name}"
+            "Enabled ${enabled.id}"
         }
     }
 }
@@ -41,7 +41,7 @@ internal val disable = command<Context, String> {
         if (!enabled.isEnabled.now) "Already disabled"
         else {
             enabled.disable()
-            "Disabled ${enabled.name}"
+            "Disabled ${enabled.id}"
         }
     }
 }

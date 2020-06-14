@@ -219,9 +219,9 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     fun complete(completion: Completion<*>) {
         checkUnexpanded()
-        val editor = expand(completion.completion)
+        val editor = expand(completion.completion) ?: expand(completion.completionText)
         if (editor != null) {
-            changeState(Expanded(editor), "Complete", undoable = false)
+            changeState(Expanded(editor), "Complete", undoable = true)
         } else {
             setText(completion.completionText)
         }
