@@ -109,6 +109,7 @@ class ExprEditorViewTest : HextantApplication() {
         }
         val inspections = context[Inspections]
         inspections.registerInspection<OperatorApplicationEditor> {
+            id = "identical"
             description = "Prevent identical operations"
             severity(Error)
             preventingThat {
@@ -130,6 +131,7 @@ class ExprEditorViewTest : HextantApplication() {
             }
         }
         inspections.registerInspection<IntLiteralEditor> {
+            id = "zero"
             description = "Prevent '0' Literals"
             message { "Literal is '0'" }
             severity(Warning)

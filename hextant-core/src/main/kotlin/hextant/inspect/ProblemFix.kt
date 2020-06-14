@@ -1,7 +1,7 @@
 package hextant.inspect
 
 /**
- * A fix for a problem used repair the problem
+ * A fix for a problem used to repair the problem
  */
 interface ProblemFix<in T : Any> {
     /**

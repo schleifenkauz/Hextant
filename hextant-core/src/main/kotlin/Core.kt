@@ -37,6 +37,7 @@ object Core : PluginInitializer({
     view { e: TokenEditor<*, TokenEditorView>, args -> FXTokenEditorView(e, args) }
     inspection(SyntaxErrorInspection)
     registerInspection<FilteredTokenEditor<*>> {
+        id = "invalid-intermediate"
         description = "Reports invalid intermediate result"
         checkingThat { inspected.intermediateResult.map { it.isValid } }
         message { (inspected.intermediateResult.now as Invalid).reason }
@@ -74,7 +75,7 @@ object Core : PluginInitializer({
     stylesheet("hextant/core/style.css")
     defaultEditor(::EnabledEditor)
     view { e: EnabledEditor, args ->
-        args[AbstractTokenEditorControl.COMPLETER] = EnabledCompleter(e.context)
+        args[AbstractTokenEditorControl.COMPLETER] = EnabledCompleter
         FXTokenEditorView(e, args)
     }
     command(enable)

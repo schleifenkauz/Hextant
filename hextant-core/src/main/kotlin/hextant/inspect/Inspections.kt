@@ -19,6 +19,7 @@ class Inspections private constructor() {
     private val managers: MutableMap<KClass<*>, MutableMap<Any, InspectionManager<*>>> = mutableMapOf()
     private val inspections = mutableMapOf<KClass<*>, MutableSet<Inspection<*>>>()
     private val dag = ClassDAG()
+    private val all = mutableSetOf<Inspection<*>>()
 
     private fun inspections(cls: KClass<*>) = inspections.getOrPut(cls) { mutableSetOf() }
     private fun managers(cls: KClass<*>) = managers.getOrPut(cls) { WeakHashMap() }
@@ -46,6 +47,7 @@ class Inspections private constructor() {
      * Register the given [inspection] for instances of the given class.
      */
     fun <T : Any> register(cls: KClass<out T>, inspection: Inspection<T>) {
+        all.add(inspection)
         visitClass(cls)
         for (c in dag.subclassesOf(cls)) {
             addInspection(c, inspection)
@@ -81,6 +83,11 @@ class Inspections private constructor() {
      * Return a [ReactiveBoolean] that holds `true` only if any inspections report a warning on the given object.
      */
     fun hasWarning(obj: Any): ReactiveBoolean = getManagerFor(obj).hasWarning
+
+    /**
+     * Return a collection containing all registered completions.
+     */
+    fun all(): Collection<Inspection<*>> = all
 
     companion object : Property<Inspections, Any, Internal>("inspections") {
         /**

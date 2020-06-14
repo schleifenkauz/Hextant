@@ -22,4 +22,6 @@ abstract class AbstractEnabled(initiallyEnabled: Boolean) : Enabled {
     override fun disable() {
         _isEnabled.set(false)
     }
+
+    override fun toString(): String = id
 }

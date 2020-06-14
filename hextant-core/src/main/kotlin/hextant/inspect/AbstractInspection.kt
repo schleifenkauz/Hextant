@@ -4,10 +4,13 @@
 
 package hextant.inspect
 
+import hextant.config.AbstractEnabled
+
 /**
  * Skeletal implementation of [Inspection]
  */
-abstract class AbstractInspection<in T : Any> : Inspection<T> {
+abstract class AbstractInspection<in T : Any>(initiallyEnabled: Boolean = true) : Inspection<T>,
+                                                                                  AbstractEnabled(initiallyEnabled) {
     /**
      * Return the message for the problem reported by this [Inspection]
      * * Is only called when [isProblem] is `true`

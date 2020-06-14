@@ -13,6 +13,9 @@ import validated.Validated.Invalid
 import validated.isInvalid
 
 internal object SyntaxErrorInspection : AbstractInspection<Editor<*>>() {
+    override val id: String
+        get() = "syntax-error"
+
     override fun InspectionBody<Editor<*>>.isProblem(): ReactiveBoolean = inspected.result.map { it.isInvalid }
 
     override fun InspectionBody<Editor<*>>.message(): String {
@@ -23,7 +26,6 @@ internal object SyntaxErrorInspection : AbstractInspection<Editor<*>>() {
 
     override val description: String
         get() = "Highlights syntactical errors"
-
     override val severity: Severity
         get() = Severity.Error
 }

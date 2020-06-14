@@ -7,6 +7,7 @@ package hextant.inspect
 import reaktive.value.ReactiveBoolean
 
 internal class InspectionImpl<T : Any>(
+    override val id: String,
     private val isProblem: InspectionBody<T>.() -> ReactiveBoolean,
     override val description: String,
     private val message: InspectionBody<T>.() -> String,

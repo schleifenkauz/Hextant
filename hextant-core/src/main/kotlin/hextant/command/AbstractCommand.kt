@@ -56,6 +56,4 @@ abstract class AbstractCommand<R : Any, T>(
      * By default return `true` if the specified [receiver] is an instance of [R]
      */
     override fun isApplicableOn(receiver: Any) = receiverCls.isInstance(receiver)
-
-    final override fun toString(): String = id
 }

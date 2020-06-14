@@ -4,12 +4,13 @@
 
 package hextant.inspect
 
+import hextant.config.Enabled
 import reaktive.value.ReactiveBoolean
 
 /**
  * Interface for Inspections
  */
-interface Inspection<in T : Any> {
+interface Inspection<in T : Any> : Enabled {
     /**
      * @return the description of this [Inspection]
      */

@@ -13,9 +13,22 @@ import reaktive.value.binding.map
  */
 class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
     /**
+     * The [Inspection.id] of the built inspection, must be set.
+     */
+    lateinit var id: String
+
+    /**
      * The description of the [Inspection], must be set
      */
     lateinit var description: String
+
+    /**
+     * Indicates whether the built inspection should be enabled by default.
+     *
+     * Default is `true`.
+     */
+    var initiallyEnabled = true
+
     private lateinit var isProblem: InspectionBody<T>.() -> ReactiveBoolean
     private lateinit var messageProducer: InspectionBody<T>.() -> String
     private lateinit var severity: Severity
@@ -58,7 +71,9 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
     }
 
     /**
-     * Set the location of the inspection
+     * Set the location of the inspection.
+     *
+     * Default is the inspected object itself.
      */
     fun location(loc: InspectionBody<T>.() -> Any) {
         location = loc
@@ -92,6 +107,6 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
 
     @PublishedApi internal fun build(): Inspection<T> {
         val fixes: InspectionBody<T>.() -> Collection<ProblemFix<T>> = { fixes.filter { it.run { isApplicable() } } }
-        return InspectionImpl(isProblem, description, messageProducer, severity, fixes, location)
+        return InspectionImpl(id, isProblem, description, messageProducer, severity, fixes, location)
     }
 }

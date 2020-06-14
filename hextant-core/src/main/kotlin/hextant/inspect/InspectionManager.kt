@@ -8,6 +8,7 @@ import hextant.inspect.Severity.Error
 import hextant.inspect.Severity.Warning
 import org.nikok.kref.forcedWeak
 import reaktive.Observer
+import reaktive.value.binding.and
 import reaktive.value.binding.notEqualTo
 import reaktive.value.now
 import reaktive.value.reactiveVariable
@@ -32,7 +33,7 @@ internal class InspectionManager<T : Any>(inspected: T, private val inspections:
         val actualTarget =
             if (inspected === location()) this@InspectionManager
             else inspections.getManagerFor(location())
-        val problem = isProblem()
+        val problem = inspection.isEnabled and isProblem()
         if (problem.now) {
             actualTarget.reportingInspections().add(inspection)
             actualTarget.changeCount(inspection.severity, +1)
