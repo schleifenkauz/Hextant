@@ -167,7 +167,7 @@ class AnnotationProcessor : AbstractProcessor() {
         val file = kotlinClass(
             pkg,
             {
-                import<TokenEditor<*, *>>()
+                import<TokenEditor<*>>()
                 import(annotated.toString())
                 import<Context>()
                 import<TokenType<*>>()
@@ -177,10 +177,7 @@ class AnnotationProcessor : AbstractProcessor() {
             primaryConstructor = { "context" of "Context"; "text" of type("String") },
             inheritance = {
                 extend(
-                    "TokenEditor".t.parameterizedBy {
-                        covariant(name)
-                        covariant("TokenEditorView")
-                    },
+                    "TokenEditor".t.parameterizedBy { covariant(name) },
                     "context".e,
                     "text".e
                 )

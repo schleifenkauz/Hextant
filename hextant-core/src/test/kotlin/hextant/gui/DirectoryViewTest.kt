@@ -8,7 +8,6 @@ import bundles.createBundle
 import hextant.*
 import hextant.core.editor.ExpanderConfig
 import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
 import hextant.fx.ModifierValue.DOWN
 import hextant.fx.menuBar
 import hextant.fx.shortcut
@@ -70,8 +69,7 @@ class DirectoryViewTest : HextantApplication() {
         return VBox(menu, SplitPane(explorer, Pane(pane)))
     }
 
-    class IntEditor(context: Context, text: String = "") :
-        TokenEditor<Int, TokenEditorView>(context, text) {
+    class IntEditor(context: Context, text: String = "") : TokenEditor<Int>(context, text) {
         override fun compile(token: String): Validated<Int> =
             token.toIntOrNull().validated { invalid("Invalid literal $token") }
     }

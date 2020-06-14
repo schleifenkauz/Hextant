@@ -4,7 +4,8 @@
 
 package hextant.core.view
 
-import bundles.*
+import bundles.Bundle
+import bundles.SimpleProperty
 import hextant.Context
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
@@ -20,24 +21,16 @@ import javafx.scene.input.KeyCombination
 /**
  * An [EditorControl] for [TokenEditor]'s.
  * The constructor of this class doesn't register itself as a view of the supplied editor.
- * Most likely you should use [FXTokenEditorView] instead.
+ * Most likely you should use [TokenEditorControl] instead.
  */
-open class AbstractTokenEditorControl(
-    private val editor: TokenEditor<*, *>,
+open class TokenEditorControl(
+    private val editor: TokenEditor<*>,
     args: Bundle
 ) : EditorControl<HextantTextField>(editor, args), TokenEditorView {
     private val textField = HextantTextField(initialInputMethod = context[InputMethod])
 
-    /**
-     * The completer used by this TokenEditorControl
-     */
-    var completer
-        get() = arguments[COMPLETER]
-        set(value) {
-            arguments[COMPLETER] = value
-        }
-
     init {
+        editor.addView(this)
         registerShortcut()
     }
 
@@ -53,13 +46,7 @@ open class AbstractTokenEditorControl(
         popup.show(this)
     }
 
-    override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
-        when (property) {
-            COMPLETER -> popup.completer = completer
-        }
-    }
-
-    private val popup = CompletionPopup(context, context[IconManager], this.completer)
+    private val popup = CompletionPopup(context, context[IconManager], context[COMPLETER])
 
     private val obs = popup.completionChosen.observe(this) { _, c ->
         editor.complete(c)

@@ -1,6 +1,6 @@
 package hextant.fx
 
-import hextant.core.view.FXExpanderView
+import hextant.core.view.ExpanderControl
 import hextant.impl.iterate
 import javafx.scene.Node
 import javafx.scene.Scene
@@ -50,13 +50,13 @@ internal fun Scene.selectPrevious(): Boolean {
 
 private val Node.previousEditorControl
     get() = iterate(editorControlInParentChain(this)?.previous) {
-        if (it is FXExpanderView) it.root as? EditorControl<*>
+        if (it is ExpanderControl) it.root as? EditorControl<*>
         else it.editorChildren().lastOrNull()
     }
 
 private val Node.nextEditorControl
     get() = iterate(editorControlInParentChain(this)?.next) {
-        if (it is FXExpanderView) it.root as? EditorControl<*>
+        if (it is ExpanderControl) it.root as? EditorControl<*>
         else it.editorChildren().firstOrNull()
     }
 

@@ -3,9 +3,9 @@ import hextant.config.*
 import hextant.core.editor.*
 import hextant.core.inspect.SyntaxErrorInspection
 import hextant.core.view.*
-import hextant.core.view.FilteredTokenEditorControl.Companion.ABORT_CHANGE
-import hextant.core.view.FilteredTokenEditorControl.Companion.BEGIN_CHANGE
-import hextant.core.view.FilteredTokenEditorControl.Companion.COMMIT_CHANGE
+import hextant.core.view.ValidatedTokenEditorControl.Companion.ABORT_CHANGE
+import hextant.core.view.ValidatedTokenEditorControl.Companion.BEGIN_CHANGE
+import hextant.core.view.ValidatedTokenEditorControl.Companion.COMMIT_CHANGE
 import hextant.createView
 import hextant.fx.shortcut
 import hextant.main.PathEditorControl
@@ -30,13 +30,13 @@ object Core : PluginInitializer({
     author = "Nikolaus Knop"
     editor(::StringEditor)
     defaultEditor(::StringEditor)
-    view(::FXExpanderView)
+    view(::ExpanderControl)
     view { e: ListEditor<*, *>, args ->
         ListEditorControl(e, args)
     }
-    view { e: TokenEditor<*, TokenEditorView>, args -> FXTokenEditorView(e, args) }
+    view { e: TokenEditor<*>, args -> TokenEditorControl(e, args) }
     inspection(SyntaxErrorInspection)
-    registerInspection<FilteredTokenEditor<*>> {
+    registerInspection<ValidatedTokenEditor<*>> {
         id = "invalid-intermediate"
         description = "Reports invalid intermediate result"
         checkingThat { inspected.intermediateResult.map { it.isValid } }
@@ -48,11 +48,11 @@ object Core : PluginInitializer({
         bundle[BEGIN_CHANGE] = shortcut(F2)
         bundle[ABORT_CHANGE] = shortcut(ESCAPE)
         bundle[COMMIT_CHANGE] = shortcut(ENTER)
-        FilteredTokenEditorControl(e, bundle)
+        ValidatedTokenEditorControl(e, bundle)
     }
     view { e: RootExpander<*>, bundle ->
         val completer = e.context[ProjectItemEditor.expanderConfig<Any?>()].completer(CompletionStrategy.simple)
-        FXExpanderView(e, bundle, completer)
+        ExpanderControl(e, bundle, completer)
     }
     compoundView { e: SettingsEntryEditor ->
         line {
@@ -70,13 +70,13 @@ object Core : PluginInitializer({
     compoundView { e: SettingsEditor -> view(e.entries) }
     view(::FileEditorControl)
     view(::DirectoryEditorControl)
-    view(::FilteredTokenEditorControl)
+    view(::ValidatedTokenEditorControl)
     view(::PathEditorControl)
     stylesheet("hextant/core/style.css")
     defaultEditor(::EnabledEditor)
     view { e: EnabledEditor, args ->
-        args[AbstractTokenEditorControl.COMPLETER] = EnabledCompleter
-        FXTokenEditorView(e, args)
+        args[TokenEditorControl.COMPLETER] = EnabledCompleter
+        TokenEditorControl(e, args)
     }
     command(enable)
     command(disable)

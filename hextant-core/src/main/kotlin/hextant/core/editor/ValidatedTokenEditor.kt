@@ -9,7 +9,7 @@ import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.completion.Completion
 import hextant.core.TokenType
-import hextant.core.view.FilteredTokenEditorView
+import hextant.core.view.ValidatedTokenEditorView
 import hextant.serial.VirtualEditor
 import hextant.serial.virtualize
 import hextant.undo.AbstractEdit
@@ -23,13 +23,13 @@ import validated.Validated.Valid
 import validated.reaktive.ReactiveValidated
 
 /**
- * A [FilteredTokenEditor] is an editor whose result is always [Valid]. It can be either editable or not editable.
+ * A [ValidatedTokenEditor] is an editor whose result is always [Valid]. It can be either editable or not editable.
  * In the editable state setting the text is allowed, but the change is not immediately reflected in the [result].
  * One can commit or abort a change to get in the not editable state again and call [beginChange] to make the editor editable.
  * @param [initialText] the initial text, which has to be a valid token. Otherwise an [IllegalArgumentException] is thrown.
  */
-abstract class FilteredTokenEditor<R>(context: Context, initialText: String) :
-    AbstractEditor<R, FilteredTokenEditorView>(context), TokenType<R>, Serializable {
+abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
+    AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R>, Serializable {
     constructor(context: Context) : this(context, "")
 
     private var oldText: String = initialText
@@ -188,17 +188,17 @@ abstract class FilteredTokenEditor<R>(context: Context, initialText: String) :
         return true
     }
 
-    override fun viewAdded(view: FilteredTokenEditorView) {
+    override fun viewAdded(view: ValidatedTokenEditorView) {
         view.setEditable(editable.now)
         view.displayText(_text.now)
     }
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
-    private class Snapshot(original: FilteredTokenEditor<*>) : EditorSnapshot<FilteredTokenEditor<*>>(original) {
+    private class Snapshot(original: ValidatedTokenEditor<*>) : EditorSnapshot<ValidatedTokenEditor<*>>(original) {
         val text = original.text.now
 
-        override fun reconstruct(editor: FilteredTokenEditor<*>) {
+        override fun reconstruct(editor: ValidatedTokenEditor<*>) {
             editor._text.now = text
             editor._intermediateResult.now = editor.compile(editor.text.now)
             editor._result.now = editor.intermediateResult.now
@@ -207,7 +207,7 @@ abstract class FilteredTokenEditor<R>(context: Context, initialText: String) :
     }
 
     private class CommitEdit<R>(
-        private val editor: VirtualEditor<FilteredTokenEditor<R>>,
+        private val editor: VirtualEditor<ValidatedTokenEditor<R>>,
         private val old: String, private val oldResult: R,
         private val new: String, private val newResult: R
     ) : AbstractEdit() {

@@ -1,7 +1,7 @@
 import hextant.Context
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
-import hextant.core.view.FXExpanderView
+import hextant.core.view.ExpanderControl
 import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.Expr
@@ -32,7 +32,7 @@ object ExprPlugin : PluginInitializer({
         val c = CompoundCompleter<Context, Any>()
         c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
         c.addCompleter(SpecialNumbers)
-        FXExpanderView(editor, args, c)
+        ExpanderControl(editor, args, c)
     }
     tokenEditorView<OperatorEditor>("operator")
     tokenEditorView<IntLiteralEditor>(styleClass = "decimal-editor", completer = SpecialNumbers)

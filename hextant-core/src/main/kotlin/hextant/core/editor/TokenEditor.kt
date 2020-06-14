@@ -21,8 +21,7 @@ import validated.reaktive.ReactiveValidated
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
-abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
-                                                                              TokenType<R> {
+abstract class TokenEditor<out R>(context: Context) : AbstractEditor<R, TokenEditorView>(context), TokenType<R> {
     constructor(context: Context, text: String) : this(context) {
         setText(text, undoable = false)
     }
@@ -45,7 +44,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
      */
     protected open fun compile(item: Any): Validated<R> = invalidComponent()
 
-    override fun viewAdded(view: V) {
+    override fun viewAdded(view: TokenEditorView) {
         view.displayText(text.now)
     }
 
@@ -79,7 +78,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     }
 
     private class TextEdit(
-        private val editor: VirtualEditor<TokenEditor<*, *>>,
+        private val editor: VirtualEditor<TokenEditor<*>>,
         private val old: String,
         private val new: String
     ) : AbstractEdit() {
@@ -99,24 +98,11 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
             else TextEdit(editor, this.old, other.new)
     }
 
-    private class Snapshot(original: TokenEditor<*, *>) :
-        EditorSnapshot<TokenEditor<*, *>>(original) {
+    private class Snapshot(original: TokenEditor<*>) : EditorSnapshot<TokenEditor<*>>(original) {
         private val text = original.text.now
 
-        override fun reconstruct(editor: TokenEditor<*, *>) {
+        override fun reconstruct(editor: TokenEditor<*>) {
             editor.setText(text, undoable = false)
-        }
-    }
-
-    companion object {
-        /**
-         * Return a [TokenEditor] which delegates text compilation to the given token [type]
-         */
-        fun <R> forTokenType(
-            type: TokenType<R>,
-            context: Context
-        ) = object : TokenEditor<R, TokenEditorView>(context) {
-            override fun compile(token: String): Validated<R> = type.compile(token)
         }
     }
 }

@@ -1,7 +1,7 @@
 import hextant.blocky.editor.*
 import hextant.blocky.view.*
 import hextant.core.view.EditorControlWrapper
-import hextant.core.view.FXTokenEditorView
+import hextant.core.view.TokenEditorControl
 import hextant.createView
 import hextant.plugin.dsl.PluginInitializer
 
@@ -9,12 +9,12 @@ object Blocky : PluginInitializer({
     name = "Blocky"
     author = "Nikolaus Knop"
     view { e: IdEditor, args ->
-        FXTokenEditorView(e, args).apply {
+        TokenEditorControl(e, args).apply {
             root.styleClass.add("id")
         }
     }
     view { e: RefEditor, args ->
-        val v = e.context.createView(e.id) as FXTokenEditorView
+        val v = e.context.createView(e.id) as TokenEditorControl
         EditorControlWrapper(e, v, args)
     }
     compoundView<BinaryExpressionEditor> { e ->
@@ -56,17 +56,17 @@ object Blocky : PluginInitializer({
         }
     }
     view { e: IntLiteralEditor, args ->
-        FXTokenEditorView(e, args).apply {
+        TokenEditorControl(e, args).apply {
             root.styleClass.add("int-literal")
         }
     }
     view { e: UnaryOperatorEditor, args ->
-        FXTokenEditorView(e, args).apply {
+        TokenEditorControl(e, args).apply {
             root.styleClass.add("operator")
         }
     }
     view { e: BinaryOperatorEditor, args ->
-        FXTokenEditorView(e, args).apply {
+        TokenEditorControl(e, args).apply {
             root.styleClass.add("operator")
         }
     }

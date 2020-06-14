@@ -7,9 +7,9 @@ package hextant.core.view
 import hextant.EditorView
 
 /**
- * Displays a [hextant.core.editor.FilteredTokenEditor]
+ * Displays a [hextant.core.editor.ValidatedTokenEditor]
  */
-interface FilteredTokenEditorView : EditorView {
+interface ValidatedTokenEditorView : EditorView {
     /**
      * Display the given [text].
      */

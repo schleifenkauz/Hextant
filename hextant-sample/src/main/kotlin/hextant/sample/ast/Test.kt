@@ -10,7 +10,6 @@ import hextant.base.AbstractEditor
 import hextant.codegen.*
 import hextant.core.TokenType
 import hextant.core.editor.TokenEditor
-import hextant.core.view.TokenEditorView
 import hextant.sample.ast.Alt.O
 import hextant.sample.ast.Alt.TestToken
 import hextant.sample.ast.editor.*
@@ -25,7 +24,7 @@ object AltExpanderDelegator : ExpanderConfigurator<AltEditor<Alt>>({
 })
 
 class OtherTokenEditor(context: Context, t: TestToken = TestToken("Hello World")) :
-    TokenEditor<TestToken, TokenEditorView>(context) {
+    TokenEditor<TestToken>(context, t.str) {
     override fun compile(token: String): Validated<TestToken> =
         valid(TestToken("Hello World"))
 }
@@ -54,7 +53,7 @@ sealed class Alt {
     object O : Alt()
 }
 
-class CustomEditor(context: Context, o: Alt.O = Alt.O) : AbstractEditor<Alt.O, EditorView>(context) {
+class CustomEditor(context: Context, @Suppress("UNUSED_PARAMETER") o: O = O) : AbstractEditor<O, EditorView>(context) {
     override val result: ReactiveValidated<O> = reactiveValue(
         valid(
             O

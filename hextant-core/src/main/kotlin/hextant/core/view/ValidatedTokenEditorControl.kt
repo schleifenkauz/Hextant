@@ -10,14 +10,14 @@ import hextant.Context
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
-import hextant.core.editor.FilteredTokenEditor
+import hextant.core.editor.ValidatedTokenEditor
 import hextant.fx.*
 
 /**
- * Displays a [FilteredTokenEditor] as a [HextantTextField].
+ * Displays a [ValidatedTokenEditor] as a [HextantTextField].
  */
-class FilteredTokenEditorControl(private val editor: FilteredTokenEditor<*>, arguments: Bundle) :
-    EditorControl<HextantTextField>(editor, arguments), FilteredTokenEditorView {
+class ValidatedTokenEditorControl(private val editor: ValidatedTokenEditor<*>, arguments: Bundle) :
+    EditorControl<HextantTextField>(editor, arguments), ValidatedTokenEditorView {
     private val popup = CompletionPopup(context, context[IconManager], arguments[COMPLETER])
 
     private val textObserver = root.userUpdatedText.observe { _, new ->
@@ -42,7 +42,7 @@ class FilteredTokenEditorControl(private val editor: FilteredTokenEditor<*>, arg
             on(arguments[COMMIT_CHANGE]) { editor.commitChange() }
             on(arguments[BEGIN_CHANGE]) { editor.beginChange() }
             on(arguments[ABORT_CHANGE]) { editor.abortChange() }
-            on("Ctrl+Space") { popup.show(this@FilteredTokenEditorControl) }
+            on("Ctrl+Space") { popup.show(this@ValidatedTokenEditorControl) }
         }
     }
 
@@ -73,7 +73,7 @@ class FilteredTokenEditorControl(private val editor: FilteredTokenEditor<*>, arg
         val ABORT_CHANGE = SimpleProperty("abort change", default = never())
 
         /**
-         * Completer used by the [FilteredTokenEditorControl]
+         * Completer used by the [ValidatedTokenEditorControl]
          */
         val COMPLETER = SimpleProperty<Completer<Context, *>>("completer", default = NoCompleter)
     }

@@ -20,7 +20,7 @@ import reaktive.value.now
 /**
  * JavaFX implementation of a [ExpanderView]
  */
-open class FXExpanderView(
+open class ExpanderControl(
     private val expander: Expander<*, *>,
     args: Bundle
 ) : ExpanderView, EditorControl<Node>(expander, args) {
@@ -57,7 +57,7 @@ open class FXExpanderView(
     init {
         with(textField) {
             registerShortcuts {
-                on("Ctrl + Space") { popup.show(this@FXExpanderView) }
+                on("Ctrl + Space") { popup.show(this@ExpanderControl) }
                 on("Enter") { expander.expand() }
             }
             textObserver = userUpdatedText.observe { _, new ->

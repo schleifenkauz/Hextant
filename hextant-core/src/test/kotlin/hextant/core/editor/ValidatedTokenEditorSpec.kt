@@ -6,7 +6,7 @@ package hextant.core.editor
 
 import hextant.Context
 import hextant.copy
-import hextant.core.view.FilteredTokenEditorView
+import hextant.core.view.ValidatedTokenEditorView
 import hextant.serial.SerialProperties.deserializationContext
 import hextant.serial.SerialProperties.serialContext
 import hextant.serial.makeRoot
@@ -24,7 +24,7 @@ import validated.Validated.Valid
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-object FilteredTokenEditorSpec : Spek({
+object ValidatedTokenEditorSpec : Spek({
     given("a FilteredTokenEditor") {
         describe("basic interactions") {
             val ctx = testingContext()
@@ -34,7 +34,7 @@ object FilteredTokenEditorSpec : Spek({
             val o1 = e.beganChange.observe(handler)
             val o2 = e.abortedChange.observe(handler)
             val o3 = e.commitedChange.observe(handler)
-            val v = mockk<FilteredTokenEditorView>(relaxed = true)
+            val v = mockk<ValidatedTokenEditorView>(relaxed = true)
             group("initially") {
                 it("should take the initial text") {
                     e.text.now shouldEqual "123"
@@ -201,7 +201,7 @@ object FilteredTokenEditorSpec : Spek({
         }
     }
 }) {
-    class Test(context: Context, initialText: String = "") : FilteredTokenEditor<Int>(context, initialText) {
+    class Test(context: Context, initialText: String = "") : ValidatedTokenEditor<Int>(context, initialText) {
         override fun compile(token: String): Validated<Int> =
             token.toIntOrNull().validated { invalid("Invalid int literal") }
     }
