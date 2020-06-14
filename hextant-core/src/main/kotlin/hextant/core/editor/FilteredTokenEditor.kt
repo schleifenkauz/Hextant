@@ -7,6 +7,7 @@ package hextant.core.editor
 import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
+import hextant.completion.Completion
 import hextant.core.TokenType
 import hextant.core.view.FilteredTokenEditorView
 import hextant.serial.VirtualEditor
@@ -17,8 +18,8 @@ import kserial.Serializable
 import reaktive.event.event
 import reaktive.event.unitEvent
 import reaktive.value.*
+import validated.*
 import validated.Validated.Valid
-import validated.invalidComponent
 import validated.reaktive.ReactiveValidated
 
 /**
@@ -76,6 +77,11 @@ abstract class FilteredTokenEditor<R>(context: Context, initialText: String) :
     val commitedChange get() = commitChange.stream
 
     /**
+     * Compile a result from the given completion.
+     */
+    protected open fun compile(completion: Any): Validated<R> = invalidComponent()
+
+    /**
      * Begin a change. If the editor is already editable this method just returns.
      */
     fun beginChange() {
@@ -108,12 +114,9 @@ abstract class FilteredTokenEditor<R>(context: Context, initialText: String) :
      */
     fun commitChange(undoable: Boolean = true) {
         if (!editable.now) return
-        if (undoable) {
-            val edit = CommitEdit(virtualize(), oldText, text.now)
-            context[UndoManager].push(edit)
-        }
         val res = intermediateResult.now
         if (res !is Valid) return
+        if (undoable) recordEdit(text.now, res.value)
         _editable.set(false)
         _result.set(res)
         oldText = text.now
@@ -121,30 +124,49 @@ abstract class FilteredTokenEditor<R>(context: Context, initialText: String) :
         views.forEach { v ->
             v.setEditable(false)
         }
-        return
     }
 
-    private fun setTextAndCommit(new: String) {
+    private fun setTextAndCommit(new: String, result: R) {
         check(!editable.now)
-        val res = compile(new)
-        if (res !is Valid) error("Illegal token $new")
         _text.set(new)
-        _intermediateResult.set(res)
-        _result.set(res)
+        _intermediateResult.set(valid(result))
+        _result.set(valid(result))
         oldText = new
         views { displayText(new) }
     }
 
     /**
-     * Set the visible text to the [new] value. And compile the new [intermediateResult].
+     * Set the visible text to the [new] value and compile the new [intermediateResult].
      * @throws IllegalStateException if the editor is currently not editable.
      */
     fun setText(new: String) {
-        check(editable.now)
+        check(editable.now) { "not editable" }
         _text.now = new
         _intermediateResult.now = compile(new)
         views.forEach { v ->
             v.displayText(new)
+        }
+    }
+
+    /**
+     * Set the visible text to the [Completion.completionText] of the given [completion] and commit the result.
+     * @throws IllegalStateException if the editor is currently not editable.
+     */
+    fun complete(completion: Completion<*>) {
+        check(editable.now) { "not editable" }
+        val t = completion.completionText
+        _text.now = t
+        views { displayText(t) }
+        val res = compile(completion.completion).orElse { compile(t) }
+        _intermediateResult.now = res
+        commitChange()
+    }
+
+    private fun recordEdit(t: String, res: R) {
+        val oldResult = result.now
+        if (oldResult is Valid) {
+            val edit = CommitEdit(virtualize(), oldText, oldResult.value, t, res)
+            context[UndoManager].push(edit)
         }
     }
 
@@ -157,8 +179,12 @@ abstract class FilteredTokenEditor<R>(context: Context, initialText: String) :
 
     override fun paste(snapshot: EditorSnapshot<*>): Boolean {
         if (snapshot !is Snapshot) return false
-        if (editable.now) setText(snapshot.text)
-        else setTextAndCommit(snapshot.text)
+        val t = snapshot.text
+        if (editable.now) setText(t)
+        else {
+            val r = compile(t).ifInvalid { return false }
+            setTextAndCommit(t, r)
+        }
         return true
     }
 
@@ -180,17 +206,17 @@ abstract class FilteredTokenEditor<R>(context: Context, initialText: String) :
         }
     }
 
-    private class CommitEdit(
-        private val editor: VirtualEditor<FilteredTokenEditor<*>>,
-        private val old: String,
-        private val new: String
+    private class CommitEdit<R>(
+        private val editor: VirtualEditor<FilteredTokenEditor<R>>,
+        private val old: String, private val oldResult: R,
+        private val new: String, private val newResult: R
     ) : AbstractEdit() {
         override fun doUndo() {
-            editor.get().setTextAndCommit(old)
+            editor.get().setTextAndCommit(old, oldResult)
         }
 
         override fun doRedo() {
-            editor.get().setTextAndCommit(new)
+            editor.get().setTextAndCommit(new, newResult)
         }
 
         override val actionDescription: String

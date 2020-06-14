@@ -4,7 +4,8 @@
 
 package hextant.core.view
 
-import bundles.*
+import bundles.Bundle
+import bundles.SimpleProperty
 import hextant.*
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
@@ -32,22 +33,7 @@ open class FXExpanderView(
 
     private val textObserver: Observer
 
-    /**
-     * The completer used by this FXExpanderView
-     */
-    var completer
-        get() = arguments[COMPLETER]
-        set(value) {
-            arguments[COMPLETER] = value
-        }
-
-    override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
-        when (property) {
-            COMPLETER -> popup.completer = completer
-        }
-    }
-
-    private val popup = CompletionPopup(context, context[IconManager], completer)
+    private val popup = CompletionPopup(context, context[IconManager], context[COMPLETER])
 
     private val completionObserver: Observer
 

@@ -117,7 +117,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             val list = e.parent
             if (list !is ProjectItemListEditor<*>) return
             list as ProjectItemListEditor<Any?>
-            list.remove(e as ProjectItemEditor<Any?, *>)
+            list.remove(e as ProjectItemEditor<Any?, *>, undoable = false)
             val dir = list.parent
             if (dir !is DirectoryEditor<*>) return
             val v = context[EditorControlGroup].getViewOf(dir)
@@ -147,7 +147,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
         p: ProjectItemListEditor<Any?>,
         new: ProjectItemEditor<*, *>
     ) {
-        p.addLast(new as ProjectItemEditor<Any?, *>)
+        p.addLast(new as ProjectItemEditor<Any?, *>, undoable = false)
         val item = items[new] ?: error("Did not find tree item associated with $new")
         root.selectionModel.clearSelection()
         root.selectionModel.select(item)

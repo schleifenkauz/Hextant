@@ -6,16 +6,27 @@ package hextant.core.view
 
 import bundles.Bundle
 import bundles.SimpleProperty
+import hextant.Context
+import hextant.completion.Completer
+import hextant.completion.NoCompleter
+import hextant.completion.gui.CompletionPopup
 import hextant.core.editor.FilteredTokenEditor
 import hextant.fx.*
-import javafx.scene.input.KeyEvent
-import reaktive.value.now
 
-class FilteredTokenEditorControl(val editor: FilteredTokenEditor<*>, arguments: Bundle) :
+/**
+ * Displays a [FilteredTokenEditor] as a [HextantTextField].
+ */
+class FilteredTokenEditorControl(private val editor: FilteredTokenEditor<*>, arguments: Bundle) :
     EditorControl<HextantTextField>(editor, arguments), FilteredTokenEditorView {
+    private val popup = CompletionPopup(context, context[IconManager], arguments[COMPLETER])
+
     private val textObserver = root.userUpdatedText.observe { _, new ->
         editor.setText(new)
+        popup.updateInput(new)
+        popup.show(this)
     }
+
+    private val completer = popup.completionChosen.observe { _, completion -> editor.complete(completion) }
 
     init {
         listenForCommands()
@@ -27,21 +38,11 @@ class FilteredTokenEditorControl(val editor: FilteredTokenEditor<*>, arguments: 
     }
 
     private fun listenForCommands() {
-        addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
-            when {
-                arguments[COMMIT_CHANGE].matches(ev) && editor.editable.now -> {
-                    editor.commitChange()
-                    ev.consume()
-                }
-                arguments[BEGIN_CHANGE].matches(ev) && !editor.editable.now -> {
-                    editor.beginChange()
-                    ev.consume()
-                }
-                arguments[ABORT_CHANGE].matches(ev) && editor.editable.now  -> {
-                    editor.abortChange()
-                    ev.consume()
-                }
-            }
+        registerShortcuts {
+            on(arguments[COMMIT_CHANGE]) { editor.commitChange() }
+            on(arguments[BEGIN_CHANGE]) { editor.beginChange() }
+            on(arguments[ABORT_CHANGE]) { editor.abortChange() }
+            on("Ctrl+Space") { popup.show(this@FilteredTokenEditorControl) }
         }
     }
 
@@ -56,10 +57,24 @@ class FilteredTokenEditorControl(val editor: FilteredTokenEditor<*>, arguments: 
     override fun createDefaultRoot(): HextantTextField = HextantTextField()
 
     companion object {
+        /**
+         * Keyboard shortcut for the commit change action.
+         */
         val COMMIT_CHANGE = SimpleProperty("commit", default = never())
 
+        /**
+         * Keyboard shortcut for the begin change action.
+         */
         val BEGIN_CHANGE = SimpleProperty("begin change", default = never())
 
+        /**
+         * Keyboard shortcut for the abort change action.
+         */
         val ABORT_CHANGE = SimpleProperty("abort change", default = never())
+
+        /**
+         * Completer used by the [FilteredTokenEditorControl]
+         */
+        val COMPLETER = SimpleProperty<Completer<Context, *>>("completer", default = NoCompleter)
     }
 }
