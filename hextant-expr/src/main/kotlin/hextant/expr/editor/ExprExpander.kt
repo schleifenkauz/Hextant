@@ -29,6 +29,7 @@ class ExprExpander(
             registerConstant("*") { context -> OperatorApplicationEditor(Times, context) }
             registerConstant("/") { context -> OperatorApplicationEditor(Div, context) }
             registerConstant("sum") { context -> SumEditor(context) }
+            registerInterceptor { item: Int, ctx: Context -> IntLiteralEditor(ctx, item.toString()) }
             registerInterceptor { text, context ->
                 val int = text.toIntOrNull()
                 if (int != null) IntLiteralEditor(context, int.toString())

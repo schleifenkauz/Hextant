@@ -1,4 +1,5 @@
-import hextant.completion.CompletionStrategy
+import hextant.Context
+import hextant.completion.*
 import hextant.core.view.FXExpanderView
 import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
@@ -27,7 +28,12 @@ object ExprPlugin : PluginInitializer({
         }
     }
     view { editor: ExprExpander, args ->
-        FXExpanderView(editor, args, ExprExpander.config.completer(CompletionStrategy.simple))
+        val c = CompoundCompleter<Context, Any>()
+        c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
+        c.addCompleter(object : ConfiguredCompleter<Context, Int>(CompletionStrategy.simple) {
+            override fun completionPool(context: Context): Collection<Int> = listOf(666, 42)
+        })
+        FXExpanderView(editor, args, c)
     }
     tokenEditorView<OperatorEditor>("operator")
     tokenEditorView<IntLiteralEditor>("decimal-editor")

@@ -26,6 +26,8 @@ abstract class SimpleExpanderDelegator<E : Editor<*>>(private val function: (tex
     ExpanderDelegator<E> {
     private val delegate = object : ExpanderDelegate<E> {
         override fun expand(text: String, context: Context): E? = function(text, context)
+
+        override fun expand(item: Any, context: Context): E? = null
     }
 
     override fun getDelegate(): ExpanderDelegate<E> = delegate

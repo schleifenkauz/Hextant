@@ -15,7 +15,7 @@ package hextant.completion
  * @property infoText Additional information on the completion item, or `null` if there is no additional info
  * @property icon An image resource that points to 16x16 icon that should is display, or `null`
  */
-class Completion<out T>(
+class Completion<out T : Any>(
     val completion: T,
     val inputText: String,
     val completionText: String,
@@ -32,7 +32,7 @@ class Completion<out T>(
      * @property inputText The user input that was completed
      * @property match A list of index ranges that represent matches between the [inputText] and the [completionText]
      */
-    class Builder<T> internal constructor(
+    class Builder<T : Any> internal constructor(
         val completion: T,
         val inputText: String,
         val completionText: String,

@@ -7,7 +7,7 @@ package hextant.completion
 /**
  * Used to get [Completion]s
  */
-interface Completer<in Ctx, out T> {
+interface Completer<in Ctx, out T : Any> {
     /**
      * @return the possible completions for [input]
      */

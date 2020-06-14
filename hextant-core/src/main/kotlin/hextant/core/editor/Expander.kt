@@ -7,6 +7,7 @@ package hextant.core.editor
 import hextant.*
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
+import hextant.completion.Completion
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Unexpanded
 import hextant.core.view.ExpanderView
@@ -72,10 +73,17 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     private val editorClass by lazy { getTypeArgument(Expander::class, 1) }
 
     /**
-     * @return the editor that should be wrapped if the expander is expanded with the given [text] or `null` if the text
-     * is not valid
+     * Return the editor that should be wrapped if the expander
+     * is expanded with the given [text] or `null` if the text is not valid.
      */
     protected abstract fun expand(text: String): E?
+
+    /**
+     * Create an editor from the given [completion] or return `null` if it is not possible.
+     *
+     * The default implementation returns `null`.
+     */
+    protected open fun expand(completion: Any): E? = null
 
     /**
      * Can be overwritten by extending classes to be notified when [expand] was successfully called
@@ -189,15 +197,34 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         changeState(Unexpanded(newText), "Type", undoable)
     }
 
+    private fun checkUnexpanded(): Unexpanded {
+        val state = state
+        check(state is Unexpanded) { "Cannot expand expanded expander" }
+        return state
+    }
+
     /**
      * Expand the current text
      * @throws IllegalStateException if already expanded
      */
     fun expand(undoable: Boolean = true) {
-        val state = state
-        check(state is Unexpanded) { "Cannot expand expanded expander" }
+        val state = checkUnexpanded()
         val editor = expand(state.text) ?: return
         changeState(Expanded(editor), "Expand", undoable)
+    }
+
+    /**
+     * Use the given [completion] to expand this expander.
+     * @throws IllegalStateException if the expander is already expanded
+     */
+    fun complete(completion: Completion<*>) {
+        checkUnexpanded()
+        val editor = expand(completion.completion)
+        if (editor != null) {
+            changeState(Expanded(editor), "Complete", undoable = false)
+        } else {
+            setText(completion.completionText)
+        }
     }
 
     /**

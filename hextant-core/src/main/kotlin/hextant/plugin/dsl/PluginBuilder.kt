@@ -85,7 +85,7 @@ class PluginBuilder @PublishedApi internal constructor(val context: Context) {
      */
     inline fun <reified E : TokenEditor<*, TokenEditorView>> tokenEditorView(
         styleClass: String? = null,
-        completer: Completer<Context, Any?> = NoCompleter,
+        completer: Completer<Context, Any> = NoCompleter,
         crossinline extraConfig: FXTokenEditorView.() -> Unit = {}
     ) {
         view { e: E, args ->

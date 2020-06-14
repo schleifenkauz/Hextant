@@ -7,7 +7,7 @@ package hextant.completion
 /**
  * A [Completer] that is composed of multiple sub-completers and builds the union of all completions
  */
-class CompoundCompleter<Ctx, T> : Completer<Ctx, T> {
+class CompoundCompleter<Ctx, T : Any> : Completer<Ctx, T> {
     private val completers: MutableList<Completer<Ctx, T>> = mutableListOf()
 
     /**

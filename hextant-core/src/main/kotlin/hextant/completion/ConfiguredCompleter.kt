@@ -7,7 +7,7 @@ package hextant.completion
 /**
  * A completer that uses a specific completion [strategy] to get completions from a completion pool.
  */
-abstract class ConfiguredCompleter<in Ctx, T>(private val strategy: CompletionStrategy) : Completer<Ctx, T> {
+abstract class ConfiguredCompleter<in Ctx, T : Any>(private val strategy: CompletionStrategy) : Completer<Ctx, T> {
     /**
      * Return a collection of possible completions in the given [context].
      */

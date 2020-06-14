@@ -18,13 +18,14 @@ import reaktive.event.event
 /**
  * A [Popup] that displays completion items.
  */
-class CompletionPopup<Ctx, T>(
+class CompletionPopup<Ctx, T : Any>(
     private val context: Ctx,
     private val iconManager: IconManager,
     completer: Completer<Ctx, T>
 ) : Popup() {
     private var input = ""
     private val choose = event<Completion<T>>()
+
     /**
      * Emits events when a completion was chosen by the user.
      */
