@@ -8,6 +8,7 @@ import bundles.Property
 import hextant.command.meta.collectProvidedCommands
 import hextant.core.Internal
 import kollektion.ClassDAG
+import reaktive.value.now
 import kotlin.reflect.KClass
 import kotlin.reflect.full.superclasses
 
@@ -53,7 +54,7 @@ class Commands private constructor() {
     fun <R : Any> forClass(cls: KClass<out R>): Collection<Command<R, *>> {
         visitClass(cls)
         @Suppress("UNCHECKED_CAST")
-        return commandsOf(cls) as Collection<Command<R, *>>
+        return commandsOf(cls).filter { it.isEnabled.now } as Collection<Command<R, *>>
     }
 
     /**

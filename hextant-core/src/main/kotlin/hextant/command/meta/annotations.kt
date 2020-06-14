@@ -16,6 +16,7 @@ import hextant.command.Command
  * @property defaultShortcut the shortcut that triggers this command
  * @property description The [Command.description] of the registered command, defaults to `"No description provided"`
  * @property type The [Command.Type] of the registered command
+ * @property initiallyEnabled indicates whether the command should be enabled by default
  */
 @Target(AnnotationTarget.FUNCTION)
 annotation class ProvideCommand(
@@ -24,7 +25,8 @@ annotation class ProvideCommand(
     val category: String = DEFAULT,
     val defaultShortcut: String = DEFAULT,
     val description: String = DEFAULT,
-    val type: Command.Type = Command.Type.MultipleReceivers
+    val type: Command.Type = Command.Type.MultipleReceivers,
+    val initiallyEnabled: Boolean = true
 )
 internal const val DEFAULT = "<default>"
 

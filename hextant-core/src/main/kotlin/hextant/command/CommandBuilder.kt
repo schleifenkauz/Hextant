@@ -56,8 +56,15 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
     var type: Command.Type = Command.Type.MultipleReceivers
 
     private lateinit var execute: (R, List<Any?>) -> T
+
     private var applicable: (R) -> Boolean = { true }
+
     @PublishedApi internal val parameters: MutableList<Command.Parameter> = LinkedList()
+
+    /**
+     * Indicates whether the built command should be enabled by default.
+     */
+    var initiallyEnabled = true
 
     /**
      * Sets the executed function of the built command to [block]
@@ -94,6 +101,9 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
         applicable = predicate
     }
 
-    @PublishedApi internal fun build(): Command<R, T> =
-        CommandImpl(name, category, defaultShortcut, shortName, parameters, description, type, execute, applicable, cls)
+    @PublishedApi internal fun build(): Command<R, T> = CommandImpl(
+        name, category, defaultShortcut, shortName,
+        parameters, description, type, execute,
+        applicable, cls, initiallyEnabled
+    )
 }

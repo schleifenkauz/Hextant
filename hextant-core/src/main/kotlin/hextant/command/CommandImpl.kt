@@ -18,10 +18,9 @@ internal class CommandImpl<R : Any, T>(
     override val commandType: Type,
     private val execute: (R, List<Any?>) -> T,
     private val applicable: (R) -> Boolean,
-    receiverCls: KClass<R>
-) : AbstractCommand<R, T>(
-    receiverCls
-) {
+    receiverCls: KClass<R>,
+    initiallyEnabled: Boolean
+) : AbstractCommand<R, T>(receiverCls, initiallyEnabled) {
     override fun doExecute(receiver: R, args: List<Any?>): T = execute.invoke(receiver, args)
 
     @Suppress("UNCHECKED_CAST") override fun isApplicableOn(receiver: Any) =

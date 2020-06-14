@@ -7,6 +7,7 @@ package hextant.command
 import hextant.command.Command.Category
 import hextant.command.Command.Type
 import hextant.command.Command.Type.MultipleReceivers
+import hextant.config.Enabled
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmErasure
 
@@ -14,7 +15,10 @@ import kotlin.reflect.jvm.jvmErasure
  * Skeletal implementation of [Command]
  * @constructor
  */
-abstract class AbstractCommand<R : Any, T>(override val receiverCls: KClass<R>) : Command<R, T> {
+abstract class AbstractCommand<R : Any, T>(
+    override val receiverCls: KClass<R>,
+    initiallyEnabled: Boolean = true
+) : Command<R, T>, Enabled by Enabled.delegate(initiallyEnabled) {
     override val shortName: String?
         get() = null
     override val category: Category?

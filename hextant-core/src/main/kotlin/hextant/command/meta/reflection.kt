@@ -33,7 +33,8 @@ private fun <R : Any> KFunction<*>.extractCommand(receiver: KClass<R>, ann: Prov
     val type = ann.type
     val execute = this::executeCommand
     val applicable: (Any) -> Boolean = { true }
-    return CommandImpl(name, cat, shortcut, shortName, params, desc, type, execute, applicable, receiver)
+    val enabled = ann.initiallyEnabled
+    return CommandImpl(name, cat, shortcut, shortName, params, desc, type, execute, applicable, receiver, enabled)
 }
 
 private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any? {

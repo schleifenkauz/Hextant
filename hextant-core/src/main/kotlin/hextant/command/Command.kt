@@ -4,13 +4,14 @@
 
 package hextant.command
 
+import hextant.config.Enabled
 import hextant.fx.Shortcut
 import kotlin.reflect.*
 
 /**
  * A Command that is executable on a receiver of type [R]
  */
-interface Command<in R : Any, out T> {
+interface Command<in R : Any, out T> : Enabled {
     /**
      * Execute this command on [receiver] with the specified [args]
      */
@@ -86,10 +87,12 @@ interface Command<in R : Any, out T> {
              * The file menu
              */
             val FILE = withName("File")
+
             /**
              * The edit menu
              */
             val EDIT = withName("Edit")
+
             /**
              * The view menu
              */
@@ -105,6 +108,7 @@ interface Command<in R : Any, out T> {
          * Indicates that the command is applicable only on one receiver at a time.
          */
         SingleReceiver,
+
         /**
          * Indicates that the command is applicable on multiple receivers at a time.
          */
