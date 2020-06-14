@@ -7,13 +7,14 @@ package hextant.core.editor
 import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
+import hextant.completion.Completion
 import hextant.core.TokenType
 import hextant.core.view.TokenEditorView
 import hextant.serial.VirtualEditor
 import hextant.serial.virtualize
 import hextant.undo.*
 import reaktive.value.*
-import validated.Validated
+import validated.*
 import validated.reaktive.ReactiveValidated
 
 /**
@@ -39,6 +40,11 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
 
     private val undo = context[UndoManager]
 
+    /**
+     * Make a result from the given completion item.
+     */
+    protected open fun compile(item: Any): Validated<R> = invalidComponent()
+
     override fun viewAdded(view: V) {
         view.displayText(text.now)
     }
@@ -58,6 +64,18 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         _text.now = newText
         _result.set(compile(text.now))
         views { displayText(newText) }
+    }
+
+    /**
+     * Set the text of this editor to the completion text of the given [completion] and then compile the completed item.
+     */
+    fun complete(completion: Completion<*>) {
+        val t = completion.completionText
+        val edit = TextEdit(virtualize(), text.now, t)
+        undo.push(edit)
+        _text.now = t
+        _result.set(compile(completion.completion).orElse { compile(completion.completionText) })
+        views { displayText(t) }
     }
 
     private class TextEdit(

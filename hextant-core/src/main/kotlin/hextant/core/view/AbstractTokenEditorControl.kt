@@ -53,8 +53,6 @@ open class AbstractTokenEditorControl(
         popup.show(this)
     }
 
-
-
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
         when (property) {
             COMPLETER -> popup.completer = completer
@@ -64,7 +62,7 @@ open class AbstractTokenEditorControl(
     private val popup = CompletionPopup(context, context[IconManager], this.completer)
 
     private val obs = popup.completionChosen.observe(this) { _, c ->
-        editor.setText(c.completionText)
+        editor.complete(c)
         scene.selectNext()
     }
 
