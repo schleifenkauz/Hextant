@@ -30,6 +30,10 @@ internal fun Any.getTypeArgument(superclass: KClass<*>, index: Int): KClass<*> {
     return arg.classifier as KClass<*>
 }
 
+/**
+ * Return a [ReactiveValidated] that always holds the value of composing a value of type [R]
+ * (via the primary constructor) from the results of the given [components].
+ */
 inline fun <reified R : Any> composeResult(vararg components: Editor<*>): ReactiveValidated<R> {
     val cls = R::class
     val results = components.map { it.result }.toTypedArray()

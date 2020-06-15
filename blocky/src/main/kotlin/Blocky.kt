@@ -14,7 +14,7 @@ object Blocky : PluginInitializer({
         }
     }
     view { e: RefEditor, args ->
-        val v = e.context.createView(e.id) as TokenEditorControl
+        val v = e.context.createView(e.id)
         EditorControlWrapper(e, v, args)
     }
     compoundView<BinaryExpressionEditor> { e ->

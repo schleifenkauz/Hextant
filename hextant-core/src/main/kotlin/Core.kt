@@ -34,7 +34,7 @@ object Core : PluginInitializer({
     view { e: ListEditor<*, *>, args ->
         ListEditorControl(e, args)
     }
-    view { e: TokenEditor<*>, args -> TokenEditorControl(e, args) }
+    view { e: TokenEditor<*, TokenEditorView>, args -> TokenEditorControl(e, args) }
     inspection(SyntaxErrorInspection)
     registerInspection<ValidatedTokenEditor<*>> {
         id = "invalid-intermediate"
@@ -75,7 +75,7 @@ object Core : PluginInitializer({
     stylesheet("hextant/core/style.css")
     defaultEditor(::EnabledEditor)
     view { e: EnabledEditor, args ->
-        args[TokenEditorControl.COMPLETER] = EnabledCompleter
+        args[AbstractTokenEditorControl.COMPLETER] = EnabledCompleter
         TokenEditorControl(e, args)
     }
     command(enable)

@@ -6,12 +6,13 @@ package hextant.core.editor
 
 import hextant.BidirectionalEditor
 import hextant.Context
+import hextant.core.view.TokenEditorView
 
 /**
  * A bidirectional token editor
  */
 abstract class BidirectionalTokenEditor<R>(context: Context, text: String) :
-    TokenEditor<R>(context, text), BidirectionalEditor<R> {
+    TokenEditor<R, TokenEditorView>(context, text), BidirectionalEditor<R> {
     override fun setResult(value: R) {
         setText(display(value))
     }

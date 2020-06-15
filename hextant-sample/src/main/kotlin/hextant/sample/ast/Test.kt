@@ -10,6 +10,7 @@ import hextant.base.AbstractEditor
 import hextant.codegen.*
 import hextant.core.TokenType
 import hextant.core.editor.TokenEditor
+import hextant.core.view.TokenEditorView
 import hextant.sample.ast.Alt.O
 import hextant.sample.ast.Alt.TestToken
 import hextant.sample.ast.editor.*
@@ -24,7 +25,7 @@ object AltExpanderDelegator : ExpanderConfigurator<AltEditor<Alt>>({
 })
 
 class OtherTokenEditor(context: Context, t: TestToken = TestToken("Hello World")) :
-    TokenEditor<TestToken>(context, t.str) {
+    TokenEditor<TestToken, TokenEditorView>(context, t.str) {
     override fun compile(token: String): Validated<TestToken> =
         valid(TestToken("Hello World"))
 }

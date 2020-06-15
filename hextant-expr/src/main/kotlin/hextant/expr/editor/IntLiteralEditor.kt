@@ -9,13 +9,14 @@ import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
 import hextant.core.editor.TokenEditor
+import hextant.core.view.TokenEditorView
 import hextant.expr.IntLiteral
 import validated.*
 
 class IntLiteralEditor(
     context: Context,
     text: String
-) : TokenEditor<IntLiteral>(context, text), ExprEditor<IntLiteral> {
+) : TokenEditor<IntLiteral, TokenEditorView>(context, text), ExprEditor<IntLiteral> {
     constructor(context: Context) : this(context, "")
 
     constructor(v: IntLiteral, context: Context) : this(context, v.value.toString())
