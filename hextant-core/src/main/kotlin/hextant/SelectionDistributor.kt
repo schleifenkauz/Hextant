@@ -53,7 +53,7 @@ interface SelectionDistributor {
         override val selectedViews = reactiveSet<EditorView>()
         override val selectedTargets: ReactiveSet<Any> = selectedViews.map { it.target }
 
-        @Synchronized override fun toggleSelection(view: EditorView): Boolean {
+        override fun toggleSelection(view: EditorView): Boolean {
             if (selectedViews.now.add(view)) {
                 selectedView.set(view)
                 return true
@@ -73,7 +73,7 @@ interface SelectionDistributor {
             }
         }
 
-        @Synchronized override fun select(view: EditorView): Boolean {
+        override fun select(view: EditorView): Boolean {
             selectedView.set(view)
             val views = selectedViews.now
             val alreadySelected = view in views

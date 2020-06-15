@@ -23,23 +23,9 @@ import javafx.scene.input.KeyCombination
  * The constructor of this class doesn't register itself as a view of the supplied editor.
  * Most likely you should use [TokenEditorControl] instead.
  */
-open class TokenEditorControl(
-    private val editor: TokenEditor<*>,
-    args: Bundle
-) : EditorControl<HextantTextField>(editor, args), TokenEditorView {
+open class TokenEditorControl(editor: TokenEditor<*>, args: Bundle) : EditorControl<HextantTextField>(editor, args),
+                                                                      TokenEditorView {
     private val textField = HextantTextField(initialInputMethod = context[InputMethod])
-
-    init {
-        editor.addView(this)
-        registerShortcut()
-    }
-
-    private fun registerShortcut() {
-        registerShortcut(KeyCodeCombination(SPACE, KeyCombination.CONTROL_DOWN)) {
-            popup.show(this)
-        }
-    }
-
     private val textObserver = textField.userUpdatedText.observe(this) { _, new ->
         editor.setText(new)
         popup.updateInput(new)
@@ -51,6 +37,17 @@ open class TokenEditorControl(
     private val obs = popup.completionChosen.observe(this) { _, c ->
         editor.complete(c)
         scene.selectNext()
+    }
+
+    init {
+        registerShortcut()
+        editor.addView(this)
+    }
+
+    private fun registerShortcut() {
+        registerShortcut(KeyCodeCombination(SPACE, KeyCombination.CONTROL_DOWN)) {
+            popup.show(this)
+        }
     }
 
     final override fun createDefaultRoot() = textField
