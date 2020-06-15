@@ -71,7 +71,7 @@ internal class UndoManagerImpl : UndoManager {
     }
 
     override val undoText: String
-        get() = redoable.peek()?.run { "Redo $actionDescription" } ?: "Cannot redo"
+        get() = undoable.peek()?.run { "Undo $actionDescription" } ?: "Cannot undo"
     override val redoText: String
         get() = redoable.peek()?.run { "Redo $actionDescription" } ?: "Cannot redo"
 }

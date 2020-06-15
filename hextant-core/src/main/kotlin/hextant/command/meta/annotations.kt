@@ -21,14 +21,17 @@ import hextant.command.Command
 @Target(AnnotationTarget.FUNCTION)
 annotation class ProvideCommand(
     val name: String = DEFAULT,
-    val shortName: String = DEFAULT,
-    val category: String = DEFAULT,
-    val defaultShortcut: String = DEFAULT,
-    val description: String = DEFAULT,
+    val shortName: String = NONE,
+    val category: String = NONE,
+    val defaultShortcut: String = NONE,
+    val description: String = NONE,
     val type: Command.Type = Command.Type.MultipleReceivers,
     val initiallyEnabled: Boolean = true
 )
+
 internal const val DEFAULT = "<default>"
+
+internal const val NONE = "<none>"
 
 /**
  * This annotation can be used on a parameter of a member function with the [ProvideCommand] to configure a command parameter.
@@ -36,4 +39,4 @@ internal const val DEFAULT = "<default>"
  * @property name The [Command.Parameter.name] of the parameter, defaults to the name of the function parameter
  * @property description The [Command.Parameter.description] of the parameter, defaults to `"No description provided"`
  */
-annotation class CommandParameter(val name: String = DEFAULT, val description: String = DEFAULT)
+annotation class CommandParameter(val name: String = DEFAULT, val description: String = NONE)

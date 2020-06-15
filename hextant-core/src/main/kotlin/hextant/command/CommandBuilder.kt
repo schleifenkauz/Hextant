@@ -38,7 +38,7 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
     var category: Category? = null
 
     /**
-     * The [Command.defaultShortcut] of the build command
+     * The [Command.shortcut] of the build command
      */
     var defaultShortcut: Shortcut? = null
 

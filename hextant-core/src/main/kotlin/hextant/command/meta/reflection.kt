@@ -25,11 +25,15 @@ internal fun <R : Any> KClass<R>.collectProvidedCommands(): Set<Command<R, *>> {
 private fun <R : Any> KFunction<*>.extractCommand(receiver: KClass<R>, ann: ProvideCommand): Command<R, *> {
     javaMethod?.isAccessible = true
     val name = ann.name.takeIf { it != DEFAULT } ?: this.name
-    val cat = ann.category.takeIf { it != DEFAULT }?.let { Category.withName(it) }
-    val shortcut = ann.defaultShortcut.takeIf { it != DEFAULT }?.shortcut
-    val shortName = ann.shortName.takeIf { it != DEFAULT } ?: this.name
+    val cat = ann.category.takeIf { it != NONE }?.let { Category.withName(it) }
+    val shortcut = ann.defaultShortcut.takeIf { it != NONE }?.shortcut
+    val shortName = when (ann.shortName) {
+        DEFAULT -> name
+        NONE    -> null
+        else    -> ann.shortName
+    }
     val params = valueParameters.map { it.extractParameter() }
-    val desc = ann.description.takeIf { it != DEFAULT } ?: "No description provided"
+    val desc = ann.description.takeIf { it != NONE } ?: "No description provided"
     val type = ann.type
     val execute = this::executeCommand
     val applicable: (Any) -> Boolean = { true }
@@ -67,6 +71,6 @@ private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any? {
 private fun KParameter.extractParameter(): Command.Parameter {
     val ann = findAnnotation<CommandParameter>()
     val name = ann?.name?.takeIf { it != DEFAULT } ?: this.name ?: throw Exception("Parameter $this has no name")
-    val desc = ann?.description ?: "No description provided"
+    val desc = ann?.description?.takeIf { it != NONE } ?: "No description provided"
     return Command.Parameter(name, type, desc)
 }

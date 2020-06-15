@@ -42,7 +42,7 @@ interface Command<in R : Any, out T> : Enabled {
     /**
      * The shortcut that triggers this command or `null` if the command has no shortcut.
      */
-    val defaultShortcut: Shortcut?
+    val shortcut: Shortcut?
 
     /**
      * The parameters of this [Command]

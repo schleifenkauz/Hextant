@@ -1,3 +1,5 @@
+import hextant.Editor
+import hextant.command.Command.Type.SingleReceiver
 import hextant.completion.CompletionStrategy
 import hextant.config.*
 import hextant.core.editor.*
@@ -16,6 +18,7 @@ import hextant.project.editor.ProjectItemEditor
 import hextant.project.view.DirectoryEditorControl
 import hextant.project.view.FileEditorControl
 import hextant.settings.editors.*
+import hextant.undo.UndoManager
 import javafx.scene.input.KeyCode.*
 import reaktive.value.binding.map
 import reaktive.value.now
@@ -80,4 +83,32 @@ object Core : PluginInitializer({
     }
     command(enable)
     command(disable)
+    registerCommand<Editor<*>, String> {
+        name = "Undo"
+        shortName = "undo"
+        description = "Undoes the last edit"
+        type = SingleReceiver
+        defaultShortcut("Alt?+Z")
+        applicableIf { e -> e.context.hasProperty(UndoManager) && e.context[UndoManager].canUndo }
+        executing { editor, _ ->
+            val m = editor.context[UndoManager]
+            val description = m.undoText
+            m.undo()
+            description
+        }
+    }
+    registerCommand<Editor<*>, String> {
+        name = "Redo"
+        shortName = "redo"
+        description = "Redoes the last undone edit"
+        type = SingleReceiver
+        defaultShortcut("Alt?+Y")
+        applicableIf { e -> e.context.hasProperty(UndoManager) && e.context[UndoManager].canRedo }
+        executing { editor, _ ->
+            val m = editor.context[UndoManager]
+            val description = m.redoText
+            m.redo()
+            description
+        }
+    }
 })

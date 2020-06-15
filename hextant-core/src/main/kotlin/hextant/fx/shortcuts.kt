@@ -15,7 +15,22 @@ import java.text.ParseException
 /**
  * Specifies whether a certain modifier key (e.g. shift) is up, down or it does not matter
  */
-enum class ModifierValue { DOWN, UP, MAYBE }
+enum class ModifierValue {
+    /**
+     * The modifier **must** be pressed.
+     */
+    DOWN,
+
+    /**
+     * The modifier **must not** be pressed.
+     */
+    UP,
+
+    /**
+     * The modifier **may** be pressed.
+     */
+    MAYBE
+}
 
 /**
  * Map this [ModifierValue] to the JavaFX counterpart
@@ -117,6 +132,7 @@ class KeyEventHandlerBody<R> @PublishedApi internal constructor(private val rece
      * @param consume if `false` the user is responsible for consuming the key event
      */
     fun on(shortcut: Shortcut, consume: Boolean = true, action: R.(KeyEvent) -> Unit) {
+        if (event.isConsumed) return
         if (shortcut.matches(event)) {
             receiver.action(event)
             if (consume) event.consume()

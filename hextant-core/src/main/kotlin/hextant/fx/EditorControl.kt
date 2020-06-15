@@ -7,15 +7,15 @@ package hextant.fx
 import bundles.Bundle
 import bundles.Property
 import hextant.*
-import hextant.fx.ModifierValue.DOWN
+import hextant.command.Command.Type.SingleReceiver
+import hextant.command.Commands
+import hextant.command.meta.ProvideCommand
 import hextant.impl.addListener
 import hextant.impl.observe
 import hextant.inspect.Inspections
-import hextant.undo.UndoManager
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
-import javafx.scene.input.KeyCode.Z
 import reaktive.value.*
 
 /**
@@ -42,13 +42,11 @@ abstract class EditorControl<R : Node>(
     internal val commandsPopup = CommandsPopup(context, target)
 
     private val hasError = inspections.hasError(target)
-
     private val hasWarning = inspections.hasWarning(target)
 
     private val errorObserver = hasError.observe(this) { _, _, isError ->
         handleProblem(isError, hasWarning.now)
     }
-
     private val warningObserver = hasWarning.observe(this) { _, _, isWarn ->
         handleProblem(hasError.now, isWarn)
     }
@@ -282,51 +280,72 @@ abstract class EditorControl<R : Node>(
 
     private fun initShortcuts() {
         registerShortcuts(this) {
-            on(EXTEND_SELECTION) { extendSelection() }
-            on(SHRINK_SELECTION) { shrinkSelection() }
-            on(shortcut(Z) { control(DOWN) }, consume = false) { ev ->
-                val manager = context[UndoManager]
-                if (manager.canUndo) {
-                    manager.undo()
-                    ev.consume()
-                }
-            }
-            on(shortcut(Z) { control(DOWN); shift(DOWN) }) { ev ->
-                val manager = context[UndoManager]
-                if (manager.canRedo) {
-                    manager.redo()
-                    ev.consume()
-                }
-            }
-            on(INSPECTIONS, consume = false) { ev ->
-                inspectionPopup.show(this)
-                if (inspectionPopup.isShowing) ev.consume()
-            }
-            on(COPY_VIM, consume = false) { ev ->
-                if (target is Editor<*>) {
-                    val success = target.copyToClipboard()
-                    if (success) {
-                        ev.consume()
-                    }
-                }
-            }
-            on(PASTE_VIM, consume = false) { ev ->
-                if (target is Editor<*>) {
-                    val success = target.pasteFromClipboard()
-                    if (success) {
-                        ev.consume()
-                    }
+            handleCommands(this@EditorControl)
+            handleCommands(target)
+        }
+    }
+
+    @ProvideCommand(
+        name = "Copy",
+        shortName = "copy",
+        type = SingleReceiver,
+        description = "Copy the editor to the clipboard",
+        defaultShortcut = "Ctrl?+C"
+    )
+    private fun copy(): Boolean = if (target is Editor<*>) target.copyToClipboard() else false
+
+    @ProvideCommand(
+        name = "Paste",
+        shortName = "paste",
+        type = SingleReceiver,
+        description = "Paste the recently copied content",
+        defaultShortcut = "Ctrl?+V"
+    )
+    private fun paste(): Boolean = if (target is Editor<*>) target.pasteFromClipboard() else false
+
+    @ProvideCommand(
+        name = "Show Inspections",
+        defaultShortcut = "Alt+Enter",
+        description = "Shows the inspection popup",
+        type = SingleReceiver
+    )
+    private fun showInspections(): Boolean {
+        inspectionPopup.show(this)
+        return inspectionPopup.isShowing
+    }
+
+    private fun KeyEventHandlerBody<EditorControl<R>>.handleCommands(target: Any) {
+        for (command in context[Commands].applicableOn(target)) {
+            val shortcut = command.shortcut
+            if (command.parameters.isEmpty() && shortcut != null) {
+                on(shortcut, consume = false) { ev ->
+                    val result = command.execute(target, emptyList())
+                    if (result != false) ev.consume()
                 }
             }
         }
     }
 
+    @ProvideCommand(
+        name = "Shrink Selection",
+        shortName = "shrink",
+        description = "Focuses the last focused child editor",
+        defaultShortcut = "Ctrl+L",
+        type = SingleReceiver
+    )
     private fun shrinkSelection() {
         val childToSelect = lastExtendingChild ?: editorChildren.firstOrNull() ?: return
         childToSelect.requestFocus()
         if (isSelected.now) toggleSelection()
     }
 
+    @ProvideCommand(
+        name = "Extend Selection",
+        shortName = "extend",
+        description = "Focuses the parent editor",
+        defaultShortcut = "Ctrl+M",
+        type = SingleReceiver
+    )
     private fun extendSelection() {
         val parent = editorParent ?: return
         parent.requestFocus()
@@ -353,21 +372,5 @@ abstract class EditorControl<R : Node>(
                 styleClass.remove("error")
             }
         }
-    }
-
-    companion object {
-        private const val EXTEND_SELECTION = "Ctrl?+M"
-
-        private const val SHRINK_SELECTION = "Ctrl?+L"
-
-        private const val INSPECTIONS = "Alt + Enter"
-
-        private const val COPY = "Ctrl + Shift + C"
-
-        private const val COPY_VIM = "C"
-
-        private const val PASTE = "Ctrl + Shift + V"
-
-        private const val PASTE_VIM = "V"
     }
 }
