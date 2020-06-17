@@ -37,6 +37,7 @@ internal object InspectionsSpec : Spek({
         }
         on("registering an inspection that doesn't report a problem initially") {
             inspections.registerInspection<Inspected> {
+                id = "even"
                 description = "Prevents even integers"
                 isSevere(false)
                 message { "${inspected.number.now} is even" }
@@ -61,6 +62,7 @@ internal object InspectionsSpec : Spek({
         on("registering another inspection for a superclass and making the inspected object reportable") {
             inspected.number.set(0) //even and non-positive
             inspections.registerInspection<IInspected> {
+                id = "non-positive"
                 description = "Prevents non-positive integers"
                 isSevere(true)
                 message { "Number is non-positive" }

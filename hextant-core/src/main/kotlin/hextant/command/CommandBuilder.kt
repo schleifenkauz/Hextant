@@ -51,9 +51,9 @@ class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val 
 
     /**
      * The [Command.Type] of the built command
-     * * Defaults to [Command.Type.MultipleReceivers]
+     * * Defaults to [Command.Type.SingleReceiver]
      */
-    var type: Command.Type = Command.Type.MultipleReceivers
+    var type: Command.Type = Command.Type.SingleReceiver
 
     private lateinit var execute: (R, List<Any?>) -> T
 

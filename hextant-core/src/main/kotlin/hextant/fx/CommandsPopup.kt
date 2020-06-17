@@ -29,6 +29,7 @@ class CommandsPopup(private val context: Context, private val target: Any) : Pop
 
     private fun commands() = context[Commands].applicableOn(target)
 
+    @Suppress("KDocMissingDocumentation")
     override fun show() {
         val commands = commands()
         if (commands.isNotEmpty()) {
@@ -47,7 +48,7 @@ class CommandsPopup(private val context: Context, private val target: Any) : Pop
     }
 
     private fun expand(command: Command<Any, *>) {
-        val cl = context[CommandLine.forEditors]
+        val cl = context[CommandLine.local]
         cl.expand(command)
         if (command.parameters.isEmpty()) {
             cl.execute()

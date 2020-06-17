@@ -60,7 +60,7 @@ object HextantPlatform {
         val clContext = extend {
             set(SelectionDistributor, SelectionDistributor.newInstance())
         }
-        set(CommandLine.forEditors, CommandLine(clContext, ContextCommandSource(this)))
+        set(CommandLine.local, CommandLine(clContext, ContextCommandSource(this, *CommandReceiverType.values())))
         set(CommandLine.global, CommandLine(clContext, GlobalCommandSource(root)))
     }
 }

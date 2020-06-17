@@ -3,8 +3,7 @@ import hextant.command.Command
 import hextant.command.executingCompoundEdit
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
-import hextant.core.view.ExpanderControl
-import hextant.core.view.ListEditorControl
+import hextant.core.view.*
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.*
 import hextant.expr.Operator.Plus
@@ -132,7 +131,6 @@ object ExprPlugin : PluginInitializer({
                 val expander = inspected.expander as ExprExpander
                 expander.setEditor(inspected.operand1)
             }
-
         }
     }
     registerInspection<IntLiteralEditor> {
@@ -154,7 +152,7 @@ object ExprPlugin : PluginInitializer({
             }
         }
     }
-    registerCommand<ExprEditor<*>, Unit> {
+    registerCommand<ExprExpander, Unit> {
         description =
             "Wraps the current expression in an operator expression with the current expression being the left operand"
         name = "Wrap in operator expression"
@@ -164,17 +162,23 @@ object ExprPlugin : PluginInitializer({
             description = "The operator being applied"
             name = "operator"
         }
-        applicableIf { it.expander is ExprExpander }
-        executing { editor, (operator) ->
-            editor.context.compoundEdit("Wrap with $operator") {
+        applicableIf { it.isExpanded }
+        executing { expander, (operator) ->
+            expander.context.compoundEdit("Wrap with $operator") {
+                val editor = expander.editor.now!!
                 operator as Operator
-                val expander = editor.expander as ExprExpander
                 val app = OperatorApplicationEditor(editor.context)
                 expander.setEditor(app)
                 app.operator.setText(operator.toString())
                 app.operand1.setEditor(editor)
             }
         }
+    }
+    registerCommand<TokenEditorControl, Unit> {
+        description = "Makes the text appear in brown"
+        name = "Brown"
+        shortName = "brown"
+        executing { v, _ -> v.root.style = "-fx-text-fill: brown;" }
     }
     stylesheet("expr.css")
 })

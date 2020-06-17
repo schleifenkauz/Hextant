@@ -10,7 +10,6 @@ import hextant.core.Internal
 import kollektion.ClassDAG
 import reaktive.value.now
 import kotlin.reflect.KClass
-import kotlin.reflect.full.superclasses
 
 /**
  * Used to register commands for specific classes
@@ -22,11 +21,17 @@ class Commands private constructor() {
 
     private fun commandsOf(cls: KClass<*>) = commands.getOrPut(cls) { mutableSetOf() }
 
+    private fun KClass<*>.reallyAllSuperclasses() = sequence<KClass<*>> {
+        val superclass: Class<*>? = java.superclass
+        if (superclass != null) yield(superclass.kotlin)
+        for (i in java.interfaces) yield(i.kotlin)
+    }
+
     private fun visitClass(cls: KClass<*>) {
         if (dag.insert(cls)) {
             val provided = cls.collectProvidedCommands()
             commandsOf(cls).addAll(provided)
-            for (c in cls.superclasses) {
+            for (c in cls.reallyAllSuperclasses()) {
                 visitClass(c)
                 commandsOf(cls).addAll(commandsOf(c))
             }

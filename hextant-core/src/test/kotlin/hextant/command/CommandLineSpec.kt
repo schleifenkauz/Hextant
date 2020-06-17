@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.*
 import hextant.*
 import hextant.command.line.*
 import hextant.command.line.CommandLine.HistoryItem
+import hextant.command.line.CommandReceiverType.Targets
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.test.testingContext
@@ -39,17 +40,15 @@ internal object CommandLineSpec : Spek({
                 target.execute(x.value)
             }
         }
-        val target = mock<Target> { on { isApplicable }.then { true } }
-        val targets = setOf(target)
+        val commands = Commands.newInstance()
+        commands.register(command)
+        commands.register(command2)
+        val t = mock<Target> { on { it.isApplicable }.then { true } }
+        val v = mock<EditorView> { on { target }.then { t } }
         lateinit var intEditor: IntLiteralEditor
-        val source = object : CommandSource {
-            override fun focusedTarget(): Any? = null
-
-            override fun selectedTargets(): Collection<Any> = targets
-
-            override fun commandsFor(target: Any): Collection<Command<*, *>> = setOf(command, command2)
-        }
-        val cl = CommandLine(context, source)
+        val distributor = SelectionDistributor.newInstance()
+        distributor.select(v)
+        val cl = CommandLine(context, ContextCommandSource(distributor, commands, Targets))
         val view = mock<CommandLineView> {
             on { expanded(any(), any()) }.then {
                 if (it.getArgument<Command<*, *>>(0).shortName == "command2") {
@@ -58,7 +57,7 @@ internal object CommandLineSpec : Spek({
                 }
             }
         }
-        inOrder(view, target) {
+        inOrder(view, t) {
             on("adding a view") {
                 cl.addView(view)
                 it("should display the text") {
@@ -86,7 +85,7 @@ internal object CommandLineSpec : Spek({
             on("executing the no-arg command") {
                 cl.execute()
                 it("should execute the command") {
-                    verify(target).execute()
+                    verify(t).execute()
                 }
                 it("should notify the views about the executed command") {
                     verify(view).addToHistory(HistoryItem(command, emptyList(), Unit))
@@ -117,7 +116,7 @@ internal object CommandLineSpec : Spek({
                 intEditor.setText("123")
                 cl.execute()
                 it("should execute the command") {
-                    verify(target).execute(123)
+                    verify(t).execute(123)
                 }
                 it("should notify the views about the executed command") {
                     verify(view).addToHistory(any())

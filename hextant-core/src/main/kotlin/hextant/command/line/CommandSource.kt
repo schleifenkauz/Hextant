@@ -5,23 +5,24 @@
 package hextant.command.line
 
 import hextant.command.Command
+import reaktive.value.ReactiveBoolean
 
 /**
  * A command source is used by the [CommandLine] to query the applicable commands.
  */
 interface CommandSource {
     /**
-     * Returns the target, that was focused most recently or `null` if no target is focused.
+     * Execute the given [command] with the provided [arguments] on the appropriate targets.
      */
-    fun focusedTarget(): Any?
+    fun executeCommand(command: Command<*, *>, arguments: List<Any?>): List<Any?>
 
     /**
-     * Returns a collection of targets that are currently selected.
+     * Returns all the commands applicable on the current targets.
      */
-    fun selectedTargets(): Collection<Any>
+    fun availableCommands(): Collection<Command<*, *>>
 
     /**
-     * Returns all the commands applicable on the given [target].
+     * Returns a [ReactiveBoolean] holding `true` only if the given command can currently be executed.
      */
-    fun commandsFor(target: Any): Collection<Command<*, *>>
+    fun isApplicable(command: Command<*, *>): ReactiveBoolean
 }

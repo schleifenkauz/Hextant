@@ -49,21 +49,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
     /**
      * Returns a collection of all the command applicable on the current targets.
      */
-    fun availableCommands(): Collection<Command<*, *>> {
-        val available = mutableSetOf<Command<*, *>>()
-        val targets = source.selectedTargets()
-        if (targets.isNotEmpty()) available.addAll(source.commandsFor(targets.first()))
-        for (t in targets.drop(1)) available.retainAll(source.commandsFor(t))
-        val focused = source.focusedTarget()
-        if (focused != null) {
-            source.commandsFor(focused).filterTo(available) { it.commandType == Command.Type.SingleReceiver }
-        }
-        if (focused is Editor<*> && focused.expander != null) {
-            val exp = focused.expander!!
-            available.addAll(source.commandsFor(exp))
-        }
-        return available
-    }
+    fun availableCommands(): Collection<Command<*, *>> = source.availableCommands()
 
     /**
      * Expand this [CommandLine] by searching for an applicable command with the current [commandName] and instantiating
@@ -119,29 +105,19 @@ class CommandLine(context: Context, private val source: CommandSource) :
      */
     fun execute(): Boolean {
         if (!expanded && !expandNoArgCommand()) return false
-        val application = result.now.ifInvalid { return false }
-        val focused = source.focusedTarget()
-        if (focused != null && application.command.commandType == Command.Type.SingleReceiver) {
-            val applicable = application.command.isApplicableOn(focused)
-            var target = focused
-            if (!applicable) {
-                if (focused !is Editor<*>) return false
-                if (focused.expander == null) return false
-                val e = focused.expander!!
-                if (!application.command.isApplicableOn(e)) return false
-                target = e
-            }
-            val res = application.execute(target)
-            commandExecuted(application.command, arguments ?: emptyList(), res)
-        } else {
-            val results = source.selectedTargets().map { application.execute(it) }
-            commandExecuted(application.command, arguments ?: emptyList(), results.singleOrNull() ?: Unit)
+        val (command, args) = result.now.ifInvalid { return false }
+        val results = source.executeCommand(command, args)
+        val result = when (results.size) {
+            0    -> return false
+            1    -> results[0]
+            else -> Unit
         }
+        commandExecuted(command, arguments ?: emptyList(), result)
         reset()
         return true
     }
 
-    private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any?>>, result: Any) {
+    private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any?>>, result: Any?) {
         val item = HistoryItem(command, arguments.map { it.result.now.force() to it.snapshot() }, result)
         history.add(item)
         views {
@@ -210,14 +186,14 @@ class CommandLine(context: Context, private val source: CommandSource) :
         /**
          * The result of the application
          */
-        val result: Any
+        val result: Any?
     )
 
     companion object {
         /**
          * The command line that is used for editors.
          */
-        val forEditors = SimpleProperty<CommandLine>("editor-command-line")
+        val local = SimpleProperty<CommandLine>("editor-command-line")
 
         /**
          * The global command line that has the top level context as its receiver.

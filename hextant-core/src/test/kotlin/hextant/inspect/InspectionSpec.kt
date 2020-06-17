@@ -16,6 +16,7 @@ internal object InspectionSpec : Spek({
     val inspected = Inspected()
     describe("build inspection") {
         i = inspection {
+            id = "is-ok"
             description = "Is Ok inspection, reports inspected values that aren't ok"
             message { "$inspected is not OK" }
             isSevere(true)
