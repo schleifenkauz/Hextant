@@ -1,5 +1,6 @@
 import hextant.Editor
 import hextant.command.Command.Type.SingleReceiver
+import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.config.*
 import hextant.core.editor.*
@@ -20,8 +21,10 @@ import hextant.project.view.FileEditorControl
 import hextant.settings.editors.*
 import hextant.undo.UndoManager
 import javafx.scene.input.KeyCode.*
+import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
 import reaktive.value.now
+import reaktive.value.reactiveValue
 import validated.Validated.Invalid
 import validated.isValid
 
@@ -109,6 +112,21 @@ object Core : PluginInitializer({
             val description = m.redoText
             m.redo()
             description
+        }
+    }
+    registerInspection<CommandLine> {
+        name = "Command Unavailable"
+        id = "unavailable-command"
+        description = "Reports commands that are not available in the current context"
+        isSevere(true)
+        checkingThat {
+            inspected.expandedCommand.flatMap { c ->
+                c?.let { inspected.source.isApplicable(c) } ?: reactiveValue(true)
+            }
+        }
+        message {
+            val name = inspected.expandedCommand.now!!.name
+            "Command '$name' is not available in the current context"
         }
     }
 })

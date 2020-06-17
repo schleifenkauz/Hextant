@@ -19,18 +19,25 @@ import validated.reaktive.ReactiveValidated
 
 /**
  * An editor for [Command]s.
+ * @property source the [CommandSource] that is used to resolve available commands
  */
-class CommandLine(context: Context, private val source: CommandSource) :
+class CommandLine(context: Context, val source: CommandSource) :
     AbstractEditor<CommandApplication, CommandLineView>(context) {
     private var commandName: String = ""
     private var arguments: List<Editor<*>>? = null
-    private var expandedCommand: Command<*, *>? = null
+    private val _expandedCommand: ReactiveVariable<Command<*, *>?> = reactiveVariable(null)
     private var history = mutableListOf<HistoryItem>()
+    private val expanded = reactiveVariable(false)
 
     /**
-     * Returns `true` only if this [CommandLine] is in the expanded state.
+     * Holds `true` only if this [CommandLine] is in the expanded state.
      */
-    val expanded get() = expandedCommand != null
+    val isExpanded get() = expanded
+
+    /**
+     * Holds the current expanded command or `null` if the command line is not expanded.
+     */
+    val expandedCommand get() = _expandedCommand
 
     private val _result: ReactiveVariable<Validated<CommandApplication>> = reactiveVariable(invalidComponent())
     private var obs: Observer? = null
@@ -41,7 +48,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
      * @throws IllegalStateException if this [CommandLine] is expanded.
      */
     fun setCommandName(name: String) {
-        check(!expanded) { "Command already expanded, can't change name to '$name'" }
+        check(!isExpanded.now) { "Command already expanded, can't change name to '$name'" }
         commandName = name
         views { displayCommandName(name) }
     }
@@ -57,7 +64,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
      * @return `true` only if this [CommandLine] was successfully expanded.
      */
     fun expand(): Boolean {
-        if (expanded) return false
+        if (isExpanded.now) return false
         val cmd = availableCommands().find { it.shortName == commandName } ?: return false
         return expand(cmd)
     }
@@ -67,7 +74,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
      * @return `true` only if this [CommandLine] was successfully expanded.
      */
     fun expand(command: Command<*, *>): Boolean {
-        if (expanded) return false
+        if (isExpanded.now) return false
         val editors = command.parameters.map { p ->
             context.createEditor<Any?>(p.type).also { it.makeRoot() }
         }
@@ -78,7 +85,8 @@ class CommandLine(context: Context, private val source: CommandSource) :
 
     private fun expanded(cmd: Command<*, *>, editors: List<Editor<Any?>>) {
         arguments = editors
-        expandedCommand = cmd
+        _expandedCommand.now = cmd
+        isExpanded.now = true
         views { expanded(cmd, editors) }
     }
 
@@ -104,7 +112,7 @@ class CommandLine(context: Context, private val source: CommandSource) :
      * @return `true` only if the command was successfully executed.
      */
     fun execute(): Boolean {
-        if (!expanded && !expandNoArgCommand()) return false
+        if (!isExpanded.now && !expandNoArgCommand()) return false
         val (command, args) = result.now.ifInvalid { return false }
         val results = source.executeCommand(command, args)
         val result = when (results.size) {
@@ -146,8 +154,8 @@ class CommandLine(context: Context, private val source: CommandSource) :
 
     override fun viewAdded(view: CommandLineView) {
         view.displayCommandName(commandName)
-        if (expanded) {
-            view.expanded(expandedCommand!!, arguments!!)
+        if (isExpanded.now) {
+            view.expanded(expandedCommand.now!!, arguments!!)
         }
         for (item in history) view.addToHistory(item)
     }
@@ -160,9 +168,10 @@ class CommandLine(context: Context, private val source: CommandSource) :
      * @return `true` only if the command line was successfully reset.
      */
     fun reset(): Boolean {
-        if (!expanded) return false
+        if (!isExpanded.now) return false
         arguments = null
-        expandedCommand = null
+        _expandedCommand.now = null
+        isExpanded.now = false
         commandName = ""
         obs?.kill()
         obs = null
