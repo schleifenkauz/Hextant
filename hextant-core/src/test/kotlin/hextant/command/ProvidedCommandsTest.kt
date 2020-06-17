@@ -2,6 +2,8 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("UNUSED_PARAMETER", "unused")
+
 package hextant.command
 
 import com.natpryce.hamkrest.should.shouldMatch

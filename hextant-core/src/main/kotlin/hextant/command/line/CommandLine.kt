@@ -109,20 +109,20 @@ class CommandLine(context: Context, val source: CommandSource) :
      * If this command line is not expanded an attempt is made to [expand] it.
      * When the arguments are not all ok this method has no effect.
      * After the command is executed the command line is [reset].
-     * @return `true` only if the command was successfully executed.
+     * @return the result or `null` if the command was not successfully executed.
      */
-    fun execute(): Boolean {
-        if (!isExpanded.now && !expandNoArgCommand()) return false
-        val (command, args) = result.now.ifInvalid { return false }
+    fun execute(): Any? {
+        if (!isExpanded.now && !expandNoArgCommand()) return null
+        val (command, args) = result.now.ifInvalid { return null }
         val results = source.executeCommand(command, args)
         val result = when (results.size) {
-            0    -> return false
+            0    -> return null
             1    -> results[0]
             else -> Unit
         }
         commandExecuted(command, arguments ?: emptyList(), result)
         reset()
-        return true
+        return result
     }
 
     private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any?>>, result: Any?) {

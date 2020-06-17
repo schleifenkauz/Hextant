@@ -128,7 +128,7 @@ class PluginBuilder @PublishedApi internal constructor(val context: Context) {
     /**
      * Register a command configured by [config]
      */
-    inline fun <reified R : Any, T> registerCommand(config: CommandBuilder<R, T>.() -> Unit) {
+    inline fun <reified R : Any, T : Any> registerCommand(config: CommandBuilder<R, T>.() -> Unit) {
         command(command(config))
     }
 

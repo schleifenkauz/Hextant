@@ -53,7 +53,7 @@ class ContextCommandSource(
         Expanders -> distributor.focusedTarget.map { t -> (t as? Editor<*>)?.expander }
     }
 
-    override fun executeCommand(command: Command<*, *>, arguments: List<Any?>): List<Any?> =
+    override fun executeCommand(command: Command<*, *>, arguments: List<Any?>): List<Any> =
         when (command.commandType) {
             SingleReceiver    -> focusedReceivers.asSequence()
                 .map { it.now }
@@ -61,7 +61,7 @@ class ContextCommandSource(
                 .filter { r -> command.isApplicableOn(r) }
                 .map { r ->
                     @Suppress("UNCHECKED_CAST") //we checked this with the filter
-                    command as Command<Any, Any?>
+                    command as Command<Any, *>
                     command.execute(r, arguments)
                 }.toList()
             MultipleReceivers -> selectedReceivers.asSequence()
@@ -69,7 +69,7 @@ class ContextCommandSource(
                 .flatMap { selected -> selected.now.asSequence() }
                 .map { r ->
                     @Suppress("UNCHECKED_CAST") //we checked this with the filter
-                    command as Command<Any, Any?>
+                    command as Command<Any, *>
                     command.execute(r, arguments)
                 }.toList()
         }

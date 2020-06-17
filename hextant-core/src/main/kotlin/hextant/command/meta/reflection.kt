@@ -23,6 +23,7 @@ internal fun <R : Any> KClass<R>.collectProvidedCommands(): Set<Command<R, *>> {
 }
 
 private fun <R : Any> KFunction<*>.extractCommand(receiver: KClass<R>, ann: ProvideCommand): Command<R, *> {
+    check(!returnType.isMarkedNullable) { "$this has nullable return type" }
     javaMethod?.isAccessible = true
     val name = ann.name.takeIf { it != DEFAULT } ?: this.name
     val cat = ann.category.takeIf { it != NONE }?.let { Category.withName(it) }
@@ -41,7 +42,7 @@ private fun <R : Any> KFunction<*>.extractCommand(receiver: KClass<R>, ann: Prov
     return CommandImpl(name, cat, shortcut, shortName, params, desc, type, execute, applicable, receiver, enabled)
 }
 
-private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any? {
+private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any {
     val map = mutableMapOf<KParameter, Any?>()
     map[instanceParameter!!] = receiver
     for (i in this.valueParameters.indices) {
@@ -60,7 +61,7 @@ private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any? {
         }
     }
     return try {
-        callBy(map)
+        callBy(map)!!
     } catch (ex: IllegalCallableAccessException) {
         throw ex.cause ?: RuntimeException("Exception while executing $this")
     } catch (ex: InvocationTargetException) {

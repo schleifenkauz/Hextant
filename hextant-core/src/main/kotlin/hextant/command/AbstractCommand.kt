@@ -15,7 +15,7 @@ import kotlin.reflect.jvm.jvmErasure
  * Skeletal implementation of [Command]
  * @constructor
  */
-abstract class AbstractCommand<R : Any, T>(
+abstract class AbstractCommand<R : Any, T : Any>(
     override val receiverCls: KClass<R>,
     initiallyEnabled: Boolean = true
 ) : Command<R, T>, AbstractEnabled(initiallyEnabled) {

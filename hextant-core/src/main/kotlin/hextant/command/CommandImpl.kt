@@ -8,7 +8,7 @@ import hextant.command.Command.*
 import hextant.fx.Shortcut
 import kotlin.reflect.KClass
 
-internal class CommandImpl<R : Any, T>(
+internal class CommandImpl<R : Any, T : Any>(
     override val name: String,
     override val category: Category?,
     override val shortcut: Shortcut?,

@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
  * Builder for [Command]
  */
 @Builder
-class CommandBuilder<R : Any, T> @PublishedApi internal constructor(private val cls: KClass<R>) {
+class CommandBuilder<R : Any, T : Any> @PublishedApi internal constructor(private val cls: KClass<R>) {
     /**
      * The name of the built command
      */

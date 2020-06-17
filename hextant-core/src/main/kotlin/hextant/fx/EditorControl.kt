@@ -9,6 +9,7 @@ import bundles.Property
 import hextant.*
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.Commands
+import hextant.command.line.CommandLine
 import hextant.command.meta.ProvideCommand
 import hextant.impl.addListener
 import hextant.impl.observe
@@ -317,10 +318,14 @@ abstract class EditorControl<R : Node>(
     private fun KeyEventHandlerBody<EditorControl<R>>.handleCommands(target: Any) {
         for (command in context[Commands].applicableOn(target)) {
             val shortcut = command.shortcut
-            if (command.parameters.isEmpty() && shortcut != null) {
+            if (shortcut != null) {
                 on(shortcut, consume = false) { ev ->
-                    val result = command.execute(target, emptyList())
-                    if (result != false) ev.consume()
+                    val cl = context[CommandLine.local]
+                    cl.expand(command)
+                    if (command.parameters.isEmpty()) {
+                        val result = cl.execute()
+                        if (result != null && result != false) ev.consume()
+                    }
                 }
             }
         }

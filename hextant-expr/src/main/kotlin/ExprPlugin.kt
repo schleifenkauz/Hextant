@@ -175,10 +175,16 @@ object ExprPlugin : PluginInitializer({
         }
     }
     registerCommand<TokenEditorControl, Unit> {
-        description = "Makes the text appear in brown"
-        name = "Brown"
-        shortName = "brown"
-        executing { v, _ -> v.root.style = "-fx-text-fill: brown;" }
+        description = "Sets the text fill"
+        name = "Set Color"
+        shortName = "color"
+        defaultShortcut("Ctrl+G")
+        addParameter {
+            name = "color"
+            ofType<String>()
+            description = "The text fill"
+        }
+        executing { v, (color) -> v.root.style = "-fx-text-fill: $color;" }
     }
     stylesheet("expr.css")
 })

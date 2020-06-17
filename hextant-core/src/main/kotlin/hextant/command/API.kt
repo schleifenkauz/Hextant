@@ -13,13 +13,13 @@ import kotlin.reflect.KClass
 /**
  * Build a [Command]
  */
-inline fun <R : Any, T> command(cls: KClass<R>, block: CommandBuilder<R, T>.() -> Unit): Command<R, T> =
+inline fun <R : Any, T : Any> command(cls: KClass<R>, block: CommandBuilder<R, T>.() -> Unit): Command<R, T> =
     CommandBuilder<R, T>(cls).apply(block).build()
 
 /**
  * Build a [Command]
  */
-inline fun <reified R : Any, T> command(block: CommandBuilder<R, T>.() -> Unit): Command<R, T> =
+inline fun <reified R : Any, T : Any> command(block: CommandBuilder<R, T>.() -> Unit): Command<R, T> =
     command(R::class, block)
 
 
@@ -43,7 +43,7 @@ inline fun <reified R : Any> Commands.register(command: Command<R, *>) {
 /**
  * Register a command built with [build]
  */
-inline fun <reified R : Any, T> Commands.registerCommand(build: CommandBuilder<R, T>.() -> Unit) {
+inline fun <reified R : Any, T : Any> Commands.registerCommand(build: CommandBuilder<R, T>.() -> Unit) {
     register(command(build))
 }
 
@@ -56,7 +56,7 @@ inline fun <reified R : Any> Commands.forClass() = forClass(R::class)
  * Makes the resulting command execute the given action combining the done edits
  * to a compound edit with the name of this command as the action description.
  */
-inline fun <E : Editor<*>, T> CommandBuilder<E, T>.executingCompoundEdit(crossinline actions: (E, List<Any?>) -> T) {
+inline fun <E : Editor<*>, T : Any> CommandBuilder<E, T>.executingCompoundEdit(crossinline actions: (E, List<Any?>) -> T) {
     executing { e, list ->
         e.context.compoundEdit(name) { actions(e, list) }
     }

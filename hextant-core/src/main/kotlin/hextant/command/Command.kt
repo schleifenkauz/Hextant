@@ -11,7 +11,7 @@ import kotlin.reflect.*
 /**
  * A Command that is executable on a receiver of type [R]
  */
-interface Command<in R : Any, out T> : Enabled {
+interface Command<in R : Any, out T : Any> : Enabled {
     /**
      * Execute this command on [receiver] with the specified [args]
      */
