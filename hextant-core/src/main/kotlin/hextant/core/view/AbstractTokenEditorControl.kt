@@ -33,7 +33,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         popup.show(this)
     }
 
-    private val popup = CompletionPopup(context, context[IconManager], arguments[COMPLETER])
+    private val popup = CompletionPopup.forContext(context, arguments[COMPLETER])
 
     private val obs = popup.completionChosen.observe(this) { _, c ->
         editor.complete(c)

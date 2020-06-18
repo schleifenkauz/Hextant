@@ -34,7 +34,7 @@ abstract class AbstractController<in V : Any> {
     /**
      * Execute the given [action] on all views
      */
-    protected inline fun views(crossinline action: (@UnsafeVariance V).() -> Unit) {
+    protected open fun views(action: (@UnsafeVariance V).() -> Unit) {
         views.forEach(action)
     }
 

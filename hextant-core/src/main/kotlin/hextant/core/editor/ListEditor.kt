@@ -73,6 +73,8 @@ abstract class ListEditor<R, E : Editor<R>>(
      */
     protected abstract fun createEditor(): E?
 
+    private fun tryCreateEditor(): E? = context.executeSafely("create editor", null) { createEditor() }
+
     /**
      * Return the [Context] used for children of this [ListEditor].
      * The default implementation simply returns the [context] of this editor.
@@ -99,7 +101,7 @@ abstract class ListEditor<R, E : Editor<R>>(
         val old = editors.now.size
         when {
             old < size -> repeat(size - old) { i ->
-                doAddAt(old + i, createEditor() ?: error("createEditor() returned null"))
+                doAddAt(old + i, tryCreateEditor() ?: error("createEditor() returned null"))
             }
             old > size -> for (i in size downTo old) {
                 removeAt(i, undoable = false)
@@ -121,7 +123,7 @@ abstract class ListEditor<R, E : Editor<R>>(
     }
 
     private fun doClear() {
-        for (e in editors.now) editorRemoved(e, 0)
+        for (e in editors.now) context.executeSafely("clearing editors", Unit) { editorRemoved(e, 0) }
         _editors.now.clear()
         views { empty() }
     }
@@ -164,7 +166,7 @@ abstract class ListEditor<R, E : Editor<R>>(
      */
     @ProvideCommand(name = "Add editor", shortName = "add")
     fun addAt(index: Int, undoable: Boolean = true): E? {
-        val editor = createEditor() ?: return null
+        val editor = tryCreateEditor() ?: return null
         if (undoable) {
             val edit = AddEdit(virtualize(), index, editor.snapshot())
             undo.push(edit)
@@ -199,7 +201,7 @@ abstract class ListEditor<R, E : Editor<R>>(
      * Create a new editor with [createEditor] and insert it as the last editor.
      */
     fun addLast(undoable: Boolean = true): E? {
-        val e = createEditor() ?: return null
+        val e = tryCreateEditor() ?: return null
         return addLast(e, undoable)
     }
 
@@ -213,7 +215,7 @@ abstract class ListEditor<R, E : Editor<R>>(
         updateIndicesFrom(index)
         views { removed(index) }
         if (emptyNow()) views { empty() }
-        editorRemoved(old, index)
+        context.executeSafely("removing editor", Unit) { editorRemoved(old, index) }
         if (undoable) {
             val edit = RemoveEdit(virtualize(), index, old.snapshot())
             undo.push(edit)
@@ -236,7 +238,7 @@ abstract class ListEditor<R, E : Editor<R>>(
         if (!mayBeEmpty) return //already called
         mayBeEmpty = false
         if (editors.now.isEmpty()) {
-            val e = createEditor() ?: error("createEditor() returned false")
+            val e = tryCreateEditor() ?: error("createEditor() returned null")
             doAddAt(0, e)
         }
     }
@@ -263,7 +265,7 @@ abstract class ListEditor<R, E : Editor<R>>(
             if (emptyBefore) notEmpty()
             added(editor, index)
         }
-        editorAdded(editor, index)
+        context.executeSafely("adding editor", Unit) { editorAdded(editor, index) }
     }
 
     private fun updateIndicesFrom(index: Int) {

@@ -35,7 +35,7 @@ open class ExpanderControl(
 
     private val textObserver: Observer
 
-    private val popup = CompletionPopup(context, context[IconManager], arguments[COMPLETER])
+    private val popup = CompletionPopup.forContext(context, arguments[COMPLETER])
 
     private val completionObserver: Observer
 

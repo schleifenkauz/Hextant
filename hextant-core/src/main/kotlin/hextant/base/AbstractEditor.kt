@@ -4,8 +4,7 @@
 
 package hextant.base
 
-import hextant.context.Context
-import hextant.context.snapshot
+import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.Expander
 import hextant.core.editor.getTypeArgument
@@ -103,5 +102,13 @@ abstract class AbstractEditor<out R, in V : Any>(
         snapshot as EditorSnapshot<Editor<*>>
         snapshot.reconstruct(this)
         return true
+    }
+
+    override fun viewAdded(view: V) {
+        context.executeSafely("adding view", Unit) { super.viewAdded(view) }
+    }
+
+    override fun views(action: (@UnsafeVariance V).() -> Unit) {
+        super.views { context.executeSafely("notify views", Unit) { action() } }
     }
 }

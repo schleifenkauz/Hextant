@@ -10,7 +10,7 @@ private val COPY_MANY = "Ctrl + Shift + C".shortcut
 private fun copyManyToClipboard(context: Context) {
     val selected = context[SelectionDistributor].selectedTargets.now
     if (selected.any { it !is Editor<*> }) return
-    val snapshots = selected.map { (it as Editor<*>).snapshot() }
+    val snapshots = selected.map { context.executeSafely("copying", null) { (it as Editor<*>).snapshot() } ?: return }
     context[Clipboard].copy(MultipleEditors(snapshots))
 }
 

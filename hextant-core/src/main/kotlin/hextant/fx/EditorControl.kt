@@ -282,8 +282,8 @@ abstract class EditorControl<R : Node>(
 
     private fun initShortcuts() {
         registerShortcuts(this) {
-            handleCommands(this@EditorControl)
-            handleCommands(target)
+            handleCommands(receiver)
+            handleCommands(receiver.target)
         }
     }
 
@@ -307,6 +307,7 @@ abstract class EditorControl<R : Node>(
 
     @ProvideCommand(
         name = "Show Inspections",
+        shortName = "inspect",
         defaultShortcut = "Alt+Enter",
         description = "Shows the inspection popup",
         type = SingleReceiver

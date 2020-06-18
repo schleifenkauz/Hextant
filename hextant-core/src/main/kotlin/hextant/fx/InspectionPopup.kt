@@ -18,14 +18,15 @@ import javafx.stage.Popup
  * A [Popup] that displays the problems of the assigned target.
  */
 class InspectionPopup(private val context: Context, private val target: Any) : Popup() {
-    private fun problems() = context[Inspections].getProblems(target).sortedBy { it.severity }
+    private fun problems() = context.executeSafely("getting problems", emptyList()) {
+        context[Inspections].getProblems(target).sortedBy { it.severity }
+    }
 
     private val container = VBox()
 
     init {
         context[Internal, Stylesheets].apply(scene)
         container.styleClass.add("problem-list")
-        setOnShowing { update() }
         isAutoHide = true
         scene.registerShortcuts {
             on("ESCAPE") {
@@ -63,7 +64,8 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
 
     @Suppress("KDocMissingDocumentation")
     override fun show() {
-        if (problems().isNotEmpty()) {
+        update()
+        if (container.children.isNotEmpty()) {
             super.show()
         }
         if (isShowing) {

@@ -6,6 +6,8 @@ package hextant.completion.gui
 
 import hextant.completion.Completer
 import hextant.completion.Completion
+import hextant.context.Context
+import hextant.context.executeSafely
 import hextant.fx.*
 import javafx.scene.Node
 import javafx.scene.control.Label
@@ -19,8 +21,8 @@ import reaktive.event.event
  * A [Popup] that displays completion items.
  */
 class CompletionPopup<Ctx, T : Any>(
-    private val context: Ctx,
-    private val iconManager: IconManager,
+    private val context: Context,
+    private val ctx: Ctx,
     completer: Completer<Ctx, T>
 ) : Popup() {
     private var input = ""
@@ -79,7 +81,9 @@ class CompletionPopup<Ctx, T : Any>(
     }
 
     private fun updateCompletions() {
-        val completions = completer.completions(context, input)
+        val completions = context.executeSafely("getting completions", emptyList()) {
+            completer.completions(ctx, input)
+        }
         setCompletions(completions)
         valid = true
     }
@@ -117,7 +121,7 @@ class CompletionPopup<Ctx, T : Any>(
 
     private fun addIcon(icon: String?, left: HBox) {
         if (icon != null) {
-            val view = iconManager.viewIcon(icon)
+            val view = context[IconManager].viewIcon(icon)
             left.children.add(view)
         }
     }
@@ -145,6 +149,12 @@ class CompletionPopup<Ctx, T : Any>(
 
     companion object {
         private const val FIXED_COMPLETION_ITEM_WIDTH = 500.0
+
+        /**
+         * Return a new [CompletionPopup] which uses the given [completer] with the specified [context].
+         */
+        fun <T : Any> forContext(context: Context, completer: Completer<Context, T>) =
+            CompletionPopup(context, context, completer)
     }
 }
 

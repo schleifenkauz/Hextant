@@ -152,7 +152,7 @@ fun Context.createInput(path: Path): Input {
 /**
  * Tries to execute the given action catching an eventual thrown exception and logging it.
  */
-fun <T> Context.executeSafely(description: String, onError: T, action: () -> T): T = try {
+inline fun <T> Context.executeSafely(description: String, onError: T, action: () -> T): T = try {
     action()
 } catch (ex: Throwable) {
     val msg = "Exception while $description: ${ex.message}"

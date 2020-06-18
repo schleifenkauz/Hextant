@@ -24,7 +24,7 @@ class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLin
     private val commandName = HextantTextField().withStyleClass("command-name")
     private val current = HBox(commandName).withStyleClass("command-input")
 
-    private val popup = CompletionPopup(cl, context[IconManager], CommandCompleter)
+    private val popup = CompletionPopup(context, cl, CommandCompleter)
 
     private val completionObserver = popup.completionChosen.observe { _, completion ->
         cl.setCommandName(completion.completionText)

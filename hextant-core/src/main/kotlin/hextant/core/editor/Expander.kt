@@ -7,8 +7,7 @@ package hextant.core.editor
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.completion.Completion
-import hextant.context.Context
-import hextant.context.snapshot
+import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Unexpanded
@@ -121,7 +120,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         when (oldState) {
             is Expanded   -> {
                 doReset()
-                onReset(oldState.editor)
+                context.executeSafely("resetting", Unit) { onReset(oldState.editor) }
                 when (newState) {
                     is Unexpanded -> {
                         views { reset() }
@@ -129,7 +128,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
                     }
                     is Expanded   -> {
                         doExpandTo(newState.editor)
-                        onExpansion(newState.editor)
+                        context.executeSafely("expanding", Unit) { onExpansion(newState.editor) }
                     }
                 }
             }
@@ -138,7 +137,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
                     is Unexpanded -> doSetText(newState.text)
                     is Expanded   -> {
                         doExpandTo(newState.editor)
-                        onExpansion(newState.editor)
+                        context.executeSafely("expanding", Unit) { onExpansion(newState.editor) }
                     }
                 }
             }
@@ -206,13 +205,16 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         return state
     }
 
+    private fun tryExpand(text: String) = context.executeSafely("expanding", null) { expand(text) }
+    private fun tryExpand(item: Any) = context.executeSafely("expanding", null) { expand(item) }
+
     /**
      * Expand the current text
      * @throws IllegalStateException if already expanded
      */
     fun expand(undoable: Boolean = true) {
         val state = checkUnexpanded()
-        val editor = expand(state.text) ?: return
+        val editor = tryExpand(state.text) ?: return
         changeState(Expanded(editor), "Expand", undoable)
     }
 
@@ -222,7 +224,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     fun complete(completion: Completion<*>) {
         checkUnexpanded()
-        val editor = expand(completion.completion) ?: expand(completion.completionText)
+        val editor = tryExpand(completion.completion) ?: tryExpand(completion.completionText)
         if (editor != null) {
             changeState(Expanded(editor), "Complete", undoable = true)
         } else {

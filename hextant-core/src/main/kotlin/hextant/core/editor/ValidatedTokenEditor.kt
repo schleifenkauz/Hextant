@@ -8,6 +8,7 @@ import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.completion.Completion
 import hextant.context.Context
+import hextant.context.executeSafely
 import hextant.core.view.ValidatedTokenEditorView
 import hextant.serial.VirtualEditor
 import hextant.serial.virtualize
@@ -80,6 +81,12 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
      */
     protected open fun compile(completion: Any): Validated<R> = invalidComponent()
 
+    private fun tryCompile(item: Any): Validated<R> =
+        context.executeSafely("compiling item", invalidComponent) { compile(item) }
+
+    private fun tryCompile(text: String): Validated<R> =
+        context.executeSafely("compiling item", invalidComponent) { compile(text) }
+
     /**
      * Begin a change. If the editor is already editable this method just returns.
      */
@@ -100,7 +107,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         if (!editable.now) return
         _editable.set(false)
         _text.set(oldText)
-        _intermediateResult.now = compile(oldText)
+        _intermediateResult.now = tryCompile(oldText)
         abortChange.fire()
         views.forEach { v ->
             v.setEditable(false)
@@ -141,7 +148,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
     fun setText(new: String) {
         check(editable.now) { "not editable" }
         _text.now = new
-        _intermediateResult.now = compile(new)
+        _intermediateResult.now = tryCompile(new)
         views.forEach { v ->
             v.displayText(new)
         }
@@ -156,7 +163,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         val t = completion.completionText
         _text.now = t
         views { displayText(t) }
-        val res = compile(completion.completion).orElse { compile(t) }
+        val res = tryCompile(completion.completion).orElse { tryCompile(t) }
         _intermediateResult.now = res
         commitChange()
     }
@@ -173,7 +180,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
      * Recompile the [intermediateResult].
      */
     fun recompile() {
-        _intermediateResult.set(compile(text.now))
+        _intermediateResult.set(tryCompile(text.now))
     }
 
     override fun paste(snapshot: EditorSnapshot<*>): Boolean {
@@ -181,7 +188,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         val t = snapshot.text
         if (editable.now) setText(t)
         else {
-            val r = compile(t).ifInvalid { return false }
+            val r = tryCompile(t).ifInvalid { return false }
             setTextAndCommit(t, r)
         }
         return true
@@ -199,7 +206,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
 
         override fun reconstruct(editor: ValidatedTokenEditor<*>) {
             editor._text.now = text
-            editor._intermediateResult.now = editor.compile(editor.text.now)
+            editor._intermediateResult.now = editor.tryCompile(editor.text.now)
             editor._result.now = editor.intermediateResult.now
             editor._editable.now = false
         }

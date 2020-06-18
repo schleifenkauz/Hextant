@@ -89,7 +89,8 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
                 val selected = selectedEditor() ?: return@on
                 val content = context[Clipboard].get()
                 if (content is OneEditor) {
-                    val copy = content.snapshot.reconstruct(context)
+                    val copy =
+                        context.executeSafely("pasting", null) { content.snapshot.reconstruct(context) } ?: return@on
                     addNewItem(selected, copy as ProjectItemEditor<*, *>)
                 }
             }

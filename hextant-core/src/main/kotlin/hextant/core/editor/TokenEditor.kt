@@ -8,6 +8,7 @@ import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.completion.Completion
 import hextant.context.Context
+import hextant.context.executeSafely
 import hextant.core.view.TokenEditorView
 import hextant.serial.VirtualEditor
 import hextant.serial.virtualize
@@ -26,7 +27,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         setText(text, undoable = false)
     }
 
-    private val _result = reactiveVariable(this.compile(""))
+    private val _result = reactiveVariable(this.tryCompile(""))
 
     override val result: ReactiveValidated<R> get() = _result
 
@@ -43,6 +44,12 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
      * Make a result from the given completion item.
      */
     protected open fun compile(item: Any): Validated<R> = invalidComponent()
+
+    private fun tryCompile(item: Any): Validated<R> =
+        context.executeSafely("compiling item", invalidComponent) { compile(item) }
+
+    private fun tryCompile(text: String): Validated<R> =
+        context.executeSafely("compiling item", invalidComponent) { compile(text) }
 
     override fun viewAdded(view: V) {
         view.displayText(text.now)
@@ -61,7 +68,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
             undo.push(edit)
         }
         _text.now = newText
-        _result.set(compile(text.now))
+        _result.set(tryCompile(text.now))
         views { displayText(newText) }
     }
 
@@ -73,7 +80,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         val edit = TextEdit(virtualize(), text.now, t)
         undo.push(edit)
         _text.now = t
-        _result.set(compile(completion.completion).orElse { compile(completion.completionText) })
+        _result.set(tryCompile(completion.completion).orElse { tryCompile(completion.completionText) })
         views { displayText(t) }
     }
 

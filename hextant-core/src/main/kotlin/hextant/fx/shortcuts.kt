@@ -125,8 +125,9 @@ fun never() = Shortcut(null, UP, UP, UP)
 
 /**
  * Used to configure shortcuts.
+ * @param receiver the context in which the actions should be executed
  */
-class KeyEventHandlerBody<R> @PublishedApi internal constructor(private val receiver: R, private val event: KeyEvent) {
+class KeyEventHandlerBody<R> @PublishedApi internal constructor(val receiver: R, private val event: KeyEvent) {
     /**
      * If the key event matches the given [shortcut], the given [action] is executed.
      * @param consume if `false` the user is responsible for consuming the key event
