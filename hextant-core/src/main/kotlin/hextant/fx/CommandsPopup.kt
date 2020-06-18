@@ -48,7 +48,7 @@ class CommandsPopup(private val context: Context, private val target: Any) : Pop
     }
 
     private fun expand(command: Command<Any, *>) {
-        val cl = context[CommandLine.local]
+        val cl = context[CommandLine]
         cl.expand(command)
         if (command.parameters.isEmpty()) {
             cl.execute()

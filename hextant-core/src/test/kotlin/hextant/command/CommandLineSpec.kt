@@ -50,7 +50,7 @@ internal object CommandLineSpec : Spek({
         lateinit var intEditor: IntLiteralEditor
         val distributor = SelectionDistributor.newInstance()
         distributor.select(v)
-        val cl = CommandLine(context, ContextCommandSource(distributor, commands, Targets))
+        val cl = CommandLine(context, ContextCommandSource(context, distributor, commands, Targets))
         val view = mock<CommandLineView> {
             on { expanded(any(), any()) }.then {
                 if (it.getArgument<Command<*, *>>(0).shortName == "command2") {

@@ -17,6 +17,7 @@ import reaktive.collection.binding.anyR
 import reaktive.list.reactive
 import reaktive.set.ReactiveSet
 import reaktive.set.binding.mapNotNull
+import reaktive.set.unmodifiableReactiveSet
 import reaktive.value.*
 import reaktive.value.binding.map
 
@@ -24,17 +25,20 @@ import reaktive.value.binding.map
  * A [CommandSource] the uses the [SelectionDistributor] and the [Commands] of the given context.
  */
 class ContextCommandSource(
+    private val platform: Context,
     private val distributor: SelectionDistributor,
     private val commands: Commands,
     receiverTypes: Set<CommandReceiverType>
 ) : CommandSource {
     constructor(
+        platform: Context,
         distributor: SelectionDistributor,
         commands: Commands,
         vararg receiverTypes: CommandReceiverType
-    ) : this(distributor, commands, receiverTypes.toSet())
+    ) : this(platform, distributor, commands, receiverTypes.toSet())
 
     constructor(context: Context, vararg receiverTypes: CommandReceiverType) : this(
+        context,
         context[SelectionDistributor],
         context[Commands],
         *receiverTypes
@@ -47,12 +51,14 @@ class ContextCommandSource(
         Views     -> distributor.selectedViews
         Targets   -> distributor.selectedTargets
         Expanders -> distributor.selectedTargets.mapNotNull { t -> (t as? Editor<*>)?.expander }
+        Global    -> unmodifiableReactiveSet(setOf(platform))
     }
 
     private fun focusedReceiver(type: CommandReceiverType): ReactiveValue<Any?> = when (type) {
         Views     -> distributor.focusedView
         Targets   -> distributor.focusedTarget
         Expanders -> distributor.focusedTarget.map { t -> (t as? Editor<*>)?.expander }
+        Global    -> reactiveValue(platform)
     }
 
     override fun executeCommand(command: Command<*, *>, arguments: List<Any?>): List<Any> =

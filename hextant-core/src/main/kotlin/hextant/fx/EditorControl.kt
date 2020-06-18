@@ -321,7 +321,7 @@ abstract class EditorControl<R : Node>(
             val shortcut = command.shortcut
             if (shortcut != null) {
                 on(shortcut, consume = false) { ev ->
-                    val cl = context[CommandLine.local]
+                    val cl = context[CommandLine]
                     cl.expand(command)
                     if (command.parameters.isEmpty()) {
                         val result = cl.execute()

@@ -21,5 +21,10 @@ enum class CommandReceiverType {
     /**
      * Indicates that the commands applicable on editor views can be used.
      */
-    Views
+    Views,
+
+    /**
+     * Indicates that the commands applicable on the global context can be used.
+     */
+    Global
 }

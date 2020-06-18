@@ -204,15 +204,5 @@ class CommandLine(context: Context, val source: CommandSource) :
         val result: Any?
     )
 
-    companion object {
-        /**
-         * The command line that is used for editors.
-         */
-        val local = SimpleProperty<CommandLine>("editor-command-line")
-
-        /**
-         * The global command line that has the top level context as its receiver.
-         */
-        val global = SimpleProperty<CommandLine>("global command-line")
-    }
+    companion object : SimpleProperty<CommandLine>("command-line")
 }
