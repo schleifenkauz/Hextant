@@ -2,10 +2,10 @@
  *@author Nikolaus Knop
  */
 
-package hextant
+package hextant.context
 
 import bundles.*
-import hextant.core.Internal
+import hextant.core.Editor
 import hextant.fx.EditorControl
 import kollektion.ClassMap
 import kotlin.reflect.KClass
@@ -41,7 +41,8 @@ class EditorControlFactory private constructor() {
         /**
          * Creates a new [EditorControlFactory]
          */
-        fun newInstance(): EditorControlFactory = EditorControlFactory()
+        fun newInstance(): EditorControlFactory =
+            EditorControlFactory()
     }
 }
 

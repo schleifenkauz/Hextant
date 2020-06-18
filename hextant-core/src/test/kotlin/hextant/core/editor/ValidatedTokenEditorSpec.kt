@@ -4,8 +4,8 @@
 
 package hextant.core.editor
 
-import hextant.Context
-import hextant.copy
+import hextant.context.Context
+import hextant.core.copy
 import hextant.core.view.ValidatedTokenEditorView
 import hextant.serial.SerialProperties.deserializationContext
 import hextant.serial.SerialProperties.serialContext

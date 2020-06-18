@@ -4,8 +4,8 @@
 
 package hextant.core.editor
 
-import hextant.Context
-import hextant.Editor
+import hextant.context.Context
+import hextant.core.Editor
 
 /**
  * [ConfiguredExpander] delegates invocations of [expand] to objects implementing this interface

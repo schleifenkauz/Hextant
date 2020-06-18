@@ -4,8 +4,8 @@
 
 package hextant.codegen
 
-import hextant.Context
-import hextant.Editor
+import hextant.context.Context
+import hextant.core.Editor
 import hextant.core.editor.ExpanderConfig
 import hextant.core.editor.ExpanderDelegate
 

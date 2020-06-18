@@ -4,9 +4,9 @@
 
 package hextant.main
 
-import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
+import hextant.context.Context
 import kserial.Serializable
 import reaktive.value.now
 import reaktive.value.reactiveVariable
@@ -14,6 +14,9 @@ import validated.*
 import validated.reaktive.ReactiveValidated
 import java.nio.file.Path
 
+/**
+ * An editor for [Path]s.
+ */
 class PathEditor private constructor(context: Context) : AbstractEditor<Path, PathEditorView>(context), Serializable {
     constructor(context: Context, initial: Path) : this(context) {
         _result.now = valid(initial)
@@ -23,6 +26,9 @@ class PathEditor private constructor(context: Context) : AbstractEditor<Path, Pa
 
     override val result: ReactiveValidated<Path> get() = _result
 
+    /**
+     * Set the result to the given [new] path.
+     */
     fun choosePath(new: Path) {
         _result.now = valid(new)
         views {

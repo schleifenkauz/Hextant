@@ -6,11 +6,12 @@ package hextant.fx
 
 import bundles.Bundle
 import bundles.Property
-import hextant.*
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.Commands
 import hextant.command.line.CommandLine
 import hextant.command.meta.ProvideCommand
+import hextant.context.*
+import hextant.core.*
 import hextant.impl.addListener
 import hextant.impl.observe
 import hextant.inspect.Inspections

@@ -4,7 +4,7 @@
 
 package hextant.serial
 
-import hextant.Editor
+import hextant.core.Editor
 
 internal class AccessorChain<E : Editor<*>>(private val accessors: List<EditorAccessor>) : EditorLocation<E> {
     @Suppress("UNCHECKED_CAST")

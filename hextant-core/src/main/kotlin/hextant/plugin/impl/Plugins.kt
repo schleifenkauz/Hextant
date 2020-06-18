@@ -2,7 +2,7 @@ package hextant.plugin.impl
 
 import Core
 import bundles.SimpleProperty
-import hextant.Context
+import hextant.context.Context
 import hextant.plugin.Plugin
 import hextant.plugin.PluginException
 import hextant.plugin.dsl.PluginInitializer

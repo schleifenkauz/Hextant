@@ -4,7 +4,7 @@
 
 package hextant.core.inspect
 
-import hextant.Editor
+import hextant.core.Editor
 import hextant.inspect.*
 import reaktive.value.ReactiveBoolean
 import reaktive.value.binding.map

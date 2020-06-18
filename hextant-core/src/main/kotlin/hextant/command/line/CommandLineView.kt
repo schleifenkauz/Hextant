@@ -4,10 +4,10 @@
 
 package hextant.command.line
 
-import hextant.Editor
-import hextant.EditorView
 import hextant.command.Command
 import hextant.command.line.CommandLine.HistoryItem
+import hextant.core.Editor
+import hextant.core.EditorView
 
 /**
  * Displays a [CommandLine]

@@ -4,11 +4,11 @@
 
 package hextant.fx
 
-import hextant.Context
 import hextant.command.Command
 import hextant.command.Commands
 import hextant.command.line.CommandLine
-import hextant.core.Internal
+import hextant.context.Context
+import hextant.context.Internal
 import javafx.scene.control.Button
 import javafx.scene.layout.VBox
 import javafx.stage.Popup

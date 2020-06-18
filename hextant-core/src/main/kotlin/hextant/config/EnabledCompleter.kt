@@ -1,7 +1,7 @@
 package hextant.config
 
-import hextant.Context
 import hextant.completion.CompoundCompleter
+import hextant.context.Context
 
 /**
  * Completer for [Enabled]-objects.

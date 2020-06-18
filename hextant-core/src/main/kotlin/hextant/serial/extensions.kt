@@ -4,7 +4,7 @@
 
 package hextant.serial
 
-import hextant.Editor
+import hextant.core.Editor
 
 /**
  * Return the first editor in the sequence of parents which is a root editor.
@@ -50,5 +50,6 @@ fun <E : Editor<*>> E.virtualize(): VirtualEditor<E> = LocatedVirtualEditor(this
  * Makes this editor a root of the editor tree by assigning an [InMemoryFile]
  */
 fun Editor<*>.makeRoot() {
+    @Suppress("DEPRECATION")
     setFile(InMemoryFile(this))
 }

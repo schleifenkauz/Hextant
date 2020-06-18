@@ -4,7 +4,7 @@
 
 package hextant.undo
 
-import hextant.Context
+import hextant.context.Context
 
 /**
  * Calls [UndoManager.beginCompoundEdit] before [UndoManager.finishCompoundEdit] after executing the given [actions].

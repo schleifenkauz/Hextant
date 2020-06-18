@@ -1,7 +1,7 @@
 package hextant.core.view
 
-import hextant.Editor
-import hextant.EditorView
+import hextant.core.Editor
+import hextant.core.EditorView
 
 /**
  * An [EditorView] for list editors

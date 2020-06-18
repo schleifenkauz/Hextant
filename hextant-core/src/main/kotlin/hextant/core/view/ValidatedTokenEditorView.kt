@@ -4,7 +4,7 @@
 
 package hextant.core.view
 
-import hextant.EditorView
+import hextant.core.EditorView
 
 /**
  * Displays a [hextant.core.editor.ValidatedTokenEditor]

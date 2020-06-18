@@ -4,7 +4,8 @@
 
 package hextant.serial
 
-import hextant.*
+import hextant.context.*
+import hextant.core.Editor
 import hextant.serial.SerialProperties.deserializationContext
 import hextant.serial.SerialProperties.projectRoot
 import reaktive.event.EventStream

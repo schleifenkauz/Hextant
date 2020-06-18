@@ -2,10 +2,10 @@
  *@author Nikolaus Knop
  */
 
-package hextant
+package hextant.context
 
 import bundles.Property
-import hextant.core.Internal
+import hextant.core.Editor
 import kollektion.TypeMap
 import kotlin.reflect.KType
 
@@ -64,7 +64,8 @@ class EditorFactory private constructor() {
         /**
          * @return a new [EditorFactory]
          */
-        fun newInstance(): EditorFactory = EditorFactory()
+        fun newInstance(): EditorFactory =
+            EditorFactory()
     }
 }
 

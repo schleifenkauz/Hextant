@@ -1,6 +1,6 @@
 package hextant.expr.editor
 
-import hextant.Context
+import hextant.context.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.expr.Operator

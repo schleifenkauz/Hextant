@@ -7,9 +7,8 @@
 package hextant.project.view
 
 import bundles.Bundle
-import hextant.*
-import hextant.core.Clipboard
-import hextant.core.ClipboardContent.OneEditor
+import hextant.context.*
+import hextant.context.ClipboardContent.OneEditor
 import hextant.fx.EditorControl
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*

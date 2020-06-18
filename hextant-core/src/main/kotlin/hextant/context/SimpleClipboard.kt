@@ -2,9 +2,9 @@
  *@author Nikolaus Knop
  */
 
-package hextant.core
+package hextant.context
 
-import hextant.core.ClipboardContent.Empty
+import hextant.context.ClipboardContent.Empty
 
 /**
  * A simple type of [Clipboard] that only stores the most recently copied content.

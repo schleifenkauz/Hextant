@@ -4,7 +4,7 @@
 
 package hextant.core.view
 
-import hextant.EditorView
+import hextant.core.EditorView
 
 /**
  * A view that displays a single token editor

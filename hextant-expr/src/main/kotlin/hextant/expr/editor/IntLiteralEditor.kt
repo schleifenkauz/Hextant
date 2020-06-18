@@ -4,10 +4,10 @@
 
 package hextant.expr.editor
 
-import hextant.Context
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
+import hextant.context.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.expr.IntLiteral

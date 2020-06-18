@@ -5,9 +5,7 @@
 package hextant.gui
 
 import bundles.SimpleProperty
-import hextant.Context
-import hextant.core.Internal
-import hextant.createView
+import hextant.context.*
 import hextant.fx.registerShortcuts
 import hextant.main.HextantApplication
 import hextant.serial.makeRoot

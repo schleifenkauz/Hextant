@@ -4,12 +4,14 @@
 
 package hextant.command.line
 
-import hextant.*
 import hextant.command.Command
 import hextant.command.Command.Type.MultipleReceivers
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.Commands
 import hextant.command.line.CommandReceiverType.*
+import hextant.context.Context
+import hextant.context.SelectionDistributor
+import hextant.core.Editor
 import reaktive.collection.binding.all
 import reaktive.collection.binding.anyR
 import reaktive.list.reactive

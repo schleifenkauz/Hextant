@@ -5,9 +5,9 @@
 package hextant.expr
 
 import bundles.createBundle
-import hextant.*
 import hextant.command.line.CommandLine
 import hextant.command.line.CommandLineControl
+import hextant.context.*
 import hextant.expr.editor.ExprEditor
 import hextant.expr.editor.ExprExpander
 import hextant.fx.*

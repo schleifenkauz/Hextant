@@ -5,7 +5,7 @@
 package hextant.settings.model
 
 import bundles.Property
-import hextant.core.Internal
+import hextant.context.Internal
 import kotlin.reflect.typeOf
 
 /**

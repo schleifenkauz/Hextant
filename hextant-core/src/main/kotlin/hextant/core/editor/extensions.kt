@@ -4,8 +4,8 @@
 
 package hextant.core.editor
 
-import hextant.Context
-import hextant.Editor
+import hextant.context.Context
+import hextant.core.Editor
 
 /**
  * Return an [ExpanderDelegate] that transforms expanded editors with the given function.

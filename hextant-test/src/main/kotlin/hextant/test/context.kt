@@ -4,8 +4,8 @@
 
 package hextant.test
 
-import hextant.Context
-import hextant.HextantPlatform
+import hextant.context.Context
+import hextant.context.HextantPlatform
 
 inline fun testingContext(block: Context.() -> Unit = {}): Context =
     HextantPlatform.defaultContext(HextantPlatform.rootContext()).apply(block)

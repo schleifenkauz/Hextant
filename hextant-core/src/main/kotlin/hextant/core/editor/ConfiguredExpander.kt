@@ -4,8 +4,8 @@
 
 package hextant.core.editor
 
-import hextant.Context
-import hextant.Editor
+import hextant.context.Context
+import hextant.core.Editor
 
 /**
  * An [Expander] which expands text using its [config]

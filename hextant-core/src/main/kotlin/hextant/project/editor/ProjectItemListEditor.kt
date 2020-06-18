@@ -4,7 +4,7 @@
 
 package hextant.project.editor
 
-import hextant.Context
+import hextant.context.Context
 import hextant.core.editor.ListEditor
 import hextant.project.ProjectItem
 import hextant.project.view.EditorPane

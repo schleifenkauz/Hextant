@@ -4,8 +4,8 @@
 
 package hextant.fx
 
-import hextant.Context
-import hextant.core.Internal
+import hextant.context.Context
+import hextant.context.Internal
 import javafx.scene.Scene
 import javafx.scene.input.ContextMenuEvent
 

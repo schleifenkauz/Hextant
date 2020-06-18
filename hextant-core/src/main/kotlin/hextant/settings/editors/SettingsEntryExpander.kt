@@ -4,8 +4,8 @@
 
 package hextant.settings.editors
 
-import hextant.Context
-import hextant.core.Internal
+import hextant.context.Context
+import hextant.context.Internal
 import hextant.core.editor.Expander
 import hextant.settings.model.*
 

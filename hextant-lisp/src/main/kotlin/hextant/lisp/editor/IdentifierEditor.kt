@@ -1,6 +1,6 @@
 package hextant.lisp.editor
 
-import hextant.Context
+import hextant.context.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.lisp.Identifier

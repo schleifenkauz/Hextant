@@ -5,7 +5,7 @@
 package hextant.project.editor
 
 import bundles.SimpleProperty
-import hextant.Editor
+import hextant.core.Editor
 import hextant.core.editor.ExpanderConfig
 import hextant.project.ProjectItem
 

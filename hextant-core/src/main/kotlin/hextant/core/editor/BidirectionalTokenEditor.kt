@@ -4,8 +4,7 @@
 
 package hextant.core.editor
 
-import hextant.BidirectionalEditor
-import hextant.Context
+import hextant.context.Context
 import hextant.core.view.TokenEditorView
 
 /**

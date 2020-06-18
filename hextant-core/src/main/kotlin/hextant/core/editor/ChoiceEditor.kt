@@ -4,10 +4,10 @@
 
 package hextant.core.editor
 
-import hextant.Context
-import hextant.Editor
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
+import hextant.context.Context
+import hextant.core.Editor
 import hextant.core.view.ChoiceEditorView
 import reaktive.value.now
 import reaktive.value.reactiveVariable

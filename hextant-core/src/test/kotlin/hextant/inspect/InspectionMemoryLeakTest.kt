@@ -6,8 +6,8 @@ package hextant.inspect
 
 import com.natpryce.hamkrest.absent
 import com.sun.javafx.application.PlatformImpl
-import hextant.EditorControlGroup
-import hextant.createView
+import hextant.context.EditorControlGroup
+import hextant.context.createView
 import hextant.expr.editor.ExprExpander
 import hextant.expr.editor.IntLiteralEditor
 import hextant.serial.makeRoot

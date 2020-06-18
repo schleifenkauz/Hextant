@@ -2,9 +2,10 @@
  * @author Nikolaus Knop
  */
 
-package hextant
+package hextant.core
 
 import bundles.Bundle
+import hextant.context.ViewGroup
 
 /**
  * A graphical view of an [Editor]

@@ -1,8 +1,8 @@
-import hextant.Context
 import hextant.command.Command
 import hextant.command.executingCompoundEdit
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
+import hextant.context.Context
 import hextant.core.view.*
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.*

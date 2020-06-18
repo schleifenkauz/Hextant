@@ -4,7 +4,7 @@
 
 package hextant.serial
 
-import hextant.Editor
+import hextant.core.Editor
 
 /**
  * Used to resolve [Editor]s from the root

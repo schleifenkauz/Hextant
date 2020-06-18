@@ -4,8 +4,8 @@
 
 package hextant.serial
 
-import hextant.Context
-import hextant.Editor
+import hextant.context.Context
+import hextant.core.Editor
 import hextant.serial.SerialProperties.projectRoot
 import org.nikok.kref.Ref
 import org.nikok.kref.weak

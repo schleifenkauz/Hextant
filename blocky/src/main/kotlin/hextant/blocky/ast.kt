@@ -6,7 +6,7 @@ package hextant.blocky
 
 import hextant.blocky.editor.*
 import hextant.codegen.*
-import hextant.core.TokenType
+import hextant.core.editor.TokenType
 import validated.*
 
 @Token

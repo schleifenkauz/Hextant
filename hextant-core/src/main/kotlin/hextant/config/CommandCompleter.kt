@@ -1,11 +1,11 @@
 package hextant.config
 
-import hextant.Context
 import hextant.command.Command
 import hextant.command.Commands
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
+import hextant.context.Context
 
 internal object CommandCompleter : ConfiguredCompleter<Context, Command<*, *>>(CompletionStrategy.simple) {
     override fun completionPool(context: Context): Collection<Command<*, *>> = context[Commands].all()

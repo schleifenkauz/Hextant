@@ -4,8 +4,8 @@
 
 package hextant.core.view
 
-import hextant.Editor
-import hextant.EditorView
+import hextant.core.Editor
+import hextant.core.EditorView
 
 /**
  * A view that displays an Expander.

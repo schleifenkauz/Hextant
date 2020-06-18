@@ -4,7 +4,7 @@
 
 package hextant.base
 
-import hextant.Editor
+import hextant.core.Editor
 import kserial.CompoundSerializable
 
 /**

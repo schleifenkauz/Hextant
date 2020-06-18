@@ -1,8 +1,8 @@
 import hextant.blocky.editor.*
 import hextant.blocky.view.*
+import hextant.context.createView
 import hextant.core.view.EditorControlWrapper
 import hextant.core.view.TokenEditorControl
-import hextant.createView
 import hextant.plugin.dsl.PluginInitializer
 
 object Blocky : PluginInitializer({

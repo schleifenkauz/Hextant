@@ -5,7 +5,7 @@
 package hextant.project.view
 
 import bundles.SimpleProperty
-import hextant.Editor
+import hextant.core.Editor
 
 /**
  * An editor pane displays editors.

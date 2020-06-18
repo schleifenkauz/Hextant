@@ -4,8 +4,8 @@
 
 package hextant.sample.editor
 
-import hextant.Context
-import hextant.Editor
+import hextant.context.Context
+import hextant.core.Editor
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
 import hextant.sample.ast.IntExpr

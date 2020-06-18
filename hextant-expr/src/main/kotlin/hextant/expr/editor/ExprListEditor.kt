@@ -4,7 +4,7 @@
 
 package hextant.expr.editor
 
-import hextant.Context
+import hextant.context.Context
 import hextant.core.editor.ListEditor
 import hextant.expr.Expr
 

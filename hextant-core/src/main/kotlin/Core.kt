@@ -1,15 +1,15 @@
-import hextant.Editor
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.config.*
+import hextant.context.createView
+import hextant.core.Editor
 import hextant.core.editor.*
 import hextant.core.inspect.SyntaxErrorInspection
 import hextant.core.view.*
 import hextant.core.view.ValidatedTokenEditorControl.Companion.ABORT_CHANGE
 import hextant.core.view.ValidatedTokenEditorControl.Companion.BEGIN_CHANGE
 import hextant.core.view.ValidatedTokenEditorControl.Companion.COMMIT_CHANGE
-import hextant.createView
 import hextant.fx.shortcut
 import hextant.main.PathEditorControl
 import hextant.plugin.dsl.PluginInitializer

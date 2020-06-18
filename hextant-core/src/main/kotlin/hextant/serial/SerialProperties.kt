@@ -2,8 +2,8 @@ package hextant.serial
 
 import bundles.Property
 import bundles.SimpleProperty
-import hextant.Context
-import hextant.core.Internal
+import hextant.context.Context
+import hextant.context.Internal
 import kserial.KSerial
 import kserial.SerialContext
 import java.nio.file.Path

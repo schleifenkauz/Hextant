@@ -4,9 +4,9 @@
 
 package hextant.core.editor
 
-import hextant.Context
-import hextant.Editor
 import hextant.completion.*
+import hextant.context.Context
+import hextant.core.Editor
 import java.util.*
 import kotlin.reflect.KClass
 

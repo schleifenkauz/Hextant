@@ -6,7 +6,7 @@ package hextant.settings.model
 
 import bundles.Bundle
 import bundles.Property
-import hextant.core.Internal
+import hextant.context.Internal
 import hextant.settings.editors.SettingsEditor
 
 /**

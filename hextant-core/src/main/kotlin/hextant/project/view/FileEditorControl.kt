@@ -5,8 +5,8 @@
 package hextant.project.view
 
 import bundles.Bundle
-import hextant.Editor
-import hextant.createView
+import hextant.context.createView
+import hextant.core.Editor
 import hextant.fx.*
 import hextant.impl.observe
 import hextant.project.editor.FileEditor

@@ -2,9 +2,11 @@
  * @author Nikolaus Knop
  */
 
-package hextant
+package hextant.context
 
 import bundles.Bundle
+import hextant.core.Editor
+import hextant.core.EditorView
 
 /**
  * A group of [EditorView]'s of a common base type [V] that display a hierarchy of editors

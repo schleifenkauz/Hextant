@@ -5,8 +5,8 @@
 package hextant.serial
 
 import bundles.SimpleProperty
-import hextant.Context
-import hextant.Editor
+import hextant.context.Context
+import hextant.core.Editor
 import java.nio.file.Path
 
 /**
@@ -46,7 +46,5 @@ interface FileManager {
      */
     fun deleteDirectory(path: Path)
 
-    companion object : SimpleProperty<FileManager>("file manager") {
-        fun newInstance(context: Context): FileManager = PhysicalFileManager(context)
-    }
+    companion object : SimpleProperty<FileManager>("file manager")
 }

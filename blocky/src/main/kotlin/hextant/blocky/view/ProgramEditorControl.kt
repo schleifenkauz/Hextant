@@ -5,8 +5,10 @@
 package hextant.blocky.view
 
 import bundles.Bundle
-import hextant.*
 import hextant.blocky.editor.*
+import hextant.context.EditorControlGroup
+import hextant.context.createView
+import hextant.core.Editor
 import hextant.fx.EditorControl
 import javafx.scene.Cursor
 import javafx.scene.Node

@@ -4,8 +4,8 @@
 
 package hextant.main
 
-import hextant.*
-import hextant.core.Internal
+import hextant.context.*
+import hextant.core.Editor
 import hextant.core.view.ListEditorControl
 import hextant.fx.*
 import hextant.serial.SerialProperties
@@ -27,6 +27,9 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.full.cast
 
+/**
+ * Abstract base class for applications that use the Hextant project management mechanism.
+ */
 abstract class HextantProjectApplication<R : Editor<*>> : Application() {
     private val rootType = extractRootEditorType(this::class)
 
@@ -48,6 +51,9 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
         }
     }
 
+    /**
+     * Saves the project.
+     */
     override fun stop() {
         val output = context.createOutput(projectsPath())
         output.writeUntyped(projects)
@@ -56,8 +62,14 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
 
     private fun projectsPath() = configurationDirectory().resolve("recent.ks")
 
+    /**
+     * The directory where all the user configuration is stored.
+     */
     protected abstract fun configurationDirectory(): Path
 
+    /**
+     * The [projectType]
+     */
     protected abstract fun projectType(): ProjectType<R>
 
     private fun createContext(): Context = Context.newInstance {
@@ -65,12 +77,24 @@ abstract class HextantProjectApplication<R : Editor<*>> : Application() {
         configure()
     }
 
+    /**
+     * Can be overridden to configure additional properties in the base context.
+     */
     protected open fun Context.configure() {}
 
+    /**
+     * Create a view for the given [editor].
+     */
     protected abstract fun createView(editor: R): Parent
 
+    /**
+     * Can be overridden to configure the menu bar.
+     */
     protected open fun MenuBarBuilder.configureMenuBar(editor: R) {}
 
+    /**
+     * Start the application.
+     */
     override fun start(primaryStage: Stage) {
         context[Internal, HextantApplication.stage] = primaryStage
         primaryStage.isResizable = false

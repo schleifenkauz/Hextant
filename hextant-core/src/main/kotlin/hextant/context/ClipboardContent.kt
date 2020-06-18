@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package hextant.core
+package hextant.context
 
 import hextant.base.EditorSnapshot
 
@@ -17,11 +17,13 @@ sealed class ClipboardContent {
 
     /**
      * The clipboard contains one editor.
+     * @property snapshot the snapshot of the copied editor.
      */
     data class OneEditor(val snapshot: EditorSnapshot<*>) : ClipboardContent()
 
     /**
      * The clipboard contains multiple editors.
+     * @property snapshots the snapshots of the copied editors.
      */
     data class MultipleEditors(val snapshots: List<EditorSnapshot<*>>) : ClipboardContent()
 }

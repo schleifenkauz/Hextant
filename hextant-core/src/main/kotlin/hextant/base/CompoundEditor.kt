@@ -4,7 +4,9 @@
 
 package hextant.base
 
-import hextant.*
+import hextant.context.Context
+import hextant.core.Editor
+import hextant.core.EditorView
 import hextant.fx.CompoundEditorSnapshot
 import hextant.serial.*
 import kotlin.properties.ReadOnlyProperty

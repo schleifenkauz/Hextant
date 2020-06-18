@@ -4,8 +4,8 @@
 
 package hextant.expr.editor
 
-import hextant.Context
 import hextant.base.CompoundEditor
+import hextant.context.Context
 import hextant.core.editor.composeResult
 import hextant.expr.Operator
 import hextant.expr.OperatorApplication

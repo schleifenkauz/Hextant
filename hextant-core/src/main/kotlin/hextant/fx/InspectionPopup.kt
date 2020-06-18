@@ -4,8 +4,8 @@
 
 package hextant.fx
 
-import hextant.Context
-import hextant.core.Internal
+import hextant.context.Context
+import hextant.context.Internal
 import hextant.inspect.*
 import javafx.scene.Node
 import javafx.scene.Parent

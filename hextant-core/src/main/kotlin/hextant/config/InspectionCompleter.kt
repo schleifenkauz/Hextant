@@ -4,10 +4,10 @@
 
 package hextant.config
 
-import hextant.Context
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
+import hextant.context.Context
 import hextant.inspect.Inspection
 import hextant.inspect.Inspections
 

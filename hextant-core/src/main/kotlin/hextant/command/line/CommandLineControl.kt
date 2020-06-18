@@ -5,11 +5,11 @@
 package hextant.command.line
 
 import bundles.Bundle
-import hextant.Editor
 import hextant.command.Command
 import hextant.command.line.CommandLine.HistoryItem
 import hextant.completion.gui.CompletionPopup
-import hextant.createView
+import hextant.context.createView
+import hextant.core.Editor
 import hextant.fx.*
 import hextant.impl.observe
 import javafx.application.Platform

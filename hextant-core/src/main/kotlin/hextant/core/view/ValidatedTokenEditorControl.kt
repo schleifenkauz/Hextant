@@ -6,10 +6,10 @@ package hextant.core.view
 
 import bundles.Bundle
 import bundles.SimpleProperty
-import hextant.Context
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
+import hextant.context.Context
 import hextant.core.editor.ValidatedTokenEditor
 import hextant.fx.*
 

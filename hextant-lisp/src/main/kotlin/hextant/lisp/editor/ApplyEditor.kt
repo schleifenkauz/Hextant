@@ -4,8 +4,8 @@
 
 package hextant.lisp.editor
 
-import hextant.Context
 import hextant.base.CompoundEditor
+import hextant.context.Context
 import hextant.lisp.*
 import reaktive.collection.binding.all
 import reaktive.dependencies

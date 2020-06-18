@@ -1,7 +1,7 @@
 package hextant.core.editor
 
 import com.nhaarman.mockitokotlin2.inOrder
-import hextant.Context
+import hextant.context.Context
 import hextant.core.view.ExpanderView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor

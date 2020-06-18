@@ -6,7 +6,7 @@ package hextant.blocky.view
 
 import bundles.Bundle
 import hextant.blocky.editor.BranchEditor
-import hextant.createView
+import hextant.context.createView
 import hextant.fx.HextantTextField
 import javafx.scene.control.Label
 import javafx.scene.layout.*

@@ -4,7 +4,7 @@
 
 package hextant.settings.editors
 
-import hextant.Context
+import hextant.context.Context
 import hextant.core.editor.BidirectionalTokenEditor
 import validated.Validated
 import validated.valid

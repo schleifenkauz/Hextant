@@ -1,16 +1,59 @@
-/**
- * @author Nikolaus Knop
- */
-
-package hextant
+package hextant.context
 
 import bundles.*
+import hextant.base.EditorSnapshot
+import hextant.core.Editor
 import hextant.fx.EditorControl
 import hextant.serial.SerialProperties
 import kserial.*
 import java.nio.file.Path
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
+
+/**
+ * Synonym for [apply]
+ */
+inline fun EditorControlFactory.configure(config: EditorControlFactory.() -> Unit) {
+    apply(config)
+}
+
+/**
+ * Syntactic sugar for `register(typeOf<T>(), factory)`
+ */
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified T> EditorFactory.register(noinline factory: (Context, T) -> Editor<T>) {
+    @Suppress("UNCHECKED_CAST")
+    register(typeOf<T>(), factory as (Context, Any?) -> Editor<Any?>)
+}
+
+/**
+ * Syntactic sugar for `register(typeOf<T>(), factory)`
+ */
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified T> EditorFactory.register(noinline factory: (Context) -> Editor<T>) {
+    register(typeOf<T>(), factory)
+}
+
+/**
+ * Syntactic sugar for `createEditor(typeOf<T>(), context)`
+ */
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified T> EditorFactory.createEditor(context: Context) = createEditor(
+    typeOf<T>(), context
+)
+
+/**
+ * Syntactic sugar for `createEditor(typeOf<T>(), result, context)`
+ */
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified T> EditorFactory.createEditor(result: T, context: Context) =
+    createEditor(typeOf<T>(), result, context)
+
+/**
+ * Typesafe version of [Editor.createSnapshot]
+ */
+@Suppress("UNCHECKED_CAST")
+fun <E : Editor<*>> E.snapshot(): EditorSnapshot<E> = createSnapshot() as EditorSnapshot<E>
 
 /**
  *
@@ -32,7 +75,7 @@ fun Context.createView(editor: Editor<*>, arguments: Bundle = createBundle()): E
 }
 
 /**
- * Create a view for the given [editor]. The [configure]-block is used to initialize the [EditorView.arguments].
+ * Create a view for the given [editor]. The [configure]-block is used to initialize the [hextant.core.EditorView.arguments].
  */
 inline fun Context.createView(editor: Editor<*>, configure: Bundle.() -> Unit): EditorControl<*> =
     createView(editor, createBundle(configure))
@@ -52,7 +95,6 @@ fun <R> Context.createEditor(resultType: KType): Editor<R> =
     } catch (e: NoSuchElementException) {
         parent?.createEditor(resultType) ?: throw e
     }
-
 
 /**
  * Syntactic sugar for createEditor<R>(typeOf<R>())
@@ -78,12 +120,15 @@ fun <R> Context.createEditor(type: KType, result: R): Editor<R> =
  * Syntactic sugar for createEditor(typeOf<R>(), result)
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified R> Context.createEditor(result: R) = createEditor(typeOf<R>(), result)
+inline fun <reified R> Context.createEditor(result: R) = createEditor(
+    typeOf<R>(), result
+)
 
 /**
  * Create a new context which has this [Context] as its parent and apply the given [block] to it.
  */
-inline fun Context.extend(block: Context.() -> Unit): Context = Context.newInstance(this, block)
+inline fun Context.extend(block: Context.() -> Unit): Context =
+    Context.newInstance(this, block)
 
 /**
  * Create an [Output] to the given [path] with the [SerialProperties.serialContext] and [SerialProperties.serial] of this [Context].

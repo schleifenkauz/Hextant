@@ -4,8 +4,8 @@
 
 package hextant.gui
 
-import hextant.Context
-import hextant.createView
+import hextant.context.Context
+import hextant.context.createView
 import hextant.gui.DirectoryViewTest.IntEditor
 import hextant.main.HextantProjectApplication
 import hextant.main.ProjectType

@@ -6,10 +6,12 @@ package hextant.core.view
 
 import bundles.Bundle
 import bundles.SimpleProperty
-import hextant.*
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
+import hextant.context.Context
+import hextant.context.createView
+import hextant.core.Editor
 import hextant.core.editor.Expander
 import hextant.fx.*
 import hextant.main.InputMethod

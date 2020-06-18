@@ -1,49 +1,10 @@
-package hextant
+package hextant.core
 
-import hextant.base.EditorSnapshot
-import hextant.core.Clipboard
-import hextant.core.ClipboardContent.OneEditor
+import hextant.context.*
+import hextant.context.ClipboardContent.OneEditor
 import hextant.core.editor.TransformedEditor
 import validated.Validated
 import validated.valid
-import kotlin.reflect.typeOf
-
-/**
- * Synonym for [apply]
- */
-inline fun EditorControlFactory.configure(config: EditorControlFactory.() -> Unit) {
-    apply(config)
-}
-
-/**
- * Syntactic sugar for `register(typeOf<T>(), factory)`
- */
-@OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> EditorFactory.register(noinline factory: (Context, T) -> Editor<T>) {
-    @Suppress("UNCHECKED_CAST")
-    register(typeOf<T>(), factory as (Context, Any?) -> Editor<Any?>)
-}
-
-/**
- * Syntactic sugar for `register(typeOf<T>(), factory)`
- */
-@OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> EditorFactory.register(noinline factory: (Context) -> Editor<T>) {
-    register(typeOf<T>(), factory)
-}
-
-/**
- * Syntactic sugar for `createEditor(typeOf<T>(), context)`
- */
-@OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> EditorFactory.createEditor(context: Context) = createEditor(typeOf<T>(), context)
-
-/**
- * Syntactic sugar for `createEditor(typeOf<T>(), result, context)`
- */
-@OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> EditorFactory.createEditor(result: T, context: Context) =
-    createEditor(typeOf<T>(), result, context)
 
 /**
  * Return a sequence iterating over all immediate and recursive children of this editor
@@ -101,8 +62,3 @@ fun <T, R> Editor<T>.map(f: (T) -> Validated<R>): Editor<R> = TransformedEditor(
 @JvmName("simpleMap")
 fun <T, R> Editor<T>.map(f: (T) -> R): Editor<R> = map { valid(f(it)) }
 
-/**
- * Typesafe version of [Editor.createSnapshot]
- */
-@Suppress("UNCHECKED_CAST")
-fun <E : Editor<*>> E.snapshot(): EditorSnapshot<E> = createSnapshot() as EditorSnapshot<E>

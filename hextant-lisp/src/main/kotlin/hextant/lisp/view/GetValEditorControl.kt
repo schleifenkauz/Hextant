@@ -5,7 +5,7 @@
 package hextant.lisp.view
 
 import bundles.Bundle
-import hextant.createView
+import hextant.context.createView
 import hextant.fx.EditorControl
 import hextant.lisp.editor.GetValEditor
 import javafx.scene.Node

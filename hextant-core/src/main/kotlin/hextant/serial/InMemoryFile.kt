@@ -4,7 +4,7 @@
 
 package hextant.serial
 
-import hextant.Editor
+import hextant.core.Editor
 import reaktive.event.EventStream
 import reaktive.event.never
 

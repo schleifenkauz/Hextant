@@ -1,8 +1,8 @@
 package hextant.fx
 
-import hextant.*
-import hextant.core.Clipboard
-import hextant.core.ClipboardContent.MultipleEditors
+import hextant.context.*
+import hextant.context.ClipboardContent.MultipleEditors
+import hextant.core.Editor
 import javafx.scene.Scene
 
 private val COPY_MANY = "Ctrl + Shift + C".shortcut

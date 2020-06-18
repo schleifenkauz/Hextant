@@ -5,10 +5,10 @@
 package hextant.main
 
 import bundles.Property
-import hextant.Context
-import hextant.HextantPlatform.defaultContext
-import hextant.HextantPlatform.rootContext
-import hextant.core.Internal
+import hextant.context.Context
+import hextant.context.HextantPlatform.defaultContext
+import hextant.context.HextantPlatform.rootContext
+import hextant.context.Internal
 import hextant.fx.initHextantScene
 import javafx.application.Application
 import javafx.application.Platform
@@ -18,10 +18,19 @@ import javafx.stage.Stage
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 
+/**
+ * Abstract base class for applications that use the Hextant framework.
+ */
 abstract class HextantApplication : Application() {
+    /**
+     * The main [Stage] that displays the content.
+     */
     protected lateinit var stage: Stage
         private set
 
+    /**
+     * Starts the application.
+     */
     final override fun start(primaryStage: Stage) {
         val preloader = HextantPreloader()
         preloader.start(Stage())
@@ -49,11 +58,22 @@ abstract class HextantApplication : Application() {
         }
     }
 
+    /**
+     * Create initial context from the [root] context.
+     *
+     * By default the [root] is returned.
+     */
     protected open fun createContext(root: Context): Context = root
 
+    /**
+     * Create the root node using the given [context].
+     */
     protected abstract fun createView(context: Context): Parent
 
     companion object {
+        /**
+         * The main stage
+         */
         val stage = Property<Stage, Internal, Internal>("stage")
 
         /**

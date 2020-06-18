@@ -5,8 +5,8 @@
 package hextant.lisp.view
 
 import bundles.Bundle
-import hextant.core.CoreProperties.editorParentRegion
-import hextant.createView
+import hextant.context.CoreProperties.editorParentRegion
+import hextant.context.createView
 import hextant.fx.EditorControl
 import hextant.lisp.editor.ApplyEditor
 import javafx.beans.Observable

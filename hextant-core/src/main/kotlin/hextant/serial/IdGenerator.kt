@@ -5,11 +5,17 @@
 package hextant.serial
 
 import bundles.Property
-import hextant.core.Internal
+import hextant.context.Internal
 
+/**
+ * Generates unique file names.
+ */
 class IdGenerator {
     private var state = 0
 
+    /**
+     * Generates a new unique id that can be used as a file name.
+     */
     fun generateID(): String {
         val id = state
         state++

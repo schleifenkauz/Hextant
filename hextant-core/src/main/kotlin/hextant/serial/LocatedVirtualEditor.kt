@@ -4,7 +4,7 @@
 
 package hextant.serial
 
-import hextant.Editor
+import hextant.core.Editor
 import java.lang.ref.WeakReference
 
 internal class LocatedVirtualEditor<E : Editor<*>>(

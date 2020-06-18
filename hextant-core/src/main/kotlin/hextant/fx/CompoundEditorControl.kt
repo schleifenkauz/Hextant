@@ -5,7 +5,9 @@
 package hextant.fx
 
 import bundles.*
-import hextant.*
+import hextant.context.Context
+import hextant.context.createView
+import hextant.core.Editor
 import hextant.fx.CompoundEditorControl.Vertical
 import javafx.scene.Node
 import javafx.scene.control.Label

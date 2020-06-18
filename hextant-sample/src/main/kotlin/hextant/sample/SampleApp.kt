@@ -4,8 +4,8 @@
 
 package hextant.sample
 
-import hextant.Context
-import hextant.createView
+import hextant.context.Context
+import hextant.context.createView
 import hextant.main.HextantApplication
 import hextant.sample.ast.editor.AltExpander
 import hextant.undo.UndoManager

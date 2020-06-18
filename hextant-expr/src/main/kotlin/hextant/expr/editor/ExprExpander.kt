@@ -4,10 +4,10 @@
 
 package hextant.expr.editor
 
-import hextant.Context
+import hextant.context.Context
+import hextant.context.createEditor
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
-import hextant.createEditor
 import hextant.expr.Expr
 import hextant.expr.Operator.*
 

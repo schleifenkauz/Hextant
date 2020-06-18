@@ -1,7 +1,7 @@
 package hextant.fx
 
 import bundles.Property
-import hextant.core.Internal
+import hextant.context.Internal
 import javafx.scene.Scene
 
 internal class Stylesheets {

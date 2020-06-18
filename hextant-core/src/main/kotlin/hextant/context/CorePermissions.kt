@@ -1,4 +1,4 @@
-package hextant.core
+package hextant.context
 
 /**
  * Internal permission only usable from the core module

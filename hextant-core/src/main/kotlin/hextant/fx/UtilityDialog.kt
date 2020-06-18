@@ -4,8 +4,8 @@
 
 package hextant.fx
 
-import hextant.Context
-import hextant.core.Internal
+import hextant.context.Context
+import hextant.context.Internal
 import javafx.scene.Node
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.CONFIRMATION

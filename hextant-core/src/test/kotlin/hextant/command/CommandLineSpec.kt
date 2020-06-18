@@ -5,10 +5,12 @@
 package hextant.command
 
 import com.nhaarman.mockitokotlin2.*
-import hextant.*
 import hextant.command.line.*
 import hextant.command.line.CommandLine.HistoryItem
 import hextant.command.line.CommandReceiverType.Targets
+import hextant.context.*
+import hextant.core.Editor
+import hextant.core.EditorView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.test.testingContext

@@ -5,10 +5,11 @@
 package hextant.command.line
 
 import bundles.SimpleProperty
-import hextant.*
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.command.Command
+import hextant.context.*
+import hextant.core.Editor
 import hextant.serial.makeRoot
 import reaktive.Observer
 import reaktive.dependencies

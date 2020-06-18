@@ -4,7 +4,9 @@
 
 package hextant.base
 
-import hextant.*
+import hextant.context.Context
+import hextant.context.snapshot
+import hextant.core.Editor
 import hextant.core.editor.Expander
 import hextant.core.editor.getTypeArgument
 import hextant.serial.*

@@ -2,7 +2,7 @@
  * @author Nikolaus Knop
  */
 
-package hextant.core
+package hextant.core.editor
 
 import validated.Validated
 

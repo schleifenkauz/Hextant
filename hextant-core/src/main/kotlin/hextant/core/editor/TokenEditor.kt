@@ -4,11 +4,10 @@
 
 package hextant.core.editor
 
-import hextant.Context
 import hextant.base.AbstractEditor
 import hextant.base.EditorSnapshot
 import hextant.completion.Completion
-import hextant.core.TokenType
+import hextant.context.Context
 import hextant.core.view.TokenEditorView
 import hextant.serial.VirtualEditor
 import hextant.serial.virtualize

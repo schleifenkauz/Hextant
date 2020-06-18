@@ -4,9 +4,9 @@
 
 package hextant.command.line
 
-import hextant.Context
 import hextant.command.Command
 import hextant.command.Commands
+import hextant.context.Context
 import reaktive.value.ReactiveBoolean
 import reaktive.value.reactiveValue
 

@@ -1,6 +1,6 @@
 package hextant.core.view
 
-import hextant.EditorView
+import hextant.core.EditorView
 
 /**
  * An [EditorView] that displays a [hextant.core.editor.ChoiceEditor]

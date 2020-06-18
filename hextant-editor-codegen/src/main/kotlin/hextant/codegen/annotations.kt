@@ -4,7 +4,7 @@
 
 package hextant.codegen
 
-import hextant.Editor
+import hextant.core.Editor
 import kotlin.annotation.AnnotationRetention.SOURCE
 import kotlin.annotation.AnnotationTarget.CLASS
 import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER

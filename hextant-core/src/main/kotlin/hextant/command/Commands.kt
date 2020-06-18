@@ -6,7 +6,7 @@ package hextant.command
 
 import bundles.Property
 import hextant.command.meta.collectProvidedCommands
-import hextant.core.Internal
+import hextant.context.Internal
 import kollektion.ClassDAG
 import reaktive.value.now
 import kotlin.reflect.KClass

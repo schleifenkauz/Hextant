@@ -2,7 +2,7 @@
  * @author Nikolaus Knop
  */
 
-package hextant
+package hextant.core
 
 /**
  * Used to save the state of an object at given point of time.

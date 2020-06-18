@@ -5,7 +5,7 @@
 package hextant.gui
 
 import bundles.createBundle
-import hextant.*
+import hextant.context.*
 import hextant.core.editor.ExpanderConfig
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView

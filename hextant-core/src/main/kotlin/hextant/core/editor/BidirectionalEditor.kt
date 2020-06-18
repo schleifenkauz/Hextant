@@ -2,7 +2,9 @@
  * @author Nikolaus Knop
  */
 
-package hextant
+package hextant.core.editor
+
+import hextant.core.Editor
 
 /**
  * An [Editor] which supports setting the [result] to a specific value and updating its state accordingly.

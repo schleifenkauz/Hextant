@@ -1,4 +1,4 @@
-package hextant.core
+package hextant.context
 
 import bundles.Property
 import bundles.SimpleProperty

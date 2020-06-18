@@ -4,11 +4,14 @@
 
 package hextant.main
 
-import hextant.Context
-import hextant.core.Internal
+import hextant.context.Context
+import hextant.context.Internal
 import javafx.stage.DirectoryChooser
 import java.nio.file.Path
 
+/**
+ * Implements the [PathChooser] interface using the JavaFX Gui toolkit.
+ */
 class FXPathChooser : PathChooser {
     private val dc = DirectoryChooser()
 

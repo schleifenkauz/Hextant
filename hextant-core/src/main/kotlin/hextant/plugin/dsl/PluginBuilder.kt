@@ -5,12 +5,13 @@
 package hextant.plugin.dsl
 
 import bundles.Bundle
-import hextant.*
 import hextant.command.*
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
-import hextant.core.Internal
+import hextant.context.*
+import hextant.core.Editor
 import hextant.core.editor.TokenEditor
+import hextant.core.map
 import hextant.core.view.*
 import hextant.fx.*
 import hextant.inspect.*

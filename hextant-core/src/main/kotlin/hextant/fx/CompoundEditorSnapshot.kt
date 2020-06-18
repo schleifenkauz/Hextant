@@ -6,7 +6,7 @@ package hextant.fx
 
 import hextant.base.CompoundEditor
 import hextant.base.EditorSnapshot
-import hextant.snapshot
+import hextant.context.snapshot
 
 /**
  * This editor snapshot reconstructs editors component-wise.

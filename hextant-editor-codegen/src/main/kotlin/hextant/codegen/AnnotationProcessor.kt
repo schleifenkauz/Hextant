@@ -5,9 +5,10 @@
 package hextant.codegen
 
 import com.google.auto.service.AutoService
-import hextant.*
 import hextant.base.CompoundEditor
-import hextant.core.TokenType
+import hextant.context.Context
+import hextant.context.EditorFactory
+import hextant.core.Editor
 import hextant.core.editor.*
 import hextant.core.view.TokenEditorView
 import krobot.api.*

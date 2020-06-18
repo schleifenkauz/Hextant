@@ -2,7 +2,7 @@
  * @author Nikolaus Knop
  */
 
-package hextant
+package hextant.context
 
 import bundles.Bundle
 import hextant.base.AbstractContext

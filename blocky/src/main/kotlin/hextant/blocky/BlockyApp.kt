@@ -4,8 +4,8 @@
 
 package hextant.blocky
 
-import hextant.*
 import hextant.blocky.editor.ProgramEditor
+import hextant.context.*
 import hextant.fx.registerShortcuts
 import hextant.main.HextantApplication
 import javafx.scene.Parent

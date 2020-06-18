@@ -4,8 +4,8 @@
 
 package hextant.main
 
-import hextant.Context
-import hextant.core.Internal
+import hextant.context.Context
+import hextant.context.Internal
 import hextant.core.editor.ListEditor
 import hextant.serial.SerialProperties
 import kserial.createOutput
@@ -14,6 +14,9 @@ import validated.force
 import java.nio.file.Files
 import java.nio.file.Path
 
+/**
+ * List editor for [Path]s.
+ */
 class PathListEditor(context: Context) :
     ListEditor<Path, PathEditor>(context) {
     override fun createEditor(): PathEditor? {

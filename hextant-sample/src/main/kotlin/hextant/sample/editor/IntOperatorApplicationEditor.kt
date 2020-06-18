@@ -4,8 +4,8 @@
 
 package hextant.sample.editor
 
-import hextant.Context
 import hextant.base.CompoundEditor
+import hextant.context.Context
 import hextant.core.editor.composeResult
 import hextant.sample.ast.IntOperatorApplication
 import validated.reaktive.ReactiveValidated

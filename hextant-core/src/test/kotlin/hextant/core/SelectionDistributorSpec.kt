@@ -3,8 +3,7 @@ package hextant.core
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockitokotlin2.verify
-import hextant.EditorView
-import hextant.SelectionDistributor
+import hextant.context.SelectionDistributor
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*

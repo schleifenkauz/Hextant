@@ -4,8 +4,8 @@
 
 package hextant.config
 
-import hextant.Context
 import hextant.command.command
+import hextant.context.Context
 import reaktive.value.now
 
 internal val enable = command<Context, String> {
