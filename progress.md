@@ -1,5 +1,5 @@
 # Oct 2018
-- Initial commit
+- Initial commit, includes: 
 - Editable, EditorView and Editor
 - Bundles
 - HextantPlatform
@@ -88,3 +88,30 @@
 
 # Jan 2020
 - Work on project explorer
+- implement project management
+- work on shortcut API (Shortcut parsing)
+- copy/paste functionality
+
+# Feb 2020
+
+- fix the memory leaks (!!!)
+- fix navigation
+- redesign completion and commmand line
+
+# Mar 2020
+- publishing to maven central
+
+# May 2020
+
+- Snapshots
+- factor out `collection` and `bundle` modules
+- virtualize undo/redo
+
+# Jun 2020
+
+- own module for the `validated` API
+- respect type parameters for editor creation
+- Youtube Video on Hask
+- redesign inspection API
+- connect completions to editors
+- commands via shortcuts
