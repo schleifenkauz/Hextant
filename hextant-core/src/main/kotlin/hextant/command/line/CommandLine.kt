@@ -115,7 +115,12 @@ class CommandLine(context: Context, val source: CommandSource) :
     fun execute(): Any? {
         if (!isExpanded.now && !expandNoArgCommand()) return null
         val (command, args) = result.now.ifInvalid { return null }
-        val results = source.executeCommand(command, args)
+        val onError = listOf("Error executing $command")
+        val results = context.executeSafely("Executing $command", onError) {
+            val result = source.executeCommand(command, args)
+            context[CoreProperties.logger].fine("Executed $command")
+            result
+        }
         val result = when (results.size) {
             0    -> return null
             1    -> results[0]

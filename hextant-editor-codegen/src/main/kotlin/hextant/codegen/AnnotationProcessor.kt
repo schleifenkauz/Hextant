@@ -111,7 +111,7 @@ class AnnotationProcessor : AbstractProcessor() {
                 import(annotated.toString())
                 import<ListEditor<*, *>>()
                 import(editorClsName)
-                import("hextant.*")
+                import("hextant.context.*")
             },
             name,
             primaryConstructor = { "context" of "Context" },
@@ -254,7 +254,7 @@ class AnnotationProcessor : AbstractProcessor() {
             imports = {
                 import<CompoundEditor<*>>()
                 import(annotated.toString())
-                import("hextant.*")
+                import("hextant.context.*")
                 import("validated.reaktive.*")
             },
             name = simpleName,
@@ -338,7 +338,7 @@ class AnnotationProcessor : AbstractProcessor() {
         val delegator = getTypeMirror(annotation::delegator)
         val file = kotlinClass(
             pkg, {
-                import("hextant.*")
+                import("hextant.context.*")
                 import<Expander<*, *>>()
                 import(annotated.toString())
                 import(delegator.toString())

@@ -4,8 +4,7 @@
 
 package hextant.fx
 
-import hextant.context.Context
-import hextant.context.Internal
+import hextant.context.*
 import hextant.inspect.*
 import javafx.scene.Node
 import javafx.scene.Parent
@@ -75,7 +74,7 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
 
     private class FixesPopup(
         private val target: Any,
-        context: Context,
+        private val context: Context,
         private val fixes: Collection<ProblemFix<Any>>
     ) : Popup() {
         init {
@@ -105,7 +104,11 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
         }
 
         private fun applyAndHide(fix: ProblemFix<Any>) {
-            fix.run { InspectionBody.of(target).fix() }
+            fix.run {
+                context.executeSafely("Executing ${fix.description}", Unit) {
+                    InspectionBody.of(target).fix()
+                }
+            }
             hide()
             ownerWindow.hide()
         }

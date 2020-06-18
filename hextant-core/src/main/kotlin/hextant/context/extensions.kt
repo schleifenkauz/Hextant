@@ -7,6 +7,7 @@ import hextant.fx.EditorControl
 import hextant.serial.SerialProperties
 import kserial.*
 import java.nio.file.Path
+import java.util.logging.Level
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -146,4 +147,15 @@ fun Context.createInput(path: Path): Input {
     val ctx = get(SerialProperties.serialContext)
     val serial = get(SerialProperties.serial)
     return serial.createInput(path, ctx)
+}
+
+/**
+ * Tries to execute the given action catching an eventual thrown exception and logging it.
+ */
+fun <T> Context.executeSafely(description: String, onError: T, action: () -> T): T = try {
+    action()
+} catch (ex: Throwable) {
+    val msg = "Exception while $description: ${ex.message}"
+    get(CoreProperties.logger).log(Level.SEVERE, msg, ex)
+    onError
 }

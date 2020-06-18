@@ -21,13 +21,4 @@ data class CommandApplication(val command: Command<*, *>, val args: List<Any?>) 
             append(a)
         }
     }
-
-    /**
-     * Execute the [command] on the given [receiver]
-     */
-    fun execute(receiver: Any): Any {
-        @Suppress("UNCHECKED_CAST")
-        command as Command<Any, Any>
-        return command.execute(receiver, args)
-    }
 }

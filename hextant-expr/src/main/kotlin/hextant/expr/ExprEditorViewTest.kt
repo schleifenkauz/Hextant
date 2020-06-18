@@ -24,19 +24,19 @@ import kserial.*
 import reaktive.value.now
 
 class ExprEditorViewTest : HextantApplication() {
-    private lateinit var serialContext: SerialContext
+    private val handler = VisualLoggerHandler()
 
     override fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
 
     override fun createView(context: Context): Parent {
-        serialContext = context[SerialProperties.serialContext]
+        context[CoreProperties.logger].addHandler(handler)
         val editor = ExprExpander(context)
         editor.makeRoot()
         val view = context.createView(editor)
         val clView = CommandLineControl(context[CommandLine.local], createBundle())
         val globalCLView = CommandLineControl(context[CommandLine.global], createBundle())
         val menuBar = createMenuBar(editor, context, view)
-        return VBox(50.0, menuBar, view, globalCLView, clView)
+        return VBox(menuBar, view, globalCLView, clView)
     }
 
     private fun createMenuBar(
@@ -51,6 +51,12 @@ class ExprEditorViewTest : HextantApplication() {
             item("Open", "Ctrl + O") {
                 open(parent)
             }
+            item("Log Message") {
+                context[CoreProperties.logger].info("Information")
+            }
+            item("Show Log") {
+                handler.stage.show()
+            }
         }
         menu("Edit") {
             item("Toggle Vim Mode") {
@@ -63,7 +69,7 @@ class ExprEditorViewTest : HextantApplication() {
     private fun open(parent: ExprExpander) {
         val chooser = FileChooser()
         val file = chooser.showOpenDialog(stage) ?: return
-        val input = serial.createInput(file, serialContext)
+        val input = serial.createInput(file, parent.context[SerialProperties.serialContext])
         val editable = input.readTyped<ExprEditor<Expr>>()
         parent.setEditor(editable)
     }
@@ -71,7 +77,7 @@ class ExprEditorViewTest : HextantApplication() {
     private fun save(parent: ExprExpander) {
         val chooser = FileChooser()
         val file = chooser.showSaveDialog(stage) ?: return
-        val out = serial.createOutput(file, serialContext)
+        val out = serial.createOutput(file, parent.context[SerialProperties.serialContext])
         out.writeObject(parent.editor.now)
     }
 

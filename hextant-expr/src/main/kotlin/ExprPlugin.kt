@@ -186,5 +186,11 @@ object ExprPlugin : PluginInitializer({
         }
         executing { v, (color) -> v.root.style = "-fx-text-fill: $color;" }
     }
+    registerCommand<Any, Unit> {
+        description = "Throws an exception"
+        name = "Error"
+        shortName = "error"
+        executing { _, _ -> throw AssertionError("error") }
+    }
     stylesheet("expr.css")
 })

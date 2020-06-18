@@ -107,6 +107,8 @@ internal fun Region.fixWidth(value: Double) {
 
 internal fun <N : Node> N.withStyleClass(vararg names: String) = apply { styleClass.addAll(*names) }
 
+internal fun <N : Node> N.withStyle(style: String) = also { it.style = style }
+
 internal fun <C : Control> C.withTooltip(tooltip: Tooltip) = apply { this.tooltip = tooltip }
 
 internal fun <C : Control> C.withTooltip(text: String) = withTooltip(Tooltip(text))
