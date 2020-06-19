@@ -6,6 +6,7 @@ package hextant.main
 
 import hextant.context.*
 import hextant.core.Editor
+import hextant.core.view.EditorControl
 import hextant.core.view.ListEditorControl
 import hextant.fx.*
 import hextant.serial.SerialProperties

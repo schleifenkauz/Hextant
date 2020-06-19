@@ -10,6 +10,7 @@ import hextant.command.line.CommandLine.HistoryItem
 import hextant.completion.gui.CompletionPopup
 import hextant.context.createView
 import hextant.core.Editor
+import hextant.core.view.EditorControl
 import hextant.fx.*
 import hextant.impl.observe
 import javafx.application.Platform

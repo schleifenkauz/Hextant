@@ -5,7 +5,6 @@ import hextant.config.*
 import hextant.context.createView
 import hextant.core.Editor
 import hextant.core.editor.*
-import hextant.core.inspect.SyntaxErrorInspection
 import hextant.core.view.*
 import hextant.core.view.ValidatedTokenEditorControl.Companion.ABORT_CHANGE
 import hextant.core.view.ValidatedTokenEditorControl.Companion.BEGIN_CHANGE
@@ -26,7 +25,6 @@ import reaktive.value.binding.map
 import reaktive.value.now
 import reaktive.value.reactiveValue
 import validated.Validated.Invalid
-import validated.isValid
 
 /**
  * The core plugin registers basic editors, views and commands.
@@ -41,11 +39,20 @@ object Core : PluginInitializer({
         ListEditorControl(e, args)
     }
     view { e: TokenEditor<*, TokenEditorView>, args -> TokenEditorControl(e, args) }
-    inspection(SyntaxErrorInspection)
+    registerInspection<Editor<*>> {
+        id = "syntax-error"
+        description = "Highlights syntax errors"
+        isSevere(true)
+        checkingThat { inspected.result.map { it !is Invalid } }
+        message {
+            val result = inspected.result.now as Invalid
+            result.reason
+        }
+    }
     registerInspection<ValidatedTokenEditor<*>> {
         id = "invalid-intermediate"
         description = "Reports invalid intermediate result"
-        checkingThat { inspected.intermediateResult.map { it.isValid } }
+        checkingThat { inspected.intermediateResult.map { it !is Invalid } }
         message { (inspected.intermediateResult.now as Invalid).reason }
         isSevere(true)
     }

@@ -4,13 +4,11 @@
 
 package hextant.blocky.editor
 
-import hextant.base.AbstractEditor
-import hextant.base.EditorSnapshot
 import hextant.blocky.End
 import hextant.blocky.Executable
 import hextant.context.Context
-import hextant.context.snapshot
 import hextant.core.EditorView
+import hextant.core.editor.*
 import reaktive.value.*
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map

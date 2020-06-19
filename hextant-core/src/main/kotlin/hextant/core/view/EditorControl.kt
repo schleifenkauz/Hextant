@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package hextant.fx
+package hextant.core.view
 
 import bundles.Bundle
 import bundles.Property
@@ -11,7 +11,11 @@ import hextant.command.Commands
 import hextant.command.line.CommandLine
 import hextant.command.meta.ProvideCommand
 import hextant.context.*
-import hextant.core.*
+import hextant.core.Editor
+import hextant.core.EditorView
+import hextant.core.editor.copyToClipboard
+import hextant.core.editor.pasteFromClipboard
+import hextant.fx.*
 import hextant.impl.addListener
 import hextant.impl.observe
 import hextant.inspect.Inspections
@@ -19,6 +23,8 @@ import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
 import reaktive.value.*
+import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.jvm.jvmName
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -58,6 +64,8 @@ abstract class EditorControl<R : Node>(
 
     private val editorChildren = mutableListOf<EditorControl<*>>()
 
+    private val changedArguments = mutableMapOf<Property<*, *, *>, Any?>()
+
     /**
      * Return a list of child [EditorControl]'s
      */
@@ -83,6 +91,7 @@ abstract class EditorControl<R : Node>(
     init {
         styleClass.add("editor-control")
         arguments.changed.observe(this) { _, change ->
+            changedArguments[change.property] = change.newValue
             argumentChanged(change.property, change.newValue)
         }
         sceneProperty().addListener(this) { sc ->
@@ -377,6 +386,39 @@ abstract class EditorControl<R : Node>(
             else  -> {
                 styleClass.remove("warning")
                 styleClass.remove("error")
+            }
+        }
+    }
+
+    override fun createSnapshot(): ViewSnapshot<*> = Snapshot(this)
+
+    private class Snapshot<C : EditorControl<*>>(original: C) : ViewSnapshot<C> {
+        private val className = original::class.jvmName
+        private val changedArguments = original.changedArguments
+        private val children = original.editorChildren().map { it.snapshot() }
+
+        override fun reconstruct(target: Any, arguments: Bundle): C {
+            val cls = Class.forName(className).kotlin
+            val constructor = cls.primaryConstructor ?: error("$cls has no primary constructor")
+            val targetParameter = constructor.parameters[0]
+            val argumentsParameter = constructor.parameters[1]
+            val instance = constructor.callBy(mapOf(targetParameter to target, argumentsParameter to arguments))
+            @Suppress("UNCHECKED_CAST")
+            reconstruct(instance as C)
+            return instance
+        }
+
+        override fun reconstruct(view: C) {
+            check(view::class.jvmName == className) {
+                "instance of ${view::class} passed is not valid for snapshot of class $className"
+            }
+            for ((p, v) in changedArguments) {
+                @Suppress("UNCHECKED_CAST")
+                p as Property<Any?, Any, Any>
+                view.arguments[p] = v
+            }
+            for ((child, snapshot) in view.editorChildren().zip(children)) {
+                snapshot.reconstruct(child)
             }
         }
     }

@@ -9,7 +9,8 @@ package hextant.project.view
 import bundles.Bundle
 import hextant.context.*
 import hextant.context.ClipboardContent.OneEditor
-import hextant.fx.EditorControl
+import hextant.core.editor.snapshot
+import hextant.core.view.EditorControl
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import javafx.scene.control.*

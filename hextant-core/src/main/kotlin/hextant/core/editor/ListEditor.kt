@@ -4,12 +4,10 @@
 
 package hextant.core.editor
 
-import hextant.base.AbstractEditor
-import hextant.base.EditorSnapshot
 import hextant.command.meta.ProvideCommand
 import hextant.context.*
 import hextant.context.ClipboardContent.MultipleEditors
-import hextant.core.*
+import hextant.core.Editor
 import hextant.core.view.ListEditorView
 import hextant.serial.*
 import hextant.undo.AbstractEdit

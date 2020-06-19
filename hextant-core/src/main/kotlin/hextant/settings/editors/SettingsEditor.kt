@@ -7,11 +7,11 @@
 package hextant.settings.editors
 
 import bundles.*
-import hextant.base.CompoundEditor
 import hextant.context.Context
 import hextant.context.Internal
 import hextant.core.Editor
 import hextant.core.editor.BidirectionalEditor
+import hextant.core.editor.CompoundEditor
 import hextant.settings.model.ConfigurableProperties
 import reaktive.Observer
 import reaktive.list.ListChange.Added

@@ -2,12 +2,11 @@
  *@author Nikolaus Knop
  */
 
-package hextant.base
+package hextant.core.editor
 
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.Snapshot
-import hextant.core.editor.getSimpleEditorConstructor
 import kotlin.reflect.KClass
 
 /**

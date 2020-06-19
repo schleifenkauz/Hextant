@@ -4,9 +4,6 @@
 
 package hextant.core.editor
 
-import hextant.base.AbstractEditor
-import hextant.base.EditorSnapshot
-import hextant.context.snapshot
 import hextant.core.Editor
 import hextant.core.EditorView
 import reaktive.value.binding.map

@@ -7,7 +7,7 @@ package hextant.context
 import bundles.Bundle
 import bundles.SimpleProperty
 import hextant.core.Editor
-import hextant.fx.EditorControl
+import hextant.core.view.EditorControl
 import kollektion.DoubleWeakHashMap
 
 /**

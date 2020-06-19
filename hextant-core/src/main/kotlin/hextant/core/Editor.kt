@@ -4,8 +4,8 @@
 
 package hextant.core
 
-import hextant.base.EditorSnapshot
 import hextant.context.Context
+import hextant.core.editor.EditorSnapshot
 import hextant.core.editor.Expander
 import hextant.serial.*
 import reaktive.collection.ReactiveCollection

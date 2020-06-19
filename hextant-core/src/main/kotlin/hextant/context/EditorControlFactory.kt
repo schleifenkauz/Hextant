@@ -6,7 +6,7 @@ package hextant.context
 
 import bundles.*
 import hextant.core.Editor
-import hextant.fx.EditorControl
+import hextant.core.view.EditorControl
 import kollektion.ClassMap
 import kotlin.reflect.KClass
 

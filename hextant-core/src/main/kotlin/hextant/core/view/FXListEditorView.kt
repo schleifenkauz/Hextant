@@ -8,7 +8,6 @@ import bundles.Bundle
 import hextant.context.createView
 import hextant.core.Editor
 import hextant.core.editor.ListEditor
-import hextant.fx.EditorControl
 import hextant.fx.registerShortcuts
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView

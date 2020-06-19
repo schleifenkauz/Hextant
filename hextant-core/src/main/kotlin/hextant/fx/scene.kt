@@ -6,6 +6,7 @@ package hextant.fx
 
 import hextant.context.Context
 import hextant.context.Internal
+import hextant.core.view.EditorControl
 import javafx.scene.Scene
 import javafx.scene.input.ContextMenuEvent
 

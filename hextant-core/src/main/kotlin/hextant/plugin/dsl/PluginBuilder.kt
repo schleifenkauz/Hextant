@@ -11,9 +11,9 @@ import hextant.completion.NoCompleter
 import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.TokenEditor
-import hextant.core.map
+import hextant.core.editor.map
 import hextant.core.view.*
-import hextant.fx.*
+import hextant.fx.Stylesheets
 import hextant.inspect.*
 import hextant.plugin.Plugin
 import validated.Validated
@@ -63,7 +63,7 @@ class PluginBuilder @PublishedApi internal constructor(val context: Context) {
     }
 
     /**
-     * Register a factory for views of class [E] that produce a [hextant.fx.CompoundEditorControl]
+     * Register a factory for views of class [E] that produce a [hextant.core.view.CompoundEditorControl]
      * applying the given [block] to it.
      */
     inline fun <reified E : Editor<*>> compoundView(

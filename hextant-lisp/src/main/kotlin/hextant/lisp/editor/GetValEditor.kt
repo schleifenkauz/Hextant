@@ -4,8 +4,8 @@
 
 package hextant.lisp.editor
 
-import hextant.base.CompoundEditor
 import hextant.context.Context
+import hextant.core.editor.CompoundEditor
 import hextant.lisp.GetVal
 import reaktive.value.binding.map
 import validated.Validated.InvalidComponent

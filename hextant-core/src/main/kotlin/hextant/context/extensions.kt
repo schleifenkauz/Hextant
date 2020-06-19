@@ -1,9 +1,8 @@
 package hextant.context
 
 import bundles.*
-import hextant.base.EditorSnapshot
 import hextant.core.Editor
-import hextant.fx.EditorControl
+import hextant.core.view.EditorControl
 import hextant.serial.SerialProperties
 import kserial.*
 import java.nio.file.Path
@@ -51,13 +50,7 @@ inline fun <reified T> EditorFactory.createEditor(result: T, context: Context) =
     createEditor(typeOf<T>(), result, context)
 
 /**
- * Typesafe version of [Editor.createSnapshot]
- */
-@Suppress("UNCHECKED_CAST")
-fun <E : Editor<*>> E.snapshot(): EditorSnapshot<E> = createSnapshot() as EditorSnapshot<E>
-
-/**
- *
+ * Set the given [property] to the given [value] on the first [Context] in the parent-chain that already has this property.
  */
 fun <T, Read : Any, Write : Read> Context.replace(permission: Write, property: Property<T, Read, Write>, value: T) {
     when {

@@ -2,10 +2,9 @@
  *@author Nikolaus Knop
  */
 
-package hextant.base
+package hextant.context
 
 import bundles.*
-import hextant.context.Context
 
 /**
  * Skeletal implementation of [Context] using the specified [parent] and [bundle]
@@ -17,8 +16,7 @@ open class AbstractContext(final override val parent: Context?, private val bund
         when {
             bundle.hasProperty(permission, property) -> bundle[permission, property]
             parent != null                           -> parent[permission, property]
-            else                                     ->
-                property.default() ?: throw NoSuchElementException("Property $property is not configured")
+            else                                     -> property.default
         }
 
     override fun <Read : Any, Write : Read> delete(permission: Write, property: Property<*, Read, Write>) {

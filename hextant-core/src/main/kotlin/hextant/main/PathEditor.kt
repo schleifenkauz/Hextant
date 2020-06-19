@@ -4,9 +4,9 @@
 
 package hextant.main
 
-import hextant.base.AbstractEditor
-import hextant.base.EditorSnapshot
 import hextant.context.Context
+import hextant.core.editor.AbstractEditor
+import hextant.core.editor.EditorSnapshot
 import kserial.Serializable
 import reaktive.value.now
 import reaktive.value.reactiveVariable

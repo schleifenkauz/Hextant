@@ -2,12 +2,11 @@
  *@author Nikolaus Knop
  */
 
-package hextant.base
+package hextant.core.editor
 
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.EditorView
-import hextant.fx.CompoundEditorSnapshot
 import hextant.serial.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -38,7 +37,8 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
         ): ReadOnlyProperty<CompoundEditor<*>, E>
     }
 
-    private inner class ChildDelegatorImpl<E : Editor<*>>(private val editor: E) : ChildDelegator<E> {
+    private inner class ChildDelegatorImpl<E : Editor<*>>(private val editor: E) :
+        ChildDelegator<E> {
         @Suppress("UNCHECKED_CAST", "DEPRECATION")
         override fun provideDelegate(
             thisRef: CompoundEditor<*>,
@@ -60,7 +60,8 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
         return res
     }
 
-    override fun createSnapshot(): EditorSnapshot<*> = CompoundEditorSnapshot(this)
+    override fun createSnapshot(): EditorSnapshot<*> =
+        CompoundEditorSnapshot(this)
 
     companion object {
         private fun <T, R> delegate(value: T): ReadOnlyProperty<R, T> = object : ReadOnlyProperty<R, T> {

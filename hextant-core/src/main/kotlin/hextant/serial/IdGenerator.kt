@@ -22,5 +22,7 @@ class IdGenerator {
         return "$id"
     }
 
-    companion object : Property<IdGenerator, Internal, Internal>("path generator", default = IdGenerator())
+    companion object : Property<IdGenerator, Internal, Internal>("path generator") {
+        override val default: IdGenerator = IdGenerator()
+    }
 }

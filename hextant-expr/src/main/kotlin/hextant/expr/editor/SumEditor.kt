@@ -4,8 +4,8 @@
 
 package hextant.expr.editor
 
-import hextant.base.CompoundEditor
 import hextant.context.Context
+import hextant.core.editor.CompoundEditor
 import hextant.expr.Sum
 import validated.reaktive.ReactiveValidated
 import validated.reaktive.composeReactive

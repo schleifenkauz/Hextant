@@ -6,7 +6,6 @@ package hextant.core.view
 
 import bundles.Bundle
 import hextant.core.editor.ChoiceEditor
-import hextant.fx.EditorControl
 import javafx.collections.FXCollections
 import javafx.scene.control.ComboBox
 import javafx.scene.control.ListCell

@@ -15,7 +15,7 @@ import hextant.settings.model.Settings
 import javafx.scene.Parent
 
 class SettingsEditorTest : HextantApplication() {
-    private val test = SimpleProperty("name", "<default>")
+    private val test = SimpleProperty.withDefault("name", "<default>")
 
     override fun createView(context: Context): Parent {
         context[ConfigurableProperties].register(test)

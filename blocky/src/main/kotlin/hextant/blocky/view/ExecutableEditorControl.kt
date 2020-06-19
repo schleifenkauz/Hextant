@@ -8,7 +8,7 @@ import bundles.Bundle
 import hextant.blocky.editor.ExecutableEditor
 import hextant.blocky.editor.NextExecutableEditor
 import hextant.context.EditorControlGroup
-import hextant.fx.EditorControl
+import hextant.core.view.EditorControl
 import javafx.scene.Parent
 import javafx.scene.control.*
 

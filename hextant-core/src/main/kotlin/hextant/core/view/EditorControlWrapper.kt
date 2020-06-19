@@ -7,7 +7,6 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.Property
 import hextant.core.Editor
-import hextant.fx.EditorControl
 
 /**
  * Wraps the given [view]

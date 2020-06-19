@@ -26,16 +26,17 @@ open class ListEditorControl(
     private val editor: ListEditor<*, *>,
     args: Bundle
 ) : ListEditorView, EditorControl<Node>(editor, args) {
+    private val emptyDisplay = arguments[EMPTY_DISPLAY].invoke()
+
     /**
      * The orientation in which the sub-editors are displayed.
      */
-    var orientation = arguments[ORIENTATION]
-        set(new) {
-            field = new
-            orientationChanged(new)
-        }
+    var orientation by property(arguments, ORIENTATION)
 
-    private val emptyDisplay = arguments[EMPTY_DISPLAY]()
+    /**
+     * The cell factory that is used to create [Cell]s for individual editors.
+     */
+    var cellFactory: () -> Cell<*> by property(arguments, CELL_FACTORY)
 
     private var items = orientation.createLayout()
 
@@ -50,15 +51,6 @@ open class ListEditorControl(
         }
     }
 
-    /**
-     * The cell factory that is used to create [Cell]s for individual editors.
-     */
-    var cellFactory: () -> Cell<*> = arguments[CELL_FACTORY]
-        set(value) {
-            field = value
-            cellFactoryChanged()
-        }
-
     private fun cellFactoryChanged() {
         cells.clear()
         cells.addAll(cells(editor.editors.now))
@@ -69,8 +61,8 @@ open class ListEditorControl(
     @Suppress("UNCHECKED_CAST")
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
         when (property) {
-            ORIENTATION  -> orientation = value as Orientation
-            CELL_FACTORY -> cellFactory = value as () -> Cell<*>
+            ORIENTATION  -> orientationChanged(value as Orientation)
+            CELL_FACTORY -> cellFactoryChanged()
         }
     }
 
@@ -382,11 +374,11 @@ open class ListEditorControl(
         /**
          * The [ListEditorControl.cellFactory] used to display items
          */
-        val CELL_FACTORY = SimpleProperty<() -> Cell<*>>("list view cell factory") { DefaultCell() }
+        val CELL_FACTORY = SimpleProperty.withDefault<() -> Cell<*>>("list view cell factory") { DefaultCell() }
 
         /**
          * The [Node] that is displayed when no items are in the [ListEditor]
          */
-        val EMPTY_DISPLAY = SimpleProperty<() -> Node>("empty display") { Glyphs.create(PLUS) }
+        val EMPTY_DISPLAY = SimpleProperty.withDefault<() -> Node>("empty display") { Glyphs.create(PLUS) }
     }
 }

@@ -29,5 +29,7 @@ class IconManager {
         return ImageView(image)
     }
 
-    companion object : Property<IconManager, Any, Internal>("icon manager", default = IconManager())
+    companion object : Property<IconManager, Any, Internal>("icon manager") {
+        override val default: IconManager = IconManager()
+    }
 }

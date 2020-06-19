@@ -4,12 +4,10 @@
 
 package hextant.sample.ast
 
-import hextant.base.AbstractEditor
 import hextant.codegen.*
 import hextant.context.Context
 import hextant.core.EditorView
-import hextant.core.editor.TokenEditor
-import hextant.core.editor.TokenType
+import hextant.core.editor.*
 import hextant.core.view.TokenEditorView
 import hextant.sample.ast.Alt.O
 import hextant.sample.ast.Alt.TestToken

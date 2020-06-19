@@ -60,21 +60,21 @@ class ValidatedTokenEditorControl(private val editor: ValidatedTokenEditor<*>, a
         /**
          * Keyboard shortcut for the commit change action.
          */
-        val COMMIT_CHANGE = SimpleProperty("commit", default = never())
+        val COMMIT_CHANGE = SimpleProperty.withDefault("commit", never())
 
         /**
          * Keyboard shortcut for the begin change action.
          */
-        val BEGIN_CHANGE = SimpleProperty("begin change", default = never())
+        val BEGIN_CHANGE = SimpleProperty.withDefault("begin change", never())
 
         /**
          * Keyboard shortcut for the abort change action.
          */
-        val ABORT_CHANGE = SimpleProperty("abort change", default = never())
+        val ABORT_CHANGE = SimpleProperty.withDefault("abort change", never())
 
         /**
          * Completer used by the [ValidatedTokenEditorControl]
          */
-        val COMPLETER = SimpleProperty<Completer<Context, *>>("completer", default = NoCompleter)
+        val COMPLETER = SimpleProperty.withDefault<Completer<Context, *>>("completer", NoCompleter)
     }
 }

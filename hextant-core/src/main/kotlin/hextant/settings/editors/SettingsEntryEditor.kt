@@ -4,10 +4,9 @@
 
 package hextant.settings.editors
 
-import hextant.base.CompoundEditor
-import hextant.base.EditorSnapshot
-import hextant.context.*
-import hextant.core.editor.BidirectionalEditor
+import hextant.context.Context
+import hextant.context.createEditor
+import hextant.core.editor.*
 import hextant.serial.PropertyAccessor
 import hextant.settings.model.ConfigurableProperty
 import hextant.settings.model.SettingsEntry

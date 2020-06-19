@@ -4,7 +4,7 @@
 
 package hextant.context
 
-import hextant.base.EditorSnapshot
+import hextant.core.editor.EditorSnapshot
 
 /**
  * Represent the content of the clipboard

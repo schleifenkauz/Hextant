@@ -65,6 +65,6 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         /**
          * This property controls the completer of the token editor control
          */
-        val COMPLETER = SimpleProperty<Completer<Context, Any>>("completer", default = NoCompleter)
+        val COMPLETER = SimpleProperty.withDefault<Completer<Context, Any>>("completer", NoCompleter)
     }
 }

@@ -4,12 +4,10 @@
 
 package hextant.project.editor
 
-import hextant.base.CompoundEditor
-import hextant.base.EditorSnapshot
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.Internal
 import hextant.core.Editor
-import hextant.core.editor.ConfiguredExpander
-import hextant.core.editor.ExpanderDelegate
+import hextant.core.editor.*
 import hextant.project.File
 import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot

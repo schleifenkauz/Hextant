@@ -25,7 +25,7 @@ interface IconProvider<in E : Editor<*>> {
     }
 
     companion object {
-        private val prop = SimpleProperty<IconProvider<*>>("icon provider", default = NoIconProvider)
+        private val prop = SimpleProperty.withDefault<IconProvider<*>>("icon provider", NoIconProvider)
 
         /**
          * This property is used to

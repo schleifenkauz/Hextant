@@ -4,8 +4,8 @@
 
 package hextant.project.editor
 
-import hextant.base.CompoundEditor
 import hextant.context.Context
+import hextant.core.editor.CompoundEditor
 import hextant.core.editor.composeResult
 import hextant.project.Directory
 import reaktive.value.now

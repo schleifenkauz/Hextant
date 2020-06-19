@@ -2,7 +2,7 @@
  * @author Nikolaus Knop
  */
 
-package hextant.base
+package hextant.core.editor
 
 import java.lang.ref.WeakReference
 

@@ -5,7 +5,6 @@
 package hextant.codegen
 
 import com.google.auto.service.AutoService
-import hextant.base.CompoundEditor
 import hextant.context.Context
 import hextant.context.EditorFactory
 import hextant.core.Editor

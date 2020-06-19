@@ -2,12 +2,11 @@
  *@author Nikolaus Knop
  */
 
-package hextant.base
+package hextant.core.editor
 
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.executeSafely
 import hextant.core.Editor
-import hextant.core.editor.Expander
-import hextant.core.editor.getTypeArgument
 import hextant.serial.*
 import kserial.*
 import reaktive.collection.ReactiveCollection

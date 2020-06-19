@@ -4,8 +4,6 @@
 
 package hextant.core.editor
 
-import hextant.base.AbstractEditor
-import hextant.base.EditorSnapshot
 import hextant.completion.Completion
 import hextant.context.Context
 import hextant.context.executeSafely

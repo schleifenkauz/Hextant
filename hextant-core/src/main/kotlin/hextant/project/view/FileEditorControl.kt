@@ -7,6 +7,7 @@ package hextant.project.view
 import bundles.Bundle
 import hextant.context.createView
 import hextant.core.Editor
+import hextant.core.view.EditorControl
 import hextant.fx.*
 import hextant.impl.observe
 import hextant.project.editor.FileEditor

@@ -9,7 +9,7 @@ package hextant.fx
 import bundles.Bundle
 import bundles.createBundle
 import hextant.core.Editor
-import hextant.fx.CompoundEditorControl.Compound
+import hextant.core.view.CompoundEditorControl.Compound
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT

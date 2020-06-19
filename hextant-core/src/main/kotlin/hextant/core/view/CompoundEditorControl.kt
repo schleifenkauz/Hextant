@@ -2,13 +2,14 @@
  *@author Nikolaus Knop
  */
 
-package hextant.fx
+package hextant.core.view
 
 import bundles.*
 import hextant.context.Context
 import hextant.context.createView
 import hextant.core.Editor
-import hextant.fx.CompoundEditorControl.Vertical
+import hextant.core.view.CompoundEditorControl.Vertical
+import hextant.fx.Glyphs
 import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.layout.*
@@ -86,7 +87,8 @@ abstract class CompoundEditorControl(
     /**
      * A vertical box
      */
-    inner class Vertical internal constructor() : VBox(), Compound {
+    inner class Vertical internal constructor() : VBox(),
+                                                  Compound {
         internal var firstEditorChild: EditorControl<*>? = null
             private set
 
@@ -201,13 +203,13 @@ abstract class CompoundEditorControl(
         }
 
         private fun keyword(name: String, pane: Pane): Node {
-            val l = keyword(name)
+            val l = hextant.fx.keyword(name)
             pane.children.add(l)
             return l
         }
 
         private fun operator(name: String, pane: Pane): Node {
-            val l = operator(name)
+            val l = hextant.fx.operator(name)
             pane.children.add(l)
             return l
         }

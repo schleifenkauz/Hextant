@@ -9,7 +9,7 @@ import hextant.blocky.editor.*
 import hextant.context.EditorControlGroup
 import hextant.context.createView
 import hextant.core.Editor
-import hextant.fx.EditorControl
+import hextant.core.view.EditorControl
 import javafx.scene.Cursor
 import javafx.scene.Node
 import javafx.scene.control.ContextMenu

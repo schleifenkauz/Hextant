@@ -5,8 +5,8 @@
 package hextant.lisp.view
 
 import bundles.Bundle
+import hextant.core.view.EditorControl
 import hextant.core.view.TokenEditorView
-import hextant.fx.EditorControl
 import hextant.fx.HextantTextField
 import hextant.lisp.editor.CharLiteralEditor
 import javafx.scene.control.Label

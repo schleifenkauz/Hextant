@@ -4,14 +4,12 @@
 
 package hextant.core.editor
 
-import hextant.base.AbstractEditor
-import hextant.base.EditorSnapshot
 import hextant.completion.Completion
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Unexpanded
-import hextant.core.moveTo
 import hextant.core.view.ExpanderView
 import hextant.serial.*
 import hextant.undo.AbstractEdit

@@ -125,6 +125,6 @@ open class ExpanderControl(
         /**
          * This property controls the completer of the expander control
          */
-        val COMPLETER = SimpleProperty<Completer<Context, Any>>("completer", default = NoCompleter)
+        val COMPLETER = SimpleProperty.withDefault<Completer<Context, Any>>("completer", NoCompleter)
     }
 }

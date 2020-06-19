@@ -2,11 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package hextant.fx
-
-import hextant.base.CompoundEditor
-import hextant.base.EditorSnapshot
-import hextant.context.snapshot
+package hextant.core.editor
 
 /**
  * This editor snapshot reconstructs editors component-wise.

@@ -4,8 +4,8 @@
 
 package hextant.undo
 
-import hextant.base.EditorSnapshot
 import hextant.core.Editor
+import hextant.core.editor.EditorSnapshot
 import hextant.serial.VirtualEditor
 
 /**

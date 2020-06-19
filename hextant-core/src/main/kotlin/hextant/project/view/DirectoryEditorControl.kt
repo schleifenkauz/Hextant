@@ -6,7 +6,9 @@ package hextant.project.view
 
 import bundles.Bundle
 import hextant.context.createView
-import hextant.fx.*
+import hextant.core.view.EditorControl
+import hextant.fx.Glyphs
+import hextant.fx.fontSize
 import hextant.project.editor.DirectoryEditor
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color

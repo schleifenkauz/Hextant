@@ -1,5 +1,6 @@
 package hextant.fx
 
+import hextant.core.view.EditorControl
 import hextant.core.view.ExpanderControl
 import hextant.impl.iterate
 import javafx.scene.Node
