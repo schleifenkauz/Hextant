@@ -22,6 +22,7 @@ import hextant.inspect.Inspections
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
+import reaktive.Observer
 import reaktive.value.*
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.jvmName
@@ -65,6 +66,8 @@ abstract class EditorControl<R : Node>(
     private val editorChildren = mutableListOf<EditorControl<*>>()
 
     private val changedArguments = mutableMapOf<Property<*, *, *>, Any?>()
+    private val propertyChangeHandlers = context[Internal, HextantPlatform.propertyChangeHandlers]
+    private val propertyObserver: Observer
 
     /**
      * Return a list of child [EditorControl]'s
@@ -90,8 +93,12 @@ abstract class EditorControl<R : Node>(
 
     init {
         styleClass.add("editor-control")
-        arguments.changed.observe(this) { _, change ->
+        for ((p, v) in arguments.entries) {
+            propertyChangeHandlers.handle(this, p, v)
+        }
+        propertyObserver = arguments.changed.observe(this) { _, change ->
             changedArguments[change.property] = change.newValue
+            propertyChangeHandlers.handle(this, change.property, change.newValue)
             argumentChanged(change.property, change.newValue)
         }
         sceneProperty().addListener(this) { sc ->
@@ -102,7 +109,7 @@ abstract class EditorControl<R : Node>(
     }
 
     /**
-     * Is called when one of the display arguments changed
+     * Is called when one of the display [arguments] changed.
      */
     open fun argumentChanged(property: Property<*, *, *>, value: Any?) {}
 

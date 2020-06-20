@@ -30,7 +30,7 @@ class ExprEditorViewTest : HextantApplication() {
     override fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
 
     override fun createView(context: Context): Parent {
-        context[CoreProperties.logger].addHandler(handler)
+        context[HextantPlatform.logger].addHandler(handler)
         val editor = ExprExpander(context)
         editor.makeRoot()
         val view = context.createView(editor)
@@ -52,7 +52,7 @@ class ExprEditorViewTest : HextantApplication() {
                 open(parent)
             }
             item("Log Message") {
-                context[CoreProperties.logger].info("Information")
+                context[HextantPlatform.logger].info("Information")
             }
             item("Show Log") {
                 handler.stage.show()

@@ -1,8 +1,10 @@
+import bundles.SimpleReactiveProperty
 import hextant.command.Command
 import hextant.command.executingCompoundEdit
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
 import hextant.context.Context
+import hextant.context.HextantPlatform.propertyChangeHandlers
 import hextant.core.view.*
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.*
@@ -174,6 +176,10 @@ object ExprPlugin : PluginInitializer({
             }
         }
     }
+    val color = SimpleReactiveProperty<String?>("color")
+    context[propertyChangeHandlers].forContext<AbstractTokenEditorControl>().handle(color) { control, c ->
+        control.root.style = c?.let { "-fx-text-fill: $c" }
+    }
     registerCommand<TokenEditorControl, Unit> {
         description = "Sets the text fill"
         name = "Set Color"
@@ -184,7 +190,7 @@ object ExprPlugin : PluginInitializer({
             ofType<String>()
             description = "The text fill"
         }
-        executing { v, (color) -> v.root.style = "-fx-text-fill: $color;" }
+        executing { v, (c) -> v.arguments[color] = c as String? }
     }
     registerCommand<Any, Unit> {
         description = "Throws an exception"

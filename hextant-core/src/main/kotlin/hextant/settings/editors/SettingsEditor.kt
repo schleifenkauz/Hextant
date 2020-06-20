@@ -29,6 +29,8 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
 
     private val valueEditor = mutableMapOf<Property<*, *, *>, BidirectionalEditor<*>>()
 
+    internal val entries by child(SettingsEntryListEditor(context))
+
     /**
      * The [Bundle] configured by this editor.
      * Settings the value of a property of this [Bundle] causes this [Editor] to add or modify an entry accordingly.
@@ -49,22 +51,16 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
                 val ed = entry.value as BidirectionalEditor<Any?>
                 ed.setResult(value)
                 ex.setEditor(entry)
-                entries.addLast(ex)
+                this@SettingsEditor.entries.addLast(ex)
             }
         }
     }
-
-    internal val entries by child(SettingsEntryListEditor(context))
 
     private val expanderObservers = mutableMapOf<SettingsEntryExpander, Observer>()
     private val valueObservers = mutableMapOf<SettingsEntryEditor, Observer>()
     private val entryObserver: Observer
 
-    override val result: ReactiveValidated<Bundle> = reactiveValue(
-        valid(
-            settings
-        )
-    )
+    override val result: ReactiveValidated<Bundle> = reactiveValue(valid(settings))
 
     init {
         entryObserver = entries.editors.observeList { ch ->

@@ -4,6 +4,8 @@
 
 package hextant.context
 
+import bundles.Property
+import bundles.PropertyChangeHandlers
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.core.Editor
@@ -25,6 +27,18 @@ import java.util.logging.Logger
  */
 object HextantPlatform {
     /**
+     * The logger property
+     */
+    val logger = Property<Logger, Any, Internal>("top level logger")
+
+
+    /**
+     * The [PropertyChangeHandlers] is used to register properties for views.
+     */
+    val propertyChangeHandlers =
+        Property<PropertyChangeHandlers, Any, Internal>("property change handlers")
+
+    /**
      * Create the root context.
      */
     fun rootContext() = Context.newInstance {
@@ -33,11 +47,12 @@ object HextantPlatform {
         set(Internal, Commands, Commands.newInstance())
         set(Internal, Inspections, Inspections.newInstance())
         set(Internal, Stylesheets, Stylesheets())
+        set(Internal, logger, Logger.getLogger(javaClass.name))
+        set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
         set(Plugins, Plugins(this))
         set(Internal, SerialProperties.serialContext, createSerialContext())
         set(Internal, SerialProperties.serial, KSerial.newInstance())
         set(Internal, ConfigurableProperties, ConfigurableProperties())
-        set(Internal, CoreProperties.logger, Logger.getLogger(javaClass.name))
     }
 
     /**

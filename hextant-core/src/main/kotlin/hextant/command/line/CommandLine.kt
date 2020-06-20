@@ -117,7 +117,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         val onError = listOf("Error executing $command")
         val results = context.executeSafely("Executing $command", onError) {
             val result = source.executeCommand(command, args)
-            context[CoreProperties.logger].fine("Executed $command")
+            context[HextantPlatform.logger].fine("Executed $command")
             result
         }
         val result = when (results.size) {

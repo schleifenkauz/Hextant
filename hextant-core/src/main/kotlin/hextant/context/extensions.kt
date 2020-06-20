@@ -149,6 +149,6 @@ inline fun <T> Context.executeSafely(description: String, onError: T, action: ()
     action()
 } catch (ex: Throwable) {
     val msg = "Exception while $description: ${ex.message}"
-    get(CoreProperties.logger).log(Level.SEVERE, msg, ex)
+    get(HextantPlatform.logger).log(Level.SEVERE, msg, ex)
     onError
 }
