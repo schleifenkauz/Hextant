@@ -176,8 +176,7 @@ object ExprPlugin : PluginInitializer({
             }
         }
     }
-    val color = SimpleReactiveProperty<String?>("color")
-    context[propertyChangeHandlers].forContext<AbstractTokenEditorControl>().handle(color) { control, c ->
+    context[propertyChangeHandlers].forContext<AbstractTokenEditorControl>().handle(ColorProperty) { control, c ->
         control.root.style = c?.let { "-fx-text-fill: $c" }
     }
     registerCommand<TokenEditorControl, Unit> {
@@ -190,7 +189,7 @@ object ExprPlugin : PluginInitializer({
             ofType<String>()
             description = "The text fill"
         }
-        executing { v, (c) -> v.arguments[color] = c as String? }
+        executing { v, (c) -> v.arguments[ColorProperty] = c as String? }
     }
     registerCommand<Any, Unit> {
         description = "Throws an exception"
@@ -199,4 +198,6 @@ object ExprPlugin : PluginInitializer({
         executing { _, _ -> throw AssertionError("error") }
     }
     stylesheet("expr.css")
-})
+}) {
+    object ColorProperty : SimpleReactiveProperty<String?>("color")
+}

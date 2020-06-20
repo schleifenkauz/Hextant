@@ -89,6 +89,7 @@ open class ExpanderControl(
     }
 
     override fun reset() {
+        removeChild(0)
         view = null
         root = textField
         textField.text = ""
@@ -96,7 +97,9 @@ open class ExpanderControl(
     }
 
     final override fun expanded(editor: Editor<*>) {
+        if (root is EditorControl<*>) removeChild(0)
         val v = showContent(editor)
+        addChild(v, 0)
         onExpansion(editor, v)
     }
 
@@ -125,6 +128,6 @@ open class ExpanderControl(
         /**
          * This property controls the completer of the expander control
          */
-        val COMPLETER = SimpleProperty.withDefault<Completer<Context, Any>>("completer", NoCompleter)
+        val COMPLETER = SimpleProperty.withDefault<Completer<Context, Any>>("expand.completer", NoCompleter)
     }
 }
