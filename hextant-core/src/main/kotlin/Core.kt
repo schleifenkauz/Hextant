@@ -69,7 +69,7 @@ object Core : PluginInitializer({
     }
     compoundView { e: SettingsEntryEditor ->
         line {
-            keyword(e.property.property.name!!)
+            keyword(e.property.property.name)
             space()
             operator("=")
             space()

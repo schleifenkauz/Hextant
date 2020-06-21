@@ -18,7 +18,7 @@ class ConfigurableProperties {
      * Register the specified [property] as configurable.
      */
     fun register(property: ConfigurableProperty) {
-        val name = property.property.name ?: error("Configurable properties must have a name")
+        val name = property.property.name
         properties[name] = property
     }
 

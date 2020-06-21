@@ -48,6 +48,7 @@ subprojects {
     sourceCompatibility = 1.8
 
     compileKotlin {
+        kotlinOptions.freeCompilerArgs += '-Xopt-in=kotlin.RequiresOptIn'
         kotlinOptions.jvmTarget = "1.8"
     }
     compileTestKotlin {

@@ -44,7 +44,7 @@ class SettingsEditor(context: Context) : CompoundEditor<Bundle>(context) {
             else {
                 val ex = SettingsEntryExpander(context)
                 val properties = context[Internal, ConfigurableProperties]
-                val name = property.name ?: throw RuntimeException("Property configured in settings must have a name!")
+                val name = property.name
                 val p = properties.byName(name)
                     ?: throw RuntimeException("Property configured in settings must be configurable!")
                 val entry = SettingsEntryEditor(context, p)
