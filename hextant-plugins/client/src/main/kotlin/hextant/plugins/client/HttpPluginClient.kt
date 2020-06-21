@@ -6,6 +6,7 @@ package hextant.plugins.client
 
 import hextant.plugins.Plugin
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.request.get
@@ -18,13 +19,13 @@ import java.io.File
 
 class HttpPluginClient(private val url: String, private val downloadDirectory: File) :
     PluginClient {
-    private val client = HttpClient {
+    private val client = HttpClient(Apache) {
         install(JsonFeature) {
             serializer = KotlinxSerializer()
         }
     }
 
-    override suspend fun getAllPlugins(): List<String> = client.get("$url/plugins")
+    override suspend fun getAllPlugins(): List<String> = client.get("$url/all")
 
     override suspend fun getById(id: String): Plugin = client.get("$url/$id")
 

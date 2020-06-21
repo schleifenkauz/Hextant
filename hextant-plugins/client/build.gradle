@@ -1,4 +1,5 @@
 dependencies {
     compile project(":hextant-plugins:common")
     implementation "io.ktor:ktor-client-serialization-jvm:$ktor_version"
+    compile "io.ktor:ktor-client-apache:$ktor_version"
 }
