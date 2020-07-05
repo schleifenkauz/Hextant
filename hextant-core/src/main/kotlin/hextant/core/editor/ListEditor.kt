@@ -162,7 +162,6 @@ abstract class ListEditor<R, E : Editor<R>>(
     /**
      * Add a new editor at the given index using [createEditor] to create a new editor
      */
-    @ProvideCommand(name = "Add editor", shortName = "add")
     fun addAt(index: Int, undoable: Boolean = true): E? {
         val editor = tryCreateEditor() ?: return null
         if (undoable) {
@@ -171,6 +170,11 @@ abstract class ListEditor<R, E : Editor<R>>(
         }
         doAddAt(index, editor)
         return editor
+    }
+
+    @ProvideCommand(name = "Add editor", shortName = "add")
+    private fun doAddAt(index: Int) {
+        addAt(index)
     }
 
     /**
@@ -206,7 +210,6 @@ abstract class ListEditor<R, E : Editor<R>>(
     /**
      * Remove the editor at the specified [index]
      */
-    @ProvideCommand(name = "Remove editor", shortName = "remove")
     fun removeAt(index: Int, undoable: Boolean = true) {
         if (!mayRemove()) return
         val old = _editors.now.removeAt(index)
@@ -218,6 +221,11 @@ abstract class ListEditor<R, E : Editor<R>>(
             val edit = RemoveEdit(virtualize(), index, old.snapshot())
             undo.push(edit)
         }
+    }
+
+    @ProvideCommand(name = "Remove editor", shortName = "remove")
+    private fun doRemove(index: Int) {
+        removeAt(index)
     }
 
     /**
