@@ -17,7 +17,6 @@ import hextant.fx.*
 import hextant.main.InputMethod
 import javafx.scene.Node
 import reaktive.Observer
-import reaktive.value.now
 
 /**
  * JavaFX implementation of a [ExpanderView]
@@ -68,8 +67,6 @@ open class ExpanderControl(
                 popup.show(this)
             }
         }
-        expander.editor.now?.let { showContent(it) }
-        expander.text.now?.let { displayText(it) }
         expander.addView(this)
         completionObserver = popup.completionChosen.observe { _, completion ->
             expander.complete(completion)
@@ -98,8 +95,18 @@ open class ExpanderControl(
 
     final override fun expanded(editor: Editor<*>) {
         if (root is EditorControl<*>) removeChild(0)
-        val v = showContent(editor)
+        val v = context.createView(editor)
         addChild(v, 0)
+        v.registerShortcuts {
+            on("Ctrl? + R") { expander.reset() }
+        }
+        next?.let { v.setNext(it) }
+        previous?.let { v.setPrevious(it) }
+        editorParent?.let { v.setEditorParent(it) }
+        v.root //initialize root
+        view = v
+        root = v
+        v.receiveFocus()
         onExpansion(editor, v)
     }
 
@@ -108,21 +115,6 @@ open class ExpanderControl(
      * The default implementation does nothing.
      */
     protected open fun onExpansion(editor: Editor<*>, control: EditorControl<*>) {}
-
-    private fun showContent(editor: Editor<*>): EditorControl<*> {
-        val v = context.createView(editor)
-        view = v
-        v.registerShortcuts {
-            on("Ctrl? + R") { expander.reset() }
-        }
-        root = v
-        this.next?.let { v.setNext(it) }
-        this.previous?.let { v.setPrevious(it) }
-        this.editorParent?.let { v.setEditorParent(it) }
-        v.root //ensure that root is fully initialized
-        v.receiveFocus()
-        return v
-    }
 
     companion object {
         /**

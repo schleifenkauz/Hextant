@@ -276,6 +276,13 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
+    override fun viewAdded(view: ExpanderView) {
+        when (val s = state) {
+            is Unexpanded -> view.displayText(s.text)
+            is Expanded   -> view.expanded(s.editor)
+        }
+    }
+
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
         if (accessor !is ExpanderContent) throw InvalidAccessorException(accessor)
         return editor.now ?: throw InvalidAccessorException(accessor)
