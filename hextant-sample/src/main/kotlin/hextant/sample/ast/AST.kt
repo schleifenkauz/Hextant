@@ -93,14 +93,17 @@ enum class IntOperator(private val op: (Int, Int) -> Int) {
      * The + operator which combines two ints to their sum
      */
     Plus(Int::plus),
+
     /**
      * The - operator which combines two ints to their difference
      */
     Minus(Int::minus),
+
     /**
      * The * operator which combines two ints to their product
      */
     Times(Int::times),
+
     /**
      * The / operator which combines two ints to TODO()
      */
@@ -144,10 +147,12 @@ enum class BooleanOperator(private val op: (Boolean, Boolean) -> Boolean) {
      * The && operator which only returns `true` if both operands are `true`
      */
     AND(Boolean::and),
+
     /**
      * The|| operator which returns `true` if at least one of the operands is `true`
      */
     OR(Boolean::or),
+
     /**
      * The XOR operator which returns `true` if exactly one of the operands is `true`
      */
@@ -219,6 +224,7 @@ enum class Type {
     INT {
         override fun isInstance(value: Any?) = value is Int
     },
+
     /**
      * The boolean type
      */

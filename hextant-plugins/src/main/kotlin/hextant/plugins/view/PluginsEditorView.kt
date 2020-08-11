@@ -5,18 +5,22 @@
 package hextant.plugins.view
 
 import hextant.core.EditorView
-import reaktive.value.ReactiveValue
+import hextant.plugins.Plugin
+import hextant.plugins.PluginManager
 
 interface PluginsEditorView : EditorView {
-    fun showAvailable(plugins: Collection<String>)
+    val available: MutableCollection<Plugin>
+    val enabled: MutableCollection<Plugin>
 
-    fun enabled(plugin: String)
+    fun confirmEnable(enabled: Collection<Plugin>): Boolean
 
-    fun disabled(plugin: String)
+    fun confirmDisable(disabled: Collection<Plugin>): Boolean
 
-    fun available(plugin: String)
+    fun askDisable(plugin: Plugin): PluginManager.DisableConfirmation
 
-    fun notAvailable(id: String)
+    fun alertError(message: String)
 
-    val searchText: ReactiveValue<String>
+    val availableSearchText: String
+
+    val enabledSearchText: String
 }

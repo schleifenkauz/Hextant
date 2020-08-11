@@ -4,68 +4,76 @@
 
 package hextant.plugins.editor
 
-import hextant.completion.CompletionResult.Match
-import hextant.completion.CompletionStrategy
 import hextant.context.Context
 import hextant.core.editor.AbstractEditor
-import hextant.plugins.Plugin
-import hextant.plugins.client.PluginClient
+import hextant.plugins.*
+import hextant.plugins.Plugin.Type
 import hextant.plugins.view.PluginsEditorView
 import kotlinx.coroutines.*
-import reaktive.Observer
-import reaktive.asValue
-import reaktive.set.reactiveSet
-import reaktive.value.binding.map
-import reaktive.value.forEach
-import reaktive.value.now
+import reaktive.value.reactiveValue
 import validated.valid
-import java.util.*
 
-class PluginsEditor(context: Context, private val client: PluginClient, private val types: Set<Plugin.Type>) :
-    AbstractEditor<Collection<String>, PluginsEditorView>(context) {
-    private val searchTextObservers = WeakHashMap<PluginsEditorView, Observer>()
+class PluginsEditor(
+    context: Context,
+    private val plugins: PluginManager,
+    private val marketplace: Marketplace,
+    private val types: Set<Type>
+) : AbstractEditor<Set<Plugin>, PluginsEditorView>(context) {
+    override val result get() = reactiveValue(valid(plugins.enabledPlugins()))
 
-    private val available = runBlocking { client.getAllPlugins() }.toMutableSet()
-
-    private val enabled = reactiveSet<String>()
-
-    override val result = enabled.asValue().map { valid(it.now) }
-
-    fun enable(id: String) {
-        check(available.remove(id))
-        check(enabled.now.add(id))
-        GlobalScope.launch { client.getJarFile(id) }
+    suspend fun enable(plugin: Plugin, view: PluginsEditorView) {
+        val activated = try {
+            plugins.enable(plugin, view::confirmEnable) ?: return
+        } catch (e: PluginException) {
+            return view.alertError(e.message!!)
+        }
+        for (pl in activated) {
+            GlobalScope.launch {
+                marketplace.download(pl.id)
+            }
+        }
         views {
-            enabled(id)
-            if (isAvailable(id, searchText.now)) notAvailable(id)
+            available.removeAll(activated)
+            enabled.addAll(activated.filter { it.matches(enabledSearchText) })
         }
     }
 
-    fun disable(id: String) {
-        check(enabled.now.remove(id))
-        check(available.add(id))
+    suspend fun disable(plugin: Plugin, view: PluginsEditorView) {
+        val disabled = plugins.disable(plugin, view::confirmDisable, view::askDisable) ?: return
         views {
-            if (isAvailable(id, searchText.now)) available(id)
-            disabled(id)
+            available.addAll(disabled.filter { it.matches(availableSearchText) })
+            enabled.removeAll(disabled)
         }
     }
 
-    fun getInfo(id: String): Plugin = runBlocking { client.getById(id) }
+    suspend fun searchInAvailable(view: PluginsEditorView) {
+        val available = marketplace.getPlugins(view.availableSearchText, LIMIT, types, plugins.enabledIds())
+        view.available.clear()
+        view.available.addAll(available)
+    }
+
+    fun searchInEnabled(view: PluginsEditorView) {
+        val enabled = plugins.enabledPlugins().filter { it.matches(view.enabledSearchText) }
+        view.enabled.clear()
+        view.enabled.addAll(enabled)
+    }
 
     override fun viewAdded(view: PluginsEditorView) {
-        val observer = view.searchText.forEach { text ->
-            val filtered = available.filter { id -> isAvailable(id, text) }
-            view.showAvailable(filtered)
-        }
-        searchTextObservers[view] = observer
+        searchInEnabled(view)
+        runBlocking { searchInAvailable(view) }
     }
 
-    private fun isAvailable(id: String, searchText: String): Boolean {
-        val plugin = getInfo(id)
-        if (plugin.type !in types) return false
-        return matches(searchText, plugin.name) || matches(searchText, plugin.author)
+    private fun Plugin.matches(searchText: String): Boolean {
+        if (type !in types) return false
+        return name.matches(searchText) ||
+                author.matches(searchText) ||
+                id.matches(searchText) ||
+                projectTypes.any { it.name.matches(searchText) }
     }
 
-    private fun matches(searchText: String, name: String) =
-        CompletionStrategy.simple.match(searchText, name) is Match
+    private fun String.matches(searchText: String) = startsWith(searchText)
+
+    companion object {
+        private const val LIMIT = 20
+    }
 }

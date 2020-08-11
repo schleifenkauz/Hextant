@@ -1,4 +1,5 @@
 apply plugin: HextantLibrary
+apply plugin: 'kotlinx-serialization'
 
 jar {
     manifest {
@@ -14,8 +15,10 @@ dependencies {
     compile nkb03("kollektion", "0.1-SNAPSHOT")
     compile nkb03("validated", "0.1-SNAPSHOT")
     compile nkb03("validated-reaktive", "0.1-SNAPSHOT")
-    compile kotlin("stdlib")
     compile kotlin("reflect")
+    compile kotlin("stdlib")
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0"
+    implementation project(":hextant-plugins:common")
     compile "org.controlsfx:controlsfx:8.40.14"
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")

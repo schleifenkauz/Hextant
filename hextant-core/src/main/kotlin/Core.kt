@@ -11,7 +11,7 @@ import hextant.core.view.ValidatedTokenEditorControl.Companion.BEGIN_CHANGE
 import hextant.core.view.ValidatedTokenEditorControl.Companion.COMMIT_CHANGE
 import hextant.fx.shortcut
 import hextant.main.PathEditorControl
-import hextant.plugin.dsl.PluginInitializer
+import hextant.plugin.PluginInitializer
 import hextant.project.editor.FileEditor.RootExpander
 import hextant.project.editor.FileNameEditor
 import hextant.project.editor.ProjectItemEditor
@@ -30,8 +30,6 @@ import validated.Validated.Invalid
  * The core plugin registers basic editors, views and commands.
  */
 object Core : PluginInitializer({
-    name = "Hextant Core"
-    author = "Nikolaus Knop"
     editor(::StringEditor)
     defaultEditor(::StringEditor)
     view(::ExpanderControl)
@@ -122,7 +120,6 @@ object Core : PluginInitializer({
         }
     }
     registerInspection<CommandLine> {
-        name = "Command Unavailable"
         id = "unavailable-command"
         description = "Reports commands that are not available in the current context"
         isSevere(true)

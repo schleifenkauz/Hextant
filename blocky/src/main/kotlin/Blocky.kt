@@ -3,11 +3,9 @@ import hextant.blocky.view.*
 import hextant.context.createView
 import hextant.core.view.EditorControlWrapper
 import hextant.core.view.TokenEditorControl
-import hextant.plugin.dsl.PluginInitializer
+import hextant.plugin.PluginInitializer
 
 object Blocky : PluginInitializer({
-    name = "Blocky"
-    author = "Nikolaus Knop"
     view { e: IdEditor, args ->
         TokenEditorControl(e, args).apply {
             root.styleClass.add("id")

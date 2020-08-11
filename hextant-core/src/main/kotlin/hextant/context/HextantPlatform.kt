@@ -13,7 +13,6 @@ import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.main.InputMethod
-import hextant.plugin.impl.Plugins
 import hextant.serial.SerialProperties
 import hextant.serial.SerialProperties.deserializationContext
 import hextant.settings.model.ConfigurableProperties
@@ -49,7 +48,6 @@ object HextantPlatform {
         set(Internal, Stylesheets, Stylesheets())
         set(Internal, logger, Logger.getLogger(javaClass.name))
         set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
-        set(Plugins, Plugins(this))
         set(Internal, SerialProperties.serialContext, createSerialContext())
         set(Internal, SerialProperties.serial, KSerial.newInstance())
         set(Internal, ConfigurableProperties, ConfigurableProperties())

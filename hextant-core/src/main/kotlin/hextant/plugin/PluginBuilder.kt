@@ -2,7 +2,7 @@
  *@author Nikolaus Knop
  */
 
-package hextant.plugin.dsl
+package hextant.plugin
 
 import bundles.Bundle
 import hextant.command.*
@@ -15,7 +15,6 @@ import hextant.core.editor.map
 import hextant.core.view.*
 import hextant.fx.Stylesheets
 import hextant.inspect.*
-import hextant.plugin.Plugin
 import validated.Validated
 
 /**
@@ -24,16 +23,6 @@ import validated.Validated
  */
 @PluginDsl
 class PluginBuilder @PublishedApi internal constructor(val context: Context) {
-    /**
-     * The name of the plugin
-     */
-    lateinit var name: String
-
-    /**
-     * The author of the plugin
-     */
-    lateinit var author: String
-
     /**
      * Register the specified [factory] for editors of the class [R]
      */
@@ -139,6 +128,4 @@ class PluginBuilder @PublishedApi internal constructor(val context: Context) {
     fun stylesheet(path: String) {
         context[Internal, Stylesheets].add(path)
     }
-
-    @PublishedApi internal fun build() = Plugin(name, author)
 }

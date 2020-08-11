@@ -2,10 +2,9 @@
  *@author Nikolaus Knop
  */
 
-package hextant.plugin.dsl
+package hextant.plugin
 
 import hextant.context.Context
-import hextant.plugin.Plugin
 
 /**
  * Subclasses of this class are used to initialize plugins.
@@ -14,9 +13,8 @@ abstract class PluginInitializer(private val initialize: PluginBuilder.() -> Uni
     /**
      * Applies this plugin to the the given [context] wrapping in a [PluginBuilder].
      */
-    fun apply(context: Context): Plugin {
+    internal fun apply(context: Context) {
         val builder = PluginBuilder(context)
         builder.initialize()
-        return builder.build()
     }
 }

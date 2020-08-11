@@ -11,7 +11,7 @@ import hextant.expr.*
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.inspect.Severity.Warning
-import hextant.plugin.dsl.PluginInitializer
+import hextant.plugin.PluginInitializer
 import hextant.undo.compoundEdit
 import org.controlsfx.glyphfont.FontAwesome
 import reaktive.value.binding.and
@@ -20,8 +20,6 @@ import reaktive.value.now
 import validated.*
 
 object ExprPlugin : PluginInitializer({
-    author = "Nikolaus Knop"
-    name = "Hextant Expressions"
     defaultEditor(::IntLiteralEditor)
     defaultEditor(::OperatorEditor)
     defaultEditor(::OperatorApplicationEditor)

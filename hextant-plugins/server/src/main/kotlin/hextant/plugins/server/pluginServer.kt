@@ -4,9 +4,11 @@
 
 package hextant.plugins.server
 
+import hextant.plugins.*
 import io.ktor.application.*
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpStatusCode.Companion.NotFound
+import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondFile
 import io.ktor.routing.get
@@ -26,25 +28,32 @@ fun main(args: Array<String>) {
     }.start()
 }
 
-private fun Application.configure(repository: PluginRepository) {
+private fun Application.configure(marketplace: Marketplace) {
     install(ContentNegotiation) {
         json()
     }
     routing {
-        get("/all") {
-            call.respond(repository.getAllPlugins())
+        get("/plugins/") {
+            val (searchText, limit, types, excluded) = call.receive<PluginSearch>()
+            call.respond(marketplace.getPlugins(searchText, limit, types, excluded))
         }
-        get("/{name}") {
-            val pluginName = call.parameters["name"]!!
-            val plugin = repository.getPluginById(pluginName)
-            if (plugin == null) call.respond(NotFound, "No plugin with name '$pluginName'")
+        get("/plugins/{id}") {
+            val id = call.parameters["id"]!!
+            val plugin = marketplace.getPluginById(id)
+            if (plugin == null) call.respond(NotFound, "No plugin with name '$id'")
             else call.respond(plugin)
         }
-        get("/download/{name}") {
-            val pluginName = call.parameters["name"]!!
-            val file = repository.getJarFile(pluginName)
-            if (file == null) call.respond(NotFound, "No plugin with name '$pluginName'")
+        get("/download/{id}") {
+            val id = call.parameters["id"]!!
+            val file = marketplace.download(id)
+            if (file == null) call.respond(NotFound, "No plugin with name '$id'")
             else call.respondFile(file)
+        }
+        get("/implementations") {
+            val (aspect, case) = call.receive<ImplementationRequest>()
+            val bundle = marketplace.getImplementation(aspect, case)
+            if (bundle == null) call.respond(NotFound, "No implementation for $aspect:$case")
+            else call.respond(bundle)
         }
     }
 }

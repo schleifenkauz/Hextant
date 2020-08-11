@@ -2,7 +2,7 @@
  * @author Nikolaus Knop
  */
 
-package hextant.plugin.dsl
+package hextant.plugin
 
 @DslMarker
 annotation class PluginDsl

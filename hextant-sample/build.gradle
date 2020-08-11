@@ -11,5 +11,6 @@ dependencies {
     compile project(":hextant-core")
     testImplementation project(":hextant-test")
     kapt project(":hextant-editor-codegen")
+    kapt project(":hextant-core")
     compile project(":hextant-editor-codegen")
 }

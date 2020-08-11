@@ -2,7 +2,7 @@ import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.lisp.editor.*
 import hextant.lisp.view.*
-import hextant.plugin.dsl.PluginInitializer
+import hextant.plugin.PluginInitializer
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 
 object Lisp : PluginInitializer({
