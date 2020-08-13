@@ -5,9 +5,15 @@ hextant_lib {
     description = 'Code generation library for Hextant'
 }
 
+kapt {
+    arguments {
+        arg("hextant.codegen.dest", "hextant.sample")
+    }
+}
+
 dependencies {
     compile "com.google.auto.service:auto-service:1.0-rc2"
-    implementation "com.github.nkb03:kotlin-robot:1.0"
+    implementation "com.github.nkb03:kotlin-robot:0.1-SNAPSHOT"
     compileOnly project(":hextant-core")
     kapt "com.google.auto.service:auto-service:1.0-rc2"
 }

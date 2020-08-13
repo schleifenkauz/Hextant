@@ -42,20 +42,6 @@ annotation class EditableList(val classLocation: String = DEFAULT, val editorCls
 @Target(VALUE_PARAMETER, CLASS)
 annotation class UseEditor(val cls: KClass<out Editor<*>>)
 
-internal val Annotation.qualifiedEditorClassName: String?
-    get() = when (this) {
-        is Token        -> this.classLocation.takeIf { it != DEFAULT }
-        is Compound     -> this.classLocation.takeIf { it != DEFAULT }
-        is Alternative  -> this.interfaceLocation.takeIf { it != DEFAULT }
-        is Expandable   -> this.expanderLocation.takeIf { it != DEFAULT }
-        is EditableList -> this.classLocation.takeIf { it != DEFAULT }
-        else            -> throw AssertionError()
-    }
-
-internal val Annotation.subtypeOf: KClass<*>
-    get() = when (this) {
-        is Token      -> this.subtypeOf
-        is Compound   -> this.subtypeOf
-        is Expandable -> this.subtypeOf
-        else          -> throw AssertionError()
-    }
+@Retention(SOURCE)
+@Target(CLASS)
+annotation class Aspect

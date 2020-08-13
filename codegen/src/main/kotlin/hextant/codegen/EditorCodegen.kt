@@ -11,21 +11,16 @@ import hextant.core.Editor
 import hextant.core.editor.*
 import hextant.core.view.TokenEditorView
 import krobot.api.*
-import java.io.PrintWriter
-import java.io.StringWriter
-import java.nio.file.Files
-import java.nio.file.Paths
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.*
 import javax.lang.model.type.*
-import javax.tools.Diagnostic.Kind.ERROR
 import kotlin.reflect.KClass
 
 @Suppress("unused")
 @AutoService(Processor::class)
-class AnnotationProcessor : AbstractProcessor() {
-    private class ProcessingException(msg: String) : Exception(msg)
+class EditorCodegen : AbstractProcessor() {
+    private lateinit var generatedDir: String
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 
@@ -36,11 +31,8 @@ class AnnotationProcessor : AbstractProcessor() {
         annotationClasses: Set<KClass<out Annotation>>
     ): Annotation {
         val annotations = annotationClasses.mapNotNull { element.getAnnotation(it.java) }
-        if (annotations.isEmpty()) {
-            error("$element is not annotated with any editor codegen annotation")
-        } else if (annotations.size > 1) {
-            error("$element is annotated with more than one editor codegen annotation")
-        }
+        ensure(annotations.isNotEmpty()) { "$element is not annotated with any editor codegen annotation" }
+        ensure(annotations.size <= 1) { "$element is annotated with more than one editor codegen annotation" }
         return annotations.first()
     }
 
@@ -79,7 +71,8 @@ class AnnotationProcessor : AbstractProcessor() {
     }
 
     override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        try {
+        processingEnv.executeSafely {
+            generatedDir = processingEnv.options["kapt.kotlin.generated"]!!
             with(roundEnv) {
                 processAnnotations(::genTokenEditorClass)
                 processAnnotations(::genCompoundEditorClass)
@@ -87,14 +80,6 @@ class AnnotationProcessor : AbstractProcessor() {
                 processAnnotations(::genExpanderClass)
                 processAnnotations(::genListEditorClass)
             }
-        } catch (e: ProcessingException) {
-            processingEnv.messager.printMessage(ERROR, e.message)
-        } catch (e: Throwable) {
-            processingEnv.messager.printMessage(ERROR, "Unexpected error ${e.message}")
-            val w = StringWriter()
-            val p = PrintWriter(w)
-            e.printStackTrace(p)
-            processingEnv.messager.printMessage(ERROR, w.toString())
         }
         return true
     }
@@ -116,8 +101,8 @@ class AnnotationProcessor : AbstractProcessor() {
             primaryConstructor = { "context" of "Context" },
             inheritance = {
                 extend(type("ListEditor").parameterizedBy {
-                    covariant(simpleName)
-                    covariant(editorClsName)
+                    invariant(simpleName)
+                    invariant(editorClsName)
                 }, "context".e)
             }
         ) {
@@ -136,7 +121,7 @@ class AnnotationProcessor : AbstractProcessor() {
             addConstructor(
                 {
                     "context" of "Context"
-                    "elements" of type("List").parameterizedBy { covariant(simpleName) }
+                    "elements" of type("List").parameterizedBy { invariant(simpleName) }
                 },
                 "context".e
             ) {
@@ -149,7 +134,7 @@ class AnnotationProcessor : AbstractProcessor() {
             }
             addSingleExprFunction("createEditor", { override() }) { call(editorClsName, "context".e) }
         }
-        writeToFile(pkg, name, file)
+        writeToFile(generatedDir, pkg, name, file)
     }
 
     private fun splitPackageAndSimpleName(qualifiedName: String): Pair<String?, String> {
@@ -177,7 +162,7 @@ class AnnotationProcessor : AbstractProcessor() {
             primaryConstructor = { "context" of "Context"; "text" of type("String") },
             inheritance = {
                 extend(
-                    "TokenEditor".t.parameterizedBy { covariant(name); covariant("TokenEditorView") },
+                    "TokenEditor".t.parameterizedBy { invariant(name); invariant("TokenEditorView") },
                     "context".e,
                     "text".e
                 )
@@ -194,27 +179,23 @@ class AnnotationProcessor : AbstractProcessor() {
                 { override() },
                 parameters = { "token" of "String" }) { name.e.call("compile", "token".e) }
         }
-        writeToFile(pkg, simpleName, file)
+        writeToFile(generatedDir, pkg, simpleName, file)
     }
 
     private fun KInheritanceRobot.implementEditorOfSuperType(
         annotation: Annotation,
         simpleName: String
     ) {
-        val supertype = getTypeMirror(annotation::subtypeOf).toString()
+        val supertype = getTypeMirror { annotation.subtypeOf }.toString()
         if (supertype != None::class.qualifiedName) {
             val el = processingEnv.elementUtils.getTypeElement(supertype)
             val ann = el.getAnnotation(Alternative::class.java)
-            if (ann == null) error("No annotation of type Alternative on $supertype")
+            if (ann == null) fail("No annotation of type Alternative on $supertype")
             else {
                 val editorQN = extractQualifiedEditorClassName(ann, el)
-                implement(editorQN.t.parameterizedBy { covariant(simpleName) })
+                implement(editorQN.t.parameterizedBy { invariant(simpleName) })
             }
         }
-    }
-
-    private fun error(msg: String): Nothing {
-        throw ProcessingException(msg)
     }
 
     private inline fun getTypeMirror(classAccessor: () -> KClass<*>): TypeMirror {
@@ -228,13 +209,6 @@ class AnnotationProcessor : AbstractProcessor() {
         }
     }
 
-    private fun writeToFile(pkg: String?, simpleName: String, file: KotlinFile) {
-        val generatedDir = processingEnv.options["kapt.kotlin.generated"]!!
-        val packages = pkg?.split('.')?.toTypedArray() ?: emptyArray()
-        val path = Paths.get(generatedDir, *packages, "$simpleName.kt")
-        Files.createDirectories(path.parent)
-        file.writeTo(path)
-    }
 
     private fun genCompoundEditorClass(annotated: TypeElement, annotation: Compound) {
         val name = annotated.simpleName.toString()
@@ -244,9 +218,7 @@ class AnnotationProcessor : AbstractProcessor() {
         val constructors = members.filter {
             it.simpleName.toString() == "<init>"
         }
-        if (constructors.size != 1) {
-            error("Class $annotated with annotation @Compound has ${constructors.size} constructors")
-        }
+        ensure(constructors.size == 1) { "Class $annotated with annotation @Compound has ${constructors.size} constructors" }
         val primary = constructors[0] as ExecutableElement
         val file = kotlinClass(
             pkg,
@@ -262,7 +234,7 @@ class AnnotationProcessor : AbstractProcessor() {
             },
             inheritance = {
                 extend(
-                    "CompoundEditor".t.parameterizedBy { covariant(name) },
+                    "CompoundEditor".t.parameterizedBy { invariant(name) },
                     "context".e
                 )
                 implementEditorOfSuperType(annotation, name)
@@ -277,14 +249,14 @@ class AnnotationProcessor : AbstractProcessor() {
             }
             addVal(
                 "result",
-                "ReactiveValidated".t.parameterizedBy { covariant(name) }, { override() }) {
+                "ReactiveValidated".t.parameterizedBy { invariant(name) }, { override() }) {
                 initializeWith(
                     call("composeReactive", *names.mapToArray { n -> n.e select "result" }, "::$name".e)
                 )
             }
 
         }
-        writeToFile(pkg, simpleName, file)
+        writeToFile(generatedDir, pkg, simpleName, file)
     }
 
     private fun getEditorClassName(tm: TypeMirror, p: VariableElement?): String {
@@ -299,7 +271,6 @@ class AnnotationProcessor : AbstractProcessor() {
             val elementType = checkNonPrimitive(t.typeArguments[0]).asElement()
             val ann = elementType.getAnnotation(EditableList::class.java)
             return extractQualifiedEditorClassName(ann, elementType, classNameSuffix = "ListEditor")
-
         }
         return lookupQualifiedEditorClassName(e)
     }
@@ -307,7 +278,7 @@ class AnnotationProcessor : AbstractProcessor() {
     private fun checkNonPrimitive(t: TypeMirror): DeclaredType {
         if (t is DeclaredType) return t
         if (t is WildcardType) return checkNonPrimitive(t.extendsBound)
-        error("Invalid component type $t(${t::class})")
+        fail("Invalid component type $t(${t::class})")
     }
 
     private fun genAlternativeInterface(annotated: Element, annotation: Alternative) {
@@ -321,10 +292,10 @@ class AnnotationProcessor : AbstractProcessor() {
                 import(annotated.toString())
             },
             simpleName,
-            typeParameters = { outvariant(typeParam, upperBound = name.t) },
-            inheritance = { implement("Editor".t.parameterizedBy { covariant(typeParam) }) }
+            typeParameters = { covariant(typeParam, upperBound = name.t) },
+            inheritance = { implement("Editor".t.parameterizedBy { invariant(typeParam) }) }
         )
-        writeToFile(pkg, simpleName, file)
+        writeToFile(generatedDir, pkg, simpleName, file)
     }
 
     private fun genExpanderClass(annotated: Element, annotation: Expandable) {
@@ -333,7 +304,7 @@ class AnnotationProcessor : AbstractProcessor() {
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
         val ann = annotated.getAnnotation(Alternative::class.java)
         val commonInterface = extractQualifiedEditorClassName(ann, annotated)
-        val editorType = commonInterface.t.parameterizedBy { covariant(name) }
+        val editorType = commonInterface.t.parameterizedBy { invariant(name) }
         val delegator = getTypeMirror(annotation::delegator)
         val file = kotlinClass(
             pkg, {
@@ -351,8 +322,8 @@ class AnnotationProcessor : AbstractProcessor() {
             inheritance = {
                 extend(
                     "Expander".t.parameterizedBy {
-                        covariant(name)
-                        covariant(editorType)
+                        invariant(name)
+                        invariant(editorType)
                     },
                     "context".e,
                     "editor".e
@@ -374,10 +345,26 @@ class AnnotationProcessor : AbstractProcessor() {
                 "config".e.call("expand", "text".e, "context".e)
             }
         }
-        writeToFile(pkg, simpleName, file)
+        writeToFile(generatedDir, pkg, simpleName, file)
     }
 
     private companion object {
-        inline fun <E, reified F> List<E>.mapToArray(f: (E) -> F) = Array(size) { idx -> f(get(idx)) }
+        val Annotation.qualifiedEditorClassName: String?
+            get() = when (this) {
+                is Token -> this.classLocation.takeIf { it != DEFAULT }
+                is Compound -> this.classLocation.takeIf { it != DEFAULT }
+                is Alternative -> this.interfaceLocation.takeIf { it != DEFAULT }
+                is Expandable -> this.expanderLocation.takeIf { it != DEFAULT }
+                is EditableList -> this.classLocation.takeIf { it != DEFAULT }
+                else            -> throw AssertionError()
+            }
+
+        val Annotation.subtypeOf: KClass<*>
+            get() = when (this) {
+                is Token -> this.subtypeOf
+                is Compound -> this.subtypeOf
+                is Expandable -> this.subtypeOf
+                else          -> throw AssertionError()
+            }
     }
 }

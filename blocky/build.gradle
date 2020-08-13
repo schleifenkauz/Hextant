@@ -1,15 +1,14 @@
 apply plugin: 'kotlin-kapt'
 
 kapt {
-    generateStubs = true
     useBuildCache = true
 }
 
 dependencies {
     compile project(":hextant-core")
     testImplementation project(":hextant-test")
-    kapt project(":hextant-editor-codegen")
-    compile project(":hextant-editor-codegen")
+    kapt project(":codegen")
+    compile project(":codegen")
 }
 
 jar {
