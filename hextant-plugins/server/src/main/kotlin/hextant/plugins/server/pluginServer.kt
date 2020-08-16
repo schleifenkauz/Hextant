@@ -37,7 +37,7 @@ private fun Application.configure(marketplace: Marketplace) {
             val (searchText, limit, types, excluded) = call.receive<PluginSearch>()
             call.respond(marketplace.getPlugins(searchText, limit, types, excluded))
         }
-        get("/plugins/{id}") {
+        get("/{id}") {
             val id = call.parameters["id"]!!
             val plugin = marketplace.getPluginById(id)
             if (plugin == null) call.respond(NotFound, "No plugin with name '$id'")
@@ -45,11 +45,11 @@ private fun Application.configure(marketplace: Marketplace) {
         }
         get("/download/{id}") {
             val id = call.parameters["id"]!!
-            val file = marketplace.download(id)
+            val file = marketplace.getJarFile(id)
             if (file == null) call.respond(NotFound, "No plugin with name '$id'")
             else call.respondFile(file)
         }
-        get("/implementations") {
+        get("/implementation") {
             val (aspect, case) = call.receive<ImplementationRequest>()
             val bundle = marketplace.getImplementation(aspect, case)
             if (bundle == null) call.respond(NotFound, "No implementation for $aspect:$case")

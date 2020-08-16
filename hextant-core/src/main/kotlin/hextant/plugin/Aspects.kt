@@ -19,8 +19,8 @@ class Aspects {
 
     fun addImplementation(implementation: Implementation) {
         val aspect = getClass(implementation.aspect) as KClass<Any>
-        val case = getClass(implementation.case)
-        val impl = getClass(implementation.name)
+        val case = getClass(implementation.feature)
+        val impl = getClass(implementation.clazz)
         check(impl.isSubclassOf(aspect)) { "invalid implementation class $impl for aspect $aspect" }
         val instance = impl.createInstance()
         implement(aspect, case, instance)

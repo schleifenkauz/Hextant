@@ -6,6 +6,10 @@ package hextant.codegen
 
 import com.google.auto.service.AutoService
 import hextant.plugin.Aspects
+import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.serializer
 import krobot.api.*
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
@@ -13,8 +17,11 @@ import javax.lang.model.element.*
 import javax.lang.model.element.ElementKind.INTERFACE
 import javax.lang.model.element.ElementKind.METHOD
 import javax.lang.model.element.Modifier.*
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
+import javax.tools.StandardLocation
 
+@ImplicitReflectionSerializer
 @ExperimentalStdlibApi
 @Suppress("unused")
 @AutoService(Processor::class)
@@ -30,18 +37,94 @@ class AspectsCodegen : AbstractProcessor() {
     override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
         processingEnv.executeSafely {
             generatedDir = processingEnv.options["kapt.kotlin.generated"]!!
-            val aspects = roundEnv.getElementsAnnotatedWith(Aspect::class.java).filterIsInstance<TypeElement>()
-            if (aspects.isEmpty()) return@executeSafely
             val pkg = processingEnv.options[DESTINATION] ?: "hextant.generated"
-            val accessors = kotlinFile(pkg) {
-                generateClsFunction()
-                for (aspect in aspects) {
-                    generateAccessors(aspect)
-                }
+            with(roundEnv) {
+                visitAspects(pkg)
+                visitFeatures()
+                visitImplementations()
+                visitProjectTypes()
             }
-            writeToFile(generatedDir, pkg, "aspectAccessors", accessors)
         }
         return true
+    }
+
+    private fun TypeMirror.asTypeElement(): TypeElement = (this as DeclaredType).asElement() as TypeElement
+
+    private fun allSupertypes(cls: TypeElement, visited: MutableSet<TypeElement>) {
+        if (!visited.add(cls)) return
+        for (iface in cls.interfaces) allSupertypes(iface.asTypeElement(), visited)
+        if (cls.superclass is DeclaredType) allSupertypes(cls.superclass.asTypeElement(), visited)
+    }
+
+    private fun RoundEnvironment.visitFeatures() {
+        collect("features") { cls, _: Feature ->
+            val supertypes = mutableSetOf<TypeElement>()
+            allSupertypes(cls, supertypes)
+            listOf(hextant.plugins.Feature(cls.toString(), supertypes.map { it.toString() }))
+        }
+    }
+
+    private fun RoundEnvironment.visitImplementations() {
+        collect("implementations") { cls, _: Implementation ->
+            val clazz = cls.toString()
+            cls.interfaces.mapNotNull { iface ->
+                iface as DeclaredType
+                val el = iface.asTypeElement()
+                if (el.getAnnotation(Aspect::class.java) != null) {
+                    val aspect = el.toString()
+                    val feature = iface.typeArguments.last().asTypeElement().toString()
+                    hextant.plugins.Implementation(clazz, aspect, feature)
+                } else null
+            }
+        }
+    }
+
+    private fun RoundEnvironment.visitProjectTypes() {
+        collect("projectTypes") { cls, ann: ProjectType ->
+            val name = ann.name
+            val clazz = cls.toString()
+            listOf(hextant.plugins.ProjectType(name, clazz))
+        }
+    }
+
+    private inline fun <reified A : Annotation, reified T> RoundEnvironment.collect(
+        name: String,
+        extract: (TypeElement, A) -> Iterable<T>
+    ) {
+        val classes = getElementsAnnotatedWith(A::class.java).filterIsInstance<TypeElement>()
+        if (classes.isEmpty()) return
+        val extracted = classes.flatMap { cls ->
+            val ann = cls.getAnnotation(A::class.java)
+            extract(cls, ann)
+        }
+        writeJson(extracted, "$name.json")
+    }
+
+    private inline fun <reified T> writeJson(list: List<T>, file: String) {
+        val resource = processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", file)
+        val str = json.stringify(serializer(), list)
+        val w = resource.openWriter()
+        w.write(str)
+        w.close()
+    }
+
+    private fun RoundEnvironment.visitAspects(pkg: String) {
+        collect("aspects") { cls, ann: Aspect ->
+            val name = cls.toString()
+            val target = caseVar(cls).bounds.firstOrNull()?.asTypeElement()?.toString()
+                ?: throw ProcessingException("Cannot deduce target of aspect $cls")
+            listOf(hextant.plugins.Aspect(name, target, ann.optional))
+        }
+
+        val classes = getElementsAnnotatedWith(Aspect::class.java).filterIsInstance<TypeElement>()
+        if (classes.isEmpty()) return
+        val accessors = kotlinFile(pkg) {
+            generateClsFunction()
+            for (cls in classes) {
+                generateAccessors(cls)
+            }
+        }
+        writeToFile(generatedDir, pkg, "aspectAccessors", accessors)
     }
 
     private fun KFileRobot.generateClsFunction() {
@@ -58,17 +141,18 @@ class AspectsCodegen : AbstractProcessor() {
 
     private fun KFileRobot.generateAccessors(aspect: TypeElement) {
         checkAbstract(aspect)
-        val caseVar =
-            aspect.typeParameters.lastOrNull() ?: fail("$aspect has no type parameters, must have at least one")
         val methods = processingEnv.elementUtils.getAllMembers(aspect)
         for (m in methods) {
             if (m !is ExecutableElement) continue
             if (m.kind != METHOD) continue
             if (m.enclosingElement.kind != INTERFACE && ABSTRACT !in m.modifiers) continue
             if (PROTECTED in aspect.modifiers) continue
-            generateAccessor(m, caseVar.toString(), aspect)
+            generateAccessor(m, caseVar(aspect).toString(), aspect)
         }
     }
+
+    private fun caseVar(aspect: TypeElement): TypeParameterElement = aspect.typeParameters.lastOrNull()
+        ?: fail("$aspect has no type parameters, must have at least one")
 
     private fun kotlin(t: TypeMirror): KtType {
         val str = t.accept(JavaToKotlinTypeTranslator, Unit)
@@ -131,5 +215,7 @@ class AspectsCodegen : AbstractProcessor() {
 
     companion object {
         private const val DESTINATION = "hextant.codegen.dest"
+
+        private val json = Json(JsonConfiguration.Stable)
     }
 }

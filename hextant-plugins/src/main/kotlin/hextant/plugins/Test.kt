@@ -12,7 +12,7 @@ import java.io.File
 class Test : HextantApplication() {
     override fun createView(context: Context): Parent {
         val url = "http://localhost:80"
-        val downloadDirectory = File("D:/data/hextant-plugins-activated")
+        val downloadDirectory = File("D:/data/hextant/plugin-cache")
         val marketplace = HttpPluginClient(url, downloadDirectory)
         val types = Plugin.Type.values().toSet()
         val plugins = PluginManager(marketplace)

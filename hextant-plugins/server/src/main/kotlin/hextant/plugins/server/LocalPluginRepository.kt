@@ -7,28 +7,17 @@ package hextant.plugins.server
 import hextant.plugins.*
 import hextant.plugins.Plugin.Type
 import kollektion.Trie
-import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.parse
 import java.io.File
 import java.util.*
 import java.util.jar.JarFile
+import kotlin.collections.set
 
-@Suppress("BlockingMethodInNonBlockingContext")
 class LocalPluginRepository(private val root: File) : Marketplace {
     private val trie = Trie<Plugin>()
-    private val implementations = mutableMapOf<String, MutableMap<String, ImplementationBundle>>()
+    private val implementations = mutableMapOf<String, MutableMap<String, ImplementationCoord>>()
 
     init {
         preprocess()
-    }
-
-    @OptIn(ImplicitReflectionSerializer::class)
-    private inline fun <reified T : Any> JarFile.getInfo(file: String): T? {
-        val entry = getEntry(file) ?: return null
-        val reader = getInputStream(entry).bufferedReader()
-        return json.parse(reader.readText())
     }
 
     private fun preprocess() {
@@ -36,16 +25,19 @@ class LocalPluginRepository(private val root: File) : Marketplace {
             if (item.extension != "jar") continue
             val jar = JarFile(item)
             val plugin: Plugin? = jar.getInfo("plugin.json")
-            val impl: ImplementationBundle? = jar.getInfo("implementation.json")
+            val impl: List<Implementation>? = jar.getInfo("implementations.json")
             if (plugin != null) addPlugin(plugin)
-            if (impl != null) addImplementation(impl)
+            if (impl != null) {
+                val bundle = item.nameWithoutExtension.takeIf { plugin == null }
+                addImplementations(impl, bundle)
+            }
         }
     }
 
-    private fun addImplementation(bundle: ImplementationBundle) {
-        for (impl in bundle.implementations) {
-            val impls = implementations.getOrPut(impl.aspect) { mutableMapOf() }
-            impls[impl.case] = bundle
+    private fun addImplementations(impls: List<Implementation>, bundle: String?) {
+        for (impl in impls) {
+            val forAspect = implementations.getOrPut(impl.aspect) { mutableMapOf() }
+            forAspect[impl.feature] = ImplementationCoord(bundle, impl.clazz)
         }
     }
 
@@ -53,19 +45,9 @@ class LocalPluginRepository(private val root: File) : Marketplace {
         trie.insert(plugin.author, plugin)
         trie.insert(plugin.id, plugin)
         trie.insert(plugin.name, plugin)
-        for (type in plugin.projectTypes) trie.insert(type.name, plugin)
     }
 
-    @OptIn(ImplicitReflectionSerializer::class)
-    override suspend fun getPluginById(id: String): Plugin? {
-        val file = download(id) ?: return null
-        val jar = JarFile(file)
-        val desc = jar.getEntry("plugin.json") ?: return null
-        val reader = jar.getInputStream(desc).bufferedReader()
-        return json.parse(reader.readText())
-    }
-
-    override suspend fun getPlugins(
+    override fun getPlugins(
         searchText: String,
         limit: Int,
         types: Set<Type>,
@@ -85,16 +67,12 @@ class LocalPluginRepository(private val root: File) : Marketplace {
         return result.toList()
     }
 
-    override suspend fun getImplementation(aspect: String, case: String): ImplementationBundle? =
-        implementations[aspect]?.get(case)
+    override fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
+        implementations[aspect]?.get(feature)
 
-    override suspend fun download(id: String): File? {
+    override fun getJarFile(id: String): File? {
         val file = root.resolve("$id.jar")
         if (!file.exists()) return null
         return file
-    }
-
-    companion object {
-        private val json = Json(JsonConfiguration.Stable)
     }
 }

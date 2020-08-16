@@ -39,9 +39,7 @@ class PluginsEditorControl(private val editor: PluginsEditor, arguments: Bundle)
         availableList.setCellFactory { PluginCell(enabled = false) }
         enabledList.setCellFactory { PluginCell(enabled = true) }
         availableSearchField.textProperty().addListener { _ ->
-            runBlocking {
-                editor.searchInAvailable(this@PluginsEditorControl)
-            }
+            editor.searchInAvailable(this@PluginsEditorControl)
         }
         enabledSearchField.textProperty().addListener { _ ->
             runBlocking {
@@ -87,12 +85,8 @@ class PluginsEditorControl(private val editor: PluginsEditor, arguments: Bundle)
         init {
             setOnMouseClicked { ev ->
                 if (ev.clickCount >= 2) {
-                    if (enabled) runBlocking {
-                        editor.disable(item, this@PluginsEditorControl)
-                    }
-                    else runBlocking {
-                        editor.enable(item, this@PluginsEditorControl)
-                    }
+                    if (enabled) editor.disable(item, this@PluginsEditorControl)
+                    else editor.enable(item, this@PluginsEditorControl)
                 }
             }
         }

@@ -84,17 +84,24 @@ interface Invariant<T : I> {
     fun Aspects.j(i: Int): I
 }
 
+@Feature
 data class Literal(val value: String) : Term<Int>
 
+@Feature
 data class Sum(val terms: List<Term<Int>>) : Term<Int>
 
+@Implementation
 object LiteralEval : Eval<Int, Literal> {
     override fun Aspects.eval(t: Literal): Int = t.value.toInt()
 }
 
+@Implementation
 object SumEval : Eval<Int, Sum> {
     override fun Aspects.eval(t: Sum): Int = t.terms.sumBy { eval(it) }
 }
+
+@ProjectType("Calculator")
+class Calculator
 
 fun main() {
     val a = Aspects()

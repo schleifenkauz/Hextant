@@ -7,11 +7,10 @@ package hextant.plugins
 import java.io.File
 
 interface Marketplace {
-    suspend fun getPlugins(searchText: String, limit: Int, types: Set<Plugin.Type>, excluded: Set<String>): List<Plugin>
+    fun getPlugins(searchText: String, limit: Int, types: Set<Plugin.Type>, excluded: Set<String>): List<Plugin>
 
-    suspend fun getPluginById(id: String): Plugin?
+    fun getImplementation(aspect: String, feature: String): ImplementationCoord?
 
-    suspend fun getImplementation(aspect: String, case: String): ImplementationBundle?
-
-    suspend fun download(id: String): File?
+    fun getJarFile(id: String): File?
 }
+
