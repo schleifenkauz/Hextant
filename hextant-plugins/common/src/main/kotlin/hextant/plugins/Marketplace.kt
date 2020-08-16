@@ -12,5 +12,7 @@ interface Marketplace {
     fun getImplementation(aspect: String, feature: String): ImplementationCoord?
 
     fun getJarFile(id: String): File?
+
+    fun upload(jar: File)
 }
 

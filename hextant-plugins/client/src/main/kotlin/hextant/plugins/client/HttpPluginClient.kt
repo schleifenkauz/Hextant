@@ -11,11 +11,14 @@ import io.ktor.client.call.receive
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.request.forms.*
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.*
+import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.copyAndClose
+import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ImplicitReflectionSerializer
 import java.io.File
@@ -62,4 +65,12 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
 
     override fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
         get("$url/implementation", body = ImplementationRequest(aspect, feature))
+
+    @KtorExperimentalAPI
+    override fun upload(jar: File) = runBlocking {
+        val parts = formData {
+            append(jar.nameWithoutExtension, InputProvider(jar.length()) { jar.inputStream().asInput() })
+        }
+        client.submitFormWithBinaryData<Unit>("$url/upload", parts)
+    }
 }

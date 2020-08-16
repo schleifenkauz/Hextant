@@ -8,11 +8,12 @@ import hextant.plugins.*
 import hextant.plugins.Plugin.Type
 import kollektion.Trie
 import java.io.File
+import java.io.InputStream
 import java.util.*
 import java.util.jar.JarFile
 import kotlin.collections.set
 
-class LocalPluginRepository(private val root: File) : Marketplace {
+internal class LocalPluginRepository(private val root: File) : Marketplace {
     private val trie = Trie<Plugin>()
     private val implementations = mutableMapOf<String, MutableMap<String, ImplementationCoord>>()
 
@@ -22,15 +23,19 @@ class LocalPluginRepository(private val root: File) : Marketplace {
 
     private fun preprocess() {
         for (item in root.listFiles()!!) {
-            if (item.extension != "jar") continue
-            val jar = JarFile(item)
-            val plugin: Plugin? = jar.getInfo("plugin.json")
-            val impl: List<Implementation>? = jar.getInfo("implementations.json")
-            if (plugin != null) addPlugin(plugin)
-            if (impl != null) {
-                val bundle = item.nameWithoutExtension.takeIf { plugin == null }
-                addImplementations(impl, bundle)
-            }
+            uploaded(item)
+        }
+    }
+
+    private fun uploaded(item: File) {
+        if (item.extension != "jar") return
+        val jar = JarFile(item)
+        val plugin: Plugin? = jar.getInfo("plugin.json")
+        val impl: List<Implementation>? = jar.getInfo("implementations.json")
+        if (plugin != null) addPlugin(plugin)
+        if (impl != null) {
+            val bundle = item.nameWithoutExtension.takeIf { plugin == null }
+            addImplementations(impl, bundle)
         }
     }
 
@@ -74,5 +79,15 @@ class LocalPluginRepository(private val root: File) : Marketplace {
         val file = root.resolve("$id.jar")
         if (!file.exists()) return null
         return file
+    }
+
+    override fun upload(jar: File) {
+        uploaded(jar)
+    }
+
+    fun upload(file: InputStream, name: String) {
+        val dest = File(root, name)
+        file.copyTo(dest.outputStream())
+        uploaded(dest)
     }
 }
