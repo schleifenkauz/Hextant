@@ -8,15 +8,19 @@ package hextant.fx
 
 import bundles.Bundle
 import bundles.createBundle
+import hextant.context.createView
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Compound
+import hextant.core.view.EditorControl
 import javafx.scene.Node
 import javafx.scene.control.*
-import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
 import javafx.scene.layout.Region
 import javafx.stage.PopupWindow
+import reaktive.value.now
+import validated.Validated
+import validated.invalidComponent
 
 internal fun control(skin: Skin<out Control>): Control {
     return object : Control() {
@@ -113,9 +117,7 @@ internal fun <C : Control> C.withTooltip(tooltip: Tooltip) = apply { this.toolti
 
 internal fun <C : Control> C.withTooltip(text: String) = withTooltip(Tooltip(text))
 
-internal fun label(text: String, graphic: Node? = null) = Label(text, graphic).withStyleClass("hextant-text")
-
-internal fun Label.graphicToRight() = apply { contentDisplay = RIGHT }
+internal fun hextantLabel(text: String, graphic: Node? = null) = Label(text, graphic).withStyleClass("hextant-text")
 
 /**
  * Add the editor control for the given [editor] to this compound view.
@@ -123,3 +125,28 @@ internal fun Label.graphicToRight() = apply { contentDisplay = RIGHT }
  */
 fun Compound.view(editor: Editor<*>, bundle: Bundle = createBundle(), config: Bundle.() -> Unit) =
     view(editor, bundle.apply(config))
+
+/**
+ * Gets input from the user by showing the given [editor] in a [Dialog] to him.
+ *
+ * If the user cancels the dialog [invalidComponent] is returned.
+ * @param control the [EditorControl] that shows the editor to the user.
+ * @param buttonTypes the possible button types.
+ */
+fun <R> getUserInput(
+    editor: Editor<R>,
+    control: EditorControl<*> = editor.context.createView(editor),
+    buttonTypes: List<ButtonType> = listOf(ButtonType.OK, ButtonType.CANCEL)
+): Validated<R> {
+    val d = Dialog<Validated<R>>()
+    d.dialogPane.content = control
+    d.dialogPane.buttonTypes.setAll(buttonTypes)
+    d.setResultConverter { btn ->
+        when (btn) {
+            ButtonType.OK -> editor.result.now
+            ButtonType.CANCEL -> invalidComponent
+            else              -> error("Unexpected button type: $btn")
+        }
+    }
+    return d.showAndWait().orElse(invalidComponent)
+}

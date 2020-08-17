@@ -5,8 +5,10 @@
 package hextant.command
 
 import hextant.config.Enabled
+import hextant.core.Editor
 import hextant.fx.Shortcut
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * A Command that is executable on a receiver of type [R]
@@ -120,33 +122,30 @@ interface Command<in R : Any, out T : Any> : Enabled {
      * @property name the name of this parameter
      * @property type the expected type for this parameter
      * @property description explains what this parameter is used for
+     * @property editWith if not `null` this class of editor is used for editing the value of this parameter
      */
     data class Parameter(
-        val name: String, val type: KType, val description: String
+        val name: String, val type: KType, val description: String, val editWith: KClass<out Editor<*>>?
     ) {
         override fun toString() = buildString {
             append(name)
             append(": ")
             append(type.toString())
-            appendln()
+            appendLine()
             append(description)
         }
     }
 
     /**
-     * A builder for [Parameter]s
+     * A builder for [Parameter]s.
+     * @param type the type of the parameter
      */
     @Builder
-    class ParameterBuilder @PublishedApi internal constructor() {
+    class ParameterBuilder<T> @PublishedApi internal constructor(val type: KType) {
         /**
          * The name of the parameter
          */
         lateinit var name: String
-
-        /**
-         * The type of the parameter
-         */
-        lateinit var type: KType
 
         /**
          * The description of this parameter, an explanation of what the parameter influences.
@@ -154,14 +153,22 @@ interface Command<in R : Any, out T : Any> : Enabled {
          */
         var description: String = "No description provided"
 
+        private var editorCls: KClass<out Editor<T>>? = null
+
         /**
-         * Set the type to the class of [T]
+         * Sets the [Parameter.editWith] to the given [clazz].
          */
-        @OptIn(ExperimentalStdlibApi::class)
-        inline fun <reified T> ofType() {
-            type = typeOf<T>()
+        fun editWith(clazz: KClass<out Editor<T>>) {
+            editorCls = clazz
         }
 
-        @PublishedApi internal fun build(): Parameter = Parameter(name, type, description)
+        /**
+         * Syntactic sugar for `editWith(T::class)`
+         */
+        inline fun <reified E : Editor<T>> editWith() {
+            editWith(E::class)
+        }
+
+        @PublishedApi internal fun build(): Parameter = Parameter(name, type, description, editorCls)
     }
 }

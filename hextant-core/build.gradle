@@ -17,7 +17,7 @@ dependencies {
     compile nkb03("validated-reaktive", "0.1-SNAPSHOT")
     compile kotlin("reflect")
     compile kotlin("stdlib")
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinx_serialization_version"
     implementation project(":hextant-plugins:common")
     compile "org.controlsfx:controlsfx:8.40.14"
     testImplementation project(":hextant-expr")

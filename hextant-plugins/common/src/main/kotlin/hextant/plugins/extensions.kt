@@ -6,15 +6,14 @@
 
 package hextant.plugins
 
-import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import java.util.jar.JarFile
 
-@OptIn(ImplicitReflectionSerializer::class, UnstableDefault::class)
 inline fun <reified T : Any> JarFile.getInfo(file: String): T? {
     val entry = getEntry(file) ?: return null
     val reader = getInputStream(entry).bufferedReader()
-    return Json.parse(serializer(), reader.readText())
+    return Json.decodeFromString(serializer(), reader.readText())
 }
 
 inline fun <reified T : Any> Marketplace.getInfo(id: String, file: String): T? {
@@ -22,8 +21,6 @@ inline fun <reified T : Any> Marketplace.getInfo(id: String, file: String): T? {
     val jar = JarFile(f)
     return jar.getInfo(file)
 }
-
-fun Marketplace.getProjectTypes(pluginId: String): List<ProjectType>? = getInfo(pluginId, "projectTypes.json")
 
 fun Marketplace.getImplementations(id: String): List<Implementation>? = getInfo(id, "implementations.json")
 

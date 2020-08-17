@@ -12,8 +12,7 @@ internal val enable = command<Context, String> {
     name = "enable"
     description = "Enables the given object"
     shortName = "enable"
-    addParameter {
-        ofType<Enabled>()
+    addParameter<Enabled> {
         name = "enabled"
         description = "The object to enable"
     }
@@ -31,8 +30,7 @@ internal val disable = command<Context, String> {
     name = "disable"
     description = "Disables the given object"
     shortName = "disable"
-    addParameter {
-        ofType<Enabled>()
+    addParameter<Enabled> {
         name = "disabled"
         description = "The object to disabled"
     }

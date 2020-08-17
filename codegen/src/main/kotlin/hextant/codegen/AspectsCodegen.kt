@@ -6,9 +6,8 @@ package hextant.codegen
 
 import com.google.auto.service.AutoService
 import hextant.plugin.Aspects
-import kotlinx.serialization.ImplicitReflectionSerializer
+import hextant.plugins.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.serializer
 import krobot.api.*
 import javax.annotation.processing.*
@@ -21,14 +20,13 @@ import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 import javax.tools.StandardLocation
 
-@ImplicitReflectionSerializer
 @ExperimentalStdlibApi
 @Suppress("unused")
 @AutoService(Processor::class)
 class AspectsCodegen : AbstractProcessor() {
     private lateinit var generatedDir: String
 
-    override fun getSupportedAnnotationTypes(): MutableSet<String> = mutableSetOf(Aspect::class.qualifiedName!!)
+    override fun getSupportedAnnotationTypes(): MutableSet<String> = mutableSetOf(RequestAspect::class.qualifiedName!!)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 
@@ -57,33 +55,33 @@ class AspectsCodegen : AbstractProcessor() {
     }
 
     private fun RoundEnvironment.visitFeatures() {
-        collect("features") { cls, _: Feature ->
+        collect("features") { cls, _: RequestFeature ->
             val supertypes = mutableSetOf<TypeElement>()
             allSupertypes(cls, supertypes)
-            listOf(hextant.plugins.Feature(cls.toString(), supertypes.map { it.toString() }))
+            listOf(Feature(cls.toString(), supertypes.map { it.toString() }))
         }
     }
 
     private fun RoundEnvironment.visitImplementations() {
-        collect("implementations") { cls, _: Implementation ->
+        collect("implementations") { cls, _: ProvideImplementation ->
             val clazz = cls.toString()
             cls.interfaces.mapNotNull { iface ->
                 iface as DeclaredType
                 val el = iface.asTypeElement()
-                if (el.getAnnotation(Aspect::class.java) != null) {
+                if (el.getAnnotation(RequestAspect::class.java) != null) {
                     val aspect = el.toString()
                     val feature = iface.typeArguments.last().asTypeElement().toString()
-                    hextant.plugins.Implementation(clazz, aspect, feature)
+                    Implementation(clazz, aspect, feature)
                 } else null
             }
         }
     }
 
     private fun RoundEnvironment.visitProjectTypes() {
-        collect("projectTypes") { cls, ann: ProjectType ->
+        collect("projectTypes") { cls, ann: ProvideProjectType ->
             val name = ann.name
             val clazz = cls.toString()
-            listOf(hextant.plugins.ProjectType(name, clazz))
+            listOf(ProjectType(name, clazz))
         }
     }
 
@@ -102,21 +100,21 @@ class AspectsCodegen : AbstractProcessor() {
 
     private inline fun <reified T> writeJson(list: List<T>, file: String) {
         val resource = processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", file)
-        val str = json.stringify(serializer(), list)
+        val str = Json.encodeToString(serializer(), list)
         val w = resource.openWriter()
         w.write(str)
         w.close()
     }
 
     private fun RoundEnvironment.visitAspects(pkg: String) {
-        collect("aspects") { cls, ann: Aspect ->
+        collect("aspects") { cls, ann: RequestAspect ->
             val name = cls.toString()
             val target = caseVar(cls).bounds.firstOrNull()?.asTypeElement()?.toString()
                 ?: throw ProcessingException("Cannot deduce target of aspect $cls")
-            listOf(hextant.plugins.Aspect(name, target, ann.optional))
+            listOf(Aspect(name, target, ann.optional))
         }
 
-        val classes = getElementsAnnotatedWith(Aspect::class.java).filterIsInstance<TypeElement>()
+        val classes = getElementsAnnotatedWith(RequestAspect::class.java).filterIsInstance<TypeElement>()
         if (classes.isEmpty()) return
         val accessors = kotlinFile(pkg) {
             generateClsFunction()
@@ -215,7 +213,5 @@ class AspectsCodegen : AbstractProcessor() {
 
     companion object {
         private const val DESTINATION = "hextant.codegen.dest"
-
-        private val json = Json(JsonConfiguration.Stable)
     }
 }

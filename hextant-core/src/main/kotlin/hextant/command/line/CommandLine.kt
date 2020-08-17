@@ -76,7 +76,11 @@ class CommandLine(context: Context, val source: CommandSource) :
     fun expand(command: Command<*, *>): Boolean {
         if (isExpanded.now) return false
         val editors = command.parameters.map { p ->
-            context.createEditor<Any?>(p.type).also { it.makeRoot() }
+            val v =
+                if (p.editWith != null) p.editWith.getSimpleEditorConstructor().invoke(context)
+                else context.createEditor<Any?>(p.type)
+            v.makeRoot()
+            v
         }
         bindResult(command, editors.map { it.result })
         expanded(command, editors)
@@ -121,8 +125,8 @@ class CommandLine(context: Context, val source: CommandSource) :
             result
         }
         val result = when (results.size) {
-            0    -> return null
-            1    -> results[0]
+            0 -> return null
+            1 -> results[0]
             else -> Unit
         }
         commandExecuted(command, arguments ?: emptyList(), result)

@@ -13,7 +13,7 @@ class ParametersBuilder @PublishedApi internal constructor() {
     /**
      * Add a parameter build with [block]
      */
-    inline fun add(block: ParameterBuilder.() -> Unit) {
+    inline fun <reified P> add(block: ParameterBuilder<P>.() -> Unit) {
         val p = parameter(block)
         parameters.add(p)
     }
@@ -21,8 +21,8 @@ class ParametersBuilder @PublishedApi internal constructor() {
     /**
      * Add a parameter with the specified [name] applying [block] to it
      */
-    inline fun add(name: String, block: ParameterBuilder.() -> Unit) {
-        add {
+    inline fun <reified P> add(name: String, block: ParameterBuilder<P>.() -> Unit) {
+        add<P> {
             this.name = name
             block()
         }
@@ -31,7 +31,7 @@ class ParametersBuilder @PublishedApi internal constructor() {
     /**
      * Add a parameter named with this [String] applying [block] to it
      */
-    inline operator fun String.invoke(block: ParameterBuilder.() -> Unit) {
+    inline operator fun <reified P> String.invoke(block: ParameterBuilder<P>.() -> Unit) {
         add(this, block)
     }
 

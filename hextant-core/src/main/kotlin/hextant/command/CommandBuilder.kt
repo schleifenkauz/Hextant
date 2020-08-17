@@ -83,7 +83,7 @@ class CommandBuilder<R : Any, T : Any> @PublishedApi internal constructor(privat
     /**
      * Adds a [Command.Parameter] build with [build] to the built command
      */
-    inline fun addParameter(build: ParameterBuilder.() -> Unit) {
+    inline fun <reified P> addParameter(build: ParameterBuilder<P>.() -> Unit) {
         addParameter(parameter(build))
     }
 

@@ -2,13 +2,15 @@
  *@author Nikolaus Knop
  */
 
-package hextant.plugins.editor
+package hextant.main.editors
 
 import hextant.context.Context
 import hextant.core.editor.AbstractEditor
-import hextant.plugins.*
+import hextant.main.plugins.PluginException
+import hextant.main.plugins.PluginManager
+import hextant.plugins.Marketplace
+import hextant.plugins.Plugin
 import hextant.plugins.Plugin.Type
-import hextant.plugins.view.PluginsEditorView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import reaktive.value.reactiveValue

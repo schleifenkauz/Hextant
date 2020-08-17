@@ -43,6 +43,8 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
      */
     protected open fun compile(item: Any): Validated<R> = invalidComponent()
 
+    override fun compile(token: String): Validated<R> = invalidComponent()
+
     private fun tryCompile(item: Any): Validated<R> =
         context.executeSafely("compiling item", invalidComponent) { compile(item) }
 

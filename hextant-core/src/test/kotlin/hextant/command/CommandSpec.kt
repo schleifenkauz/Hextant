@@ -12,9 +12,8 @@ internal object CommandSpec : Spek({
             description = "double the passed argument"
             name = "dbl"
             addParameters {
-                "x" {
+                "x"<Int> {
                     description = "The doubled value"
-                    ofType<Int>()
                 }
             }
             executing { spec, args ->

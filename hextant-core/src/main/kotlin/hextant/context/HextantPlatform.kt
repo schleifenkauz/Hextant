@@ -66,7 +66,7 @@ object HextantPlatform {
     /**
      * Extend the [rootContext] with some core properties.
      */
-    fun defaultContext(root: Context) = root.extend {
+    fun defaultContext(root: Context = rootContext()) = root.extend {
         set(SelectionDistributor, SelectionDistributor.newInstance())
         set(EditorControlGroup, EditorControlGroup())
         set(UndoManager, UndoManager.newInstance())

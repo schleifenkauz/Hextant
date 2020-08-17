@@ -42,6 +42,8 @@ internal abstract class KClassMock : KClass<Nothing> {
         get() = PUBLIC
     override val sealedSubclasses: List<KClass<out Nothing>>
         get() = emptyList()
+    override val isFun: Boolean
+        get() = false
 
     override fun equals(other: Any?): Boolean = this === other
 

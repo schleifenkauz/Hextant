@@ -61,46 +61,46 @@ class CustomEditor(context: Context, @Suppress("UNUSED_PARAMETER") o: O = O) : A
 
 interface Term<R>
 
-@Aspect
+@RequestAspect
 interface Eval<R, T : Term<R>> {
     fun Aspects.eval(t: T): R
 }
 
 interface I
 
-@Aspect
+@RequestAspect
 interface Contravariant<in T : I> {
     fun Aspects.f(i: T): Int
 }
 
-@Aspect
+@RequestAspect
 interface Covariant<out T : I> {
     fun Aspects.g(i: Int): I
 }
 
-@Aspect
+@RequestAspect
 interface Invariant<T : I> {
     fun Aspects.h(i: T): Int
     fun Aspects.j(i: Int): I
 }
 
-@Feature
+@RequestFeature
 data class Literal(val value: String) : Term<Int>
 
-@Feature
+@RequestFeature
 data class Sum(val terms: List<Term<Int>>) : Term<Int>
 
-@Implementation
+@ProvideImplementation
 object LiteralEval : Eval<Int, Literal> {
     override fun Aspects.eval(t: Literal): Int = t.value.toInt()
 }
 
-@Implementation
+@ProvideImplementation
 object SumEval : Eval<Int, Sum> {
     override fun Aspects.eval(t: Sum): Int = t.terms.sumBy { eval(it) }
 }
 
-@ProjectType("Calculator")
+@ProvideProjectType("Calculator")
 class Calculator
 
 fun main() {

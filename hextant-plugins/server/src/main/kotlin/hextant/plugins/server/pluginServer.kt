@@ -17,6 +17,7 @@ import io.ktor.routing.*
 import io.ktor.serialization.json
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import kotlinx.serialization.json.Json
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -31,7 +32,7 @@ fun main(args: Array<String>) {
 
 private fun Application.configure(repo: LocalPluginRepository) {
     install(ContentNegotiation) {
-        json()
+        json(Json.Default)
     }
     routing {
         get("/plugins/") {

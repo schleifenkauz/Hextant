@@ -10,8 +10,8 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.70'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.3.70'
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
     id 'java'
     id 'maven-publish'
     id 'io.codearte.nexus-staging' version '0.21.2'
@@ -22,7 +22,7 @@ static String nkb03(Object dep, Object version) {
 }
 
 static String kotlin(Object dep) {
-    return "org.jetbrains.kotlin:kotlin-$dep:1.3.70"
+    return "org.jetbrains.kotlin:kotlin-$dep:1.4.0"
 }
 
 static String spek(Object dep) {

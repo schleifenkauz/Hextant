@@ -1,12 +1,14 @@
-package hextant.plugins
+package hextant.main
 
 import bundles.createBundle
 import hextant.context.Context
 import hextant.fx.menuBar
-import hextant.main.HextantApplication
+import hextant.main.editors.PluginsEditor
+import hextant.main.editors.PluginsEditorControl
+import hextant.main.plugins.PluginManager
+import hextant.plugins.Marketplace
+import hextant.plugins.Plugin.Type
 import hextant.plugins.client.HttpPluginClient
-import hextant.plugins.editor.PluginsEditor
-import hextant.plugins.view.PluginsEditorControl
 import javafx.scene.Parent
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
@@ -18,7 +20,7 @@ class Test : HextantApplication() {
         val url = "http://localhost:80"
         val downloadDirectory = File("D:/data/hextant/plugin-cache")
         val marketplace: Marketplace = HttpPluginClient(url, downloadDirectory)
-        val types = Plugin.Type.values().toSet()
+        val types = Type.values().toSet()
         val plugins = PluginManager(marketplace)
         val e = PluginsEditor(context, plugins, marketplace, types)
         val fc = FileChooser()

@@ -2,9 +2,10 @@
  *@author Nikolaus Knop
  */
 
-package hextant.plugins
+package hextant.main.plugins
 
-import hextant.plugins.PluginManager.DisableConfirmation.*
+import hextant.main.plugins.PluginManager.DisableConfirmation.*
+import hextant.plugins.*
 import kollektion.MultiMap
 import java.util.*
 
@@ -68,7 +69,10 @@ class PluginManager(private val marketplace: Marketplace) {
         }
     }
 
-    private fun disableDependencies(plugin: Plugin, confirm: (Plugin) -> DisableConfirmation): Set<Plugin> {
+    private fun disableDependencies(
+        plugin: Plugin,
+        confirm: (Plugin) -> DisableConfirmation
+    ): Set<Plugin> {
         val removed = mutableSetOf<Plugin>()
         val q: Queue<Plugin> = LinkedList()
         q.offer(plugin)
@@ -101,7 +105,10 @@ class PluginManager(private val marketplace: Marketplace) {
         return removed
     }
 
-    fun enable(plugin: Plugin, confirm: (Set<Plugin>) -> Boolean): Collection<Plugin>? {
+    fun enable(
+        plugin: Plugin,
+        confirm: (Set<Plugin>) -> Boolean
+    ): Collection<Plugin>? {
         val deps = mutableSetOf<Plugin>()
         getDependencies(plugin, deps, mutableSetOf())
         val enable = deps + plugin
@@ -170,7 +177,10 @@ class PluginManager(private val marketplace: Marketplace) {
     private fun isImplemented(aspect: Aspect, feature: Feature) =
         ImplementationRequest(aspect.name, feature.name) in implementation
 
-    private fun requireImplementation(aspect: Aspect, feature: Feature): ImplementationCoord? {
+    private fun requireImplementation(
+        aspect: Aspect,
+        feature: Feature
+    ): ImplementationCoord? {
         val impl = marketplace.getImplementation(aspect.name, feature.name)
         if (impl == null && !aspect.optional) {
             throw PluginException("No implementation of aspect ${aspect.name} for case ${feature.name} found")

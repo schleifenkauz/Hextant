@@ -6,6 +6,8 @@ hextant_lib {
 
 dependencies {
     compile project(":hextant-core")
+    compile project(":codegen")
+    compile project(":hextant-plugins:client")
 }
 
 jar {

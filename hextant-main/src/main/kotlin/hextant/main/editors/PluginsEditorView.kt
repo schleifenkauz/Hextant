@@ -2,11 +2,11 @@
  * @author Nikolaus Knop
  */
 
-package hextant.plugins.view
+package hextant.main.editors
 
 import hextant.core.EditorView
+import hextant.main.plugins.PluginManager
 import hextant.plugins.Plugin
-import hextant.plugins.PluginManager
 
 interface PluginsEditorView : EditorView {
     val available: MutableCollection<Plugin>

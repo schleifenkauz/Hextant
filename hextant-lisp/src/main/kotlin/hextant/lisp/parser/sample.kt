@@ -6,7 +6,7 @@ package hextant.lisp.parser
 
 import hextant.lisp.FileScope
 
-fun main(args: Array<String>) {
+fun main() {
     val str = "(let square (lambda x (* x x)) (+ (square 8) (square 7)))"
     val input = CharInput(str)
     val tokens = lex(input)

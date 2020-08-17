@@ -5,6 +5,8 @@
 package hextant.command.meta
 
 import hextant.command.Command
+import hextant.core.Editor
+import kotlin.reflect.KClass
 
 
 /**
@@ -33,10 +35,17 @@ internal const val DEFAULT = "<default>"
 
 internal const val NONE = "<none>"
 
+internal interface Default : Editor<Nothing>
+
 /**
  * This annotation can be used on a parameter of a member function with the [ProvideCommand] to configure a command parameter.
  * @constructor Instantiates this annotation, you can use `"<default>"` for the string parameters to use the default value.
  * @property name The [Command.Parameter.name] of the parameter, defaults to the name of the function parameter
  * @property description The [Command.Parameter.description] of the parameter, defaults to `"No description provided"`
+ * @property editWith if specified this class is used to edit the value of the provided parameter.
  */
-annotation class CommandParameter(val name: String = DEFAULT, val description: String = NONE)
+annotation class CommandParameter(
+    val name: String = DEFAULT,
+    val description: String = NONE,
+    val editWith: KClass<out Editor<*>> = Default::class
+)

@@ -73,5 +73,6 @@ private fun KParameter.extractParameter(): Command.Parameter {
     val ann = findAnnotation<CommandParameter>()
     val name = ann?.name?.takeIf { it != DEFAULT } ?: this.name ?: throw Exception("Parameter $this has no name")
     val desc = ann?.description?.takeIf { it != NONE } ?: "No description provided"
-    return Command.Parameter(name, type, desc)
+    val editWith = ann?.editWith?.takeIf { it != Default::class }
+    return Command.Parameter(name, type, desc, editWith)
 }

@@ -16,6 +16,7 @@ import kotlin.collections.set
 internal class LocalPluginRepository(private val root: File) : Marketplace {
     private val trie = Trie<Plugin>()
     private val implementations = mutableMapOf<String, MutableMap<String, ImplementationCoord>>()
+    private val projectTypes = mutableListOf<LocatedProjectType>()
 
     init {
         preprocess()
@@ -29,13 +30,22 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
 
     private fun uploaded(item: File) {
         if (item.extension != "jar") return
+        val id = item.nameWithoutExtension
         val jar = JarFile(item)
         val plugin: Plugin? = jar.getInfo("plugin.json")
         val impl: List<Implementation>? = jar.getInfo("implementations.json")
+        val pts: List<ProjectType>? = jar.getInfo("projectTypes.json")
         if (plugin != null) addPlugin(plugin)
         if (impl != null) {
-            val bundle = item.nameWithoutExtension.takeIf { plugin == null }
+            val bundle = id.takeIf { plugin == null }
             addImplementations(impl, bundle)
+        }
+        if (pts != null) addProjectTypes(pts, id)
+    }
+
+    private fun addProjectTypes(pts: List<ProjectType>, id: String) {
+        for (pt in pts) {
+            projectTypes.add(LocatedProjectType(pt, id))
         }
     }
 
@@ -74,6 +84,8 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
 
     override fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
         implementations[aspect]?.get(feature)
+
+    override fun availableProjectTypes(): List<LocatedProjectType> = projectTypes
 
     override fun getJarFile(id: String): File? {
         val file = root.resolve("$id.jar")

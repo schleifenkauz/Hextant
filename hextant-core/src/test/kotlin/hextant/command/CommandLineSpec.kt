@@ -32,10 +32,9 @@ internal object CommandLineSpec : Spek({
             description = "command with parameter"
             shortName = "command2"
             name = "command2"
-            addParameter {
+            addParameter<IntLiteral> {
                 description = "the parameter"
                 this.name = "x"
-                ofType<IntLiteral>()
             }
             executing { target, (x) ->
                 x as IntLiteral

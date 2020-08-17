@@ -44,16 +44,16 @@ annotation class UseEditor(val cls: KClass<out Editor<*>>)
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class Aspect(val optional: Boolean = false)
+annotation class RequestAspect(val optional: Boolean = false)
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class Feature
+annotation class RequestFeature
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class Implementation
+annotation class ProvideImplementation
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class ProjectType(val name: String)
+annotation class ProvideProjectType(val name: String)

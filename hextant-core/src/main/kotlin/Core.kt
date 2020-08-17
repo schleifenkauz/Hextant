@@ -1,5 +1,6 @@
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.line.CommandLine
+import hextant.command.line.CommandLineControl
 import hextant.completion.CompletionStrategy
 import hextant.config.*
 import hextant.context.createView
@@ -54,6 +55,7 @@ object Core : PluginInitializer({
         message { (inspected.intermediateResult.now as Invalid).reason }
         isSevere(true)
     }
+    view(::CommandLineControl)
     view { e: TransformedEditor<*, *>, bundle -> e.context.createView(e.source, bundle) }
     view { e: FileNameEditor, bundle ->
         bundle[BEGIN_CHANGE] = shortcut(F2)

@@ -157,8 +157,7 @@ object ExprPlugin : PluginInitializer({
             "Wraps the current expression in an operator expression with the current expression being the left operand"
         name = "Wrap in operator expression"
         shortName = "wrap_op"
-        addParameter {
-            ofType<Operator>()
+        addParameter<Operator> {
             description = "The operator being applied"
             name = "operator"
         }
@@ -182,9 +181,8 @@ object ExprPlugin : PluginInitializer({
         name = "Set Color"
         shortName = "color"
         defaultShortcut("Ctrl+G")
-        addParameter {
+        addParameter<String> {
             name = "color"
-            ofType<String>()
             description = "The text fill"
         }
         executing { v, (c) -> v.arguments[ColorProperty] = c as String? }

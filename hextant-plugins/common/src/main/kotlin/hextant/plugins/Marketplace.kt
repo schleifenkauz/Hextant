@@ -11,6 +11,8 @@ interface Marketplace {
 
     fun getImplementation(aspect: String, feature: String): ImplementationCoord?
 
+    fun availableProjectTypes(): List<LocatedProjectType>
+
     fun getJarFile(id: String): File?
 
     fun upload(jar: File)

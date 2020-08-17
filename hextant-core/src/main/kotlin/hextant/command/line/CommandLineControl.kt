@@ -84,14 +84,14 @@ class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLin
         box.onAction { cl.resume(command, arguments.map { (_, snapshot) -> snapshot }) }
         box.setOnMouseClicked { box.requestFocus() }
         with(box.children) {
-            add(label(command.shortName!!))
-            add(label(" "))
+            add(hextantLabel(command.shortName!!))
+            add(hextantLabel(" "))
             for ((param, arg) in command.parameters.zip(arguments)) {
-                add(label(arg.first.toString()).withTooltip(param.toString()))
+                add(hextantLabel(arg.first.toString()).withTooltip(param.toString()))
             }
             if (result != Unit) {
-                add(label(" -> "))
-                add(label(result.toString()))
+                add(hextantLabel(" -> "))
+                add(hextantLabel(result.toString()))
             }
         }
         history.children.add(box)

@@ -20,17 +20,16 @@ import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.copyAndClose
 import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.json.Json
 import java.io.File
 
 class HttpPluginClient(private val url: String, private val downloadDirectory: File) : Marketplace {
     private val client = HttpClient(Apache) {
         install(JsonFeature) {
-            serializer = KotlinxSerializer()
+            serializer = KotlinxSerializer(Json {})
         }
     }
 
-    @OptIn(ImplicitReflectionSerializer::class)
     private inline fun <reified T, reified B : Any> get(url: String, body: B?): T? = runBlocking {
         val response = client.get<HttpResponse>(url) {
             if (body != null) {
@@ -39,11 +38,13 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
             }
         }
         when (response.status) {
-            HttpStatusCode.OK -> response.receive<T?>()
+            HttpStatusCode.OK -> response.receive()
             HttpStatusCode.NotFound -> null
             else                    -> throw IllegalArgumentException(response.toString())
         }
     }
+
+    private inline fun <reified T> get(url: String): T? = get<T, Any>(url, body = null)
 
     override fun getJarFile(id: String): File? {
         val file = downloadDirectory.resolve("$id.jar")
@@ -65,6 +66,8 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
 
     override fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
         get("$url/implementation", body = ImplementationRequest(aspect, feature))
+
+    override fun availableProjectTypes(): List<LocatedProjectType> = get("$url/projectTypes")!!
 
     @KtorExperimentalAPI
     override fun upload(jar: File) = runBlocking {

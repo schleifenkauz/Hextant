@@ -13,7 +13,7 @@ abstract class PluginInitializer(private val initialize: PluginBuilder.() -> Uni
     /**
      * Applies this plugin to the the given [context] wrapping in a [PluginBuilder].
      */
-    internal fun apply(context: Context) {
+    fun apply(context: Context) {
         val builder = PluginBuilder(context)
         builder.initialize()
     }

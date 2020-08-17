@@ -19,8 +19,7 @@ internal object Data {
             name = "print argument"
             description = "prints the argument"
             shortName = "printarg"
-            addParameter {
-                ofType<IntLiteral>()
+            addParameter<IntLiteral> {
                 name = "arg"
                 description = "The value to print"
             }
@@ -34,13 +33,11 @@ internal object Data {
             name = "Print sum"
             description = "Prints the sum of two integers"
             shortName = "pntsm"
-            addParameter {
-                ofType<IntLiteral>()
+            addParameter<IntLiteral> {
                 name = "op1"
                 description = "The first operand"
             }
-            addParameter {
-                ofType<IntLiteral>()
+            addParameter<IntLiteral> {
                 name = "op2"
                 description = "The second operand"
             }
