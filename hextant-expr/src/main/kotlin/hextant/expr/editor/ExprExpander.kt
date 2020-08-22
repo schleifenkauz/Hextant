@@ -5,7 +5,6 @@
 package hextant.expr.editor
 
 import hextant.context.Context
-import hextant.context.createEditor
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
 import hextant.expr.Expr
@@ -15,11 +14,6 @@ class ExprExpander(
     context: Context, editor: ExprEditor<Expr>?
 ) : ConfiguredExpander<Expr, ExprEditor<Expr>>(config, context, editor), ExprEditor<Expr> {
     constructor(context: Context) : this(context, null)
-
-    constructor(edited: Expr, context: Context) : this(
-        context,
-        context.createEditor(edited) as ExprEditor<Expr>
-    )
 
     companion object {
         val config = ExpanderConfig<ExprEditor<Expr>>().apply {

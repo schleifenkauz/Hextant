@@ -6,19 +6,24 @@ package hextant.core.view
 
 import bundles.Bundle
 import bundles.SimpleProperty
+import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
 import hextant.context.Context
+import hextant.context.ControlFactory
 import hextant.core.editor.ValidatedTokenEditor
 import hextant.fx.*
 
 /**
  * Displays a [ValidatedTokenEditor] as a [HextantTextField].
  */
-class ValidatedTokenEditorControl(private val editor: ValidatedTokenEditor<*>, arguments: Bundle) :
+open class ValidatedTokenEditorControl @ProvideImplementation(
+    ControlFactory::class,
+    ValidatedTokenEditor::class
+) constructor(private val editor: ValidatedTokenEditor<*>, arguments: Bundle) :
     EditorControl<HextantTextField>(editor, arguments), ValidatedTokenEditorView {
-    private val popup = CompletionPopup.forContext(context, arguments[COMPLETER])
+    private val popup = CompletionPopup.forContext(context) { arguments[COMPLETER] }
 
     private val textObserver = root.userUpdatedText.observe { _, new ->
         editor.setText(new)

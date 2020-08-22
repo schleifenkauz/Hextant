@@ -9,7 +9,7 @@ import hextant.context.*
 import hextant.fx.registerShortcuts
 import hextant.main.HextantApplication
 import hextant.serial.makeRoot
-import hextant.settings.editors.SettingsEditor
+import hextant.settings.editor.SettingsEditor
 import hextant.settings.model.ConfigurableProperties
 import hextant.settings.model.Settings
 import javafx.scene.Parent

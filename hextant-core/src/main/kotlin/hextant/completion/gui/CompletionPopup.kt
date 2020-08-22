@@ -23,7 +23,7 @@ import reaktive.event.event
 class CompletionPopup<Ctx, T : Any>(
     private val context: Context,
     private val ctx: Ctx,
-    completer: Completer<Ctx, T>
+    private val completer: () -> Completer<Ctx, T>
 ) : Popup() {
     private var input = ""
     private val choose = event<Completion<T>>()
@@ -33,16 +33,6 @@ class CompletionPopup<Ctx, T : Any>(
      */
     val completionChosen = choose.stream
     private var valid = false
-
-    /**
-     * The completer used to find completion items
-     */
-    var completer = completer
-        set(value) {
-            field = value
-            valid = false
-            if (isShowing) updateCompletions()
-        }
 
     init {
         isAutoHide = true
@@ -82,7 +72,7 @@ class CompletionPopup<Ctx, T : Any>(
 
     private fun updateCompletions() {
         val completions = context.executeSafely("getting completions", emptyList()) {
-            completer.completions(ctx, input)
+            completer().completions(ctx, input)
         }
         setCompletions(completions)
         valid = true
@@ -153,7 +143,7 @@ class CompletionPopup<Ctx, T : Any>(
         /**
          * Return a new [CompletionPopup] which uses the given [completer] with the specified [context].
          */
-        fun <T : Any> forContext(context: Context, completer: Completer<Context, T>) =
+        fun <T : Any> forContext(context: Context, completer: () -> Completer<Context, T>) =
             CompletionPopup(context, context, completer)
     }
 }

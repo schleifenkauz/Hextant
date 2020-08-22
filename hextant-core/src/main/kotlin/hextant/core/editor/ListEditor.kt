@@ -4,6 +4,7 @@
 
 package hextant.core.editor
 
+import hextant.codegen.ProvideFeature
 import hextant.command.meta.ProvideCommand
 import hextant.context.*
 import hextant.context.ClipboardContent.MultipleEditors
@@ -21,11 +22,11 @@ import validated.*
 import validated.Validated.InvalidComponent
 import validated.Validated.Valid
 import validated.reaktive.ReactiveValidated
-import kotlin.reflect.typeOf
 
 /**
  * An editor for multiple child editors of type [E] whose result type is [R]
  */
+@ProvideFeature
 abstract class ListEditor<R, E : Editor<R>>(
     context: Context,
     private val _editors: MutableReactiveList<E>
@@ -381,9 +382,9 @@ abstract class ListEditor<R, E : Editor<R>>(
          * using the specified [context]
          */
         @OptIn(ExperimentalStdlibApi::class)
-        inline fun <reified R> forType(context: Context): ListEditor<R, Editor<R>> =
+        inline fun <reified R : Any> forType(context: Context): ListEditor<R, Editor<R>> =
             object : ListEditor<R, Editor<R>>(context) {
-                override fun createEditor(): Editor<R> = context.createEditor(typeOf<R>())
+                override fun createEditor(): Editor<R> = context.createEditor<R>()
             }
     }
 }

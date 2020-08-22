@@ -30,7 +30,7 @@ import java.nio.file.Paths
 class DirectoryViewTest : HextantApplication() {
     private val pane = SimpleEditorPane()
 
-    override fun createContext(root: Context): Context = root.extend {
+    override fun Context.initializeContext() {
         set(FileManager, PhysicalFileManager(this))
         set(ProjectItemEditor.expanderConfig(), ExpanderConfig<IntEditor>().apply {
             registerInterceptor { text, context ->

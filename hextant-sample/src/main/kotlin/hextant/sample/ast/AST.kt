@@ -310,7 +310,7 @@ sealed class IfExpr<T, E : Expr<T>>(val cond: BooleanExpr, val then: E, val othe
         append("if ")
         append(cond)
         append(" then ")
-        appendln(then)
+        appendLine(then)
         append(" else ")
         append(otherwise)
     }

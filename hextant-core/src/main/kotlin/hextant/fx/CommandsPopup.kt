@@ -22,7 +22,7 @@ class CommandsPopup(private val context: Context, private val target: Any) : Pop
     init {
         scene.root = container
         container.styleClass
-        context[Internal, Stylesheets].apply(scene)
+        context[Internal, Stylesheets].manage(scene)
         isHideOnEscape = true
         isAutoHide = true
     }

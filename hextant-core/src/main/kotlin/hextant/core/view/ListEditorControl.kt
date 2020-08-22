@@ -5,6 +5,8 @@
 package hextant.core.view
 
 import bundles.*
+import hextant.codegen.ProvideImplementation
+import hextant.context.ControlFactory
 import hextant.context.createView
 import hextant.core.Editor
 import hextant.core.editor.ListEditor
@@ -22,10 +24,13 @@ import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 /**
  * Objects of this class are used to display [ListEditor]s.
  */
-open class ListEditorControl(
-    private val editor: ListEditor<*, *>,
-    args: Bundle
+open class ListEditorControl @ProvideImplementation(ControlFactory::class, ListEditor::class) constructor(
+    private val editor: ListEditor<*, *>, args: Bundle
 ) : ListEditorView, EditorControl<Node>(editor, args) {
+    constructor(editor: ListEditor<*, *>, args: Bundle, orientation: Orientation) : this(editor, args.apply {
+        set(ORIENTATION, orientation)
+    })
+
     private val emptyDisplay = arguments[EMPTY_DISPLAY].invoke()
 
     /**
@@ -61,7 +66,7 @@ open class ListEditorControl(
     @Suppress("UNCHECKED_CAST")
     override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
         when (property) {
-            ORIENTATION  -> orientationChanged(value as Orientation)
+            ORIENTATION -> orientationChanged(value as Orientation)
             CELL_FACTORY -> cellFactoryChanged()
         }
     }

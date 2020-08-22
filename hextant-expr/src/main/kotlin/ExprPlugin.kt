@@ -1,61 +1,51 @@
+
 import bundles.SimpleReactiveProperty
 import hextant.command.Command
 import hextant.command.executingCompoundEdit
-import hextant.completion.CompletionStrategy
-import hextant.completion.CompoundCompleter
-import hextant.context.Context
-import hextant.context.HextantPlatform.propertyChangeHandlers
-import hextant.core.view.*
-import hextant.core.view.ListEditorControl.Orientation.Horizontal
-import hextant.expr.*
+import hextant.core.view.TokenEditorControl
+import hextant.expr.IntLiteral
+import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.inspect.Severity.Warning
-import hextant.plugin.PluginInitializer
+import hextant.plugin.*
 import hextant.undo.compoundEdit
-import org.controlsfx.glyphfont.FontAwesome
 import reaktive.value.binding.and
 import reaktive.value.binding.map
 import reaktive.value.now
 import validated.*
 
 object ExprPlugin : PluginInitializer({
-    defaultEditor(::IntLiteralEditor)
-    defaultEditor(::OperatorEditor)
-    defaultEditor(::OperatorApplicationEditor)
-    defaultEditor(::SumEditor)
-    defaultEditor(::ExprExpander)
-    defaultEditor(::ExprListEditor)
-    compoundView { e: OperatorApplicationEditor ->
-        line {
-            operator("(")
-            view(e.operand1)
-            view(e.operator)
-            view(e.operand2)
-            operator(")")
-        }
-    }
-    view { editor: ExprExpander, args ->
-        val c = CompoundCompleter<Context, Any>()
-        c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
-        c.addCompleter(SpecialNumbers)
-        ExpanderControl(editor, args, c)
-    }
-    tokenEditorView<OperatorEditor>("operator")
-    tokenEditorView<IntLiteralEditor>(styleClass = "decimal-editor", completer = SpecialNumbers)
-    compoundView { e: SumEditor ->
-        line {
-            keyword("sum")
-            space()
-            view(e.expressions)
-        }
-    }
-    view<ExprListEditor> { editor, args ->
-        ListEditorControl.withAltGlyph(editor, FontAwesome.Glyph.PLUS, args, Horizontal).apply {
-            cellFactory = { ListEditorControl.SeparatorCell(", ") }
-        }
-    }
-    registerConversion<Expr, Int> { expr -> valid(expr.value) }
+    //    compoundView { e: OperatorApplicationEditor ->
+    //        line {
+    //            operator("(")
+    //            view(e.operand1)
+    //            view(e.operator)
+    //            view(e.operand2)
+    //            operator(")")
+    //        }
+    //    }
+    //    view { editor: ExprExpander, args ->
+    //        val c = CompoundCompleter<Context, Any>()
+    //        c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
+    //        c.addCompleter(SpecialNumbers)
+    //        ExpanderControl(editor, args, c)
+    //    }
+    //    tokenEditorView<OperatorEditor>("operator")
+    //    tokenEditorView<IntLiteralEditor>(styleClass = "decimal-editor", completer = SpecialNumbers)
+    //    compoundView { e: SumEditor ->
+    //        line {
+    //            keyword("sum")
+    //            space()
+    //            view(e.expressions)
+    //        }
+    //    }
+    //    view<ExprListEditor> { editor, args ->
+    //        ListEditorControl.withAltGlyph(editor, FontAwesome.Glyph.PLUS, args, Horizontal).apply {
+    //            cellFactory = { ListEditorControl.SeparatorCell(", ") }
+    //        }
+    //    }
+    //    registerConversion<Expr, Int> { expr -> valid(expr.value) }
     registerCommand<ExprEditor<*>, Int> {
         name = "Evaluate Expression"
         shortName = "eval"
@@ -96,7 +86,7 @@ object ExprPlugin : PluginInitializer({
         executingCompoundEdit { oae, _ ->
             val ex = oae.expander as ExprExpander
             val res = oae.result.now.force().value
-            val editable = IntLiteralEditor(context, res.toString())
+            val editable = IntLiteralEditor(oae.context, res.toString())
             ex.setEditor(editable)
         }
     }
@@ -173,9 +163,9 @@ object ExprPlugin : PluginInitializer({
             }
         }
     }
-    context[propertyChangeHandlers].forContext<AbstractTokenEditorControl>().handle(ColorProperty) { control, c ->
-        control.root.style = c?.let { "-fx-text-fill: $c" }
-    }
+    //    context[propertyChangeHandlers].forContext<AbstractTokenEditorControl>().handle(ColorProperty) { control, c ->
+    //        control.root.style = c?.let { "-fx-text-fill: $c" }
+    //    }
     registerCommand<TokenEditorControl, Unit> {
         description = "Sets the text fill"
         name = "Set Color"

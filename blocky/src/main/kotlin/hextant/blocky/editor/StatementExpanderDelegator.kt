@@ -1,7 +1,7 @@
 package hextant.blocky.editor
 
 import hextant.blocky.Statement
-import hextant.codegen.ExpanderConfigurator
+import hextant.core.editor.ExpanderConfigurator
 
 object StatementExpanderDelegator : ExpanderConfigurator<StatementEditor<Statement>>({
     registerConstant("assign", ::AssignEditor)

@@ -5,7 +5,8 @@
 package hextant.blocky
 
 import hextant.blocky.editor.ProgramEditor
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.createView
 import hextant.fx.registerShortcuts
 import hextant.main.HextantApplication
 import javafx.scene.Parent
@@ -13,8 +14,6 @@ import reaktive.value.now
 import validated.ifInvalid
 
 class BlockyApp : HextantApplication() {
-    override fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
-
     override fun createView(context: Context): Parent {
         val e = ProgramEditor(context)
         val view = context.createView(e)

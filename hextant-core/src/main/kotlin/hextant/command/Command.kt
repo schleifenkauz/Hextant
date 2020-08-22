@@ -8,7 +8,6 @@ import hextant.config.Enabled
 import hextant.core.Editor
 import hextant.fx.Shortcut
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
 
 /**
  * A Command that is executable on a receiver of type [R]
@@ -17,7 +16,7 @@ interface Command<in R : Any, out T : Any> : Enabled {
     /**
      * Execute this command on [receiver] with the specified [args]
      */
-    fun execute(receiver: R, args: List<Any?>): T
+    fun execute(receiver: R, args: List<Any>): T
 
     /**
      * @return the short name of this [Command]
@@ -125,7 +124,10 @@ interface Command<in R : Any, out T : Any> : Enabled {
      * @property editWith if not `null` this class of editor is used for editing the value of this parameter
      */
     data class Parameter(
-        val name: String, val type: KType, val description: String, val editWith: KClass<out Editor<*>>?
+        val name: String,
+        val type: KClass<*>,
+        val description: String,
+        val editWith: KClass<*>?
     ) {
         override fun toString() = buildString {
             append(name)
@@ -141,7 +143,7 @@ interface Command<in R : Any, out T : Any> : Enabled {
      * @param type the type of the parameter
      */
     @Builder
-    class ParameterBuilder<T> @PublishedApi internal constructor(val type: KType) {
+    class ParameterBuilder<T> @PublishedApi internal constructor(val type: KClass<*>) {
         /**
          * The name of the parameter
          */

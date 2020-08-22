@@ -10,10 +10,10 @@ import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
 import hextant.context.Context
+import hextant.core.InputMethod
 import hextant.core.editor.TokenEditor
 import hextant.fx.*
 import hextant.impl.observe
-import hextant.main.InputMethod
 import javafx.scene.input.KeyCode.SPACE
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
@@ -33,7 +33,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         popup.show(this)
     }
 
-    private val popup = CompletionPopup.forContext(context, arguments[COMPLETER])
+    private val popup = CompletionPopup.forContext(context) { arguments[COMPLETER] }
 
     private val obs = popup.completionChosen.observe(this) { _, c ->
         editor.complete(c)

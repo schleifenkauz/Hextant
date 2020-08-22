@@ -14,7 +14,7 @@ interface CommandSource {
     /**
      * Execute the given [command] with the provided [arguments] on the appropriate targets.
      */
-    fun executeCommand(command: Command<*, *>, arguments: List<Any?>): List<Any>
+    fun executeCommand(command: Command<*, *>, arguments: List<Any>): List<Any>
 
     /**
      * Returns all the commands applicable on the current targets.

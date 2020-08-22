@@ -26,7 +26,7 @@ class UtilityDialog(
 ) : Alert(CONFIRMATION, "", ButtonType.OK, ButtonType.CANCEL) {
     init {
         initOwner(owner)
-        context[Internal, Stylesheets].apply(dialogPane.scene)
+        context[Internal, Stylesheets].manage(dialogPane.scene)
         dialogPane.styleClass.add("utility-dialog-pane")
         this.headerText = headerText
         this.title = title

@@ -84,10 +84,10 @@ interface Invariant<T : I> {
     fun Aspects.j(i: Int): I
 }
 
-@RequestFeature
+@ProvideFeature
 data class Literal(val value: String) : Term<Int>
 
-@RequestFeature
+@ProvideFeature
 data class Sum(val terms: List<Term<Int>>) : Term<Int>
 
 @ProvideImplementation

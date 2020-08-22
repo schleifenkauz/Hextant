@@ -78,12 +78,6 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
 
     override val result: ReactiveValidated<File<R>> get() = _result
 
-    internal class RootExpander<R>(
-        context: Context,
-        config: ExpanderDelegate<Editor<R>> = context[ProjectItemEditor.expanderConfig<R>()],
-        initial: Editor<R>? = null
-    ) : ConfiguredExpander<R, Editor<R>>(config, context, initial)
-
     companion object {
         fun <R> newInstance(context: Context): FileEditor<R> {
             val e = FileEditor<R>(context)

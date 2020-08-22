@@ -8,7 +8,7 @@ import com.nhaarman.mockitokotlin2.*
 import hextant.command.line.*
 import hextant.command.line.CommandLine.HistoryItem
 import hextant.command.line.CommandReceiverType.Targets
-import hextant.context.*
+import hextant.context.SelectionDistributor
 import hextant.core.Editor
 import hextant.core.EditorView
 import hextant.expr.IntLiteral
@@ -19,9 +19,7 @@ import org.jetbrains.spek.api.dsl.*
 
 internal object CommandLineSpec : Spek({
     given("a command line") {
-        val context = testingContext {
-            get(EditorFactory).register { context -> IntLiteralEditor(context) }
-        }
+        val context = testingContext()
         val command = command<Target, Unit> {
             description = "command"
             shortName = "command"

@@ -5,6 +5,8 @@
 package hextant.project.view
 
 import bundles.Bundle
+import hextant.codegen.ProvideImplementation
+import hextant.context.ControlFactory
 import hextant.context.createView
 import hextant.core.view.EditorControl
 import hextant.fx.Glyphs
@@ -17,7 +19,7 @@ import org.controlsfx.glyphfont.FontAwesome.Glyph.FOLDER
 /**
  * Displays a [DirectoryEditor] as horizontal combination of the folder glyph and the name of the directory.
  */
-class DirectoryEditorControl(
+class DirectoryEditorControl @ProvideImplementation(ControlFactory::class, DirectoryEditor::class) constructor(
     editor: DirectoryEditor<*>,
     arguments: Bundle
 ) : EditorControl<HBox>(editor, arguments) {

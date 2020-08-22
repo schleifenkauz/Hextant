@@ -9,10 +9,11 @@ import bundles.PropertyChangeHandlers
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.core.Editor
+import hextant.core.InputMethod
 import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
-import hextant.main.InputMethod
+import hextant.plugin.Aspects
 import hextant.serial.SerialProperties
 import hextant.serial.SerialProperties.deserializationContext
 import hextant.settings.model.ConfigurableProperties
@@ -34,15 +35,12 @@ object HextantPlatform {
     /**
      * The [PropertyChangeHandlers] is used to register properties for views.
      */
-    val propertyChangeHandlers =
-        Property<PropertyChangeHandlers, Any, Internal>("property change handlers")
+    val propertyChangeHandlers = Property<PropertyChangeHandlers, Any, Internal>("property change handlers")
 
     /**
      * Create the root context.
      */
-    fun rootContext() = Context.newInstance {
-        set(Internal, EditorControlFactory, EditorControlFactory.newInstance())
-        set(Internal, EditorFactory, EditorFactory.newInstance())
+    fun projectContext(global: Context) = global.extend {
         set(Internal, Commands, Commands.newInstance())
         set(Internal, Inspections, Inspections.newInstance())
         set(Internal, Stylesheets, Stylesheets())
@@ -51,6 +49,7 @@ object HextantPlatform {
         set(Internal, SerialProperties.serialContext, createSerialContext())
         set(Internal, SerialProperties.serial, KSerial.newInstance())
         set(Internal, ConfigurableProperties, ConfigurableProperties())
+        set(Internal, Aspects, Aspects())
     }
 
     /**
@@ -64,9 +63,9 @@ object HextantPlatform {
     }
 
     /**
-     * Extend the [rootContext] with some core properties.
+     * Extend the [projectContext] with some core properties.
      */
-    fun defaultContext(root: Context = rootContext()) = root.extend {
+    fun defaultContext(root: Context) = root.extend {
         set(SelectionDistributor, SelectionDistributor.newInstance())
         set(EditorControlGroup, EditorControlGroup())
         set(UndoManager, UndoManager.newInstance())
@@ -77,4 +76,9 @@ object HextantPlatform {
         }
         set(CommandLine, CommandLine(clContext, ContextCommandSource(this, *CommandReceiverType.values())))
     }
+
+    /**
+     * The global class loader
+     */
+    val classLoader: ClassLoader = javaClass.classLoader
 }

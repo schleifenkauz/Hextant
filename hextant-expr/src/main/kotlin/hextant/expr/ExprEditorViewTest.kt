@@ -8,14 +8,14 @@ import bundles.createBundle
 import hextant.command.line.CommandLine
 import hextant.command.line.CommandLineControl
 import hextant.context.*
+import hextant.core.InputMethod
+import hextant.core.InputMethod.REGULAR
+import hextant.core.InputMethod.VIM
 import hextant.core.view.EditorControl
 import hextant.core.view.ViewSnapshot
 import hextant.expr.editor.ExprExpander
 import hextant.fx.*
 import hextant.main.HextantApplication
-import hextant.main.InputMethod
-import hextant.main.InputMethod.REGULAR
-import hextant.main.InputMethod.VIM
 import hextant.serial.makeRoot
 import javafx.scene.Parent
 import javafx.scene.layout.VBox
@@ -24,8 +24,6 @@ import kserial.readTyped
 
 class ExprEditorViewTest : HextantApplication() {
     private val handler = VisualLoggerHandler()
-
-    override fun createContext(root: Context): Context = HextantPlatform.defaultContext(root)
 
     override fun createView(context: Context): Parent {
         context[HextantPlatform.logger].addHandler(handler)

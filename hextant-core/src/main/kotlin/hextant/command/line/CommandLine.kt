@@ -24,7 +24,7 @@ import validated.reaktive.ReactiveValidated
 class CommandLine(context: Context, val source: CommandSource) :
     AbstractEditor<CommandApplication, CommandLineView>(context) {
     private var commandName: String = ""
-    private var arguments: List<Editor<*>>? = null
+    private var arguments: List<Editor<Any>>? = null
     private val _expandedCommand: ReactiveVariable<Command<*, *>?> = reactiveVariable(null)
     private var history = mutableListOf<HistoryItem>()
     private val expanded = reactiveVariable(false)
@@ -76,9 +76,9 @@ class CommandLine(context: Context, val source: CommandSource) :
     fun expand(command: Command<*, *>): Boolean {
         if (isExpanded.now) return false
         val editors = command.parameters.map { p ->
-            val v =
-                if (p.editWith != null) p.editWith.getSimpleEditorConstructor().invoke(context)
-                else context.createEditor<Any?>(p.type)
+            @Suppress("UNCHECKED_CAST") val v =
+                if (p.editWith != null) p.editWith.getSimpleEditorConstructor().invoke(context) as Editor<Any>
+                else context.createEditor(p.type)
             v.makeRoot()
             v
         }
@@ -87,7 +87,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         return true
     }
 
-    private fun expanded(cmd: Command<*, *>, editors: List<Editor<Any?>>) {
+    private fun expanded(cmd: Command<*, *>, editors: List<Editor<Any>>) {
         arguments = editors
         _expandedCommand.now = cmd
         isExpanded.now = true
@@ -96,10 +96,10 @@ class CommandLine(context: Context, val source: CommandSource) :
 
     private fun bindResult(
         cmd: Command<*, *>,
-        arguments: List<ReactiveValidated<Any?>>
+        arguments: List<ReactiveValidated<Any>>
     ) {
         obs = _result.bind(binding<Validated<CommandApplication>>(dependencies(arguments)) {
-            val args = mutableListOf<Any?>()
+            val args = mutableListOf<Any>()
             for (result in arguments) {
                 val value = result.now.ifInvalid { return@binding invalidComponent() }
                 args.add(value)
@@ -134,7 +134,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         return result
     }
 
-    private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any?>>, result: Any?) {
+    private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any>>, result: Any?) {
         val item = HistoryItem(command, arguments.map { it.result.now.force() to it.snapshot() }, result)
         history.add(item)
         views {
@@ -152,7 +152,7 @@ class CommandLine(context: Context, val source: CommandSource) :
     /**
      * Expand to the given [command] and instantiate the editors for the given [arguments].
      */
-    fun resume(command: Command<*, *>, arguments: List<EditorSnapshot<out Editor<Any?>>>) {
+    fun resume(command: Command<*, *>, arguments: List<EditorSnapshot<out Editor<Any>>>) {
         reset()
         setCommandName(command.shortName!!)
         val editors = arguments.map { context.executeSafely("resuming", null) { it.reconstruct(context) } ?: return }
@@ -200,7 +200,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         /**
          * The supplied arguments
          */
-        val arguments: List<Pair<Any?, EditorSnapshot<out Editor<Any?>>>>,
+        val arguments: List<Pair<Any?, EditorSnapshot<out Editor<Any>>>>,
         /**
          * The result of the application
          */

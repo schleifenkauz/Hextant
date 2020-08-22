@@ -8,7 +8,7 @@ import bundles.Bundle
 import hextant.core.view.TokenEditorControl
 import hextant.lisp.editor.IntLiteralEditor
 
-class IntLiteralEditorControl(
+class IntLiteralEditorControl constructor(
     editable: IntLiteralEditor,
     args: Bundle
 ) : TokenEditorControl(editable, args) {

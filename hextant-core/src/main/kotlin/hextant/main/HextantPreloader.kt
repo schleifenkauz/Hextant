@@ -12,7 +12,7 @@ import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
-class HextantPreloader : Application() {
+internal class HextantPreloader : Application() {
     private lateinit var progressBar: ProgressBar
     private lateinit var stage: Stage
 

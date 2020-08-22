@@ -1,11 +1,6 @@
 apply plugin: HextantLibrary
 apply plugin: 'kotlinx-serialization'
-
-jar {
-    manifest {
-        attributes('Plugin-Initializer' : 'Core')
-    }
-}
+apply plugin: 'kotlin-kapt'
 
 dependencies {
     compile nkb03("reaktive", "0.1.1-SNAPSHOT")
@@ -15,17 +10,19 @@ dependencies {
     compile nkb03("kollektion", "0.1-SNAPSHOT")
     compile nkb03("validated", "0.1-SNAPSHOT")
     compile nkb03("validated-reaktive", "0.1-SNAPSHOT")
-    compile kotlin("reflect")
-    compile kotlin("stdlib")
+    compileOnly project(":hextant-codegen")
+    kapt project(":hextant-codegen")
+    compile project(":hextant-plugins:client")
+    implementation kotlin("reflect")
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinx_serialization_version"
-    implementation project(":hextant-plugins:common")
+    implementation project(":hextant-plugins:client")
     compile "org.controlsfx:controlsfx:8.40.14"
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")
 }
 
-compileKotlin {
-    kotlinOptions {
-        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+jar {
+    manifest {
+        attributes('Main-Class': 'hextant.main.MainKt')
     }
 }

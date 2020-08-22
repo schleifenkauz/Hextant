@@ -5,6 +5,8 @@
 package hextant.project.view
 
 import bundles.Bundle
+import hextant.codegen.ProvideImplementation
+import hextant.context.ControlFactory
 import hextant.context.createView
 import hextant.core.Editor
 import hextant.core.view.EditorControl
@@ -19,9 +21,10 @@ import reaktive.Observer
 import reaktive.value.binding.orElse
 import reaktive.value.now
 
-internal class FileEditorControl(private val editor: FileEditor<*>, arguments: Bundle) :
-    EditorControl<HBox>(editor, arguments) {
-    private val iconProvider = context[IconProvider.property<Editor<*>>()]
+internal class FileEditorControl @ProvideImplementation(ControlFactory::class, FileEditor::class) constructor(
+    private val editor: FileEditor<*>, arguments: Bundle
+) : EditorControl<HBox>(editor, arguments) {
+    private val iconProvider = context[IconProvider.property()]
 
     private var currentGlyph = glyphBinding(editor.rootEditor)
 

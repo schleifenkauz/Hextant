@@ -7,7 +7,7 @@ package hextant.settings.model
 import bundles.Bundle
 import bundles.Property
 import hextant.context.Internal
-import hextant.settings.editors.SettingsEditor
+import hextant.settings.editor.SettingsEditor
 
 /**
  * Holds a settings [Bundle] configured in a [SettingsEditor].

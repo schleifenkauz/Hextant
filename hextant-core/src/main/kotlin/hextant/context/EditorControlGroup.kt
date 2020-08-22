@@ -8,6 +8,8 @@ import bundles.Bundle
 import bundles.SimpleProperty
 import hextant.core.Editor
 import hextant.core.view.EditorControl
+import hextant.generated.createView
+import hextant.plugin.Aspects
 import kollektion.DoubleWeakHashMap
 
 /**
@@ -22,11 +24,9 @@ class EditorControlGroup : ViewGroup<EditorControl<*>> {
     override fun createViewFor(editor: Editor<*>, context: Context, arguments: Bundle): EditorControl<*> {
         val contexts = generateSequence(context) { it.parent }
         for (c in contexts) {
-            val control = context[EditorControlFactory].createControl(editor, arguments)
-            if (control != null) {
-                views[editor] = control
-                return control
-            }
+            val control = c[Aspects].createView(editor, arguments)
+            views[editor] = control
+            return control
         }
         throw NoSuchElementException("No view factory registered for $editor")
     }

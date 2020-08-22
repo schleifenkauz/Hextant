@@ -27,7 +27,7 @@ internal object CommandSpec : Spek({
             }
         }
         on("executing it with invalid arguments") {
-            val err = { c.execute(CommandSpec, listOf("invalid", null)); Unit }
+            val err = { c.execute(CommandSpec, listOf("invalid")); Unit }
             it("should throw an ArgumentMismatchException") {
                 err shouldMatch throws<ArgumentMismatchException>()
             }

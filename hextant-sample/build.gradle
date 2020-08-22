@@ -9,7 +9,7 @@ kapt {
 dependencies {
     compile project(":hextant-core")
     testImplementation project(":hextant-test")
-    kapt project(":codegen")
+    kapt project(":hextant-codegen")
     kapt project(":hextant-core")
-    compile project(":codegen")
+    compileOnly project(":hextant-codegen")
 }

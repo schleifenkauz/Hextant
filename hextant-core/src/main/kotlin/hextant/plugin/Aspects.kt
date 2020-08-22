@@ -22,7 +22,7 @@ class Aspects {
         val case = getClass(implementation.feature)
         val impl = getClass(implementation.clazz)
         check(impl.isSubclassOf(aspect)) { "invalid implementation class $impl for aspect $aspect" }
-        val instance = impl.createInstance()
+        val instance = impl.objectInstance ?: impl.createInstance()
         implement(aspect, case, instance)
     }
 
@@ -53,5 +53,5 @@ class Aspects {
 
     inline operator fun <T : Any, reified A : Any, R> (A.(Aspects, T) -> R).invoke(obj: T): R = obj.call(this)
 
-    companion object : Property<Aspects, Internal, Internal>("aspects")
+    companion object : Property<Aspects, Any, Internal>("aspects")
 }

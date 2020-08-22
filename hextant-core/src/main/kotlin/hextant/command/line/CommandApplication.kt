@@ -11,7 +11,7 @@ import hextant.command.Command
  * @property command the applied command
  * @property args the arguments
  */
-data class CommandApplication(val command: Command<*, *>, val args: List<Any?>) {
+data class CommandApplication(val command: Command<*, *>, val args: List<Any>) {
     override fun toString(): String = buildString {
         append(command.shortName)
         for ((p, a) in command.parameters.zip(args)) {

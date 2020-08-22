@@ -9,7 +9,6 @@ import hextant.command.Command.Type
 import hextant.command.Command.Type.MultipleReceivers
 import hextant.config.AbstractEnabled
 import kotlin.reflect.KClass
-import kotlin.reflect.jvm.jvmErasure
 
 /**
  * Skeletal implementation of [Command]
@@ -30,24 +29,23 @@ abstract class AbstractCommand<R : Any, T : Any>(
     override val commandType: Type
         get() = MultipleReceivers
 
-    private fun checkArgs(args: List<Any?>) {
+    private fun checkArgs(args: List<Any>) {
         if (args.size > parameters.size) throw ArgumentMismatchException("To many arguments for command $this")
         if (args.size < parameters.size) throw ArgumentMismatchException("To few arguments for command $this")
         for ((a, p) in args.zip(parameters)) {
-            if (a == null && !p.type.isMarkedNullable) throw ArgumentMismatchException("Null argument for non-nullable parameter $p")
-            if (!p.type.jvmErasure.isInstance(a)) throw ArgumentMismatchException("Parameter $a is not an instance of ${p.type}")
+            if (!p.type.isInstance(a)) throw ArgumentMismatchException("Parameter $a is not an instance of ${p.type}")
         }
     }
 
     /**
      * Execute this [Command] on the specified [receiver] and the specified [args]
      */
-    protected abstract fun doExecute(receiver: R, args: List<Any?>): T
+    protected abstract fun doExecute(receiver: R, args: List<Any>): T
 
     /**
      * Check that the specified [args] match [parameters] and then call [doExecute]
      */
-    final override fun execute(receiver: R, args: List<Any?>): T {
+    final override fun execute(receiver: R, args: List<Any>): T {
         checkArgs(args)
         return doExecute(receiver, args)
     }

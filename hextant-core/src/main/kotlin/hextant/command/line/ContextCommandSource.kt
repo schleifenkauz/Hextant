@@ -25,7 +25,7 @@ import reaktive.value.binding.map
  * A [CommandSource] the uses the [SelectionDistributor] and the [Commands] of the given context.
  */
 class ContextCommandSource(
-    private val platform: Context,
+    private val context: Context,
     private val distributor: SelectionDistributor,
     private val commands: Commands,
     receiverTypes: Set<CommandReceiverType>
@@ -51,19 +51,19 @@ class ContextCommandSource(
         Views     -> distributor.selectedViews
         Targets   -> distributor.selectedTargets
         Expanders -> distributor.selectedTargets.mapNotNull { t -> (t as? Editor<*>)?.expander }
-        Global    -> unmodifiableReactiveSet(setOf(platform))
+        Global -> unmodifiableReactiveSet(setOf(context))
     }
 
     private fun focusedReceiver(type: CommandReceiverType): ReactiveValue<Any?> = when (type) {
         Views     -> distributor.focusedView
         Targets   -> distributor.focusedTarget
         Expanders -> distributor.focusedTarget.map { t -> (t as? Editor<*>)?.expander }
-        Global    -> reactiveValue(platform)
+        Global -> reactiveValue(context)
     }
 
-    override fun executeCommand(command: Command<*, *>, arguments: List<Any?>): List<Any> =
+    override fun executeCommand(command: Command<*, *>, arguments: List<Any>): List<Any> =
         when (command.commandType) {
-            SingleReceiver    -> focusedReceivers.asSequence()
+            SingleReceiver -> focusedReceivers.asSequence()
                 .map { it.now }
                 .filterNotNull()
                 .filter { r -> command.isApplicableOn(r) }

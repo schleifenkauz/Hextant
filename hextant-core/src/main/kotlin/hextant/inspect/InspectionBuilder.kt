@@ -100,7 +100,7 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
         description: String,
         command: Command<*, *>,
         target: InspectionBody<T>.() -> Any = { inspected },
-        vararg arguments: Any?
+        vararg arguments: Any
     ) {
         addFix(CommandProblemFix(description, command, arguments.asList(), target))
     }

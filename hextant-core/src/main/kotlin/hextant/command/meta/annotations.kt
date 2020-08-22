@@ -47,5 +47,5 @@ internal interface Default : Editor<Nothing>
 annotation class CommandParameter(
     val name: String = DEFAULT,
     val description: String = NONE,
-    val editWith: KClass<out Editor<*>> = Default::class
+    val editWith: KClass<*> = Default::class
 )

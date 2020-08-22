@@ -5,9 +5,11 @@
 package hextant.command.line
 
 import bundles.Bundle
+import hextant.codegen.ProvideImplementation
 import hextant.command.Command
 import hextant.command.line.CommandLine.HistoryItem
 import hextant.completion.gui.CompletionPopup
+import hextant.context.ControlFactory
 import hextant.context.createView
 import hextant.core.Editor
 import hextant.core.view.EditorControl
@@ -20,12 +22,14 @@ import javafx.scene.layout.VBox
 /**
  * A JavaFX implementation of the [CommandLineView]
  */
-class CommandLineControl(private val cl: CommandLine, args: Bundle) : CommandLineView, EditorControl<VBox>(cl, args) {
+class CommandLineControl @ProvideImplementation(ControlFactory::class, CommandLine::class) constructor(
+    private val cl: CommandLine, args: Bundle
+) : CommandLineView, EditorControl<VBox>(cl, args) {
     private val history = VBox().withStyleClass("command-history")
     private val commandName = HextantTextField().withStyleClass("command-name")
     private val current = HBox(commandName).withStyleClass("command-input")
 
-    private val popup = CompletionPopup(context, cl, CommandCompleter)
+    private val popup = CompletionPopup(context, cl) { CommandCompleter }
 
     private val completionObserver = popup.completionChosen.observe { _, completion ->
         cl.setCommandName(completion.completionText)

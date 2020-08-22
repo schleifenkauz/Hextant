@@ -5,7 +5,7 @@
 package hextant.blocky.editor
 
 import hextant.blocky.*
-import hextant.codegen.ExpanderConfigurator
+import hextant.core.editor.ExpanderConfigurator
 import validated.orNull
 
 object ExprExpanderDelegator : ExpanderConfigurator<ExprEditor<Expr>>({

@@ -25,7 +25,7 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
     private val container = VBox()
 
     init {
-        context[Internal, Stylesheets].apply(scene)
+        context[Internal, Stylesheets].manage(scene)
         container.styleClass.add("problem-list")
         isAutoHide = true
         scene.registerShortcuts {
@@ -80,7 +80,7 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
         private val fixes: Collection<ProblemFix<Any>>
     ) : Popup() {
         init {
-            context[Internal, Stylesheets].apply(scene)
+            context[Internal, Stylesheets].manage(scene)
             content.add(createFixList(fixes))
         }
 

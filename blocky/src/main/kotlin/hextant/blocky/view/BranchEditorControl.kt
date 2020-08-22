@@ -6,12 +6,17 @@ package hextant.blocky.view
 
 import bundles.Bundle
 import hextant.blocky.editor.BranchEditor
+import hextant.codegen.ProvideImplementation
+import hextant.context.ControlFactory
 import hextant.context.createView
 import hextant.fx.HextantTextField
 import javafx.scene.control.Label
 import javafx.scene.layout.*
 
-class BranchEditorControl(private val editor: BranchEditor, args: Bundle) :
+class BranchEditorControl @ProvideImplementation(
+    ControlFactory::class,
+    BranchEditor::class
+) constructor(private val editor: BranchEditor, args: Bundle) :
     ExecutableEditorControl<Pane>(editor, args) {
     init {
         styleClass.add("branch")

@@ -6,8 +6,8 @@ package hextant.blocky.view
 
 import bundles.Bundle
 import hextant.blocky.editor.*
-import hextant.context.EditorControlGroup
-import hextant.context.createView
+import hextant.codegen.ProvideImplementation
+import hextant.context.*
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import javafx.scene.Cursor
@@ -19,8 +19,10 @@ import javafx.scene.shape.Line
 import org.controlsfx.control.action.Action
 import org.controlsfx.control.action.ActionUtils.createContextMenu
 
-class ProgramEditorControl(private val editor: ProgramEditor, args: Bundle) : ProgramEditorView,
-                                                                              EditorControl<Pane>(editor, args) {
+class ProgramEditorControl @ProvideImplementation(
+    ControlFactory::class,
+    ProgramEditor::class
+) constructor(private val editor: ProgramEditor, args: Bundle) : ProgramEditorView, EditorControl<Pane>(editor, args) {
     init {
         setPrefSize(1000.0, 1000.0)
         root.styleClass.add("program")

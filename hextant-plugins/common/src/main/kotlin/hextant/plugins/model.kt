@@ -36,8 +36,8 @@ data class ImplementationCoord(val bundle: String?, val clazz: String)
 data class ProjectType(val name: String, val clazz: String)
 
 @Serializable
-data class LocatedProjectType(val projectType: ProjectType, val pluginId: String) {
-    override fun toString(): String = projectType.name
+data class LocatedProjectType(val name: String, val clazz: String, val pluginId: String) {
+    override fun toString(): String = name
 }
 
 @Serializable

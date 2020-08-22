@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.jvmErasure
 
 internal fun <R : Any> KClass<R>.collectProvidedCommands(): Set<Command<R, *>> {
     val dest = mutableSetOf<Command<R, *>>()
@@ -74,5 +75,5 @@ private fun KParameter.extractParameter(): Command.Parameter {
     val name = ann?.name?.takeIf { it != DEFAULT } ?: this.name ?: throw Exception("Parameter $this has no name")
     val desc = ann?.description?.takeIf { it != NONE } ?: "No description provided"
     val editWith = ann?.editWith?.takeIf { it != Default::class }
-    return Command.Parameter(name, type, desc, editWith)
+    return Command.Parameter(name, type.jvmErasure, desc, editWith)
 }

@@ -5,9 +5,9 @@
 package hextant.fx
 
 import com.sun.javafx.scene.control.skin.TextFieldSkin
-import hextant.main.InputMethod
-import hextant.main.InputMethod.REGULAR
-import hextant.main.InputMethod.VIM
+import hextant.core.InputMethod
+import hextant.core.InputMethod.REGULAR
+import hextant.core.InputMethod.VIM
 import javafx.application.Platform
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField

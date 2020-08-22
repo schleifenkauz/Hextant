@@ -6,9 +6,8 @@ kapt {
 
 dependencies {
     compile project(":hextant-core")
-    testImplementation project(":hextant-test")
-    kapt project(":codegen")
-    compile project(":codegen")
+    kapt project(":hextant-codegen")
+    compileOnly project(":hextant-codegen")
 }
 
 jar {

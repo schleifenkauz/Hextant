@@ -7,7 +7,7 @@ package hextant.main
 import bundles.Property
 import hextant.context.Context
 import hextant.context.HextantPlatform.defaultContext
-import hextant.context.HextantPlatform.rootContext
+import hextant.context.HextantPlatform.projectContext
 import hextant.context.Internal
 import hextant.fx.initHextantScene
 import javafx.application.Application
@@ -34,8 +34,7 @@ abstract class HextantApplication : Application() {
     final override fun start(primaryStage: Stage) {
         val preloader = HextantPreloader()
         preloader.start(Stage())
-        val rootCtx = defaultContext(rootContext())
-        val context = createContext(rootCtx)
+        val context = defaultContext(projectContext(Context.newInstance()))
         val scene = Scene(createView(context))
         scene.initHextantScene(context)
         primaryStage.scene = scene
@@ -59,11 +58,11 @@ abstract class HextantApplication : Application() {
     }
 
     /**
-     * Create initial context from the [root] context.
+     * Initialize the context.
      *
-     * By default the [root] is returned.
+     * The default implementation does nothing.
      */
-    protected open fun createContext(root: Context): Context = root
+    protected open fun Context.initializeContext() {}
 
     /**
      * Create the root node using the given [context].

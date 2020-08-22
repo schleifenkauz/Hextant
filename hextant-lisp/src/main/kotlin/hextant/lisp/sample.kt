@@ -5,7 +5,8 @@
 package hextant.lisp
 
 import bundles.SimpleProperty
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.createView
 import hextant.lisp.editor.LispProperties
 import hextant.lisp.editor.SExprExpander
 import hextant.main.HextantApplication
@@ -86,11 +87,8 @@ val scope = FileScope.empty
 //    )
 //)
 class LispEditorTest : HextantApplication() {
-    override fun createContext(root: Context): Context = root.extend {
-        set(
-            LispProperties.fileScope,
-            FileScope.empty
-        )
+    override fun Context.initializeContext() {
+        set(LispProperties.fileScope, FileScope.empty)
     }
 
     override fun createView(context: Context): Parent {

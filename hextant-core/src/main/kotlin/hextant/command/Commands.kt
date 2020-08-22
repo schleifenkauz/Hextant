@@ -69,6 +69,10 @@ class Commands private constructor() {
      */
     fun all(): Collection<Command<*, *>> = all
 
+    fun <R : Any> disable(command: Command<R, *>) {
+        TODO("not implemented")
+    }
+
     companion object : Property<Commands, Any, Internal>("commands") {
         /**
          * Return a new [Commands] object

@@ -44,8 +44,8 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
     }
 
     private fun addProjectTypes(pts: List<ProjectType>, id: String) {
-        for (pt in pts) {
-            projectTypes.add(LocatedProjectType(pt, id))
+        for ((name, clazz) in pts) {
+            projectTypes.add(LocatedProjectType(name, clazz, id))
         }
     }
 

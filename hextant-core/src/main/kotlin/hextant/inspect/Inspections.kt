@@ -89,6 +89,10 @@ class Inspections private constructor() {
      */
     fun all(): Collection<Inspection<*>> = all
 
+    fun <T : Any> disable(inspection: Inspection<T>) {
+        TODO("not implemented")
+    }
+
     companion object : Property<Inspections, Any, Internal>("inspections") {
         /**
          * Create a new [Inspections] object.

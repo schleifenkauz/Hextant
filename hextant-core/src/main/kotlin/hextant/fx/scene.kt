@@ -22,7 +22,7 @@ fun Scene.initHextantScene(context: Context) {
             ev.consume()
         }
     }
-    context[Internal, Stylesheets].apply(this)
+    context[Internal, Stylesheets].manage(this)
 }
 
 internal val Scene.focusedEditorControl: EditorControl<*>?

@@ -8,7 +8,6 @@ import hextant.command.Command.ParameterBuilder
 import hextant.core.Editor
 import hextant.undo.compoundEdit
 import kotlin.reflect.KClass
-import kotlin.reflect.typeOf
 
 
 /**
@@ -28,8 +27,8 @@ inline fun <reified R : Any, T : Any> command(block: CommandBuilder<R, T>.() -> 
  * Build a [Command.Parameter]
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> parameter(block: ParameterBuilder<T>.() -> Unit) =
-    ParameterBuilder<T>(typeOf<T>()).apply(block).build()
+inline fun <reified T : Any> parameter(block: ParameterBuilder<T>.() -> Unit) =
+    ParameterBuilder<T>(T::class).apply(block).build()
 
 /**
  * Build [Command.Parameter]s

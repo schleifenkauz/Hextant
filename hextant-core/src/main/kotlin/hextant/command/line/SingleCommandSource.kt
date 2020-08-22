@@ -14,7 +14,7 @@ import reaktive.value.reactiveValue
  * A [CommandSource] that only supports commands available on a single given [receiver].
  */
 class SingleCommandSource(private val context: Context, private val receiver: Any) : CommandSource {
-    override fun executeCommand(command: Command<*, *>, arguments: List<Any?>): List<Any> {
+    override fun executeCommand(command: Command<*, *>, arguments: List<Any>): List<Any> {
         @Suppress("UNCHECKED_CAST")
         command as Command<Any, *>
         val res = command.execute(receiver, arguments)
