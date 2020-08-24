@@ -38,7 +38,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             if (item == null || empty) {
                 graphic = null
             } else {
-                val v = context.createView(item)
+                val v = context.createControl(item)
                 graphic = v
                 v.receiveFocus()
             }

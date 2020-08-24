@@ -34,41 +34,61 @@ internal object ImplementationCollector :
                     "Functions annotated with ProvideImplementation must be top-level"
                 }
                 val aspect = getTypeMirror(annotation::aspect).asTypeElement()
-                val feature = getTypeMirror(annotation::feature).asTypeElement()
-                val fqName = fqName(element)
+                val typeVar = aspect.typeParameters.last().toString()
+                val methods = aspect.enclosedElements.filter { it.kind == METHOD }
+                val decl = methods.singleOrNull() as? ExecutableElement
+                    ?: fail("$aspect has ${methods.size} methods, must have exactly one")
+                val (fqFeatureName, simpleFeatureName, featureType) = inferFeature(decl, element, typeVar) ?: return
+                val (pkg, simpleName) = splitPkgAndName(element)
                 val typeParameters = element.typeParameters
                 val parameters = element.parameters.map { it.toString() to toKotlinType(it.asType()) }
-                generateSingleMethodImplementation(fqName, aspect, feature, typeParameters, parameters)
+                generateSingleMethodImplementation(
+                    aspect, decl.simpleName.toString(), typeParameters, parameters,
+                    fqFeatureName, simpleFeatureName, featureType,
+                    pkg, simpleName
+                )
             }
         }
     }
 
+    private fun inferFeature(
+        decl: ExecutableElement,
+        impl: ExecutableElement,
+        aspectTypeVar: String
+    ): Triple<String, String, KtType>? {
+        val unifier = TypeUnifier(processingEnv)
+        for ((a, b) in decl.parameters.zip(impl.parameters)) {
+            unifier.unify(a.asType(), b.asType())
+        }
+        val ret = if (impl.kind == CONSTRUCTOR) impl.enclosingElement.asType() else impl.returnType
+        unifier.unify(decl.returnType, ret)
+        val featureType = unifier.lookup(aspectTypeVar)
+            ?: error("Cannot infer feature type for $impl from method signature")
+        if (featureType.toString() == "error.NonExistentClass") return null
+        check(featureType is DeclaredType) { "Invalid feature type $featureType" }
+        val feature = featureType.asElement()
+        val featureName = feature.simpleName.toString()
+        return Triple(feature.toString(), featureName, toKotlinType(featureType))
+    }
+
     private fun generateSingleMethodImplementation(
-        fqName: String,
-        aspect: TypeElement,
-        feature: TypeElement,
-        typeParameters: List<TypeParameterElement>,
-        parameters: List<Pair<String, KtType>>
+        aspect: TypeElement, methodName: String,
+        typeParameters: List<TypeParameterElement>, parameters: List<Pair<String, KtType>>,
+        fqFeatureName: String, simpleFeatureName: String, featureType: KtType,
+        pkg: String, simpleName: String
     ) {
-        val (pkg, simpleName) = splitPackageAndSimpleName(fqName)
-        val name = "$simpleName${aspect.simpleName}"
+        val fqName = "$pkg.$simpleName"
+        val name = "$simpleFeatureName${aspect.simpleName}"
         val impl = kotlinObject(
             pkg, name = name, modifiers = { internal() },
             inheritance = {
-                val featureType = type(feature).parameterizedBy {
-                    repeat(feature.typeParameters.size) { star() }
-                }
-                val superType = aspect.toString().t.parameterizedBy {
+                implement(aspect.toString().t.parameterizedBy {
                     invariant(featureType)
-                }
-                implement(superType)
+                })
             }
         ) {
-            val methods = aspect.enclosedElements.filter { it.kind == METHOD }
-            val m = methods.singleOrNull() as? ExecutableElement
-                ?: fail("$aspect has ${methods.size} methods, must have exactly one")
             addSingleExprFunction(
-                m.simpleName.toString(),
+                methodName,
                 modifiers = { override() },
                 typeParameters = copyTypeParameters(typeParameters),
                 parameters = {
@@ -77,21 +97,24 @@ internal object ImplementationCollector :
             ) { call(fqName, parameters.map { (n, _) -> n.e }) }
         }
         writeKotlinFile(impl)
-        add(Implementation("$pkg.$name", aspect.toString(), feature.toString()))
+        add(Implementation(fqName, aspect.toString(), fqFeatureName))
     }
 
-    private fun fqName(element: ExecutableElement) =
-        if (element.kind == CONSTRUCTOR) element.enclosingElement.toString()
-        else "${element.enclosingElement.enclosingElement}.${element.simpleName}"
+    private fun splitPkgAndName(element: ExecutableElement): Pair<String, String> {
+        val pkg = element.enclosingElement.enclosingElement.toString()
+        val simpleName =
+            if (element.kind == CONSTRUCTOR) element.enclosingElement.simpleName.toString()
+            else element.simpleName.toString()
+        return pkg to simpleName
+    }
 
     fun generatedEditor(resultType: TypeElement, clazz: String) {
         val aspect = processingEnv.elementUtils.getTypeElement("hextant.context.EditorFactory")
+        val (pkg, simpleName) = splitPackageAndSimpleName(clazz)
         generateSingleMethodImplementation(
-            clazz,
-            aspect,
-            resultType,
-            emptyList(),
-            listOf("context" to type("hextant.context.Context"))
+            aspect, "createEditor", emptyList(), listOf("context" to "hextant.context.Context".t),
+            resultType.toString(), resultType.simpleName.toString(), type(resultType),
+            pkg!!, simpleName
         )
     }
 }

@@ -4,7 +4,7 @@
 
 package hextant.project.view
 
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.core.Editor
 import hextant.fx.setRoot
 import javafx.scene.control.Control
@@ -35,7 +35,7 @@ class SimpleEditorPane : EditorPane, Control() {
             file.write()
         }
         currentEditor = editor
-        val v = editor.context.createView(editor)
+        val v = editor.context.createControl(editor)
         setRoot(v)
         v.requestFocus()
     }

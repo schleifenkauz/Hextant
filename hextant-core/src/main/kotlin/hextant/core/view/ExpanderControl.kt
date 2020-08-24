@@ -21,7 +21,7 @@ import reaktive.Observer
 /**
  * JavaFX implementation of a [ExpanderView]
  */
-open class ExpanderControl @ProvideImplementation(ControlFactory::class, Expander::class) constructor(
+open class ExpanderControl @ProvideImplementation(ControlFactory::class) constructor(
     private val expander: Expander<*, *>,
     args: Bundle
 ) : ExpanderView, EditorControl<Node>(expander, args) {
@@ -95,7 +95,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class, Expande
 
     final override fun expanded(editor: Editor<*>) {
         if (root is EditorControl<*>) removeChild(0)
-        val v = context.createView(editor)
+        val v = context.createControl(editor)
         addChild(v, 0)
         v.registerShortcuts {
             on("Ctrl? + R") { expander.reset() }

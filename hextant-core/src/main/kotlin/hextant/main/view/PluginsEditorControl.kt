@@ -20,7 +20,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import kotlinx.coroutines.runBlocking
 
-internal class PluginsEditorControl @ProvideImplementation(ControlFactory::class, PluginsEditor::class) constructor(
+internal class PluginsEditorControl @ProvideImplementation(ControlFactory::class) constructor(
     private val editor: PluginsEditor,
     arguments: Bundle
 ) : EditorControl<HBox>(editor, arguments), PluginsEditorView {

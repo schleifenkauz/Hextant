@@ -10,7 +10,7 @@ import hextant.command.line.SingleCommandSource
 import hextant.context.Context
 import hextant.context.HextantPlatform.defaultContext
 import hextant.context.HextantPlatform.projectContext
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.core.Core
 import hextant.core.view.EditorControl
 import hextant.fx.*
@@ -73,7 +73,7 @@ internal class HextantApp : Application() {
         val receiver = ProjectManager(localContext)
         val src = SingleCommandSource(localContext, receiver)
         val cl = CommandLine(localContext, src)
-        return localContext.createView(cl)
+        return localContext.createControl(cl)
     }
 
     companion object {

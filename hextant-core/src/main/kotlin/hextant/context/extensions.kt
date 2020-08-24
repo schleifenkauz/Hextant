@@ -26,7 +26,7 @@ fun <T, Read : Any, Write : Read> Context.replace(permission: Write, property: P
 /**
  * Uses the [EditorControlGroup] of this [Context] to create a view for the given [editor] with the specified [arguments]
  */
-fun Context.createView(editor: Editor<*>, arguments: Bundle = createBundle()): EditorControl<*> {
+fun Context.createControl(editor: Editor<*>, arguments: Bundle = createBundle()): EditorControl<*> {
     val group = get(EditorControlGroup)
     return group.createViewFor(editor, this, arguments)
 }
@@ -34,14 +34,15 @@ fun Context.createView(editor: Editor<*>, arguments: Bundle = createBundle()): E
 /**
  * Create a view for the given [editor]. The [configure]-block is used to initialize the [hextant.core.EditorView.arguments].
  */
-inline fun Context.createView(editor: Editor<*>, configure: Bundle.() -> Unit): EditorControl<*> =
-    createView(editor, createBundle(configure))
+inline fun Context.createControl(editor: Editor<*>, configure: Bundle.() -> Unit): EditorControl<*> =
+    createControl(editor, createBundle(configure))
 
 /**
  * Uses the [EditorFactory] aspect of this [Context] to create an [Editor] with the given [resultType].
  * @throws NoSuchElementException if there is no editor registered for the given result type.
  */
-fun <R : Any> Context.createEditor(resultType: KClass<R>): Editor<R> = get(Aspects).createEditor(resultType, this)
+fun <R : Any> Context.createEditor(resultType: KClass<R>): Editor<R> =
+    get(Aspects).createEditor(resultType, this)
 
 /**
  * Uses the [EditorFactory] aspect of this [Context] to create an [Editor] with the given result type

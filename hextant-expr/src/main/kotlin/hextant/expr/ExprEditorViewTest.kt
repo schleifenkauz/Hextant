@@ -29,7 +29,7 @@ class ExprEditorViewTest : HextantApplication() {
         context[HextantPlatform.logger].addHandler(handler)
         val editor = ExprExpander(context)
         editor.makeRoot()
-        val view = context.createView(editor)
+        val view = context.createControl(editor)
         val clView = CommandLineControl(context[CommandLine], createBundle())
         val menuBar = createMenuBar(editor, view)
         return VBox(menuBar, view, clView)

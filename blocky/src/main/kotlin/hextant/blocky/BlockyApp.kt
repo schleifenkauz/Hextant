@@ -6,7 +6,7 @@ package hextant.blocky
 
 import hextant.blocky.editor.ProgramEditor
 import hextant.context.Context
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.fx.registerShortcuts
 import hextant.main.HextantApplication
 import javafx.scene.Parent
@@ -16,7 +16,7 @@ import validated.ifInvalid
 class BlockyApp : HextantApplication() {
     override fun createView(context: Context): Parent {
         val e = ProgramEditor(context)
-        val view = context.createView(e)
+        val view = context.createControl(e)
         view.registerShortcuts {
             on("Ctrl+E") {
                 val prog = e.result.now.ifInvalid { return@on }

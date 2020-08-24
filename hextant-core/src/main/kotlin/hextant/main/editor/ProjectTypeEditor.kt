@@ -12,7 +12,7 @@ import hextant.core.view.TokenEditorView
 import hextant.plugins.LocatedProjectType
 import validated.*
 
-internal class ProjectTypeEditor @ProvideImplementation(EditorFactory::class, LocatedProjectType::class) constructor(
+internal class ProjectTypeEditor @ProvideImplementation(EditorFactory::class) constructor(
     context: Context
 ) : TokenEditor<LocatedProjectType, TokenEditorView>(context) {
     override fun compile(item: Any): Validated<LocatedProjectType> = when (item) {

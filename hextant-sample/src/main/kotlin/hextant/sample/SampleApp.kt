@@ -5,7 +5,7 @@
 package hextant.sample
 
 import hextant.context.Context
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.main.HextantApplication
 import hextant.sample.ast.editor.AltExpander
 import javafx.scene.Parent
@@ -13,7 +13,7 @@ import javafx.scene.Parent
 class SampleApp : HextantApplication() {
     override fun createView(context: Context): Parent {
         val editor = AltExpander(context)
-        return context.createView(editor)
+        return context.createControl(editor)
     }
 
     companion object {

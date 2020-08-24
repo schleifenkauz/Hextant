@@ -3,6 +3,7 @@ apply plugin: 'kotlin-kapt'
 version = '0.1'
 
 kapt {
+    annotationProcessors("hextant.codegen.MainProcessor")
     useBuildCache = true
 }
 

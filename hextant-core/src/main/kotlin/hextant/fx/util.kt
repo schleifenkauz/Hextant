@@ -8,7 +8,7 @@ package hextant.fx
 
 import bundles.Bundle
 import bundles.createBundle
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Compound
 import hextant.core.view.EditorControl
@@ -135,7 +135,7 @@ fun Compound.view(editor: Editor<*>, bundle: Bundle = createBundle(), config: Bu
  */
 fun <R> getUserInput(
     editor: Editor<R>,
-    control: EditorControl<*> = editor.context.createView(editor),
+    control: EditorControl<*> = editor.context.createControl(editor),
     buttonTypes: List<ButtonType> = listOf(ButtonType.OK, ButtonType.CANCEL)
 ): Validated<R> {
     val d = Dialog<Validated<R>>()

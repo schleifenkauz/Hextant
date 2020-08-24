@@ -6,6 +6,7 @@ package hextant.codegen
 
 import hextant.codegen.aspects.JavaToKotlinTypeTranslator
 import krobot.api.*
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.*
 import javax.lang.model.type.*
 import kotlin.reflect.KClass
@@ -102,3 +103,21 @@ internal fun toKotlinType(t: TypeMirror): KtType {
     val str = t.accept(JavaToKotlinTypeTranslator, Unit)
     return type(str)
 }
+
+internal fun TypeMirror.supertypes(env: ProcessingEnvironment): List<TypeMirror> {
+    check(this is DeclaredType)
+    val e = asElement() as TypeElement
+    val subst = e.typeParameters.zip(typeArguments) { p, a -> p.toString() to a }.toMap()
+    val superclasses = e.interfaces + e.superclass
+    return superclasses.map { t -> t.substitute(subst, env) }
+}
+
+internal fun TypeMirror.substitute(subst: Map<String, TypeMirror>, env: ProcessingEnvironment): TypeMirror =
+    when (this) {
+        is TypeVariable -> subst[toString()] ?: this
+        is DeclaredType -> env.typeUtils.getDeclaredType(
+            asElement() as TypeElement,
+            *typeArguments.mapToArray { t -> t.substitute(subst, env) })
+        is ArrayType -> env.typeUtils.getArrayType(componentType.substitute(subst, env))
+        else            -> this
+    }

@@ -71,12 +71,12 @@ internal abstract class EditorClassGen<A : Annotation> : AnnotationProcessor<A, 
         return lookupQualifiedEditorClassName(e)
     }
 
+    protected fun generatedEditor(resultType: TypeElement, clazz: String) {
+        reprocess.add(Pair(resultType, clazz))
+    }
+
     companion object {
         private val reprocess = mutableListOf<Pair<TypeElement, String>>()
-
-        fun generatedEditor(resultType: TypeElement, clazz: String) {
-            reprocess.add(Pair(resultType, clazz))
-        }
 
         fun reprocessGenerated() {
             for ((resultType, clazz) in reprocess) {

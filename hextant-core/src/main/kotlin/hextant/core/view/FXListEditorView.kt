@@ -5,7 +5,7 @@
 package hextant.core.view
 
 import bundles.Bundle
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.ListEditor
 import hextant.fx.registerShortcuts
@@ -44,7 +44,7 @@ class FXListEditorView(private val editor: ListEditor<*, *>, arguments: Bundle) 
         override fun updateItem(item: Editor<*>?, empty: Boolean) {
             super.updateItem(item, empty)
             if (item == null || empty) graphic = null else {
-                val v = context.createView(item)
+                val v = context.createControl(item)
                 graphic = v
                 v.receiveFocus()
             }

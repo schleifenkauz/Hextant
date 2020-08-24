@@ -22,7 +22,7 @@ class SettingsEditorTest : HextantApplication() {
         val editor = SettingsEditor(context)
         editor.makeRoot()
         context[Internal, Settings] = editor.settings
-        return context.createView(editor).apply {
+        return context.createControl(editor).apply {
             registerShortcuts {
                 on("Ctrl+D") {
                     println(context[Settings][test])

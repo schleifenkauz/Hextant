@@ -7,7 +7,7 @@ package hextant.inspect
 import com.natpryce.hamkrest.absent
 import com.sun.javafx.application.PlatformImpl
 import hextant.context.EditorControlGroup
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.expr.editor.ExprExpander
 import hextant.expr.editor.IntLiteralEditor
 import hextant.serial.makeRoot
@@ -59,7 +59,7 @@ class InspectionMemoryLeakTest {
         val ctx = testingContext()
         val w = wrapper(strong(IntLiteralEditor(ctx)))
         val e by w
-        val v = WeakReference(ctx.createView(e!!), ReferenceQueue())
+        val v = WeakReference(ctx.createControl(e!!), ReferenceQueue())
         w.ref = weak(e!!)
         gc()
         e shouldBe absent()
@@ -72,7 +72,7 @@ class InspectionMemoryLeakTest {
         ctx[UndoManager] = NoUndoManager
         val exp = ExprExpander(ctx)
         exp.makeRoot()
-        val view = ctx.createView(exp)
+        val view = ctx.createControl(exp)
         exp.setText("1")
         exp.expand()
         val e by weak(exp.editor.now!!)

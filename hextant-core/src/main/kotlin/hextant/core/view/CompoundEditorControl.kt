@@ -6,7 +6,7 @@ package hextant.core.view
 
 import bundles.*
 import hextant.context.Context
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Vertical
 import hextant.fx.Glyphs
@@ -197,7 +197,7 @@ abstract class CompoundEditorControl(
             context: Context,
             args: Bundle
         ): EditorControl<*> {
-            val c = context.createView(editable, args)
+            val c = context.createControl(editable, args)
             pane.children.add(c)
             return c
         }

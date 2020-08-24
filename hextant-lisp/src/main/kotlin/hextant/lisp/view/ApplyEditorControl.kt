@@ -5,7 +5,7 @@
 package hextant.lisp.view
 
 import bundles.Bundle
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.core.view.EditorControl
 import hextant.lisp.LispEditorTest.Companion.editorParentRegion
 import hextant.lisp.editor.ApplyEditor
@@ -17,7 +17,7 @@ class ApplyEditorControl(
     editor: ApplyEditor,
     args: Bundle
 ) : EditorControl<Pane>(editor, args) {
-    private val exprsView = context.createView(editor.editableExpressions)
+    private val exprsView = context.createControl(editor.editableExpressions)
 
     init {
         val maxWidth = context[editorParentRegion].widthProperty()

@@ -10,7 +10,7 @@ import hextant.command.Command
 import hextant.command.line.CommandLine.HistoryItem
 import hextant.completion.gui.CompletionPopup
 import hextant.context.ControlFactory
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.fx.*
@@ -22,7 +22,7 @@ import javafx.scene.layout.VBox
 /**
  * A JavaFX implementation of the [CommandLineView]
  */
-class CommandLineControl @ProvideImplementation(ControlFactory::class, CommandLine::class) constructor(
+class CommandLineControl @ProvideImplementation(ControlFactory::class) constructor(
     private val cl: CommandLine, args: Bundle
 ) : CommandLineView, EditorControl<VBox>(cl, args) {
     private val history = VBox().withStyleClass("command-history")
@@ -70,7 +70,7 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class, CommandLi
     override fun expanded(command: Command<*, *>, editors: List<Editor<*>>) {
         commandName.text = command.shortName!!
         commandName.isEditable = false
-        val controls = editors.map { context.createView(it) }
+        val controls = editors.map { context.createControl(it) }
         current.children.addAll(controls)
         Platform.runLater { controls.firstOrNull()?.receiveFocus() }
     }

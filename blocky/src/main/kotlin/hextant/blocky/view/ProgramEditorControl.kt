@@ -19,10 +19,9 @@ import javafx.scene.shape.Line
 import org.controlsfx.control.action.Action
 import org.controlsfx.control.action.ActionUtils.createContextMenu
 
-class ProgramEditorControl @ProvideImplementation(
-    ControlFactory::class,
-    ProgramEditor::class
-) constructor(private val editor: ProgramEditor, args: Bundle) : ProgramEditorView, EditorControl<Pane>(editor, args) {
+class ProgramEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+    private val editor: ProgramEditor, arguments: Bundle
+) : ProgramEditorView, EditorControl<Pane>(editor, arguments) {
     init {
         setPrefSize(1000.0, 1000.0)
         root.styleClass.add("program")
@@ -36,7 +35,7 @@ class ProgramEditorControl @ProvideImplementation(
     override fun createDefaultRoot(): Pane = Pane()
 
     override fun addedComponent(idx: Int, comp: Editor<*>) {
-        val view = context.createView(comp)
+        val view = context.createControl(comp)
         root.children.add(view)
         var startX = 0.0
         var startY = 0.0

@@ -10,15 +10,13 @@ import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.view.CompoundEditorControl
 
-class AssignEditorControl @ProvideImplementation(
-    ControlFactory::class,
-    AssignEditor::class
-) constructor(editor: AssignEditor, args: Bundle) :
-    CompoundEditorControl(editor, args, {
-        line {
-            spacing = 2.0
-            view(editor.name)
-            operator("<-")
-            view(editor.value)
-        }
-    })
+class AssignEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+    editor: AssignEditor, arguments: Bundle
+) : CompoundEditorControl(editor, arguments, {
+    line {
+        spacing = 2.0
+        view(editor.name)
+        operator("<-")
+        view(editor.value)
+    }
+})

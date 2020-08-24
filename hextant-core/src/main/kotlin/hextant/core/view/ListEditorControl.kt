@@ -7,7 +7,7 @@ package hextant.core.view
 import bundles.*
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.ListEditor
 import hextant.fx.*
@@ -24,7 +24,7 @@ import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 /**
  * Objects of this class are used to display [ListEditor]s.
  */
-open class ListEditorControl @ProvideImplementation(ControlFactory::class, ListEditor::class) constructor(
+open class ListEditorControl @ProvideImplementation(ControlFactory::class) constructor(
     private val editor: ListEditor<*, *>, args: Bundle
 ) : ListEditorView, EditorControl<Node>(editor, args) {
     constructor(editor: ListEditor<*, *>, args: Bundle, orientation: Orientation) : this(editor, args.apply {
@@ -74,7 +74,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class, ListE
     private val cells = mutableListOf<Cell<*>>()
 
     private fun cells(items: List<Editor<*>>) =
-        items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, context.createView(e)) }
+        items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, context.createControl(e)) }
 
     /**
      * The default type of cell. It just displays the editor control of the contained editor.
@@ -239,7 +239,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class, ListE
     protected open fun Bundle.provideChildArguments() {}
 
     override fun added(editor: Editor<*>, idx: Int) {
-        val view = context.createView(editor) { provideChildArguments() }
+        val view = context.createControl(editor) { provideChildArguments() }
         val c = getCell(idx, view)
         cells.drop(idx).forEach { cell -> cell.index = cell.index + 1 }
         cells.add(idx, c)

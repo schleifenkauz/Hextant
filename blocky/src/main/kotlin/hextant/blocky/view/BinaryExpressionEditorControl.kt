@@ -10,11 +10,10 @@ import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.view.CompoundEditorControl
 
-class BinaryExpressionEditorControl @ProvideImplementation(
-    ControlFactory::class,
-    BinaryExpressionEditor::class
-) constructor(editor: BinaryExpressionEditor, args: Bundle) :
-    CompoundEditorControl(editor, args, {
+class BinaryExpressionEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+    editor: BinaryExpressionEditor, arguments: Bundle
+) :
+    CompoundEditorControl(editor, arguments, {
         line {
             spacing = 2.0
             view(editor.left)

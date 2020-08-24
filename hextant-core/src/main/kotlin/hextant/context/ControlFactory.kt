@@ -17,5 +17,5 @@ interface ControlFactory<E : Editor<*>> {
     /**
      * Create a new [EditorControl] for the given [editor].
      */
-    fun createView(editor: E, arguments: Bundle): EditorControl<*>
+    fun createControl(editor: E, arguments: Bundle): EditorControl<*>
 }

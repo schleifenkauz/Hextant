@@ -8,7 +8,7 @@ import bundles.Bundle
 import bundles.SimpleProperty
 import hextant.core.Editor
 import hextant.core.view.EditorControl
-import hextant.generated.createView
+import hextant.generated.createControl
 import hextant.plugin.Aspects
 import kollektion.DoubleWeakHashMap
 
@@ -24,7 +24,7 @@ class EditorControlGroup : ViewGroup<EditorControl<*>> {
     override fun createViewFor(editor: Editor<*>, context: Context, arguments: Bundle): EditorControl<*> {
         val contexts = generateSequence(context) { it.parent }
         for (c in contexts) {
-            val control = c[Aspects].createView(editor, arguments)
+            val control = c[Aspects].createControl(editor, arguments)
             views[editor] = control
             return control
         }

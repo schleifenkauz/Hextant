@@ -6,7 +6,7 @@ package hextant.lisp
 
 import bundles.SimpleProperty
 import hextant.context.Context
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.lisp.editor.LispProperties
 import hextant.lisp.editor.SExprExpander
 import hextant.main.HextantApplication
@@ -93,7 +93,7 @@ class LispEditorTest : HextantApplication() {
 
     override fun createView(context: Context): Parent {
         val expander = SExprExpander(context)
-        val view = context.createView(expander)
+        val view = context.createControl(expander)
         context[editorParentRegion] = view
         val eval = Button("Evaluate").apply {
             setOnAction {

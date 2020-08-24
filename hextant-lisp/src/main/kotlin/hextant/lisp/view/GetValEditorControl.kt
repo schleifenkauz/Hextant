@@ -5,7 +5,7 @@
 package hextant.lisp.view
 
 import bundles.Bundle
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.core.view.EditorControl
 import hextant.lisp.editor.GetValEditor
 import javafx.scene.Node
@@ -22,5 +22,5 @@ class GetValEditorControl(
         editor.addView(this)
     }
 
-    override fun createDefaultRoot(): Node = context.createView(editor.searchedIdentifier).root
+    override fun createDefaultRoot(): Node = context.createControl(editor.searchedIdentifier).root
 }

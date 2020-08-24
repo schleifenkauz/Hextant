@@ -10,10 +10,11 @@ import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import javafx.scene.control.Label
 
-class EntryEditorControl @ProvideImplementation(ControlFactory::class, EntryEditor::class) constructor(
+class EntryEditorControl @ProvideImplementation(ControlFactory::class) constructor(
     editor: EntryEditor,
-    args: Bundle
-) : ExecutableEditorControl<Label>(editor, args) {
+    argumnts: Bundle
+) :
+    ExecutableEditorControl<Label>(editor, argumnts) {
     init {
         configureArrowStart(editor.next)
         styleClass.add("entry")

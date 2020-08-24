@@ -8,16 +8,15 @@ import bundles.Bundle
 import hextant.blocky.editor.BranchEditor
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
-import hextant.context.createView
+import hextant.context.createControl
 import hextant.fx.HextantTextField
 import javafx.scene.control.Label
 import javafx.scene.layout.*
 
-class BranchEditorControl @ProvideImplementation(
-    ControlFactory::class,
-    BranchEditor::class
-) constructor(private val editor: BranchEditor, args: Bundle) :
-    ExecutableEditorControl<Pane>(editor, args) {
+class BranchEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+    private val editor: BranchEditor, arguments: Bundle
+) :
+    ExecutableEditorControl<Pane>(editor, arguments) {
     init {
         styleClass.add("branch")
         configureArrowTarget()
@@ -30,7 +29,7 @@ class BranchEditorControl @ProvideImplementation(
         val yes = HextantTextField("Yes")
         yes.configureArrowStart(editor.yes)
         yes.isEditable = false
-        val cond = context.createView(editor.condition)
+        val cond = context.createControl(editor.condition)
         val content = HBox(no, cond, yes)
         return VBox(Label(""), content)
     }

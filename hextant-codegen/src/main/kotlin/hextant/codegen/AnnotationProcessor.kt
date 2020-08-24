@@ -27,8 +27,7 @@ internal abstract class AnnotationProcessor<A : Annotation, E : Element> {
     protected lateinit var accessorPackage: String
         private set
 
-
-    protected open fun init(env: ProcessingEnvironment) {
+    fun init(env: ProcessingEnvironment) {
         processingEnv = env
         generatedDir = env.options[GENERATED_DIR]!!
         accessorPackage = env.options[ACCESSOR_PACKAGE] ?: "hextant.generated"
@@ -38,8 +37,7 @@ internal abstract class AnnotationProcessor<A : Annotation, E : Element> {
 
     private val annotationClass = getTypeArgument(AnnotationProcessor::class, 0).java as Class<A>
 
-    fun process(env: ProcessingEnvironment, roundEnv: RoundEnvironment) {
-        init(env)
+    fun process(roundEnv: RoundEnvironment) {
         for (element in roundEnv.getElementsAnnotatedWith(annotationClass)) {
             val ann = element.getAnnotation(annotationClass)
             process(element as E, ann)

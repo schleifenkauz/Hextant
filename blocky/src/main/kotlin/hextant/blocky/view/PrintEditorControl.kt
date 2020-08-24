@@ -6,9 +6,9 @@ import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.view.CompoundEditorControl
 
-class PrintEditorControl @ProvideImplementation(ControlFactory::class, PrintEditor::class) constructor(
-    editor: PrintEditor, args: Bundle
-) : CompoundEditorControl(editor, args, {
+class PrintEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+    editor: PrintEditor, arguments: Bundle
+) : CompoundEditorControl(editor, arguments, {
     line {
         spacing = 2.0
         keyword("print")

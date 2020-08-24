@@ -10,14 +10,14 @@ import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.view.CompoundEditorControl
 
-class SwapEditorControl @ProvideImplementation(ControlFactory::class, SwapEditor::class) constructor(
-    editor: SwapEditor,
-    args: Bundle
-) : CompoundEditorControl(editor, args, {
-    line {
-        spacing = 2.0
-        view(editor.left)
-        operator("<->")
-        view(editor.right)
-    }
-})
+class SwapEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+    editor: SwapEditor, arguments: Bundle
+) :
+    CompoundEditorControl(editor, arguments, {
+        line {
+            spacing = 2.0
+            view(editor.left)
+            operator("<->")
+            view(editor.right)
+        }
+    })
