@@ -6,10 +6,10 @@ package hextant.main
 
 import bundles.Property
 import hextant.context.Context
-import hextant.context.HextantPlatform.defaultContext
-import hextant.context.HextantPlatform.projectContext
 import hextant.context.Internal
 import hextant.fx.initHextantScene
+import hextant.main.HextantPlatform.defaultContext
+import hextant.main.HextantPlatform.projectContext
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Parent

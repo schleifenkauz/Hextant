@@ -9,6 +9,7 @@ import hextant.command.Command
 import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.*
+import hextant.main.HextantPlatform
 import hextant.serial.makeRoot
 import reaktive.Observer
 import reaktive.dependencies

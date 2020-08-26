@@ -2,18 +2,20 @@
  *@author Nikolaus Knop
  */
 
-package hextant.context
+package hextant.main
 
 import bundles.Property
 import bundles.PropertyChangeHandlers
 import hextant.command.Commands
 import hextant.command.line.*
+import hextant.context.*
 import hextant.core.Editor
 import hextant.core.InputMethod
 import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugin.Aspects
+import hextant.plugins.client.HttpPluginClient
 import hextant.serial.SerialProperties
 import hextant.serial.SerialProperties.deserializationContext
 import hextant.settings.model.ConfigurableProperties
@@ -38,7 +40,17 @@ object HextantPlatform {
     val propertyChangeHandlers = Property<PropertyChangeHandlers, Any, Internal>("property change handlers")
 
     /**
-     * Create the root context.
+     * Create the global context, that is, the root of all contexts.
+     */
+    internal fun globalContext(): Context = Context.newInstance {
+        val gd = GlobalDirectory.inUserHome()
+        set(GlobalDirectory, gd)
+        set(HextantApp.marketplace, HttpPluginClient("http://localhost:80", gd[GlobalDirectory.PLUGIN_CACHE]))
+        set(ProjectManager, ProjectManager(this))
+    }
+
+    /**
+     * Create the root context for a project.
      */
     fun projectContext(global: Context) = global.extend {
         set(Internal, Commands, Commands.newInstance())

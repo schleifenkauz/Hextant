@@ -4,10 +4,12 @@
 
 package hextant.main
 
+import bundles.SimpleProperty
 import hextant.command.meta.CommandParameter
 import hextant.command.meta.ProvideCommand
 import hextant.context.Context
 import hextant.fx.getUserInput
+import hextant.main.GlobalDirectory.Companion.PROJECTS
 import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
 import hextant.plugins.LocatedProjectType
@@ -29,9 +31,9 @@ internal class ProjectManager(private val globalContext: Context) {
         val manager = PluginManager(marketplace, required)
         val editor = PluginsEditor(globalContext, manager, marketplace, setOf(Local, Language))
         val plugins = getUserInput(editor).ifInvalid { return }
-        val dest = HextantApp.projects.resolve(projectName)
-        val cl = HextantClassLoader(plugins)
-        cl.executeInNewThread("hextant.main.ProjectCreator", projectType.clazz, dest, plugins, globalContext)
+        val dest = globalContext[GlobalDirectory][PROJECTS].resolve(projectName)
+        val cl = HextantClassLoader(globalContext, plugins)
+        cl.executeInNewThread("hextant.main.ProjectCreator", projectType.clazz, dest, plugins.toList(), globalContext)
     }
 
     @ProvideCommand("Open Project", "open")
@@ -41,9 +43,11 @@ internal class ProjectManager(private val globalContext: Context) {
             editWith = ProjectLocationEditor::class
         ) project: File
     ) {
-        val desc = project.resolve("plugin.hxt").bufferedReader().use { r -> r.readText() }
+        val desc = project.resolve("project.hxt").bufferedReader().use { r -> r.readText() }
         val (plugins) = Json.decodeFromString<Project>(desc)
-        val cl = HextantClassLoader(plugins)
+        val cl = HextantClassLoader(globalContext, plugins)
         cl.executeInNewThread("hextant.main.ProjectOpener", project, globalContext)
     }
+
+    companion object : SimpleProperty<ProjectManager>("project manager")
 }

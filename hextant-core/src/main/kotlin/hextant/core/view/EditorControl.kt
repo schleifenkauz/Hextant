@@ -19,6 +19,7 @@ import hextant.fx.*
 import hextant.impl.addListener
 import hextant.impl.observe
 import hextant.inspect.Inspections
+import hextant.main.HextantPlatform
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin

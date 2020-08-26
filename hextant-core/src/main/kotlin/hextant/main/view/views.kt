@@ -8,8 +8,7 @@ import bundles.Bundle
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.view.TokenEditorControl
-import hextant.main.editor.ProjectLocationEditor
-import hextant.main.editor.ProjectTypeEditor
+import hextant.main.editor.*
 
 @ProvideImplementation(ControlFactory::class)
 internal fun createControl(editor: ProjectTypeEditor, arguments: Bundle) =
@@ -18,3 +17,6 @@ internal fun createControl(editor: ProjectTypeEditor, arguments: Bundle) =
 @ProvideImplementation(ControlFactory::class)
 internal fun createControl(editor: ProjectLocationEditor, arguments: Bundle) =
     TokenEditorControl(editor, arguments, ProjectLocationCompleter)
+
+@ProvideImplementation(ControlFactory::class)
+internal fun createControl(editor: ProjectNameEditor, arguments: Bundle) = TokenEditorControl(editor, arguments)

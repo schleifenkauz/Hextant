@@ -15,13 +15,13 @@ import hextant.plugins.getImplementations
 import hextant.plugins.getPluginById
 import kotlin.reflect.full.createInstance
 
-fun loadPlugins(plugins: List<String>, context: Context, phase: Phase, project: Editor<*>?) {
+internal fun loadPlugins(plugins: List<String>, context: Context, phase: Phase, project: Editor<*>?) {
     for (id in plugins) {
         loadPlugin(id, context, phase, project)
     }
 }
 
-fun loadPlugin(
+internal fun loadPlugin(
     id: String,
     context: Context,
     phase: Phase,
@@ -49,7 +49,7 @@ private fun getInitializer(context: Context, id: String): PluginInitializer {
     return initializer
 }
 
-fun disablePlugin(id: String, context: Context, project: Editor<*>) {
+internal fun disablePlugin(id: String, context: Context, project: Editor<*>) {
     val initializer = getInitializer(context, id)
     initializer.apply(context, Disable, project = null)
     initializer.apply(context, Disable, project)

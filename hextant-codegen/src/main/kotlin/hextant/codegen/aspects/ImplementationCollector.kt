@@ -97,7 +97,7 @@ internal object ImplementationCollector :
             ) { call(fqName, parameters.map { (n, _) -> n.e }) }
         }
         writeKotlinFile(impl)
-        add(Implementation(fqName, aspect.toString(), fqFeatureName))
+        add(Implementation("$pkg.$name", aspect.toString(), fqFeatureName))
     }
 
     private fun splitPkgAndName(element: ExecutableElement): Pair<String, String> {

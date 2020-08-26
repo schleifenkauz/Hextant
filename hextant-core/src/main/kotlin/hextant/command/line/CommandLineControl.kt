@@ -71,6 +71,7 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         commandName.text = command.shortName!!
         commandName.isEditable = false
         val controls = editors.map { context.createControl(it) }
+        setChildren(controls)
         current.children.addAll(controls)
         Platform.runLater { controls.firstOrNull()?.receiveFocus() }
     }

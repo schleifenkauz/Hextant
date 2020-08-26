@@ -5,6 +5,7 @@ import hextant.core.Editor
 import hextant.core.editor.BidirectionalEditor
 import hextant.core.view.EditorControl
 import hextant.generated.createEditor
+import hextant.main.HextantPlatform
 import hextant.plugin.Aspects
 import hextant.serial.SerialProperties
 import kserial.*

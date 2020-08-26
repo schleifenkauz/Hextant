@@ -8,7 +8,15 @@ import bundles.SimpleProperty
 import java.io.File
 
 internal class GlobalDirectory(private val root: File) {
-    fun resolve(name: String): File = root.resolve(name)
+    operator fun get(name: String): File = root.resolve(name)
 
-    companion object : SimpleProperty<GlobalDirectory>("global directory")
+    companion object : SimpleProperty<GlobalDirectory>("global directory") {
+        fun inUserHome(): GlobalDirectory {
+            val home = File(System.getProperty("user.home"))
+            return GlobalDirectory(home.resolve("hextant"))
+        }
+
+        const val PROJECTS = "projects"
+        const val PLUGIN_CACHE = "pluginCache"
+    }
 }
