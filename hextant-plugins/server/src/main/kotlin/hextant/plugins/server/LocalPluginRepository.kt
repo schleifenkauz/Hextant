@@ -5,8 +5,10 @@
 package hextant.plugins.server
 
 import hextant.plugins.*
-import hextant.plugins.Plugin.Type
+import hextant.plugins.PluginInfo.Type
 import kollektion.Trie
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import java.io.File
 import java.io.InputStream
 import java.util.*
@@ -14,7 +16,7 @@ import java.util.jar.JarFile
 import kotlin.collections.set
 
 internal class LocalPluginRepository(private val root: File) : Marketplace {
-    private val trie = Trie<Plugin>()
+    private val trie = Trie<PluginInfo>()
     private val implementations = mutableMapOf<String, MutableMap<String, ImplementationCoord>>()
     private val projectTypes = mutableListOf<LocatedProjectType>()
 
@@ -31,16 +33,17 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
     private fun uploaded(item: File) {
         if (item.extension != "jar") return
         val id = item.nameWithoutExtension
-        val jar = JarFile(item)
-        val plugin: Plugin? = jar.getInfo("plugin.json")
-        val impl: List<Implementation>? = jar.getInfo("implementations.json")
-        val pts: List<ProjectType>? = jar.getInfo("projectTypes.json")
-        if (plugin != null) addPlugin(plugin)
-        if (impl != null) {
-            val bundle = id.takeIf { plugin == null }
-            addImplementations(impl, bundle)
+        JarFile(item).use { jar ->
+            val info: PluginInfo? = jar.getInfo("plugin.json")
+            val impl: List<Implementation>? = jar.getInfo("implementations.json")
+            val pts: List<ProjectType>? = jar.getInfo("projectTypes.json")
+            if (info != null) addPlugin(info)
+            if (impl != null) {
+                val bundle = id.takeIf { info == null }
+                addImplementations(impl, bundle)
+            }
+            if (pts != null) addProjectTypes(pts, id)
         }
-        if (pts != null) addProjectTypes(pts, id)
     }
 
     private fun addProjectTypes(pts: List<ProjectType>, id: String) {
@@ -56,10 +59,10 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
         }
     }
 
-    private fun addPlugin(plugin: Plugin) {
-        trie.insert(plugin.author, plugin)
-        trie.insert(plugin.id, plugin)
-        trie.insert(plugin.name, plugin)
+    private fun addPlugin(info: PluginInfo) {
+        trie.insert(info.author, info)
+        trie.insert(info.id, info)
+        trie.insert(info.name, info)
     }
 
     override fun getPlugins(
@@ -67,19 +70,29 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
         limit: Int,
         types: Set<Type>,
         excluded: Set<String>
-    ): List<Plugin> {
+    ): List<String> {
         val node = trie.getNode(searchText) ?: return emptyList()
-        val q: Queue<Trie.Node<Plugin>> = LinkedList()
+        val q: Queue<Trie.Node<PluginInfo>> = LinkedList()
         q.offer(node)
-        val result = mutableSetOf<Plugin>()
+        val result = mutableSetOf<String>()
         while (q.isNotEmpty() && result.size < limit) {
             val n = q.poll()
             for (v in n.values) {
-                if (v.type in types && v.id !in excluded) result.add(v)
+                if (v.type in types && v.id !in excluded) result.add(v.id)
             }
             for (c in n.children.values) q.offer(c)
         }
         return result.toList()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? {
+        val file = getJarFile(pluginId) ?: return null
+        JarFile(file).use { jar ->
+            val entry = jar.getEntry("${property.name}.json") ?: return null
+            val text = jar.getInputStream(entry).bufferedReader().readText()
+            return Json.decodeFromString(serializer(property.type), text) as T
+        }
     }
 
     override fun getImplementation(aspect: String, feature: String): ImplementationCoord? =

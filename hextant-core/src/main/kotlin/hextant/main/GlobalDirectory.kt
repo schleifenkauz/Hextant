@@ -17,6 +17,6 @@ internal class GlobalDirectory(private val root: File) {
         }
 
         const val PROJECTS = "projects"
-        const val PLUGIN_CACHE = "pluginCache"
+        const val PLUGIN_CACHE = "plugin-cache"
     }
 }

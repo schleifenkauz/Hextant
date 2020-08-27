@@ -11,8 +11,7 @@ import hextant.plugin.Aspects
 import hextant.plugin.PluginBuilder.Phase
 import hextant.plugin.PluginBuilder.Phase.Disable
 import hextant.plugin.PluginInitializer
-import hextant.plugins.getImplementations
-import hextant.plugins.getPluginById
+import hextant.plugins.PluginProperty
 import kotlin.reflect.full.createInstance
 
 internal fun loadPlugins(plugins: List<String>, context: Context, phase: Phase, project: Editor<*>?) {
@@ -32,7 +31,7 @@ internal fun loadPlugin(
     if (project == null) {
         val cl = Thread.currentThread().contextClassLoader as HextantClassLoader
         cl.addPlugin(id)
-        val impls = marketplace.getImplementations(id).orEmpty()
+        val impls = marketplace.get(PluginProperty.implementations, id).orEmpty()
         for (impl in impls) {
             aspects.addImplementation(impl)
         }
@@ -42,8 +41,8 @@ internal fun loadPlugin(
 }
 
 private fun getInitializer(context: Context, id: String): PluginInitializer {
-    val plugin = context[marketplace].getPluginById(id) ?: error("Unknown plugin '$id'")
-    val cls = Class.forName(plugin.initializer).kotlin
+    val plugin = context[marketplace].get(PluginProperty.info, id) ?: error("Unknown plugin '$id'")
+    val cls = Thread.currentThread().contextClassLoader.loadClass(plugin.initializer).kotlin
     val initializer = cls.objectInstance ?: cls.createInstance()
     check(initializer is PluginInitializer) { "Invalid initializer $cls" }
     return initializer

@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.isSubclassOf
 
-class Aspects {
+class Aspects(private val classLoader: ClassLoader = ClassLoader.getSystemClassLoader()) {
     private val implementations = mutableMapOf<KClass<*>, ClassMap<Any>>()
 
     fun addImplementation(implementation: Implementation) {
@@ -30,7 +30,7 @@ class Aspects {
         implementations(aspect)[case] = implementation
     }
 
-    private fun getClass(name: String) = Class.forName(name).kotlin
+    private fun getClass(name: String) = classLoader.loadClass(name).kotlin
 
     private fun <A : Any> implementations(aspect: KClass<A>) =
         implementations.getOrPut(aspect) { ClassMap.contravariant() }

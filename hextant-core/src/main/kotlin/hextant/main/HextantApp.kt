@@ -33,7 +33,8 @@ internal class HextantApp : Application() {
         val args = parameters.raw
         when (args.size) {
             0 -> {
-                globalContext[HextantLauncher].launch()
+                val cl = HextantClassLoader(globalContext, plugins = emptyList())
+                cl.executeInNewThread("hextant.main.HextantLauncher", localContext)
             }
             1 -> {
                 val project = tryGetFile(args[0])

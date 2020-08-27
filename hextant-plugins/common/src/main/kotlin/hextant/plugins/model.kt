@@ -41,7 +41,7 @@ data class LocatedProjectType(val name: String, val clazz: String, val pluginId:
 }
 
 @Serializable
-data class Plugin(
+data class PluginInfo(
     val id: String,
     val name: String,
     val author: String,
@@ -57,4 +57,9 @@ data class Plugin(
 }
 
 @Serializable
-data class PluginSearch(val searchText: String, val limit: Int, val types: Set<Plugin.Type>, val excluded: Set<String>)
+data class PluginSearch(
+    val searchText: String,
+    val limit: Int,
+    val types: Set<PluginInfo.Type>,
+    val excluded: Set<String>
+)

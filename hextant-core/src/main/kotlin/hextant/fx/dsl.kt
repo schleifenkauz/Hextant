@@ -135,7 +135,7 @@ inline fun Pane.children(block: ChildrenAdder.() -> Unit) {
 /**
  * Adds the given [node] to the [Pane.children] of this [Pane].
  */
-fun <N : Node> Pane.add(node: N, block: N.() -> Unit = {}) {
+inline fun <N : Node> Pane.add(node: N, block: N.() -> Unit = {}) {
     node.block()
     children.add(node)
 }

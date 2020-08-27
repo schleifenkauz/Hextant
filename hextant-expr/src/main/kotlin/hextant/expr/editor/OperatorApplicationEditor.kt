@@ -4,6 +4,7 @@
 
 package hextant.expr.editor
 
+import hextant.codegen.ProvideFeature
 import hextant.context.Context
 import hextant.core.editor.CompoundEditor
 import hextant.core.editor.composeResult
@@ -11,6 +12,7 @@ import hextant.expr.Operator
 import hextant.expr.OperatorApplication
 import validated.reaktive.ReactiveValidated
 
+@ProvideFeature
 class OperatorApplicationEditor(
     context: Context,
     text: String

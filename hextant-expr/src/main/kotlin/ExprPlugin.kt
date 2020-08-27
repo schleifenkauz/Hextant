@@ -1,4 +1,3 @@
-
 import bundles.SimpleReactiveProperty
 import hextant.command.Command
 import hextant.command.executingCompoundEdit
@@ -16,36 +15,6 @@ import reaktive.value.now
 import validated.*
 
 object ExprPlugin : PluginInitializer({
-    //    compoundView { e: OperatorApplicationEditor ->
-    //        line {
-    //            operator("(")
-    //            view(e.operand1)
-    //            view(e.operator)
-    //            view(e.operand2)
-    //            operator(")")
-    //        }
-    //    }
-    //    view { editor: ExprExpander, args ->
-    //        val c = CompoundCompleter<Context, Any>()
-    //        c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
-    //        c.addCompleter(SpecialNumbers)
-    //        ExpanderControl(editor, args, c)
-    //    }
-    //    tokenEditorView<OperatorEditor>("operator")
-    //    tokenEditorView<IntLiteralEditor>(styleClass = "decimal-editor", completer = SpecialNumbers)
-    //    compoundView { e: SumEditor ->
-    //        line {
-    //            keyword("sum")
-    //            space()
-    //            view(e.expressions)
-    //        }
-    //    }
-    //    view<ExprListEditor> { editor, args ->
-    //        ListEditorControl.withAltGlyph(editor, FontAwesome.Glyph.PLUS, args, Horizontal).apply {
-    //            cellFactory = { ListEditorControl.SeparatorCell(", ") }
-    //        }
-    //    }
-    //    registerConversion<Expr, Int> { expr -> valid(expr.value) }
     registerCommand<ExprEditor<*>, Int> {
         name = "Evaluate Expression"
         shortName = "eval"

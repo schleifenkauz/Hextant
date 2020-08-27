@@ -5,9 +5,9 @@
 package hextant.plugins.client
 
 import hextant.plugins.*
-import hextant.plugins.Plugin.Type
+import hextant.plugins.PluginInfo.Type
 import io.ktor.client.HttpClient
-import io.ktor.client.call.receive
+import io.ktor.client.call.TypeInfo
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
@@ -22,6 +22,7 @@ import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.io.File
+import kotlin.reflect.*
 
 class HttpPluginClient(private val url: String, private val downloadDirectory: File) : Marketplace {
     private val client = HttpClient(Apache) {
@@ -30,26 +31,33 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
         }
     }
 
-    private inline fun <reified T, reified B : Any> get(url: String, body: B?): T? = runBlocking {
+    @Suppress("UNCHECKED_CAST")
+    @OptIn(ExperimentalStdlibApi::class)
+    private fun <T> get(url: String, type: KType, body: Any? = null): T? = runBlocking {
         val response = client.get<HttpResponse>(url) {
             if (body != null) {
                 contentType(ContentType.Application.Json)
                 this.body = body
             }
         }
+
         when (response.status) {
-            HttpStatusCode.OK -> response.receive()
+            HttpStatusCode.OK -> {
+                val info = TypeInfo(type.classifier as KClass<*>, type.javaType, type)
+                response.call.receive(info) as T
+            }
             HttpStatusCode.NotFound -> null
             else                    -> throw IllegalArgumentException(response.toString())
         }
     }
 
-    private inline fun <reified T> get(url: String): T? = get<T, Any>(url, body = null)
+    @OptIn(ExperimentalStdlibApi::class)
+    private inline fun <reified T> get(url: String, body: Any? = null): T? = get<T>(url, typeOf<T>(), body)
 
     override fun getJarFile(id: String): File? {
         val file = downloadDirectory.resolve("$id.jar")
         if (!file.exists()) {
-            val response = runBlocking { client.get<HttpResponse>("$url/download/$id") }
+            val response = runBlocking { client.get<HttpResponse>("$url/$id/download") }
             if (response.status == HttpStatusCode.NotFound) return null
             check(response.status == HttpStatusCode.OK) { response }
             runBlocking { response.content.copyAndClose(file.writeChannel()) }
@@ -57,12 +65,15 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
         return file
     }
 
+    override fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? =
+        get("$url/$pluginId/${property.name}", property.type)
+
     override fun getPlugins(
         searchText: String,
         limit: Int,
         types: Set<Type>,
         excluded: Set<String>
-    ): List<Plugin> = get("$url/plugins", body = PluginSearch(searchText, limit, types, excluded))!!
+    ): List<String> = get("$url/plugins", body = PluginSearch(searchText, limit, types, excluded))!!
 
     override fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
         get("$url/implementation", body = ImplementationRequest(aspect, feature))

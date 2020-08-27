@@ -11,30 +11,23 @@ import hextant.main.plugins.PluginManager
 import hextant.main.view.PluginsEditorView
 import hextant.plugins.Marketplace
 import hextant.plugins.Plugin
-import hextant.plugins.Plugin.Type
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import hextant.plugins.PluginInfo.Type
 import reaktive.value.reactiveValue
 import validated.valid
 
 internal class PluginsEditor(
     context: Context,
-    private val plugins: PluginManager,
+    private val manager: PluginManager,
     private val marketplace: Marketplace,
     private val types: Set<Type>
-) : AbstractEditor<Set<String>, PluginsEditorView>(context) {
-    override val result get() = reactiveValue(valid(plugins.enabledIds()))
+) : AbstractEditor<Collection<Plugin>, PluginsEditorView>(context) {
+    override val result get() = reactiveValue(valid(manager.enabledPlugins()))
 
     fun enable(plugin: Plugin, view: PluginsEditorView) {
         val activated = try {
-            plugins.enable(plugin, view::confirmEnable) ?: return
+            manager.enable(plugin, view::confirmEnable) ?: return
         } catch (e: PluginException) {
             return view.alertError(e.message!!)
-        }
-        for (pl in activated) {
-            GlobalScope.launch {
-                marketplace.getJarFile(pl.id)
-            }
         }
         views {
             available.removeAll(activated)
@@ -43,7 +36,11 @@ internal class PluginsEditor(
     }
 
     fun disable(plugin: Plugin, view: PluginsEditorView) {
-        val disabled = plugins.disable(plugin, view::confirmDisable, view::askDisable) ?: return
+        val disabled = try {
+            manager.disable(plugin, view::confirmDisable, view::askDisable) ?: return
+        } catch (e: PluginException) {
+            return view.alertError(e.message!!)
+        }
         views {
             available.addAll(disabled.filter { it.matches(availableSearchText) })
             enabled.removeAll(disabled)
@@ -51,13 +48,13 @@ internal class PluginsEditor(
     }
 
     fun searchInAvailable(view: PluginsEditorView) {
-        val available = marketplace.getPlugins(view.availableSearchText, LIMIT, types, plugins.enabledIds())
+        val available = marketplace.getPlugins(view.availableSearchText, LIMIT, types, manager.enabledIds())
         view.available.clear()
-        view.available.addAll(available)
+        view.available.addAll(available.map { id -> manager.getPlugin(id) })
     }
 
     fun searchInEnabled(view: PluginsEditorView) {
-        val enabled = plugins.enabledPlugins().filter { it.matches(view.enabledSearchText) }
+        val enabled = manager.enabledPlugins().filter { it.matches(view.enabledSearchText) }
         view.enabled.clear()
         view.enabled.addAll(enabled)
     }
@@ -68,8 +65,8 @@ internal class PluginsEditor(
     }
 
     private fun Plugin.matches(searchText: String): Boolean {
-        if (type !in types) return false
-        return name.matches(searchText) || author.matches(searchText) || id.matches(searchText)
+        if (info.type !in types) return false
+        return info.name.matches(searchText) || info.author.matches(searchText) || id.matches(searchText)
     }
 
     private fun String.matches(searchText: String) = startsWith(searchText)

@@ -1,4 +1,4 @@
-package hextant.expr.editor
+package hextant.expr.view
 
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter

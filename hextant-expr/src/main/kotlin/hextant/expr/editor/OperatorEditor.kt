@@ -1,11 +1,13 @@
 package hextant.expr.editor
 
+import hextant.codegen.ProvideFeature
 import hextant.context.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.expr.Operator
 import validated.*
 
+@ProvideFeature
 class OperatorEditor(context: Context, text: String) : TokenEditor<Operator, TokenEditorView>(context, text) {
     constructor(context: Context, operator: Operator) : this(context, operator.name)
     constructor(context: Context) : this(context, "")

@@ -20,7 +20,7 @@ internal class Stylesheets {
     }
 
     private fun getResource(stylesheet: String): String? {
-        val resource = javaClass.classLoader.getResource(stylesheet)
+        val resource = Thread.currentThread().contextClassLoader.getResource(stylesheet)
         if (resource == null) System.err.println("Can not find stylesheet $stylesheet")
         return resource?.toExternalForm()
     }

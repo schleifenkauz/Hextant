@@ -4,7 +4,8 @@
 
 package hextant.main
 
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.createOutput
 import hextant.core.Editor
 import hextant.main.Main.fail
 import hextant.plugin.PluginBuilder.Phase.Enable
@@ -28,7 +29,7 @@ internal class ProjectCreator(
         dest.resolve("project.hxt").writeText(str)
         val context = HextantPlatform.projectContext(globalContext)
         loadPlugins(plugins, context, Enable, project = null)
-        val cls = Class.forName(projectType).kotlin
+        val cls = Thread.currentThread().contextClassLoader.loadClass(projectType).kotlin
         val obj = cls.objectInstance
         val companion = cls.companionObjectInstance
         val root = when {

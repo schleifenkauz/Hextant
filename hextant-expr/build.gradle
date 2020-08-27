@@ -1,5 +1,21 @@
+apply plugin: 'kotlin-kapt'
+
 version = '0.1'
+
+kapt {
+    useBuildCache = true
+    annotationProcessors("hextant.codegen.MainProcessor")
+}
+
+task hextantPublish(type: Copy) {
+    from jar.outputs.files
+    into 'C:/Users/Nikolaus Knop/hextant/plugins'
+    rename '(.+)', "expr.jar"
+}
+
+build.finalizedBy(hextantPublish)
 
 dependencies {
     compile project(":hextant-core")
+    kapt project(":hextant-codegen")
 }

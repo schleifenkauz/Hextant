@@ -13,8 +13,8 @@ import hextant.main.GlobalDirectory.Companion.PROJECTS
 import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
 import hextant.plugins.LocatedProjectType
-import hextant.plugins.Plugin.Type.Language
-import hextant.plugins.Plugin.Type.Local
+import hextant.plugins.PluginInfo.Type.Language
+import hextant.plugins.PluginInfo.Type.Local
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import validated.ifInvalid
@@ -30,10 +30,10 @@ internal class ProjectManager(private val globalContext: Context) {
         val marketplace = globalContext[HextantApp.marketplace]
         val manager = PluginManager(marketplace, required)
         val editor = PluginsEditor(globalContext, manager, marketplace, setOf(Local, Language))
-        val plugins = getUserInput(editor).ifInvalid { return }
+        val plugins = getUserInput(editor).ifInvalid { return }.map { it.id }
         val dest = globalContext[GlobalDirectory][PROJECTS].resolve(projectName)
         val cl = HextantClassLoader(globalContext, plugins)
-        cl.executeInNewThread("hextant.main.ProjectCreator", projectType.clazz, dest, plugins.toList(), globalContext)
+        cl.executeInNewThread("hextant.main.ProjectCreator", projectType.clazz, dest, plugins, globalContext)
     }
 
     @ProvideCommand("Open Project", "open")

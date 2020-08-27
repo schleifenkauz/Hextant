@@ -11,6 +11,8 @@ import hextant.core.Editor
 import hextant.fx.initHextantScene
 import hextant.fx.registerShortcuts
 import hextant.plugin.PluginBuilder.Phase.Initialize
+import hextant.serial.PhysicalFile
+import hextant.serial.SerialProperties.deserializationContext
 import javafx.stage.Popup
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -25,10 +27,13 @@ internal class ProjectOpener(
         val (plugins) = Json.decodeFromString<Project>(desc)
         val context = HextantPlatform.projectContext(globalContext)
         loadPlugins(plugins, context, Initialize, project = null)
-        val input = context.createInput(project.resolve("root.bin").toPath())
-        val root = input.readObject() as Editor<*>
-        loadPlugins(plugins, context, Initialize, root)
-        val view = context.createControl(root)
+        val root = project.resolve("root.bin").toPath()
+        val input = context.createInput(root)
+        input.bundle[deserializationContext] = context
+        val editor = input.readObject() as Editor<*>
+        editor.setFile(PhysicalFile(editor, root, context))
+        loadPlugins(plugins, context, Initialize, editor)
+        val view = context.createControl(editor)
         val src = SingleCommandSource(context, context)
         val cl = CommandLine(context, src)
         val clView = CommandLineControl(cl, createBundle())
@@ -37,16 +42,22 @@ internal class ProjectOpener(
         val cmdPopup = Popup().apply {
             scene.root = clView
             scene.initHextantScene(context)
+            isHideOnEscape = true
+            isAutoHide = true
         }
         view.registerShortcuts {
             on("Ctrl+Q") {
-                globalContext[HextantLauncher].launch()
+                val output = context.createOutput(root)
+                output.writeObject(editor)
+                val loader = HextantClassLoader(Context.newInstance(), plugins = emptyList())
+                loader.executeInNewThread("hextant.main.HextantLauncher", Main.localContext)
             }
             on("Ctrl+A") {
                 cmdPopup.show(stage)
                 clView.receiveFocus()
             }
         }
-        stage.scene.root = view
+        val sc = stage.scene
+        sc.root = view
     }
 }

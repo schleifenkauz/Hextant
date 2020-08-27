@@ -57,14 +57,14 @@ internal class PluginsEditorControl @ProvideImplementation(ControlFactory::class
         HBox(VBox(availableSearchField, availableList), VBox(enabledSearchField, enabledList))
 
     override fun confirmEnable(enabled: Collection<Plugin>): Boolean {
-        val alert = Alert(CONFIRMATION, enabled.joinToString("\n") { it.name })
+        val alert = Alert(CONFIRMATION, enabled.joinToString("\n") { it.info.name })
         alert.headerText = "Confirm enabling dependencies"
         val result = alert.showAndWait().orElse(ButtonType.CANCEL)
         return result == ButtonType.OK
     }
 
     override fun confirmDisable(disabled: Collection<Plugin>): Boolean {
-        val alert = Alert(CONFIRMATION, disabled.joinToString("\n") { it.name })
+        val alert = Alert(CONFIRMATION, disabled.joinToString("\n") { it.info.name })
         alert.headerText = "This will disable the following dependent plugins"
         val result = alert.showAndWait().orElse(ButtonType.CANCEL)
         return result == ButtonType.OK
@@ -75,7 +75,8 @@ internal class PluginsEditorControl @ProvideImplementation(ControlFactory::class
     }
 
     override fun askDisable(plugin: Plugin): DisableConfirmation {
-        val alert = Alert(CONFIRMATION, "Plugin ${plugin.name} is not needed anymore, disable it?", YES, NO, ALL, NONE)
+        val alert =
+            Alert(CONFIRMATION, "Plugin ${plugin.info.name} is not needed anymore, disable it?", YES, NO, ALL, NONE)
         return when (alert.showAndWait().orElse(NO)) {
             YES -> DisableConfirmation.Yes
             NO -> DisableConfirmation.No
@@ -102,7 +103,7 @@ internal class PluginsEditorControl @ProvideImplementation(ControlFactory::class
                 tooltip = null
                 return
             }
-            val (_, name, author, _, description) = item
+            val (_, name, author, _, description) = item.info
             text = "$name by $author"
             tooltip = Tooltip(description)
         }

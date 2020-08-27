@@ -5,6 +5,10 @@
 package hextant.plugins.server
 
 import hextant.plugins.*
+import hextant.plugins.PluginProperty.Companion.aspects
+import hextant.plugins.PluginProperty.Companion.features
+import hextant.plugins.PluginProperty.Companion.implementations
+import hextant.plugins.PluginProperty.Companion.info
 import io.ktor.application.*
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpStatusCode.Companion.NotFound
@@ -38,13 +42,7 @@ private fun Application.configure(repo: LocalPluginRepository) {
             val (searchText, limit, types, excluded) = call.receive<PluginSearch>()
             call.respond(repo.getPlugins(searchText, limit, types, excluded))
         }
-        get("/{id}") {
-            val id = call.parameters["id"]!!
-            val plugin = repo.getPluginById(id)
-            if (plugin == null) call.respond(NotFound, "No plugin with name '$id'")
-            else call.respond(plugin)
-        }
-        get("/download/{id}") {
+        get("/{id}/download") {
             val id = call.parameters["id"]!!
             val file = repo.getJarFile(id)
             if (file == null) call.respond(NotFound, "No plugin with name '$id'")
@@ -66,5 +64,27 @@ private fun Application.configure(repo: LocalPluginRepository) {
         get("/projectTypes") {
             call.respond(repo.availableProjectTypes())
         }
+        get("/{id}/plugin") {
+            call.respondProperty(repo, info)
+        }
+        get("{id}/aspects") {
+            call.respondProperty(repo, aspects)
+        }
+        get("/{id}/features") {
+            call.respondProperty(repo, features)
+        }
+        get("/{id}/implementations") {
+            call.respondProperty(repo, implementations)
+        }
     }
+}
+
+private suspend fun <T : Any> ApplicationCall.respondProperty(
+    repo: LocalPluginRepository,
+    property: PluginProperty<T>
+) {
+    val id = parameters["id"]!!
+    val value = repo.get(property, id)
+    if (value == null) respond(NotFound, "Package with id $id not found")
+    else respond(value)
 }

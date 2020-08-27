@@ -1,0 +1,9 @@
+{
+  "id": "sample",
+  "name": "Hextant Sample",
+  "author": "Nikolaus Knop",
+  "type": "Language",
+  "description": "Sample plugin",
+  "initializer": "SamplePlugin",
+  "dependencies": "core"
+}

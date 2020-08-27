@@ -1,0 +1,8 @@
+{
+  "id": "expr",
+  "name": "Expressions",
+  "author": "Nikolaus Knop",
+  "type": "Language",
+  "description": "A simple editor for arithmetic expressions",
+  "initializer": "ExprPlugin"
+}

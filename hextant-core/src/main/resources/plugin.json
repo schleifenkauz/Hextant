@@ -1,0 +1,8 @@
+{
+  "id": "core",
+  "name": "Core",
+  "author": "Nikolaus Knop",
+  "type": "Global",
+  "description": "The Core of Hextant",
+  "initializer": "hextant.core.Core"
+}

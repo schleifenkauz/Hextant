@@ -4,8 +4,7 @@
 
 package hextant.main
 
-import bundles.Property
-import bundles.PropertyChangeHandlers
+import bundles.*
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.context.*
@@ -61,13 +60,14 @@ object HextantPlatform {
         set(Internal, SerialProperties.serialContext, createSerialContext())
         set(Internal, SerialProperties.serial, KSerial.newInstance())
         set(Internal, ConfigurableProperties, ConfigurableProperties())
-        set(Internal, Aspects, Aspects())
+        set(classLoader, Thread.currentThread().contextClassLoader)
+        set(Internal, Aspects, Aspects(get(classLoader)))
     }
 
     /**
      * Create the serial context.
      */
-    fun createSerialContext(): SerialContext = SerialContext.newInstance {
+    private fun createSerialContext(): SerialContext = SerialContext.newInstance {
         useUnsafe = true
         registerConstructor<Editor<*>> { bundle, cls ->
             cls.getSimpleEditorConstructor().invoke(bundle[deserializationContext])
@@ -90,7 +90,7 @@ object HextantPlatform {
     }
 
     /**
-     * The global class loader
+     * The context class loader
      */
-    val classLoader: ClassLoader = javaClass.classLoader
+    internal val classLoader = SimpleProperty<ClassLoader>("class loader")
 }

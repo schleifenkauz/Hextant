@@ -4,6 +4,7 @@
 
 package hextant.expr.editor
 
+import hextant.codegen.ProvideFeature
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
@@ -13,6 +14,7 @@ import hextant.core.view.TokenEditorView
 import hextant.expr.IntLiteral
 import validated.*
 
+@ProvideFeature
 class IntLiteralEditor(
     context: Context,
     text: String

@@ -16,7 +16,6 @@ internal object Main {
     val localContext = HextantPlatform.defaultContext(projectContext)
 
     init {
-        globalContext[HextantLauncher] = HextantLauncher(localContext)
         globalContext[ProjectManager] = ProjectManager(globalContext)
     }
 
@@ -24,7 +23,6 @@ internal object Main {
         System.err.println(args.joinToString(" "))
         try {
             Application.launch(HextantApp::class.java, *args)
-
         } catch (io: IOException) {
             io.printStackTrace()
             fail("Unexpected IO error: ${io.message}")
