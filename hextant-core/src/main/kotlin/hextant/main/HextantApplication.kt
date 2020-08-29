@@ -34,7 +34,7 @@ abstract class HextantApplication : Application() {
     final override fun start(primaryStage: Stage) {
         val preloader = HextantPreloader()
         preloader.start(Stage())
-        val context = defaultContext(projectContext(Context.newInstance()))
+        val context = defaultContext(projectContext(Context.newInstance(), Thread.currentThread().contextClassLoader))
         val scene = Scene(createView(context))
         scene.initHextantScene(context)
         primaryStage.scene = scene

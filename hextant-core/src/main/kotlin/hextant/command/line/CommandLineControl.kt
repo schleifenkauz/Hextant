@@ -80,6 +80,7 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         commandName.text = ""
         current.children.setAll(commandName)
         commandName.isEditable = true
+        Platform.runLater { receiveFocus() }
     }
 
     override fun addToHistory(item: HistoryItem) {

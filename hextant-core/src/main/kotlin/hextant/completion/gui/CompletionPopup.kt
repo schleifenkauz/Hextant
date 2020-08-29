@@ -20,11 +20,11 @@ import reaktive.event.event
 /**
  * A [Popup] that displays completion items.
  */
-class CompletionPopup<Ctx, T : Any>(
+internal class CompletionPopup<Ctx, T : Any>(
     private val context: Context,
     private val ctx: Ctx,
     private val completer: () -> Completer<Ctx, T>
-) : Popup() {
+) : HextantPopup(context) {
     private var input = ""
     private val choose = event<Completion<T>>()
 
@@ -84,7 +84,6 @@ class CompletionPopup<Ctx, T : Any>(
         addIcon(completion.icon, left)
         addCompletionText(completion, left)
         container.left = left
-
         addInfo(container, completion.infoText)
         installTooltip(container, completion.tooltipText)
         configureItem(container)

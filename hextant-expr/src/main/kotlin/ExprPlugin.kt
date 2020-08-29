@@ -7,6 +7,7 @@ import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.inspect.Severity.Warning
+import hextant.main.WindowSize
 import hextant.plugin.*
 import hextant.undo.compoundEdit
 import reaktive.value.binding.and
@@ -139,7 +140,7 @@ object ExprPlugin : PluginInitializer({
         description = "Sets the text fill"
         name = "Set Color"
         shortName = "color"
-        defaultShortcut("Ctrl+G")
+        defaultShortcut("Ctrl+P")
         addParameter<String> {
             name = "color"
             description = "The text fill"
@@ -152,6 +153,7 @@ object ExprPlugin : PluginInitializer({
         shortName = "error"
         executing { _, _ -> throw AssertionError("error") }
     }
+    set(WindowSize, WindowSize.FitContent)
     stylesheet("expr.css")
 }) {
     object ColorProperty : SimpleReactiveProperty<String?>("color")

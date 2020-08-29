@@ -13,6 +13,8 @@ import hextant.main.HextantPlatform
 import hextant.serial.makeRoot
 import reaktive.Observer
 import reaktive.dependencies
+import reaktive.event.EventStream
+import reaktive.event.event
 import reaktive.value.*
 import reaktive.value.binding.binding
 import validated.*
@@ -29,6 +31,12 @@ class CommandLine(context: Context, val source: CommandSource) :
     private val _expandedCommand: ReactiveVariable<Command<*, *>?> = reactiveVariable(null)
     private var history = mutableListOf<HistoryItem>()
     private val expanded = reactiveVariable(false)
+    private val execute = event<HistoryItem>()
+
+    /**
+     * This [EventStream] emits [HistoryItem]s whenever a command has been executed by this command line.
+     */
+    val executedCommand: EventStream<HistoryItem> get() = execute.stream
 
     /**
      * Holds `true` only if this [CommandLine] is in the expanded state.
@@ -138,6 +146,7 @@ class CommandLine(context: Context, val source: CommandSource) :
     private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any>>, result: Any?) {
         val item = HistoryItem(command, arguments.map { it.result.now.force() to it.snapshot() }, result)
         history.add(item)
+        execute.fire(item)
         views {
             addToHistory(item)
         }

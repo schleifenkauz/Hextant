@@ -8,7 +8,6 @@ import hextant.command.Command
 import hextant.command.Commands
 import hextant.command.line.CommandLine
 import hextant.context.Context
-import hextant.context.Internal
 import javafx.scene.control.Button
 import javafx.scene.layout.VBox
 import javafx.stage.Popup
@@ -16,20 +15,15 @@ import javafx.stage.Popup
 /**
  * A [Popup] that displays the commands applicable on the given [target].
  */
-class CommandsPopup(private val context: Context, private val target: Any) : Popup() {
+internal class CommandsPopup(private val context: Context, private val target: Any) : HextantPopup(context) {
     private val container = VBox().withStyleClass("command-list")
 
     init {
         scene.root = container
-        container.styleClass
-        context[Internal, Stylesheets].manage(scene)
-        isHideOnEscape = true
-        isAutoHide = true
     }
 
     private fun commands() = context[Commands].applicableOn(target)
 
-    @Suppress("KDocMissingDocumentation")
     override fun show() {
         val commands = commands()
         if (commands.isNotEmpty()) {

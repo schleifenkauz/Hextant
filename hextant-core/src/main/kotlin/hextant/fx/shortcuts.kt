@@ -36,8 +36,8 @@ enum class ModifierValue {
  * Map this [ModifierValue] to the JavaFX counterpart
  */
 fun ModifierValue.fx(): KeyCombination.ModifierValue = when (this) {
-    DOWN  -> KeyCombination.ModifierValue.DOWN
-    UP    -> KeyCombination.ModifierValue.UP
+    DOWN -> KeyCombination.ModifierValue.DOWN
+    UP -> KeyCombination.ModifierValue.UP
     MAYBE -> KeyCombination.ModifierValue.ANY
 }
 
@@ -52,8 +52,8 @@ data class Shortcut(val key: KeyCode?, val control: ModifierValue, val alt: Modi
     override fun toString(): String = if (key == null) "Never" else buildString {
         for ((name, value) in listOf("Ctrl" to control, "Alt" to alt, "Shift" to shift)) {
             when (value) {
-                DOWN  -> append("$name + ")
-                UP    -> {
+                DOWN -> append("$name + ")
+                UP -> {
                 }
                 MAYBE -> append("$name? + ")
             }
@@ -127,7 +127,7 @@ fun never() = Shortcut(null, UP, UP, UP)
  * Used to configure shortcuts.
  * @param receiver the context in which the actions should be executed
  */
-class KeyEventHandlerBody<R> @PublishedApi internal constructor(val receiver: R, private val event: KeyEvent) {
+class KeyEventHandlerBody<out R> @PublishedApi internal constructor(val receiver: R, private val event: KeyEvent) {
     /**
      * If the key event matches the given [shortcut], the given [action] is executed.
      * @param consume if `false` the user is responsible for consuming the key event
@@ -184,15 +184,15 @@ private fun parseShortcut(s: String): Shortcut {
     val builder = StringBuilder()
     fun tokenComplete(idx: Int) {
         when (val tok = builder.toString().toUpperCase()) {
-            "CTRL"   -> {
+            "CTRL" -> {
                 checkNotSet(ctrl, idx, tok)
                 ctrl = DOWN
             }
-            "CTRL?"  -> {
+            "CTRL?" -> {
                 checkNotSet(ctrl, idx, tok)
                 ctrl = MAYBE
             }
-            "SHIFT"  -> {
+            "SHIFT" -> {
                 checkNotSet(shift, idx, tok)
                 shift = DOWN
             }
@@ -200,11 +200,11 @@ private fun parseShortcut(s: String): Shortcut {
                 checkNotSet(shift, idx, tok)
                 shift = MAYBE
             }
-            "ALT"    -> {
+            "ALT" -> {
                 checkNotSet(alt, idx, tok)
                 alt = DOWN
             }
-            "ALT?"   -> {
+            "ALT?" -> {
                 checkNotSet(alt, idx, tok)
                 alt = MAYBE
             }
@@ -218,8 +218,8 @@ private fun parseShortcut(s: String): Shortcut {
     }
     for ((idx, c) in s.withIndex()) {
         when (c) {
-            '+'  -> tokenComplete(idx)
-            ' '  -> {
+            '+' -> tokenComplete(idx)
+            ' ' -> {
             }
             else -> builder.append(c)
         }

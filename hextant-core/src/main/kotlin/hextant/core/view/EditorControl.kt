@@ -7,8 +7,6 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.Property
 import hextant.command.Command.Type.SingleReceiver
-import hextant.command.Commands
-import hextant.command.line.CommandLine
 import hextant.command.meta.ProvideCommand
 import hextant.context.*
 import hextant.core.Editor
@@ -299,8 +297,8 @@ abstract class EditorControl<R : Node>(
 
     private fun initShortcuts() {
         registerShortcuts(this) {
-            handleCommands(receiver)
-            handleCommands(receiver.target)
+            handleCommands(receiver, context)
+            handleCommands(receiver.target, context)
         }
     }
 
@@ -334,21 +332,6 @@ abstract class EditorControl<R : Node>(
         return inspectionPopup.isShowing
     }
 
-    private fun KeyEventHandlerBody<EditorControl<R>>.handleCommands(target: Any) {
-        for (command in context[Commands].applicableOn(target)) {
-            val shortcut = command.shortcut
-            if (shortcut != null) {
-                on(shortcut, consume = false) { ev ->
-                    val cl = context[CommandLine]
-                    cl.expand(command)
-                    if (command.parameters.isEmpty()) {
-                        val result = cl.execute()
-                        if (result != null && result != false) ev.consume()
-                    }
-                }
-            }
-        }
-    }
 
     @ProvideCommand(
         name = "Shrink Selection",

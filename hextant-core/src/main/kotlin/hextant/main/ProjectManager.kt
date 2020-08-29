@@ -10,6 +10,7 @@ import hextant.command.meta.ProvideCommand
 import hextant.context.Context
 import hextant.fx.getUserInput
 import hextant.main.GlobalDirectory.Companion.PROJECTS
+import hextant.main.HextantPlatform.launcherContext
 import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
 import hextant.plugins.LocatedProjectType
@@ -29,7 +30,7 @@ internal class ProjectManager(private val globalContext: Context) {
         val required = setOf(projectType.pluginId)
         val marketplace = globalContext[HextantApp.marketplace]
         val manager = PluginManager(marketplace, required)
-        val editor = PluginsEditor(globalContext, manager, marketplace, setOf(Local, Language))
+        val editor = PluginsEditor(launcherContext, manager, marketplace, setOf(Local, Language))
         val plugins = getUserInput(editor).ifInvalid { return }.map { it.id }
         val dest = globalContext[GlobalDirectory][PROJECTS].resolve(projectName)
         val cl = HextantClassLoader(globalContext, plugins)
@@ -43,8 +44,8 @@ internal class ProjectManager(private val globalContext: Context) {
             editWith = ProjectLocationEditor::class
         ) project: File
     ) {
-        val desc = project.resolve("project.hxt").bufferedReader().use { r -> r.readText() }
-        val (plugins) = Json.decodeFromString<Project>(desc)
+        val desc = project.resolve(GlobalDirectory.PROJECT_INFO).bufferedReader().use { r -> r.readText() }
+        val (plugins) = Json.decodeFromString<ProjectInfo>(desc)
         val cl = HextantClassLoader(globalContext, plugins)
         cl.executeInNewThread("hextant.main.ProjectOpener", project, globalContext)
     }

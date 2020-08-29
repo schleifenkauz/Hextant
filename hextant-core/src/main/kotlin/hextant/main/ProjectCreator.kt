@@ -7,6 +7,8 @@ package hextant.main
 import hextant.context.Context
 import hextant.context.createOutput
 import hextant.core.Editor
+import hextant.main.HextantPlatform.defaultContext
+import hextant.main.HextantPlatform.projectContext
 import hextant.main.Main.fail
 import hextant.plugin.PluginBuilder.Phase.Enable
 import hextant.project.ProjectType
@@ -24,12 +26,12 @@ internal class ProjectCreator(
 ) : Runnable {
     override fun run() {
         dest.mkdir()
-        val project = Project(plugins)
+        val project = ProjectInfo(plugins)
         val str = Json.encodeToString(project)
-        dest.resolve("project.hxt").writeText(str)
-        val context = HextantPlatform.projectContext(globalContext)
-        loadPlugins(plugins, context, Enable, project = null)
-        val cls = Thread.currentThread().contextClassLoader.loadClass(projectType).kotlin
+        dest.resolve(GlobalDirectory.PROJECT_INFO).writeText(str)
+        val context = defaultContext(projectContext(globalContext))
+        loadPlugins(plugins + "core", context, Enable, project = null)
+        val cls = context[HextantClassLoader].loadClass(projectType).kotlin
         val obj = cls.objectInstance
         val companion = cls.companionObjectInstance
         val root = when {
@@ -40,5 +42,6 @@ internal class ProjectCreator(
         context.createOutput(dest.resolve("root.bin").toPath()).use { out ->
             out.writeObject(root)
         }
+        ProjectOpener(dest, globalContext).run()
     }
 }

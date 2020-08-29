@@ -17,7 +17,7 @@ import javafx.stage.Popup
 /**
  * A [Popup] that displays the problems of the assigned target.
  */
-class InspectionPopup(private val context: Context, private val target: Any) : Popup() {
+internal class InspectionPopup(private val context: Context, private val target: Any) : HextantPopup(context) {
     private fun problems() = context.executeSafely("getting problems", emptyList()) {
         context[Inspections].getProblems(target).sortedBy { it.severity }
     }
@@ -78,7 +78,7 @@ class InspectionPopup(private val context: Context, private val target: Any) : P
         private val target: Any,
         private val context: Context,
         private val fixes: Collection<ProblemFix<Any>>
-    ) : Popup() {
+    ) : HextantPopup(context) {
         init {
             context[Internal, Stylesheets].manage(scene)
             content.add(createFixList(fixes))

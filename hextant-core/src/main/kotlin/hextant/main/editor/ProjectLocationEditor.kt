@@ -17,7 +17,7 @@ internal class ProjectLocationEditor constructor(context: Context) : TokenEditor
 
     override fun compile(token: String): Validated<File> {
         val f = getFile(token)
-        return if (!f.exists() || !f.resolve("project.hxt").exists())
+        return if (!f.exists() || !f.resolve(GlobalDirectory.PROJECT_INFO).exists())
             invalid("Project with name '$token' doesn't exist")
         else valid(f)
     }

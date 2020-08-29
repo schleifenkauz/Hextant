@@ -4,6 +4,7 @@
 
 package hextant.plugin
 
+import bundles.Property
 import hextant.command.*
 import hextant.fx.Stylesheets
 import hextant.inspect.*
@@ -46,4 +47,19 @@ inline fun <reified T : Any> PluginBuilder.registerInspection(block: InspectionB
 fun PluginBuilder.stylesheet(resource: String) {
     on(Initialize) { ctx -> ctx[Stylesheets].add(resource) }
     on(Disable) { ctx -> ctx[Stylesheets].remove(resource) }
+}
+
+/**
+ * Sets the value of the given [property]
+ */
+fun <T, Read : Any, Write : Read> PluginBuilder.set(permission: Write, property: Property<T, Read, Write>, value: T) {
+    on(Initialize) { ctx -> ctx[permission, property] = value }
+    on(Disable) { ctx -> ctx.delete(permission, property) }
+}
+
+/**
+ * Sets the value of the given [property]
+ */
+fun <T> PluginBuilder.set(property: Property<T, Any, Any>, value: T) {
+    set(Any(), property, value)
 }

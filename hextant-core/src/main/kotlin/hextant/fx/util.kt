@@ -8,16 +8,23 @@ package hextant.fx
 
 import bundles.Bundle
 import bundles.createBundle
+import hextant.command.Commands
+import hextant.command.line.CommandLine
+import hextant.context.Context
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Compound
 import hextant.core.view.EditorControl
-import javafx.scene.Node
+import hextant.main.WindowSize
+import hextant.main.WindowSize.*
+import javafx.application.Platform
+import javafx.scene.*
 import javafx.scene.control.*
 import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
 import javafx.scene.layout.Region
 import javafx.stage.PopupWindow
+import javafx.stage.Stage
 import reaktive.value.now
 import validated.Validated
 import validated.invalidComponent
@@ -149,4 +156,43 @@ fun <R> getUserInput(
         }
     }
     return d.showAndWait().orElse(invalidComponent)
+}
+
+internal fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context) {
+    for (command in context[Commands].applicableOn(target)) {
+        val shortcut = command.shortcut
+        if (shortcut != null) {
+            on(shortcut, consume = false) { ev ->
+                val cl = context[CommandLine]
+                cl.expand(command)
+                if (command.parameters.isEmpty()) {
+                    val result = cl.execute()
+                    if (result != null && result != false) ev.consume()
+                }
+            }
+        }
+    }
+}
+
+internal fun EditorControl<*>.receiveFocusLater() {
+    Platform.runLater { receiveFocus() }
+}
+
+internal fun Stage.setScene(root: Parent, context: Context) {
+    val sc = Scene(root)
+    sc.initHextantScene(context)
+    Platform.runLater { scene = sc }
+}
+
+internal fun Stage.setSize(s: WindowSize) {
+    when (s) {
+        Maximized -> isMaximized = true
+        FullScreen -> isFullScreen = true
+        FitContent -> {
+        }
+        is Configured -> {
+            width = s.width
+            height = s.height
+        }
+    }
 }

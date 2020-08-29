@@ -9,14 +9,8 @@ import java.io.IOException
 import kotlin.system.exitProcess
 
 internal object Main {
-    val globalContext = HextantPlatform.globalContext()
-
-    val projectContext = HextantPlatform.projectContext(globalContext)
-
-    val localContext = HextantPlatform.defaultContext(projectContext)
-
     init {
-        globalContext[ProjectManager] = ProjectManager(globalContext)
+
     }
 
     @JvmStatic fun main(args: Array<String>) {

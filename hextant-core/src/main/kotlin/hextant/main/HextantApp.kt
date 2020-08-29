@@ -7,9 +7,8 @@ package hextant.main
 import bundles.SimpleProperty
 import hextant.core.Core
 import hextant.fx.initHextantScene
-import hextant.main.Main.globalContext
-import hextant.main.Main.localContext
-import hextant.main.Main.projectContext
+import hextant.main.HextantPlatform.globalContext
+import hextant.main.HextantPlatform.launcherContext
 import hextant.plugin.Aspects
 import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.plugins.Implementation
@@ -28,13 +27,13 @@ internal class HextantApp : Application() {
         globalContext[stage] = primaryStage
         initCore()
         val sc = Scene(Label())
+        sc.initHextantScene(launcherContext)
         primaryStage.scene = sc
-        sc.initHextantScene(localContext)
         val args = parameters.raw
         when (args.size) {
             0 -> {
                 val cl = HextantClassLoader(globalContext, plugins = emptyList())
-                cl.executeInNewThread("hextant.main.HextantLauncher", localContext)
+                cl.executeInNewThread("hextant.main.HextantLauncher")
             }
             1 -> {
                 val project = tryGetFile(args[0])
@@ -59,9 +58,9 @@ internal class HextantApp : Application() {
         val desc = url.openStream().bufferedReader().readText()
         val impls = Json.decodeFromString<List<Implementation>>(desc)
         for (impl in impls) {
-            localContext[Aspects].addImplementation(impl)
+            launcherContext[Aspects].addImplementation(impl)
         }
-        Core.apply(projectContext, Initialize, project = null)
+        Core.apply(launcherContext, Initialize, project = null)
     }
 
     companion object {

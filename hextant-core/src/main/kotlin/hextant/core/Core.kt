@@ -4,7 +4,9 @@ import hextant.command.Command.Type.SingleReceiver
 import hextant.command.line.CommandLine
 import hextant.config.disable
 import hextant.config.enable
+import hextant.context.Context
 import hextant.core.editor.ValidatedTokenEditor
+import hextant.main.*
 import hextant.plugin.*
 import hextant.undo.UndoManager
 import reaktive.value.binding.flatMap
@@ -37,6 +39,30 @@ internal object Core : PluginInitializer({
     stylesheet("hextant/core/style.css")
     command(enable)
     command(disable)
+    registerCommand<Context, Unit> {
+        name = "Save Project"
+        shortName = "save"
+        description = "Saves the project"
+        type = SingleReceiver
+        defaultShortcut("Ctrl+S")
+        applicableIf { ctx: Context -> ctx.hasProperty(Project) }
+        executing { ctx: Context, _ ->
+            ctx[Project].save()
+        }
+    }
+    registerCommand<Context, Unit> {
+        name = "Quit"
+        shortName = "quit"
+        description = "Saves and closes the current project and opens the launcher"
+        type = SingleReceiver
+        defaultShortcut("Ctrl+Q")
+        applicableIf { ctx -> ctx.hasProperty(Project) }
+        executing { ctx, _ ->
+            ctx[Project].save()
+            val loader = HextantPlatform.launcherContext[HextantClassLoader]
+            loader.executeInNewThread("hextant.main.HextantLauncher")
+        }
+    }
     registerCommand<Editor<*>, String> {
         name = "Undo"
         shortName = "undo"

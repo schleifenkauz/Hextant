@@ -4,7 +4,8 @@
 
 package hextant.main
 
-import bundles.*
+import bundles.Property
+import bundles.PropertyChangeHandlers
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.context.*
@@ -51,18 +52,19 @@ object HextantPlatform {
     /**
      * Create the root context for a project.
      */
-    fun projectContext(global: Context) = global.extend {
-        set(Internal, Commands, Commands.newInstance())
-        set(Internal, Inspections, Inspections.newInstance())
-        set(Internal, Stylesheets, Stylesheets())
-        set(Internal, logger, Logger.getLogger(javaClass.name))
-        set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
-        set(Internal, SerialProperties.serialContext, createSerialContext())
-        set(Internal, SerialProperties.serial, KSerial.newInstance())
-        set(Internal, ConfigurableProperties, ConfigurableProperties())
-        set(classLoader, Thread.currentThread().contextClassLoader)
-        set(Internal, Aspects, Aspects(get(classLoader)))
-    }
+    fun projectContext(global: Context = globalContext(), cl: ClassLoader = Thread.currentThread().contextClassLoader) =
+        global.extend {
+            set(Internal, Commands, Commands.newInstance())
+            set(Internal, Inspections, Inspections.newInstance())
+            set(Internal, Stylesheets, Stylesheets())
+            set(Internal, logger, Logger.getLogger(javaClass.name))
+            set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
+            set(Internal, SerialProperties.serialContext, createSerialContext())
+            set(Internal, SerialProperties.serial, KSerial.newInstance())
+            set(Internal, ConfigurableProperties, ConfigurableProperties())
+            set(HextantClassLoader, cl as HextantClassLoader)
+            set(Internal, Aspects, Aspects(cl))
+        }
 
     /**
      * Create the serial context.
@@ -89,8 +91,8 @@ object HextantPlatform {
         set(CommandLine, CommandLine(clContext, ContextCommandSource(this, *CommandReceiverType.values())))
     }
 
-    /**
-     * The context class loader
-     */
-    internal val classLoader = SimpleProperty<ClassLoader>("class loader")
+    internal val globalContext = globalContext()
+
+    internal val launcherContext =
+        defaultContext(projectContext(globalContext, HextantClassLoader(globalContext, emptyList())))
 }

@@ -7,7 +7,7 @@ package hextant.core.editor
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.Snapshot
-import hextant.main.HextantPlatform
+import hextant.main.HextantClassLoader
 import kotlin.reflect.KClass
 
 /**
@@ -26,7 +26,7 @@ abstract class EditorSnapshot<Original : Editor<*>>(original: KClass<out Origina
 
     @Suppress("UNCHECKED_CAST")
     override fun reconstruct(info: Context): Original {
-        val cl = info[HextantPlatform.classLoader]
+        val cl = info[HextantClassLoader]
         val cls = cl.loadClass(originalClass).kotlin
         val e = cls.getSimpleEditorConstructor().invoke(info) as Original
         reconstruct(e)
