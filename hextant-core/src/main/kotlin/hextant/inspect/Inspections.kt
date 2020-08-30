@@ -20,7 +20,7 @@ import kotlin.reflect.full.superclasses
 class Inspections private constructor() {
     private val inspections = mutableMapOf<KClass<*>, MutableSet<Inspection<*>>>()
     private val dag = ClassDAG()
-    private val instances = MultiMap<KClass<*>, Any>(WeakValuesMap())
+    private val instances = MultiMap<KClass<*>, Any>()
     private val managers: MutableMap<Any, InspectionManager> = WeakHashMap()
     private val all = Counter<Inspection<*>>()
 

@@ -51,3 +51,5 @@ data class Sum(val expressions: List<Expr>) : Expr {
         expressions.joinTo(this, " + ")
     }
 }
+
+data class Expression(val expr: Expr)

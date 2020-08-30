@@ -11,6 +11,7 @@ import hextant.context.Context
 import hextant.fx.getUserInput
 import hextant.main.GlobalDirectory.Companion.PROJECTS
 import hextant.main.HextantPlatform.launcherContext
+import hextant.main.HextantPlatform.marketplace
 import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
 import hextant.plugins.LocatedProjectType
@@ -27,14 +28,15 @@ internal class ProjectManager(private val globalContext: Context) {
         @CommandParameter("project type") projectType: LocatedProjectType,
         @CommandParameter("project name", editWith = ProjectNameEditor::class) projectName: String
     ) {
-        val required = setOf(projectType.pluginId)
-        val marketplace = globalContext[HextantApp.marketplace]
+        val required = listOf(projectType.pluginId)
+        val marketplace = globalContext[marketplace]
         val manager = PluginManager(marketplace, required)
-        val editor = PluginsEditor(launcherContext, manager, marketplace, setOf(Local, Language))
+        for (id in required) manager.enable(id)
+        val editor = PluginsEditor(launcherContext, manager, setOf(Local, Language))
         val plugins = getUserInput(editor).ifInvalid { return }.map { it.id }
         val dest = globalContext[GlobalDirectory][PROJECTS].resolve(projectName)
         val cl = HextantClassLoader(globalContext, plugins)
-        cl.executeInNewThread("hextant.main.ProjectCreator", projectType.clazz, dest, plugins, globalContext)
+        cl.executeInNewThread("hextant.main.ProjectCreator", projectType.clazz, dest, required, plugins, globalContext)
     }
 
     @ProvideCommand("Open Project", "open")

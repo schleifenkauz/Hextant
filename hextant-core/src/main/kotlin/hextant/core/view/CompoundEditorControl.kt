@@ -20,7 +20,7 @@ import org.controlsfx.glyphfont.Glyph
  * A [CompoundEditorControl] is an [EditorControl] composed of multiple
  * [EditorControl]'s, keywords, operators, lines and spaces
  */
-abstract class CompoundEditorControl(
+open class CompoundEditorControl(
     editor: Editor<*>,
     args: Bundle,
     private val build: Vertical.(args: Bundle) -> Unit

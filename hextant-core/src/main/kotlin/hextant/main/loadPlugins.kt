@@ -6,7 +6,8 @@ package hextant.main
 
 import hextant.context.Context
 import hextant.core.Editor
-import hextant.main.HextantApp.Companion.marketplace
+import hextant.main.HextantPlatform.marketplace
+import hextant.main.plugins.PluginManager
 import hextant.plugin.Aspects
 import hextant.plugin.PluginBuilder.Phase
 import hextant.plugin.PluginBuilder.Phase.Disable
@@ -15,6 +16,7 @@ import hextant.plugin.PluginInitializer
 import hextant.plugins.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import reaktive.Observer
 import kotlin.reflect.full.createInstance
 
 internal fun loadPlugins(plugins: List<String>, context: Context, phase: Phase, project: Editor<*>?) {
@@ -78,3 +80,11 @@ fun initializePluginsFromClasspath(context: Context) {
         }
     }
 }
+
+internal fun PluginManager.autoLoadAndUnloadPluginsOnChange(context: Context, project: Editor<*>): Observer =
+    enabledPlugin.observe { _, plugin ->
+        loadPlugin(plugin.id, context, Initialize, project = null)
+        loadPlugin(plugin.id, context, Initialize, project)
+    } and disabledPlugin.observe { _, plugin ->
+        disablePlugin(plugin.id, context, project)
+    }

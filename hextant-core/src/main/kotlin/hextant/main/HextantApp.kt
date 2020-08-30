@@ -4,15 +4,14 @@
 
 package hextant.main
 
-import bundles.SimpleProperty
 import hextant.core.Core
 import hextant.fx.initHextantScene
 import hextant.main.HextantPlatform.globalContext
 import hextant.main.HextantPlatform.launcherContext
+import hextant.main.HextantPlatform.stage
 import hextant.plugin.Aspects
 import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.plugins.Implementation
-import hextant.plugins.Marketplace
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Label
@@ -61,11 +60,5 @@ internal class HextantApp : Application() {
             launcherContext[Aspects].addImplementation(impl)
         }
         Core.apply(launcherContext, Initialize, project = null)
-    }
-
-    companion object {
-        val marketplace = SimpleProperty<Marketplace>("marketplace")
-
-        val stage = SimpleProperty<Stage>("stage")
     }
 }

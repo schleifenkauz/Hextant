@@ -5,7 +5,16 @@ version = '0.1'
 kapt {
     annotationProcessors("hextant.codegen.MainProcessor")
     useBuildCache = true
+    correctErrorTypes = false
 }
+
+task hextantPublish(type: Copy) {
+    from jar.outputs.files
+    into 'C:/Users/Nikolaus Knop/hextant/plugin-cache'
+    rename '(.+)', "sample.jar"
+}
+
+build.finalizedBy(hextantPublish)
 
 dependencies {
     compile project(":hextant-core")
@@ -13,4 +22,5 @@ dependencies {
     kapt project(":hextant-codegen")
     kapt project(":hextant-core")
     compileOnly project(":hextant-codegen")
+    compileOnly project(":hextant-expr")
 }

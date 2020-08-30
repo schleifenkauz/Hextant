@@ -9,7 +9,7 @@ kapt {
 
 task hextantPublish(type: Copy) {
     from jar.outputs.files
-    into 'C:/Users/Nikolaus Knop/hextant/plugins'
+    into 'C:/Users/Nikolaus Knop/hextant/plugin-cache'
     rename '(.+)', "core.jar"
 }
 
@@ -25,7 +25,7 @@ dependencies {
     compile nkb03("validated-reaktive", "0.1-SNAPSHOT")
     compile project(":hextant-codegen")
     kapt project(":hextant-codegen")
-    compile project(":hextant-plugins:client")
+    implementation project(":hextant-plugins:client")
     implementation kotlin("reflect")
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinx_serialization_version"
     implementation project(":hextant-plugins:client")

@@ -21,16 +21,16 @@ import kotlin.reflect.full.createInstance
 internal class ProjectCreator(
     private val projectType: String,
     private val dest: File,
-    private val plugins: List<String>,
+    private val requiredPlugins: List<String>, private val enabledPlugins: List<String>,
     private val globalContext: Context
 ) : Runnable {
     override fun run() {
         dest.mkdir()
-        val project = ProjectInfo(plugins)
+        val project = ProjectInfo(enabledPlugins, requiredPlugins)
         val str = Json.encodeToString(project)
         dest.resolve(GlobalDirectory.PROJECT_INFO).writeText(str)
         val context = defaultContext(projectContext(globalContext))
-        loadPlugins(plugins + "core", context, Enable, project = null)
+        loadPlugins(enabledPlugins + "core", context, Enable, project = null)
         val cls = context[HextantClassLoader].loadClass(projectType).kotlin
         val obj = cls.objectInstance
         val companion = cls.companionObjectInstance
@@ -39,7 +39,7 @@ internal class ProjectCreator(
             companion is ProjectType -> companion.createProject(context)
             else                     -> cls.createInstance() as? Editor<*> ?: fail("Invalid project type $projectType")
         }
-        context.createOutput(dest.resolve("root.bin").toPath()).use { out ->
+        context.createOutput(dest.resolve(GlobalDirectory.PROJECT_ROOT).toPath()).use { out ->
             out.writeObject(root)
         }
         ProjectOpener(dest, globalContext).run()

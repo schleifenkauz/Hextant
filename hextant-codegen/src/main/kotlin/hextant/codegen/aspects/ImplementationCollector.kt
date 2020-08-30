@@ -18,13 +18,13 @@ internal object ImplementationCollector :
     override fun process(element: Element, annotation: ProvideImplementation) {
         when (element) {
             is TypeElement -> {
-                val clazz = element.toString()
+                val clazz = element.runtimeFQName()
                 element.interfaces.forEach { iface ->
                     iface as DeclaredType
                     val el = iface.asTypeElement()
                     if (el.getAnnotation(RequestAspect::class.java) != null) {
-                        val aspect = el.toString()
-                        val feature = iface.typeArguments.last().asTypeElement().toString()
+                        val aspect = el.runtimeFQName()
+                        val feature = iface.typeArguments.last().asTypeElement().runtimeFQName()
                         add(Implementation(clazz, aspect, feature))
                     }
                 }
@@ -60,15 +60,15 @@ internal object ImplementationCollector :
         for ((a, b) in decl.parameters.zip(impl.parameters)) {
             unifier.unify(a.asType(), b.asType())
         }
-        val ret = if (impl.kind == CONSTRUCTOR) impl.enclosingElement.asType() else impl.returnType
+        val ret = impl.returnType()
         unifier.unify(decl.returnType, ret)
         val featureType = unifier.lookup(aspectTypeVar)
             ?: error("Cannot infer feature type for $impl from method signature")
         if (featureType.toString() == "error.NonExistentClass") return null
         check(featureType is DeclaredType) { "Invalid feature type $featureType" }
-        val feature = featureType.asElement()
+        val feature = featureType.asTypeElement()
         val featureName = feature.simpleName.toString()
-        return Triple(feature.toString(), featureName, toKotlinType(featureType))
+        return Triple(feature.runtimeFQName(), featureName, toKotlinType(featureType))
     }
 
     private fun generateSingleMethodImplementation(
@@ -77,7 +77,6 @@ internal object ImplementationCollector :
         fqFeatureName: String, simpleFeatureName: String, featureType: KtType,
         pkg: String, simpleName: String
     ) {
-        val fqName = "$pkg.$simpleName"
         val name = "$simpleFeatureName${aspect.simpleName}"
         val impl = kotlinObject(
             pkg, name = name, modifiers = { internal() },
@@ -94,18 +93,13 @@ internal object ImplementationCollector :
                 parameters = {
                     for ((n, type) in parameters) n of type
                 },
-            ) { call(fqName, parameters.map { (n, _) -> n.e }) }
+            ) {
+                val fqName = "$pkg.$simpleName"
+                call(fqName, parameters.map { (n, _) -> n.e })
+            }
         }
         writeKotlinFile(impl)
-        add(Implementation("$pkg.$name", aspect.toString(), fqFeatureName))
-    }
-
-    private fun splitPkgAndName(element: ExecutableElement): Pair<String, String> {
-        val pkg = element.enclosingElement.enclosingElement.toString()
-        val simpleName =
-            if (element.kind == CONSTRUCTOR) element.enclosingElement.simpleName.toString()
-            else element.simpleName.toString()
-        return pkg to simpleName
+        add(Implementation("$pkg.$name", aspect.runtimeFQName(), fqFeatureName))
     }
 
     fun generatedEditor(resultType: TypeElement, clazz: String) {

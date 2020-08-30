@@ -141,7 +141,7 @@ object ExprPlugin : PluginInitializer({
         description = "Sets the text fill"
         name = "Set Color"
         shortName = "color"
-        defaultShortcut("Ctrl+P")
+        defaultShortcut("Ctrl+F")
         addParameter<String> {
             name = "color"
             description = "The text fill"

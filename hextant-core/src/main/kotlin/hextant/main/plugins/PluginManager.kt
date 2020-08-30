@@ -4,14 +4,16 @@
 
 package hextant.main.plugins
 
+import bundles.SimpleProperty
 import hextant.main.plugins.PluginManager.DisableConfirmation.*
 import hextant.plugins.*
 import kollektion.MultiMap
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import reaktive.event.event
 import java.util.*
 
-internal class PluginManager(private val marketplace: Marketplace, private val required: Set<String>) {
+internal class PluginManager(private val marketplace: Marketplace, internal val requiredPlugins: List<String>) {
     private val enabled = mutableSetOf<Plugin>()
     private val dependentOn = MultiMap<String, Plugin>()
     private val requiredByUser = mutableSetOf<Plugin>()
@@ -21,10 +23,10 @@ internal class PluginManager(private val marketplace: Marketplace, private val r
     private val usedImplementations = MultiMap<String, ImplementationRequest>()
     private val usedBundles = mutableSetOf<String>()
     private val plugins = mutableMapOf<String, Plugin>()
-
-    init {
-        for (id in required) enable(getPlugin(id)) { true }
-    }
+    private val enable = event<Plugin>()
+    private val disable = event<Plugin>()
+    val enabledPlugin get() = enable.stream
+    val disabledPlugin get() = disable.stream
 
     fun enabledIds(): Set<String> = enabled.mapTo(mutableSetOf()) { it.id } + usedBundles
 
@@ -34,6 +36,7 @@ internal class PluginManager(private val marketplace: Marketplace, private val r
 
     private fun addPlugin(plugin: Plugin): Boolean {
         if (!enabled.add(plugin)) return false
+        enable.fire(plugin)
         val info = plugin.info
         for (dep in info.dependencies) dependentOn[dep.id].add(plugin)
         return true
@@ -42,6 +45,7 @@ internal class PluginManager(private val marketplace: Marketplace, private val r
     private fun removePlugin(plugin: Plugin) {
         enabled.remove(plugin)
         requiredByUser.remove(plugin)
+        disable.fire(plugin)
         val info = plugin.info
         for (dep in info.dependencies) {
             dependentOn[dep.id].remove(plugin)
@@ -108,10 +112,7 @@ internal class PluginManager(private val marketplace: Marketplace, private val r
         return removed
     }
 
-    fun enable(
-        plugin: Plugin,
-        confirm: (Set<Plugin>) -> Boolean
-    ): Collection<Plugin>? {
+    fun enable(plugin: Plugin, confirm: (Set<Plugin>) -> Boolean): Collection<Plugin>? {
         val deps = mutableSetOf<Plugin>()
         getDependencies(plugin, deps, mutableSetOf())
         val enable = deps + plugin
@@ -146,6 +147,10 @@ internal class PluginManager(private val marketplace: Marketplace, private val r
             }
         }
         return enable
+    }
+
+    fun enable(id: String) {
+        enable(getPlugin(id)) { true }
     }
 
     private fun requestedFeatures(enable: Set<Plugin>): MultiMap<String, Feature> {
@@ -216,7 +221,7 @@ internal class PluginManager(private val marketplace: Marketplace, private val r
     ): Collection<Plugin>? {
         val removed = mutableSetOf<Plugin>()
         getDependents(plugin, removed)
-        val req = removed.find { it.id in required } ?: plugin.takeIf { it.id in required }
+        val req = removed.find { it.id in requiredPlugins } ?: plugin.takeIf { it.id in requiredPlugins }
         if (req != null) throw PluginException("Cannot disable plugin ${req.info.name} as it is required")
         if (removed.isNotEmpty() && !confirm(removed)) return null
         for (pl in removed) removePlugin(pl)
@@ -256,4 +261,6 @@ internal class PluginManager(private val marketplace: Marketplace, private val r
     enum class DisableConfirmation {
         Yes, No, All, None
     }
+
+    companion object : SimpleProperty<PluginManager>("plugin manager")
 }

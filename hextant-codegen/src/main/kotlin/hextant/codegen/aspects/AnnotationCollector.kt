@@ -9,6 +9,7 @@ import hextant.codegen.getTypeArgument
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 import javax.tools.StandardLocation
 import kotlin.reflect.KTypeProjection.Companion.invariant
 import kotlin.reflect.full.createType
@@ -35,4 +36,6 @@ internal abstract class AnnotationCollector<A : Annotation, E : Element, T>(priv
         }
         _results.clear()
     }
+
+    protected fun TypeElement.runtimeFQName(): String = processingEnv.elementUtils.getBinaryName(this).toString()
 }

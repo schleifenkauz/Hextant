@@ -6,10 +6,10 @@ package hextant.main.editor
 
 import hextant.context.Context
 import hextant.core.editor.AbstractEditor
+import hextant.main.HextantPlatform.marketplace
 import hextant.main.plugins.PluginException
 import hextant.main.plugins.PluginManager
 import hextant.main.view.PluginsEditorView
-import hextant.plugins.Marketplace
 import hextant.plugins.Plugin
 import hextant.plugins.PluginInfo.Type
 import reaktive.value.reactiveValue
@@ -18,7 +18,6 @@ import validated.valid
 internal class PluginsEditor(
     context: Context,
     private val manager: PluginManager,
-    private val marketplace: Marketplace,
     private val types: Set<Type>
 ) : AbstractEditor<Collection<Plugin>, PluginsEditorView>(context) {
     override val result get() = reactiveValue(valid(manager.enabledPlugins()))
@@ -48,6 +47,7 @@ internal class PluginsEditor(
     }
 
     fun searchInAvailable(view: PluginsEditorView) {
+        val marketplace = context[marketplace]
         val available = marketplace.getPlugins(view.availableSearchText, LIMIT, types, manager.enabledIds())
         view.available.clear()
         view.available.addAll(available.map { id -> manager.getPlugin(id) })

@@ -4,8 +4,8 @@ import hextant.command.line.CommandLine
 import hextant.command.line.SingleCommandSource
 import hextant.context.createControl
 import hextant.fx.*
-import hextant.main.HextantApp.Companion.stage
 import hextant.main.HextantPlatform.launcherContext
+import hextant.main.HextantPlatform.stage
 import javafx.geometry.Pos.CENTER
 import javafx.scene.text.Font
 

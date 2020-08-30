@@ -2,12 +2,12 @@
   "id": "sample",
   "name": "Hextant Sample",
   "author": "Nikolaus Knop",
-  "type": "Language",
-  "description": "Sample plugin",
+  "type": "Local",
+  "description": "Extension for the Expression plugin",
   "initializer": "SamplePlugin",
   "dependencies": [
     {
-      "id": "core"
+      "id": "expr"
     }
   ]
 }

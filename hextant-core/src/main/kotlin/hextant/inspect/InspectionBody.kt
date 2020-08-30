@@ -9,15 +9,20 @@ import org.nikok.kref.weak
 /**
  * Used as a receiver for closures related to inspection registration.
  */
-interface InspectionBody<out T : Any> {
+abstract class InspectionBody<out T : Any> {
     /**
      * The inspected object.
      */
-    val inspected: T
+    abstract val inspected: T
 
-    private class Strong<T : Any>(override val inspected: T) : InspectionBody<T>
+    override fun equals(other: Any?): Boolean =
+        other === this || other is InspectionBody<*> && other.inspected == this.inspected
 
-    private class Weak<T : Any>(inspected: T) : InspectionBody<T> {
+    override fun hashCode(): Int = inspected.hashCode()
+
+    private class Strong<T : Any>(override val inspected: T) : InspectionBody<T>()
+
+    private class Weak<T : Any>(inspected: T) : InspectionBody<T>() {
         private val ref = weak(inspected)
 
         override val inspected: T

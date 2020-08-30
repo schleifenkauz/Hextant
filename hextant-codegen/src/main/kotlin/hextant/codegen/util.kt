@@ -8,6 +8,7 @@ import hextant.codegen.aspects.JavaToKotlinTypeTranslator
 import krobot.api.*
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.*
+import javax.lang.model.element.ElementKind.CONSTRUCTOR
 import javax.lang.model.type.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
@@ -121,3 +122,14 @@ internal fun TypeMirror.substitute(subst: Map<String, TypeMirror>, env: Processi
         is ArrayType -> env.typeUtils.getArrayType(componentType.substitute(subst, env))
         else            -> this
     }
+
+internal fun splitPkgAndName(element: ExecutableElement): Pair<String, String> {
+    val pkg = element.enclosingElement.enclosingElement.toString()
+    val simpleName =
+        if (element.kind == CONSTRUCTOR) element.enclosingElement.simpleName.toString()
+        else element.simpleName.toString()
+    return pkg to simpleName
+}
+
+internal fun ExecutableElement.returnType(): TypeMirror =
+    if (kind == CONSTRUCTOR) enclosingElement.asType() else returnType

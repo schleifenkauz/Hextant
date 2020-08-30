@@ -4,8 +4,7 @@
 
 package hextant.main
 
-import bundles.Property
-import bundles.PropertyChangeHandlers
+import bundles.*
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.context.*
@@ -15,11 +14,13 @@ import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugin.Aspects
+import hextant.plugins.Marketplace
 import hextant.plugins.client.HttpPluginClient
 import hextant.serial.SerialProperties
 import hextant.serial.SerialProperties.deserializationContext
 import hextant.settings.model.ConfigurableProperties
 import hextant.undo.UndoManager
+import javafx.stage.Stage
 import kserial.KSerial
 import kserial.SerialContext
 import java.net.URLClassLoader
@@ -40,13 +41,21 @@ object HextantPlatform {
      */
     val propertyChangeHandlers = Property<PropertyChangeHandlers, Any, Internal>("property change handlers")
 
+    internal val marketplace = SimpleProperty<Marketplace>("marketplace")
+
+    internal val globalContext = globalContext()
+
+    internal val launcherContext = defaultContext(projectContext(globalContext))
+
+    internal val stage = SimpleProperty<Stage>("stage")
+
     /**
      * Create the global context, that is, the root of all contexts.
      */
     internal fun globalContext(): Context = Context.newInstance {
         val gd = GlobalDirectory.inUserHome()
         set(GlobalDirectory, gd)
-        set(HextantApp.marketplace, HttpPluginClient("http://localhost:80", gd[GlobalDirectory.PLUGIN_CACHE]))
+        set(marketplace, HttpPluginClient("http://localhost:80", gd[GlobalDirectory.PLUGIN_CACHE]))
         set(ProjectManager, ProjectManager(this))
     }
 
@@ -93,9 +102,4 @@ object HextantPlatform {
         }
         set(CommandLine, CommandLine(clContext, ContextCommandSource(this, *CommandReceiverType.values())))
     }
-
-
-    internal val globalContext = globalContext()
-
-    internal val launcherContext = defaultContext(projectContext(globalContext))
 }

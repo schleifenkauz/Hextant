@@ -6,8 +6,12 @@ import hextant.config.disable
 import hextant.config.enable
 import hextant.context.Context
 import hextant.core.editor.ValidatedTokenEditor
+import hextant.fx.HextantStage
 import hextant.main.*
+import hextant.main.editor.PluginsEditor
+import hextant.main.plugins.PluginManager
 import hextant.plugin.*
+import hextant.plugins.PluginInfo
 import hextant.undo.UndoManager
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
@@ -61,6 +65,19 @@ internal object Core : PluginInitializer({
             ctx[Project].save()
             val loader = HextantPlatform.launcherContext[HextantClassLoader]
             loader.executeInNewThread("hextant.main.HextantLauncher")
+        }
+    }
+    registerCommand<Context, Unit> {
+        name = "Show plugin manager"
+        shortName = "plugins"
+        description = "Shows the plugin manager"
+        type = SingleReceiver
+        defaultShortcut("Ctrl+P")
+        applicableIf { ctx -> ctx.hasProperty(PluginManager) }
+        executing { ctx, _ ->
+            val manager = ctx[PluginManager]
+            val editor = PluginsEditor(context, manager, PluginInfo.Type.values().toSet())
+            HextantStage(editor).show()
         }
     }
     registerCommand<Editor<*>, String> {

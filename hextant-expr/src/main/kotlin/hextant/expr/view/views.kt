@@ -35,3 +35,8 @@ fun createControl(e: OperatorEditor, arguments: Bundle) = TokenEditorControl(e, 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(e: IntLiteralEditor, arguments: Bundle) =
     TokenEditorControl(e, arguments, styleClass = "decimal-editor")
+
+@ProvideImplementation(ControlFactory::class)
+fun createControl(e: ExpressionEditor, arguments: Bundle) = CompoundEditorControl(e, arguments) {
+    view(e.root)
+}

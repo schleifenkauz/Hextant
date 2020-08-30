@@ -53,5 +53,5 @@ annotation class ProvideFeature
 annotation class ProvideImplementation(val aspect: KClass<*> = None::class)
 
 @Retention(SOURCE)
-@Target(CLASS)
+@Target(CLASS, CONSTRUCTOR, FUNCTION)
 annotation class ProvideProjectType(val name: String)

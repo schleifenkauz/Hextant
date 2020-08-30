@@ -14,10 +14,9 @@ import javax.lang.model.element.Modifier.*
 
 internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement, Aspect>("aspects.json") {
     override fun process(element: TypeElement, annotation: RequestAspect) {
-        val name = element.toString()
-        val target = caseVar(element).bounds.firstOrNull()?.asTypeElement()?.toString()
+        val target = caseVar(element).bounds.firstOrNull()?.asTypeElement()?.runtimeFQName()
             ?: throw ProcessingException("Cannot deduce target of aspect $element")
-        add(Aspect(name, target, annotation.optional))
+        add(Aspect(element.runtimeFQName(), target, annotation.optional))
     }
 
     override fun finish() {
@@ -25,7 +24,7 @@ internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement
         val accessors = kotlinFile(accessorPackage, "aspectAccessors.kt") {
             generateClsFunction()
             for ((clazz, _) in results) {
-                val element = processingEnv.elementUtils.getTypeElement(clazz)
+                val element = processingEnv.elementUtils.getTypeElement(clazz.replace('$', '.'))
                 generateAccessors(element)
             }
         }

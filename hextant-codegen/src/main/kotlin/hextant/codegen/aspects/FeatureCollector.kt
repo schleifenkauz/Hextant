@@ -13,7 +13,7 @@ internal object FeatureCollector : AnnotationCollector<ProvideFeature, TypeEleme
     override fun process(element: TypeElement, annotation: ProvideFeature) {
         val supertypes = mutableSetOf<TypeElement>()
         allSupertypes(element, supertypes)
-        add(Feature(element.toString(), supertypes.map { it.toString() }))
+        add(Feature(element.runtimeFQName(), supertypes.map { it.runtimeFQName() }))
     }
 
     fun generatedEditor(clazz: String) {
