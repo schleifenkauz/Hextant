@@ -24,7 +24,7 @@ interface Inspection<in T : Any> : Enabled {
     /**
      * @return the severity of this problem
      */
-    val severity: Severity
+    val severity: Problem.Severity
 
     /**
      * If a problem is reported this problem is registered for the given returned target.
@@ -35,5 +35,5 @@ interface Inspection<in T : Any> : Enabled {
      * @return the problem reported by this inspection on the given target.
      * If this inspection does not report on the given target the behaviour is implementation-specific.
      */
-    fun InspectionBody<T>.getProblem(): Problem<T>
+    fun InspectionBody<T>.getProblem(): Problem<in T>
 }

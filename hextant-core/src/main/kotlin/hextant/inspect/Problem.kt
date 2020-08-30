@@ -5,58 +5,47 @@
 package hextant.inspect
 
 /**
- * A Problem that reports a possible error
+ * A problem represents a warning or an error which reminds the programmer that some code he has written be faulty.
+ * @property source The element from which this problem is originating.
+ * @property message The message which should be shown to the programmer
+ * @property severity The severity of this problem
+ * @property fixes The possible [ProblemFix]es to fix this [Problem]
  */
-sealed class Problem<in T : Any> {
-    /**
-     * @return the message of this [Problem]
-     */
-    abstract val message: String
+class Problem<T : Any>(
+    src: T,
+    val message: String,
+    val severity: Severity,
+    val fixes: Collection<ProblemFix<T>>
+) {
+    internal val source = InspectionBody.soft(src)
 
     /**
-     * @return the severity of this [Problem]
+     * The severity of a problem.
      */
-    abstract val severity: Severity
-
-    /**
-     * @return the possible [ProblemFix]es to fix this [Problem]
-     */
-    abstract val fixes: Collection<ProblemFix<T>>
-
-    /**
-     * A Warning which indicates a possible error
-     * * Does not prevent programs from being runnable
-     */
-    data class Warning<T : Any>(
-        override val message: String,
-        override val fixes: Collection<ProblemFix<T>>
-    ) : Problem<T>() {
-        override val severity: Severity
-            get() = Severity.Warning
-    }
-
-    /**
-     * An Error which prevents programs from being runnable
-     */
-    data class Error<T : Any>(
-        override val message: String,
-        override val fixes: Collection<ProblemFix<T>>
-    ) : Problem<T>() {
-        override val severity: Severity
-            get() = Severity.Error
-    }
-
-    companion object {
+    enum class Severity {
         /**
-         * @return [Problem] with the specified [severity], [message] and [fixes] defaulting to an [emptyList]
+         * Indicates a warning
          */
-        fun <T : Any> of(
-            severity: Severity,
-            message: String,
-            fixes: Collection<ProblemFix<T>> = emptyList()
-        ): Problem<T> {
-            return if (severity.isSevere) Error(message, fixes)
-            else Warning(message, fixes)
-        }
+        Warning {
+            override val isSevere: Boolean
+                get() = false
+
+            override fun toString(): String = "warning"
+        },
+
+        /**
+         * Indicates an error
+         */
+        Error {
+            override val isSevere: Boolean
+                get() = true
+
+            override fun toString(): String = "error"
+        };
+
+        /**
+         * Whether the problem prevents the program from being executable.
+         */
+        abstract val isSevere: Boolean
     }
 }

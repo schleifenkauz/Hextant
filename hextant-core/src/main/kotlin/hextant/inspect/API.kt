@@ -4,20 +4,6 @@
 
 package hextant.inspect
 
-/**
- * @return a [Problem] built with [block]
- */
-inline fun problem(block: ProblemBuilder<Any>.() -> Unit): Problem<Any> = ProblemBuilder<Any>().apply(block).build()
-
-/**
- * @return a [ProblemFix] with the specified [description] which is applicable if [applicable] returns `true` and fixes
- * problems by invoking [doFix]
- */
-fun <T : Any> problemFix(
-    description: String,
-    doFix: InspectionBody<T>.() -> Unit,
-    applicable: InspectionBody<T>.() -> Boolean = { true }
-): ProblemFix<T> = ProblemFixImpl(description, doFix, applicable)
 
 /**
  * @return a [ProblemFix] built with [block]

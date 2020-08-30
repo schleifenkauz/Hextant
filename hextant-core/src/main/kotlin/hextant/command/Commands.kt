@@ -48,6 +48,17 @@ class Commands private constructor() {
     }
 
     /**
+     * Unregisters the given [command].
+     * @throws IllegalStateException if the command has not been registered before.
+     */
+    fun <R : Any> unregister(command: Command<R, *>) {
+        check(all.remove(command)) { "Cannot unregister command $command because it was not registered before" }
+        for (cls in dag.subclassesOf(command.receiverCls)) {
+            commandsOf(cls).remove(command)
+        }
+    }
+
+    /**
      * Return a collection of all available commands that are applicable on the given [receiver].
      */
     fun <R : Any> applicableOn(receiver: R): Collection<Command<R, *>> {
@@ -68,10 +79,6 @@ class Commands private constructor() {
      * Return a collection of **all** registered commands.
      */
     fun all(): Collection<Command<*, *>> = all
-
-    fun <R : Any> disable(command: Command<R, *>) {
-        TODO("not implemented")
-    }
 
     companion object : Property<Commands, Any, Internal>("commands") {
         /**

@@ -1,9 +1,9 @@
 package hextant.inspect
 
 import com.natpryce.hamkrest.should.shouldMatch
-import hextant.inspect.Problem.Error
-import hextant.inspect.Problem.Warning
-import hextant.test.*
+import hextant.inspect.Problem.Severity
+import hextant.test.isEmpty
+import hextant.test.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.value.*
@@ -52,7 +52,7 @@ internal object InspectionsSpec : Spek({
             }
             checkNoErrors()
             it("should report one problem") {
-                inspections.getProblems(inspected) shouldBe aSetOf(instanceOf<Warning<Any>>())
+                inspections.getProblems(inspected).map { it.severity } shouldEqual listOf(Severity.Warning)
             }
         }
         on("changing the inspected object such that it is not reported anymore") {
@@ -75,10 +75,8 @@ internal object InspectionsSpec : Spek({
                 inspections.hasWarning(inspected).now shouldEqual true
             }
             it("should report both a warning and problem") {
-                inspections.getProblems(inspected) shouldBe aSetOf(
-                    instanceOf<Warning<Any>>(),
-                    instanceOf<Error<Any>>()
-                )
+                val severities = inspections.getProblems(inspected).mapTo(mutableSetOf()) { it.severity }
+                severities shouldEqual setOf(Severity.Warning, Severity.Error)
             }
         }
         on("making the inspected object unproblematic again") {

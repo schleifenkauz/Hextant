@@ -105,7 +105,7 @@ enum class IntOperator(private val op: (Int, Int) -> Int) {
     Times(Int::times),
 
     /**
-     * The / operator which combines two ints to TODO()
+     * The / operator which combines two ints to their quotient
      */
     Div(Int::div);
 

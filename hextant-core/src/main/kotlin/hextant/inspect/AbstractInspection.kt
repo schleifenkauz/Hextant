@@ -25,10 +25,5 @@ abstract class AbstractInspection<in T : Any>(initiallyEnabled: Boolean = true) 
 
     override fun InspectionBody<T>.location(): Any = inspected
 
-    override fun InspectionBody<T>.getProblem(): Problem<T> {
-        val msg = message()
-        val s = severity
-        val fixes = fixes()
-        return Problem.of(s, msg, fixes)
-    }
+    override fun InspectionBody<T>.getProblem(): Problem<in T> = Problem(inspected, message(), severity, fixes())
 }

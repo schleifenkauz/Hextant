@@ -22,6 +22,7 @@ import hextant.settings.model.ConfigurableProperties
 import hextant.undo.UndoManager
 import kserial.KSerial
 import kserial.SerialContext
+import java.net.URLClassLoader
 import java.util.logging.Logger
 
 /**
@@ -52,17 +53,19 @@ object HextantPlatform {
     /**
      * Create the root context for a project.
      */
-    fun projectContext(global: Context = globalContext(), cl: ClassLoader = Thread.currentThread().contextClassLoader) =
+    fun projectContext(global: Context = globalContext()) =
         global.extend {
+            val cl = Thread.currentThread().contextClassLoader
+            val hcl = if (cl is HextantClassLoader) cl else HextantClassLoader(this, emptyList(), cl as URLClassLoader)
+            set(HextantClassLoader, hcl)
             set(Internal, Commands, Commands.newInstance())
             set(Internal, Inspections, Inspections.newInstance())
-            set(Internal, Stylesheets, Stylesheets())
+            set(Internal, Stylesheets, Stylesheets(hcl))
             set(Internal, logger, Logger.getLogger(javaClass.name))
             set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
             set(Internal, SerialProperties.serialContext, createSerialContext())
             set(Internal, SerialProperties.serial, KSerial.newInstance())
             set(Internal, ConfigurableProperties, ConfigurableProperties())
-            set(HextantClassLoader, cl as HextantClassLoader)
             set(Internal, Aspects, Aspects(cl))
         }
 
@@ -91,8 +94,8 @@ object HextantPlatform {
         set(CommandLine, CommandLine(clContext, ContextCommandSource(this, *CommandReceiverType.values())))
     }
 
+
     internal val globalContext = globalContext()
 
-    internal val launcherContext =
-        defaultContext(projectContext(globalContext, HextantClassLoader(globalContext, emptyList())))
+    internal val launcherContext = defaultContext(projectContext(globalContext))
 }

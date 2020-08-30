@@ -24,4 +24,14 @@ abstract class AbstractEnabled(initiallyEnabled: Boolean) : Enabled {
     }
 
     override fun toString(): String = id
+
+    override fun equals(other: Any?): Boolean = when {
+        this === other                    -> true
+        other !is Enabled                 -> false
+        other.javaClass != this.javaClass -> false
+        other.id != this.id               -> false
+        else                              -> true
+    }
+
+    override fun hashCode(): Int = id.hashCode()
 }

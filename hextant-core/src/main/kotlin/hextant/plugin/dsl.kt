@@ -16,7 +16,7 @@ import hextant.plugin.PluginBuilder.Phase.Initialize
  */
 inline fun <reified R : Any> PluginBuilder.command(command: Command<R, *>) {
     on(Initialize) { ctx -> ctx[Commands].register(command) }
-    on(Disable) { ctx -> ctx[Commands].disable(command) }
+    on(Disable) { ctx -> ctx[Commands].unregister(command) }
 }
 
 /**
@@ -31,7 +31,7 @@ inline fun <reified R : Any, T : Any> PluginBuilder.registerCommand(block: Comma
  */
 inline fun <reified T : Any> PluginBuilder.inspection(inspection: Inspection<T>) {
     on(Initialize) { ctx -> ctx[Inspections].register(T::class, inspection) }
-    on(Disable) { ctx -> ctx[Inspections].disable(inspection) }
+    on(Disable) { ctx -> ctx[Inspections].unregister(T::class, inspection) }
 }
 
 /**

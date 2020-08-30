@@ -11,7 +11,7 @@ internal class InspectionImpl<T : Any>(
     private val isProblem: InspectionBody<T>.() -> ReactiveBoolean,
     override val description: String,
     private val message: InspectionBody<T>.() -> String,
-    override val severity: Severity,
+    override val severity: Problem.Severity,
     private val fixes: InspectionBody<T>.() -> Collection<ProblemFix<T>>,
     private val location: InspectionBody<T>.() -> Any
 ) : AbstractInspection<T>() {

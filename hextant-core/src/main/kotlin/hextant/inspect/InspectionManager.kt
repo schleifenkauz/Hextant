@@ -4,59 +4,57 @@
 
 package hextant.inspect
 
-import hextant.inspect.Severity.Error
-import hextant.inspect.Severity.Warning
-import org.nikok.kref.forcedWeak
+import hextant.inspect.Problem.Severity
 import reaktive.Observer
+import reaktive.value.*
 import reaktive.value.binding.and
 import reaktive.value.binding.notEqualTo
-import reaktive.value.now
-import reaktive.value.reactiveVariable
-import java.util.*
 
-internal class InspectionManager<T : Any>(inspected: T, private val inspections: Inspections) : InspectionBody<T> {
-    override val inspected by forcedWeak(inspected)
-
+internal class InspectionManager {
     private val warningCount = reactiveVariable(0)
-
     private val errorCount = reactiveVariable(0)
+    private val reportingInspections = mutableSetOf<AppliedInspection<*>>()
+    private val observers = mutableMapOf<AppliedInspection<*>, Observer>()
+    private val isProblem = mutableMapOf<AppliedInspection<*>, ReactiveBoolean>()
 
-    private val reportingInspections = mutableSetOf<Inspection<T>>()
-
-    private fun reportingInspections(): MutableSet<in Inspection<T>> = reportingInspections
-
-    private val observers = LinkedList<Observer>()
-
-    fun addInspection(inspection: Inspection<T>) = inspection.run {
-        @Suppress("UNCHECKED_CAST")
-        inspection as Inspection<Any>
-        val actualTarget =
-            if (inspected === location()) this@InspectionManager
-            else inspections.getManagerFor(location())
-        val problem = inspection.isEnabled and isProblem()
+    fun <T : Any> addInspection(inspection: AppliedInspection<T>) = inspection.run {
+        val problem = inspection.isEnabled and inspection.isProblem()
+        isProblem[inspection] = problem
         if (problem.now) {
-            actualTarget.reportingInspections().add(inspection)
-            actualTarget.changeCount(inspection.severity, +1)
+            reportingInspections.add(inspection)
+            changeCount(inspection.severity, +1)
         }
         val obs = problem.observe { _, _, isProblem ->
             if (isProblem) {
-                actualTarget.reportingInspections().add(inspection)
-                actualTarget.changeCount(inspection.severity, +1)
+                reportingInspections.add(inspection)
+                changeCount(inspection.severity, +1)
             } else {
-                actualTarget.reportingInspections().remove(inspection)
-                actualTarget.changeCount(inspection.severity, -1)
+                reportingInspections.remove(inspection)
+                changeCount(inspection.severity, -1)
             }
         }
-        observers.add(obs)
+        observers[inspection] = obs
+    }
+
+    fun <T : Any> removeInspection(inspection: AppliedInspection<T>) {
+        val problem = isProblem.remove(inspection)!!
+        observers.remove(inspection)!!.kill()
+        if (problem.now) {
+            reportingInspections.remove(inspection)
+            changeCount(inspection.severity, -1)
+        }
     }
 
     private fun changeCount(type: Severity, delta: Int) {
-        if (type == Error) errorCount.now += delta
-        else if (type == Warning) warningCount.now += delta
+        when (type) {
+            Severity.Warning -> warningCount.now += delta
+            Severity.Error -> errorCount.now += delta
+        }
     }
 
     val hasError = errorCount.notEqualTo(0)
     val hasWarning = warningCount.notEqualTo(0)
 
-    fun problems(): Set<Problem<T>> = reportingInspections.mapTo(mutableSetOf()) { it.run { getProblem() } }
+    fun problems(): Set<Problem<*>> = reportingInspections.mapTo(mutableSetOf()) { it.run { getProblem() } }
+
 }

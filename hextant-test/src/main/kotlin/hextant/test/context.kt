@@ -6,11 +6,9 @@ package hextant.test
 
 import hextant.context.Context
 import hextant.main.HextantPlatform
+import hextant.main.HextantPlatform.defaultContext
+import hextant.main.initializePluginsFromClasspath
 
-inline fun testingContext(block: Context.() -> Unit = {}): Context =
-    HextantPlatform.defaultContext(
-        HextantPlatform.projectContext(
-            Context.newInstance(),
-            Thread.currentThread().contextClassLoader
-        )
-    ).apply(block)
+private val root = HextantPlatform.projectContext().also { ctx -> initializePluginsFromClasspath(ctx) }
+
+fun testingContext(block: Context.() -> Unit = {}): Context = defaultContext(root).apply(block)

@@ -2,11 +2,13 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("UNCHECKED_CAST")
+
 package hextant.inspect
 
 import bundles.Property
 import hextant.context.Internal
-import kollektion.ClassDAG
+import kollektion.*
 import reaktive.value.ReactiveBoolean
 import java.util.*
 import kotlin.reflect.KClass
@@ -16,20 +18,41 @@ import kotlin.reflect.full.superclasses
  * Objects of this class are used to register [Inspection]s for targets.
  */
 class Inspections private constructor() {
-    private val managers: MutableMap<KClass<*>, MutableMap<Any, InspectionManager<*>>> = mutableMapOf()
     private val inspections = mutableMapOf<KClass<*>, MutableSet<Inspection<*>>>()
     private val dag = ClassDAG()
-    private val all = mutableSetOf<Inspection<*>>()
+    private val instances = MultiMap<KClass<*>, Any>(WeakValuesMap())
+    private val managers: MutableMap<Any, InspectionManager> = WeakHashMap()
+    private val all = Counter<Inspection<*>>()
 
     private fun inspections(cls: KClass<*>) = inspections.getOrPut(cls) { mutableSetOf() }
-    private fun managers(cls: KClass<*>) = managers.getOrPut(cls) { WeakHashMap() }
 
     private fun addInspection(cls: KClass<*>, inspection: Inspection<*>) {
+        inspection as Inspection<Any>
         inspections(cls).add(inspection)
-        for (manager in managers(cls).values) {
-            @Suppress("UNCHECKED_CAST")
-            manager.addInspection(inspection as Inspection<Any>)
+        for (obj in instances[cls]) {
+            addInspection(inspection, obj)
         }
+    }
+
+    private fun addInspection(inspection: Inspection<Any>, obj: Any) {
+        val manager = getManagerForLocation(inspection, obj)
+        val applied = AppliedInspection(obj, inspection)
+        manager.addInspection(applied)
+    }
+
+    private fun removeInspection(cls: KClass<*>, inspection: Inspection<*>) {
+        inspection as Inspection<Any>
+        inspections(cls).remove(inspection)
+        for (obj in instances[cls]) {
+            val manager = getManagerForLocation(inspection, obj)
+            val applied = AppliedInspection(obj, inspection)
+            manager.removeInspection(applied)
+        }
+    }
+
+    private fun getManagerForLocation(inspection: Inspection<Any>, obj: Any): InspectionManager {
+        val loc = inspection.run { InspectionBody.strong(obj).location() }
+        return getManagerFor(loc)
     }
 
     private fun visitClass(cls: KClass<*>) {
@@ -55,23 +78,31 @@ class Inspections private constructor() {
     }
 
     /**
+     * Registers a previously registered [inspection].
+     * @throws IllegalStateException if the given [inspection] was not registered previously
+     */
+    fun <T : Any> unregister(cls: KClass<*>, inspection: Inspection<T>) {
+        check(all.remove(inspection)) { "Cannot unregister inspection $inspection because it was not registered before" }
+        for (c in dag.subclassesOf(cls)) {
+            removeInspection(c, inspection)
+        }
+    }
+
+    /**
      * Return a set of all problems that the inspection for this object report.
      */
-    fun <T : Any> getProblems(obj: T): Set<Problem<Any>> = getManagerFor(obj).problems()
+    fun <T : Any> getProblems(obj: T): Set<Problem<*>> = getManagerFor(obj).problems()
 
-    internal fun <T : Any> getManagerFor(obj: T): InspectionManager<Any> {
-        val cls = obj::class
-        visitClass(cls)
-        val m = managers(cls).getOrPut(obj) {
-            InspectionManager(obj, this).apply {
-                for (i in inspections(cls)) {
-                    @Suppress("UNCHECKED_CAST")
-                    (addInspection(i as Inspection<T>))
-                }
+    private fun getManagerFor(obj: Any): InspectionManager {
+        instances[obj::class].add(obj)
+        visitClass(obj::class)
+        if (obj !in managers) {
+            managers[obj] = InspectionManager()
+            for (inspection in inspections(obj::class)) {
+                addInspection(inspection as Inspection<Any>, obj)
             }
         }
-        @Suppress("UNCHECKED_CAST")
-        return m as InspectionManager<Any>
+        return managers[obj]!!
     }
 
     /**
@@ -87,11 +118,7 @@ class Inspections private constructor() {
     /**
      * Return a collection containing all registered completions.
      */
-    fun all(): Collection<Inspection<*>> = all
-
-    fun <T : Any> disable(inspection: Inspection<T>) {
-        TODO("not implemented")
-    }
+    fun all(): Collection<Inspection<*>> = all.asSet()
 
     companion object : Property<Inspections, Any, Internal>("inspections") {
         /**

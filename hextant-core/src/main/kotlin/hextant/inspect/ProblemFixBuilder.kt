@@ -33,5 +33,5 @@ class ProblemFixBuilder<T : Any> @PublishedApi internal constructor() {
         applicable = predicate
     }
 
-    @PublishedApi internal fun build(): ProblemFix<T> = problemFix(description, doFix, applicable)
+    @PublishedApi internal fun build(): ProblemFix<T> = ProblemFixImpl(description, doFix, applicable)
 }

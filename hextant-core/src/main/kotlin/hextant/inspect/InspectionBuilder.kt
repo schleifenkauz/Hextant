@@ -5,6 +5,7 @@
 package hextant.inspect
 
 import hextant.command.Command
+import hextant.inspect.Problem.Severity
 import reaktive.value.ReactiveBoolean
 import reaktive.value.binding.map
 
@@ -67,7 +68,8 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
      * The built inspection will be severe if [isSevere] is `true`
      */
     fun isSevere(isSevere: Boolean) {
-        severity(Severity.of(isSevere))
+        if (isSevere) severity(Severity.Error)
+        else severity(Severity.Warning)
     }
 
     /**

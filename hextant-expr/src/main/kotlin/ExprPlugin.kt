@@ -6,7 +6,7 @@ import hextant.expr.IntLiteral
 import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
-import hextant.inspect.Severity.Warning
+import hextant.inspect.Problem.Severity.Warning
 import hextant.main.WindowSize
 import hextant.plugin.*
 import hextant.undo.compoundEdit
@@ -76,6 +76,7 @@ object ExprPlugin : PluginInitializer({
         id = "identical"
         description = "Prevent identical operations"
         isSevere(true)
+        location { inspected.operator }
         preventingThat {
             val operandIsZero = inspected.operand2.result.map { it.orNull() is IntLiteral && it.force().value == 0 }
             val operatorIsPlus = inspected.operator.result.map { it.orNull() == Plus }

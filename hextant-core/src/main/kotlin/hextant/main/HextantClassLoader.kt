@@ -9,8 +9,11 @@ import hextant.context.Context
 import hextant.main.GlobalDirectory.Companion.PLUGIN_CACHE
 import java.net.URLClassLoader
 
-internal class HextantClassLoader(private val context: Context, plugins: Collection<String>) :
-    URLClassLoader(systemCL.urLs, systemCL) {
+internal class HextantClassLoader(
+    private val context: Context,
+    plugins: Collection<String>,
+    parent: URLClassLoader = systemCL
+) : URLClassLoader(parent.urLs, parent) {
     init {
         for (id in plugins) addPlugin(id)
     }

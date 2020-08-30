@@ -5,10 +5,12 @@
 package hextant.expr.editor
 
 import hextant.codegen.ProvideFeature
+import hextant.codegen.ProvideImplementation
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
 import hextant.context.Context
+import hextant.context.EditorFactory
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.expr.IntLiteral
@@ -19,7 +21,7 @@ class IntLiteralEditor(
     context: Context,
     text: String
 ) : TokenEditor<IntLiteral, TokenEditorView>(context, text), ExprEditor<IntLiteral> {
-    constructor(context: Context) : this(context, "")
+    @ProvideImplementation(EditorFactory::class) constructor(context: Context) : this(context, "")
 
     constructor(v: IntLiteral, context: Context) : this(context, v.value.toString())
 

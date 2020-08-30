@@ -149,9 +149,6 @@ object ValidatedTokenEditorSpec : Spek({
                 }
             }
         }
-        describe("undo and redo") {
-            //TODO
-        }
         describe("serialization") {
             val ser = KSerial.newInstance()
             val context = testingContext()

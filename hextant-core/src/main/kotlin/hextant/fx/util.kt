@@ -163,11 +163,12 @@ internal fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context
         val shortcut = command.shortcut
         if (shortcut != null) {
             on(shortcut, consume = false) { ev ->
-                val cl = context[CommandLine]
-                cl.expand(command)
                 if (command.parameters.isEmpty()) {
-                    val result = cl.execute()
-                    if (result != null && result != false) ev.consume()
+                    val result = command.execute(target, emptyList())
+                    if (result != false) ev.consume()
+                } else {
+                    val cl = context[CommandLine]
+                    cl.expand(command)
                 }
             }
         }
