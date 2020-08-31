@@ -12,11 +12,11 @@ internal interface PluginsEditorView : EditorView {
     val available: MutableCollection<Plugin>
     val enabled: MutableCollection<Plugin>
 
-    fun confirmEnable(enabled: Collection<Plugin>): Boolean
+    suspend fun confirmEnable(enabled: Collection<Plugin>): Boolean
 
-    fun confirmDisable(disabled: Collection<Plugin>): Boolean
+    suspend fun confirmDisable(disabled: Collection<Plugin>): Boolean
 
-    fun askDisable(plugin: Plugin): PluginManager.DisableConfirmation
+    suspend fun askDisable(plugin: Plugin): PluginManager.DisableConfirmation
 
     fun alertError(message: String)
 

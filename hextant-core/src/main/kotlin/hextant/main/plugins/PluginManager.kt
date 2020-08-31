@@ -8,7 +8,7 @@ import bundles.SimpleProperty
 import hextant.main.plugins.PluginManager.DisableConfirmation.*
 import hextant.plugins.*
 import kollektion.MultiMap
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import reaktive.event.event
 import java.util.*
 
@@ -31,27 +31,27 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
 
     fun enabledPlugins(): Set<Plugin> = enabled
 
-    fun getPlugin(id: String) = plugins.getOrPut(id) { Plugin(id, marketplace) }
+    fun getPlugin(id: String) = plugins.getOrPut(id) { Plugin(id, marketplace, GlobalScope) }
 
-    private fun addPlugin(plugin: Plugin): Boolean {
+    private suspend fun addPlugin(plugin: Plugin): Boolean {
         if (!enabled.add(plugin)) return false
         enable.fire(plugin)
         val info = plugin.info
-        for (dep in info.dependencies) dependentOn[dep.id].add(plugin)
+        for (dep in info.await().dependencies) dependentOn[dep.id].add(plugin)
         return true
     }
 
-    private fun removePlugin(plugin: Plugin) {
+    private suspend fun removePlugin(plugin: Plugin) {
         enabled.remove(plugin)
         requiredByUser.remove(plugin)
         disable.fire(plugin)
         val info = plugin.info
-        for (dep in info.dependencies) {
+        for (dep in info.await().dependencies) {
             dependentOn[dep.id].remove(plugin)
         }
     }
 
-    private fun getDependencies(
+    private suspend fun getDependencies(
         plugin: Plugin,
         deps: MutableSet<Plugin>,
         stack: MutableSet<Plugin>
@@ -60,7 +60,7 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
             val cycle = "${stack.joinToString(" -> ")} -> $plugin"
             throw PluginException("Cycle in plugin dependencies: $cycle")
         }
-        for ((id) in plugin.info.dependencies) {
+        for ((id) in plugin.info.await().dependencies) {
             val pl = getPlugin(id)
             if (pl in enabled) return
             if (!deps.add(pl)) continue
@@ -75,9 +75,9 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         }
     }
 
-    private fun disableDependencies(
+    private suspend fun disableDependencies(
         plugin: Plugin,
-        confirm: (Plugin) -> DisableConfirmation
+        confirm: suspend (Plugin) -> DisableConfirmation
     ): Set<Plugin> {
         val removed = mutableSetOf<Plugin>()
         val q: Queue<Plugin> = LinkedList()
@@ -102,7 +102,7 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
             if (disable) {
                 removed.add(p)
                 removePlugin(p)
-                for ((id) in p.info.dependencies) {
+                for ((id) in p.info.await().dependencies) {
                     val pl = getPlugin(id)
                     if (dependentOn[id].isEmpty()) q.offer(pl)
                 }
@@ -111,19 +111,32 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         return removed
     }
 
-    suspend fun enable(plugin: Plugin, confirm: (Set<Plugin>) -> Boolean): Collection<Plugin>? {
+    fun enable(plugin: Plugin, confirm: suspend (Set<Plugin>) -> Boolean): Collection<Plugin>? = runBlocking {
         val deps = mutableSetOf<Plugin>()
         getDependencies(plugin, deps, mutableSetOf())
         val enable = deps + plugin
         val newAspects = requestedAspects(enable)
         val newFeatures = requestedFeatures(enable)
-        val ownImplementations = plugin.implementations.mapTo(mutableSetOf()) { (_, aspect, feature) ->
-            ImplementationRequest(aspect, feature)
-        }
+        val ownImplementations = enable.map { it.implementations.await() }.flatten()
+            .mapTo(mutableSetOf()) { (_, aspect, feature) -> ImplementationRequest(aspect, feature) }
         val requiredImpls = getRequiredImplementations(newAspects, newFeatures, ownImplementations)
-        if (deps.isNotEmpty() && !confirm(deps)) return null
+        if (deps.isNotEmpty() && !confirm(deps)) return@runBlocking null
         aspects.putAll(newAspects)
         features.putAll(newFeatures)
+        addImplementations(requiredImpls)
+        requiredByUser.add(plugin)
+        for (pl in enable) addPlugin(pl)
+        downloadEnabled(enable)
+        enable
+    }
+
+    private suspend fun downloadEnabled(enable: Set<Plugin>) = coroutineScope {
+        for (pl in enable) {
+            launch { marketplace.getJarFile(pl.id) }
+        }
+    }
+
+    private suspend fun addImplementations(requiredImpls: Set<Pair<Aspect, Feature>>) = coroutineScope {
         for ((aspect, feature) in requiredImpls) {
             val impl = requireImplementation(aspect, feature) ?: continue
             val bundle = impl.bundle
@@ -136,37 +149,29 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
                 }
             } else implementation[req] = null
         }
-        requiredByUser.add(plugin)
-        for (pl in enable) addPlugin(pl)
-        for (pl in enable) {
-            marketplace.getJarFile(pl.id)
-        }
-        return enable
     }
 
-    suspend fun enable(id: String) {
+    fun enable(id: String) {
         enable(getPlugin(id)) { true }
     }
 
     fun enableAll(ids: Iterable<String>) {
-        runBlocking {
-            for (id in ids) {
-                enable(id)
-            }
+        for (id in ids) {
+            enable(id)
         }
     }
 
-    private fun requestedFeatures(enable: Set<Plugin>): MultiMap<String, Feature> {
+    private suspend fun requestedFeatures(enable: Set<Plugin>): MultiMap<String, Feature> {
         val newFeatures = MultiMap<String, Feature>()
-        for (feature in enable.flatMap { it.features }) {
+        for (feature in enable.flatMap { it.features.await() }) {
             for (t in feature.supertypes) newFeatures.getOrPut(t) { mutableSetOf() }.add(feature)
         }
         return newFeatures
     }
 
-    private fun requestedAspects(enable: Set<Plugin>): MultiMap<String, Aspect> {
+    private suspend fun requestedAspects(enable: Set<Plugin>): MultiMap<String, Aspect> {
         val newAspects = MultiMap<String, Aspect>()
-        for (aspect in enable.flatMap { it.aspects }) {
+        for (aspect in enable.flatMap { it.aspects.await() }) {
             newAspects[aspect.target].add(aspect)
         }
         return newAspects
@@ -176,22 +181,23 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         newAspects: MultiMap<String, Aspect>,
         newFeatures: MultiMap<String, Feature>,
         ownImplementations: Set<ImplementationRequest>
-    ): Set<Pair<Aspect, Feature>> {
+    ): Set<Pair<Aspect, Feature>> = coroutineScope {
         val requiredImpls = mutableSetOf<Pair<Aspect, Feature>>()
         for (aspect in newAspects.values.flatten()) {
             for (feature in features[aspect.target] + newFeatures[aspect.target]) {
-                addRequiredImplementation(aspect, feature, ownImplementations, requiredImpls)
+                launch { addRequiredImplementation(aspect, feature, ownImplementations, requiredImpls) }
             }
         }
         for (feature in newFeatures.values.flatten()) {
             for (t in feature.supertypes) {
                 for (aspect in aspects[t] + newAspects[t]) {
-                    addRequiredImplementation(aspect, feature, ownImplementations, requiredImpls)
+                    launch { addRequiredImplementation(aspect, feature, ownImplementations, requiredImpls) }
                 }
             }
         }
-        return requiredImpls
+        requiredImpls
     }
+
 
     private suspend fun addRequiredImplementation(
         aspect: Aspect,
@@ -219,25 +225,25 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
 
     fun disable(
         plugin: Plugin,
-        confirm: (Set<Plugin>) -> Boolean,
-        askDisable: (Plugin) -> DisableConfirmation
-    ): Collection<Plugin>? {
+        confirm: suspend (Set<Plugin>) -> Boolean,
+        askDisable: suspend (Plugin) -> DisableConfirmation
+    ): Collection<Plugin>? = runBlocking {
         val removed = mutableSetOf<Plugin>()
         getDependents(plugin, removed)
         val req = removed.find { it.id in requiredPlugins } ?: plugin.takeIf { it.id in requiredPlugins }
-        if (req != null) throw PluginException("Cannot disable plugin ${req.info.name} as it is required")
-        if (removed.isNotEmpty() && !confirm(removed)) return null
+        if (req != null) throw PluginException("Cannot disable plugin ${req.info.await().name} as it is required")
+        if (removed.isNotEmpty() && !confirm(removed)) return@runBlocking null
         for (pl in removed) removePlugin(pl)
         val disabled = disableDependencies(plugin, askDisable)
         removed.addAll(disabled)
         for (p in removed) {
-            for (aspect in p.aspects) {
+            for (aspect in p.aspects.await()) {
                 aspects[aspect.target].remove(aspect)
                 for (feature in features[aspect.target]) {
                     disableImplementation(aspect, feature)
                 }
             }
-            for (feature in p.features) {
+            for (feature in p.features.await()) {
                 for (t in feature.supertypes) {
                     features[t].remove(feature)
                     for (aspect in aspects[t]) {
@@ -245,11 +251,11 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
                     }
                 }
             }
-            for ((_, a, f) in p.implementations) {
+            for ((_, a, f) in p.implementations.await()) {
                 implementation.remove(ImplementationRequest(a, f))
             }
         }
-        return removed
+        removed
     }
 
     private fun disableImplementation(aspect: Aspect, feature: Feature) {

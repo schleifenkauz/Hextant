@@ -2,6 +2,8 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("SimplifiableCallChain")
+
 package hextant.main.view
 
 import bundles.Bundle
@@ -56,15 +58,15 @@ internal class PluginsEditorControl @ProvideImplementation(ControlFactory::class
     override fun createDefaultRoot(): HBox =
         HBox(VBox(availableSearchField, availableList), VBox(enabledSearchField, enabledList))
 
-    override fun confirmEnable(enabled: Collection<Plugin>): Boolean {
-        val alert = Alert(CONFIRMATION, enabled.joinToString("\n") { it.info.name })
+    override suspend fun confirmEnable(enabled: Collection<Plugin>): Boolean {
+        val alert = Alert(CONFIRMATION, enabled.map { it.info.await().name }.joinToString("\n"))
         alert.headerText = "Confirm enabling dependencies"
         val result = alert.showAndWait().orElse(ButtonType.CANCEL)
         return result == ButtonType.OK
     }
 
-    override fun confirmDisable(disabled: Collection<Plugin>): Boolean {
-        val alert = Alert(CONFIRMATION, disabled.joinToString("\n") { it.info.name })
+    override suspend fun confirmDisable(disabled: Collection<Plugin>): Boolean {
+        val alert = Alert(CONFIRMATION, disabled.map { it.info.await().name }.joinToString("\n"))
         alert.headerText = "This will disable the following dependent plugins"
         val result = alert.showAndWait().orElse(ButtonType.CANCEL)
         return result == ButtonType.OK
@@ -74,9 +76,9 @@ internal class PluginsEditorControl @ProvideImplementation(ControlFactory::class
         Alert(ERROR, message).show()
     }
 
-    override fun askDisable(plugin: Plugin): DisableConfirmation {
-        val alert =
-            Alert(CONFIRMATION, "Plugin ${plugin.info.name} is not needed anymore, disable it?", YES, NO, ALL, NONE)
+    override suspend fun askDisable(plugin: Plugin): DisableConfirmation {
+        val message = "Plugin ${plugin.info.await().name} is not needed anymore, disable it?"
+        val alert = Alert(CONFIRMATION, message, YES, NO, ALL, NONE)
         return when (alert.showAndWait().orElse(NO)) {
             YES -> DisableConfirmation.Yes
             NO -> DisableConfirmation.No
@@ -103,7 +105,7 @@ internal class PluginsEditorControl @ProvideImplementation(ControlFactory::class
                 tooltip = null
                 return
             }
-            val (_, name, author, _, description) = item.info
+            val (_, name, author, _, description) = runBlocking { item.info.await() }
             text = "$name by $author"
             tooltip = Tooltip(description)
         }

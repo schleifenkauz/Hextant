@@ -12,7 +12,7 @@ import hextant.main.plugins.PluginManager
 import hextant.main.view.PluginsEditorView
 import hextant.plugins.Plugin
 import hextant.plugins.PluginInfo.Type
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import reaktive.value.reactiveValue
 import validated.valid
 
@@ -25,13 +25,15 @@ internal class PluginsEditor(
 
     fun enable(plugin: Plugin, view: PluginsEditorView) {
         val activated = try {
-            runBlocking { manager.enable(plugin, view::confirmEnable) } ?: return
+            manager.enable(plugin, view::confirmEnable) ?: return
         } catch (e: PluginException) {
             return view.alertError(e.message!!)
         }
         views {
-            available.removeAll(activated)
-            enabled.addAll(activated.filter { it.matches(enabledSearchText) })
+            GlobalScope.launch {
+                available.removeAll(activated)
+                enabled.addAll(activated.filter { it.matches(enabledSearchText) })
+            }
         }
     }
 
@@ -41,25 +43,31 @@ internal class PluginsEditor(
         } catch (e: PluginException) {
             return view.alertError(e.message!!)
         }
+
         views {
-            available.addAll(disabled.filter { it.matches(availableSearchText) })
-            enabled.removeAll(disabled)
+            GlobalScope.launch {
+                available.addAll(disabled.filter { it.matches(availableSearchText) })
+                enabled.removeAll(disabled)
+            }
         }
     }
 
     fun searchInAvailable(view: PluginsEditorView) {
-        val marketplace = context[marketplace]
-        val available = runBlocking {
-            marketplace.getPlugins(view.availableSearchText, LIMIT, types, manager.enabledIds())
+        GlobalScope.launch {
+            val marketplace = context[marketplace]
+            withContext(Dispatchers.Default) { }
+            val available = marketplace.getPlugins(view.availableSearchText, LIMIT, types, manager.enabledIds())
+            view.available.clear()
+            view.available.addAll(available.map { id -> manager.getPlugin(id) })
         }
-        view.available.clear()
-        view.available.addAll(available.map { id -> manager.getPlugin(id) })
     }
 
     fun searchInEnabled(view: PluginsEditorView) {
-        val enabled = manager.enabledPlugins().filter { it.matches(view.enabledSearchText) }
-        view.enabled.clear()
-        view.enabled.addAll(enabled)
+        GlobalScope.launch {
+            val enabled = manager.enabledPlugins().filter { it.matches(view.enabledSearchText) }
+            view.enabled.clear()
+            view.enabled.addAll(enabled)
+        }
     }
 
     override fun viewAdded(view: PluginsEditorView) {
@@ -67,9 +75,9 @@ internal class PluginsEditor(
         searchInAvailable(view)
     }
 
-    private fun Plugin.matches(searchText: String): Boolean {
-        if (info.type !in types) return false
-        return info.name.matches(searchText) || info.author.matches(searchText) || id.matches(searchText)
+    private suspend fun Plugin.matches(searchText: String): Boolean {
+        if (info.await().type !in types) return false
+        return info.await().name.matches(searchText) || info.await().author.matches(searchText) || id.matches(searchText)
     }
 
     private fun String.matches(searchText: String) = startsWith(searchText)

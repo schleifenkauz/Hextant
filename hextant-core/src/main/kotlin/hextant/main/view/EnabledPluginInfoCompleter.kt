@@ -10,6 +10,7 @@ import hextant.completion.ConfiguredCompleter
 import hextant.context.Context
 import hextant.main.plugins.PluginManager
 import hextant.plugins.PluginInfo
+import kotlinx.coroutines.runBlocking
 
 internal object EnabledPluginInfoCompleter : ConfiguredCompleter<Context, PluginInfo>(CompletionStrategy.simple) {
     override fun extractText(context: Context, item: PluginInfo): String? = item.id
@@ -20,5 +21,5 @@ internal object EnabledPluginInfoCompleter : ConfiguredCompleter<Context, Plugin
     }
 
     override fun completionPool(context: Context): Collection<PluginInfo> =
-        context[PluginManager].enabledPlugins().map { it.info }
+        runBlocking { context[PluginManager].enabledPlugins().map { it.info.await() } }
 }

@@ -17,7 +17,6 @@ import hextant.main.plugins.PluginManager
 import hextant.plugins.LocatedProjectType
 import hextant.plugins.PluginInfo.Type.Language
 import hextant.plugins.PluginInfo.Type.Local
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import validated.ifInvalid
@@ -31,9 +30,7 @@ internal class ProjectManager(private val globalContext: Context) {
         val required = listOf(projectType.pluginId)
         val marketplace = globalContext[marketplace]
         val manager = PluginManager(marketplace, required)
-        runBlocking {
-            for (id in required) manager.enable(id)
-        }
+        manager.enableAll(required)
         val editor = PluginsEditor(launcherContext, manager, setOf(Local, Language))
         val plugins = getUserInput(editor).ifInvalid { return }.map { it.id }
         val dest = globalContext[GlobalDirectory][PROJECTS].resolve(projectName)
