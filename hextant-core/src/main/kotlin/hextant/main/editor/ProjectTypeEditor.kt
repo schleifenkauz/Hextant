@@ -11,6 +11,7 @@ import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.main.HextantPlatform.marketplace
 import hextant.plugins.LocatedProjectType
+import kotlinx.coroutines.runBlocking
 import validated.*
 
 internal class ProjectTypeEditor @ProvideImplementation(EditorFactory::class) constructor(
@@ -23,7 +24,7 @@ internal class ProjectTypeEditor @ProvideImplementation(EditorFactory::class) co
 
     override fun compile(token: String): Validated<LocatedProjectType> {
         if (token.isBlank()) return invalidComponent()
-        val pt = context[marketplace].getProjectType(token)
+        val pt = runBlocking { context[marketplace].getProjectType(token) }
         return pt.validated { invalid("No project type with name '$token' found") }
     }
 }

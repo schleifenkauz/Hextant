@@ -86,7 +86,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         if (isExpanded.now) return false
         val editors = command.parameters.map { p ->
             @Suppress("UNCHECKED_CAST") val v =
-                if (p.editWith != null) p.editWith.getSimpleEditorConstructor().invoke(context) as Editor<Any>
+                if (p.editWith != null) p.editWith.invoke(context) as Editor<Any>
                 else context.createEditor(p.type)
             v.makeRoot()
             v

@@ -67,8 +67,6 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     val text: ReactiveValue<String?> get() = _text
 
-    private val constructor by lazy { this::class.getSimpleEditorConstructor() }
-
     @Suppress("UNCHECKED_CAST")
     private val editorClass by lazy { getTypeArgument(Expander::class, 1) }
 

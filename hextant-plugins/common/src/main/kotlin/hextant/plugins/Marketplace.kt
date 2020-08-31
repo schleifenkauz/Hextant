@@ -7,18 +7,23 @@ package hextant.plugins
 import java.io.File
 
 interface Marketplace {
-    fun getPlugins(searchText: String, limit: Int, types: Set<PluginInfo.Type>, excluded: Set<String>): List<String>
+    suspend fun getPlugins(
+        searchText: String,
+        limit: Int,
+        types: Set<PluginInfo.Type>,
+        excluded: Set<String>
+    ): List<String>
 
-    fun getImplementation(aspect: String, feature: String): ImplementationCoord?
+    suspend fun getImplementation(aspect: String, feature: String): ImplementationCoord?
 
-    fun availableProjectTypes(): List<LocatedProjectType>
+    suspend fun availableProjectTypes(): List<LocatedProjectType>
 
-    fun getProjectType(name: String): LocatedProjectType?
+    suspend fun getProjectType(name: String): LocatedProjectType?
 
-    fun getJarFile(id: String): File?
+    suspend fun getJarFile(id: String): File?
 
-    fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T?
+    suspend fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T?
 
-    fun upload(jar: File)
+    suspend fun upload(jar: File)
 }
 

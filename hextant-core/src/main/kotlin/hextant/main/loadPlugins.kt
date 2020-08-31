@@ -14,18 +14,21 @@ import hextant.plugin.PluginBuilder.Phase.Disable
 import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.plugin.PluginInitializer
 import hextant.plugins.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import reaktive.Observer
 import kotlin.reflect.full.createInstance
 
 internal fun loadPlugins(plugins: List<String>, context: Context, phase: Phase, project: Editor<*>?) {
-    for (id in plugins) {
-        loadPlugin(id, context, phase, project)
+    runBlocking {
+        for (id in plugins) {
+            loadPlugin(id, context, phase, project)
+        }
     }
 }
 
-internal fun loadPlugin(id: String, context: Context, phase: Phase, project: Editor<*>?) {
+internal suspend fun loadPlugin(id: String, context: Context, phase: Phase, project: Editor<*>?) {
     val marketplace = context[marketplace]
     val aspects = context[Aspects]
     if (project == null) {
@@ -40,7 +43,7 @@ internal fun loadPlugin(id: String, context: Context, phase: Phase, project: Edi
     initializer?.apply(context, phase, project)
 }
 
-private fun getInitializer(context: Context, id: String): PluginInitializer? {
+private suspend fun getInitializer(context: Context, id: String): PluginInitializer? {
     val plugin = context[marketplace].get(PluginProperty.info, id) ?: error("Unknown plugin '$id'")
     return createInitializer(context, plugin)
 }
@@ -56,7 +59,7 @@ private fun createInitializer(
     return initializer
 }
 
-internal fun disablePlugin(id: String, context: Context, project: Editor<*>) {
+internal suspend fun disablePlugin(id: String, context: Context, project: Editor<*>) {
     val initializer = getInitializer(context, id)
     if (initializer != null) {
         initializer.apply(context, Disable, project = null)
@@ -83,8 +86,10 @@ fun initializePluginsFromClasspath(context: Context) {
 
 internal fun PluginManager.autoLoadAndUnloadPluginsOnChange(context: Context, project: Editor<*>): Observer =
     enabledPlugin.observe { _, plugin ->
-        loadPlugin(plugin.id, context, Initialize, project = null)
-        loadPlugin(plugin.id, context, Initialize, project)
+        runBlocking {
+            loadPlugin(plugin.id, context, Initialize, project = null)
+            loadPlugin(plugin.id, context, Initialize, project)
+        }
     } and disabledPlugin.observe { _, plugin ->
-        disablePlugin(plugin.id, context, project)
+        runBlocking { disablePlugin(plugin.id, context, project) }
     }

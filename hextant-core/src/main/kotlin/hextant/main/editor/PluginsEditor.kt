@@ -12,6 +12,7 @@ import hextant.main.plugins.PluginManager
 import hextant.main.view.PluginsEditorView
 import hextant.plugins.Plugin
 import hextant.plugins.PluginInfo.Type
+import kotlinx.coroutines.runBlocking
 import reaktive.value.reactiveValue
 import validated.valid
 
@@ -24,7 +25,7 @@ internal class PluginsEditor(
 
     fun enable(plugin: Plugin, view: PluginsEditorView) {
         val activated = try {
-            manager.enable(plugin, view::confirmEnable) ?: return
+            runBlocking { manager.enable(plugin, view::confirmEnable) } ?: return
         } catch (e: PluginException) {
             return view.alertError(e.message!!)
         }
@@ -48,7 +49,9 @@ internal class PluginsEditor(
 
     fun searchInAvailable(view: PluginsEditorView) {
         val marketplace = context[marketplace]
-        val available = marketplace.getPlugins(view.availableSearchText, LIMIT, types, manager.enabledIds())
+        val available = runBlocking {
+            marketplace.getPlugins(view.availableSearchText, LIMIT, types, manager.enabledIds())
+        }
         view.available.clear()
         view.available.addAll(available.map { id -> manager.getPlugin(id) })
     }

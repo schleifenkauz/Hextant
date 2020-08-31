@@ -8,7 +8,6 @@ import bundles.SimpleProperty
 import hextant.main.plugins.PluginManager.DisableConfirmation.*
 import hextant.plugins.*
 import kollektion.MultiMap
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import reaktive.event.event
 import java.util.*
@@ -112,7 +111,7 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         return removed
     }
 
-    fun enable(plugin: Plugin, confirm: (Set<Plugin>) -> Boolean): Collection<Plugin>? {
+    suspend fun enable(plugin: Plugin, confirm: (Set<Plugin>) -> Boolean): Collection<Plugin>? {
         val deps = mutableSetOf<Plugin>()
         getDependencies(plugin, deps, mutableSetOf())
         val enable = deps + plugin
@@ -139,18 +138,22 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         }
         requiredByUser.add(plugin)
         for (pl in enable) addPlugin(pl)
-        runBlocking {
-            for (pl in enable) {
-                launch {
-                    marketplace.getJarFile(pl.id)
-                }
-            }
+        for (pl in enable) {
+            marketplace.getJarFile(pl.id)
         }
         return enable
     }
 
-    fun enable(id: String) {
+    suspend fun enable(id: String) {
         enable(getPlugin(id)) { true }
+    }
+
+    fun enableAll(ids: Iterable<String>) {
+        runBlocking {
+            for (id in ids) {
+                enable(id)
+            }
+        }
     }
 
     private fun requestedFeatures(enable: Set<Plugin>): MultiMap<String, Feature> {
@@ -169,7 +172,7 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         return newAspects
     }
 
-    private fun getRequiredImplementations(
+    private suspend fun getRequiredImplementations(
         newAspects: MultiMap<String, Aspect>,
         newFeatures: MultiMap<String, Feature>,
         ownImplementations: Set<ImplementationRequest>
@@ -190,7 +193,7 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         return requiredImpls
     }
 
-    private fun addRequiredImplementation(
+    private suspend fun addRequiredImplementation(
         aspect: Aspect,
         feature: Feature,
         ownImplementations: Set<ImplementationRequest>,
@@ -203,7 +206,7 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         requiredImpls.add(Pair(aspect, feature))
     }
 
-    private fun requireImplementation(
+    private suspend fun requireImplementation(
         aspect: Aspect,
         feature: Feature
     ): ImplementationCoord? {

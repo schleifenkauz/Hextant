@@ -10,15 +10,15 @@ interface CompletionStrategy {
     /**
      * Match the given input string and the [completion] and return a [CompletionResult].
      */
-    fun match(now: String, completion: String): CompletionResult
+    fun match(input: String, completion: String): CompletionResult
 
     private object Simple : CompletionStrategy {
-        override fun match(now: String, completion: String): CompletionResult {
+        override fun match(input: String, completion: String): CompletionResult {
             //if (now == completion) return NoMatch
             var completionRegionStart = 0
             var completionIdx = -1
             val matchedRegions = mutableListOf<IntRange>()
-            outer@ for (n in now) {
+            outer@ for (n in input) {
                 //search associated character in completion
                 inner@ while (true) {
                     completionIdx++
@@ -42,12 +42,12 @@ interface CompletionStrategy {
         private val isSeparator: Char.() -> Boolean,
         private val charEquality: (Char, Char) -> Boolean
     ) : CompletionStrategy {
-        override fun match(now: String, completion: String): CompletionResult {
-            if (now == completion) return NoMatch
+        override fun match(input: String, completion: String): CompletionResult {
+            if (input == completion) return NoMatch
             var completionRegionStart = 0
             var completionIdx = -1
             val matchedRegions = mutableListOf<IntRange>()
-            for (n: Char in now) {
+            for (n: Char in input) {
                 completionIdx++
                 if (completionIdx >= completion.length) return NoMatch
                 var c = completion[completionIdx]

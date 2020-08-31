@@ -55,8 +55,6 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         view.displayText(text.now)
     }
 
-    private val constructor = this::class.getSimpleEditorConstructor()
-
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
     /**

@@ -66,7 +66,7 @@ internal class ProjectOpener(private val project: File, private val globalContex
         val project = Project(editor, context, project.toPath())
         context[Project] = project
         val manager = PluginManager(globalContext[marketplace], info.requiredPlugins)
-        for (id in info.enabledPlugins) manager.enable(id)
+        manager.enableAll(info.enabledPlugins)
         val obs = manager.autoLoadAndUnloadPluginsOnChange(context, editor)
         observers.add(obs)
         context[PluginManager] = manager

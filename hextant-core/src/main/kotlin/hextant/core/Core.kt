@@ -5,13 +5,15 @@ import hextant.command.line.CommandLine
 import hextant.config.disable
 import hextant.config.enable
 import hextant.context.Context
+import hextant.context.createControl
 import hextant.core.editor.ValidatedTokenEditor
 import hextant.fx.HextantStage
 import hextant.main.HextantPlatform
 import hextant.main.HextantPlatform.launcher
 import hextant.main.Project
-import hextant.main.editor.PluginsEditor
+import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
+import hextant.main.view.PluginsEditorView
 import hextant.plugin.*
 import hextant.plugins.PluginInfo
 import hextant.undo.UndoManager
@@ -78,8 +80,46 @@ internal object Core : PluginInitializer({
         applicableIf { ctx -> ctx.hasProperty(PluginManager) }
         executing { ctx, _ ->
             val manager = ctx[PluginManager]
-            val editor = PluginsEditor(context, manager, PluginInfo.Type.values().toSet())
+            val editor = PluginsEditor(context, manager, PluginInfo.Type.all)
             HextantStage(editor).show()
+        }
+    }
+    registerCommand<Context, Unit> {
+        name = "Enable plugin"
+        shortName = "enable-plugin"
+        description = "Enables a plugin"
+        type = SingleReceiver
+        applicableIf { ctx -> ctx.hasProperty(PluginManager) }
+        addParameter<PluginInfo> {
+            name = "plugin"
+            description = "The plugin that should be enabled"
+            editWith<DisabledPluginInfoEditor>()
+        }
+        executing { context, (plugin) ->
+            plugin as PluginInfo
+            val manager = context[PluginManager]
+            val editor = PluginsEditor(context, manager, PluginInfo.Type.all)
+            val view = context.createControl(editor) as PluginsEditorView
+            editor.enable(manager.getPlugin(plugin.id), view)
+        }
+    }
+    registerCommand<Context, Unit> {
+        name = "Disable plugin"
+        shortName = "disable-plugin"
+        description = "Disables a plugin"
+        type = SingleReceiver
+        applicableIf { ctx -> ctx.hasProperty(PluginManager) }
+        addParameter<PluginInfo> {
+            name = "plugin"
+            description = "The plugin that should be disabled"
+            editWith<EnabledPluginInfoEditor>()
+        }
+        executing { context, (plugin) ->
+            plugin as PluginInfo
+            val manager = context[PluginManager]
+            val editor = PluginsEditor(context, manager, PluginInfo.Type.all)
+            val view = context.createControl(editor) as PluginsEditorView
+            editor.disable(manager.getPlugin(plugin.id), view)
         }
     }
     registerCommand<Editor<*>, String> {

@@ -6,6 +6,8 @@ package hextant.command.meta
 
 import hextant.command.*
 import hextant.command.Command.Category
+import hextant.core.Editor
+import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.shortcut
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.*
@@ -70,10 +72,15 @@ private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any {
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 private fun KParameter.extractParameter(): Command.Parameter {
     val ann = findAnnotation<CommandParameter>()
     val name = ann?.name?.takeIf { it != DEFAULT } ?: this.name ?: throw Exception("Parameter $this has no name")
     val desc = ann?.description?.takeIf { it != NONE } ?: "No description provided"
-    val editWith = ann?.editWith?.takeIf { it != Default::class }
-    return Command.Parameter(name, type.jvmErasure, desc, editWith)
+    val editWith = ann?.editWith?.takeIf { it != Default::class } as? KClass<out Editor<*>>
+    val constructor = editWith?.getSimpleEditorConstructor()
+    return Command.Parameter(
+        name, type.jvmErasure, desc,
+        constructor
+    )
 }

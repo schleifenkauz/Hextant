@@ -10,7 +10,7 @@ kapt {
 
 task hextantPublish(type: Copy) {
     from jar.outputs.files
-    into 'C:/Users/Nikolaus Knop/hextant/plugin-cache'
+    into 'C:/Users/Nikolaus Knop/hextant/plugins'
     rename '(.+)', "sample.jar"
 }
 

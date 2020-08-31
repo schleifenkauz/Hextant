@@ -50,9 +50,15 @@ data class PluginInfo(
     val initializer: String? = null,
     val dependencies: List<Dependency> = emptyList()
 ) {
+    override fun toString(): String = id
+
     @Serializable
     enum class Type {
-        Library, Language, Global, Local
+        Library, Language, Global, Local;
+
+        companion object {
+            val all = values().toSet()
+        }
     }
 }
 

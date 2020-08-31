@@ -7,6 +7,8 @@ package hextant.plugins.server
 import hextant.plugins.*
 import hextant.plugins.PluginInfo.Type
 import kollektion.Trie
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import java.io.File
@@ -65,7 +67,7 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
         trie.insert(info.name, info)
     }
 
-    override fun getPlugins(
+    override suspend fun getPlugins(
         searchText: String,
         limit: Int,
         types: Set<Type>,
@@ -85,30 +87,31 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
         return result.toList()
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? {
-        val file = getJarFile(pluginId) ?: return null
-        JarFile(file).use { jar ->
-            val entry = jar.getEntry("${property.name}.json") ?: return null
-            val text = jar.getInputStream(entry).bufferedReader().readText()
-            return Json.decodeFromString(serializer(property.type), text) as T
+    @Suppress("UNCHECKED_CAST", "BlockingMethodInNonBlockingContext")
+    override suspend fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? =
+        withContext(Dispatchers.IO) {
+            val file = getJarFile(pluginId) ?: return@withContext null
+            JarFile(file).use { jar ->
+                val entry = jar.getEntry("${property.name}.json") ?: return@use null
+                val text = jar.getInputStream(entry).bufferedReader().readText()
+                Json.decodeFromString(serializer(property.type), text) as T
+            }
         }
-    }
 
-    override fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
+    override suspend fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
         implementations[aspect]?.get(feature)
 
-    override fun availableProjectTypes(): List<LocatedProjectType> = projectTypes.values.toList()
+    override suspend fun availableProjectTypes(): List<LocatedProjectType> = projectTypes.values.toList()
 
-    override fun getProjectType(name: String): LocatedProjectType? = projectTypes[name]
+    override suspend fun getProjectType(name: String): LocatedProjectType? = projectTypes[name]
 
-    override fun getJarFile(id: String): File? {
+    override suspend fun getJarFile(id: String): File? {
         val file = root.resolve("$id.jar")
         if (!file.exists()) return null
         return file
     }
 
-    override fun upload(jar: File) {
+    override suspend fun upload(jar: File) {
         uploaded(jar)
     }
 

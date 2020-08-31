@@ -54,36 +54,36 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
     @OptIn(ExperimentalStdlibApi::class)
     private inline fun <reified T> get(url: String, body: Any? = null): T? = get<T>(url, typeOf<T>(), body)
 
-    override fun getJarFile(id: String): File? {
+    override suspend fun getJarFile(id: String): File? {
         val file = downloadDirectory.resolve("$id.jar")
         if (!file.exists()) {
-            val response = runBlocking { client.get<HttpResponse>("$url/$id/download") }
+            val response = client.get<HttpResponse>("$url/$id/download")
             if (response.status == HttpStatusCode.NotFound) return null
             check(response.status == HttpStatusCode.OK) { response }
-            runBlocking { response.content.copyAndClose(file.writeChannel()) }
+            response.content.copyAndClose(file.writeChannel())
         }
         return file
     }
 
-    override fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? =
+    override suspend fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? =
         get("$url/$pluginId/${property.name}", property.type)
 
-    override fun getPlugins(
+    override suspend fun getPlugins(
         searchText: String,
         limit: Int,
         types: Set<Type>,
         excluded: Set<String>
     ): List<String> = get("$url/plugins", body = PluginSearch(searchText, limit, types, excluded))!!
 
-    override fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
+    override suspend fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
         get("$url/implementation", body = ImplementationRequest(aspect, feature))
 
-    override fun availableProjectTypes(): List<LocatedProjectType> = get("$url/projectTypes")!!
+    override suspend fun availableProjectTypes(): List<LocatedProjectType> = get("$url/projectTypes")!!
 
-    override fun getProjectType(name: String): LocatedProjectType? = get("$url/projectTypes/$name")
+    override suspend fun getProjectType(name: String): LocatedProjectType? = get("$url/projectTypes/$name")
 
     @KtorExperimentalAPI
-    override fun upload(jar: File) = runBlocking {
+    override suspend fun upload(jar: File) {
         val parts = formData {
             append(jar.nameWithoutExtension, InputProvider(jar.length()) { jar.inputStream().asInput() })
         }
