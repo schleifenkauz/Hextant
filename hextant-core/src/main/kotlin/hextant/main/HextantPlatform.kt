@@ -49,6 +49,8 @@ object HextantPlatform {
 
     internal val stage = SimpleProperty<Stage>("stage")
 
+    internal val launcher = SimpleProperty<HextantLauncher>("launcher")
+
     /**
      * Create the global context, that is, the root of all contexts.
      */

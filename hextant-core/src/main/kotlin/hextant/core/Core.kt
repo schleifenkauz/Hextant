@@ -7,7 +7,9 @@ import hextant.config.enable
 import hextant.context.Context
 import hextant.core.editor.ValidatedTokenEditor
 import hextant.fx.HextantStage
-import hextant.main.*
+import hextant.main.HextantPlatform
+import hextant.main.HextantPlatform.launcher
+import hextant.main.Project
 import hextant.main.editor.PluginsEditor
 import hextant.main.plugins.PluginManager
 import hextant.plugin.*
@@ -63,8 +65,8 @@ internal object Core : PluginInitializer({
         applicableIf { ctx -> ctx.hasProperty(Project) }
         executing { ctx, _ ->
             ctx[Project].save()
-            val loader = HextantPlatform.launcherContext[HextantClassLoader]
-            loader.executeInNewThread("hextant.main.HextantLauncher")
+            val loader = HextantPlatform.globalContext.get<Runnable>(launcher)
+            loader.run()
         }
     }
     registerCommand<Context, Unit> {

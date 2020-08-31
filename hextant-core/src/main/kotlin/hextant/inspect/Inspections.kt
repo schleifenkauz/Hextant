@@ -94,9 +94,8 @@ class Inspections private constructor() {
     fun <T : Any> getProblems(obj: T): Set<Problem<*>> = getManagerFor(obj).problems()
 
     private fun getManagerFor(obj: Any): InspectionManager {
-        instances[obj::class].add(obj)
         visitClass(obj::class)
-        if (obj !in managers) {
+        if (instances[obj::class].add(obj)) {
             managers[obj] = InspectionManager()
             for (inspection in inspections(obj::class)) {
                 addInspection(inspection as Inspection<Any>, obj)

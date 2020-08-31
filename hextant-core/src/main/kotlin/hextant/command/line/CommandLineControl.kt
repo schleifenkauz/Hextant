@@ -85,13 +85,12 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
 
     override fun addToHistory(item: HistoryItem) {
         val (command, arguments, result) = item
-        val box = HBox().withStyleClass("command-history-item")
+        val box = HBox(5.0).withStyleClass("command-history-item")
         box.isFocusTraversable = true
         box.onAction { cl.resume(command, arguments.map { (_, snapshot) -> snapshot }) }
         box.setOnMouseClicked { box.requestFocus() }
         with(box.children) {
             add(hextantLabel(command.shortName!!))
-            add(hextantLabel(" "))
             for ((param, arg) in command.parameters.zip(arguments)) {
                 add(hextantLabel(arg.first.toString()).withTooltip(param.toString()))
             }

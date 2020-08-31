@@ -20,7 +20,6 @@ import hextant.plugins.PluginInfo.Type.Local
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import validated.ifInvalid
-import java.io.File
 
 internal class ProjectManager(private val globalContext: Context) {
     @ProvideCommand("Create New Project", "create")
@@ -44,12 +43,13 @@ internal class ProjectManager(private val globalContext: Context) {
         @CommandParameter(
             description = "The opened project",
             editWith = ProjectLocationEditor::class
-        ) project: File
+        ) name: String
     ) {
-        val desc = project.resolve(GlobalDirectory.PROJECT_INFO).bufferedReader().use { r -> r.readText() }
+        val file = globalContext[GlobalDirectory].getProject(name)
+        val desc = file.resolve(GlobalDirectory.PROJECT_INFO).bufferedReader().use { r -> r.readText() }
         val (plugins) = Json.decodeFromString<ProjectInfo>(desc)
         val cl = HextantClassLoader(globalContext, plugins)
-        cl.executeInNewThread("hextant.main.ProjectOpener", project, globalContext)
+        cl.executeInNewThread("hextant.main.ProjectOpener", file, globalContext)
     }
 
     companion object : SimpleProperty<ProjectManager>("project manager")
