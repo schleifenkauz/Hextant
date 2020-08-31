@@ -115,3 +115,8 @@
 - redesign inspection API
 - connect completions to editors
 - commands via shortcuts
+
+# Aug 2020
+- Create plugin system
+- Create Aspect system
+- Create Hextant Launcher
