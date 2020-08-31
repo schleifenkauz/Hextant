@@ -18,7 +18,7 @@ import kotlin.collections.set
 internal class LocalPluginRepository(private val root: File) : Marketplace {
     private val trie = Trie<PluginInfo>()
     private val implementations = mutableMapOf<String, MutableMap<String, ImplementationCoord>>()
-    private val projectTypes = mutableListOf<LocatedProjectType>()
+    private val projectTypes = mutableMapOf<String, LocatedProjectType>()
 
     init {
         preprocess()
@@ -48,7 +48,7 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
 
     private fun addProjectTypes(pts: List<ProjectType>, id: String) {
         for ((name, clazz) in pts) {
-            projectTypes.add(LocatedProjectType(name, clazz, id))
+            projectTypes[name] = LocatedProjectType(name, clazz, id)
         }
     }
 
@@ -98,7 +98,9 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
     override fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
         implementations[aspect]?.get(feature)
 
-    override fun availableProjectTypes(): List<LocatedProjectType> = projectTypes
+    override fun availableProjectTypes(): List<LocatedProjectType> = projectTypes.values.toList()
+
+    override fun getProjectType(name: String): LocatedProjectType? = projectTypes[name]
 
     override fun getJarFile(id: String): File? {
         val file = root.resolve("$id.jar")

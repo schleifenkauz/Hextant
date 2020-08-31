@@ -64,6 +64,12 @@ private fun Application.configure(repo: LocalPluginRepository) {
         get("/projectTypes") {
             call.respond(repo.availableProjectTypes())
         }
+        get("/projectTypes/{name}") {
+            val name = call.parameters["name"]!!
+            val pt = repo.getProjectType(name)
+            if (pt == null) call.respond(NotFound, "No project types with name '$name'")
+            else call.respond(pt)
+        }
         get("/{id}/plugin") {
             call.respondProperty(repo, info)
         }

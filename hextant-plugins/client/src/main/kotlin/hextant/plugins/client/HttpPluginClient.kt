@@ -80,6 +80,8 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
 
     override fun availableProjectTypes(): List<LocatedProjectType> = get("$url/projectTypes")!!
 
+    override fun getProjectType(name: String): LocatedProjectType? = get("$url/projectTypes/$name")
+
     @KtorExperimentalAPI
     override fun upload(jar: File) = runBlocking {
         val parts = formData {

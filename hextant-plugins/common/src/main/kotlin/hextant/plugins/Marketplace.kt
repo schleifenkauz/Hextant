@@ -13,6 +13,8 @@ interface Marketplace {
 
     fun availableProjectTypes(): List<LocatedProjectType>
 
+    fun getProjectType(name: String): LocatedProjectType?
+
     fun getJarFile(id: String): File?
 
     fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T?
