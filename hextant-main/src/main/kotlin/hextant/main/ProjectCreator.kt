@@ -5,9 +5,9 @@
 package hextant.main
 
 import hextant.context.Context
+import hextant.context.Properties.defaultContext
 import hextant.context.createOutput
 import hextant.core.Editor
-import hextant.main.HextantPlatform.defaultContext
 import hextant.main.HextantPlatform.projectContext
 import hextant.main.Main.fail
 import hextant.plugin.PluginBuilder.Phase.Enable

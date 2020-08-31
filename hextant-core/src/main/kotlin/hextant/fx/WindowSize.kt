@@ -1,8 +1,4 @@
-/**
- *@author Nikolaus Knop
- */
-
-package hextant.main
+package hextant.fx
 
 import bundles.SimpleProperty
 
@@ -31,6 +27,7 @@ sealed class WindowSize {
      * @property height the height of the window
      */
     data class Configured(val width: Double, val height: Double) : WindowSize()
+
     companion object : SimpleProperty<WindowSize>("window size") {
         override val default: WindowSize = FitContent
     }

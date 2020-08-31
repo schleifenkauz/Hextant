@@ -4,27 +4,24 @@
 
 package hextant.main
 
-import hextant.core.Core
+import hextant.context.Properties.defaultContext
 import hextant.fx.initHextantScene
-import hextant.main.HextantPlatform.globalContext
-import hextant.main.HextantPlatform.launcherContext
+import hextant.main.HextantPlatform.projectContext
 import hextant.main.HextantPlatform.stage
-import hextant.plugin.Aspects
-import hextant.plugin.PluginBuilder.Phase.Initialize
-import hextant.plugins.Implementation
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Label
 import javafx.stage.Stage
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
 
 internal class HextantApp : Application() {
     override fun start(primaryStage: Stage) {
+        val globalContext = HextantPlatform.globalContext()
         globalContext[stage] = primaryStage
-        initCore()
+        val launcherContext = defaultContext(projectContext(globalContext))
+        globalContext[ProjectManager] = ProjectManager(launcherContext)
+        initializePluginsFromClasspath(launcherContext)
         val sc = Scene(Label())
         sc.initHextantScene(launcherContext)
         primaryStage.scene = sc
@@ -32,7 +29,7 @@ internal class HextantApp : Application() {
         when (args.size) {
             0 -> {
                 val cl = HextantClassLoader(globalContext, plugins = emptyList())
-                cl.executeInNewThread("hextant.main.HextantLauncher")
+                cl.executeInNewThread("hextant.main.HextantLauncher", globalContext, launcherContext)
             }
             1 -> {
                 val name = args[0]
@@ -51,15 +48,5 @@ internal class HextantApp : Application() {
         f
     } catch (ex: IOException) {
         Main.fail("Invalid path $s")
-    }
-
-    private fun initCore() {
-        val url = javaClass.classLoader.getResource("implementations.json")!!
-        val desc = url.openStream().bufferedReader().readText()
-        val impls = Json.decodeFromString<List<Implementation>>(desc)
-        for (impl in impls) {
-            launcherContext[Aspects].addImplementation(impl)
-        }
-        Core.apply(launcherContext, Initialize, project = null)
     }
 }

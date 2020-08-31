@@ -14,7 +14,10 @@ import java.lang.ref.WeakReference
 import java.nio.file.Files
 import java.nio.file.Path
 
-internal class PhysicalFile<E : Editor<*>>(
+/**
+ * An implementation of a [VirtualFile] that is associated with a concrete physical file.
+ */
+class PhysicalFile<E : Editor<*>>(
     obj: E?,
     private val path: Path,
     private val context: Context

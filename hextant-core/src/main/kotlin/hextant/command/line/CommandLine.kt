@@ -9,7 +9,6 @@ import hextant.command.Command
 import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.*
-import hextant.main.HextantPlatform
 import hextant.serial.makeRoot
 import reaktive.Observer
 import reaktive.dependencies
@@ -130,7 +129,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         val onError = listOf("Error executing $command")
         val results = context.executeSafely("Executing $command", onError) {
             val result = source.executeCommand(command, args)
-            context[HextantPlatform.logger].fine("Executed $command")
+            context[Properties.logger].fine("Executed $command")
             result
         }
         val result = when (results.size) {

@@ -25,17 +25,9 @@ dependencies {
     compile nkb03("validated-reaktive", "0.1-SNAPSHOT")
     compile project(":hextant-codegen")
     kapt project(":hextant-codegen")
-    implementation project(":hextant-plugins:client")
     implementation kotlin("reflect")
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinx_serialization_version"
-    implementation project(":hextant-plugins:client")
     compile "org.controlsfx:controlsfx:8.40.14"
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")
-}
-
-jar {
-    manifest {
-        attributes('Main-Class': 'hextant.main.MainKt')
-    }
+    testImplementation project(":hextant-main")
 }

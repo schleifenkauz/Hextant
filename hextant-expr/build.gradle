@@ -18,4 +18,5 @@ build.finalizedBy(hextantPublish)
 dependencies {
     compile project(":hextant-core")
     kapt project(":hextant-codegen")
+    testImplementation project(":hextant-main")
 }

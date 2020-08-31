@@ -7,8 +7,8 @@ package hextant.main
 import bundles.Property
 import hextant.context.Context
 import hextant.context.Internal
+import hextant.context.Properties.defaultContext
 import hextant.fx.initHextantScene
-import hextant.main.HextantPlatform.defaultContext
 import hextant.main.HextantPlatform.projectContext
 import javafx.application.Application
 import javafx.application.Platform

@@ -4,12 +4,13 @@
 
 package hextant.main
 
+import hextant.command.Commands
 import hextant.command.line.*
 import hextant.context.*
+import hextant.context.Properties.defaultContext
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.fx.*
-import hextant.main.HextantPlatform.defaultContext
 import hextant.main.HextantPlatform.marketplace
 import hextant.main.HextantPlatform.projectContext
 import hextant.main.HextantPlatform.stage
@@ -27,6 +28,7 @@ internal class ProjectOpener(private val project: File, private val globalContex
     override fun run() {
         val info = readProjectInfo()
         val context = defaultContext(projectContext(globalContext))
+        context[Commands].registerGlobalCommands(context)
         val project = loadProject(info, context)
         val view = context.createControl(project.root)
         val src = SingleCommandSource(context, context)

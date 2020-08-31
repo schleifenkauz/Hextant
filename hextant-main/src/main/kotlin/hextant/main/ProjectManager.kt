@@ -10,7 +10,6 @@ import hextant.command.meta.ProvideCommand
 import hextant.context.Context
 import hextant.fx.getUserInput
 import hextant.main.GlobalDirectory.Companion.PROJECTS
-import hextant.main.HextantPlatform.launcherContext
 import hextant.main.HextantPlatform.marketplace
 import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
@@ -21,21 +20,21 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import validated.ifInvalid
 
-internal class ProjectManager(private val globalContext: Context) {
+internal class ProjectManager(private val context: Context) {
     @ProvideCommand("Create New Project", "create")
     fun createNewProject(
         @CommandParameter("project type") projectType: LocatedProjectType,
         @CommandParameter("project name", editWith = ProjectNameEditor::class) projectName: String
     ) {
         val required = listOf(projectType.pluginId)
-        val marketplace = globalContext[marketplace]
+        val marketplace = context[marketplace]
         val manager = PluginManager(marketplace, required)
         manager.enableAll(required)
-        val editor = PluginsEditor(launcherContext, manager, setOf(Local, Language))
+        val editor = PluginsEditor(context, manager, setOf(Local, Language))
         val plugins = getUserInput(editor).ifInvalid { return }.map { it.id }
-        val dest = globalContext[GlobalDirectory][PROJECTS].resolve(projectName)
-        val cl = HextantClassLoader(globalContext, plugins)
-        cl.executeInNewThread("hextant.main.ProjectCreator", projectType.clazz, dest, required, plugins, globalContext)
+        val dest = context[GlobalDirectory][PROJECTS].resolve(projectName)
+        val cl = HextantClassLoader(context, plugins)
+        cl.executeInNewThread("hextant.main.ProjectCreator", projectType.clazz, dest, required, plugins, context)
     }
 
     @ProvideCommand("Open Project", "open")
@@ -45,11 +44,11 @@ internal class ProjectManager(private val globalContext: Context) {
             editWith = ProjectLocationEditor::class
         ) name: String
     ) {
-        val file = globalContext[GlobalDirectory].getProject(name)
+        val file = context[GlobalDirectory].getProject(name)
         val desc = file.resolve(GlobalDirectory.PROJECT_INFO).bufferedReader().use { r -> r.readText() }
         val (plugins) = Json.decodeFromString<ProjectInfo>(desc)
-        val cl = HextantClassLoader(globalContext, plugins)
-        cl.executeInNewThread("hextant.main.ProjectOpener", file, globalContext)
+        val cl = HextantClassLoader(context, plugins)
+        cl.executeInNewThread("hextant.main.ProjectOpener", file, context)
     }
 
     companion object : SimpleProperty<ProjectManager>("project manager")

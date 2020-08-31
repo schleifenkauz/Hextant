@@ -9,10 +9,6 @@ import java.io.IOException
 import kotlin.system.exitProcess
 
 internal object Main {
-    init {
-
-    }
-
     @JvmStatic fun main(args: Array<String>) {
         System.err.println(args.joinToString(" "))
         try {

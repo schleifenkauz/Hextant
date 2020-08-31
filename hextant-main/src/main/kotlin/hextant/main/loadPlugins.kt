@@ -4,7 +4,9 @@
 
 package hextant.main
 
+import bundles.SimpleProperty
 import hextant.context.Context
+import hextant.context.createOutput
 import hextant.core.Editor
 import hextant.main.HextantPlatform.marketplace
 import hextant.main.plugins.PluginManager
@@ -16,9 +18,14 @@ import hextant.plugin.PluginInitializer
 import hextant.plugins.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import reaktive.Observer
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.isSubclassOf
 
 internal fun loadPlugins(plugins: List<String>, context: Context, phase: Phase, project: Editor<*>?) {
     runBlocking {
@@ -36,7 +43,7 @@ internal suspend fun loadPlugin(id: String, context: Context, phase: Phase, proj
         cl.addPlugin(id)
         val impls = marketplace.get(PluginProperty.implementations, id).orEmpty()
         for (impl in impls) {
-            aspects.addImplementation(impl)
+            aspects.addImplementation(impl, context[HextantClassLoader])
         }
     }
     val initializer = getInitializer(context, id)
@@ -79,7 +86,7 @@ fun initializePluginsFromClasspath(context: Context) {
     for (impls in context[HextantClassLoader].getResources("implementations.json")) {
         val implementations: List<Implementation> = Json.decodeFromString(impls.readText())
         for (impl in implementations) {
-            context[Aspects].addImplementation(impl)
+            context[Aspects].addImplementation(impl, context[HextantClassLoader])
         }
     }
 }
@@ -93,3 +100,28 @@ internal fun PluginManager.autoLoadAndUnloadPluginsOnChange(context: Context, pr
     } and disabledPlugin.observe { _, plugin ->
         runBlocking { disablePlugin(plugin.id, context, project) }
     }
+
+internal data class Project(val root: Editor<*>, val context: Context, val location: Path) {
+    fun save() {
+        val output = context.createOutput(location.resolve(GlobalDirectory.PROJECT_ROOT))
+        output.writeObject(root)
+        val manager = context[PluginManager]
+        val info = ProjectInfo(manager.enabledIds().toList(), manager.requiredPlugins)
+        val txt = Json.encodeToString(info)
+        Files.newBufferedWriter(location.resolve(GlobalDirectory.PROJECT_INFO)).use { w ->
+            w.write(txt)
+        }
+    }
+
+    companion object : SimpleProperty<Project>("project")
+}
+
+internal fun Aspects.addImplementation(implementation: Implementation, classLoader: ClassLoader) {
+    @Suppress("UNCHECKED_CAST")
+    val aspect = classLoader.loadClass(implementation.aspect).kotlin as KClass<Any>
+    val case = classLoader.loadClass(implementation.feature).kotlin
+    val impl = classLoader.loadClass(implementation.clazz).kotlin
+    check(impl.isSubclassOf(aspect)) { "invalid implementation class $impl for aspect $aspect" }
+    val instance = impl.objectInstance ?: impl.createInstance()
+    implement(aspect, case, instance)
+}

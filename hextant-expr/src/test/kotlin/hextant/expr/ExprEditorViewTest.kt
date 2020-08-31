@@ -16,7 +16,6 @@ import hextant.core.view.ViewSnapshot
 import hextant.expr.editor.ExprExpander
 import hextant.fx.*
 import hextant.main.HextantApplication
-import hextant.main.HextantPlatform
 import hextant.serial.makeRoot
 import javafx.scene.Parent
 import javafx.scene.layout.VBox
@@ -27,7 +26,7 @@ class ExprEditorViewTest : HextantApplication() {
     private val handler = VisualLoggerHandler()
 
     override fun createView(context: Context): Parent {
-        context[HextantPlatform.logger].addHandler(handler)
+        context[Properties.logger].addHandler(handler)
         val editor = ExprExpander(context)
         editor.makeRoot()
         val view = context.createControl(editor)
@@ -45,7 +44,7 @@ class ExprEditorViewTest : HextantApplication() {
                 open(editor, view)
             }
             item("Log Message") {
-                editor.context[HextantPlatform.logger].info("Information")
+                editor.context[Properties.logger].info("Information")
             }
             item("Show Log") {
                 handler.stage.show()

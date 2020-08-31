@@ -1,0 +1,22 @@
+apply plugin: HextantLibrary
+apply plugin: 'kotlinx-serialization'
+apply plugin: 'kotlin-kapt'
+
+kapt {
+    useBuildCache = true
+    annotationProcessors("hextant.codegen.MainProcessor")
+}
+
+dependencies {
+    compile project(":hextant-core")
+    kapt project(":hextant-codegen")
+    implementation kotlin("reflect")
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinx_serialization_version"
+    implementation project(":hextant-plugins:client")
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': 'hextant.main.MainKt')
+    }
+}

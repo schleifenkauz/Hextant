@@ -10,6 +10,7 @@ dependencies {
     compile project(":hextant-core")
     kapt project(":hextant-codegen")
     compileOnly project(":hextant-codegen")
+    testImplementation project(":hextant-test")
 }
 jar {
     manifest {

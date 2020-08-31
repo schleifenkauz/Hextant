@@ -34,7 +34,7 @@ internal class HextantClassLoader(
         return t
     }
 
-    companion object : SimpleProperty<HextantClassLoader>("class loader") {
+    companion object : SimpleProperty<HextantClassLoader>("hextant class loader") {
         private val systemCL = ClassLoader.getSystemClassLoader() as URLClassLoader
     }
 }

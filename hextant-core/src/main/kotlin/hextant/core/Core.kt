@@ -4,18 +4,11 @@ import hextant.command.Command.Type.SingleReceiver
 import hextant.command.line.CommandLine
 import hextant.config.disable
 import hextant.config.enable
-import hextant.context.Context
-import hextant.context.createControl
 import hextant.core.editor.ValidatedTokenEditor
-import hextant.fx.HextantStage
-import hextant.main.HextantPlatform
-import hextant.main.HextantPlatform.launcher
-import hextant.main.Project
-import hextant.main.editor.*
-import hextant.main.plugins.PluginManager
-import hextant.main.view.PluginsEditorView
+//import hextant.main.editor.*
+//import hextant.main.plugins.PluginManager
+//import hextant.main.view.PluginsEditorView
 import hextant.plugin.*
-import hextant.plugins.PluginInfo
 import hextant.undo.UndoManager
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
@@ -47,81 +40,6 @@ internal object Core : PluginInitializer({
     stylesheet("hextant/core/style.css")
     command(enable)
     command(disable)
-    registerCommand<Context, Unit> {
-        name = "Save Project"
-        shortName = "save"
-        description = "Saves the project"
-        type = SingleReceiver
-        defaultShortcut("Ctrl+S")
-        applicableIf { ctx: Context -> ctx.hasProperty(Project) }
-        executing { ctx: Context, _ ->
-            ctx[Project].save()
-        }
-    }
-    registerCommand<Context, Unit> {
-        name = "Quit"
-        shortName = "quit"
-        description = "Saves and closes the current project and opens the launcher"
-        type = SingleReceiver
-        defaultShortcut("Ctrl+Q")
-        applicableIf { ctx -> ctx.hasProperty(Project) }
-        executing { ctx, _ ->
-            ctx[Project].save()
-            val loader = HextantPlatform.globalContext.get<Runnable>(launcher)
-            loader.run()
-        }
-    }
-    registerCommand<Context, Unit> {
-        name = "Show plugin manager"
-        shortName = "plugins"
-        description = "Shows the plugin manager"
-        type = SingleReceiver
-        defaultShortcut("Ctrl+P")
-        applicableIf { ctx -> ctx.hasProperty(PluginManager) }
-        executing { ctx, _ ->
-            val manager = ctx[PluginManager]
-            val editor = PluginsEditor(context, manager, PluginInfo.Type.all)
-            HextantStage(editor).show()
-        }
-    }
-    registerCommand<Context, Unit> {
-        name = "Enable plugin"
-        shortName = "enable-plugin"
-        description = "Enables a plugin"
-        type = SingleReceiver
-        applicableIf { ctx -> ctx.hasProperty(PluginManager) }
-        addParameter<PluginInfo> {
-            name = "plugin"
-            description = "The plugin that should be enabled"
-            editWith<DisabledPluginInfoEditor>()
-        }
-        executing { context, (plugin) ->
-            plugin as PluginInfo
-            val manager = context[PluginManager]
-            val editor = PluginsEditor(context, manager, PluginInfo.Type.all)
-            val view = context.createControl(editor) as PluginsEditorView
-            editor.enable(manager.getPlugin(plugin.id), view)
-        }
-    }
-    registerCommand<Context, Unit> {
-        name = "Disable plugin"
-        shortName = "disable-plugin"
-        description = "Disables a plugin"
-        type = SingleReceiver
-        applicableIf { ctx -> ctx.hasProperty(PluginManager) }
-        addParameter<PluginInfo> {
-            name = "plugin"
-            description = "The plugin that should be disabled"
-            editWith<EnabledPluginInfoEditor>()
-        }
-        executing { context, (plugin) ->
-            plugin as PluginInfo
-            val manager = context[PluginManager]
-            val editor = PluginsEditor(context, manager, PluginInfo.Type.all)
-            val view = context.createControl(editor) as PluginsEditorView
-            editor.disable(manager.getPlugin(plugin.id), view)
-        }
-    }
     registerCommand<Editor<*>, String> {
         name = "Undo"
         shortName = "undo"

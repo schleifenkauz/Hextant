@@ -7,8 +7,8 @@ package hextant.lisp.view
 import bundles.Bundle
 import hextant.context.createControl
 import hextant.core.view.EditorControl
-import hextant.lisp.LispEditorTest.Companion.editorParentRegion
 import hextant.lisp.editor.ApplyEditor
+import hextant.lisp.view.Properties.editorParentRegion
 import javafx.beans.Observable
 import javafx.scene.layout.*
 

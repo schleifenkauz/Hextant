@@ -5,7 +5,6 @@ import hextant.core.Editor
 import hextant.core.editor.BidirectionalEditor
 import hextant.core.view.EditorControl
 import hextant.generated.createEditor
-import hextant.main.HextantPlatform
 import hextant.plugin.Aspects
 import hextant.serial.SerialProperties
 import kserial.*
@@ -95,6 +94,6 @@ inline fun <T> Context.executeSafely(description: String, onError: T, action: ()
     action()
 } catch (ex: Throwable) {
     val msg = "Exception while $description: ${ex.message}"
-    get(HextantPlatform.logger).log(Level.SEVERE, msg, ex)
+    get(Properties.logger).log(Level.SEVERE, msg, ex)
     onError
 }

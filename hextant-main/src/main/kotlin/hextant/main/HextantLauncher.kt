@@ -2,26 +2,25 @@ package hextant.main
 
 import hextant.command.line.CommandLine
 import hextant.command.line.SingleCommandSource
+import hextant.context.Context
 import hextant.context.createControl
 import hextant.fx.*
-import hextant.main.HextantPlatform.globalContext
 import hextant.main.HextantPlatform.launcher
-import hextant.main.HextantPlatform.launcherContext
 import hextant.main.HextantPlatform.stage
 import javafx.geometry.Pos.CENTER
 import javafx.scene.control.Label
 import javafx.scene.text.Font
 
-internal class HextantLauncher : Runnable {
+internal class HextantLauncher(global: Context, private val context: Context) : Runnable {
     init {
-        globalContext[launcher] = this
+        global[launcher] = this
     }
 
     private val commandLine = run {
-        val receiver = launcherContext[ProjectManager]
-        val src = SingleCommandSource(launcherContext, receiver)
-        val cl = CommandLine(launcherContext, src)
-        launcherContext.createControl(cl)
+        val receiver = context[ProjectManager]
+        val src = SingleCommandSource(context, receiver)
+        val cl = CommandLine(context, src)
+        context.createControl(cl)
     }
 
     private val root = hbox {
@@ -39,9 +38,9 @@ internal class HextantLauncher : Runnable {
     }
 
     override fun run() {
-        val stage = launcherContext[stage]
+        val stage = context[stage]
         if (root.scene != null) root.scene.root = Label()
-        stage.setScene(root, launcherContext)
+        stage.setScene(root, context)
         commandLine.receiveFocusLater()
     }
 }

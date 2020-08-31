@@ -1,3 +1,4 @@
+
 import bundles.SimpleReactiveProperty
 import hextant.command.Command
 import hextant.command.executingCompoundEdit
@@ -6,8 +7,8 @@ import hextant.expr.IntLiteral
 import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
+import hextant.fx.WindowSize
 import hextant.inspect.Problem.Severity.Warning
-import hextant.main.WindowSize
 import hextant.plugin.*
 import hextant.undo.compoundEdit
 import reaktive.value.binding.and

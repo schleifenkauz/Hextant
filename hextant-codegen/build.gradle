@@ -6,6 +6,6 @@ hextant_lib {
 
 dependencies {
     implementation "com.github.nkb03:kotlin-robot:0.1-SNAPSHOT"
-    compile project(":hextant-plugins:common")
+    implementation project(":hextant-plugins:common")
     implementation "org.jetbrains.kotlin:kotlin-reflect"
 }

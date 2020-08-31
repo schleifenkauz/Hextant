@@ -29,9 +29,7 @@ internal inline fun <reified T : Any> myLogger(): ReadOnlyProperty<T, Logger> {
         else            -> qualifiedName
     }
     val logger = Logger.getLogger(ownerClsName)!!
-    return object : ReadOnlyProperty<T, Logger> {
-        override fun getValue(thisRef: T, property: KProperty<*>): Logger = logger
-    }
+    return ReadOnlyProperty<T, Logger> { thisRef, property -> logger }
 }
 
 internal fun <T, R : Any> ReactiveValue<T>.observe(

@@ -8,7 +8,10 @@ import hextant.context.Context
 import javafx.scene.Parent
 import javafx.stage.Popup
 
-internal open class HextantPopup(context: Context) : Popup() {
+/**
+ * Utility class for [Popup]s with common look and feel.
+ */
+open class HextantPopup(context: Context) : Popup() {
     constructor(context: Context, root: Parent) : this(context) {
         scene.root = root
     }

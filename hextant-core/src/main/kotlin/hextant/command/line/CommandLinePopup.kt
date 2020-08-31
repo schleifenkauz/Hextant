@@ -8,7 +8,10 @@ import bundles.createBundle
 import hextant.context.Context
 import hextant.fx.HextantPopup
 
-internal class CommandLinePopup(context: Context, commandLine: CommandLine, minWidth: Double = 300.0) :
+/**
+ * A [HextantPopup] that shows a [CommandLine]
+ */
+class CommandLinePopup(context: Context, commandLine: CommandLine, minWidth: Double = 300.0) :
     HextantPopup(context) {
     private val autoHide = commandLine.executedCommand.observe { _, _ -> hide() }
     private val view = CommandLineControl(commandLine, createBundle())

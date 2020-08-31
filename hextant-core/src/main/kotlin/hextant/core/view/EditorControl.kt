@@ -17,7 +17,6 @@ import hextant.fx.*
 import hextant.impl.addListener
 import hextant.impl.observe
 import hextant.inspect.Inspections
-import hextant.main.HextantPlatform
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
@@ -65,7 +64,7 @@ abstract class EditorControl<R : Node>(
     private val editorChildren = mutableListOf<EditorControl<*>>()
 
     private val changedArguments = mutableMapOf<Property<*, *, *>, Any?>()
-    private val propertyChangeHandlers = context[Internal, HextantPlatform.propertyChangeHandlers]
+    private val propertyChangeHandlers = context[Internal, Properties.propertyChangeHandlers]
     private val propertyObserver: Observer
 
     /**

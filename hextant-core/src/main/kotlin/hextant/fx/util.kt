@@ -15,9 +15,6 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Compound
 import hextant.core.view.EditorControl
-import hextant.main.WindowSize
-import hextant.main.WindowSize.*
-import javafx.application.Platform
 import javafx.scene.*
 import javafx.scene.control.*
 import javafx.scene.input.*
@@ -158,7 +155,7 @@ fun <R> getUserInput(
     return d.showAndWait().orElse(invalidComponent)
 }
 
-internal fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context) {
+fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context) {
     for (command in context[Commands].applicableOn(target)) {
         val shortcut = command.shortcut
         if (shortcut != null) {
@@ -175,25 +172,15 @@ internal fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context
     }
 }
 
-internal fun EditorControl<*>.receiveFocusLater() {
-    Platform.runLater { receiveFocus() }
+/**
+ * Shows a new [Stage] with the given node as the root.
+ */
+fun showStage(root: Parent): Stage = Stage().apply {
+    scene = Scene(root)
+    show()
 }
 
-internal fun Stage.setScene(root: Parent, context: Context) {
-    val sc = Scene(root)
-    sc.initHextantScene(context)
-    Platform.runLater { scene = sc }
-}
-
-internal fun Stage.setSize(s: WindowSize) {
-    when (s) {
-        Maximized -> isMaximized = true
-        FullScreen -> isFullScreen = true
-        FitContent -> {
-        }
-        is Configured -> {
-            width = s.width
-            height = s.height
-        }
-    }
-}
+/**
+ * Shows a [Stage] with the view of the given [editor] as the root.
+ */
+fun showStage(editor: Editor<*>) = showStage(editor.context.createControl(editor))
