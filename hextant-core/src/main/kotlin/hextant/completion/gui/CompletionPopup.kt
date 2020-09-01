@@ -2,6 +2,8 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package hextant.completion.gui
 
 import hextant.completion.Completer
@@ -15,6 +17,9 @@ import javafx.scene.control.Tooltip
 import javafx.scene.layout.*
 import javafx.scene.text.TextFlow
 import javafx.stage.Popup
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.actor
 import reaktive.event.event
 
 /**
@@ -27,6 +32,19 @@ internal class CompletionPopup<Ctx, T : Any>(
 ) : HextantPopup(context) {
     private var input = ""
     private val choose = event<Completion<T>>()
+    private val updater = GlobalScope.actor<String>(Dispatchers.Main, capacity = Channel.CONFLATED) {
+        for (input in channel) {
+            val completions = context.executeSafely("getting completions", emptyList()) {
+                withContext(Dispatchers.Default) {
+                    completer().completions(ctx, input)
+                }
+            }
+            setCompletions(completions)
+            valid = true
+            if (completions.isNotEmpty()) super.show()
+            else hide()
+        }
+    }
 
     /**
      * Emits events when a completion was chosen by the user.
@@ -47,9 +65,10 @@ internal class CompletionPopup<Ctx, T : Any>(
      * Show the completions if there are any
      */
     override fun show() {
-        if (!valid) updateCompletions()
-        if (scene.root.childrenUnmodifiable.isEmpty()) return
-        super.show()
+        GlobalScope.launch(Dispatchers.Main) {
+            if (!valid) updater.send(input)
+        }
+        if (scene.root.childrenUnmodifiable.isNotEmpty()) super.show()
     }
 
     /**
@@ -58,7 +77,7 @@ internal class CompletionPopup<Ctx, T : Any>(
     fun updateInput(text: String) {
         input = text
         valid = false
-        if (isShowing) updateCompletions()
+        if (isShowing) GlobalScope.launch { updater.send(text) }
     }
 
     private fun setCompletions(completions: Collection<Completion<T>>) {
@@ -68,14 +87,6 @@ internal class CompletionPopup<Ctx, T : Any>(
             addChoice(c, root)
         }
         scene.root = root
-    }
-
-    private fun updateCompletions() {
-        val completions = context.executeSafely("getting completions", emptyList()) {
-            completer().completions(ctx, input)
-        }
-        setCompletions(completions)
-        valid = true
     }
 
     private fun createCompletionItem(completion: Completion<T>): Node {

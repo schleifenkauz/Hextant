@@ -6,11 +6,18 @@ import hextant.completion.ConfiguredCompleter
 import hextant.context.Context
 import hextant.main.HextantPlatform.marketplace
 import hextant.plugins.LocatedProjectType
+import hextant.plugins.Marketplace
 import kotlinx.coroutines.runBlocking
 
 internal object ProjectTypeCompleter : ConfiguredCompleter<Context, LocatedProjectType>(CompletionStrategy.simple) {
-    override fun completionPool(context: Context): Collection<LocatedProjectType> =
-        runBlocking { context[marketplace].availableProjectTypes() }
+    private var projectTypes = mutableMapOf<Marketplace, List<LocatedProjectType>>()
+
+    override fun completionPool(context: Context): Collection<LocatedProjectType> {
+        val marketplace = context[marketplace]
+        return projectTypes.getOrPut(marketplace) {
+            runBlocking { marketplace.availableProjectTypes() }
+        }
+    }
 
     override fun extractText(context: Context, item: LocatedProjectType): String? = item.name
 

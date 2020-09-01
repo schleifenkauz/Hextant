@@ -30,10 +30,16 @@ internal class PluginsEditor(
             return view.alertError(e.message!!)
         }
         views {
-            GlobalScope.launch {
+            launch {
                 available.removeAll(activated)
                 enabled.addAll(activated.filter { it.matches(enabledSearchText) })
             }
+        }
+    }
+
+    private inline fun launch(crossinline action: suspend () -> Unit) {
+        GlobalScope.launch(Dispatchers.Main) {
+            action()
         }
     }
 
@@ -45,7 +51,7 @@ internal class PluginsEditor(
         }
 
         views {
-            GlobalScope.launch {
+            launch {
                 available.addAll(disabled.filter { it.matches(availableSearchText) })
                 enabled.removeAll(disabled)
             }
@@ -53,7 +59,7 @@ internal class PluginsEditor(
     }
 
     fun searchInAvailable(view: PluginsEditorView) {
-        GlobalScope.launch {
+        launch {
             val marketplace = context[marketplace]
             withContext(Dispatchers.Default) { }
             val available = marketplace.getPlugins(view.availableSearchText, LIMIT, types, manager.enabledIds())
@@ -63,7 +69,7 @@ internal class PluginsEditor(
     }
 
     fun searchInEnabled(view: PluginsEditorView) {
-        GlobalScope.launch {
+        launch {
             val enabled = manager.enabledPlugins().filter { it.matches(view.enabledSearchText) }
             view.enabled.clear()
             view.enabled.addAll(enabled)

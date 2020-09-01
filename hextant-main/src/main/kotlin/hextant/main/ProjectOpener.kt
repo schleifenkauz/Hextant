@@ -15,6 +15,7 @@ import hextant.main.HextantPlatform.marketplace
 import hextant.main.HextantPlatform.projectContext
 import hextant.main.HextantPlatform.stage
 import hextant.main.plugins.PluginManager
+import hextant.plugin.Aspects
 import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.serial.PhysicalFile
 import hextant.serial.SerialProperties.deserializationContext
@@ -29,6 +30,7 @@ internal class ProjectOpener(private val project: File, private val globalContex
         val info = readProjectInfo()
         val context = defaultContext(projectContext(globalContext))
         context[Commands].registerGlobalCommands(context)
+        context[Aspects].registerDefaultImplementations()
         val project = loadProject(info, context)
         val view = context.createControl(project.root)
         val src = SingleCommandSource(context, context)

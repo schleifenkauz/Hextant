@@ -51,9 +51,13 @@ internal object ExpanderClassGen : EditorClassGen<Expandable>() {
             addSingleExprFunction(
                 "expand",
                 { override() },
-                parameters = { "text" of "String" }) {
-                "config".e.call("expand", "text".e, "context".e)
-            }
+                parameters = { "text" of "String" }
+            ) { "config".e.call("expand", "text".e, "context".e) }
+            addSingleExprFunction(
+                "expand",
+                { override() },
+                parameters = { "item" of "Any" },
+            ) { "config".e.call("expand", "item".e, "context".e) }
         }
         writeKotlinFile(file)
         generatedEditor(element, "$pkg.$simpleName")

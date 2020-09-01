@@ -6,6 +6,9 @@ package hextant.core.editor
 
 import hextant.context.Context
 import hextant.core.Editor
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import reaktive.value.now
 import validated.reaktive.ReactiveValidated
 import validated.reaktive.composeReactive
@@ -41,5 +44,11 @@ inline fun <reified R : Any> composeResult(vararg components: Editor<*>): Reacti
     return composeReactive(*results) {
         val now = results.map { it.now.get() }.toTypedArray()
         cstr.call(*now)
+    }
+}
+
+internal fun launchSynchronized(mutex: Mutex, action: suspend () -> Unit) {
+    GlobalScope.launch(Dispatchers.Main) {
+        mutex.withLock { action() }
     }
 }

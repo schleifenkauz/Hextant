@@ -39,8 +39,6 @@ abstract class EditorControl<R : Node>(
 
     private var _root: R? = null
 
-    override val group: EditorControlGroup = context[EditorControlGroup]
-
     private val selection = context[SelectionDistributor]
 
     private val inspections = context[Inspections]

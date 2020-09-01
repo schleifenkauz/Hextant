@@ -14,6 +14,7 @@ import hextant.core.view.ExpanderView
 import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
+import kotlinx.coroutines.sync.Mutex
 import reaktive.Observer
 import reaktive.value.*
 import reaktive.value.binding.map
@@ -24,6 +25,8 @@ import validated.reaktive.ReactiveValidated
  * An Expander acts like a wrapper around editors.
  */
 abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
+    private val mutex = Mutex()
+
     constructor(context: Context, editor: E?) : this(context) {
         if (editor != null) doChangeState(Expanded(editor))
     }
@@ -114,7 +117,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         val oldState = state
         state = newState
         when (oldState) {
-            is Expanded   -> {
+            is Expanded -> {
                 doReset()
                 context.executeSafely("resetting", Unit) { onReset(oldState.editor) }
                 when (newState) {
@@ -202,6 +205,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     }
 
     private fun tryExpand(text: String) = context.executeSafely("expanding", null) { expand(text) }
+
     private fun tryExpand(item: Any) = context.executeSafely("expanding", null) { expand(item) }
 
     /**
@@ -210,8 +214,8 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     fun expand(undoable: Boolean = true) {
         val state = checkUnexpanded()
-        val editor = tryExpand(state.text) ?: return
-        changeState(Expanded(editor), "Expand", undoable)
+        val editor = tryExpand(state.text)
+        if (editor != null) changeState(Expanded(editor), "Expand", undoable)
     }
 
     /**
@@ -277,7 +281,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     override fun viewAdded(view: ExpanderView) {
         when (val s = state) {
             is Unexpanded -> view.displayText(s.text)
-            is Expanded   -> view.expanded(s.editor)
+            is Expanded -> view.expanded(s.editor)
         }
     }
 
@@ -316,13 +320,13 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     companion object {
         private fun <E : Editor<*>> State<E>.createSnapshot(): State<EditorSnapshot<E>> = when (this) {
             is Unexpanded -> this
-            is Expanded   -> Expanded(editor.snapshot())
+            is Expanded -> Expanded(editor.snapshot())
         }
 
         @Suppress("UNCHECKED_CAST")
         private fun <E : Editor<*>> State<EditorSnapshot<*>>.reconstruct(context: Context): State<E> = when (this) {
             is Unexpanded -> this
-            is Expanded   -> Expanded(editor.reconstruct(context) as E)
+            is Expanded -> Expanded(editor.reconstruct(context) as E)
         }
     }
 }

@@ -5,7 +5,6 @@
 package hextant.core
 
 import bundles.Bundle
-import hextant.context.ViewGroup
 import hextant.core.view.ViewSnapshot
 
 /**
@@ -21,11 +20,6 @@ interface EditorView {
      * The object viewed by this [EditorView]
      */
     val target: Any
-
-    /**
-     * The [ViewGroup] this editor view belongs to
-     */
-    val group: ViewGroup<*>
 
     /**
      * Visually deselect this [EditorView]

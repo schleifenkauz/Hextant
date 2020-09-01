@@ -53,8 +53,10 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
     final override fun createDefaultRoot() = textField
 
     final override fun displayText(newText: String) {
-        root.smartSetText(newText)
-        popup.show(this)
+        if (root.text != newText) {
+            root.smartSetText(newText)
+            popup.show(this)
+        }
     }
 
     override fun receiveFocus() {

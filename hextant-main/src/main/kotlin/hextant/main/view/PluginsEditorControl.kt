@@ -91,7 +91,7 @@ internal class PluginsEditorControl @ProvideImplementation(ControlFactory::class
     private inner class PluginCell(private val enabled: Boolean) : ListCell<Plugin>() {
         init {
             setOnMouseClicked { ev ->
-                if (ev.clickCount >= 2) {
+                if (ev.clickCount >= 2 && item != null) {
                     if (enabled) editor.disable(item, this@PluginsEditorControl)
                     else editor.enable(item, this@PluginsEditorControl)
                 }

@@ -2,15 +2,22 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package hextant.core.editor
 
 import hextant.completion.Completion
 import hextant.context.Context
 import hextant.context.executeSafely
+import hextant.core.editor.TokenEditor.Compilable.Completed
+import hextant.core.editor.TokenEditor.Compilable.Text
 import hextant.core.view.TokenEditorView
 import hextant.serial.VirtualEditor
 import hextant.serial.virtualize
 import hextant.undo.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.actor
 import reaktive.value.*
 import validated.*
 import validated.reaktive.ReactiveValidated
@@ -21,11 +28,29 @@ import validated.reaktive.ReactiveValidated
  */
 abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
                                                                               TokenType<R> {
+    private sealed class Compilable {
+        data class Completed(val completion: Completion<Any>) : Compilable()
+        data class Text(val input: String) : Compilable()
+    }
+
+    private val compiler = GlobalScope.actor<Compilable>(Dispatchers.Main, capacity = Channel.CONFLATED) {
+        for (compilable in channel) {
+            val res = when (compilable) {
+                is Completed -> {
+                    val comp = compilable.completion
+                    tryCompile(comp.completion).orElse { tryCompile(comp.completionText) }
+                }
+                is Text -> tryCompile(compilable.input)
+            }
+            _result.set(res)
+        }
+    }
+
     constructor(context: Context, text: String) : this(context) {
         setText(text, undoable = false)
     }
 
-    private val _result = reactiveVariable(this.tryCompile(""))
+    private val _result = reactiveVariable(runBlocking { tryCompile("") })
 
     override val result: ReactiveValidated<R> get() = _result
 
@@ -45,8 +70,8 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
 
     override fun compile(token: String): Validated<R> = invalidComponent()
 
-    private fun tryCompile(item: Any): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { compile(item) }
+    private suspend fun tryCompile(item: Any): Validated<R> =
+        context.executeSafely("compiling item", invalidComponent) { withContext(Dispatchers.Default) { compile(item) } }
 
     private fun tryCompile(text: String): Validated<R> =
         context.executeSafely("compiling item", invalidComponent) { compile(text) }
@@ -66,8 +91,8 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
             undo.push(edit)
         }
         _text.now = newText
-        _result.set(tryCompile(text.now))
         views { displayText(newText) }
+        GlobalScope.launch { compiler.send(Text(newText)) }
     }
 
     /**
@@ -78,8 +103,8 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         val edit = TextEdit(virtualize(), text.now, t)
         undo.push(edit)
         _text.now = t
-        _result.set(tryCompile(completion.completion).orElse { tryCompile(completion.completionText) })
         views { displayText(t) }
+        GlobalScope.launch { compiler.send(Completed(completion)) }
     }
 
     private class TextEdit(

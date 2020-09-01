@@ -12,6 +12,7 @@ import hextant.serial.VirtualEditor
 import hextant.serial.virtualize
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
+import kotlinx.coroutines.sync.Mutex
 import kserial.Serializable
 import reaktive.event.event
 import reaktive.event.unitEvent
@@ -28,12 +29,14 @@ import validated.reaktive.ReactiveValidated
  */
 abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
     AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R>, Serializable {
+    private val mutex = Mutex()
+
     constructor(context: Context) : this(context, "")
 
     private var oldText: String = initialText
     private val _text = reactiveVariable(initialText)
     private val _editable = reactiveVariable(true)
-    private val _intermediateResult = reactiveVariable(this.compile(initialText))
+    private val _intermediateResult = reactiveVariable(tryCompile(initialText))
     private val _result = reactiveVariable(invalidComponent<R>())
 
     private val beginChange = unitEvent()
@@ -102,13 +105,14 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
      * If the editor is not editable this method just returns.
      */
     fun abortChange() {
-        if (!editable.now) return
-        _editable.set(false)
-        _text.set(oldText)
-        _intermediateResult.now = tryCompile(oldText)
-        abortChange.fire()
-        views.forEach { v ->
-            v.setEditable(false)
+        if (editable.now) {
+            _editable.set(false)
+            _text.set(oldText)
+            abortChange.fire()
+            views.forEach { v ->
+                v.setEditable(false)
+            }
+            _intermediateResult.now = tryCompile(oldText)
         }
     }
 
@@ -146,10 +150,10 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
     fun setText(new: String) {
         check(editable.now) { "not editable" }
         _text.now = new
-        _intermediateResult.now = tryCompile(new)
         views.forEach { v ->
             v.displayText(new)
         }
+        _intermediateResult.now = tryCompile(new)
     }
 
     /**

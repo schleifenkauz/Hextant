@@ -24,6 +24,8 @@ dependencies {
     compile nkb03("validated", "0.1-SNAPSHOT")
     compile nkb03("validated-reaktive", "0.1-SNAPSHOT")
     compile project(":hextant-codegen")
+    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.3.9'
+    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-javafx', version: '1.3.9'
     kapt project(":hextant-codegen")
     implementation kotlin("reflect")
     compile "org.controlsfx:controlsfx:8.40.14"
