@@ -80,23 +80,22 @@ class LocalPluginGraph private constructor(private val infos: Map<String, Plugin
     }
 }
 
-
 /**
  * Initializes all the plugins that are present in the classpath.
  */
 fun initializePluginsFromClasspath(context: Context) {
+    for (impls in context[HextantClassLoader].getResources("implementations.json")) {
+        val implementations: List<Implementation> = Json.decodeFromString(impls.readText())
+        for (impl in implementations) {
+            context[Aspects].addImplementation(impl, context[HextantClassLoader])
+        }
+    }
     val graph = LocalPluginGraph.load(context)
     val order = graph.topologicalSort() ?: error("cycle in dependencies")
     for (info in order) {
         val initializer = getInitializer(context, info)
         initializer?.apply(context, Enable, project = null)
         initializer?.apply(context, Initialize, project = null)
-    }
-    for (impls in context[HextantClassLoader].getResources("implementations.json")) {
-        val implementations: List<Implementation> = Json.decodeFromString(impls.readText())
-        for (impl in implementations) {
-            context[Aspects].addImplementation(impl, context[HextantClassLoader])
-        }
     }
 }
 

@@ -58,10 +58,9 @@ fun <R : Any> Context.createEditor(result: R): Editor<R> {
 }
 
 /**
- * Syntactic sugar for createEditor<R>(typeOf<R>())
+ * Syntactic sugar for createEditor<R>(R::class)
  */
-@OptIn(ExperimentalStdlibApi::class)
-inline fun <reified R : Any> Context.createEditor() = createEditor<R>(R::class)
+inline fun <reified R : Any> Context.createEditor() = createEditor(R::class)
 
 /**
  * Create a new context which has this [Context] as its parent and apply the given [block] to it.

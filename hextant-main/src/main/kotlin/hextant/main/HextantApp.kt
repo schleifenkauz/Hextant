@@ -5,9 +5,11 @@
 package hextant.main
 
 import hextant.context.Properties.defaultContext
+import hextant.core.Core
 import hextant.fx.initHextantScene
 import hextant.main.HextantPlatform.projectContext
 import hextant.main.HextantPlatform.stage
+import hextant.plugin.PluginBuilder.Phase
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Label
@@ -16,10 +18,11 @@ import java.io.File
 import java.io.IOException
 
 internal class HextantApp : Application() {
+    private val globalContext = HextantPlatform.globalContext()
+    private val launcherContext = defaultContext(projectContext(globalContext))
+
     override fun start(primaryStage: Stage) {
-        val globalContext = HextantPlatform.globalContext()
         globalContext[stage] = primaryStage
-        val launcherContext = defaultContext(projectContext(globalContext))
         globalContext[ProjectManager] = ProjectManager(launcherContext)
         launcherContext.setProjectRoot(launcherContext[GlobalDirectory].root.toPath())
         initializePluginsFromClasspath(launcherContext)
@@ -41,6 +44,12 @@ internal class HextantApp : Application() {
             2 -> Main.fail("Too many arguments")
         }
         primaryStage.show()
+    }
+
+    override fun stop() {
+        for (initializer in listOf(Core, HextantMain)) {
+            initializer.apply(launcherContext, Phase.Close, project = null)
+        }
     }
 
     private fun tryGetFile(s: String): File = try {

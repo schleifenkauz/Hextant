@@ -7,9 +7,11 @@ import hextant.context.createControl
 import hextant.fx.*
 import hextant.main.HextantPlatform.launcher
 import hextant.main.HextantPlatform.stage
+import hextant.settings.Settings
 import javafx.geometry.Pos.CENTER
 import javafx.scene.control.Label
 import javafx.scene.text.Font
+import reaktive.value.fx.asObservableValue
 
 internal class HextantLauncher(global: Context, private val context: Context) : Runnable {
     init {
@@ -17,8 +19,7 @@ internal class HextantLauncher(global: Context, private val context: Context) : 
     }
 
     private val commandLine = run {
-        val receiver = context[ProjectManager]
-        val src = SingleCommandSource(context, receiver)
+        val src = SingleCommandSource(context, context)
         val cl = CommandLine(context, src)
         context.createControl(cl)
     }
@@ -30,7 +31,9 @@ internal class HextantLauncher(global: Context, private val context: Context) : 
             setPrefSize(200.0, 400.0)
             alignment = CENTER
             spacing = 30.0
-            add(label("Hextant")) {
+            add(label()) {
+                val header = context[Settings][HextantMain.Header]
+                textProperty().bind(header.asObservableValue())
                 font = Font(24.0)
             }
             add(commandLine)

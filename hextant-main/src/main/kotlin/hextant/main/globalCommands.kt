@@ -15,6 +15,7 @@ import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
 import hextant.main.view.PluginsEditorView
 import hextant.plugins.PluginInfo
+import hextant.plugins.PluginInfo.Type
 
 internal fun Commands.registerGlobalCommands(context: Context) {
     registerCommand<Context, Unit> {
@@ -42,6 +43,10 @@ internal fun Commands.registerGlobalCommands(context: Context) {
             loader.run()
         }
     }
+    pluginCommands()
+}
+
+internal fun Commands.pluginCommands() {
     registerCommand<Context, Unit> {
         name = "Show plugin manager"
         shortName = "plugins"
@@ -51,7 +56,7 @@ internal fun Commands.registerGlobalCommands(context: Context) {
         applicableIf { ctx -> ctx.hasProperty(PluginManager) }
         executing { ctx, _ ->
             val manager = ctx[PluginManager]
-            val editor = PluginsEditor(ctx, manager, PluginInfo.Type.all)
+            val editor = PluginsEditor(ctx, manager, Type.all)
             showStage(editor)
         }
     }
@@ -69,7 +74,7 @@ internal fun Commands.registerGlobalCommands(context: Context) {
         executing { context, (plugin) ->
             plugin as PluginInfo
             val manager = context[PluginManager]
-            val editor = PluginsEditor(context, manager, PluginInfo.Type.all)
+            val editor = PluginsEditor(context, manager, Type.all)
             val view = context.createControl(editor) as PluginsEditorView
             editor.enable(manager.getPlugin(plugin.id), view)
         }
@@ -88,7 +93,7 @@ internal fun Commands.registerGlobalCommands(context: Context) {
         executing { context, (plugin) ->
             plugin as PluginInfo
             val manager = context[PluginManager]
-            val editor = PluginsEditor(context, manager, PluginInfo.Type.all)
+            val editor = PluginsEditor(context, manager, Type.all)
             val view = context.createControl(editor) as PluginsEditorView
             editor.disable(manager.getPlugin(plugin.id), view)
         }

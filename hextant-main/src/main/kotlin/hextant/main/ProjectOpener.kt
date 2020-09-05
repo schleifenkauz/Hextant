@@ -59,6 +59,9 @@ internal class ProjectOpener(private val project: File, private val globalContex
     }
 
     private fun loadProject(info: ProjectInfo, context: Context): Project {
+        val manager = PluginManager(globalContext[marketplace], info.requiredPlugins)
+        manager.enableAll(info.enabledPlugins)
+        context[PluginManager] = manager
         val plugins = info.enabledPlugins + "core"
         initializePlugins(plugins, context, Initialize, project = null)
         val root = project.resolve(GlobalDirectory.PROJECT_ROOT).toPath()
@@ -70,11 +73,8 @@ internal class ProjectOpener(private val project: File, private val globalContex
         initializePlugins(plugins, context, Initialize, editor)
         val project = Project(editor, context, project.toPath())
         context[Project] = project
-        val manager = PluginManager(globalContext[marketplace], info.requiredPlugins)
-        manager.enableAll(info.enabledPlugins)
         val obs = manager.autoLoadAndUnloadPluginsOnChange(context, editor)
         observers.add(obs)
-        context[PluginManager] = manager
         return project
     }
 

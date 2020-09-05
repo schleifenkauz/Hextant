@@ -18,7 +18,7 @@ import validated.Validated.Invalid
 /**
  * The core plugin registers basic editors, views and commands.
  */
-internal object Core : PluginInitializer({
+object Core : PluginInitializer({
     persistentProperty(Internal, Settings)
     registerInspection<Editor<*>> {
         id = "syntax-error"

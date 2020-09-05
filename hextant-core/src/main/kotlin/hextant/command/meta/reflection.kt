@@ -6,6 +6,7 @@ package hextant.command.meta
 
 import hextant.command.*
 import hextant.command.Command.Category
+import hextant.context.EditorFactory
 import hextant.core.Editor
 import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.shortcut
@@ -33,7 +34,7 @@ private fun <R : Any> KFunction<*>.extractCommand(receiver: KClass<R>, ann: Prov
     val shortcut = ann.defaultShortcut.takeIf { it != NONE }?.shortcut
     val shortName = when (ann.shortName) {
         DEFAULT -> name
-        NONE    -> null
+        NONE -> null
         else    -> ann.shortName
     }
     val params = valueParameters.map { it.extractParameter() }
@@ -77,10 +78,8 @@ private fun KParameter.extractParameter(): Command.Parameter {
     val ann = findAnnotation<CommandParameter>()
     val name = ann?.name?.takeIf { it != DEFAULT } ?: this.name ?: throw Exception("Parameter $this has no name")
     val desc = ann?.description?.takeIf { it != NONE } ?: "No description provided"
-    val editWith = ann?.editWith?.takeIf { it != Default::class } as? KClass<out Editor<*>>
+    val editWith = ann?.editWith?.takeIf { it != Default::class } as? KClass<out Editor<Any>>
     val constructor = editWith?.getSimpleEditorConstructor()
-    return Command.Parameter(
-        name, type.jvmErasure, desc,
-        constructor
-    )
+    val factory = constructor?.let { c -> EditorFactory(c) }
+    return Command.Parameter(name, type.jvmErasure, desc, factory)
 }

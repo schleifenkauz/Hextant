@@ -11,7 +11,7 @@ import kotlinx.coroutines.*
 
 internal class DisabledPluginInfoCompleter(private val types: Set<PluginInfo.Type>) : Completer<Context, PluginInfo> {
     override fun completions(context: Context, input: String): Collection<Completion<PluginInfo>> = runBlocking {
-        val excluded = context[PluginManager].enabledIds()
+        val excluded = context[PluginManager].enabledPlugins().mapTo(mutableSetOf()) { it.id }
         val completions = context[marketplace].getPlugins(input, 10, types, excluded)
         completions
             .map { id -> async { context[marketplace].get(PluginProperty.info, id)!! } }.awaitAll()

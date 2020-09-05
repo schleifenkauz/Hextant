@@ -5,7 +5,7 @@
 package hextant.command
 
 import hextant.config.Enabled
-import hextant.context.Context
+import hextant.context.EditorFactory
 import hextant.core.Editor
 import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Shortcut
@@ -129,7 +129,7 @@ interface Command<in R : Any, out T : Any> : Enabled {
         val name: String,
         val type: KClass<*>,
         val description: String,
-        val editWith: ((Context) -> Editor<*>)?
+        val editWith: EditorFactory<*>?
     ) {
         override fun toString() = buildString {
             append(name)
@@ -145,7 +145,7 @@ interface Command<in R : Any, out T : Any> : Enabled {
      * @param type the type of the parameter
      */
     @Builder
-    class ParameterBuilder<T> @PublishedApi internal constructor(val type: KClass<*>) {
+    class ParameterBuilder<T : Any> @PublishedApi internal constructor(val type: KClass<*>) {
         /**
          * The name of the parameter
          */
@@ -157,12 +157,12 @@ interface Command<in R : Any, out T : Any> : Enabled {
          */
         var description: String = "No description provided"
 
-        private var editorFactory: ((Context) -> Editor<T>)? = null
+        private var editorFactory: EditorFactory<T>? = null
 
         /**
          * This will cause command lines to use the given [factory] to create an editor for the value of this parameter.
          */
-        fun editWith(factory: (context: Context) -> Editor<T>) {
+        fun editWith(factory: EditorFactory<T>) {
             editorFactory = factory
         }
 

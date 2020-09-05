@@ -2,12 +2,15 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("UNCHECKED_CAST")
+
 package hextant.command
 
 import bundles.Property
 import hextant.command.meta.collectProvidedCommands
 import hextant.context.Internal
 import kollektion.ClassDAG
+import kollektion.MultiMap
 import reaktive.value.now
 import kotlin.reflect.KClass
 
@@ -15,11 +18,10 @@ import kotlin.reflect.KClass
  * Used to register commands for specific classes
  */
 class Commands private constructor() {
-    private val commands = mutableMapOf<KClass<*>, MutableSet<Command<*, *>>>()
+    private val commands = MultiMap<KClass<*>, Command<*, *>>()
+    private val delegations = MultiMap<KClass<*>, (Any) -> Any?>()
     private val all = mutableSetOf<Command<*, *>>()
     private val dag = ClassDAG()
-
-    private fun commandsOf(cls: KClass<*>) = commands.getOrPut(cls) { mutableSetOf() }
 
     private fun KClass<*>.reallyAllSuperclasses() = sequence<KClass<*>> {
         val superclass: Class<*>? = java.superclass
@@ -30,10 +32,10 @@ class Commands private constructor() {
     private fun visitClass(cls: KClass<*>) {
         if (dag.insert(cls)) {
             val provided = cls.collectProvidedCommands()
-            commandsOf(cls).addAll(provided)
+            commands[cls].addAll(provided)
             for (c in cls.reallyAllSuperclasses()) {
                 visitClass(c)
-                commandsOf(cls).addAll(commandsOf(c))
+                commands[cls].addAll(commands[c])
             }
         }
     }
@@ -44,7 +46,24 @@ class Commands private constructor() {
     fun <R : Any> register(cls: KClass<R>, command: Command<R, *>) {
         all.add(command)
         visitClass(cls)
-        dag.subclassesOf(cls).forEach { c -> commandsOf(c).add(command) }
+        dag.subclassesOf(cls).forEach { c -> commands[c].add(command) }
+    }
+
+    /**
+     * Register the given [delegation] such that all the commands applicable on object of type [F]
+     * can automatically be applied on objects of type [D] by delegating the execution to the [F]-object
+     * the can be reached from [D] trough the given [delegation] function.
+     */
+    fun <D : Any, F : Any> registerDelegation(cls: KClass<D>, delegation: (D) -> F?) {
+        delegations[cls].add(delegation as (Any) -> Any?)
+    }
+
+    /**
+     * Unregisters the given [delegation].
+     * @see registerDelegation
+     */
+    fun <D : Any> unregisterDelegation(cls: KClass<D>, delegation: (D) -> Any?) {
+        delegations[cls].remove(delegation)
     }
 
     /**
@@ -54,7 +73,7 @@ class Commands private constructor() {
     fun <R : Any> unregister(command: Command<R, *>) {
         check(all.remove(command)) { "Cannot unregister command $command because it was not registered before" }
         for (cls in dag.subclassesOf(command.receiverCls)) {
-            commandsOf(cls).remove(command)
+            commands[cls].remove(command)
         }
     }
 
@@ -63,16 +82,23 @@ class Commands private constructor() {
      */
     fun <R : Any> applicableOn(receiver: R): Collection<Command<R, *>> {
         val cls = receiver::class
-        return forClass(cls).filter { it.isApplicableOn(receiver) }
+        visitClass(cls)
+        val delegated = dag.superclassesOf(cls).asSequence()
+            .flatMap { c -> delegations[c].map { c to it } }
+            .flatMap { (c, delegation) ->
+                val del = delegation(receiver) ?: return@flatMap emptyList()
+                applicableOn(del).map {
+                    DelegatedCommand(it, delegation, c) as Command<R, *>
+                }
+            }
+        return forClass(cls).filter { it.isApplicableOn(receiver) } + delegated
     }
 
     /**
      * Return a collection of all available commands that are applicable on instances of the given class.
      */
-    fun <R : Any> forClass(cls: KClass<out R>): Collection<Command<R, *>> {
-        visitClass(cls)
-        @Suppress("UNCHECKED_CAST")
-        return commandsOf(cls).filter { it.isEnabled.now } as Collection<Command<R, *>>
+    private fun <R : Any> forClass(cls: KClass<out R>): Collection<Command<R, *>> {
+        return commands[cls].filter { it.isEnabled.now } as Collection<Command<R, *>>
     }
 
     /**

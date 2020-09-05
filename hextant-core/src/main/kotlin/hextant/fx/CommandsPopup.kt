@@ -22,10 +22,8 @@ internal class CommandsPopup(private val context: Context, private val target: A
         scene.root = container
     }
 
-    private fun commands() = context[Commands].applicableOn(target)
-
     override fun show() {
-        val commands = commands()
+        val commands = context[Commands].applicableOn(target)
         if (commands.isNotEmpty()) {
             container.children.clear()
             for (command in commands) {

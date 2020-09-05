@@ -13,8 +13,7 @@ import hextant.fx.Stylesheets
 import hextant.inspect.*
 import hextant.plugin.PluginBuilder.Phase.*
 import hextant.serial.SerialProperties.projectRoot
-import hextant.settings.ConfigurableProperty
-import hextant.settings.PropertyRegistrar
+import hextant.settings.*
 import java.nio.file.Files
 
 /**
@@ -81,15 +80,13 @@ fun <T, Read : Any, Write : Read> PluginBuilder.persistentProperty(
     permission: Write,
     property: Property<T, Read, Write>
 ) {
-    on(Enable) { ctx ->
-        ctx[permission, property] = property.default
-    }
     on(Initialize) { ctx ->
-        if (!ctx.hasProperty(permission, property)) {
-            val input = context.createInput(getPath(ctx, property))
+        val path = getPath(ctx, property)
+        ctx[permission, property] = if (Files.exists(path)) {
+            val input = context.createInput(path)
             val value = input.readObject()
-            ctx[permission, property] = value as T
-        }
+            value as T
+        } else property.default
     }
     on(Close) { ctx ->
         val output = ctx.createOutput(getPath(ctx, property))
@@ -113,6 +110,42 @@ private fun getPath(ctx: Context, property: Property<*, *, *>) = ctx[projectRoot
  */
 fun <T : Any> PluginBuilder.configurableProperty(property: Property<T, *, Any>, editorFactory: EditorFactory<T>) {
     val p = ConfigurableProperty(property, editorFactory)
+    registerCommand<Context, Unit> {
+        name = "Set property $property"
+        shortName = "set-$property"
+        description = "Sets the value of the property $property"
+        applicableIf { ctx -> ctx.hasProperty(Settings) }
+        addParameter<Any> {
+            name = "value"
+            description = "The value"
+            editWith(editorFactory)
+        }
+        executing { ctx, (value) ->
+            ctx[Settings][property] = value as T
+        }
+    }
     on(Initialize) { ctx -> ctx[PropertyRegistrar].configurable.add(p) }
     on(Disable) { ctx -> ctx[PropertyRegistrar].configurable.remove(p) }
+}
+
+/**
+ * Registers a *configurable property*.
+ *
+ * Uses the [EditorFactory] implementation for type [T] to produce the editor.
+ * @see configurableProperty
+ */
+inline fun <reified T : Any> PluginBuilder.configurableProperty(property: Property<T, *, Any>) {
+    configurableProperty(property) { context.createEditor() }
+}
+
+/**
+ * Register a command delegation.
+ */
+inline fun <reified D : Any> PluginBuilder.commandDelegation(noinline delegation: (D) -> Any?) {
+    on(Initialize) { ctx ->
+        ctx[Commands].registerDelegation(D::class, delegation)
+    }
+    on(Disable) { ctx ->
+        ctx[Commands].unregisterDelegation(D::class, delegation)
+    }
 }

@@ -9,16 +9,21 @@ import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.view.CompoundEditorControl
 import hextant.expr.editor.OperatorApplicationEditor
+import hextant.fx.createBorder
+import hextant.settings.Settings
+import reaktive.value.binding.map
+import reaktive.value.fx.asObservableValue
 
 class OperatorApplicationEditorControl @ProvideImplementation(ControlFactory::class) constructor(
     editor: OperatorApplicationEditor,
     arguments: Bundle
 ) : CompoundEditorControl(editor, arguments, {
     line {
-        operator("(")
         view(editor.operand1)
         view(editor.operator)
         view(editor.operand2)
-        operator(")")
     }
+
+    val border = editor.context[Settings][Style.borderColor].map { c -> createBorder(c, 2.0) }
+    borderProperty().bind(border.asObservableValue())
 })

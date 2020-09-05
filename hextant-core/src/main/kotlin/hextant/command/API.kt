@@ -50,11 +50,6 @@ inline fun <reified R : Any, T : Any> Commands.registerCommand(build: CommandBui
 }
 
 /**
- * Syntactic sugar for forClass(R::class)
- */
-inline fun <reified R : Any> Commands.forClass() = forClass(R::class)
-
-/**
  * Makes the resulting command execute the given action combining the done edits
  * to a compound edit with the name of this command as the action description.
  */

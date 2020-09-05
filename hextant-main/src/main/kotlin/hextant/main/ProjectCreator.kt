@@ -10,6 +10,7 @@ import hextant.context.createOutput
 import hextant.core.Editor
 import hextant.main.HextantPlatform.projectContext
 import hextant.main.Main.fail
+import hextant.main.plugins.PluginManager
 import hextant.plugin.PluginBuilder.Phase.Enable
 import hextant.project.ProjectType
 import kotlinx.serialization.encodeToString
@@ -22,7 +23,7 @@ internal class ProjectCreator(
     private val projectType: String,
     private val dest: File,
     private val requiredPlugins: List<String>, private val enabledPlugins: List<String>,
-    private val globalContext: Context
+    private val globalContext: Context, private val manager: PluginManager
 ) : Runnable {
     override fun run() {
         dest.mkdir()
@@ -30,6 +31,7 @@ internal class ProjectCreator(
         val str = Json.encodeToString(project)
         dest.resolve(GlobalDirectory.PROJECT_INFO).writeText(str)
         val context = defaultContext(projectContext(globalContext))
+        context[PluginManager] = manager
         context.setProjectRoot(dest.toPath())
         initializePlugins(enabledPlugins + "core", context, Enable, project = null)
         val cls = context[HextantClassLoader].loadClass(projectType).kotlin

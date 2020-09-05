@@ -92,6 +92,12 @@ fun Region.setBackground(color: Color, cornerRadii: CornerRadii? = CornerRadii.E
 }
 
 /**
+ * Creates a [Border] object with the given [color] and the specified [width] on all sides.
+ */
+fun createBorder(color: Color, width: Double) =
+    Border(BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths(width)))
+
+/**
  * Set the [Insets.left], [Insets.right], [Insets.top] and [Insets.bottom] values of the padding to the given [value].
  */
 fun Region.setPadding(value: Double) {

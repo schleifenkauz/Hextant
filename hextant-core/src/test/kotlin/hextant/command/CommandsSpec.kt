@@ -16,11 +16,11 @@ internal object CommandsSpec : Spek({
         on("registering a new command") {
             commands.register(command)
             test("the new command should be available") {
-                commands.forClass<ICommandTarget>() shouldMatch Matcher(Collection<*>::contains, command)
+                commands.applicableOn(CommandTarget) shouldMatch Matcher(Collection<*>::contains, command)
             }
         }
         it("should also use the commands of superclasses") {
-            commands.forClass<CommandTarget>() shouldMatch Matcher(Collection<*>::contains, command)
+            commands.applicableOn(CommandTarget) shouldMatch Matcher(Collection<*>::contains, command)
         }
         on("registering a command that is never applicable") {
             val notApplicable = command<ICommandTarget, Unit> {

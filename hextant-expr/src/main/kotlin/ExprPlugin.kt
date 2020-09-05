@@ -7,6 +7,7 @@ import hextant.expr.IntLiteral
 import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
+import hextant.expr.view.Style
 import hextant.fx.WindowSize
 import hextant.inspect.Problem.Severity.Warning
 import hextant.plugin.*
@@ -155,6 +156,7 @@ object ExprPlugin : PluginInitializer({
         shortName = "error"
         executing { _, _ -> throw AssertionError("error") }
     }
+    configurableProperty(Style.borderColor)
     set(WindowSize, WindowSize.FitContent)
     stylesheet("expr.css")
 }) {

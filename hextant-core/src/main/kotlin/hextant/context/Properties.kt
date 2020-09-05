@@ -13,6 +13,7 @@ import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugin.Aspects
+import hextant.serial.BundleSerializer
 import hextant.serial.SerialProperties
 import hextant.settings.PropertyRegistrar
 import hextant.undo.UndoManager
@@ -58,6 +59,7 @@ object Properties {
         registerConstructor<Editor<*>> { bundle, cls ->
             cls.getSimpleEditorConstructor().invoke(bundle[SerialProperties.deserializationContext])
         }
+        register(BundleSerializer)
     }
 
     /**
