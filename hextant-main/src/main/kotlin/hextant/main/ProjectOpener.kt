@@ -29,6 +29,7 @@ internal class ProjectOpener(private val project: File, private val globalContex
     override fun run() {
         val info = readProjectInfo()
         val context = defaultContext(projectContext(globalContext))
+        context.setProjectRoot(project.toPath())
         context[Commands].registerGlobalCommands(context)
         context[Aspects].registerDefaultImplementations()
         val project = loadProject(info, context)
@@ -59,14 +60,14 @@ internal class ProjectOpener(private val project: File, private val globalContex
 
     private fun loadProject(info: ProjectInfo, context: Context): Project {
         val plugins = info.enabledPlugins + "core"
-        loadPlugins(plugins, context, Initialize, project = null)
+        initializePlugins(plugins, context, Initialize, project = null)
         val root = project.resolve(GlobalDirectory.PROJECT_ROOT).toPath()
         val input = context.createInput(root)
         input.bundle[deserializationContext] = context
         val editor = input.readObject() as Editor<*>
         @Suppress("DEPRECATION")
         editor.setFile(PhysicalFile(editor, root, context))
-        loadPlugins(plugins, context, Initialize, editor)
+        initializePlugins(plugins, context, Initialize, editor)
         val project = Project(editor, context, project.toPath())
         context[Project] = project
         val manager = PluginManager(globalContext[marketplace], info.requiredPlugins)

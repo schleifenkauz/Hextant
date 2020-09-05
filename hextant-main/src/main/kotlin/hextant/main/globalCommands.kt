@@ -36,6 +36,7 @@ internal fun Commands.registerGlobalCommands(context: Context) {
         defaultShortcut("Ctrl+Q")
         applicableIf { ctx -> ctx.hasProperty(Project) }
         executing { ctx, _ ->
+            closeProject(ctx)
             ctx[Project].save()
             val loader = context.get<Runnable>(launcher)
             loader.run()

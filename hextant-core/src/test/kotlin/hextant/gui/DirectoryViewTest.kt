@@ -25,7 +25,6 @@ import javafx.scene.input.KeyCode.S
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import validated.*
-import java.nio.file.Paths
 
 class DirectoryViewTest : HextantApplication() {
     private val pane = SimpleEditorPane()
@@ -42,7 +41,6 @@ class DirectoryViewTest : HextantApplication() {
                 }
             }
         })
-        set(projectRoot, Paths.get("D:", "dev", "hextant", "sample-project"))
         set(EditorPane, pane)
     }
 

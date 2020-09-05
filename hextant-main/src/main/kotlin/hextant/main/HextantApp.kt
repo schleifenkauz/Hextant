@@ -21,6 +21,7 @@ internal class HextantApp : Application() {
         globalContext[stage] = primaryStage
         val launcherContext = defaultContext(projectContext(globalContext))
         globalContext[ProjectManager] = ProjectManager(launcherContext)
+        launcherContext.setProjectRoot(launcherContext[GlobalDirectory].root.toPath())
         initializePluginsFromClasspath(launcherContext)
         val sc = Scene(Label())
         sc.initHextantScene(launcherContext)

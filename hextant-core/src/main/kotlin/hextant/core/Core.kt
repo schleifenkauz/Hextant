@@ -4,11 +4,10 @@ import hextant.command.Command.Type.SingleReceiver
 import hextant.command.line.CommandLine
 import hextant.config.disable
 import hextant.config.enable
+import hextant.context.Internal
 import hextant.core.editor.ValidatedTokenEditor
-//import hextant.main.editor.*
-//import hextant.main.plugins.PluginManager
-//import hextant.main.view.PluginsEditorView
 import hextant.plugin.*
+import hextant.settings.Settings
 import hextant.undo.UndoManager
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
@@ -20,6 +19,7 @@ import validated.Validated.Invalid
  * The core plugin registers basic editors, views and commands.
  */
 internal object Core : PluginInitializer({
+    persistentProperty(Internal, Settings)
     registerInspection<Editor<*>> {
         id = "syntax-error"
         description = "Highlights syntax errors"

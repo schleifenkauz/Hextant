@@ -8,7 +8,6 @@ import com.sun.javafx.scene.control.skin.TextFieldSkin
 import hextant.core.InputMethod
 import hextant.core.InputMethod.REGULAR
 import hextant.core.InputMethod.VIM
-import javafx.application.Platform
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode.*
@@ -18,7 +17,6 @@ import javafx.scene.layout.Region
 import javafx.scene.text.Font
 import javafx.scene.text.Text
 import reaktive.event.event
-import kotlin.concurrent.thread
 
 /**
  * A Text field that adds the "hextant-text" style class and does automatically resize its width
@@ -112,12 +110,6 @@ open class HextantTextField(
             updateWidth(new)
         }
         updateWidth(text)
-        thread {
-            Thread.sleep(10)
-            Platform.runLater {
-                updateWidth(text)
-            }
-        }
     }
 
     private fun updateWidth(text: String) {

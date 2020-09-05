@@ -22,10 +22,10 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
     private val usedImplementations = MultiMap<String, ImplementationRequest>()
     private val usedBundles = mutableSetOf<String>()
     private val plugins = mutableMapOf<String, Plugin>()
-    private val enable = event<Plugin>()
-    private val disable = event<Plugin>()
-    val enabledPlugin get() = enable.stream
-    val disabledPlugin get() = disable.stream
+    private val enable = event<Collection<Plugin>>()
+    private val disable = event<Collection<Plugin>>()
+    val enabledPlugins get() = enable.stream
+    val disabledPlugins get() = disable.stream
 
     fun enabledIds(): Set<String> = enabled.mapTo(mutableSetOf()) { it.id } + usedBundles
 
@@ -35,7 +35,6 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
 
     private suspend fun addPlugin(plugin: Plugin): Boolean {
         if (!enabled.add(plugin)) return false
-        enable.fire(plugin)
         val info = plugin.info
         for (dep in info.await().dependencies) dependentOn[dep.id].add(plugin)
         return true
@@ -44,7 +43,6 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
     private suspend fun removePlugin(plugin: Plugin) {
         enabled.remove(plugin)
         requiredByUser.remove(plugin)
-        disable.fire(plugin)
         val info = plugin.info
         for (dep in info.await().dependencies) {
             dependentOn[dep.id].remove(plugin)
@@ -114,10 +112,10 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
     fun enable(plugin: Plugin, confirm: suspend (Set<Plugin>) -> Boolean): Collection<Plugin>? = runBlocking {
         val deps = mutableSetOf<Plugin>()
         getDependencies(plugin, deps, mutableSetOf())
-        val enable = deps + plugin
-        val newAspects = requestedAspects(enable)
-        val newFeatures = requestedFeatures(enable)
-        val ownImplementations = enable.map { it.implementations.await() }.flatten()
+        val enabled = deps + plugin
+        val newAspects = requestedAspects(enabled)
+        val newFeatures = requestedFeatures(enabled)
+        val ownImplementations = enabled.map { it.implementations.await() }.flatten()
             .mapTo(mutableSetOf()) { (_, aspect, feature) -> ImplementationRequest(aspect, feature) }
         val requiredImpls = getRequiredImplementations(newAspects, newFeatures, ownImplementations)
         if (deps.isNotEmpty() && !confirm(deps)) return@runBlocking null
@@ -125,9 +123,10 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         features.putAll(newFeatures)
         addImplementations(requiredImpls)
         requiredByUser.add(plugin)
-        for (pl in enable) addPlugin(pl)
-        downloadEnabled(enable)
-        enable
+        for (pl in enabled) addPlugin(pl)
+        downloadEnabled(enabled)
+        enable.fire(enabled)
+        enabled
     }
 
     private suspend fun downloadEnabled(enable: Set<Plugin>) = coroutineScope {

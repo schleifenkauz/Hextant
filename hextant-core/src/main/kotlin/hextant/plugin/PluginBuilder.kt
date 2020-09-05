@@ -48,6 +48,11 @@ class PluginBuilder internal constructor(
         /**
          * This phase is executed when the user disables a plugin.
          */
-        Disable
+        Disable,
+
+        /**
+         * This phase is executed when a project is closed.
+         */
+        Close
     }
 }

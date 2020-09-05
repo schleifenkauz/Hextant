@@ -70,7 +70,7 @@ internal fun TextField.smartSetText(new: String) {
     val previous = text
     if (previous != new) {
         text = new
-        if (previous.isEmpty()) {
+        if (new.startsWith(previous)) {
             positionCaret(new.length)
         }
     }

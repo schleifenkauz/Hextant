@@ -23,9 +23,9 @@ object SerialProperties {
     val serialContext = Property<SerialContext, Any, Internal>("serial context")
 
     /**
-     * The [Path] of the project root
+     * The directory where the project files reside.
      */
-    val projectRoot = SimpleProperty<Path>("project root")
+    val projectRoot = Property<Path, Any, Internal>("project root")
 
     /**
      * The [Context] that is used for creating editors during deserialization.

@@ -2,14 +2,20 @@
  * @author Nikolaus Knop
  */
 
+@file:Suppress("UNCHECKED_CAST")
+
 package hextant.plugin
 
 import bundles.Property
 import hextant.command.*
+import hextant.context.*
 import hextant.fx.Stylesheets
 import hextant.inspect.*
-import hextant.plugin.PluginBuilder.Phase.Disable
-import hextant.plugin.PluginBuilder.Phase.Initialize
+import hextant.plugin.PluginBuilder.Phase.*
+import hextant.serial.SerialProperties.projectRoot
+import hextant.settings.ConfigurableProperty
+import hextant.settings.PropertyRegistrar
+import java.nio.file.Files
 
 /**
  * Registers the given [command].
@@ -50,7 +56,7 @@ fun PluginBuilder.stylesheet(resource: String) {
 }
 
 /**
- * Sets the value of the given [property]
+ * Sets the value of the given [property].
  */
 fun <T, Read : Any, Write : Read> PluginBuilder.set(permission: Write, property: Property<T, Read, Write>, value: T) {
     on(Initialize) { ctx -> ctx[permission, property] = value }
@@ -58,8 +64,55 @@ fun <T, Read : Any, Write : Read> PluginBuilder.set(permission: Write, property:
 }
 
 /**
- * Sets the value of the given [property]
+ * Sets the value of the given [property].
  */
 fun <T> PluginBuilder.set(property: Property<T, Any, Any>, value: T) {
     set(Any(), property, value)
+}
+
+/**
+ * Registers a *persistent property*.
+ *
+ * - When the plugin is enabled the default value of the property is used to initialize it.
+ * - The value of this property is stored in the project directory and is retrieved when the project is opened.
+ * - When the plugin is disabled the value of the property and the corresponding file is deleted.
+ */
+fun <T, Read : Any, Write : Read> PluginBuilder.persistentProperty(
+    permission: Write,
+    property: Property<T, Read, Write>
+) {
+    on(Enable) { ctx ->
+        ctx[permission, property] = property.default
+    }
+    on(Initialize) { ctx ->
+        if (!ctx.hasProperty(permission, property)) {
+            val input = context.createInput(getPath(ctx, property))
+            val value = input.readObject()
+            ctx[permission, property] = value as T
+        }
+    }
+    on(Close) { ctx ->
+        val output = ctx.createOutput(getPath(ctx, property))
+        val value = ctx[permission, property]
+        output.writeObject(value)
+    }
+    on(Disable) { ctx ->
+        ctx.delete(permission, property)
+        Files.deleteIfExists(getPath(ctx, property))
+    }
+}
+
+private fun getPath(ctx: Context, property: Property<*, *, *>) = ctx[projectRoot].resolve("${property.name}.bin")
+
+
+/**
+ * Registers a *configurable property*.
+ *
+ * @param editorFactory produces the editor used to edit the value of this property.
+ * Configurable properties can be set by the user via the command line.
+ */
+fun <T : Any> PluginBuilder.configurableProperty(property: Property<T, *, Any>, editorFactory: EditorFactory<T>) {
+    val p = ConfigurableProperty(property, editorFactory)
+    on(Initialize) { ctx -> ctx[PropertyRegistrar].configurable.add(p) }
+    on(Disable) { ctx -> ctx[PropertyRegistrar].configurable.remove(p) }
 }

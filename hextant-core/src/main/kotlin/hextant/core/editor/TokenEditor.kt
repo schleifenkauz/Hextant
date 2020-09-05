@@ -73,8 +73,8 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     private suspend fun tryCompile(item: Any): Validated<R> =
         context.executeSafely("compiling item", invalidComponent) { withContext(Dispatchers.Default) { compile(item) } }
 
-    private fun tryCompile(text: String): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { compile(text) }
+    private suspend fun tryCompile(text: String): Validated<R> =
+        context.executeSafely("compiling item", invalidComponent) { withContext(Dispatchers.Default) { compile(text) } }
 
     override fun viewAdded(view: V) {
         view.displayText(text.now)

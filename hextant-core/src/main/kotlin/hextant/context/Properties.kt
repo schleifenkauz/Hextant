@@ -14,7 +14,7 @@ import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugin.Aspects
 import hextant.serial.SerialProperties
-import hextant.settings.model.ConfigurableProperties
+import hextant.settings.PropertyRegistrar
 import hextant.undo.UndoManager
 import kserial.KSerial
 import kserial.SerialContext
@@ -48,7 +48,7 @@ object Properties {
         set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
         set(Internal, SerialProperties.serialContext, createSerialContext())
         set(Internal, SerialProperties.serial, KSerial.newInstance())
-        set(Internal, ConfigurableProperties, ConfigurableProperties())
+        set(PropertyRegistrar, PropertyRegistrar())
         set(Internal, Aspects, Aspects())
         set(Internal, classLoader, loader)
     }

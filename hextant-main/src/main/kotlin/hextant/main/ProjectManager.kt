@@ -31,6 +31,7 @@ internal class ProjectManager(private val context: Context) {
         val manager = PluginManager(marketplace, required)
         manager.enableAll(required)
         val editor = PluginsEditor(context, manager, setOf(Local, Language))
+        context[PluginManager] = manager
         val plugins = getUserInput(editor).ifInvalid { return }.map { it.id }
         val dest = context[GlobalDirectory][PROJECTS].resolve(projectName)
         val cl = HextantClassLoader(context, plugins)

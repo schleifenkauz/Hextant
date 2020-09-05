@@ -30,7 +30,8 @@ internal class ProjectCreator(
         val str = Json.encodeToString(project)
         dest.resolve(GlobalDirectory.PROJECT_INFO).writeText(str)
         val context = defaultContext(projectContext(globalContext))
-        loadPlugins(enabledPlugins + "core", context, Enable, project = null)
+        context.setProjectRoot(dest.toPath())
+        initializePlugins(enabledPlugins + "core", context, Enable, project = null)
         val cls = context[HextantClassLoader].loadClass(projectType).kotlin
         val obj = cls.objectInstance
         val companion = cls.companionObjectInstance
