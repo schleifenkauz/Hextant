@@ -110,6 +110,7 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
     }
 
     fun enable(plugin: Plugin, confirm: suspend (Set<Plugin>) -> Boolean): Collection<Plugin>? = runBlocking {
+        if (plugin in enabled) return@runBlocking emptySet()
         val deps = mutableSetOf<Plugin>()
         getDependencies(plugin, deps, mutableSetOf())
         val enabled = deps + plugin
@@ -254,6 +255,7 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
                 implementation.remove(ImplementationRequest(a, f))
             }
         }
+        disable.fire(removed)
         removed
     }
 

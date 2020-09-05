@@ -52,7 +52,7 @@ internal class PluginsEditor(
 
         views {
             launch {
-                available.addAll(disabled.filter { it.matches(availableSearchText) })
+                available.addAll(disabled.filter { it.info.await().type in types && it.matches(availableSearchText) })
                 enabled.removeAll(disabled)
             }
         }
@@ -61,7 +61,6 @@ internal class PluginsEditor(
     fun searchInAvailable(view: PluginsEditorView) {
         launch {
             val marketplace = context[marketplace]
-            withContext(Dispatchers.Default) { }
             val available = marketplace.getPlugins(view.availableSearchText, LIMIT, types, manager.enabledIds())
             view.available.clear()
             view.available.addAll(available.map { id -> manager.getPlugin(id) })
@@ -82,7 +81,6 @@ internal class PluginsEditor(
     }
 
     private suspend fun Plugin.matches(searchText: String): Boolean {
-        if (info.await().type !in types) return false
         return info.await().name.matches(searchText) || info.await().author.matches(searchText) || id.matches(searchText)
     }
 

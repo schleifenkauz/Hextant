@@ -4,9 +4,8 @@
 
 package hextant.main
 
+import hextant.command.*
 import hextant.command.Command.Type.SingleReceiver
-import hextant.command.Commands
-import hextant.command.registerCommand
 import hextant.context.Context
 import hextant.context.createControl
 import hextant.fx.showStage
@@ -15,7 +14,8 @@ import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
 import hextant.main.view.PluginsEditorView
 import hextant.plugins.PluginInfo
-import hextant.plugins.PluginInfo.Type
+import hextant.plugins.PluginInfo.Type.Global
+import hextant.plugins.PluginInfo.Type.Local
 
 internal fun Commands.registerGlobalCommands(context: Context) {
     registerCommand<Context, Unit> {
@@ -43,59 +43,61 @@ internal fun Commands.registerGlobalCommands(context: Context) {
             loader.run()
         }
     }
-    pluginCommands()
+    register(showPluginManager(setOf(Local, Global)))
+    register(enablePlugin(setOf(Local, Global)))
+    register(disablePlugin)
 }
 
-internal fun Commands.pluginCommands() {
-    registerCommand<Context, Unit> {
-        name = "Show plugin manager"
-        shortName = "plugins"
-        description = "Shows the plugin manager"
-        type = SingleReceiver
-        defaultShortcut("Ctrl+P")
-        applicableIf { ctx -> ctx.hasProperty(PluginManager) }
-        executing { ctx, _ ->
-            val manager = ctx[PluginManager]
-            val editor = PluginsEditor(ctx, manager, Type.all)
-            showStage(editor)
-        }
+internal fun showPluginManager(types: Set<PluginInfo.Type>) = command<Context, Unit> {
+    name = "Show plugin manager"
+    shortName = "plugins"
+    description = "Shows the plugin manager"
+    type = SingleReceiver
+    defaultShortcut("Ctrl+P")
+    applicableIf { ctx -> ctx.hasProperty(PluginManager) }
+    executing { ctx, _ ->
+        val manager = ctx[PluginManager]
+        val editor = PluginsEditor(ctx, manager, types)
+        showStage(editor)
     }
-    registerCommand<Context, Unit> {
-        name = "Enable plugin"
-        shortName = "enable-plugin"
-        description = "Enables a plugin"
-        type = SingleReceiver
-        applicableIf { ctx -> ctx.hasProperty(PluginManager) }
-        addParameter<PluginInfo> {
-            name = "plugin"
-            description = "The plugin that should be enabled"
-            editWith<DisabledPluginInfoEditor>()
-        }
-        executing { context, (plugin) ->
-            plugin as PluginInfo
-            val manager = context[PluginManager]
-            val editor = PluginsEditor(context, manager, Type.all)
-            val view = context.createControl(editor) as PluginsEditorView
-            editor.enable(manager.getPlugin(plugin.id), view)
-        }
+}
+
+internal fun enablePlugin(types: Set<PluginInfo.Type>) = command<Context, Unit> {
+    name = "Enable plugin"
+    shortName = "enable-plugin"
+    description = "Enables a plugin"
+    type = SingleReceiver
+    applicableIf { ctx -> ctx.hasProperty(PluginManager) }
+    addParameter<PluginInfo> {
+        name = "plugin"
+        description = "The plugin that should be enabled"
+        editWith { ctx -> DisabledPluginInfoEditor(ctx, types) }
     }
-    registerCommand<Context, Unit> {
-        name = "Disable plugin"
-        shortName = "disable-plugin"
-        description = "Disables a plugin"
-        type = SingleReceiver
-        applicableIf { ctx -> ctx.hasProperty(PluginManager) }
-        addParameter<PluginInfo> {
-            name = "plugin"
-            description = "The plugin that should be disabled"
-            editWith<EnabledPluginInfoEditor>()
-        }
-        executing { context, (plugin) ->
-            plugin as PluginInfo
-            val manager = context[PluginManager]
-            val editor = PluginsEditor(context, manager, Type.all)
-            val view = context.createControl(editor) as PluginsEditorView
-            editor.disable(manager.getPlugin(plugin.id), view)
-        }
+    executing { context, (plugin) ->
+        plugin as PluginInfo
+        val manager = context[PluginManager]
+        val editor = PluginsEditor(context, manager, emptySet())
+        val view = context.createControl(editor) as PluginsEditorView
+        editor.enable(manager.getPlugin(plugin.id), view)
+    }
+}
+
+internal val disablePlugin = command<Context, Unit> {
+    name = "Disable plugin"
+    shortName = "disable-plugin"
+    description = "Disables a plugin"
+    type = SingleReceiver
+    applicableIf { ctx -> ctx.hasProperty(PluginManager) }
+    addParameter<PluginInfo> {
+        name = "plugin"
+        description = "The plugin that should be disabled"
+        editWith<EnabledPluginInfoEditor>()
+    }
+    executing { context, (plugin) ->
+        plugin as PluginInfo
+        val manager = context[PluginManager]
+        val editor = PluginsEditor(context, manager, emptySet())
+        val view = context.createControl(editor) as PluginsEditorView
+        editor.disable(manager.getPlugin(plugin.id), view)
     }
 }

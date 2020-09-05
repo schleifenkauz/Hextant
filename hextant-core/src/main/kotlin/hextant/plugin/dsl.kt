@@ -19,7 +19,7 @@ import java.nio.file.Files
 /**
  * Registers the given [command].
  */
-inline fun <reified R : Any> PluginBuilder.command(command: Command<R, *>) {
+inline fun <reified R : Any> PluginBuilder.registerCommand(command: Command<R, *>) {
     on(Initialize) { ctx -> ctx[Commands].register(command) }
     on(Disable) { ctx -> ctx[Commands].unregister(command) }
 }
@@ -28,7 +28,7 @@ inline fun <reified R : Any> PluginBuilder.command(command: Command<R, *>) {
  * Builds a command and registers it.
  */
 inline fun <reified R : Any, T : Any> PluginBuilder.registerCommand(block: CommandBuilder<R, T>.() -> Unit) {
-    command(command(block))
+    registerCommand(command(block))
 }
 
 /**

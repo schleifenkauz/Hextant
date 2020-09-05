@@ -38,8 +38,8 @@ object Core : PluginInitializer({
         isSevere(true)
     }
     stylesheet("hextant/core/style.css")
-    command(enable)
-    command(disable)
+    registerCommand(enable)
+    registerCommand(disable)
     registerCommand<Editor<*>, String> {
         name = "Undo"
         shortName = "undo"

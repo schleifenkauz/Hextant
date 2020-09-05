@@ -1,6 +1,6 @@
 
 import bundles.SimpleReactiveProperty
-import hextant.command.Command
+import hextant.command.Command.Type.SingleReceiver
 import hextant.command.executingCompoundEdit
 import hextant.core.view.TokenEditorControl
 import hextant.expr.IntLiteral
@@ -33,7 +33,7 @@ object ExprPlugin : PluginInitializer({
         name = "Flip operands"
         shortName = "flip_op"
         description = "Flips the both operands in this operator application"
-        type = Command.Type.SingleReceiver
+        type = SingleReceiver
         applicableIf { oe ->
             val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
             oae.operator.result.now.map { it.isCommutative }.ifInvalid { false }

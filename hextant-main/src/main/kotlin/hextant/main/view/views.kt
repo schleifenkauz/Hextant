@@ -9,7 +9,6 @@ import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.view.TokenEditorControl
 import hextant.main.editor.*
-import hextant.plugins.PluginInfo
 
 @ProvideImplementation(ControlFactory::class)
 internal fun createControl(editor: ProjectTypeEditor, arguments: Bundle) =
@@ -28,4 +27,4 @@ internal fun createControl(editor: EnabledPluginInfoEditor, arguments: Bundle) =
 
 @ProvideImplementation(ControlFactory::class)
 internal fun createControl(editor: DisabledPluginInfoEditor, arguments: Bundle) =
-    TokenEditorControl(editor, arguments, DisabledPluginInfoCompleter(PluginInfo.Type.all))
+    TokenEditorControl(editor, arguments, DisabledPluginInfoCompleter(editor.types))

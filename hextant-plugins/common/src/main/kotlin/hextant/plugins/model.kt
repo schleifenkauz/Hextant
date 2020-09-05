@@ -54,7 +54,7 @@ data class PluginInfo(
 
     @Serializable
     enum class Type {
-        Library, Language, Global, Local;
+        Language, Global, Local;
 
         companion object {
             val all = values().toSet()
