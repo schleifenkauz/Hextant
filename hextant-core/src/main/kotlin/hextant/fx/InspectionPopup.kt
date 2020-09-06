@@ -25,14 +25,7 @@ internal class InspectionPopup(private val context: Context, private val target:
     private val container = VBox()
 
     init {
-        context[Internal, Stylesheets].manage(scene)
         container.styleClass.add("problem-list")
-        isAutoHide = true
-        scene.registerShortcuts {
-            on("ESCAPE") {
-                hide()
-            }
-        }
         scene.root = container
     }
 

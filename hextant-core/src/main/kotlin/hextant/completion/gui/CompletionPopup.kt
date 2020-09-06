@@ -30,6 +30,7 @@ internal class CompletionPopup<Ctx, T : Any>(
     private val ctx: Ctx,
     private val completer: () -> Completer<Ctx, T>
 ) : HextantPopup(context) {
+    private val root = VBox()
     private var input = ""
     private val choose = event<Completion<T>>()
     private val updater = GlobalScope.actor<String>(Dispatchers.Main, capacity = Channel.CONFLATED) {
@@ -39,7 +40,7 @@ internal class CompletionPopup<Ctx, T : Any>(
                     completer().completions(ctx, input)
                 }
             }
-            setCompletions(completions)
+            root.children.setAll(completions.map { c -> createCompletionItem(c) })
             valid = true
             if (completions.isNotEmpty()) super.show()
             else hide()
@@ -53,22 +54,21 @@ internal class CompletionPopup<Ctx, T : Any>(
     private var valid = false
 
     init {
-        isAutoHide = true
-        scene.registerShortcuts {
-            on("ESCAPE") {
-                hide()
-            }
-        }
+        scene.root = root
+        root.styleClass.add("completions")
     }
 
     /**
      * Show the completions if there are any
      */
     override fun show() {
-        GlobalScope.launch(Dispatchers.Main) {
-            if (!valid) updater.send(input)
+        if (!valid) {
+            GlobalScope.launch(Dispatchers.Main) {
+                updater.send(input)
+            }
+        } else if (root.children.isNotEmpty()) {
+            super.show()
         }
-        if (scene.root.childrenUnmodifiable.isNotEmpty()) super.show()
     }
 
     /**
@@ -80,15 +80,6 @@ internal class CompletionPopup<Ctx, T : Any>(
         if (isShowing) GlobalScope.launch { updater.send(text) }
     }
 
-    private fun setCompletions(completions: Collection<Completion<T>>) {
-        val root = VBox()
-        root.styleClass.add("completions")
-        for (c in completions) {
-            addChoice(c, root)
-        }
-        scene.root = root
-    }
-
     private fun createCompletionItem(completion: Completion<T>): Node {
         val container = BorderPane()
         val left = HBox(5.0)
@@ -98,6 +89,10 @@ internal class CompletionPopup<Ctx, T : Any>(
         addInfo(container, completion.infoText)
         installTooltip(container, completion.tooltipText)
         configureItem(container)
+        container.onAction {
+            choose.fire(completion)
+            hide()
+        }
         return container
     }
 
@@ -135,15 +130,6 @@ internal class CompletionPopup<Ctx, T : Any>(
     private fun installTooltip(container: BorderPane, tooltipText: String?) {
         if (tooltipText != null) {
             Tooltip.install(container, Tooltip(tooltipText))
-        }
-    }
-
-    private fun addChoice(c: Completion<T>, container: VBox) {
-        val n = createCompletionItem(c)
-        container.children.add(n)
-        n.onAction {
-            choose.fire(c)
-            hide()
         }
     }
 

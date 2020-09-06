@@ -5,6 +5,7 @@
 package hextant.fx
 
 import hextant.context.Context
+import javafx.beans.InvalidationListener
 import javafx.scene.Parent
 import javafx.stage.Popup
 
@@ -16,8 +17,18 @@ open class HextantPopup(context: Context) : Popup() {
         scene.root = root
     }
 
+    private val focusListener = InvalidationListener { hide() }
+
     init {
         context[Stylesheets].manage(scene)
+        autoHide()
+    }
+
+    private fun autoHide() {
+        ownerWindowProperty().addListener { _, old, new ->
+            old?.scene?.focusOwnerProperty()?.removeListener(focusListener)
+            new?.scene?.focusOwnerProperty()?.addListener(focusListener)
+        }
         isHideOnEscape = true
         isAutoHide = true
         scene.registerShortcuts {
