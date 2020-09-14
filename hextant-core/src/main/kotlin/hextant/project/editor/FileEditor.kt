@@ -76,6 +76,8 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
+    override fun supportsCopyPaste(): Boolean = true
+
     override val result: ReactiveValidated<File<R>> get() = _result
 
     companion object {

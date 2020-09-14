@@ -15,9 +15,9 @@ interface ExpanderDelegator<out E : Editor<*>> {
 }
 
 abstract class ExpanderConfigurator<E : Editor<*>>(configure: ExpanderConfig<E>.() -> Unit) : ExpanderDelegator<E> {
-    private val config = ExpanderConfig<E>().apply(configure)
+    val config = ExpanderConfig<E>().apply(configure)
 
-    final override fun getDelegate(): ExpanderDelegate<E> = config
+    final override fun getDelegate(): ExpanderConfig<E> = config
 }
 
 abstract class SimpleExpanderDelegator<E : Editor<*>>(private val function: (text: String, ctx: Context) -> E?) :

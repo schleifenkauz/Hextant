@@ -2,9 +2,8 @@
   "id": "sample",
   "name": "Hextant Sample",
   "author": "Nikolaus Knop",
-  "type": "Global",
-  "description": "Extension for the Expression plugin",
+  "type": "Language",
+  "description": "Sample language to demonstrate the features of Hextant",
   "initializer": "SamplePlugin",
-  "dependencies": [
-  ]
+  "dependencies": []
 }

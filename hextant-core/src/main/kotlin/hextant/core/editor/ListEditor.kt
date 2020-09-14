@@ -160,6 +160,8 @@ abstract class ListEditor<R, E : Editor<R>>(
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
+    override fun supportsCopyPaste(): Boolean = editors.now.all { e -> e.supportsCopyPaste() }
+
     /**
      * Add a new editor at the given index using [createEditor] to create a new editor
      */

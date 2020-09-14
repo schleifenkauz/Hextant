@@ -278,6 +278,8 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
+    override fun supportsCopyPaste(): Boolean = true
+
     override fun viewAdded(view: ExpanderView) {
         when (val s = state) {
             is Unexpanded -> view.displayText(s.text)

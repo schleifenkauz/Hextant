@@ -1,0 +1,15 @@
+.hextant-text.reference {
+    -fx-text-fill: #CCA03C;
+}
+
+.hextant-text.identifier {
+    -fx-text-fill: #CCA03C;
+}
+
+.hextant-text.int-literal {
+    -fx-text-fill: blue;
+}
+
+.hextant-text.type {
+    -fx-text-fill: purple;
+}

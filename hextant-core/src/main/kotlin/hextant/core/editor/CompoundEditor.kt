@@ -60,12 +60,11 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
         return res
     }
 
-    override fun createSnapshot(): EditorSnapshot<*> =
-        CompoundEditorSnapshot(this)
+    override fun createSnapshot(): EditorSnapshot<*> = CompoundEditorSnapshot(this)
+
+    override fun supportsCopyPaste(): Boolean = children.now.all { e -> e.supportsCopyPaste() }
 
     companion object {
-        private fun <T, R> delegate(value: T): ReadOnlyProperty<R, T> = object : ReadOnlyProperty<R, T> {
-            override fun getValue(thisRef: R, property: KProperty<*>): T = value
-        }
+        private fun <T, R> delegate(value: T): ReadOnlyProperty<R, T> = ReadOnlyProperty { _, _ -> value }
     }
 }

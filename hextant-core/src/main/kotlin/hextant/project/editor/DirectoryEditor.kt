@@ -25,6 +25,8 @@ class DirectoryEditor<R>(
         ed !== editor && ed.text.now == name
     }
 
+    override fun supportsCopyPaste(): Boolean = true
+
     override val result: ReactiveValidated<Directory<R>> = composeResult(itemName, items)
 
     override fun deletePhysical() {}

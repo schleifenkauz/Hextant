@@ -82,6 +82,8 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
 
     override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
 
+    override fun supportsCopyPaste(): Boolean = true
+
     /**
      * Set the text of this editor, such that the result is automatically updated
      */

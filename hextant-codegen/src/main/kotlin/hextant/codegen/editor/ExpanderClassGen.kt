@@ -47,7 +47,7 @@ internal object ExpanderClassGen : EditorClassGen<Expandable>() {
                 { "context" of "Context"; "edited" of name }, "context".e,
                 "context".e.call("createEditor", "edited".e) cast editorType
             )
-            addVal("config", modifiers = { private() }) { initializeWith(delegate) }
+            addVal("config") { initializeWith(delegate) }
             addSingleExprFunction(
                 "expand",
                 { override() },

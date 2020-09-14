@@ -7,6 +7,8 @@ package hextant.core.editor
 import hextant.completion.*
 import hextant.context.Context
 import hextant.core.Editor
+import validated.map
+import validated.orNull
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -64,12 +66,28 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     }
 
     /**
+     * Alias for [registerConstant].
+     */
+    operator fun String.plusAssign(create: (ctx: Context) -> E) {
+        registerConstant(this, create)
+    }
+
+    /**
      * On expanding, the given [interceptor] is invoked and if it returns a non-null value this value is returned.
      *
      * Interceptors the have been registered **last** are tried **first**
      */
     fun registerInterceptor(interceptor: (text: String, ctx: Context) -> E?) {
         interceptors.addFirst(interceptor)
+    }
+
+    /**
+     * Registers an interceptor that tries to to compile its given text with the given [tokenType].
+     */
+    fun <T> registerTokenInterceptor(tokenType: TokenType<T>, factory: (ctx: Context, token: T) -> E) {
+        registerInterceptor { text: String, ctx: Context ->
+            tokenType.compile(text).map { t -> factory(ctx, t) }.orNull()
+        }
     }
 
     /**
@@ -125,6 +143,17 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      * Return an [ExpanderConfig] which uses this config as a fallback option and apply the [additionalConfig] block.
      */
     fun extend(additionalConfig: ExpanderConfig<E>.() -> Unit) = ExpanderConfig(this).apply(additionalConfig)
+
+    /**
+     * Copies all the constant factories and interceptors from the given [config] to this one.
+     */
+    fun alsoUse(config: ExpanderConfig<E>) {
+        constant.putAll(config.constant)
+        interceptors.addAll(config.interceptors)
+        for ((cls, interceptors) in config.typeSafeInterceptors) {
+            typeSafeInterceptors.getOrPut(cls) { LinkedList() }.addAll(interceptors)
+        }
+    }
 
     /**
      * Return an [ExpanderConfig] which first tries the given [config] and then uses this configuration as a fallback option.

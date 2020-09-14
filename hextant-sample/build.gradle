@@ -5,7 +5,7 @@ version = '0.1'
 kapt {
     annotationProcessors("hextant.codegen.MainProcessor")
     useBuildCache = true
-    correctErrorTypes = false
+    correctErrorTypes = true
 }
 
 task hextantPublish(type: Copy) {
@@ -22,5 +22,4 @@ dependencies {
     kapt project(":hextant-codegen")
     kapt project(":hextant-core")
     compileOnly project(":hextant-codegen")
-    compileOnly project(":hextant-expr")
 }
