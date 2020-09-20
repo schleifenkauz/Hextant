@@ -14,8 +14,8 @@ abstract class PluginInitializer(private val initialize: PluginBuilder.() -> Uni
     /**
      * Applies this plugin to the the given [context] wrapping in a [PluginBuilder].
      */
-    fun apply(context: Context, phase: PluginBuilder.Phase, project: Editor<*>?) {
-        val builder = PluginBuilder(phase, context, project)
+    fun apply(context: Context, phase: PluginBuilder.Phase, project: Editor<*>?, testing: Boolean = false) {
+        val builder = PluginBuilder(phase, context, project, testing)
         builder.initialize()
     }
 }

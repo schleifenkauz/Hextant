@@ -5,18 +5,31 @@
 package hextant.serial
 
 /**
- * An [EditorAccessor] connects a [hextant.Editor] with one of its children
+ * An [EditorAccessor] connects a [hextant.core.Editor] with one of its children
  */
 sealed class EditorAccessor
 
-internal data class PropertyAccessor(val propertyName: String) : EditorAccessor() {
+/**
+ * The editor accessed by this accessor is a named component of another editor.
+ *
+ * @property propertyName the name of the property that references the accessed editor from its parent.
+ */
+data class PropertyAccessor(val propertyName: String) : EditorAccessor() {
     override fun toString(): String = ".$propertyName"
 }
 
-internal data class IndexAccessor(val index: Int) : EditorAccessor() {
+/**
+ * The editor accessed by this accessor is a child of a [hextant.core.editor.ListEditor].
+ *
+ * @property index the zero-based index of this editor in the list of its siblings.
+ */
+data class IndexAccessor(val index: Int) : EditorAccessor() {
     override fun toString(): String = "[$index]"
 }
 
-internal object ExpanderContent : EditorAccessor() {
+/**
+ * The editor accessed by this accessor is the child of an [hextant.core.editor.Expander].
+ */
+object ExpanderContent : EditorAccessor() {
     override fun toString(): String = ".editor.now"
 }

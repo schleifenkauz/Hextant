@@ -95,7 +95,13 @@ open class HextantTextField(
                 }
             }
         }
-        autoSize()
+        sceneProperty().addListener { _ ->
+            runFXWithTimeout {
+                prefWidth = 0.0
+                updateWidth(this.text)
+            }
+        }
+        runFXWithTimeout { autoSize() }
     }
 
     override fun requestFocus() {

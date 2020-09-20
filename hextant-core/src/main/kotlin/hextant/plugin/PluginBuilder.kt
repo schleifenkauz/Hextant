@@ -9,12 +9,14 @@ import hextant.core.Editor
 
 /**
  * The [PluginBuilder] provides the DSL needed to initialize plugins.
+ * @property testing `true` when the initializer should not rely on external things such as the file system.
  */
 @PluginDsl
 class PluginBuilder internal constructor(
     @PublishedApi internal val phase: Phase,
     @PublishedApi internal val context: Context,
-    @PublishedApi internal val root: Editor<*>?
+    @PublishedApi internal val root: Editor<*>?,
+    val testing: Boolean = false
 ) {
     /**
      * If the specified [phase] is currently executed the given [action] is supplied with the root context.

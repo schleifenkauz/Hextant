@@ -12,6 +12,11 @@ import hextant.core.Editor
  */
 interface ProjectType {
     /**
+     * Initialize the given [context] with the necessary properties.
+     */
+    fun initializeContext(context: Context) {}
+
+    /**
      * Create the root editor for a new project.
      */
     fun createProject(context: Context): Editor<*>

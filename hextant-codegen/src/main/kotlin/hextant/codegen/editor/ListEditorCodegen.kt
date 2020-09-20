@@ -12,7 +12,7 @@ import javax.lang.model.element.TypeElement
 internal object ListEditorCodegen : EditorClassGen<EditableList>() {
     override fun process(element: TypeElement, annotation: EditableList) {
         val editorCls = getTypeMirror(annotation::editorCls).takeIf { it.toString() != None::class.qualifiedName }
-        val editorClsName = editorCls?.toString() ?: getEditorClassName(element.asType(), null)
+        val editorClsName = editorCls?.toString() ?: getEditorClassName(element.asType())
         val simpleName = element.simpleName.toString()
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "ListEditor")
         val (pkg, name) = splitPackageAndSimpleName(qn)

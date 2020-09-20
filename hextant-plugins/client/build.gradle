@@ -1,3 +1,5 @@
+apply plugin: HextantLibrary
+
 dependencies {
     compile project(":hextant-plugins:common")
     implementation "io.ktor:ktor-client-serialization-jvm:$ktor_version"

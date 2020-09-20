@@ -15,6 +15,7 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Compound
 import hextant.core.view.EditorControl
+import javafx.application.Platform
 import javafx.scene.*
 import javafx.scene.control.*
 import javafx.scene.input.*
@@ -25,6 +26,7 @@ import javafx.stage.Stage
 import reaktive.value.now
 import validated.Validated
 import validated.invalidComponent
+import kotlin.concurrent.thread
 
 internal fun control(skin: Skin<out Control>): Control {
     return object : Control() {
@@ -184,3 +186,13 @@ fun showStage(root: Parent): Stage = Stage().apply {
  * Shows a [Stage] with the view of the given [editor] as the root.
  */
 fun showStage(editor: Editor<*>) = showStage(editor.context.createControl(editor))
+
+/**
+ * Executes the given action at some point such that
+ */
+inline fun runFXWithTimeout(ms: Long = 10, crossinline action: () -> Unit) {
+    thread {
+        Thread.sleep(ms)
+        Platform.runLater { action() }
+    }
+}

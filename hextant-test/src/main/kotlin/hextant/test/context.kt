@@ -12,3 +12,4 @@ import hextant.main.initializePluginsFromClasspath
 private val root = HextantPlatform.projectContext().also { ctx -> initializePluginsFromClasspath(ctx) }
 
 fun testingContext(block: Context.() -> Unit = {}): Context = defaultContext(root).apply(block)
+

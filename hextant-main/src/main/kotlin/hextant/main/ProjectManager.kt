@@ -16,6 +16,7 @@ import hextant.main.plugins.PluginManager
 import hextant.plugins.LocatedProjectType
 import hextant.plugins.PluginInfo.Type.Global
 import hextant.plugins.PluginInfo.Type.Local
+import hextant.plugins.ProjectType
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import validated.ifInvalid
@@ -37,7 +38,7 @@ internal class ProjectManager(private val globalContext: Context) {
         val cl = HextantClassLoader(globalContext, plugins)
         cl.executeInNewThread(
             "hextant.main.ProjectCreator",
-            projectType.clazz,
+            ProjectType(projectType.name, projectType.clazz),
             dest,
             required,
             plugins,
@@ -54,10 +55,10 @@ internal class ProjectManager(private val globalContext: Context) {
         ) name: String
     ) {
         val file = globalContext[GlobalDirectory].getProject(name)
-        val desc = file.resolve(GlobalDirectory.PROJECT_INFO).bufferedReader().use { r -> r.readText() }
-        val (plugins) = Json.decodeFromString<ProjectInfo>(desc)
-        val cl = HextantClassLoader(globalContext, plugins)
-        cl.executeInNewThread("hextant.main.ProjectOpener", file, globalContext)
+        val desc = file.resolve(GlobalDirectory.PROJECT_INFO).readText()
+        val info = Json.decodeFromString<ProjectInfo>(desc)
+        val cl = HextantClassLoader(globalContext, info.enabledPlugins)
+        cl.executeInNewThread("hextant.main.ProjectOpener", file, globalContext, info)
     }
 
     companion object : SimpleProperty<ProjectManager>("project manager")

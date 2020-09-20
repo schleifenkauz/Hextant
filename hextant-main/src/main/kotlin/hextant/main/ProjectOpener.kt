@@ -20,18 +20,21 @@ import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.serial.PhysicalFile
 import hextant.serial.SerialProperties.deserializationContext
 import javafx.stage.Stage
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import reaktive.Observer
 import java.io.File
 
-internal class ProjectOpener(private val project: File, private val globalContext: Context) : Runnable {
+internal class ProjectOpener(
+    private val project: File,
+    private val globalContext: Context,
+    private val info: ProjectInfo
+) : Runnable {
     override fun run() {
-        val info = readProjectInfo()
         val context = defaultContext(projectContext(globalContext))
         context.setProjectRoot(project.toPath())
         context[Commands].registerGlobalCommands(context)
         context[Aspects].registerDefaultImplementations()
+        val type = getProjectTypeInstance(context[HextantClassLoader], info.projectType.clazz)
+        type.initializeContext(context)
         val project = loadProject(info, context)
         val view = context.createControl(project.root)
         val src = SingleCommandSource(context, context)
@@ -71,16 +74,11 @@ internal class ProjectOpener(private val project: File, private val globalContex
         @Suppress("DEPRECATION")
         editor.setFile(PhysicalFile(editor, root, context))
         initializePlugins(plugins, context, Initialize, editor)
-        val project = Project(editor, context, project.toPath())
+        val project = Project(info.projectType, editor, context, project.toPath())
         context[Project] = project
         val obs = manager.autoLoadAndUnloadPluginsOnChange(context, editor)
         observers.add(obs)
         return project
-    }
-
-    private fun readProjectInfo(): ProjectInfo {
-        val desc = project.resolve(GlobalDirectory.PROJECT_INFO).readText()
-        return Json.decodeFromString(desc)
     }
 
     companion object {

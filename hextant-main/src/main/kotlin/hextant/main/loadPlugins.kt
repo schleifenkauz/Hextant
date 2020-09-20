@@ -13,6 +13,7 @@ import hextant.plugin.PluginBuilder.Phase
 import hextant.plugin.PluginBuilder.Phase.*
 import hextant.plugin.PluginInitializer
 import hextant.plugins.*
+import hextant.project.ProjectType
 import kollektion.graph.ImplicitGraph
 import kollektion.graph.topologicalSort
 import kotlinx.coroutines.runBlocking
@@ -20,8 +21,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import reaktive.Observer
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.*
 
 internal fun initializePlugins(plugins: Collection<Plugin>, context: Context, phase: Phase, project: Editor<*>?) {
     val order = PluginGraph(context[PluginManager], plugins).topologicalSort() ?: error("cycle in dependencies")
@@ -83,7 +83,7 @@ class LocalPluginGraph private constructor(private val infos: Map<String, Plugin
 /**
  * Initializes all the plugins that are present in the classpath.
  */
-fun initializePluginsFromClasspath(context: Context) {
+fun initializePluginsFromClasspath(context: Context, testing: Boolean = false) {
     for (impls in context[HextantClassLoader].getResources("implementations.json")) {
         val implementations: List<Implementation> = Json.decodeFromString(impls.readText())
         for (impl in implementations) {
@@ -94,8 +94,8 @@ fun initializePluginsFromClasspath(context: Context) {
     val order = graph.topologicalSort() ?: error("cycle in dependencies")
     for (info in order) {
         val initializer = getInitializer(context, info)
-        initializer?.apply(context, Enable, project = null)
-        initializer?.apply(context, Initialize, project = null)
+        initializer?.apply(context, Enable, project = null, testing)
+        initializer?.apply(context, Initialize, project = null, testing)
     }
 }
 
@@ -128,4 +128,11 @@ private fun Aspects.addImplementation(implementation: Implementation, classLoade
     check(impl.isSubclassOf(aspect)) { "invalid implementation class $impl for aspect $aspect" }
     val instance = impl.objectInstance ?: impl.createInstance()
     implement(aspect, case, instance)
+}
+
+internal fun getProjectTypeInstance(cl: ClassLoader, clazz: String): ProjectType {
+    val cls = cl.loadClass(clazz).kotlin
+    val obj = cls.objectInstance
+    val companion = cls.companionObjectInstance
+    return obj as? ProjectType ?: companion as? ProjectType ?: Main.fail("Invalid project type $clazz")
 }

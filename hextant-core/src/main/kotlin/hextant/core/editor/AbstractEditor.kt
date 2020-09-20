@@ -11,6 +11,7 @@ import hextant.serial.*
 import kserial.*
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
+import reaktive.value.*
 
 /**
  * Skeletal implementation for [Editor]s
@@ -37,11 +38,12 @@ abstract class AbstractEditor<out R, in V : Any>(
         this.expander = expander
     }
 
-    final override var accessor: EditorAccessor? = null
-        private set
+    private val _accessor = reactiveVariable<EditorAccessor?>(null)
+
+    final override val accessor: ReactiveValue<EditorAccessor?> get() = _accessor
 
     override fun initAccessor(acc: EditorAccessor) {
-        accessor = acc
+        _accessor.now = acc
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {

@@ -80,6 +80,7 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         commandName.text = ""
         current.children.setAll(commandName)
         commandName.isEditable = true
+        popup.updateInput("")
         Platform.runLater { receiveFocus() }
     }
 

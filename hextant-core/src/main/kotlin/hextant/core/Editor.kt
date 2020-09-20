@@ -9,6 +9,7 @@ import hextant.core.editor.EditorSnapshot
 import hextant.core.editor.Expander
 import hextant.serial.*
 import reaktive.collection.ReactiveCollection
+import reaktive.value.ReactiveValue
 import validated.reaktive.ReactiveValidated
 
 /**
@@ -28,7 +29,7 @@ interface Editor<out R> {
     /**
      * @return the location of this editor relative its parent
      */
-    val accessor: EditorAccessor?
+    val accessor: ReactiveValue<EditorAccessor?>
 
     /**
      * The children of this editor

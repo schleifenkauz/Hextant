@@ -68,7 +68,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     /**
      * Alias for [registerConstant].
      */
-    operator fun String.plusAssign(create: (ctx: Context) -> E) {
+    infix fun String.expand(create: (ctx: Context) -> E) {
         registerConstant(this, create)
     }
 

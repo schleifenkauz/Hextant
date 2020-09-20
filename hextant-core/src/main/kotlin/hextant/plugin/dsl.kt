@@ -81,21 +81,27 @@ fun <T, Read : Any, Write : Read> PluginBuilder.persistentProperty(
     property: Property<T, Read, Write>
 ) {
     on(Initialize) { ctx ->
-        val path = getPath(ctx, property)
-        ctx[permission, property] = if (Files.exists(path)) {
-            val input = context.createInput(path)
-            val value = input.readObject()
-            value as T
-        } else property.default
+        if (!testing) {
+            val path = getPath(ctx, property)
+            ctx[permission, property] = if (Files.exists(path)) {
+                val input = context.createInput(path)
+                val value = input.readObject()
+                value as T
+            } else property.default
+        } else ctx[permission, property] = property.default
     }
     on(Close) { ctx ->
-        val output = ctx.createOutput(getPath(ctx, property))
-        val value = ctx[permission, property]
-        output.writeObject(value)
+        if (!testing) {
+            val output = ctx.createOutput(getPath(ctx, property))
+            val value = ctx[permission, property]
+            output.writeObject(value)
+        }
     }
     on(Disable) { ctx ->
         ctx.delete(permission, property)
-        Files.deleteIfExists(getPath(ctx, property))
+        if (!testing) {
+            Files.deleteIfExists(getPath(ctx, property))
+        }
     }
 }
 

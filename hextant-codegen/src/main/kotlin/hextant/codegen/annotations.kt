@@ -29,16 +29,25 @@ annotation class Alternative(val interfaceLocation: String = DEFAULT)
 annotation class Expandable(
     val delegator: KClass<*>,
     val expanderLocation: String = DEFAULT,
-    val subtypeOf: KClass<*> = None::class
+    val subtypeOf: KClass<*> = None::class,
+    val childContext: String = DEFAULT
 )
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class EditableList(val classLocation: String = DEFAULT, val editorCls: KClass<*> = None::class)
+annotation class EditableList(
+    val classLocation: String = DEFAULT,
+    val editorCls: KClass<*> = None::class,
+    val childContext: String = DEFAULT
+)
 
 @Retention(SOURCE)
-@Target(VALUE_PARAMETER, CLASS)
+@Target(CLASS)
 annotation class UseEditor(val cls: KClass<*>)
+
+@Retention(SOURCE)
+@Target(VALUE_PARAMETER)
+annotation class Component(val editor: KClass<*> = None::class, val childContext: String = "context")
 
 @Retention(SOURCE)
 @Target(CLASS)

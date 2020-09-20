@@ -38,9 +38,12 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound>() {
         ) {
             val names = primary.parameters.map { it.toString() }
             for (p in primary.parameters) {
-                val editorCls = getEditorClassName(p.asType(), p)
+                val comp = p?.getAnnotation(Component::class.java)
+                val custom = comp?.let { getTypeMirror { it.editor } }?.toString()
+                    .takeIf { it != "hextant.codegen.None" }
+                val editorCls = custom ?: getEditorClassName(p.asType())
                 addVal(p.simpleName.toString()) {
-                    by(call("child", call(editorCls, "context".e)))
+                    by(call("child", call(editorCls, comp?.childContext?.e ?: "context".e)))
                 }
             }
             addVal(

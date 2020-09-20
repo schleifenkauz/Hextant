@@ -4,6 +4,6 @@
   "author": "Nikolaus Knop",
   "type": "Language",
   "description": "Sample language to demonstrate the features of Hextant",
-  "initializer": "SamplePlugin",
+  "initializer": "hextant.sample.SamplePlugin",
   "dependencies": []
 }

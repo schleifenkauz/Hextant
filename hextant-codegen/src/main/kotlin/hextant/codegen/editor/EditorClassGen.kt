@@ -10,7 +10,8 @@ import hextant.codegen.*
 import hextant.codegen.aspects.FeatureCollector
 import hextant.codegen.aspects.ImplementationCollector
 import krobot.api.*
-import javax.lang.model.element.*
+import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
 internal abstract class EditorClassGen<A : Annotation> : AnnotationProcessor<A, TypeElement>() {
@@ -55,12 +56,7 @@ internal abstract class EditorClassGen<A : Annotation> : AnnotationProcessor<A, 
         }
     }
 
-    protected fun getEditorClassName(tm: TypeMirror, p: VariableElement?): String {
-        val useEditor = p?.getAnnotation(UseEditor::class.java)
-        if (useEditor != null) {
-            val cls = getTypeMirror(useEditor::cls)
-            return cls.toString()
-        }
+    protected fun getEditorClassName(tm: TypeMirror): String {
         val t = checkNonPrimitive(tm)
         val e = processingEnv.typeUtils.asElement(t)
         if (e.toString() == "java.util.List") {
