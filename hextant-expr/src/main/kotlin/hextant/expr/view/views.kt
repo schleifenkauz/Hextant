@@ -6,6 +6,7 @@ package hextant.expr.view
 
 import bundles.Bundle
 import hextant.codegen.ProvideImplementation
+import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
 import hextant.context.Context
@@ -39,4 +40,5 @@ fun createControl(e: IntLiteralEditor, arguments: Bundle) =
 @ProvideImplementation(ControlFactory::class)
 fun createControl(e: ExpressionEditor, arguments: Bundle) = CompoundEditorControl(e, arguments) {
     view(e.root)
+    view(e.context[CommandLine])
 }

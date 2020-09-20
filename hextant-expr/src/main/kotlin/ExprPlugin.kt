@@ -2,13 +2,14 @@
 import bundles.SimpleReactiveProperty
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.executingCompoundEdit
+import hextant.context.EditorControlGroup
 import hextant.core.view.TokenEditorControl
 import hextant.expr.IntLiteral
-import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.expr.view.Style
 import hextant.fx.WindowSize
+import hextant.fx.runFXWithTimeout
 import hextant.inspect.Problem.Severity.Warning
 import hextant.plugin.*
 import hextant.undo.compoundEdit
@@ -117,22 +118,20 @@ object ExprPlugin : PluginInitializer({
     }
     registerCommand<ExprExpander, Unit> {
         description =
-            "Wraps the current expression in an operator expression with the current expression being the left operand"
-        name = "Wrap in operator expression"
-        shortName = "wrap_op"
-        addParameter<Operator> {
-            description = "The operator being applied"
-            name = "operator"
-        }
+            "Wraps the current expression in an binary expression with the current expression being the left operand"
+        name = "Wrap in binary expression"
+        shortName = "wrap"
+        defaultShortcut("Ctrl+W")
         applicableIf { it.isExpanded }
-        executing { expander, (operator) ->
-            expander.context.compoundEdit("Wrap with $operator") {
+        executing { expander, _ ->
+            expander.context.compoundEdit("Wrap with in binary expression") {
                 val editor = expander.editor.now!!
-                operator as Operator
                 val app = OperatorApplicationEditor(editor.context)
                 expander.setEditor(app)
-                app.operator.setText(operator.toString())
                 app.operand1.setEditor(editor)
+                runFXWithTimeout {
+                    expander.context[EditorControlGroup].getViewOf(app.operator).receiveFocus()
+                }
             }
         }
     }
