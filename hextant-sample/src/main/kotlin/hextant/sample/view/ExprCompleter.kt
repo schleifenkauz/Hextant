@@ -6,10 +6,10 @@ package hextant.sample.view
 
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
-import hextant.context.Context
+import hextant.core.Editor
 import hextant.sample.editor.ExprExpanderDelegator
 
-object ExprCompleter : CompoundCompleter<Context, Any>() {
+object ExprCompleter : CompoundCompleter<Editor<*>, Any>() {
     init {
         addCompleter(ReferenceCompleter)
         addCompleter(FunctionCallCompleter)

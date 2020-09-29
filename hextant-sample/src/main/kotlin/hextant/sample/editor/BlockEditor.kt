@@ -23,7 +23,7 @@ class BlockEditor @ProvideImplementation(EditorFactory::class) constructor(conte
     private val observers = mutableMapOf<DefinitionEditor, Observer>()
 
     init {
-        scopeManagement = statements.editors.observeEach { e ->
+        scopeManagement = statements.editors.observeEach { _, e ->
             addStatement(e.editor.now)
             e.editor.observe { _, old, new ->
                 addStatement(new)
@@ -37,13 +37,13 @@ class BlockEditor @ProvideImplementation(EditorFactory::class) constructor(conte
     private fun removeStatement(old: StatementEditor<Statement>?) {
         if (old is DefinitionEditor) {
             observers.remove(old)!!.kill()
-            scope.undefine(old.name.result.now, old.type.result.now, old.indexInBlock.now)
+            scope.undefine(old.name.result.now, old.type.result.now, old.line)
         }
     }
 
     private fun addStatement(new: StatementEditor<Statement>?) {
         if (new is DefinitionEditor) {
-            observers[new] = scope.addDefinition(new.name.result, new.indexInBlock, new.type.result)
+            observers[new] = scope.addDefinition(new.name.result, new.line, new.type.result)
         }
     }
 

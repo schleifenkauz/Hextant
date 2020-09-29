@@ -33,7 +33,7 @@ object SamplePlugin : PluginInitializer({
         message { "Variable ${inspected.result.now.force()} cannot be resolved" }
         checkingThat {
             val name = inspected.result.mapValidated { it.name }
-            val type = inspected.context[Scope].resolve(name, inspected.indexInBlock)
+            val type = inspected.context[Scope].resolve(name, inspected.line)
             type.notNull()
         }
     }

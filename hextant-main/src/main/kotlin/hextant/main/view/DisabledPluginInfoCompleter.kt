@@ -2,19 +2,20 @@ package hextant.main.view
 
 import hextant.completion.*
 import hextant.completion.CompletionResult.Match
-import hextant.context.Context
+import hextant.core.Editor
 import hextant.main.HextantPlatform.marketplace
 import hextant.main.plugins.PluginManager
 import hextant.plugins.PluginInfo
 import hextant.plugins.PluginProperty
 import kotlinx.coroutines.*
 
-internal class DisabledPluginInfoCompleter(private val types: Set<PluginInfo.Type>) : Completer<Context, PluginInfo> {
-    override fun completions(context: Context, input: String): Collection<Completion<PluginInfo>> = runBlocking {
-        val excluded = context[PluginManager].enabledPlugins().mapTo(mutableSetOf()) { it.id }
-        val completions = context[marketplace].getPlugins(input, 10, types, excluded)
+internal class DisabledPluginInfoCompleter(private val types: Set<PluginInfo.Type>) : Completer<Editor<*>, PluginInfo> {
+    override fun completions(context: Editor<*>, input: String): Collection<Completion<PluginInfo>> = runBlocking {
+        val ctx = context.context
+        val excluded = ctx[PluginManager].enabledPlugins().mapTo(mutableSetOf()) { it.id }
+        val completions = ctx[marketplace].getPlugins(input, 10, types, excluded)
         completions
-            .map { id -> async { context[marketplace].get(PluginProperty.info, id)!! } }.awaitAll()
+            .map { id -> async { ctx[marketplace].get(PluginProperty.info, id)!! } }.awaitAll()
             .map { info ->
                 val match = CompletionStrategy.simple.match(input, info.id) as Match
                 val tooltipText = info.description

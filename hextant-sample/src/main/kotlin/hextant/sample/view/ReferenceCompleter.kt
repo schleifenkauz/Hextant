@@ -3,16 +3,19 @@ package hextant.sample.view
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
-import hextant.context.Context
+import hextant.core.Editor
 import hextant.sample.editor.Scope
-import hextant.sample.editor.Scope.Binding
+import hextant.sample.editor.Scope.Def
+import hextant.sample.editor.line
+import reaktive.value.now
 
-object ReferenceCompleter : ConfiguredCompleter<Context, Binding>(CompletionStrategy.simple) {
-    override fun completionPool(context: Context): Collection<Binding> = context[Scope].availableBindings()
+object ReferenceCompleter : ConfiguredCompleter<Editor<*>, Def>(CompletionStrategy.simple) {
+    override fun completionPool(context: Editor<*>): Collection<Def> =
+        context.context[Scope].availableBindings(context.line.now)
 
-    override fun extractText(context: Context, item: Binding): String? = item.name.toString()
+    override fun extractText(context: Editor<*>, item: Def): String? = item.name.toString()
 
-    override fun Builder<Binding>.configure(context: Context) {
+    override fun Builder<Def>.configure(context: Editor<*>) {
         infoText = completion.type.toString()
     }
 }

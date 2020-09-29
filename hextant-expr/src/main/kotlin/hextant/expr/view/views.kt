@@ -9,8 +9,8 @@ import hextant.codegen.ProvideImplementation
 import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
-import hextant.context.Context
 import hextant.context.ControlFactory
+import hextant.core.Editor
 import hextant.core.view.*
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.editor.*
@@ -24,7 +24,7 @@ fun createControl(editor: ExprListEditor, arguments: Bundle) =
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(e: ExprExpander, args: Bundle): ExpanderControl {
-    val c = CompoundCompleter<Context, Any>()
+    val c = CompoundCompleter<Editor<*>, Any>()
     c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
     c.addCompleter(SpecialNumbers)
     return ExpanderControl(e, args, c)

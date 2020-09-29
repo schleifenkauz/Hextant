@@ -221,7 +221,7 @@ enum class SimpleType(private val str: String) {
         private val byToken = values().associateBy { it.str }
 
         override fun compile(token: String): Validated<SimpleType> =
-            byToken[token].validated { invalid("No such binary operator '$token'") }
+            byToken[token].validated { invalid("No such type '$token'") }
     }
 }
 

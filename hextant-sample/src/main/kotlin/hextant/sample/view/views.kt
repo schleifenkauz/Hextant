@@ -14,6 +14,12 @@ import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.core.view.ListEditorControl.Orientation.Vertical
 import hextant.fx.view
 import hextant.sample.editor.*
+import javafx.scene.control.*
+import reaktive.value.ReactiveString
+import reaktive.value.ReactiveValue
+import reaktive.value.binding.map
+import reaktive.value.fx.asObservableValue
+import validated.reaktive.mapValidated
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: IdentifierEditor, arguments: Bundle) =
@@ -21,7 +27,19 @@ fun createControl(editor: IdentifierEditor, arguments: Bundle) =
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: ReferenceEditor, arguments: Bundle) =
-    TokenEditorControl(editor, arguments, styleClass = "reference")
+    TokenEditorControl(editor, arguments, styleClass = "reference").apply {
+        val id = editor.result.mapValidated { it.name }
+        val type = editor.context[Scope].resolve(id, editor.line)
+        attachInfoTooltip(type.orUnresolved())
+    }
+
+private fun ReactiveValue<Any?>.orUnresolved() = map { it?.toString() ?: "<unresolved>" }
+
+private fun EditorControl<*>.attachInfoTooltip(info: ReactiveString) {
+    val r = root as? Control ?: error("Cannot attach tooltip to $this")
+    r.tooltip = Tooltip()
+    r.tooltip.textProperty().bind(info.asObservableValue())
+}
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: IntLiteralEditor, arguments: Bundle) =
@@ -50,7 +68,10 @@ fun createControl(editor: BinaryExprEditor, arguments: Bundle) = CompoundEditorC
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: FunctionCallEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     line {
-        view(editor.name)
+        view(editor.name).apply {
+            val decl = editor.context[GlobalScope].getDefinition(editor.name.result)
+            attachInfoTooltip(decl.orUnresolved())
+        }
         operator("(")
         view(editor.arguments) {
             set(ListEditorControl.ORIENTATION, Horizontal)
@@ -176,7 +197,7 @@ fun createControl(editor: WhileLoopEditor, arguments: Bundle) = CompoundEditorCo
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: SimpleTypeEditor, arguments: Bundle) = TokenEditorControl(
     editor, arguments,
-    ConfiguredCompleter.withStringPool(CompletionStrategy.simple, listOf("int", "bool")),
+    ConfiguredCompleter.withStringPool(CompletionStrategy.simple, listOf("int", "bool", "void")),
     styleClass = "type"
 )
 
@@ -209,6 +230,7 @@ fun createControl(editor: FunctionDefinitionEditor, arguments: Bundle) = Compoun
 fun createControl(editor: ProgramEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     view(editor.functions) {
         set(ListEditorControl.ORIENTATION, Vertical)
+        set(ListEditorControl.EMPTY_DISPLAY) { Button("Add function") }
     }
     keyword("main:")
     indented { view(editor.main) }

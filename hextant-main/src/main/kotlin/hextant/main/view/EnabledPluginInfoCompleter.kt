@@ -4,22 +4,20 @@
 
 package hextant.main.view
 
-import hextant.completion.Completion.Builder
-import hextant.completion.CompletionStrategy
-import hextant.completion.ConfiguredCompleter
-import hextant.context.Context
+import hextant.completion.*
+import hextant.core.Editor
 import hextant.main.plugins.PluginManager
 import hextant.plugins.PluginInfo
 import kotlinx.coroutines.runBlocking
 
-internal object EnabledPluginInfoCompleter : ConfiguredCompleter<Context, PluginInfo>(CompletionStrategy.simple) {
-    override fun extractText(context: Context, item: PluginInfo): String? = item.id
+internal object EnabledPluginInfoCompleter : ConfiguredCompleter<Editor<*>, PluginInfo>(CompletionStrategy.simple) {
+    override fun extractText(context: Editor<*>, item: PluginInfo): String? = item.id
 
-    override fun Builder<PluginInfo>.configure(context: Context) {
+    override fun Completion.Builder<PluginInfo>.configure(context: Editor<*>) {
         infoText = "${completion.name} by ${completion.author}"
         tooltipText = completion.description
     }
 
-    override fun completionPool(context: Context): Collection<PluginInfo> =
-        runBlocking { context[PluginManager].enabledPlugins().map { it.info.await() } }
+    override fun completionPool(context: Editor<*>): Collection<PluginInfo> =
+        runBlocking { context.context[PluginManager].enabledPlugins().map { it.info.await() } }
 }

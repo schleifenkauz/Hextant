@@ -9,7 +9,6 @@ import bundles.SimpleProperty
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
-import hextant.context.Context
 import hextant.core.InputMethod
 import hextant.core.editor.TokenEditor
 import hextant.fx.*
@@ -33,7 +32,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         popup.show(this)
     }
 
-    private val popup = CompletionPopup.forContext(context) { arguments[COMPLETER] }
+    private val popup = CompletionPopup(context, editor) { arguments[COMPLETER] }
 
     private val obs = popup.completionChosen.observe(this) { _, c ->
         editor.complete(c)
@@ -67,6 +66,6 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         /**
          * This property controls the completer of the token editor control
          */
-        val COMPLETER = SimpleProperty.withDefault<Completer<Context, Any>>("token.completer", NoCompleter)
+        val COMPLETER = SimpleProperty.withDefault<Completer<TokenEditor<*, *>, Any>>("token.completer", NoCompleter)
     }
 }

@@ -4,12 +4,15 @@ import hextant.codegen.ProvideFeature
 import hextant.codegen.ProvideImplementation
 import hextant.context.Context
 import hextant.context.EditorFactory
+import hextant.core.Editor
 import hextant.core.editor.CompoundEditor
 import hextant.sample.FunctionDefinition
 import reaktive.Observer
 import reaktive.list.observeEach
 import reaktive.value.now
 import reaktive.value.reactiveValue
+import validated.ifInvalid
+import validated.map
 import validated.reaktive.ReactiveValidated
 import validated.reaktive.composeReactive
 
@@ -25,19 +28,29 @@ class FunctionDefinitionEditor @ProvideImplementation(EditorFactory::class) cons
     private val scope = body.statements.context[Scope]
 
     init {
-        scopeManagement = parameters.editors.observeEach { p ->
+        val line = reactiveValue(-1)
+        scopeManagement = parameters.editors.observeEach { _, p ->
             val name = p.name.result
-            val line = reactiveValue(0)
             val type = p.type.result
             scope.addDefinition(name, line, type)
         } and parameters.editors.observeList { ch ->
             if (ch.wasRemoved) {
                 val name = ch.added.name.result.now
                 val type = ch.added.type.result.now
-                scope.undefine(name, type, 0)
+                scope.undefine(name, type, line)
             }
         }
     }
+
+    override fun toString(): String = buildString {
+        append(displayResult(returnType))
+        append(' ')
+        append(displayResult(name))
+        parameters.editors.now.joinTo(this, separator = ", ", prefix = "(", postfix = ")") { e -> displayResult(e) }
+    }
+
+    private fun displayResult(subEditor: Editor<*>) =
+        subEditor.result.now.map { it.toString() }.ifInvalid { "<invalid>" }
 
     override val result: ReactiveValidated<FunctionDefinition> =
         composeReactive(returnType.result, name.result, parameters.result, body.result, ::FunctionDefinition)

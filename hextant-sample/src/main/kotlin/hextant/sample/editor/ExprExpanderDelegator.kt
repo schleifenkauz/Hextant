@@ -9,7 +9,7 @@ import hextant.context.EditorControlGroup
 import hextant.core.editor.ExpanderConfigurator
 import hextant.fx.runFXWithTimeout
 import hextant.sample.*
-import hextant.sample.editor.Scope.Binding
+import hextant.sample.editor.Scope.Def
 
 object ExprExpanderDelegator : ExpanderConfigurator<ExprEditor<*>>({
     "ref" expand ::ReferenceEditor
@@ -24,7 +24,7 @@ object ExprExpanderDelegator : ExpanderConfigurator<ExprEditor<*>>({
         }
     }
     "call" expand ::FunctionCallEditor
-    registerInterceptor { item: Binding, ctx: Context -> ReferenceEditor(ctx, item.name.toString()) }
+    registerInterceptor { item: Def, ctx: Context -> ReferenceEditor(ctx, item.name.toString()) }
     registerInterceptor { item: GlobalFunction, ctx: Context ->
         FunctionCallEditor(ctx).apply {
             name.setText(item.name.toString(), undoable = false)

@@ -10,7 +10,8 @@ import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
-import hextant.context.*
+import hextant.context.ControlFactory
+import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.InputMethod
 import hextant.core.editor.Expander
@@ -25,7 +26,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     private val expander: Expander<*, *>,
     args: Bundle
 ) : ExpanderView, EditorControl<Node>(expander, args) {
-    constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<Context, Any>) :
+    constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<Expander<*, *>, Any>) :
             this(expander, args.also { it[COMPLETER] = completer })
 
     private var view: EditorControl<*>? = null
@@ -34,7 +35,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
 
     private val textObserver: Observer
 
-    private val popup = CompletionPopup.forContext(context) { arguments[COMPLETER] }
+    private val popup = CompletionPopup(context, expander) { arguments[COMPLETER] }
 
     private val completionObserver: Observer
 
@@ -120,6 +121,6 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
         /**
          * This property controls the completer of the expander control
          */
-        val COMPLETER = SimpleProperty.withDefault<Completer<Context, Any>>("expand.completer", NoCompleter)
+        val COMPLETER = SimpleProperty.withDefault<Completer<Expander<*, *>, Any>>("expander.completer", NoCompleter)
     }
 }

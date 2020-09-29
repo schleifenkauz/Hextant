@@ -15,7 +15,7 @@ class ProgramEditor(context: Context) : CompoundEditor<Program>(context) {
     private val observer: Observer
 
     init {
-        observer = functions.editors.observeEach { editor ->
+        observer = functions.editors.observeEach { _, editor ->
             context[GlobalScope].addDefinition(editor)
         } and functions.editors.observeList { ch ->
             if (ch.wasRemoved) context[GlobalScope].removeDefinition(ch.removed)

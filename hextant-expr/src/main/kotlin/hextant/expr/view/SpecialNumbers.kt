@@ -2,8 +2,7 @@ package hextant.expr.view
 
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
-import hextant.context.Context
 
-object SpecialNumbers : ConfiguredCompleter<Context, Int>(CompletionStrategy.simple) {
-    override fun completionPool(context: Context): Collection<Int> = listOf(666, 42)
+object SpecialNumbers : ConfiguredCompleter<Any, Int>(CompletionStrategy.simple) {
+    override fun completionPool(context: Any): Collection<Int> = listOf(666, 42)
 }
