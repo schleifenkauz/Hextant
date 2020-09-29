@@ -18,6 +18,7 @@ import javafx.scene.control.*
 import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.*
+import javafx.scene.paint.Color
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 
@@ -384,6 +385,14 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         /**
          * The [Node] that is displayed when no items are in the [ListEditor]
          */
-        val EMPTY_DISPLAY = SimpleProperty.withDefault<() -> Node>("empty display") { Glyphs.create(PLUS) }
+        val EMPTY_DISPLAY = SimpleProperty.withDefault<() -> Node>("empty display") {
+            Glyphs.create(PLUS).apply {
+                setColor(Color.TRANSPARENT)
+                hoverProperty().or(focusedProperty()).addListener { _, _, hover ->
+                    if (hover) setColor(Color.WHITE)
+                    else setColor(Color.TRANSPARENT)
+                }
+            }
+        }
     }
 }

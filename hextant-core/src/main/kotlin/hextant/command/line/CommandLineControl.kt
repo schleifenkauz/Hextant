@@ -27,7 +27,7 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
 ) : CommandLineView, EditorControl<VBox>(cl, args) {
     private val history = VBox().withStyleClass("command-history")
     private val commandName = HextantTextField().withStyleClass("command-name")
-    private val current = HBox(commandName).withStyleClass("command-input")
+    private val current = HBox(5.0, commandName).withStyleClass("command-input")
 
     private val popup = CompletionPopup(context, cl) { CommandCompleter }
 

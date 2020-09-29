@@ -95,12 +95,7 @@ open class HextantTextField(
                 }
             }
         }
-        sceneProperty().addListener { _ ->
-            runFXWithTimeout {
-                prefWidth = 0.0
-                updateWidth(this.text)
-            }
-        }
+        updateWidth(this.text)
         runFXWithTimeout { autoSize() }
     }
 
@@ -119,8 +114,8 @@ open class HextantTextField(
     }
 
     private fun updateWidth(text: String) {
-        val textWidth = TextUtils.computeTextWidth(font, text) + 5.0
-        prefWidth = textWidth.coerceAtLeast(15.0)
+        val textWidth = TextUtils.computeTextWidth(font, text) + 2.0
+        prefWidth = textWidth.coerceAtLeast(10.0)
     }
 
     companion object {
