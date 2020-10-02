@@ -7,7 +7,7 @@ package hextant.lispy
 inline fun <T, reified L : Literal<T>> multiOperator(
     crossinline constructor: (T) -> L,
     crossinline operation: (T, T) -> T
-): (List<SExpr>) -> SExpr = { operands ->
+): (Env, List<SExpr>) -> SExpr = { _, operands ->
     ensure(operands.isNotEmpty()) { "no operands given" }
     operands
         .map { it as? L ?: fail("invalid type of operand $it") }
@@ -19,32 +19,32 @@ inline fun <T, reified L : Literal<T>> multiOperator(
 inline fun <T, reified L : Literal<T>> operator(
     crossinline constructor: (T) -> L,
     crossinline operation: (T, T) -> T
-): (List<SExpr>) -> SExpr = { (a, b) ->
+): (Env, List<SExpr>) -> SExpr = { _, (a, b) ->
     ensure(a is L) { "invalid type of operand $a" }
     ensure(b is L) { "invalid type of operand $b" }
     constructor(operation(a.value, b.value))
 }
 
 
-fun isPair(e: SExpr): Boolean = e is Pair || e is Quoted && e.expr is Pair
+fun SExpr.isPair(): Boolean = this is Pair || this is Quoted && expr.isPair()
 
 val SExpr.car: SExpr
     get() = when (this) {
         is Pair -> car
-        is Quoted -> quote(expr.car)
+        is Quoted -> expr.car
         else      -> fail("$this is not a pair")
     }
 
 val SExpr.cdr: SExpr
     get() = when (this) {
         is Pair -> cdr
-        is Quoted -> quote(expr.cdr)
+        is Quoted -> expr.cdr
         else      -> fail("$this is not a pair")
     }
 
 fun SExpr.isNil(): Boolean = this is Nil || this is Quoted && expr.isNil()
 
-fun SExpr.isList(): Boolean = isNil() || (isPair(this) && cdr.isList())
+fun SExpr.isList(): Boolean = isNil() || (isPair() && cdr.isList())
 
 fun SExpr.extractList(): List<SExpr> {
     val args = mutableListOf<SExpr>()
@@ -56,11 +56,8 @@ fun SExpr.extractList(): List<SExpr> {
     return args
 }
 
-fun truthy(condition: SExpr) = condition != f && condition != nil
+fun SExpr.symbolList() = extractList().map { (it as Symbol).name }
 
-fun SExpr.unquote(): SExpr {
-    ensure(this is Quoted) { "bad syntax" }
-    return expr
-}
+fun truthy(condition: SExpr) = condition != f && condition != nil
 
 const val INFINITE_ARITY = -1

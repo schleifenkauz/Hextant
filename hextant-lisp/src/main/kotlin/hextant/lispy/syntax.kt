@@ -53,5 +53,15 @@ data class Quoted(val expr: SExpr) : SExpr() {
 fun quote(e: SExpr): SExpr = if (e is Literal<*>) e else Quoted(e)
 
 data class BuiltinFunction(val builtin: Builtin) : SExpr() {
-    override fun toString(): String = builtin.id
+    override fun toString(): String = "<procedure ${builtin.id} #${builtin.arity}>"
+}
+
+data class Closure(
+    val env: Env,
+    val name: String,
+    val parameters: List<String>,
+    val body: SExpr,
+    val isMacro: Boolean
+) : SExpr() {
+    override fun toString(): String = "<procedure $name #${parameters.size}>"
 }

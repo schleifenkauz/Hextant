@@ -22,6 +22,18 @@ enum class Predefined(val definition: SExpr) {
                 )
             )
         )
+    ),
+    dbg(
+        call(
+            "macro".s,
+            call("e".s),
+            call(
+                "list".s,
+                quote("begin".s),
+                call("list".s, quote("print".s), call("quote".s, "e".s)),
+                call("list".s, quote("print".s), "e".s)
+            )
+        )
     );
 
     companion object : Map<String, SExpr> by (values().associate { it.name to it.definition })
