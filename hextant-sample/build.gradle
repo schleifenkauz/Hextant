@@ -1,25 +1,5 @@
-apply plugin: 'kotlin-kapt'
+apply plugin: HextantPlugin
 
-version = '0.1'
-
-kapt {
-    annotationProcessors("hextant.codegen.MainProcessor")
-    useBuildCache = true
-    correctErrorTypes = true
-}
-
-task hextantPublish(type: Copy) {
-    from jar.outputs.files
-    into 'C:/Users/Nikolaus Knop/hextant/plugins'
-    rename '(.+)', "sample.jar"
-}
-
-build.finalizedBy(hextantPublish)
-
-dependencies {
-    compile project(":hextant-core")
-    testImplementation project(":hextant-test")
-    kapt project(":hextant-codegen")
-    kapt project(":hextant-core")
-    compileOnly project(":hextant-codegen")
+hextant {
+    pluginName = 'sample'
 }

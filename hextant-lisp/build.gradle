@@ -1,6 +1,5 @@
-version = '0.1'
+apply plugin: HextantPlugin
 
-dependencies {
-    compile project(":hextant-core")
-    testImplementation project(":hextant-main")
+hextant {
+    pluginName = 'lisp'
 }

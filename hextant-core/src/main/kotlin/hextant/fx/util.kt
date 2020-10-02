@@ -190,7 +190,7 @@ fun showStage(editor: Editor<*>) = showStage(editor.context.createControl(editor
 /**
  * Executes the given action at some point such that
  */
-inline fun runFXWithTimeout(ms: Long = 10, crossinline action: () -> Unit) {
+fun runFXWithTimeout(ms: Long = 10, action: () -> Unit) {
     thread {
         Thread.sleep(ms)
         Platform.runLater { action() }
