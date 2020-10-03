@@ -14,7 +14,7 @@ class Env(private val parent: Env?) {
     }
 
     fun set(name: String, value: SExpr) {
-        val e = findDefiningEnv(name) ?: fail("cannot set variable $name because it was not defined")
+        val e = findDefiningEnv(name) ?: fail("cannot set variable $name before its definition")
         e.values[name] = value
     }
 

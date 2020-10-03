@@ -22,6 +22,14 @@ sealed class Token {
         override fun toString(): String = "'"
     }
 
+    object BackQuote : Token() {
+        override fun toString(): String = "`"
+    }
+
+    object Comma : Token() {
+        override fun toString(): String = ","
+    }
+
     data class Identifier(val name: String) : Token() {
         override fun toString(): String = name
     }
@@ -51,6 +59,8 @@ fun lex(input: CharInput): LinkedList<Token> {
             c == ')'         -> ClosingParen
             c == '"'         -> parseStringLiteral(input, LinkedList())
             c == '\''        -> Quote
+            c == '`'         -> BackQuote
+            c == ','         -> Comma
             c.isDigit()      -> {
                 input.next()
                 val num = parseNumber(input, c.digit())
@@ -59,8 +69,8 @@ fun lex(input: CharInput): LinkedList<Token> {
             }
             c.isWhitespace() -> return@forEach Consume
             else             -> {
-                val num = parseIdentifier(input)
-                res.add(num)
+                val id = parseIdentifier(input)
+                res.add(id)
                 return@forEach DoNotConsume
             }
         }

@@ -6,23 +6,23 @@ package hextant.lispy.rt
 
 import hextant.lispy.*
 
-fun SExpr.isPair(): Boolean = this is Pair || this is Quoted && expr.isPair()
+fun SExpr.isPair(): Boolean = this is Pair || this is Quotation && quoted.isPair()
 
 val SExpr.car: SExpr
     get() = when (this) {
         is Pair -> car
-        is Quoted -> expr.car
-        else      -> fail("$this is not a pair")
+        is Quotation -> quoted.car
+        else         -> fail("${display(this)} is not a pair")
     }
 
 val SExpr.cdr: SExpr
     get() = when (this) {
         is Pair -> cdr
-        is Quoted -> expr.cdr
-        else      -> fail("$this is not a pair")
+        is Quotation -> quoted.cdr
+        else         -> fail("${display(this)} is not a pair")
     }
 
-fun SExpr.isNil(): Boolean = this is Nil || this is Quoted && expr.isNil()
+fun SExpr.isNil(): Boolean = this is Nil || this is Quotation && quoted.isNil()
 
 fun SExpr.isList(): Boolean = isNil() || (isPair() && cdr.isList())
 

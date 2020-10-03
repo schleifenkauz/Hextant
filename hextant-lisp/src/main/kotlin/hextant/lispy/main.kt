@@ -4,15 +4,17 @@
 
 package hextant.lispy
 
+import hextant.lispy.parser.parseExpr
 import hextant.lispy.rt.display
 import hextant.lispy.rt.evaluate
 
 fun main() {
     printSquares()
+    debugExpr()
 }
 
 private fun debugExpr() {
-    val e = list("dbg".s, list("+".s, lit(1), lit(2)))
+    val e = parseExpr("(dbg (+ 1 2))")
     e.evaluate()
 }
 

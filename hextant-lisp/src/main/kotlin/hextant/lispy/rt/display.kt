@@ -15,8 +15,19 @@ fun StringBuilder.display(value: SExpr) {
         is BooleanLiteral -> if (value.value) append("#t") else append("#f")
         is Pair -> if (value.isList()) displayList(value) else displayPair(value)
         Nil -> append("()")
-        is Quoted -> displayQuoted(value)
+        is Quotation -> {
+            append("'")
+            display(value.quoted)
+        }
         is Procedure -> displayProcedure(value)
+        is QuasiQuotation -> {
+            append('`')
+            display(value.quoted)
+        }
+        is Unquote -> {
+            append(',')
+            display(value.expr)
+        }
     }
 }
 
@@ -32,9 +43,9 @@ private fun StringBuilder.displayProcedure(value: Procedure) {
     append('>')
 }
 
-private fun StringBuilder.displayQuoted(value: Quoted) {
+private fun StringBuilder.displayQuoted(value: Quotation) {
     append("'")
-    display(value.expr)
+    display(value.quoted)
 }
 
 private fun StringBuilder.displayPair(value: Pair) {

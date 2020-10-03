@@ -5,7 +5,8 @@
 package hextant.lispy.rt
 
 import hextant.lispy.*
-import hextant.lispy.parser.evaluate
+import hextant.lispy.parser.loadFile
+import kotlin.system.exitProcess
 
 private fun Env.addBuiltin(builtin: Builtin) {
     define(builtin.name, builtin)
@@ -82,11 +83,11 @@ fun Env.registerBuiltins() {
         ensure(v) { "Assertion failed: ${display(cond)}" }
         v
     }
-    builtinMacro("begin", VARARG) { results, _ -> results.last() }
+    builtin("begin", VARARG) { results, _ -> results.last() }
     builtin("nil?", 1) { (l), _ -> lit(l.isNil()) }
     builtin("pair?", 1) { (p), _ -> lit(p.isPair()) }
     builtin("list?", 1) { (l), _ -> lit(l.isList()) }
-    builtinMacro("quote", 1) { (e), _ -> Quoted(e) }
+    builtinMacro("quote", 1) { (e), _ -> Quotation(e) }
     builtin("car", 1) { (p), _ -> p.car }
     builtin("cdr", 1) { (p), _ -> p.cdr }
     builtin("cons", 2) { (a, b), _ -> Pair(a, b) }
@@ -112,10 +113,44 @@ fun Env.registerBuiltins() {
     builtinMacro("defmacro", 2) { (signature, body), env ->
         define(signature, body, env, true)
     }
+    builtin("eqv?", 2) { (a, b), _ ->
+        lit(a == b)
+    }
+    builtin("same?", 2) { (a, b), _ ->
+        lit(a === b)
+    }
+    builtinMacro("define", 2) { (sym, expr), env ->
+        ensure(sym is Symbol) { "${display(sym)} is not a symbol" }
+        val v = expr.evaluate(env)
+        env.define(sym.name, v)
+        quote(v)
+    }
+    builtin("set!", 2) { (sym, value), env ->
+        ensure(sym is Symbol) { "${display(sym)} is not a symbol" }
+        env.set(sym.name, value)
+        value
+    }
+    builtinMacro("setq!", 2) { (sym, expr), env ->
+        ensure(sym is Symbol) { "${display(sym)} is not a symbol" }
+        val v = expr.evaluate(env)
+        env.set(sym.name, v)
+        quote(v)
+    }
+    builtin("setcar!", 2) { (p, v), _ ->
+        ensure(p is Pair) { "${display(p)} is not a pair" }
+        p.car = v
+        v
+    }
+    builtin("setcdr!", 2) { (p, v), _ ->
+        ensure(p is Pair) { "${display(p)} is not a pair" }
+        p.cdr = v
+        v
+    }
+    builtin("quit", 0) { _, _ -> exitProcess(0) }
 }
 
 fun Env.loadPrelude() {
     val prelude = javaClass.classLoader.getResource("hextant/lispy/prelude.lsp")
         ?: fail("failed to load prelude.lsp")
-    evaluate(prelude, this)
+    loadFile(prelude, this)
 }

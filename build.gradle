@@ -47,7 +47,7 @@ subprojects {
     apply plugin: 'kotlin'
 
     dependencies {
-        implementation kotlin("stdlib")
+        compile kotlin("stdlib")
     }
 
     sourceCompatibility = 1.8

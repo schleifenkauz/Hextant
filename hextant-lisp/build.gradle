@@ -3,3 +3,14 @@ apply plugin: HextantPlugin
 hextant {
     pluginName = 'lisp'
 }
+
+task replJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'hextant.lispy.parser.ReplKt'
+    }
+    baseName = 'repl'
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}
