@@ -4,7 +4,7 @@ import hextant.blocky.Statement
 import hextant.core.editor.ExpanderConfigurator
 
 object StatementExpanderDelegator : ExpanderConfigurator<StatementEditor<Statement>>({
-    registerConstant("assign", ::AssignEditor)
-    registerConstant("swap", ::SwapEditor)
-    registerConstant("print", ::PrintEditor)
+    registerKey("assign", ::AssignEditor)
+    registerKey("swap", ::SwapEditor)
+    registerKey("print", ::PrintEditor)
 })

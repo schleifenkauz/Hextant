@@ -96,7 +96,7 @@ open class HextantTextField(
             }
         }
         updateWidth(this.text)
-        runFXWithTimeout { autoSize() }
+        runFXWithTimeout(50) { autoSize() }
     }
 
     override fun requestFocus() {

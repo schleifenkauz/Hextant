@@ -7,6 +7,13 @@ kapt {
     annotationProcessors("hextant.codegen.MainProcessor")
 }
 
+task('hextantPublish', type: Copy) {
+    from jar.outputs.files
+    into 'C:/Users/Nikolaus Knop/hextant/plugins'
+    rename '(.+)', "core.jar"
+}
+build.finalizedBy(hextantPublish)
+
 dependencies {
     compile nkb03("reaktive", "0.1.1-SNAPSHOT")
     compile nkb03("kserial", "0.2-SNAPSHOT")

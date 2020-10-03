@@ -1,0 +1,20 @@
+.hextant-text.string-literal {
+    -fx-text-fill: #075307;
+}
+
+.hextant-text.int-literal {
+    -fx-text-fill: #285cde;
+}
+
+.hextant-text.boolean-literal {
+    -fx-text-fill: #cd5a13;
+}
+
+.lisp-call {
+    -fx-border-color: #207153;
+    -fx-border-width: 3;
+}
+
+.hextant-text.symbol {
+    -fx-text-fill: #582a99;
+}

@@ -58,18 +58,26 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     }
 
     /**
-     * If the given string is expanded an editor is returned using [create].
-     * Previous invocation with the same [key] are overridden
+     * If the given [key] is expanded an editor is returned using [create].
+     * Previous invocation with the same [key] are overridden.
      */
-    fun registerConstant(key: String, create: (ctx: Context) -> E) {
+    fun registerKey(key: String, create: (ctx: Context) -> E) {
         constant[key] = create
     }
 
     /**
-     * Alias for [registerConstant].
+     * Same as [registerKey] but registers the same editor factory for multiple keys
+     */
+    fun registerKeys(key: String, vararg more: String, create: (ctx: Context) -> E) {
+        registerKey(key, create)
+        for (k in more) registerKey(k, create)
+    }
+
+    /**
+     * Alias for [registerKey].
      */
     infix fun String.expand(create: (ctx: Context) -> E) {
-        registerConstant(this, create)
+        registerKey(this, create = create)
     }
 
     /**

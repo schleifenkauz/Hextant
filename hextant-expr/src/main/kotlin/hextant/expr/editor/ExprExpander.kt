@@ -17,12 +17,12 @@ class ExprExpander(
 
     companion object {
         val config = ExpanderConfig<ExprEditor<Expr>>().apply {
-            registerConstant("dec") { context -> IntLiteralEditor(context) }
-            registerConstant("+") { context -> OperatorApplicationEditor(Plus, context) }
-            registerConstant("-") { context -> OperatorApplicationEditor(Minus, context) }
-            registerConstant("*") { context -> OperatorApplicationEditor(Times, context) }
-            registerConstant("/") { context -> OperatorApplicationEditor(Div, context) }
-            registerConstant("sum") { context -> SumEditor(context) }
+            registerKey("dec") { context -> IntLiteralEditor(context) }
+            registerKey("+") { context -> OperatorApplicationEditor(Plus, context) }
+            registerKey("-") { context -> OperatorApplicationEditor(Minus, context) }
+            registerKey("*") { context -> OperatorApplicationEditor(Times, context) }
+            registerKey("/") { context -> OperatorApplicationEditor(Div, context) }
+            registerKey("sum") { context -> SumEditor(context) }
             registerInterceptor { item: Int, ctx: Context -> IntLiteralEditor(ctx, item.toString()) }
             registerInterceptor { text, context ->
                 val int = text.toIntOrNull()

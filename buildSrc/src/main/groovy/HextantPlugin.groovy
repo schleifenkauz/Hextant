@@ -19,12 +19,14 @@ class HextantPlugin implements Plugin<Project> {
                 useBuildCache = true
                 correctErrorTypes = true
             }
-            task('hextantPublish', type: Copy) {
-                from jar.outputs.files
-                into 'C:/Users/Nikolaus Knop/hextant/plugins'
-                rename '(.+)', config.pluginName ?: project.name
+            afterEvaluate {
+                task('hextantPublish', type: Copy) {
+                    from jar.outputs.files
+                    into 'C:/Users/Nikolaus Knop/hextant/plugins'
+                    rename '(.+)', (config.pluginName ?: project.name) + ".jar"
+                }
+                build.finalizedBy(hextantPublish)
             }
-            build.finalizedBy(hextantPublish)
             jar {
                 from {
                     configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }

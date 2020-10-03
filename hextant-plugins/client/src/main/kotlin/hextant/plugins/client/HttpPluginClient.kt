@@ -31,8 +31,6 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
         }
     }
 
-    private var counter = 0
-
     @Suppress("UNCHECKED_CAST")
     @OptIn(ExperimentalStdlibApi::class)
     private fun <T> get(url: String, type: KType, body: Any? = null): T? = runBlocking {
@@ -57,7 +55,7 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
     private inline fun <reified T> get(url: String, body: Any? = null): T? = get<T>(url, typeOf<T>(), body)
 
     override suspend fun getJarFile(id: String): File? {
-        val file = downloadDirectory.resolve("${counter++}.jar")
+        val file = downloadDirectory.resolve("$id.jar")
         if (!file.exists()) {
             val response = client.get<HttpResponse>("$url/$id/download")
             if (response.status == HttpStatusCode.NotFound) return null

@@ -1,0 +1,8 @@
+{
+  "id": "lisp",
+  "name": "Lisp Plugin",
+  "author": "Nikolaus Knop",
+  "type": "Language",
+  "description": "An editor for Lisp programs",
+  "initializer": "hextant.lisp.Lisp"
+}
