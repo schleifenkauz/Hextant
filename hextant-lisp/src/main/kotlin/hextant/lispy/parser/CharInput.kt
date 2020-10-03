@@ -2,9 +2,9 @@
  *@author Nikolaus Knop
  */
 
-package hextant.lisp.parser
+package hextant.lispy.parser
 
-import hextant.lisp.parser.CharInput.Cont.*
+import hextant.lispy.parser.CharInput.Cont.*
 import java.io.Reader
 import java.io.StringReader
 
@@ -26,16 +26,15 @@ class CharInput(private val reader: Reader) {
             val i = peek()
             if (i == -1) return
             val c = i.toChar()
-            val cont = consume(c)
-            when (cont) {
-                Consume             -> next()
-                DoNotConsume        -> {
+            when (consume(c)) {
+                Consume -> next()
+                DoNotConsume -> {
                 }
                 TerminateAndConsume -> {
                     next()
                     return
                 }
-                Terminate           -> return
+                Terminate -> return
             }
         }
     }

@@ -2,7 +2,9 @@
  *@author Nikolaus Knop
  */
 
-package hextant.lispy
+package hextant.lispy.rt
+
+import hextant.lispy.SExpr
 
 class Env(private val parent: Env?) {
     private val values = mutableMapOf<String, SExpr>()
@@ -25,8 +27,8 @@ class Env(private val parent: Env?) {
 
     companion object {
         fun root() = Env(null).apply {
-            for ((name, builtin) in Builtin) define(name, builtin)
-            for ((name, predefined) in Predefined) define(name, evaluate(predefined, this))
+            registerBuiltins()
+            loadPrelude()
         }
     }
 }

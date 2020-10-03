@@ -2,29 +2,9 @@
  * @author Nikolaus Knop
  */
 
-package hextant.lispy
+package hextant.lispy.rt
 
-inline fun <T, reified L : Literal<T>> multiOperator(
-    crossinline constructor: (T) -> L,
-    crossinline operation: (T, T) -> T
-): (Env, List<SExpr>) -> SExpr = { _, operands ->
-    ensure(operands.isNotEmpty()) { "no operands given" }
-    operands
-        .map { it as? L ?: fail("invalid type of operand $it") }
-        .map { it.value }
-        .reduce(operation)
-        .let(constructor)
-}
-
-inline fun <T, reified L : Literal<T>> operator(
-    crossinline constructor: (T) -> L,
-    crossinline operation: (T, T) -> T
-): (Env, List<SExpr>) -> SExpr = { _, (a, b) ->
-    ensure(a is L) { "invalid type of operand $a" }
-    ensure(b is L) { "invalid type of operand $b" }
-    constructor(operation(a.value, b.value))
-}
-
+import hextant.lispy.*
 
 fun SExpr.isPair(): Boolean = this is Pair || this is Quoted && expr.isPair()
 
@@ -60,4 +40,4 @@ fun SExpr.symbolList() = extractList().map { (it as Symbol).name }
 
 fun truthy(condition: SExpr) = condition != f && condition != nil
 
-const val INFINITE_ARITY = -1
+

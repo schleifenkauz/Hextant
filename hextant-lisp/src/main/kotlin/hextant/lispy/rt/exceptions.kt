@@ -2,8 +2,9 @@
  * @author Nikolaus Knop
  */
 
-package hextant.lispy
+package hextant.lispy.rt
 
+import hextant.lispy.SExpr
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 

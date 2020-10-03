@@ -2,10 +2,10 @@
  * @author Nikolaus Knop
  */
 
-package hextant.lisp.parser
+package hextant.lispy.parser
 
-import hextant.lisp.parser.CharInput.Cont.*
-import hextant.lisp.parser.Token.*
+import hextant.lispy.parser.CharInput.Cont.*
+import hextant.lispy.parser.Token.*
 import java.text.ParseException
 import java.util.*
 
@@ -16,6 +16,10 @@ sealed class Token {
 
     object ClosingParen : Token() {
         override fun toString(): String = ")"
+    }
+
+    object Quote : Token() {
+        override fun toString(): String = "'"
     }
 
     data class Identifier(val name: String) : Token() {
@@ -45,8 +49,8 @@ fun lex(input: CharInput): LinkedList<Token> {
         val tok = when {
             c == '('         -> OpeningParen
             c == ')'         -> ClosingParen
-            c == '\''        -> parseCharLiteral(input)
             c == '"'         -> parseStringLiteral(input, LinkedList())
+            c == '\''        -> Quote
             c.isDigit()      -> {
                 input.next()
                 val num = parseNumber(input, c.digit())
@@ -137,13 +141,4 @@ private fun parseStringLiteral(
         }
     }
     return StringLiteral(acc.joinToString(separator = ""))
-}
-
-private fun parseCharLiteral(input: CharInput): CharLiteral {
-    val open = input.next().toChar()
-    check(open == '\'')
-    val char = input.next().toChar()
-    val close = input.next().toChar()
-    if (close != '\'') throw ParseException("Unclosed character literal, got \"$close\" but expected \"'\"", -1)
-    return CharLiteral(char)
 }
