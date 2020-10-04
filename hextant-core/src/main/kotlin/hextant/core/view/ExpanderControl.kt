@@ -16,6 +16,7 @@ import hextant.core.Editor
 import hextant.core.InputMethod
 import hextant.core.editor.Expander
 import hextant.fx.*
+import javafx.css.PseudoClass
 import javafx.scene.Node
 import reaktive.Observer
 
@@ -31,7 +32,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
 
     private var view: EditorControl<*>? = null
 
-    private val textField = HextantTextField(initialInputMethod = context[InputMethod])
+    private val textField = HextantTextField(initialInputMethod = context[InputMethod]).withStyleClass("expander-text")
 
     private val textObserver: Observer
 
@@ -68,6 +69,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
                 popup.show(this)
             }
         }
+        styleClass.add("expander")
         expander.addView(this)
         completionObserver = popup.completionChosen.observe { _, completion ->
             expander.complete(completion)
@@ -118,6 +120,8 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     protected open fun onExpansion(editor: Editor<*>, control: EditorControl<*>) {}
 
     companion object {
+        private val UNEXPANDED = PseudoClass.getPseudoClass("unexpanded")
+
         /**
          * This property controls the completer of the expander control
          */
