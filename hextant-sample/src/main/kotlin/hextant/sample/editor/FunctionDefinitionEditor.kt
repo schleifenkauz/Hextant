@@ -37,7 +37,7 @@ class FunctionDefinitionEditor @ProvideImplementation(EditorFactory::class) cons
             if (ch.wasRemoved) {
                 val name = ch.added.name.result.now
                 val type = ch.added.type.result.now
-                scope.undefine(name, type, line)
+                scope.removeDefinition(name, type, line)
             }
         }
     }

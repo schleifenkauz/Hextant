@@ -37,7 +37,7 @@ class BlockEditor @ProvideImplementation(EditorFactory::class) constructor(conte
     private fun removeStatement(old: StatementEditor<Statement>?) {
         if (old is DefinitionEditor) {
             observers.remove(old)!!.kill()
-            scope.undefine(old.name.result.now, old.type.result.now, old.line)
+            scope.removeDefinition(old.name.result.now, old.type.result.now, old.line)
         }
     }
 

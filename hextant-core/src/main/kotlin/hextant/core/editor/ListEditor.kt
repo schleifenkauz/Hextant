@@ -2,6 +2,8 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("DEPRECATION")
+
 package hextant.core.editor
 
 import hextant.codegen.ProvideFeature
@@ -267,9 +269,10 @@ abstract class ListEditor<R, E : Editor<R>>(
      */
     private fun doAddAt(index: Int, editor: E) {
         val emptyBefore = emptyNow()
-        _editors.now.add(index, editor)
         addChild(editor)
-        updateIndicesFrom(index)
+        editor.setAccessor(IndexAccessor(index))
+        _editors.now.add(index, editor)
+        updateIndicesFrom(index + 1)
         views {
             if (emptyBefore) notEmpty()
             added(editor, index)
@@ -279,8 +282,7 @@ abstract class ListEditor<R, E : Editor<R>>(
 
     private fun updateIndicesFrom(index: Int) {
         for (i in index until editors.now.size) {
-            @Suppress("DEPRECATION")
-            editors.now[i].initAccessor(IndexAccessor(index))
+            editors.now[i].setAccessor(IndexAccessor(index))
         }
     }
 

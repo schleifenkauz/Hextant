@@ -163,7 +163,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     private fun doExpandTo(editor: E) {
         this.parent?.let { editor.initParent(it) }
         editor.initExpander(this)
-        editor.initAccessor(ExpanderContent)
+        editor.setAccessor(ExpanderContent)
         resultDelegator = _result.bind(editor.result.map { it.or(invalidComponent()) })
         _editor.set(editor)
         _text.set(null)

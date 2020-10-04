@@ -42,7 +42,7 @@ abstract class AbstractEditor<out R, in V : Any>(
 
     final override val accessor: ReactiveValue<EditorAccessor?> get() = _accessor
 
-    override fun initAccessor(acc: EditorAccessor) {
+    override fun setAccessor(acc: EditorAccessor) {
         _accessor.now = acc
     }
 

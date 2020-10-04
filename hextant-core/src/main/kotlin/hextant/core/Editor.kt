@@ -75,7 +75,7 @@ interface Editor<out R> {
      * It is likely to be removed soon and using it can cause all sorts of bugs.
      */
     @Deprecated("Treat as private")
-    fun initAccessor(acc: EditorAccessor)
+    fun setAccessor(acc: EditorAccessor)
 
     /**
      * This method should be considered an implementation detail.

@@ -22,7 +22,7 @@ data class Identifier(private val str: String) {
 }
 
 @Alternative
-@Expandable(ExprExpanderDelegator::class)
+@Expandable(ExprExpanderDelegator::class, subtypeOf = Expr::class)
 @EditableList
 sealed class Expr
 
@@ -125,7 +125,7 @@ data class FunctionCall(val name: Identifier, val arguments: List<Expr>) : Expr(
 }
 
 @Alternative
-@Expandable(StatementExpanderDelegator::class)
+@Expandable(StatementExpanderDelegator::class, subtypeOf = Statement::class)
 @EditableList
 sealed class Statement
 

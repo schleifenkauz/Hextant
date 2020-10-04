@@ -54,10 +54,11 @@ class Scope private constructor(private val parent: Scope?) {
     fun availableBindings(line: Int): List<Def> =
         definitions.values.flatMap { it.now }.filter { it.line.now < line } + parent?.availableBindings(line).orEmpty()
 
-    private fun removeDefinition(name: Validated<Identifier>, type: Validated<SimpleType>, line: ReactiveInt) {
+    fun removeDefinition(name: Validated<Identifier>, type: Validated<SimpleType>, line: ReactiveInt) {
         if (name is Valid && type is Valid) {
-            val removed = definitions(name.value).now.remove(Def(name.value, type.value, line))
-            check(removed) { "Could not remove definition ($name = $type)" }
+            val def = Def(name.value, type.value, line)
+            val removed = definitions(name.value).now.remove(def)
+            check(removed) { "Could not remove $def because only ${definitions(name.value).now} exist" }
         }
     }
 
@@ -65,10 +66,6 @@ class Scope private constructor(private val parent: Scope?) {
         if (name is Valid && type is Valid) {
             definitions(name.value).now.add(Def(name.value, type.value, line))
         }
-    }
-
-    fun undefine(name: Validated<Identifier>, type: Validated<SimpleType>, line: ReactiveInt) {
-        removeDefinition(name, type, line)
     }
 
     fun child() = Scope(parent = this)
@@ -86,9 +83,10 @@ class Scope private constructor(private val parent: Scope?) {
         override fun hashCode(): Int {
             var result = name.hashCode()
             result = 31 * result + type.hashCode()
-            result = 31 * result + line.now.hashCode()
             return result
         }
+
+        override fun toString(): String = "$type $name on line ${line.now}"
     }
 
     companion object : SimpleProperty<Scope>("scope") {
