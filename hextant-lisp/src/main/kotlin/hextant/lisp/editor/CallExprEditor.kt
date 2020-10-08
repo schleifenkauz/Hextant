@@ -13,7 +13,8 @@ import validated.reaktive.ReactiveValidated
 import validated.reaktive.mapValidated
 
 @ProvideFeature
-class ListExprEditor(context: Context) : CompoundEditor<SExpr>(context), SExprEditor<SExpr> {
+class CallExprEditor(context: Context) : CompoundEditor<SExpr>(context), SExprEditor<SExpr>,
+                                         RuntimeScopeAware by RuntimeScopeAware.delegate() {
     val expressions by child(SExprListEditor(context))
 
     override val result: ReactiveValidated<SExpr> = expressions.result.mapValidated { exprs -> list(exprs) }

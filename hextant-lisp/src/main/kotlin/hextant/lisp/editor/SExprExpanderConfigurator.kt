@@ -15,7 +15,9 @@ object SExprExpanderConfigurator : ExpanderConfigurator<SExprEditor<*>>({
     registerKeys("'", "quote", create = ::QuotationEditor)
     registerKeys("`", "quasiquote", create = ::QuasiQuotationEditor)
     registerKeys(",", "unquote", create = ::UnquoteEditor)
-    registerKeys("(", "call", create = ::ListExprEditor)
+    registerKeys("(", "call", create = ::CallExprEditor)
+    "let" expand ::LetEditor
+    "lambda" expand ::LambdaEditor
     registerTokenInterceptor(Symbol, ::SymbolEditor)
     registerTokenInterceptor(IntLiteral, ::IntLiteralEditor)
 })

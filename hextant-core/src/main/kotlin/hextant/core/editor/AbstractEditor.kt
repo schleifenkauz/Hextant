@@ -32,6 +32,7 @@ abstract class AbstractEditor<out R, in V : Any>(
 
     override fun initParent(parent: Editor<*>) {
         this.parent = parent
+        onInitParent(parent)
     }
 
     override fun initExpander(expander: Expander<@UnsafeVariance R, *>) {

@@ -26,6 +26,10 @@ annotation class Alternative(val interfaceLocation: String = DEFAULT)
 
 @Retention(SOURCE)
 @Target(CLASS)
+annotation class EditorInterface(val clz: KClass<*>, vararg val delegated: KClass<*>)
+
+@Retention(SOURCE)
+@Target(CLASS)
 annotation class Expandable(
     val delegator: KClass<*>,
     val expanderLocation: String = DEFAULT,

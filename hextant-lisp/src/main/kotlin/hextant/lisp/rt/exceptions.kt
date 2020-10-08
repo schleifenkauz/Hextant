@@ -11,7 +11,7 @@ import kotlin.contracts.contract
 class LispRuntimeException(message: String) : Exception(message)
 
 @OptIn(ExperimentalContracts::class)
-inline fun ensure(condition: Boolean, message: () -> String) {
+inline fun ensure(condition: Boolean, message: () -> String = { "bad syntax" }) {
     contract {
         returns() implies condition
     }

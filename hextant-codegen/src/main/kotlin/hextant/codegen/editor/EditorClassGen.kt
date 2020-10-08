@@ -12,6 +12,7 @@ import hextant.codegen.aspects.ImplementationCollector
 import krobot.api.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeMirror
 
 internal abstract class EditorClassGen<A : Annotation> : AnnotationProcessor<A, TypeElement>() {
@@ -44,15 +45,39 @@ internal abstract class EditorClassGen<A : Annotation> : AnnotationProcessor<A, 
         annotation: Annotation,
         simpleName: String
     ) {
-        val supertype = getTypeMirror { annotation.subtypeOf }.toString()
+        val supertype = getTypeMirror(annotation::subtypeOf).toString()
         if (supertype != None::class.qualifiedName) {
-            val el = processingEnv.elementUtils.getTypeElement(supertype)
-            val ann = el.getAnnotation(Alternative::class.java)
-            if (ann == null) fail("No annotation of type Alternative on $supertype")
-            else {
-                val editorQN = extractQualifiedEditorClassName(ann, el)
-                implement(editorQN.t.parameterizedBy { invariant(simpleName) })
+            val (t, delegated) = getEditorInterface(supertype, simpleName)
+            implement(t)
+            for (iface in delegated) {
+                implement(type(iface), "$iface.delegate()".e)
             }
+        }
+    }
+
+    fun getEditorInterface(type: String, concreteType: String): Pair<KtType, List<TypeMirror>> {
+        val el = processingEnv.elementUtils.getTypeElement(type)
+        val generated = el.getAnnotation(Alternative::class.java)
+        val linked = el.getAnnotation(EditorInterface::class.java)
+        return when {
+            generated == null && linked == null -> fail("Can't find common editor interface for $type")
+            generated != null && linked != null -> fail("Conflicting annotations on $type")
+            generated != null                   -> {
+                val editorQN = extractQualifiedEditorClassName(generated, el)
+                editorQN.t.parameterizedBy { invariant(concreteType) } to emptyList()
+            }
+            linked != null                      -> {
+                val t = getTypeMirror(linked::clz)
+                val delegated = try {
+                    linked.delegated
+                        .map { c -> processingEnv.elementUtils.getTypeElement(c.qualifiedName) }
+                        .map { e -> processingEnv.typeUtils.getDeclaredType(e) }
+                } catch (ex: MirroredTypesException) {
+                    ex.typeMirrors
+                }
+                type(t).parameterizedBy { invariant(concreteType) } to delegated
+            }
+            else                                -> fail("impossible")
         }
     }
 

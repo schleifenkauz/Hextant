@@ -12,9 +12,9 @@ import hextant.context.*
 import hextant.core.view.*
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.core.view.ListEditorControl.SeparatorCell
-import hextant.fx.registerShortcuts
-import hextant.fx.view
+import hextant.fx.*
 import hextant.lisp.editor.*
+import javafx.scene.paint.Color
 import reaktive.value.now
 
 @ProvideImplementation(ControlFactory::class)
@@ -58,7 +58,7 @@ fun createControl(editor: UnquoteEditor, arguments: Bundle) = CompoundEditorCont
 }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: ListExprEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+fun createControl(editor: CallExprEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     line {
         operator("(")
         view(editor.expressions) {
@@ -84,4 +84,10 @@ fun createControl(editor: LispProject, arguments: Bundle) = CompoundEditorContro
             ctx[EditorControlGroup].getViewOf(cl).receiveFocus()
         }
     }
+}
+
+@ProvideImplementation(ControlFactory::class)
+fun createControl(editor: NormalizedSExprEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+    view(editor.wrapped)
+    setBackground(Color.GREEN)
 }

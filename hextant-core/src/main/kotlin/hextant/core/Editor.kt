@@ -60,28 +60,34 @@ interface Editor<out R> {
      * This method should be considered an implementation detail.
      * It is likely to be removed soon and using it can cause all sorts of bugs.
      */
-    @Deprecated("Treat as private")
+    @Deprecated("Treat as internal")
     fun initParent(parent: Editor<*>)
+
+    /**
+     * Called when this editor is added to the editor tree.
+     * @param parent the editor of this editor in the editor tree.
+     */
+    fun onInitParent(parent: Editor<*>) {}
 
     /**
      * This method should be considered an implementation detail.
      * It is likely to be removed soon and using it can cause all sorts of bugs.
      */
-    @Deprecated("Treat as private")
+    @Deprecated("Treat as internal")
     fun initExpander(expander: Expander<@UnsafeVariance R, *>)
 
     /**
      * This method should be considered an implementation detail.
      * It is likely to be removed soon and using it can cause all sorts of bugs.
      */
-    @Deprecated("Treat as private")
+    @Deprecated("Treat as internal")
     fun setAccessor(acc: EditorAccessor)
 
     /**
      * This method should be considered an implementation detail.
      * It is likely to be removed soon and using it can cause all sorts of bugs.
      */
-    @Deprecated("Treat as private")
+    @Deprecated("Treat as internal")
     fun setFile(file: VirtualFile<Editor<*>>)
 
     /**

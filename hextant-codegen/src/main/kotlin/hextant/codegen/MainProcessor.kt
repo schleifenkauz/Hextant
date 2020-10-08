@@ -17,6 +17,7 @@ internal class MainProcessor : AbstractProcessor() {
         fqName<Token>(),
         fqName<Compound>(),
         fqName<Alternative>(),
+        fqName<EditorInterface>(),
         fqName<Expandable>(),
         fqName<EditableList>(),
         fqName<RequestAspect>(),

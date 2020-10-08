@@ -6,16 +6,17 @@ package hextant.lisp
 
 import hextant.codegen.*
 import hextant.core.editor.TokenType
-import hextant.lisp.editor.SExprExpanderConfigurator
-import hextant.lisp.rt.Env
+import hextant.lisp.editor.*
+import hextant.lisp.rt.RuntimeScope
 import validated.*
 
-@Alternative
-@Expandable(SExprExpanderConfigurator::class)
+@EditorInterface(SExprEditor::class, RuntimeScopeAware::class)
+@Expandable(SExprExpanderConfigurator::class, subtypeOf = SExpr::class)
 @EditableList
 sealed class SExpr
 
 @Token(subtypeOf = SExpr::class)
+@EditableList
 data class Symbol(val name: String) : SExpr() {
     override fun toString(): String = name
 
@@ -73,5 +74,5 @@ abstract class Procedure : SExpr() {
 
     abstract val arity: Int
 
-    abstract fun call(arguments: List<SExpr>, callerEnv: Env): SExpr
+    abstract fun call(arguments: List<SExpr>, callerScope: RuntimeScope): SExpr
 }

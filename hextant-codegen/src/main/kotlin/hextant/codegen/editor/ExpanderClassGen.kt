@@ -4,7 +4,8 @@
 
 package hextant.codegen.editor
 
-import hextant.codegen.*
+import hextant.codegen.Expandable
+import hextant.codegen.splitPackageAndSimpleName
 import krobot.api.*
 import javax.lang.model.element.TypeElement
 
@@ -13,9 +14,7 @@ internal object ExpanderClassGen : EditorClassGen<Expandable>() {
         val name = element.simpleName.toString()
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "Expander")
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
-        val ann = element.getAnnotation(Alternative::class.java)
-        val commonInterface = extractQualifiedEditorClassName(ann, element)
-        val editorType = commonInterface.t.parameterizedBy { invariant(name) }
+        val (editorType, _) = getEditorInterface(element.toString(), "*")
         val delegator = getTypeMirror(annotation::delegator)
         val file = kotlinClass(
             pkg, {

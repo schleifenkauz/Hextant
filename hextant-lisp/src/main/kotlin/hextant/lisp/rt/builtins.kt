@@ -8,19 +8,27 @@ import hextant.lisp.*
 import hextant.lisp.parser.loadFile
 import kotlin.system.exitProcess
 
-private fun Env.addBuiltin(builtin: Builtin) {
+private fun RuntimeScope.addBuiltin(builtin: Builtin) {
     define(builtin.name, builtin)
 }
 
-private fun Env.builtin(name: String, arity: Int, def: (arguments: List<SExpr>, callerEnv: Env) -> SExpr) {
+private fun RuntimeScope.builtin(
+    name: String,
+    arity: Int,
+    def: (arguments: List<SExpr>, callerScope: RuntimeScope) -> SExpr
+) {
     addBuiltin(Builtin(name, arity, false, def))
 }
 
-private fun Env.builtinMacro(name: String, arity: Int, def: (arguments: List<SExpr>, callerEnv: Env) -> SExpr) {
+private fun RuntimeScope.builtinMacro(
+    name: String,
+    arity: Int,
+    def: (arguments: List<SExpr>, callerScope: RuntimeScope) -> SExpr
+) {
     addBuiltin(Builtin(name, arity, true, def))
 }
 
-private inline fun <T, reified L : Literal<T>> Env.multiOperator(
+private inline fun <T, reified L : Literal<T>> RuntimeScope.multiOperator(
     name: String,
     crossinline constructor: (T) -> L,
     crossinline operation: (T, T) -> T
@@ -33,7 +41,7 @@ private inline fun <T, reified L : Literal<T>> Env.multiOperator(
         .let(constructor)
 }
 
-private inline fun <T, reified L : Literal<T>> Env.operator(
+private inline fun <T, reified L : Literal<T>> RuntimeScope.operator(
     name: String,
     crossinline constructor: (T) -> L,
     crossinline operation: (T, T) -> T
@@ -43,11 +51,11 @@ private inline fun <T, reified L : Literal<T>> Env.operator(
     constructor(operation(a.value, b.value))
 }
 
-private inline fun Env.shortCircuitingOperator(
+private inline fun RuntimeScope.shortCircuitingOperator(
     name: String,
     onCondition: SExpr,
     default: SExpr,
-    crossinline condition: (SExpr, Env) -> Boolean
+    crossinline condition: (SExpr, RuntimeScope) -> Boolean
 ) {
     builtin(name, VARARG) { operands, env ->
         for (o in operands) if (condition(o, env)) return@builtin onCondition
@@ -58,18 +66,18 @@ private inline fun Env.shortCircuitingOperator(
 private fun define(
     signature: SExpr,
     body: SExpr,
-    env: Env,
+    scope: RuntimeScope,
     isMacro: Boolean
 ): SExpr {
     val symbols = signature.symbolList()
     val name = symbols.first()
     val parameters = symbols.drop(1)
-    val proc = Closure(name, parameters, body, isMacro, closureEnv = env)
-    env.define(name, proc)
+    val proc = Closure(name, parameters, body, isMacro, closureScope = scope)
+    scope.define(name, proc)
     return t
 }
 
-fun Env.registerBuiltins() {
+fun RuntimeScope.registerBuiltins() {
     multiOperator("+", ::IntLiteral, Int::plus)
     multiOperator("-", ::IntLiteral, Int::minus)
     multiOperator("*", ::IntLiteral, Int::times)
@@ -102,10 +110,10 @@ fun Env.registerBuiltins() {
     builtin("list", VARARG) { elements, _ -> elements.foldRight(nil) { e, acc -> Pair(e, acc) } }
     builtin("eval", 1) { (e), env -> e.evaluate(env) }
     builtinMacro("lambda", 2) { (parameters, body), env ->
-        Closure(null, parameters.symbolList(), body, isMacro = false, closureEnv = env)
+        Closure(null, parameters.symbolList(), body, isMacro = false, closureScope = env)
     }
     builtinMacro("macro", 2) { (parameters, body), env ->
-        Closure(null, parameters.symbolList(), body, isMacro = true, closureEnv = env)
+        Closure(null, parameters.symbolList(), body, isMacro = true, closureScope = env)
     }
     builtinMacro("defun", 2) { (signature, body), env ->
         define(signature, body, env, false)
@@ -146,10 +154,16 @@ fun Env.registerBuiltins() {
         p.cdr = v
         v
     }
+    builtinMacro("let", 3) { (sym, value, body), env ->
+        ensure(sym is Symbol) { "bad syntax" }
+        val e = env.child()
+        e.define(sym.name, value.evaluate(env))
+        quote(body.evaluate(e))
+    }
     builtin("quit", 0) { _, _ -> exitProcess(0) }
 }
 
-fun Env.loadPrelude() {
+fun RuntimeScope.loadPrelude() {
     val prelude = javaClass.classLoader.getResource("hextant/lisp/prelude.lsp")
         ?: fail("failed to load prelude.lsp")
     loadFile(prelude, this)

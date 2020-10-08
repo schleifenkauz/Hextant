@@ -5,7 +5,7 @@
 package hextant.lisp.parser
 
 import hextant.lisp.SExpr
-import hextant.lisp.rt.Env
+import hextant.lisp.rt.RuntimeScope
 import hextant.lisp.rt.evaluate
 import java.io.*
 import java.net.URL
@@ -14,26 +14,26 @@ fun parseExpr(input: Reader): SExpr = parseExpr(lex(CharInput(input)))
 
 fun parseExpr(input: String): SExpr = parseExpr(StringReader(input))
 
-fun evaluate(input: Reader, env: Env = Env.root()): SExpr = parseExpr(input).evaluate(env)
+fun evaluate(input: Reader, scope: RuntimeScope = RuntimeScope.root()): SExpr = parseExpr(input).evaluate(scope)
 
-fun evaluate(str: String, env: Env = Env.root()): SExpr = evaluate(StringReader(str), env)
+fun evaluate(str: String, scope: RuntimeScope = RuntimeScope.root()): SExpr = evaluate(StringReader(str), scope)
 
-fun loadFile(reader: Reader, env: Env) {
+fun loadFile(reader: Reader, scope: RuntimeScope) {
     val tokens = lex(CharInput(reader))
     while (tokens.isNotEmpty()) {
         val e = parseExpr(tokens)
-        e.evaluate(env)
+        e.evaluate(scope)
     }
 }
 
-fun loadFile(url: URL, env: Env) {
+fun loadFile(url: URL, scope: RuntimeScope) {
     url.openStream().bufferedReader().use { r ->
-        loadFile(r, env)
+        loadFile(r, scope)
     }
 }
 
-fun loadFile(file: File, env: Env = Env.root()) {
+fun loadFile(file: File, scope: RuntimeScope = RuntimeScope.root()) {
     file.bufferedReader().use { r ->
-        loadFile(r, env)
+        loadFile(r, scope)
     }
 }

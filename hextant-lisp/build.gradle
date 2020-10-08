@@ -4,6 +4,12 @@ hextant {
     pluginName = 'lisp'
 }
 
+afterEvaluate {
+    kapt {
+        correctErrorTypes = true
+    }
+}
+
 task replJar(type: Jar) {
     manifest {
         attributes 'Main-Class': 'hextant.lispy.parser.ReplKt'

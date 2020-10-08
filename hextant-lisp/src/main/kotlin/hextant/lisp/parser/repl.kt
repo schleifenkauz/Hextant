@@ -8,7 +8,7 @@ import hextant.lisp.rt.*
 import java.text.ParseException
 
 fun main() {
-    val env = Env.root()
+    val env = RuntimeScope.root()
     while (true) {
         print("> ")
         val input = readLine() ?: break

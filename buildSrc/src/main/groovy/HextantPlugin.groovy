@@ -3,16 +3,20 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 
 class HextantPlugin implements Plugin<Project> {
+    static def hextantDependency(Project project, String lib) {
+        if (project.parent != null && project.parent.name == "hextant") return project.project(":hextant-$lib")
+        else "com.github.nkb03:hextant-$lib:0.1-SNAPSHOT"
+    }
+
     @Override
     void apply(final Project target) {
         target.with {
             def config = extensions.create('hextant', HextantPluginExtension)
             apply plugin: 'kotlin-kapt'
             target.dependencies {
-                if (parent != null && parent.name == "hextant") compileOnly project(":hextant-core")
-                else compileOnly 'com.github.nkb03:hextant-core:0.1-SNAPSHOT'
-                testImplementation project(":hextant-test")
-                kapt 'com.github.nkb03:hextant-codegen:0.1-SNAPSHOT'
+                compileOnly hextantDependency(target, "core")
+                testImplementation hextantDependency(target, "test")
+                kapt hextantDependency(target, "codegen")
             }
             kapt {
                 annotationProcessors("hextant.codegen.MainProcessor")
