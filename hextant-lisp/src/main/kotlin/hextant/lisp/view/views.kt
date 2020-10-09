@@ -117,3 +117,9 @@ fun createControl(editor: LambdaEditor, arguments: Bundle) = CompoundEditorContr
         view(editor.body)
     }
 }
+
+@ProvideImplementation(ControlFactory::class)
+fun createControl(editor: NormalizedSExprEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+    view(editor.expr)
+    styleClass.add("normalized")
+}

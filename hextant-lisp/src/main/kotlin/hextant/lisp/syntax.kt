@@ -69,6 +69,9 @@ data class QuasiQuotation(val quoted: SExpr) : SExpr()
 @Compound(subtypeOf = SExpr::class)
 data class Unquote(val expr: SExpr) : SExpr()
 
+@Compound(subtypeOf = SExpr::class)
+data class NormalizedSExpr(val expr: SExpr) : SExpr()
+
 abstract class Procedure : SExpr() {
     abstract val name: String?
 

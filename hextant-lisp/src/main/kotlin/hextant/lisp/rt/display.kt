@@ -10,8 +10,8 @@ fun display(value: SExpr) = buildString { display(value) }
 
 fun StringBuilder.display(value: SExpr) {
     when (value) {
-        is Symbol         -> append(value.name)
-        is IntLiteral     -> append(value.value)
+        is Symbol -> append(value.name)
+        is IntLiteral -> append(value.value)
         is BooleanLiteral -> if (value.value) append("#t") else append("#f")
         is Pair -> if (value.isList()) displayList(value) else displayPair(value)
         is Nil -> append("()")
@@ -24,10 +24,11 @@ fun StringBuilder.display(value: SExpr) {
             append('`')
             display(value.quoted)
         }
-        is Unquote        -> {
+        is Unquote -> {
             append(',')
             display(value.expr)
         }
+        is NormalizedSExpr -> display(value.expr)
     }
 }
 
@@ -41,11 +42,6 @@ private fun StringBuilder.displayProcedure(value: Procedure) {
     }
     append("#${value.arity}")
     append('>')
-}
-
-private fun StringBuilder.displayQuoted(value: Quotation) {
-    append("'")
-    display(value.quoted)
 }
 
 private fun StringBuilder.displayPair(value: Pair) {

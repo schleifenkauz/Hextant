@@ -16,5 +16,24 @@
 }
 
 .hextant-text.symbol {
-    -fx-text-fill: #582a99;
+    -fx-text-fill: #a37dd2;
+}
+
+.normalized {
+    -fx-background-color: #072f03;
+}
+
+.quote {
+    -fx-border-color: #0000ff;
+    -fx-border-width: 2;
+}
+
+.unquote {
+    -fx-border-color: purple;
+    -fx-border-width: 2;
+}
+
+.quasi-quote {
+    -fx-border-color: orange;
+    -fx-border-width: 2;
 }

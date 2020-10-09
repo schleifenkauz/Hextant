@@ -27,8 +27,8 @@ fun SExprExpander.reconstruct(expr: SExpr) {
 }
 
 private fun reconstruct(expr: SExpr, context: Context): SExprEditor<*> = when (expr) {
-    is Symbol -> (SymbolEditor(context, expr))
-    is IntLiteral -> (IntLiteralEditor(context, expr))
+    is Symbol          -> (SymbolEditor(context, expr))
+    is IntLiteral      -> (IntLiteralEditor(context, expr))
     is BooleanLiteral -> BooleanLiteralEditor(context, expr)
     is Pair -> run {
         assert(expr.isList()) { "Can't reconstruct expression ${(display(expr))}" }
@@ -62,7 +62,10 @@ private fun reconstruct(expr: SExpr, context: Context): SExprEditor<*> = when (e
         }
         body.reconstruct(expr.body)
     }
-    else              -> fail("Can't reconstruct expression ${display(expr)}")
+    is NormalizedSExpr -> NormalizedSExprEditor(context).apply {
+        this.expr.reconstruct(expr.expr)
+    }
+    else               -> fail("Can't reconstruct expression ${display(expr)}")
 }
 
 val beautify = command<CallExprEditor, Unit> {

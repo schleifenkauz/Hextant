@@ -5,6 +5,7 @@
 package hextant.lisp.parser
 
 import hextant.lisp.*
+import hextant.lisp.rt.fail
 import java.text.ParseException
 import java.util.*
 
@@ -14,10 +15,10 @@ fun parseExpr(
     Token.OpeningParen -> parseList(tokens)
     Token.ClosingParen -> throw ParseException("Unmatched closing bracket", -1)
     is Token.Identifier -> Symbol(next.name)
-    is Token.CharLiteral -> TODO("character literals are not implemented")
+    is Token.CharLiteral -> fail("character literals are not implemented")
     is Token.IntLiteral -> IntLiteral(next.value)
-    is Token.DoubleLiteral -> TODO("double literals are not implemented")
-    is Token.StringLiteral -> TODO("string literals are not implemented")
+    is Token.DoubleLiteral -> fail("double literals are not implemented")
+    is Token.StringLiteral -> fail("string literals are not implemented")
     is Token.Quote -> Quotation(parseExpr(tokens))
     is Token.BackQuote -> QuasiQuotation(parseExpr(tokens))
     is Token.Comma -> Unquote(parseExpr(tokens))
