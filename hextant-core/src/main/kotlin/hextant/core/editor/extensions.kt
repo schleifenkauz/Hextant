@@ -60,6 +60,15 @@ fun Editor<*>.copyToClipboard(): Boolean {
 }
 
 /**
+ * Replaces this editor by the [other] one by setting the editor of its [Editor.expander] to the [other] editor.
+ */
+@Suppress("UNCHECKED_CAST")
+fun <E : Editor<*>> E.replaceWith(other: E) {
+    val ex = expander as Expander<*, E>
+    ex.setEditor(other)
+}
+
+/**
  * Paste the [Clipboard]-content into this editor.
  * Returns `true` only if the action was successful.
  */

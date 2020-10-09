@@ -15,11 +15,11 @@ class CommandProblemFix<T : Any>(
     private val arguments: List<Any>,
     private val target: InspectionBody<T>.() -> Any
 ) : ProblemFix<T> {
-    override fun InspectionBody<T>.isApplicable(): Boolean = command.isApplicableOn(target)
+    override fun InspectionBody<T>.isApplicable(): Boolean = command.isApplicableOn(target())
 
     @Suppress("UNCHECKED_CAST")
     override fun InspectionBody<T>.fix() {
         command as Command<Any, Any>
-        command.execute(target, arguments)
+        command.execute(target(), arguments)
     }
 }

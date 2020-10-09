@@ -59,14 +59,15 @@ class ExpanderConfig<E : Editor<*>> private constructor(
 
     /**
      * If the given [key] is expanded an editor is returned using [create].
-     * Previous invocation with the same [key] are overridden.
+     * * Previous invocation with the same [key] are overridden.
+     * @see unregisterKey
      */
     fun registerKey(key: String, create: (ctx: Context) -> E) {
         constant[key] = create
     }
 
     /**
-     * Same as [registerKey] but registers the same editor factory for multiple keys
+     * Same as [registerKey] but registers the same editor factory for multiple keys.
      */
     fun registerKeys(key: String, vararg more: String, create: (ctx: Context) -> E) {
         registerKey(key, create)
@@ -78,6 +79,15 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      */
     infix fun String.expand(create: (ctx: Context) -> E) {
         registerKey(this, create = create)
+    }
+
+    /**
+     * Unregisters the given [key] so that subsequent invocations of [expand]
+     * will not use the previously registered factory.
+     * @see registerKey
+     */
+    fun unregisterKey(key: String) {
+        checkNotNull(constant.remove(key)) { "No factory for key '$key' registered" }
     }
 
     /**
@@ -162,7 +172,6 @@ class ExpanderConfig<E : Editor<*>> private constructor(
             typeSafeInterceptors.getOrPut(cls) { LinkedList() }.addAll(interceptors)
         }
     }
-
     /**
      * Return an [ExpanderConfig] which first tries the given [config] and then uses this configuration as a fallback option.
      */

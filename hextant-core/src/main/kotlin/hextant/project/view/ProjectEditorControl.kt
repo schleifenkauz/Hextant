@@ -57,8 +57,8 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             }
             obs = editors.observeList { ch ->
                 when (ch) {
-                    is Removed  -> children.removeAt(ch.index)
-                    is Added    -> children.add(ch.index, createTreeItem(ch.added))
+                    is Removed -> children.removeAt(ch.index)
+                    is Added -> children.add(ch.index, createTreeItem(ch.added))
                     is Replaced -> children[ch.index] = createTreeItem(ch.added)
                 }
             }
@@ -118,7 +118,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             val list = e.parent
             if (list !is ProjectItemListEditor<*>) return
             list as ProjectItemListEditor<Any?>
-            list.remove(e as ProjectItemEditor<Any?, *>, undoable = false)
+            list.remove(e as ProjectItemEditor<Any?, *>)
             val dir = list.parent
             if (dir !is DirectoryEditor<*>) return
             val v = context[EditorControlGroup].getViewOf(dir)
@@ -131,12 +131,12 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
         new: ProjectItemEditor<*, *>
     ): Boolean {
         when (e) {
-            null               -> return false
+            null -> return false
             is DirectoryEditor -> {
                 addItemTo(e.items as ProjectItemListEditor<Any?>, new)
                 items[e]!!.isExpanded = true
             }
-            is FileEditor      -> {
+            is FileEditor -> {
                 val p = e.parent as? ProjectItemListEditor<*> ?: return false
                 addItemTo(p as ProjectItemListEditor<Any?>, new)
             }
@@ -148,7 +148,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
         p: ProjectItemListEditor<Any?>,
         new: ProjectItemEditor<*, *>
     ) {
-        p.addLast(new as ProjectItemEditor<Any?, *>, undoable = false)
+        p.withoutUndo { addLast(new as ProjectItemEditor<Any?, *>) }
         val item = items[new] ?: error("Did not find tree item associated with $new")
         root.selectionModel.clearSelection()
         root.selectionModel.select(item)
@@ -156,7 +156,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
 
     private fun createTreeItem(e: ProjectItemEditor<*, *>): TreeItem<ProjectItemEditor<*, *>> {
         val item: TreeItem<ProjectItemEditor<*, *>> = when (e) {
-            is FileEditor      -> TreeItem(e)
+            is FileEditor -> TreeItem(e)
             is DirectoryEditor -> DirectoryTreeItem(e, e.items.editors)
             else               -> throw AssertionError("Unexpected project item editor $e")
         }

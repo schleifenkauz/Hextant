@@ -98,14 +98,16 @@ abstract class ListEditor<R, E : Editor<R>>(
      * Adds or removes children such that this list editor has exactly [size] children.
      */
     fun resize(size: Int): Boolean {
-        if (!mayBeEmpty && size == 0) return false
-        val old = editors.now.size
-        when {
-            old < size -> repeat(size - old) { i ->
-                doAddAt(old + i, tryCreateEditor() ?: error("createEditor() returned null"))
-            }
-            old > size -> for (i in size downTo old) {
-                removeAt(i, undoable = false)
+        withoutUndo {
+            if (!mayBeEmpty && size == 0) return false
+            val old = editors.now.size
+            when {
+                old < size -> repeat(size - old) { i ->
+                    doAddAt(old + i, tryCreateEditor() ?: error("createEditor() returned null"))
+                }
+                old > size -> for (i in size downTo old) {
+                    removeAt(i)
+                }
             }
         }
         return true
@@ -167,9 +169,9 @@ abstract class ListEditor<R, E : Editor<R>>(
     /**
      * Add a new editor at the given index using [createEditor] to create a new editor
      */
-    fun addAt(index: Int, undoable: Boolean = true): E? {
+    fun addAt(index: Int): E? {
         val editor = tryCreateEditor() ?: return null
-        if (undoable) {
+        if (undo.isActive) {
             val edit = AddEdit(virtualize(), index, editor.snapshot())
             undo.push(edit)
         }
@@ -186,8 +188,8 @@ abstract class ListEditor<R, E : Editor<R>>(
      * Add the specified [editor] at the specified [index]
      * @return the moved editor
      */
-    fun addAt(index: Int, editor: E, undoable: Boolean = true): E {
-        if (undoable) {
+    fun addAt(index: Int, editor: E): E {
+        if (undo.isActive) {
             val edit = AddEdit(virtualize(), index, editor.snapshot())
             undo.push(edit)
         }
@@ -200,29 +202,29 @@ abstract class ListEditor<R, E : Editor<R>>(
      * Add the new [editor] at the end of the editor list
      * @return the moved editor
      */
-    fun addLast(editor: E, undoable: Boolean = true): E {
-        return addAt(editors.now.size, editor, undoable)
+    fun addLast(editor: E): E {
+        return addAt(editors.now.size, editor)
     }
 
     /**
      * Create a new editor with [createEditor] and insert it as the last editor.
      */
-    fun addLast(undoable: Boolean = true): E? {
+    fun addLast(): E? {
         val e = tryCreateEditor() ?: return null
-        return addLast(e, undoable)
+        return addLast(e)
     }
 
     /**
      * Remove the editor at the specified [index]
      */
-    fun removeAt(index: Int, undoable: Boolean = true) {
+    fun removeAt(index: Int) {
         if (!mayRemove()) return
         val old = _editors.now.removeAt(index)
         updateIndicesFrom(index)
         views { removed(index) }
         if (emptyNow()) views { empty() }
         context.executeSafely("removing editor", Unit) { editorRemoved(old, index) }
-        if (undoable) {
+        if (undo.isActive) {
             val edit = RemoveEdit(virtualize(), index, old.snapshot())
             undo.push(edit)
         }
@@ -236,9 +238,9 @@ abstract class ListEditor<R, E : Editor<R>>(
     /**
      * Remove the given [editor] from this [ListEditor].
      */
-    fun remove(editor: E, undoable: Boolean = true) {
+    fun remove(editor: E) {
         val idx = editors.now.indexOf(editor)
-        removeAt(idx, undoable)
+        removeAt(idx)
     }
 
     /**
@@ -302,11 +304,11 @@ abstract class ListEditor<R, E : Editor<R>>(
     ) : AbstractEdit() {
         override fun doRedo() {
             val e = editor.get()
-            e.addAt(index, added.reconstruct(e.context), undoable = false)
+            e.addAt(index, added.reconstruct(e.context))
         }
 
         override fun doUndo() {
-            editor.get().removeAt(index, undoable = false)
+            editor.get().removeAt(index)
         }
 
         override val actionDescription: String
@@ -319,12 +321,12 @@ abstract class ListEditor<R, E : Editor<R>>(
         private val removed: EditorSnapshot<E>
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.get().removeAt(index, undoable = false)
+            editor.get().removeAt(index)
         }
 
         override fun doUndo() {
             val e = editor.get()
-            e.addAt(index, removed.reconstruct(e.context), undoable = false)
+            e.addAt(index, removed.reconstruct(e.context))
         }
 
         override val actionDescription: String
@@ -361,7 +363,7 @@ abstract class ListEditor<R, E : Editor<R>>(
         override fun doUndo() {
             val e = editor.get()
             repeat(pasted.size) {
-                e.removeAt(index, undoable = false)
+                e.removeAt(index)
             }
         }
 

@@ -6,11 +6,13 @@ package hextant.lisp
 
 import hextant.codegen.*
 import hextant.core.editor.TokenType
-import hextant.lisp.editor.*
+import hextant.lisp.editor.SExprEditor
+import hextant.lisp.editor.SExprExpanderConfigurator
 import hextant.lisp.rt.RuntimeScope
+import hextant.lisp.rt.evaluate
 import validated.*
 
-@EditorInterface(SExprEditor::class, RuntimeScopeAware::class)
+@EditorInterface(SExprEditor::class)
 @Expandable(SExprExpanderConfigurator::class, subtypeOf = SExpr::class)
 @EditableList
 sealed class SExpr
@@ -75,4 +77,30 @@ abstract class Procedure : SExpr() {
     abstract val arity: Int
 
     abstract fun call(arguments: List<SExpr>, callerScope: RuntimeScope): SExpr
+}
+
+data class Builtin(
+    override val name: String,
+    override val arity: Int,
+    override val isMacro: Boolean,
+    private val def: (arguments: List<SExpr>, callerScope: RuntimeScope) -> SExpr
+) : Procedure() {
+    override fun call(arguments: List<SExpr>, callerScope: RuntimeScope): SExpr = def(arguments, callerScope)
+}
+
+data class Closure(
+    override val name: String?,
+    val parameters: List<String>,
+    val body: SExpr,
+    override val isMacro: Boolean,
+    val closureScope: RuntimeScope
+) : Procedure() {
+    override val arity: Int
+        get() = parameters.size
+
+    override fun call(arguments: List<SExpr>, callerScope: RuntimeScope): SExpr {
+        val callEnv = closureScope.child()
+        for ((name, value) in parameters.zip(arguments)) callEnv.define(name, value)
+        return body.evaluate(callEnv)
+    }
 }

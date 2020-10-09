@@ -10,11 +10,11 @@ import bundles.Bundle
 import bundles.createBundle
 import hextant.command.Commands
 import hextant.command.line.CommandLine
-import hextant.context.Context
-import hextant.context.createControl
+import hextant.context.*
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Compound
 import hextant.core.view.EditorControl
+import hextant.serial.makeRoot
 import javafx.application.Platform
 import javafx.scene.*
 import javafx.scene.control.*
@@ -141,17 +141,29 @@ fun Compound.view(editor: Editor<*>, bundle: Bundle = createBundle(), config: Bu
  */
 fun <R> getUserInput(
     editor: Editor<R>,
-    control: EditorControl<*> = editor.context.createControl(editor),
+    control: Node = editor.context.createControl(editor),
     buttonTypes: List<ButtonType> = listOf(ButtonType.OK, ButtonType.CANCEL)
 ): Validated<R> {
+    editor.makeRoot()
     val d = Dialog<Validated<R>>()
     d.dialogPane.content = control
     d.dialogPane.buttonTypes.setAll(buttonTypes)
+    d.dialogPane.scene.initHextantScene(editor.context)
+    val ok = d.dialogPane.lookupButton(ButtonType.OK) as Button
+    ok.isDefaultButton = false
+    d.dialogPane.registerShortcuts {
+        on("Ctrl+Enter") { ok.fire() }
+    }
     d.setResultConverter { btn ->
         when (btn) {
             ButtonType.OK -> editor.result.now
             ButtonType.CANCEL -> invalidComponent
             else              -> error("Unexpected button type: $btn")
+        }
+    }
+    d.setOnShown {
+        runFXWithTimeout {
+            editor.context[EditorControlGroup].getViewOf(editor).receiveFocus()
         }
     }
     return d.showAndWait().orElse(invalidComponent)

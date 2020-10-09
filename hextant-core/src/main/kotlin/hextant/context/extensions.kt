@@ -7,6 +7,8 @@ import hextant.core.view.EditorControl
 import hextant.generated.createEditor
 import hextant.plugin.Aspects
 import hextant.serial.SerialProperties
+import hextant.undo.UndoManager
+import hextant.undo.withoutUndo
 import kserial.*
 import java.nio.file.Path
 import java.util.logging.Level
@@ -95,4 +97,18 @@ inline fun <T> Context.executeSafely(description: String, onError: T, action: ()
     val msg = "Exception while $description: ${ex.message}"
     get(Properties.logger).log(Level.SEVERE, msg, ex)
     onError
+}
+
+/**
+ * Deactivates the [UndoManager] of this context while executing the given [action] and then reactivates it.
+ */
+inline fun <T> Context.withoutUndo(action: () -> T): T = get(UndoManager).withoutUndo(action)
+
+/**
+ * Executes the given [action] on this [Editor] without recording undoable edits and then returns the receiver.
+ * @see Context.withoutUndo
+ */
+inline fun <E : Editor<*>> E.withoutUndo(action: E.() -> Unit): E {
+    context.withoutUndo { action() }
+    return this
 }

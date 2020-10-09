@@ -9,6 +9,8 @@ object NoUndoManager : UndoManager {
     override val canRedo: Boolean
         get() = false
 
+    override var isActive: Boolean = true
+
     override fun undo() {}
 
     override fun redo() {}

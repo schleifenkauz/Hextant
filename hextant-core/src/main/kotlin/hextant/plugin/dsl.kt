@@ -27,8 +27,10 @@ inline fun <reified R : Any> PluginBuilder.registerCommand(command: Command<R, *
 /**
  * Builds a command and registers it.
  */
-inline fun <reified R : Any, T : Any> PluginBuilder.registerCommand(block: CommandBuilder<R, T>.() -> Unit) {
-    registerCommand(command(block))
+inline fun <reified R : Any, T : Any> PluginBuilder.registerCommand(block: CommandBuilder<R, T>.() -> Unit): Command<R, T> {
+    val command = command(block)
+    registerCommand(command)
+    return command
 }
 
 /**

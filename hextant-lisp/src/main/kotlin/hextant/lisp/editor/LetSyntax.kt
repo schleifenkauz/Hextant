@@ -1,0 +1,37 @@
+package hextant.lisp.editor
+
+import hextant.context.Context
+import hextant.context.withoutUndo
+import hextant.lisp.SExpr
+import hextant.lisp.Symbol
+import reaktive.value.now
+
+object LetSyntax : SpecialSyntax<LetEditor>("let", 3) {
+    override fun representsEditors(editors: List<SExprEditor<*>?>): Boolean = editors[1] is SymbolEditor
+
+    override fun represents(expressions: List<SExpr>): Boolean = expressions[1] is Symbol
+
+    override fun representEditors(
+        context: Context,
+        editors: List<SExprEditor<*>?>
+    ): LetEditor = LetEditor(context).withoutUndo {
+        name.setText((editors[1] as SymbolEditor).text.now)
+        value.setEditor(editors[2])
+        body.setEditor(editors[3])
+    }
+
+    override fun represent(context: Context, expressions: List<SExpr>): LetEditor = LetEditor(context).withoutUndo {
+        name.setText(expressions[1].toString())
+        value.reconstruct(expressions[2])
+        body.reconstruct(expressions[3])
+    }
+
+    override fun desugar(editor: LetEditor): SExprEditor<*> = CallExprEditor(editor.context).withoutUndo {
+        expressions.addLast(SExprExpander(context, SymbolEditor(context, "let")))
+        expressions.addLast(SExprExpander(context, editor.name))
+        expressions.addLast(editor.value)
+        expressions.addLast(editor.body)
+    }
+
+    override fun createTemplate(context: Context): LetEditor = LetEditor(context)
+}

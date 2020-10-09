@@ -19,12 +19,14 @@ internal class UndoManagerImpl : UndoManager {
     override val canRedo: Boolean
         get() = redoable.isNotEmpty()
 
+    override var isActive: Boolean = true
+
     override fun undo() {
         check(canUndo) { "Cannot undo" }
         check(compound == null) { "Undo during compound edit is not possible" }
         val e = undoable.poll()
         println("Undo ${e.actionDescription}")
-        e.undo()
+        withoutUndo { e.undo() }
         redoable.push(e)
     }
 
@@ -33,12 +35,13 @@ internal class UndoManagerImpl : UndoManager {
         check(compound == null) { "Redo during compound edit is not possible" }
         val e = redoable.poll()
         println("Redo ${e.actionDescription}")
-        e.redo()
+        withoutUndo { e.redo() }
         undoable.push(e)
     }
 
     override fun push(edit: Edit) {
-        check(edit.canUndo) { "Attempt to Non-undoable edit push to UndoManager" }
+        if (!isActive) return
+        check(edit.canUndo) { "Attempt to push non-undoable edit to UndoManager" }
         if (compound != null) {
             compound!!.add(edit)
             return

@@ -8,6 +8,8 @@ package hextant.undo
  * Skeletal implementation of [Edit]
  */
 abstract class AbstractEdit : Edit {
+    private var undone = false
+
     /**
      * Actually redo the [Edit], state is already checked
      */
@@ -17,8 +19,6 @@ abstract class AbstractEdit : Edit {
      * Actually undo the [Edit], state is already checked
      */
     protected abstract fun doUndo()
-
-    private var undone = false
 
     final override val canRedo: Boolean
         get() = undone

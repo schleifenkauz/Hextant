@@ -4,8 +4,7 @@
 
 package hextant.sample.editor
 
-import hextant.context.Context
-import hextant.context.EditorControlGroup
+import hextant.context.*
 import hextant.core.editor.ExpanderConfigurator
 import hextant.fx.runFXWithTimeout
 import hextant.sample.*
@@ -18,16 +17,16 @@ object ExprExpanderDelegator : ExpanderConfigurator<ExprEditor<*>>({
     "true" expand { ctx -> BooleanLiteralEditor(ctx, "true") }
     for (op in BinaryOperator.values()) {
         op.toString() expand { ctx ->
-            BinaryExprEditor(ctx).apply {
-                operator.setText(op.toString(), undoable = false)
+            BinaryExprEditor(ctx).withoutUndo {
+                operator.setText(op.toString())
             }
         }
     }
     "call" expand ::FunctionCallEditor
     registerInterceptor { item: Def, ctx: Context -> ReferenceEditor(ctx, item.name.toString()) }
     registerInterceptor { item: GlobalFunction, ctx: Context ->
-        FunctionCallEditor(ctx).apply {
-            name.setText(item.name.toString(), undoable = false)
+        FunctionCallEditor(ctx).withoutUndo {
+            name.setText(item.name.toString())
             arguments.resize(item.parameters.size)
             if (item.parameters.isNotEmpty()) runFXWithTimeout {
                 context[EditorControlGroup].getViewOf(arguments.editors.now[0]).receiveFocus()

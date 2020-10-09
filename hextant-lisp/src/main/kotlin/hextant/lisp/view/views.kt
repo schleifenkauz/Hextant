@@ -10,11 +10,13 @@ import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.context.*
 import hextant.core.view.*
+import hextant.core.view.ListEditorControl.Companion.CELL_FACTORY
+import hextant.core.view.ListEditorControl.Companion.ORIENTATION
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.core.view.ListEditorControl.SeparatorCell
-import hextant.fx.*
+import hextant.fx.registerShortcuts
+import hextant.fx.view
 import hextant.lisp.editor.*
-import javafx.scene.paint.Color
 import reaktive.value.now
 
 @ProvideImplementation(ControlFactory::class)
@@ -62,8 +64,8 @@ fun createControl(editor: CallExprEditor, arguments: Bundle) = CompoundEditorCon
     line {
         operator("(")
         view(editor.expressions) {
-            set(ListEditorControl.ORIENTATION, Horizontal)
-            set(ListEditorControl.CELL_FACTORY) { SeparatorCell(" ") }
+            set(ORIENTATION, Horizontal)
+            set(CELL_FACTORY) { SeparatorCell(" ") }
         }
         operator(")")
     }
@@ -75,19 +77,43 @@ fun createControl(editor: LispProject, arguments: Bundle) = CompoundEditorContro
     view(editor.root)
     val cl = ctx[CommandLine]
     view(cl).registerShortcuts {
-        on("Ctrl+I") {
+        on("Ctrl?+I") {
             ctx[SelectionDistributor].focusedView.now?.focus()
         }
     }
     registerShortcuts {
-        on("ESCAPE") {
+        on("Ctrl?+K") {
             ctx[EditorControlGroup].getViewOf(cl).receiveFocus()
         }
     }
 }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: NormalizedSExprEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    view(editor.wrapped)
-    setBackground(Color.GREEN)
+fun createControl(editor: LetEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+    line {
+        keyword("let")
+        space()
+        view(editor.name)
+        keyword("=")
+        view(editor.value)
+    }
+    line {
+        keyword("in")
+        space()
+        view(editor.body)
+    }
+}
+
+@ProvideImplementation(ControlFactory::class)
+fun createControl(editor: LambdaEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+    line {
+        keyword("lambda")
+        space()
+        view(editor.parameters) {
+            set(ORIENTATION, Horizontal)
+            set(CELL_FACTORY) { SeparatorCell(" ") }
+        }
+        operator(" -> ")
+        view(editor.body)
+    }
 }

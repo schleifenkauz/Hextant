@@ -7,8 +7,7 @@
 package hextant.core.editor
 
 import hextant.completion.Completion
-import hextant.context.Context
-import hextant.context.executeSafely
+import hextant.context.*
 import hextant.core.editor.TokenEditor.Compilable.Completed
 import hextant.core.editor.TokenEditor.Compilable.Text
 import hextant.core.view.TokenEditorView
@@ -47,7 +46,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     }
 
     constructor(context: Context, text: String) : this(context) {
-        setText(text, undoable = false)
+        withoutUndo { setText(text) }
     }
 
     private val _result = reactiveVariable(runBlocking { tryCompile("") })
@@ -87,8 +86,8 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     /**
      * Set the text of this editor, such that the result is automatically updated
      */
-    fun setText(newText: String, undoable: Boolean = true) {
-        if (undoable) {
+    fun setText(newText: String) {
+        if (undo.isActive) {
             val edit = TextEdit(virtualize(), text.now, newText)
             undo.push(edit)
         }
@@ -115,11 +114,11 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         private val new: String
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.get().setText(new, undoable = false)
+            editor.get().setText(new)
         }
 
         override fun doUndo() {
-            editor.get().setText(old, undoable = false)
+            editor.get().setText(old)
         }
 
         override val actionDescription: String
@@ -134,7 +133,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         private val text = original.text.now
 
         override fun reconstruct(editor: TokenEditor<*, *>) {
-            editor.setText(text, undoable = false)
+            editor.setText(text)
         }
     }
 }

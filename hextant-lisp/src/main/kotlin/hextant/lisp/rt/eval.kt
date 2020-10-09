@@ -6,21 +6,21 @@ package hextant.lisp.rt
 
 import hextant.lisp.*
 
-fun SExpr.evaluate(scope: RuntimeScope = RuntimeScope.root()): SExpr = when (this) {
-    is Symbol -> scope.get(name)
-    is Quotation -> quoted
-    is QuasiQuotation -> quoted.unquoteAfterCommas(scope)
-    is Unquote -> fail("comma is illegal outside of quasi-quotation")
-    is Pair -> {
-        ensure(isList())
-        val proc = car.evaluate(scope)
-        ensure(proc is Procedure) { "${display(proc)} is not a procedure" }
-        val args = cdr.extractList()
-        apply(proc, args, scope)
+fun SExpr.evaluate(scope: RuntimeScope = RuntimeScope.root()): SExpr =
+    when (this) {
+        is Symbol -> scope.get(name) ?: fail("unbound variable $name")
+        is QuasiQuotation -> Quotation(quoted.unquoteAfterCommas(scope))
+        is Unquote -> fail("comma is illegal outside of quasi-quotation")
+        is Pair -> {
+            ensure(isList())
+            val proc = car.evaluate(scope)
+            ensure(proc is Procedure) { "${display(proc)} is not a procedure" }
+            val args = cdr.extractList()
+            apply(proc, args, scope)
+        }
+        is Nil -> fail("Illegal empty application ()")
+        is Literal<*>, is Procedure, is Quotation -> this
     }
-    is Nil -> fail("Illegal empty application ()")
-    is Literal<*>, is Procedure -> this
-}
 
 private fun SExpr.unquoteAfterCommas(scope: RuntimeScope): SExpr = when (this) {
     is Pair -> Pair(car.unquoteAfterCommas(scope), cdr.unquoteAfterCommas(scope))
@@ -41,63 +41,85 @@ private fun apply(proc: Procedure, arguments: List<SExpr>, scope: RuntimeScope):
 private data class BuiltinSyntax(
     val name: String,
     val parameters: Int,
-    val definition: (List<SExpr>, RuntimeScope) -> kotlin.Pair<SExpr, RuntimeScope>
+    val definition: (List<SExpr>, RuntimeScope) -> SExpr
 )
+
+val SExpr.isValue
+    get() = when (this) {
+        is Symbol, is Pair, Nil, is QuasiQuotation, is Unquote -> false
+        is Literal<*>, is Quotation, is Procedure -> true
+    }
 
 private val syntax = listOf(
     BuiltinSyntax("if", 3) { (cond, then, `else`), scope ->
-        if (truthy(cond.evaluate(scope))) then to scope else `else` to scope
+        if (truthy(cond.evaluate(scope))) then else `else`
     },
-    BuiltinSyntax("let", 3) { (sym, value, body), scope ->
+    BuiltinSyntax("let", 3) { (sym, value, body), _ ->
         ensure(sym is Symbol)
-        val sc = scope.child()
-        sc.define(sym.name, value.evaluate(scope))
-        body to sc
+        ensure(value.isValue) { "some values are not evaluated" }
+        body.substitute(mapOf(sym.name to value))
     },
-    BuiltinSyntax("lambda", 3) { (parameters, body), scope ->
+    BuiltinSyntax("lambda", 3) { (parameters, body), _ ->
         ensure(parameters.isList())
-        val params = parameters.extractList()
-        val names = params.map { it as? Symbol ?: fail("bad syntax") }.map { it.name }
-        Closure(null, names, body, false, scope) to scope
+        quote(list("lambda".s, parameters, body))
     }
 ).associateBy { it.name }
 
-fun SExpr.reduce(scope: RuntimeScope = RuntimeScope.root()): kotlin.Pair<SExpr, RuntimeScope> =
-    when (this) {
-        is Symbol -> scope.get(name) to scope
-        is Quotation -> quoted to RuntimeScope.empty()
-        is QuasiQuotation -> TODO()
-        is Unquote -> fail("comma is illegal outside of quasi-quotation")
-        is Pair -> run {
-            ensure(isList()) { "bad syntax" }
-            val arguments = cdr.extractList()
-            when (val c = car) {
-                is Symbol ->
-                    if (c.name in syntax) syntax.getValue(c.name).definition(arguments, scope)
-                    else substitute(scope.get(c.name), arguments, scope)
-                else      -> substitute(c, arguments, scope)
-            }
+fun SExpr.reduce(scope: RuntimeScope): SExpr = when (this) {
+    is Symbol -> scope.get(name) ?: fail("unbound variable $name")
+    is QuasiQuotation -> TODO()
+    is Unquote -> fail("comma is illegal outside of quasi-quotation")
+    is Pair -> run {
+        ensure(isList()) { "bad syntax" }
+        val arguments = cdr.extractList()
+        when (val c = car) {
+            is Symbol ->
+                if (c.name in syntax) syntax.getValue(c.name).definition(arguments, scope)
+                else applyFunction(scope.get(c.name) ?: fail("unbound variable ${c.name}"), arguments, scope)
+            else      -> applyFunction(c, arguments, scope)
         }
-        is Nil -> fail("Illegal empty application ()")
-        is Literal<*>, is Procedure -> this to RuntimeScope.empty()
     }
+    is Nil -> fail("Illegal empty application ()")
+    is Literal<*>, is Procedure, is Quotation -> this
+}
 
-private fun substitute(
+private fun SExpr.substitute(substitution: Map<String, SExpr>): SExpr = when (this) {
+    is Symbol -> substitution[name] ?: this
+    is Pair -> Pair(
+        car.substitute(substitution),
+        cdr.substitute(substitution)
+    )
+    is QuasiQuotation -> TODO()
+    is Unquote -> TODO()
+    is Procedure, is Literal<*>, is Quotation, is Nil -> this
+}
+
+private fun applyFunction(
     proc: SExpr,
     arguments: List<SExpr>,
     scope: RuntimeScope
-): kotlin.Pair<SExpr, RuntimeScope> {
-    ensure(proc is Procedure) { "Not a procedure" }
-    if (proc.arity != VARARG && proc.arity != arguments.size) fail("Arity mismatch")
-    return when (proc) {
-        is Closure -> {
-            val sc = proc.closureScope.child()
-            for ((p, a) in proc.parameters.zip(arguments.map { it.evaluate(scope) })) {
-                sc.define(p, a)
-            }
-            proc.body to sc
+): SExpr {
+    if (arguments.any { !it.isValue }) fail("Not all arguments are evaluated")
+    return when {
+        proc.isList()   -> {
+            val lst = proc.extractList()
+            ensure(lst.size == 3)
+            ensure(lst[0] == quote(Symbol("lambda")))
+            ensure(lst[1].isList())
+            val parameters = lst[1].symbolList()
+            val body = lst[2].unquote()
+            if (parameters.size != arguments.size) fail("Arity mismatch")
+            body.substitute(parameters.zip(arguments).toMap())
         }
-        is Builtin -> proc.call(arguments, scope) to RuntimeScope.empty()
-        else       -> fail("Unknown type of procedure")
+        proc is Closure -> {
+            if (proc.arity != VARARG && proc.arity != arguments.size) fail("Arity mismatch")
+            val subst = proc.parameters.zip(arguments).toMap()
+            proc.body.substitute(subst)
+        }
+        proc is Builtin -> {
+            if (proc.arity != VARARG && proc.arity != arguments.size) fail("Arity mismatch")
+            proc.call(arguments, scope)
+        }
+        else            -> fail("Unknown type of procedure")
     }
 }

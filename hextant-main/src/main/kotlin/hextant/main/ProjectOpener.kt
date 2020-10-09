@@ -70,7 +70,7 @@ internal class ProjectOpener(
         val root = project.resolve(GlobalDirectory.PROJECT_ROOT).toPath()
         val input = context.createInput(root)
         input.bundle[deserializationContext] = context
-        val editor = input.readObject() as Editor<*>
+        val editor = context.withoutUndo { input.readObject() as Editor<*> }
         @Suppress("DEPRECATION")
         editor.setFile(PhysicalFile(editor, root, context))
         initializePlugins(plugins, context, Initialize, editor)

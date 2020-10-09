@@ -1,13 +1,14 @@
 package hextant.lisp
 
-import hextant.lisp.debug.reconstruct
-import hextant.lisp.editor.SExprExpander
-import hextant.lisp.rt.evaluate
-import hextant.lisp.rt.reduce
+import hextant.context.createControl
+import hextant.fx.*
+import hextant.lisp.editor.*
+import hextant.lisp.rt.*
 import hextant.plugin.*
+import javafx.scene.control.Alert
+import javafx.scene.control.Alert.AlertType
 import reaktive.value.now
-import validated.force
-import validated.isValid
+import validated.*
 
 object Lisp : PluginInitializer({
     stylesheet("hextant/lisp/style.css")
@@ -18,8 +19,19 @@ object Lisp : PluginInitializer({
         applicableIf { p -> p.result.now.isValid }
         executing { e, _ ->
             val expr = e.result.now.force()
-            val v = expr.evaluate()
-            e.reconstruct(v)
+            val scope = RuntimeScope.root { scope, name ->
+                val editor = SExprExpander(e.context)
+                val view = e.context.createControl(editor)
+                val control = vbox(label("Specify value for $name: "), view)
+                getUserInput(editor, control).orNull()?.evaluate(scope)
+            }
+            try {
+                val v = expr.evaluate(scope)
+                e.reconstruct(v)
+            } catch (ex: LispRuntimeException) {
+                Alert(AlertType.ERROR, ex.message).show()
+                ex.printStackTrace()
+            }
         }
     }
     registerCommand<SExprExpander, Unit> {
@@ -29,9 +41,17 @@ object Lisp : PluginInitializer({
         defaultShortcut("Ctrl?+E")
         executing { e, _ ->
             val expr = e.result.now.force()
-            val (reduced, scope) = expr.reduce(e.scope)
-            e.scope = scope
-            e.reconstruct(reduced)
+            try {
+                val scope = RuntimeScope.root()
+                val reduced = expr.reduce(scope)
+                e.reconstruct(reduced)
+            } catch (ex: LispRuntimeException) {
+                Alert(AlertType.ERROR, ex.message).show()
+                ex.printStackTrace()
+            }
         }
     }
+    registerCommand(beautify)
+    addSpecialSyntax(LetSyntax)
+    addSpecialSyntax(LambdaSyntax)
 })

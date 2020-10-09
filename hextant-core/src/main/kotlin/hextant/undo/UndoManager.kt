@@ -12,28 +12,34 @@ import bundles.SimpleProperty
  */
 interface UndoManager {
     /**
-     * @return `true` only if this [UndoManager] can currently undo an [Edit]
+     * Indicates whether this [UndoManager] can currently undo an [Edit].
      */
     val canUndo: Boolean
 
     /**
-     * @return `true` only if this [UndoManager] can currently redo an [Edit]
+     * Indicates whether this [UndoManager] can currently redo an [Edit].
      */
     val canRedo: Boolean
 
     /**
-     * Undo the last done or redone [Edit]
+     * Indicates whether this [UndoManager] currently records undoable edits.
+     */
+    var isActive: Boolean
+
+    /**
+     * Undo the last done or redone [Edit].
      */
     fun undo()
 
     /**
-     * Redo the last undone [Edit]
+     * Redo the last undone [Edit].
      */
     fun redo()
 
     /**
-     * Push the specified [edit] such that [undo] would undo the [Edit]
+     * Push the specified [edit] such that [undo] would undo the [Edit].
      * * All redoable edits are discarded
+     * * If the [UndoManager] is not active then this method has no effect.
      * @throws IllegalStateException if the [edit] is not undoable
      */
     fun push(edit: Edit)
@@ -47,7 +53,8 @@ interface UndoManager {
 
     /**
      * Finishes a compound edit began with [beginCompoundEdit].
-     * If no edits have been pushed since then this method has no effect.
+     *
+     * If no edits have been pushed since or if the [UndoManager] is not active then this method has no effect.
      * @param description the [Edit.actionDescription] of the compound edit
      * @throws IllegalStateException if [beginCompoundEdit] was not called previously.
      */

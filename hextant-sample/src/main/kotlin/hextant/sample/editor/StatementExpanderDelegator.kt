@@ -1,12 +1,13 @@
 package hextant.sample.editor
 
+import hextant.context.withoutUndo
 import hextant.core.editor.ExpanderConfigurator
 
 object StatementExpanderDelegator : ExpanderConfigurator<StatementEditor<*>>({
     "print" expand ::PrintStatementEditor
     "call" expand { ctx ->
-        ExprStatementEditor(ctx).apply {
-            expr.setEditor(FunctionCallEditor(ctx), undoable = false)
+        ExprStatementEditor(ctx).withoutUndo {
+            expr.setEditor(FunctionCallEditor(ctx))
         }
     }
     "def" expand ::DefinitionEditor

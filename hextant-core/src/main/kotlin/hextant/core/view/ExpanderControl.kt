@@ -16,7 +16,6 @@ import hextant.core.Editor
 import hextant.core.InputMethod
 import hextant.core.editor.Expander
 import hextant.fx.*
-import javafx.css.PseudoClass
 import javafx.scene.Node
 import reaktive.Observer
 
@@ -120,8 +119,6 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     protected open fun onExpansion(editor: Editor<*>, control: EditorControl<*>) {}
 
     companion object {
-        private val UNEXPANDED = PseudoClass.getPseudoClass("unexpanded")
-
         /**
          * This property controls the completer of the expander control
          */

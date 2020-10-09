@@ -11,14 +11,14 @@ fun SExpr.isPair(): Boolean = this is Pair || this is Quotation && quoted.isPair
 val SExpr.car: SExpr
     get() = when (this) {
         is Pair -> car
-        is Quotation -> quoted.car
+        is Quotation -> quote(quoted.car)
         else         -> fail("${display(this)} is not a pair")
     }
 
 val SExpr.cdr: SExpr
     get() = when (this) {
         is Pair -> cdr
-        is Quotation -> quoted.cdr
+        is Quotation -> quote(quoted.cdr)
         else         -> fail("${display(this)} is not a pair")
     }
 
@@ -36,7 +36,12 @@ fun SExpr.extractList(): List<SExpr> {
     return args
 }
 
-fun SExpr.symbolList() = extractList().map { (it as Symbol).name }
+fun SExpr.unquote() = if (this is Quotation) quoted else fail("$this cannot be unquoted")
+
+fun SExpr.symbolList() = extractList()
+    .map { it as? Quotation ?: fail("expected symbol but got $it") }
+    .map { it.quoted as? Symbol ?: fail("expected symbol but got $it") }
+    .map { it.name }
 
 fun truthy(condition: SExpr) = condition != f && condition != nil
 
