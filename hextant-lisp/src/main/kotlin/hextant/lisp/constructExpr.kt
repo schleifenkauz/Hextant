@@ -16,7 +16,7 @@ val f: SExpr get() = lit(false)
 
 val t: SExpr get() = lit(true)
 
-val nil: SExpr get() = Nil
+val nil: SExpr get() = Nil()
 
 fun list(exprs: List<SExpr>) = exprs.foldRight(nil) { e, acc -> Pair(e, acc) }
 

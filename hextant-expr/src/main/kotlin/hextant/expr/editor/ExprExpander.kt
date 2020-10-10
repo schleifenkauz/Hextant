@@ -16,7 +16,7 @@ class ExprExpander(
     constructor(context: Context) : this(context, null)
 
     companion object {
-        val config = ExpanderConfig<ExprEditor<Expr>>().apply {
+        val config = ExpanderConfig<ExprEditor<Expr>, Context>().apply {
             registerKey("dec") { context -> IntLiteralEditor(context) }
             registerKey("+") { context -> OperatorApplicationEditor(Plus, context) }
             registerKey("-") { context -> OperatorApplicationEditor(Minus, context) }

@@ -2,11 +2,7 @@
     -fx-text-fill: #075307;
 }
 
-.hextant-text.int-literal {
-    -fx-text-fill: #285cde;
-}
-
-.hextant-text.boolean-literal {
+.hextant-text.literal {
     -fx-text-fill: #cd5a13;
 }
 

@@ -20,7 +20,7 @@ object Lisp : PluginInitializer({
         executing { e, _ ->
             val expr = e.result.now.force()
             val scope = RuntimeScope.root { scope, name ->
-                val editor = SExprExpander(e.context)
+                val editor = SExprExpander(e.context, RuntimeScopeEditor(e.context, scope))
                 val view = e.context.createControl(editor)
                 val control = vbox(label("Specify value for $name: "), view)
                 getUserInput(editor, control).orNull()?.evaluate(scope)

@@ -5,7 +5,6 @@
 package hextant.core.editor
 
 import hextant.completion.*
-import hextant.context.Context
 import hextant.core.Editor
 import validated.map
 import validated.orNull
@@ -15,13 +14,14 @@ import kotlin.reflect.KClass
 /**
  * A configuration for a [ConfiguredExpander]
  */
-class ExpanderConfig<E : Editor<*>> private constructor(
-    private val fallback: ExpanderDelegate<E>?,
-    private val constant: MutableMap<String, (Context) -> E>,
-    private val interceptors: LinkedList<(String, Context) -> E?>,
-    private val typeSafeInterceptors: MutableMap<KClass<*>, LinkedList<(Any, Context) -> E?>>
-) : ExpanderDelegate<E> {
-    constructor(fallback: ExpanderDelegate<E>? = null) : this(fallback, mutableMapOf(), LinkedList(), mutableMapOf())
+class ExpanderConfig<E : Editor<*>, Ctx> private constructor(
+    private val fallback: ExpanderDelegate<E, Ctx>?,
+    private val constant: MutableMap<String, (Ctx) -> E>,
+    private val interceptors: LinkedList<(String, Ctx) -> E?>,
+    private val typeSafeInterceptors: MutableMap<KClass<*>, LinkedList<(Any, Ctx) -> E?>>
+) : ExpanderDelegate<E, Ctx> {
+    constructor(fallback: ExpanderDelegate<E, Ctx>? = null)
+            : this(fallback, mutableMapOf(), LinkedList(), mutableMapOf())
 
     /**
      * @return a [Completer] which uses the registered choices and the given [strategy]
@@ -37,21 +37,21 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     /**
      * Return an [ExpanderConfig] which uses the given [ExpanderDelegate] as a fallback option when expanding editors.
      */
-    fun withFallback(fallback: ExpanderDelegate<E>?) =
+    fun withFallback(fallback: ExpanderDelegate<E, Ctx>?) =
         ExpanderConfig(fallback, constant, interceptors, typeSafeInterceptors)
 
     /**
      * Return an [ExpanderConfig] that uses the given transformation function to make editors of type [R] from editors of type [E].
      */
-    fun <R : Editor<*>> transform(f: (E) -> R): ExpanderConfig<R> {
+    fun <R : Editor<*>> transform(f: (E) -> R): ExpanderConfig<R, Ctx> {
         val fb = if (fallback is ExpanderConfig) fallback.transform(f) else fallback?.map(f)
-        val constant = constant.mapValuesTo(mutableMapOf()) { (_, fct) -> { ctx: Context -> f(fct(ctx)) } }
+        val constant = constant.mapValuesTo(mutableMapOf()) { (_, fct) -> { ctx: Ctx -> f(fct(ctx)) } }
         val interceptors = interceptors.mapTo(LinkedList()) { fct ->
-            { text: String, ctx: Context -> fct(text, ctx)?.let(f) }
+            { text: String, ctx: Ctx -> fct(text, ctx)?.let(f) }
         }
         val typeSafeInterceptors = typeSafeInterceptors.mapValuesTo(mutableMapOf()) { (_, lst) ->
             lst.mapTo(LinkedList()) { fct ->
-                { item: Any, ctx: Context -> fct(item, ctx)?.let(f) }
+                { item: Any, ctx: Ctx -> fct(item, ctx)?.let(f) }
             }
         }
         return ExpanderConfig(fb, constant, interceptors, typeSafeInterceptors)
@@ -62,14 +62,14 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      * * Previous invocation with the same [key] are overridden.
      * @see unregisterKey
      */
-    fun registerKey(key: String, create: (ctx: Context) -> E) {
+    fun registerKey(key: String, create: (ctx: Ctx) -> E) {
         constant[key] = create
     }
 
     /**
      * Same as [registerKey] but registers the same editor factory for multiple keys.
      */
-    fun registerKeys(key: String, vararg more: String, create: (ctx: Context) -> E) {
+    fun registerKeys(key: String, vararg more: String, create: (ctx: Ctx) -> E) {
         registerKey(key, create)
         for (k in more) registerKey(k, create)
     }
@@ -77,7 +77,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     /**
      * Alias for [registerKey].
      */
-    infix fun String.expand(create: (ctx: Context) -> E) {
+    infix fun String.expand(create: (ctx: Ctx) -> E) {
         registerKey(this, create = create)
     }
 
@@ -95,15 +95,15 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      *
      * Interceptors the have been registered **last** are tried **first**
      */
-    fun registerInterceptor(interceptor: (text: String, ctx: Context) -> E?) {
+    fun registerInterceptor(interceptor: (text: String, ctx: Ctx) -> E?) {
         interceptors.addFirst(interceptor)
     }
 
     /**
      * Registers an interceptor that tries to to compile its given text with the given [tokenType].
      */
-    fun <T> registerTokenInterceptor(tokenType: TokenType<T>, factory: (ctx: Context, token: T) -> E) {
-        registerInterceptor { text: String, ctx: Context ->
+    fun <T> registerTokenInterceptor(tokenType: TokenType<T>, factory: (ctx: Ctx, token: T) -> E) {
+        registerInterceptor { text: String, ctx: Ctx ->
             tokenType.compile(text).map { t -> factory(ctx, t) }.orNull()
         }
     }
@@ -114,10 +114,10 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      *
      * Interceptors the have been registered **last** are tried **first**
      */
-    fun <T : Any> registerInterceptor(cls: KClass<out T>, interceptor: (item: T, ctx: Context) -> E?) {
+    fun <T : Any> registerInterceptor(cls: KClass<out T>, interceptor: (item: T, ctx: Ctx) -> E?) {
         val list = typeSafeInterceptors.getOrPut(cls) { LinkedList() }
         @Suppress("UNCHECKED_CAST")
-        list.addFirst(interceptor as ((Any, Context) -> E?)?)
+        list.addFirst(interceptor as ((Any, Ctx) -> E?)?)
     }
 
     /**
@@ -127,7 +127,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      * Interceptors the have been registered **last** are tried **first**
      */
     @JvmName("registerTypesafeInterceptor")
-    inline fun <reified T : Any> registerInterceptor(noinline interceptor: (item: T, ctx: Context) -> E?) {
+    inline fun <reified T : Any> registerInterceptor(noinline interceptor: (item: T, ctx: Ctx) -> E?) {
         registerInterceptor(T::class, interceptor)
     }
 
@@ -135,7 +135,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      * Expand the given [text] in the given [context] using the registered interceptors.
      * If no interceptor matches `null` is returned
      */
-    override fun expand(text: String, context: Context): E? {
+    override fun expand(text: String, context: Ctx): E? {
         val constant = constant[text]
         if (constant != null) return constant(context)
         for (i in interceptors) {
@@ -146,7 +146,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
         return null
     }
 
-    override fun expand(item: Any, context: Context): E? {
+    override fun expand(item: Any, context: Ctx): E? {
         val cls = item::class
         val interceptors = typeSafeInterceptors[cls] ?: return null
         for (i in interceptors) {
@@ -160,20 +160,22 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     /**
      * Return an [ExpanderConfig] which uses this config as a fallback option and apply the [additionalConfig] block.
      */
-    fun extend(additionalConfig: ExpanderConfig<E>.() -> Unit) = ExpanderConfig(this).apply(additionalConfig)
+    fun extend(additionalConfig: ExpanderConfig<E, Ctx>.() -> Unit) =
+        ExpanderConfig<E, Ctx>(this).apply(additionalConfig)
 
     /**
      * Copies all the constant factories and interceptors from the given [config] to this one.
      */
-    fun alsoUse(config: ExpanderConfig<E>) {
+    fun alsoUse(config: ExpanderConfig<E, Ctx>) {
         constant.putAll(config.constant)
         interceptors.addAll(config.interceptors)
         for ((cls, interceptors) in config.typeSafeInterceptors) {
             typeSafeInterceptors.getOrPut(cls) { LinkedList() }.addAll(interceptors)
         }
     }
+
     /**
      * Return an [ExpanderConfig] which first tries the given [config] and then uses this configuration as a fallback option.
      */
-    fun extendWith(config: ExpanderConfig<E>) = config.withFallback(this)
+    fun extendWith(config: ExpanderConfig<E, Ctx>) = config.withFallback(this)
 }

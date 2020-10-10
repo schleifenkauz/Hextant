@@ -164,7 +164,11 @@ class CommandLine(context: Context, val source: CommandSource) :
     fun resume(command: Command<*, *>, arguments: List<EditorSnapshot<out Editor<Any>>>) {
         reset()
         setCommandName(command.shortName!!)
-        val editors = arguments.map { context.executeSafely("resuming", null) { it.reconstruct(context) } ?: return }
+        val editors = arguments.map {
+            context.executeSafely("resuming", null) {
+                context.withoutUndo { it.reconstruct(context) }
+            } ?: return
+        }
         editors.forEach { it.makeRoot() }
         bindResult(command, editors.map { it.result })
         expanded(command, editors)

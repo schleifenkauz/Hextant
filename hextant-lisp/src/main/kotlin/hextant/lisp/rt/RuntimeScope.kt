@@ -5,8 +5,11 @@
 package hextant.lisp.rt
 
 import bundles.SimpleProperty
+import hextant.codegen.UseEditor
 import hextant.lisp.SExpr
+import hextant.lisp.editor.RuntimeScopeEditor
 
+@UseEditor(RuntimeScopeEditor::class)
 class RuntimeScope private constructor(
     private val parent: RuntimeScope?,
     private val userInput: (RuntimeScope, String) -> SExpr?

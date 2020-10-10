@@ -72,7 +72,7 @@ private fun define(
     val symbols = signature.symbolList()
     val name = symbols.first()
     val parameters = symbols.drop(1)
-    val proc = Closure(name, parameters, body, isMacro, closureScope = scope)
+    val proc = Closure(name, parameters, body, isMacro, scope = scope)
     scope.define(name, proc)
     return t
 }
@@ -110,10 +110,10 @@ fun RuntimeScope.registerBuiltins() {
     builtin("list", VARARG) { elements, _ -> elements.foldRight(nil) { e, acc -> Pair(e, acc) } }
     builtin("eval", 1) { (e), env -> e.evaluate(env) }
     builtinMacro("lambda", 2) { (parameters, body), env ->
-        Closure(null, parameters.symbolList(), body, isMacro = false, closureScope = env)
+        Closure(null, parameters.symbolList(), body, isMacro = false, scope = env)
     }
     builtinMacro("macro", 2) { (parameters, body), env ->
-        Closure(null, parameters.symbolList(), body, isMacro = true, closureScope = env)
+        Closure(null, parameters.symbolList(), body, isMacro = true, scope = env)
     }
     builtinMacro("defun", 2) { (signature, body), env ->
         define(signature, body, env, false)

@@ -24,12 +24,8 @@ fun createControl(editor: SymbolEditor, arguments: Bundle) =
     TokenEditorControl(editor, arguments, styleClass = "symbol")
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: IntLiteralEditor, arguments: Bundle) =
-    TokenEditorControl(editor, arguments, styleClass = "int-literal")
-
-@ProvideImplementation(ControlFactory::class)
-fun createControl(editor: BooleanLiteralEditor, arguments: Bundle) =
-    TokenEditorControl(editor, arguments, styleClass = "boolean-literal")
+fun createControl(editor: LiteralEditor, arguments: Bundle) =
+    TokenEditorControl(editor, arguments, styleClass = "literal")
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: QuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
@@ -41,7 +37,7 @@ fun createControl(editor: QuotationEditor, arguments: Bundle) = CompoundEditorCo
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: SExprExpander, arguments: Bundle) =
-    ExpanderControl(editor, arguments, SExprExpanderConfigurator.config.completer(CompletionStrategy.simple))
+    ExpanderControl(editor, arguments, SExprExpander.config.completer(CompletionStrategy.simple))
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: QuasiQuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {

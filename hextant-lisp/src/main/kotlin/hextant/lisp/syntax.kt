@@ -4,22 +4,20 @@
 
 package hextant.lisp
 
-import hextant.codegen.*
 import hextant.core.editor.TokenType
-import hextant.lisp.editor.SExprEditor
-import hextant.lisp.editor.SExprExpanderConfigurator
 import hextant.lisp.rt.RuntimeScope
 import hextant.lisp.rt.evaluate
 import validated.*
 
-@EditorInterface(SExprEditor::class)
-@Expandable(SExprExpanderConfigurator::class, subtypeOf = SExpr::class)
-@EditableList
-sealed class SExpr
+sealed class SExpr {
+    abstract val scope: RuntimeScope
+}
 
-@Token(subtypeOf = SExpr::class)
-@EditableList
-data class Symbol(val name: String) : SExpr() {
+data class Hole(val text: String, override val scope: RuntimeScope = RuntimeScope.empty()) : SExpr() {
+    override fun toString(): String = "?$text"
+}
+
+data class Symbol(val name: String, override val scope: RuntimeScope = RuntimeScope.empty()) : SExpr() {
     override fun toString(): String = name
 
     companion object : TokenType<Symbol> {
@@ -29,8 +27,14 @@ data class Symbol(val name: String) : SExpr() {
     }
 }
 
-@Token(subtypeOf = SExpr::class)
-data class IntLiteral(override val value: Int) : Literal<Int>() {
+sealed class Literal<T : Any> : SExpr() {
+    abstract val value: T
+}
+
+data class IntLiteral(
+    override val value: Int,
+    override val scope: RuntimeScope = RuntimeScope.empty()
+) : Literal<Int>() {
     override fun toString(): String = "$value"
 
     companion object : TokenType<IntLiteral> {
@@ -39,12 +43,12 @@ data class IntLiteral(override val value: Int) : Literal<Int>() {
     }
 }
 
-sealed class Literal<T : Any> : SExpr() {
-    abstract val value: T
-}
+data class BooleanLiteral(
+    override val value: Boolean,
+    override val scope: RuntimeScope = RuntimeScope.empty()
+) : Literal<Boolean>() {
+    override fun toString(): String = if (value) "#t" else "#f"
 
-@Token(subtypeOf = SExpr::class)
-data class BooleanLiteral(override val value: Boolean) : Literal<Boolean>() {
     companion object : TokenType<BooleanLiteral> {
         override fun compile(token: String): Validated<BooleanLiteral> = when (token) {
             "#t" -> valid(BooleanLiteral(true))
@@ -54,23 +58,21 @@ data class BooleanLiteral(override val value: Boolean) : Literal<Boolean>() {
     }
 }
 
-data class Pair(var car: SExpr, var cdr: SExpr) : SExpr()
+data class Pair(var car: SExpr, var cdr: SExpr, override val scope: RuntimeScope = RuntimeScope.empty()) : SExpr()
 
-object Nil : SExpr() {
+data class Nil(override val scope: RuntimeScope = RuntimeScope.empty()) : SExpr() {
     override fun toString(): String = "Nil"
 }
 
-@Compound(subtypeOf = SExpr::class)
-data class Quotation(val quoted: SExpr) : SExpr()
+data class Quotation(val quoted: SExpr, override val scope: RuntimeScope = RuntimeScope.empty()) : SExpr()
 
-@Compound(subtypeOf = SExpr::class)
-data class QuasiQuotation(val quoted: SExpr) : SExpr()
+data class QuasiQuotation(val quoted: SExpr, override val scope: RuntimeScope = RuntimeScope.empty()) : SExpr()
 
-@Compound(subtypeOf = SExpr::class)
-data class Unquote(val expr: SExpr) : SExpr()
+data class Unquote(val expr: SExpr, override val scope: RuntimeScope = RuntimeScope.empty()) : SExpr()
 
-@Compound(subtypeOf = SExpr::class)
-data class NormalizedSExpr(val expr: SExpr) : SExpr()
+data class NormalizedSExpr(val expr: SExpr) : SExpr() {
+    override val scope = RuntimeScope.empty()
+}
 
 abstract class Procedure : SExpr() {
     abstract val name: String?
@@ -88,6 +90,8 @@ data class Builtin(
     override val isMacro: Boolean,
     private val def: (arguments: List<SExpr>, callerScope: RuntimeScope) -> SExpr
 ) : Procedure() {
+    override val scope: RuntimeScope get() = RuntimeScope.empty()
+
     override fun call(arguments: List<SExpr>, callerScope: RuntimeScope): SExpr = def(arguments, callerScope)
 }
 
@@ -96,13 +100,13 @@ data class Closure(
     val parameters: List<String>,
     val body: SExpr,
     override val isMacro: Boolean,
-    val closureScope: RuntimeScope
+    override val scope: RuntimeScope
 ) : Procedure() {
     override val arity: Int
         get() = parameters.size
 
     override fun call(arguments: List<SExpr>, callerScope: RuntimeScope): SExpr {
-        val callEnv = closureScope.child()
+        val callEnv = scope.child()
         for ((name, value) in parameters.zip(arguments)) callEnv.define(name, value)
         return body.evaluate(callEnv)
     }

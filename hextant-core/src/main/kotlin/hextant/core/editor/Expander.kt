@@ -45,9 +45,9 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     private var state: State<E> = Unexpanded("")
 
-    private val _result = reactiveVariable(defaultResult())
+    private val _text = reactiveVariable<String?>(null)
 
-    override val result: ReactiveValidated<R> get() = _result
+    private val _result = reactiveVariable(defaultResult())
 
     private var resultDelegator: Observer? = null
 
@@ -63,12 +63,12 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     val editor: ReactiveValue<E?> get() = _editor
 
-    private val _text = reactiveVariable<String?>(null)
-
     /**
      * A [ReactiveValue] holding the current text of the editor or `null` if it is expanded
      */
     val text: ReactiveValue<String?> get() = _text
+
+    override val result: ReactiveValidated<R> get() = _result
 
     @Suppress("UNCHECKED_CAST")
     private val editorClass by lazy { getTypeArgument(Expander::class, 1) }

@@ -20,6 +20,7 @@ fun SExpr.evaluate(scope: RuntimeScope = RuntimeScope.root()): SExpr =
             apply(proc, args, scope)
         }
         is Nil -> fail("Illegal empty application ()")
+        is Hole -> fail("$this")
         is Literal<*>, is Procedure, is Quotation -> this
     }
 
@@ -47,7 +48,7 @@ private data class BuiltinSyntax(
 
 val SExpr.isValue
     get() = when (this) {
-        is Symbol, is Pair, Nil, is QuasiQuotation, is Unquote -> false
+        is Symbol, is Pair, is Nil, is QuasiQuotation, is Unquote, is Hole -> false
         is Literal<*>, is Quotation, is Procedure, is NormalizedSExpr -> true
     }
 
@@ -71,9 +72,9 @@ private val syntax = listOf(
 ).associateBy { it.name }
 
 fun SExpr.reduce(scope: RuntimeScope): SExpr = when (this) {
-    is NormalizedSExpr -> this
-    is Symbol -> scope.get(name) ?: fail("unbound variable $name")
-    is QuasiQuotation -> quoted.reduceQuasiQuotation()
+    is NormalizedSExpr          -> this
+    is Symbol                   -> scope.get(name) ?: fail("unbound variable $name")
+    is QuasiQuotation           -> quoted.reduceQuasiQuotation()
     is Unquote -> fail("comma is illegal outside of quasi-quotation")
     is Pair -> run {
         ensure(isList()) { "bad syntax" }
@@ -88,6 +89,7 @@ fun SExpr.reduce(scope: RuntimeScope): SExpr = when (this) {
     is Quotation -> normalized(quoted)
     is Nil -> fail("Illegal empty application ()")
     is Literal<*>, is Procedure -> this
+    is Hole -> fail("$this")
 }
 
 private fun SExpr.reduceQuasiQuotation(): SExpr = when (this) {
@@ -98,6 +100,7 @@ private fun SExpr.reduceQuasiQuotation(): SExpr = when (this) {
     is NormalizedSExpr -> quote(expr)
     is Symbol, is Nil, is Quotation -> quote(this)
     is Procedure -> fail("cannot happen")
+    is Hole -> fail("$this")
 }
 
 private fun SExpr.substitute(substitution: Map<String, SExpr>): SExpr = when (this) {
@@ -113,6 +116,7 @@ private fun SExpr.substitute(substitution: Map<String, SExpr>): SExpr = when (th
     )
     is Unquote -> fail("Unquote is illegal outside of quasi-quotation")
     is Procedure, is Literal<*>, is Quotation, is Nil, is NormalizedSExpr -> this
+    is Hole -> fail("$this")
 }
 
 private fun SExpr.substituteInsideQuasiQuotation(substitution: Map<String, SExpr>): SExpr = when (this) {
