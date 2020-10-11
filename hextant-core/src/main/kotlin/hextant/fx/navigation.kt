@@ -50,13 +50,13 @@ internal fun Scene.selectPrevious(): Boolean {
 }
 
 private val Node.previousEditorControl
-    get() = iterate(editorControlInParentChain(this)?.previous) {
+    get() = iterate(editorControlInParentChain(this)?.previous()) {
         if (it is ExpanderControl) it.root as? EditorControl<*>
         else it.editorChildren().lastOrNull()
     }
 
 private val Node.nextEditorControl
-    get() = iterate(editorControlInParentChain(this)?.next) {
+    get() = iterate(editorControlInParentChain(this)?.next()) {
         if (it is ExpanderControl) it.root as? EditorControl<*>
         else it.editorChildren().firstOrNull()
     }
@@ -98,10 +98,10 @@ internal fun Scene.registerNavigationShortcuts() {
     }
     registerShortcuts(KeyEvent.ANY) {
         on(TRAV_NEXT) {
-            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.next?.select()
+            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.next()?.select()
         }
         on(TRAV_PREV) {
-            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.previous?.select()
+            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.previous()?.select()
         }
     }
 }

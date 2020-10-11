@@ -251,17 +251,6 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
 
     private fun getCell(idx: Int, control: EditorControl<*>): Cell<*> {
         control.root //Initialize root
-        val nxt = cells.getOrNull(idx + 1)?.item
-        if (nxt != null) {
-            control.setNext(nxt)
-            nxt.setPrevious(control)
-        }
-        val prev = cells.getOrNull(idx - 1)?.item
-        if (prev != null) {
-            control.setPrevious(prev)
-            prev.setNext(control)
-        }
-        control.setEditorParent(this)
         return cellFactory().apply {
             item = control
             index = idx

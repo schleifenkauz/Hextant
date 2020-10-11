@@ -41,17 +41,17 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
 
     override fun createDefaultRoot(): Node = textField
 
-    override fun setEditorParent(parent: EditorControl<*>) {
+    override fun setEditorParent(parent: EditorControl<*>?) {
         super.setEditorParent(parent)
         view?.setEditorParent(parent)
     }
 
-    override fun setNext(nxt: EditorControl<*>) {
+    override fun setNext(nxt: EditorControl<*>?) {
         super.setNext(nxt)
         view?.setNext(nxt)
     }
 
-    override fun setPrevious(prev: EditorControl<*>) {
+    override fun setPrevious(prev: EditorControl<*>?) {
         super.setPrevious(prev)
         view?.setPrevious(prev)
     }
@@ -102,9 +102,9 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
         v.registerShortcuts {
             on("Ctrl? + R") { expander.reset() }
         }
-        next?.let { v.setNext(it) }
-        previous?.let { v.setPrevious(it) }
-        editorParent?.let { v.setEditorParent(it) }
+        v.setNext(next)
+        v.setPrevious(previous)
+        v.setEditorParent(editorParent)
         v.root //initialize root
         view = v
         root = v

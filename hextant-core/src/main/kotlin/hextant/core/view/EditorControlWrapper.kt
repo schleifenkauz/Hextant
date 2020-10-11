@@ -24,15 +24,15 @@ class EditorControlWrapper(
         view.argumentChanged(property, value)
     }
 
-    override fun setEditorParent(parent: EditorControl<*>) {
+    override fun setEditorParent(parent: EditorControl<*>?) {
         view.setEditorParent(parent)
     }
 
-    override fun setNext(nxt: EditorControl<*>) {
+    override fun setNext(nxt: EditorControl<*>?) {
         view.setNext(nxt)
     }
 
-    override fun setPrevious(prev: EditorControl<*>) {
+    override fun setPrevious(prev: EditorControl<*>?) {
         view.setPrevious(prev)
     }
 

@@ -72,11 +72,13 @@ abstract class EditorControl<R : Node>(
 
     internal var next: EditorControl<*>? = null
         private set
-        get() = field ?: editorParent?.next
+
+    internal fun next(): EditorControl<*>? = next ?: editorParent?.next()
 
     internal var previous: EditorControl<*>? = null
         private set
-        get() = field ?: editorParent?.previous
+
+    internal fun previous(): EditorControl<*>? = previous ?: editorParent?.previous()
 
     private var manuallySelecting = false
 
@@ -109,30 +111,16 @@ abstract class EditorControl<R : Node>(
      */
     open fun argumentChanged(property: Property<*, *, *>, value: Any?) {}
 
-    internal open fun setEditorParent(parent: EditorControl<*>) {
+    internal open fun setEditorParent(parent: EditorControl<*>?) {
         editorParent = parent
     }
 
-    internal open fun setNext(nxt: EditorControl<*>) {
+    internal open fun setNext(nxt: EditorControl<*>?) {
         next = nxt
     }
 
-    internal open fun setPrevious(prev: EditorControl<*>) {
+    internal open fun setPrevious(prev: EditorControl<*>?) {
         previous = prev
-    }
-
-    /**
-     * Focuses the [EditorControl] visually right or at the bottom of this one
-     */
-    fun focusNext() {
-        next?.focus()
-    }
-
-    /**
-     * Focuses the [EditorControl] visually left or at the top of this one
-     */
-    fun focusPrevious() {
-        previous?.focus()
     }
 
     /**
@@ -142,8 +130,8 @@ abstract class EditorControl<R : Node>(
      */
     protected fun setChildren(children: List<EditorControl<*>>) {
         editorChildren.clear()
-        editorChildren.addAll(children)
         if (children.isEmpty()) return
+        editorChildren.addAll(children)
         children.forEach {
             it.root
             it.setEditorParent(this)
@@ -152,6 +140,8 @@ abstract class EditorControl<R : Node>(
             previous.setNext(next)
             next.setPrevious(previous)
         }
+        children.first().setPrevious(null)
+        children.last().setNext(null)
     }
 
     /**
@@ -160,10 +150,10 @@ abstract class EditorControl<R : Node>(
     protected fun addChild(child: EditorControl<*>, idx: Int) {
         val prev = editorChildren.getOrNull(idx - 1)
         val next = editorChildren.getOrNull(idx)
-        prev?.next = child
-        next?.previous = child
-        child.next = next
-        child.previous = previous
+        prev?.setNext(child)
+        next?.setPrevious(child)
+        child.setNext(next)
+        child.setPrevious(prev)
         child.setEditorParent(this)
         editorChildren.add(idx, child)
     }
@@ -178,8 +168,8 @@ abstract class EditorControl<R : Node>(
     protected fun removeChild(index: Int) {
         val prev = editorChildren.getOrNull(index - 1)
         val next = editorChildren.getOrNull(index + 1)
-        prev?.next = next
-        next?.previous = previous
+        prev?.setNext(next)
+        next?.setPrevious(prev)
         editorChildren.removeAt(index)
     }
 
