@@ -325,7 +325,7 @@ abstract class EditorControl<R : Node>(
         type = SingleReceiver
     )
     private fun showInspections(): Boolean {
-        inspectionPopup.show(this)
+        inspectionPopup.show(root)
         return inspectionPopup.isShowing
     }
 

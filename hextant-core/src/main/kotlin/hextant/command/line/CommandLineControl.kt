@@ -18,6 +18,7 @@ import hextant.impl.observe
 import javafx.application.Platform
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import reaktive.Observer
 
 /**
  * A JavaFX implementation of the [CommandLineView]
@@ -36,14 +37,14 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         cl.expand(completion.completion)
     }
 
-    private val textObserver = commandName.userUpdatedText.observe(this) { _, txt ->
-        cl.setCommandName(txt)
-        popup.updateInput(txt)
-        popup.show(this)
-    }
+    private val textObserver: Observer
 
     init {
-        cl.addView(this)
+        textObserver = commandName.userUpdatedText.observe(this) { _, txt ->
+            cl.setCommandName(txt)
+            popup.updateInput(txt)
+            popup.show(commandName)
+        }
         registerShortcuts {
             on("Ctrl + R") {
                 cl.reset()
@@ -55,12 +56,13 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
                 cl.expand()
             }
             on("Ctrl + Space") {
-                popup.show(this@CommandLineControl)
+                popup.show(commandName)
             }
             on("Ctrl + Up") {
                 history.children.lastOrNull()?.requestFocus()
             }
         }
+        cl.addView(this)
     }
 
     override fun displayCommandName(name: String) {

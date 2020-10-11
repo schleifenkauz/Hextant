@@ -29,7 +29,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
     private val textObserver = textField.userUpdatedText.observe(this) { _, new ->
         editor.setText(new)
         popup.updateInput(new)
-        popup.show(this)
+        popup.show(root)
     }
 
     private val popup = CompletionPopup(context, editor) { arguments[COMPLETER] }
@@ -45,7 +45,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
 
     private fun registerShortcut() {
         registerShortcut(KeyCodeCombination(SPACE, KeyCombination.CONTROL_DOWN)) {
-            popup.show(this)
+            popup.show(root)
         }
     }
 
@@ -54,7 +54,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
     final override fun displayText(newText: String) {
         if (root.text != newText) {
             root.smartSetText(newText)
-            popup.show(this)
+            popup.show(root)
         }
     }
 

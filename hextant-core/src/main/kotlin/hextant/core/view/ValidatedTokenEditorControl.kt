@@ -27,7 +27,7 @@ open class ValidatedTokenEditorControl @ProvideImplementation(ControlFactory::cl
     private val textObserver = root.userUpdatedText.observe { _, new ->
         editor.setText(new)
         popup.updateInput(new)
-        popup.show(this)
+        popup.show(root)
     }
 
     private val completer = popup.completionChosen.observe { _, completion -> editor.complete(completion) }
@@ -46,7 +46,7 @@ open class ValidatedTokenEditorControl @ProvideImplementation(ControlFactory::cl
             on(arguments[COMMIT_CHANGE]) { editor.commitChange() }
             on(arguments[BEGIN_CHANGE]) { editor.beginChange() }
             on(arguments[ABORT_CHANGE]) { editor.abortChange() }
-            on("Ctrl+Space") { popup.show(this@ValidatedTokenEditorControl) }
+            on("Ctrl+Space") { popup.show(root) }
         }
     }
 

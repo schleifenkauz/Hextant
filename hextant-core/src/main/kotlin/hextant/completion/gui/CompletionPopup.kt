@@ -42,7 +42,7 @@ internal class CompletionPopup<Ctx, T : Any>(
             }
             root.children.setAll(completions.map { c -> createCompletionItem(c) })
             valid = true
-            if (completions.isNotEmpty()) super.show()
+            if (completions.isNotEmpty() && ownerNode.isFocused) super.show()
             else hide()
         }
     }
@@ -66,7 +66,7 @@ internal class CompletionPopup<Ctx, T : Any>(
             GlobalScope.launch(Dispatchers.Main) {
                 updater.send(input)
             }
-        } else if (root.children.isNotEmpty()) {
+        } else if (root.children.isNotEmpty() && ownerNode.isFocused) {
             super.show()
         }
     }

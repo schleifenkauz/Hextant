@@ -18,7 +18,7 @@ fun Scene.initHextantScene(context: Context) {
     registerCopyPasteShortcuts(context)
     addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED) { ev ->
         focusedEditorControl?.let {
-            it.commandsPopup.show(it)
+            it.commandsPopup.show(root)
             ev.consume()
         }
     }

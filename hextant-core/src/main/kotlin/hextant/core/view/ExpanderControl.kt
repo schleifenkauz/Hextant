@@ -59,26 +59,26 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     init {
         with(textField) {
             registerShortcuts {
-                on("Ctrl + Space") { popup.show(this@ExpanderControl) }
+                on("Ctrl + Space") { popup.show(root) }
                 on("Enter") { expander.expand() }
             }
             textObserver = userUpdatedText.observe { _, new ->
                 expander.setText(new)
                 popup.updateInput(new)
-                popup.show(this)
+                popup.show(root)
             }
         }
         styleClass.add("expander")
         expander.addView(this)
         completionObserver = popup.completionChosen.observe { _, completion ->
-            expander.complete(completion)
+            if (!expander.isExpanded) expander.complete(completion)
         }
     }
 
     override fun displayText(text: String) {
         if (text != textField.text) {
             textField.text = text
-            popup.show(this)
+            popup.show(root)
         }
     }
 
