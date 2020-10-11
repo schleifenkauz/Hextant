@@ -70,9 +70,7 @@ data class QuasiQuotation(val quoted: SExpr, override val scope: RuntimeScope = 
 
 data class Unquote(val expr: SExpr, override val scope: RuntimeScope = RuntimeScope.empty()) : SExpr()
 
-data class NormalizedSExpr(val expr: SExpr) : SExpr() {
-    override val scope = RuntimeScope.empty()
-}
+data class NormalizedSExpr(val expr: SExpr, override val scope: RuntimeScope = RuntimeScope.empty()) : SExpr()
 
 abstract class Procedure : SExpr() {
     abstract val name: String?

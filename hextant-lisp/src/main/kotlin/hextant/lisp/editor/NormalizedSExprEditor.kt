@@ -15,5 +15,5 @@ class NormalizedSExprEditor(context: Context, override val scope: RuntimeScopeEd
                                                                                         SExprEditor {
     val expr by child(SExprExpander(context, scope))
 
-    override val result: ReactiveValidated<SExpr> = expr.result.mapValidated { NormalizedSExpr(it) }
+    override val result: ReactiveValidated<SExpr> = expr.result.mapValidated { NormalizedSExpr(it, scope.scope) }
 }

@@ -16,6 +16,6 @@ class LambdaEditor(context: Context, override val scope: RuntimeScopeEditor) : C
     val body by child(SExprExpander(context, scope))
 
     override val result: ReactiveValidated<SExpr> = composeReactive(parameters.result, body.result) { params, b ->
-        quote(list("lambda".s, list(params), b))
+        quote(list(scope.scope, Symbol("lambda", scope.scope), list(params, scope.scope), b))
     }
 }

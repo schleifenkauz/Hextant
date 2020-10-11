@@ -14,5 +14,6 @@ class QuotationEditor(context: Context, override val scope: RuntimeScopeEditor) 
                                                                                   SExprEditor {
     val quoted by child(SExprExpander(context, scope))
 
-    override val result: ReactiveValidated<SExpr> = quoted.result.mapValidated { q -> list("quote".s, q) }
+    override val result: ReactiveValidated<SExpr> =
+        quoted.result.mapValidated { q -> list(scope.scope, Symbol("quote", scope.scope), q) }
 }

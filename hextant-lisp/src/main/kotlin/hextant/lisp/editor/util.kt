@@ -24,10 +24,14 @@ fun SExpr.reconstructEditor(context: Context): SExprExpander =
     SExprExpander(context, RuntimeScopeEditor(context, scope)).also { e -> e.reconstruct(this) }
 
 fun SExprExpander.reconstruct(expr: SExpr) {
-    withoutUndo { setEditor(reconstruct(expr, context, scope)) }
+    withoutUndo {
+        scope.scope = expr.scope
+        setEditor(reconstruct(expr, context))
+    }
 }
 
-private fun reconstruct(expr: SExpr, context: Context, scope: RuntimeScopeEditor): SExprEditor {
+private fun reconstruct(expr: SExpr, context: Context): SExprEditor {
+    val scope = RuntimeScopeEditor(context, expr.scope)
     return when (expr) {
         is Symbol -> SymbolEditor(context, scope, expr.name)
         is IntLiteral -> LiteralEditor(context, scope, expr.toString())

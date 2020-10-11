@@ -17,5 +17,6 @@ class CallExprEditor(context: Context, override val scope: RuntimeScopeEditor) :
     CompoundEditor<SExpr>(context), SExprEditor {
     val expressions by child(SExprListEditor(context, scope))
 
-    override val result: ReactiveValidated<SExpr> = expressions.result.mapValidated { exprs -> list(exprs) }
+    override val result: ReactiveValidated<SExpr> =
+        expressions.result.mapValidated { exprs -> list(exprs, scope.scope) }
 }

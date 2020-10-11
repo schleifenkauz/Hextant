@@ -10,7 +10,7 @@ import hextant.project.ProjectType
 import validated.reaktive.ReactiveValidated
 
 class LispProject(context: Context) : CompoundEditor<SExpr>(context) {
-    val root by child(SExprExpander(context, RuntimeScopeEditor(context, RuntimeScope.empty())))
+    val root by child(SExprExpander(context, RuntimeScopeEditor(context, RuntimeScope.root())))
 
     override val result: ReactiveValidated<SExpr> get() = root.result
 

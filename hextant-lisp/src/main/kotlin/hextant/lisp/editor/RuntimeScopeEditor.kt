@@ -11,7 +11,7 @@ import reaktive.value.reactiveValue
 import validated.reaktive.ReactiveValidated
 import validated.valid
 
-class RuntimeScopeEditor(context: Context, private val scope: RuntimeScope) :
+class RuntimeScopeEditor(context: Context, var scope: RuntimeScope) :
     AbstractEditor<RuntimeScope, RuntimeScopeView>(context) {
 
     override val result: ReactiveValidated<RuntimeScope>

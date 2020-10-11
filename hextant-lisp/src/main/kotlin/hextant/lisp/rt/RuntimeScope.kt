@@ -11,10 +11,10 @@ import hextant.lisp.editor.RuntimeScopeEditor
 
 @UseEditor(RuntimeScopeEditor::class)
 class RuntimeScope private constructor(
-    private val parent: RuntimeScope?,
-    private val userInput: (RuntimeScope, String) -> SExpr?
-) {
+    val parent: RuntimeScope?,
+    private val userInput: (RuntimeScope, String) -> SExpr?,
     private val values: MutableMap<String, SExpr> = mutableMapOf()
+) {
 
     fun define(name: String, value: SExpr) {
         values[name] = value
@@ -35,6 +35,10 @@ class RuntimeScope private constructor(
         if (name in values) this else parent?.findDefiningEnv(name)
 
     fun child() = RuntimeScope(this, noUserInput)
+
+    fun copy(parent: RuntimeScope? = this.parent) = RuntimeScope(parent, userInput, values.toMutableMap())
+
+    override fun toString(): String = "$values, parent = $parent"
 
     companion object : SimpleProperty<RuntimeScope>("runtime scope") {
         private val noUserInput = { _: RuntimeScope, _: String -> null }

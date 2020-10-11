@@ -49,7 +49,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         withoutUndo { setText(text) }
     }
 
-    private val _result = reactiveVariable(runBlocking { tryCompile("") })
+    private val _result by lazy { reactiveVariable(runBlocking { tryCompile("") }) }
 
     override val result: ReactiveValidated<R> get() = _result
 

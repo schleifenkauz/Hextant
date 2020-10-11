@@ -9,17 +9,21 @@ import hextant.core.editor.TokenEditor
 import hextant.core.editor.TokenType
 import hextant.core.view.TokenEditorView
 import hextant.lisp.*
+import hextant.lisp.rt.RuntimeScope
 import validated.*
 
 class SymbolEditor(context: Context, override val scope: RuntimeScopeEditor, text: String = "") :
     TokenEditor<SExpr, TokenEditorView>(context, text), SExprEditor {
     constructor(context: Context, scope: RuntimeScopeEditor, symbol: Symbol) : this(context, scope, symbol.name)
 
-    override fun compile(token: String): Validated<SExpr> = SymbolEditor.compile(token).orElse { valid(Hole(token)) }
+    override fun compile(token: String): Validated<SExpr> =
+        compile(token, scope.scope).orElse { valid(Hole(token, scope.scope)) }
 
     companion object : TokenType<Symbol> {
-        override fun compile(token: String): Validated<Symbol> =
-            if (isValid(token)) valid(Symbol(token)) else invalid("invalid identifier '$token'")
+        override fun compile(token: String): Validated<Symbol> = compile(token, RuntimeScope.empty())
+
+        private fun compile(token: String, scope: RuntimeScope) =
+            if (isValid(token)) valid(Symbol(token, scope)) else invalid("invalid identifier '$token'")
 
         private val forbidden = "()[]'`,".toSet()
 

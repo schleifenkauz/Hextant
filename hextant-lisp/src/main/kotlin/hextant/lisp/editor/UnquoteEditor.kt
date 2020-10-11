@@ -14,5 +14,6 @@ class UnquoteEditor(context: Context, override val scope: RuntimeScopeEditor) : 
                                                                                 SExprEditor {
     val expr by child(SExprExpander(context, scope))
 
-    override val result: ReactiveValidated<SExpr> = expr.result.mapValidated { q -> list("unquote".s, q) }
+    override val result: ReactiveValidated<SExpr> =
+        expr.result.mapValidated { q -> list(scope.scope, Symbol("unquote", scope.scope), q) }
 }

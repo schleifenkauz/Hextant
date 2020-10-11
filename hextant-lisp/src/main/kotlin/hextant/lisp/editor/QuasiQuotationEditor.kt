@@ -14,5 +14,6 @@ class QuasiQuotationEditor(context: Context, override val scope: RuntimeScopeEdi
                                                                                        SExprEditor {
     val quoted by child(SExprExpander(context, scope))
 
-    override val result: ReactiveValidated<SExpr> = quoted.result.mapValidated { q -> list("quasiquote".s, q) }
+    override val result: ReactiveValidated<SExpr> =
+        quoted.result.mapValidated { q -> list(scope.scope, Symbol("quasiquote", scope.scope), q) }
 }

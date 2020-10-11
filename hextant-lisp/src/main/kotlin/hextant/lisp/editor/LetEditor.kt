@@ -17,6 +17,6 @@ class LetEditor(context: Context, override val scope: RuntimeScopeEditor) : Comp
     val body by child(SExprExpander(context, scope))
 
     override val result: ReactiveValidated<SExpr> = composeReactive(name.result, value.result, body.result) { n, v, b ->
-        list("let".s, n, v, b)
+        list(scope.scope, Symbol("let", scope.scope), n, v, b)
     }
 }
