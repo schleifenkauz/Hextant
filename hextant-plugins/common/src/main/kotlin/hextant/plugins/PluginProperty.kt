@@ -4,6 +4,8 @@ import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
 class PluginProperty<T : Any> private constructor(val name: String, val type: KType) {
+    fun file(): String = "$name.json"
+
     companion object {
         @OptIn(ExperimentalStdlibApi::class)
         private inline fun <reified T : Any> get(name: String) = PluginProperty<T>(name, typeOf<T>())

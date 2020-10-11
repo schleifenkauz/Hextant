@@ -2,5 +2,4 @@ dependencies {
     compile project(":hextant-plugins:common")
     compile "io.ktor:ktor-server-netty:$ktor_version"
     compile "io.ktor:ktor-serialization:$ktor_version"
-    compile "com.github.nkb03:kollektion:0.1-SNAPSHOT"
 }

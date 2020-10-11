@@ -2,22 +2,17 @@
  *@author Nikolaus Knop
  */
 
-package hextant.plugins.server
+package hextant.plugins
 
-import hextant.plugins.*
 import hextant.plugins.PluginInfo.Type
 import kollektion.Trie
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 import java.io.File
 import java.io.InputStream
 import java.util.*
 import java.util.jar.JarFile
 import kotlin.collections.set
 
-internal class LocalPluginRepository(private val root: File) : Marketplace {
+class LocalPluginRepository(private val root: File) : Marketplace {
     private val trie = Trie<PluginInfo>()
     private val implementations = mutableMapOf<String, MutableMap<String, ImplementationCoord>>()
     private val projectTypes = mutableMapOf<String, LocatedProjectType>()
@@ -87,16 +82,7 @@ internal class LocalPluginRepository(private val root: File) : Marketplace {
         return result.toList()
     }
 
-    @Suppress("UNCHECKED_CAST", "BlockingMethodInNonBlockingContext")
-    override suspend fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? =
-        withContext(Dispatchers.IO) {
-            val file = getJarFile(pluginId) ?: return@withContext null
-            JarFile(file).use { jar ->
-                val entry = jar.getEntry("${property.name}.json") ?: return@use null
-                val text = jar.getInputStream(entry).bufferedReader().readText()
-                Json.decodeFromString(serializer(property.type), text) as T
-            }
-        }
+    override suspend fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? = getInfo(property, pluginId)
 
     override suspend fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
         implementations[aspect]?.get(feature)

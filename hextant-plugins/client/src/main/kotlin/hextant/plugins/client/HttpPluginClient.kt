@@ -22,6 +22,7 @@ import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.net.ConnectException
 import kotlin.reflect.*
 
 class HttpPluginClient(private val url: String, private val downloadDirectory: File) : Marketplace {
@@ -30,6 +31,8 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
             serializer = KotlinxSerializer(Json {})
         }
     }
+
+    private val local by lazy { LocalPluginRepository(downloadDirectory) }
 
     @Suppress("UNCHECKED_CAST")
     @OptIn(ExperimentalStdlibApi::class)
@@ -40,7 +43,6 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
                 this.body = body
             }
         }
-
         when (response.status) {
             HttpStatusCode.OK -> {
                 val info = TypeInfo(type.classifier as KClass<*>, type.javaType, type)
@@ -57,7 +59,11 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
     override suspend fun getJarFile(id: String): File? {
         val file = downloadDirectory.resolve("$id.jar")
         if (!file.exists()) {
-            val response = client.get<HttpResponse>("$url/$id/download")
+            val response = try {
+                client.get<HttpResponse>("$url/$id/download")
+            } catch (e: ConnectException) {
+                return null
+            }
             if (response.status == HttpStatusCode.NotFound) return null
             check(response.status == HttpStatusCode.OK) { response }
             response.content.copyAndClose(file.writeChannel())
@@ -65,22 +71,41 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
         return file
     }
 
-    override suspend fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? =
-        get("$url/$pluginId/${property.name}", property.type)
+    override suspend fun <T : Any> get(property: PluginProperty<T>, pluginId: String): T? {
+        val jar = downloadDirectory.resolve("$pluginId.jar")
+        return if (jar.exists()) getInfo(property, pluginId)
+        else get("$url/$pluginId/${property.name}", property.type)
+    }
 
     override suspend fun getPlugins(
         searchText: String,
         limit: Int,
         types: Set<Type>,
         excluded: Set<String>
-    ): List<String> = get("$url/plugins", body = PluginSearch(searchText, limit, types, excluded))!!
+    ): List<String> = try {
+        get("$url/plugins", body = PluginSearch(searchText, limit, types, excluded))!!
+    } catch (e: ConnectException) {
+        local.getPlugins(searchText, limit, types, excluded)
+    }
 
     override suspend fun getImplementation(aspect: String, feature: String): ImplementationCoord? =
-        get("$url/implementation", body = ImplementationRequest(aspect, feature))
+        try {
+            get("$url/implementation", body = ImplementationRequest(aspect, feature))
+        } catch (e: ConnectException) {
+            local.getImplementation(aspect, feature)
+        }
 
-    override suspend fun availableProjectTypes(): List<LocatedProjectType> = get("$url/projectTypes")!!
+    override suspend fun availableProjectTypes(): List<LocatedProjectType> = try {
+        get("$url/projectTypes")!!
+    } catch (e: ConnectException) {
+        local.availableProjectTypes()
+    }
 
-    override suspend fun getProjectType(name: String): LocatedProjectType? = get("$url/projectTypes/$name")
+    override suspend fun getProjectType(name: String): LocatedProjectType? = try {
+        get("$url/projectTypes/$name")
+    } catch (e: ConnectException) {
+        local.getProjectType(name)
+    }
 
     @KtorExperimentalAPI
     override suspend fun upload(jar: File) {
