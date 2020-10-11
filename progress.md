@@ -120,3 +120,12 @@
 - Create plugin system
 - Create Aspect system
 - Create Hextant Launcher
+
+# Sep 2020
+- more work on the plugin system
+- fixes concerning the UI
+- sample language
+
+# Oct 2020
+- rework Lisp-Editor
+- some fixes concerning the plugin system and the UI
