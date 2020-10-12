@@ -1,3 +1,5 @@
+package hextant.gradle
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
@@ -6,7 +8,6 @@ class HextantLibrary implements Plugin<Project> {
     @Override
     void apply(final Project target) {
         target.with {
-            version = '0.1-SNAPSHOT'
             def extension = target.extensions.create('hextant_lib', HextantLibraryExtension)
             apply plugin: 'org.jetbrains.dokka'
             apply plugin: 'com.bmuschko.nexus'
@@ -57,6 +58,11 @@ class HextantLibrary implements Plugin<Project> {
                         artifact kotlinSourcesJar
                     }
                 }
+            }
+            nexus {
+                sign = true
+                repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
             }
         }
     }

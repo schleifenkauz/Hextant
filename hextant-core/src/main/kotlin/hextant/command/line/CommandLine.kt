@@ -123,7 +123,7 @@ class CommandLine(context: Context, val source: CommandSource) :
      * After the command is executed the command line is [reset].
      * @return the result or `null` if the command was not successfully executed.
      */
-    fun execute(): Any? {
+    fun execute(byShortcut: Boolean = false): Any? {
         if (!isExpanded.now && !expandNoArgCommand()) return null
         val (command, args) = result.now.ifInvalid { return null }
         val onError = listOf("Error executing $command")
@@ -137,13 +137,18 @@ class CommandLine(context: Context, val source: CommandSource) :
             1 -> results[0]
             else -> Unit
         }
-        commandExecuted(command, arguments ?: emptyList(), result)
+        commandExecuted(command, arguments ?: emptyList(), byShortcut, result)
         reset()
         return result
     }
 
-    private fun commandExecuted(command: Command<*, *>, arguments: List<Editor<Any>>, result: Any?) {
-        val item = HistoryItem(command, arguments.map { it.result.now.force() to it.snapshot() }, result)
+    private fun commandExecuted(
+        command: Command<*, *>,
+        arguments: List<Editor<Any>>,
+        byShortcut: Boolean,
+        result: Any?
+    ) {
+        val item = HistoryItem(command, arguments.map { it.result.now.force() to it.snapshot() }, byShortcut, result)
         history.add(item)
         execute.fire(item)
         views {
@@ -164,7 +169,11 @@ class CommandLine(context: Context, val source: CommandSource) :
     fun resume(command: Command<*, *>, arguments: List<EditorSnapshot<out Editor<Any>>>) {
         reset()
         setCommandName(command.shortName!!)
-        val editors = arguments.map { context.executeSafely("resuming", null) { it.reconstruct(context) } ?: return }
+        val editors = arguments.map {
+            context.executeSafely("resuming", null) {
+                context.withoutUndo { it.reconstruct(context) }
+            } ?: return
+        }
         editors.forEach { it.makeRoot() }
         bindResult(command, editors.map { it.result })
         expanded(command, editors)
@@ -210,6 +219,10 @@ class CommandLine(context: Context, val source: CommandSource) :
          * The supplied arguments
          */
         val arguments: List<Pair<Any?, EditorSnapshot<out Editor<Any>>>>,
+        /**
+         * Whether the command was executed by using a shortcut
+         */
+        val byShortcut: Boolean,
         /**
          * The result of the application
          */

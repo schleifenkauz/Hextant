@@ -303,7 +303,7 @@ abstract class EditorControl<R : Node>(
         shortName = "paste",
         type = SingleReceiver,
         description = "Paste the recently copied content",
-        defaultShortcut = "Ctrl?+V"
+        defaultShortcut = "Ctrl?+Shift?+V"
     )
     private fun paste(): Boolean = if (target is Editor<*>) target.pasteFromClipboard() else false
 

@@ -17,7 +17,7 @@ class ExprExpander(
 
     companion object {
         val config = ExpanderConfig<ExprEditor<Expr>>().apply {
-            registerKey("dec") { context -> IntLiteralEditor(context) }
+            registerKey("num") { context -> IntLiteralEditor(context) }
             registerKey("+") { context -> OperatorApplicationEditor(Plus, context) }
             registerKey("-") { context -> OperatorApplicationEditor(Minus, context) }
             registerKey("*") { context -> OperatorApplicationEditor(Times, context) }

@@ -87,7 +87,7 @@ internal object CommandLineSpec : Spek({
                     verify(t).execute()
                 }
                 it("should notify the views about the executed command") {
-                    verify(view).addToHistory(HistoryItem(command, emptyList(), Unit))
+                    verify(view).addToHistory(HistoryItem(command, emptyList(), false, Unit))
                 }
                 it("should reset") {
                     verify(view).reset()

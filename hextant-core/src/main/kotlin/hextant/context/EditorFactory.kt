@@ -10,7 +10,7 @@ import hextant.core.Editor
 /**
  * Aspect that allows the creation of editors for specific result types.
  */
-@RequestAspect
+@RequestAspect(optional = true)
 fun interface EditorFactory<out R : Any> {
     /**
      * Creates a new editor for result of type [R] using the given [context].

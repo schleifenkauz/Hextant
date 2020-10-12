@@ -13,8 +13,7 @@ import hextant.expr.editor.SumEditor
 class SumEditorControl @ProvideImplementation(ControlFactory::class) constructor(editor: SumEditor, arguments: Bundle) :
     CompoundEditorControl(editor, arguments, {
         line {
-            keyword("sum")
-            space()
+            operator("∑")
             view(editor.expressions)
         }
     })

@@ -1,0 +1,23 @@
+apply plugin: 'maven-publish'
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'groovy'
+apply plugin: 'com.gradle.plugin-publish'
+
+pluginBundle {
+    website = 'https://github.com/nkb03/hextant'
+    vcsUrl = 'https://github.com/nkb03/hextant'
+    tags = ['hextant']
+}
+
+version = '0.1-SNAPSHOT'
+
+gradlePlugin {
+    plugins {
+        hextantPlugin {
+            id = 'com.github.nkb03.hextant-plugin'
+            displayName = 'Hextant Plugin'
+            description = "Gradle plugin for creating plugins for the Hextant platform"
+            implementationClass = "hextant.gradle.HextantPlugin"
+        }
+    }
+}

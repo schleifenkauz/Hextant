@@ -16,7 +16,7 @@ internal object CommandCompleter :
     override fun extractText(context: CommandLine, item: Command<*, *>): String? = item.shortName
 
     override fun Builder<Command<*, *>>.configure(context: CommandLine) {
-        tooltipText = completion.toString()
-        infoText = completion.name
+        tooltipText = completion.description
+        infoText = completion.name + completion.shortcut?.let { " ($it)" }.orEmpty()
     }
 }

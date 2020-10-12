@@ -5,8 +5,7 @@
 package hextant.core.editor
 
 import hextant.completion.Completion
-import hextant.context.Context
-import hextant.context.executeSafely
+import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Unexpanded
@@ -22,7 +21,9 @@ import validated.*
 import validated.reaktive.ReactiveValidated
 
 /**
- * An Expander acts like a wrapper around editors.
+ * Expanders can be imagined as placeholders for more specific editors.
+ * They allow the user to type in some text and then *expand* this text into a new editor,
+ * which is then substituted for the typed in text.
  */
 abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
     private val mutex = Mutex()
@@ -255,7 +256,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     @Suppress("UNCHECKED_CAST")
     override fun paste(snapshot: EditorSnapshot<*>): Boolean {
-        val editor = snapshot.reconstruct(contentContext())
+        val editor = context.withoutUndo { snapshot.reconstruct(contentContext()) }
         return when {
             editor is Expander<*, *>                               -> {
                 val text = editor.text.now

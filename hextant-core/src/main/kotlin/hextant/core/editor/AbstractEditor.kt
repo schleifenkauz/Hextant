@@ -99,8 +99,8 @@ abstract class AbstractEditor<out R, in V : Any>(
 
     @Suppress("UNCHECKED_CAST")
     override fun paste(snapshot: EditorSnapshot<*>): Boolean {
-        val cls = snapshot::class.getTypeArgument(EditorSnapshot::class, 0)
-        if (cls != this::class) return false
+        val cls = snapshot.getTypeArgument(EditorSnapshot::class, 0)
+        if (!cls.isInstance(this)) return false
         snapshot as EditorSnapshot<Editor<*>>
         snapshot.reconstruct(this)
         return true

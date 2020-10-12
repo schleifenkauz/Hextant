@@ -17,5 +17,9 @@ class SumEditor(
 ) : CompoundEditor<Sum>(context), ExprEditor<Sum> {
     val expressions by child(ExprListEditor(context))
 
+    init {
+        expressions.ensureNotEmpty()
+    }
+
     override val result: ReactiveValidated<Sum> = composeReactive(expressions.result, ::Sum)
 }

@@ -4,5 +4,10 @@
   "author": "Nikolaus Knop",
   "type": "Language",
   "description": "A simple editor for arithmetic expressions",
+  "dependencies": [
+    {
+      "id": "core"
+    }
+  ],
   "initializer": "ExprPlugin"
 }

@@ -10,11 +10,14 @@ import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
 import hextant.context.ControlFactory
+import hextant.context.SelectionDistributor
 import hextant.core.Editor
 import hextant.core.view.*
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.expr.editor.*
+import hextant.fx.registerShortcuts
 import org.controlsfx.glyphfont.FontAwesome
+import reaktive.value.now
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: ExprListEditor, arguments: Bundle) =
@@ -26,7 +29,7 @@ fun createControl(editor: ExprListEditor, arguments: Bundle) =
 fun createControl(e: ExprExpander, args: Bundle): ExpanderControl {
     val c = CompoundCompleter<Editor<*>, Any>()
     c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
-    c.addCompleter(SpecialNumbers)
+    //    c.addCompleter(SpecialNumbers)
     return ExpanderControl(e, args, c)
 }
 
@@ -41,4 +44,19 @@ fun createControl(e: IntLiteralEditor, arguments: Bundle) =
 fun createControl(e: ExpressionEditor, arguments: Bundle) = CompoundEditorControl(e, arguments) {
     view(e.root)
     view(e.context[CommandLine])
+}
+
+@ProvideImplementation(ControlFactory::class)
+fun createControl(editor: ExprEditorWithCommandLine, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+    view(editor.editor)
+    val cl = view(editor.context[CommandLine])
+    registerShortcuts {
+        on("Ctrl+K") {
+            cl.receiveFocus()
+        }
+        on("Ctrl+I") {
+            val selected = editor.context[SelectionDistributor].focusedView.now
+            selected?.focus()
+        }
+    }
 }

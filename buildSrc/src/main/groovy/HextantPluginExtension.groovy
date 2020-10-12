@@ -1,3 +1,0 @@
-class HextantPluginExtension {
-    String pluginName
-}

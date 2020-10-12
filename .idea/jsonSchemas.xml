@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JsonSchemaMappingsProjectConfiguration">
+    <state>
+      <map>
+        <entry key="plugin-schema">
+          <value>
+            <SchemaInfo>
+              <option name="name" value="plugin-schema" />
+              <option name="relativePathToSchema" value="https://raw.githubusercontent.com/NKb03/Hextant/readme/hextant-plugins/common/src/main/resources/plugin-schema.json" />
+              <option name="schemaVersion" value="JSON Schema version 7" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="hextant-core/src/main/resources/plugin-schema.json" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="hextant-core/src/main/resources/plugin.json" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="hextant-expr/src/main/resources/plugin.json" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+      </map>
+    </state>
+  </component>
+</project>

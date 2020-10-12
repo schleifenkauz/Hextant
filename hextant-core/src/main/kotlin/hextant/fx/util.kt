@@ -174,12 +174,14 @@ fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context) {
         val shortcut = command.shortcut
         if (shortcut != null) {
             on(shortcut, consume = false) { ev ->
+                val cl = context[CommandLine]
+                cl.expand(command)
                 if (command.parameters.isEmpty()) {
-                    val result = command.execute(target, emptyList())
+                    val result = cl.execute(byShortcut = true)
                     if (result != false) ev.consume()
                 } else {
-                    val cl = context[CommandLine]
-                    cl.expand(command)
+                    context[EditorControlGroup].getViewOf(cl).receiveFocus()
+                    ev.consume()
                 }
             }
         }

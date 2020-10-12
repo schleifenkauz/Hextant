@@ -5,6 +5,7 @@
 package hextant.command.line
 
 import bundles.Bundle
+import bundles.SimpleProperty
 import hextant.codegen.ProvideImplementation
 import hextant.command.Command
 import hextant.command.line.CommandLine.HistoryItem
@@ -16,8 +17,10 @@ import hextant.core.view.EditorControl
 import hextant.fx.*
 import hextant.impl.observe
 import javafx.application.Platform
-import javafx.scene.layout.HBox
-import javafx.scene.layout.VBox
+import javafx.scene.control.ScrollPane
+import javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS
+import javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER
+import javafx.scene.layout.*
 import reaktive.Observer
 
 /**
@@ -25,8 +28,13 @@ import reaktive.Observer
  */
 class CommandLineControl @ProvideImplementation(ControlFactory::class) constructor(
     private val cl: CommandLine, args: Bundle
-) : CommandLineView, EditorControl<VBox>(cl, args) {
+) : CommandLineView, EditorControl<Pane>(cl, args) {
     private val history = VBox().withStyleClass("command-history")
+    private val scrollPane = ScrollPane(history).apply {
+        hbarPolicy = NEVER
+        vbarPolicy = ALWAYS
+        prefHeight = 5 * HISTORY_ITEM_HEIGHT
+    }
     private val commandName = HextantTextField().withStyleClass("command-name")
     private val current = HBox(5.0, commandName).withStyleClass("command-input")
 
@@ -72,10 +80,12 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
     override fun expanded(command: Command<*, *>, editors: List<Editor<*>>) {
         commandName.text = command.shortName!!
         commandName.isEditable = false
-        val controls = editors.map { context.createControl(it) }
-        setChildren(controls)
-        current.children.addAll(controls)
-        Platform.runLater { controls.firstOrNull()?.receiveFocus() }
+        if (editors.isNotEmpty()) {
+            val controls = editors.map { context.createControl(it) }
+            setChildren(controls)
+            current.children.addAll(controls)
+            Platform.runLater { controls.first().receiveFocus() }
+        }
     }
 
     override fun reset() {
@@ -83,11 +93,11 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         current.children.setAll(commandName)
         commandName.isEditable = true
         popup.updateInput("")
-        Platform.runLater { receiveFocus() }
     }
 
     override fun addToHistory(item: HistoryItem) {
-        val (command, arguments, result) = item
+        if (!arguments[SHOW_HISTORY]) return
+        val (command, arguments, byShortcut, result) = item
         val box = HBox(5.0).withStyleClass("command-history-item")
         box.isFocusTraversable = true
         box.onAction { cl.resume(command, arguments.map { (_, snapshot) -> snapshot }) }
@@ -97,12 +107,14 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
             for ((param, arg) in command.parameters.zip(arguments)) {
                 add(hextantLabel(arg.first.toString()).withTooltip(param.toString()))
             }
+            if (byShortcut) add(hextantLabel("(${item.command.shortcut})"))
             if (result != Unit) {
                 add(hextantLabel(" -> "))
                 add(hextantLabel(result.toString()))
             }
         }
         history.children.add(box)
+        runFXWithTimeout { scrollPane.vvalue = 1.0 }
     }
 
     override fun receiveFocus() {
@@ -112,5 +124,11 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         } else commandName.requestFocus()
     }
 
-    override fun createDefaultRoot(): VBox = VBox(history, current)
+    override fun createDefaultRoot(): Pane = if (arguments[SHOW_HISTORY]) VBox(scrollPane, current) else current
+
+    companion object {
+        private const val HISTORY_ITEM_HEIGHT = 32.0
+
+        val SHOW_HISTORY = SimpleProperty.withDefault("show-history", false)
+    }
 }

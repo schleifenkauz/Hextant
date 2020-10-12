@@ -5,12 +5,12 @@ import hextant.command.executingCompoundEdit
 import hextant.context.EditorControlGroup
 import hextant.core.view.TokenEditorControl
 import hextant.expr.IntLiteral
+import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.expr.view.Style
 import hextant.fx.WindowSize
 import hextant.fx.runFXWithTimeout
-import hextant.inspect.Problem.Severity.Warning
 import hextant.plugin.*
 import hextant.undo.compoundEdit
 import reaktive.value.binding.and
@@ -97,25 +97,6 @@ object ExprPlugin : PluginInitializer({
             }
         }
     }
-    registerInspection<IntLiteralEditor> {
-        id = "zero"
-        description = "Prevent '0' Literals"
-        message { "Literal is '0'" }
-        severity(Warning)
-        preventingThat { inspected.result.map { it.orNull()?.value == 0 } }
-        addFix {
-            description = "Set to '1'"
-            fixingBy {
-                inspected.setText("1")
-            }
-        }
-        addFix {
-            description = "Set to '2'"
-            fixingBy {
-                inspected.setText("2")
-            }
-        }
-    }
     registerCommand<ExprExpander, Unit> {
         description =
             "Wraps the current expression in an binary expression with the current expression being the left operand"
@@ -123,14 +104,19 @@ object ExprPlugin : PluginInitializer({
         shortName = "wrap"
         defaultShortcut("Ctrl+W")
         applicableIf { it.isExpanded }
-        executing { expander, _ ->
-            expander.context.compoundEdit("Wrap with in binary expression") {
+        addParameter<Operator> {
+            name = "operator"
+        }
+        executing { expander, (op) ->
+            expander.context.compoundEdit("Wrap in binary expression") {
+                op as Operator
                 val editor = expander.editor.now!!
                 val app = OperatorApplicationEditor(editor.context)
                 expander.setEditor(app)
+                app.operator.setText(op.name)
                 app.operand1.setEditor(editor)
                 runFXWithTimeout {
-                    expander.context[EditorControlGroup].getViewOf(app.operator).receiveFocus()
+                    expander.context[EditorControlGroup].getViewOf(app.operand2).receiveFocus()
                 }
             }
         }
@@ -148,12 +134,6 @@ object ExprPlugin : PluginInitializer({
             description = "The text fill"
         }
         executing { v, (c) -> v.arguments[ColorProperty] = c as String? }
-    }
-    registerCommand<Any, Unit> {
-        description = "Throws an exception"
-        name = "Error"
-        shortName = "error"
-        executing { _, _ -> throw AssertionError("error") }
     }
     configurableProperty(Style.borderColor)
     set(WindowSize, WindowSize.FitContent)

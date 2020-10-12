@@ -1,4 +1,12 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenLocal()
+    }
+}
+
 rootProject.name = 'hextant'
+
 include 'hextant-lisp'
 include 'hextant-core'
 include 'hextant-sample'
@@ -11,3 +19,5 @@ include 'hextant-plugins:common'
 include 'hextant-plugins:server'
 include 'hextant-plugins:client'
 include 'hextant-main'
+include 'hextant-library-plugin'
+include 'hextant-plugin-plugin'

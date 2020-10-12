@@ -1,7 +1,7 @@
-apply plugin: HextantPlugin
+apply plugin: 'com.github.nkb03.hextant-plugin'
 
 hextant {
-    pluginName = 'lisp'
+    pluginId = 'lisp'
 }
 
 task replJar(type: Jar) {

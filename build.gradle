@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         mavenCentral()
+        mavenLocal()
         jcenter()
     }
     dependencies {
@@ -10,15 +11,13 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
-    id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
-    id 'java'
-    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.0'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.0'
+    id 'com.gradle.plugin-publish' version '0.12.0'
+    id 'java-gradle-plugin'
     id 'io.codearte.nexus-staging' version '0.21.2'
-}
-
-static String nkb03(Object dep, Object version) {
-    return "com.github.nkb03:$dep:$version"
+    id 'hextant-library' version '0.1-SNAPSHOT'
+    id 'com.github.nkb03.hextant-plugin' version '0.1-SNAPSHOT'
 }
 
 static String kotlin(Object dep) {
@@ -36,7 +35,6 @@ allprojects {
 subprojects {
     repositories {
         mavenCentral()
-        mavenLocal()
         jcenter()
         maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots'
@@ -49,8 +47,6 @@ subprojects {
     dependencies {
         compile kotlin("stdlib")
     }
-
-    sourceCompatibility = 1.8
 
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"

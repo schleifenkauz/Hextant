@@ -1,23 +1,5 @@
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.github.nkb03.hextant-plugin'
 
-kapt {
-    annotationProcessors("hextant.codegen.MainProcessor")
-    useBuildCache = true
-    correctErrorTypes = true
-}
-
-dependencies {
-    compile project(":hextant-core")
-    kapt project(":hextant-codegen")
-    compileOnly project(":hextant-codegen")
-    testImplementation project(":hextant-test")
-}
-jar {
-    manifest {
-        attributes('Main-Class': 'hextant.blocky.BlockyApp', 'Plugin-Initializer': 'Blocky')
-    }
-
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+hextant {
+    pluginId = 'blocky'
 }

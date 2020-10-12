@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://github.com/NKB03/hextant/hextant-plugins/common/src/main/resources/plugin-schema.json",
+  "type": "object",
+  "title": "The plugin info schema",
+  "description": "The plugin info schema describes the structure of plugin.json files used by Hextant plugins",
+  "default": {},
+  "examples": [
+    {
+      "id": "expr",
+      "name": "Expressions",
+      "author": "Nikolaus Knop",
+      "type": "Language",
+      "description": "A simple editor for arithmetic expressions",
+      "dependencies": [
+        {
+          "id": "core"
+        }
+      ],
+      "initializer": "ExprPlugin"
+    }
+  ],
+  "required": [
+    "id",
+    "name",
+    "author",
+    "type",
+    "description",
+    "initializer"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The plugin id schema",
+      "description": "The id of the described plugin. It should be identical to the name of the project.",
+      "default": "",
+      "examples": [
+        "core"
+      ]
+    },
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "The plugin name schema",
+      "description": "The name of the plugin. This will be visible for users.",
+      "default": "",
+      "examples": [
+        "Hextant Core"
+      ]
+    },
+    "author": {
+      "$id": "#/properties/author",
+      "type": "string",
+      "title": "The author schema",
+      "description": "The developer who wrote the plugin",
+      "default": ""
+    },
+    "type": {
+      "$id": "#/properties/type",
+      "type": "string",
+      "title": "The plugin type schema",
+      "description": "The type of plugin. Choices are: Language, Global and Local",
+      "default": "",
+      "examples": [
+        "Language",
+        "Global",
+        "Local"
+      ]
+    },
+    "description": {
+      "$id": "#/properties/description",
+      "type": "string",
+      "title": "The description schema",
+      "description": "Description of the plugin",
+      "default": "",
+      "examples": [
+        "A simple editor for arithmetic expressions"
+      ]
+    },
+    "dependencies": {
+      "$id": "#/properties/dependencies",
+      "type": "array",
+      "title": "The dependencies schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": [],
+      "examples": [
+        [
+          {
+            "id": "core"
+          }
+        ]
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/dependencies/items",
+        "anyOf": [
+          {
+            "$id": "#/properties/dependencies/items/anyOf/0",
+            "type": "object",
+            "title": "The dependency schema",
+            "description": "The dependency includes an id.",
+            "default": {},
+            "examples": [
+              {
+                "id": "core"
+              }
+            ],
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "$id": "#/properties/dependencies/items/anyOf/0/properties/id",
+                "type": "string",
+                "title": "The dependency-id schema",
+                "description": "The id of the required plugin",
+                "default": "",
+                "examples": [
+                  "core"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      }
+    },
+    "initializer": {
+      "$id": "#/properties/initializer",
+      "type": "string",
+      "title": "The initializer schema",
+      "description": "References the Kotlin object that initializes the plugin.",
+      "default": "",
+      "examples": []
+    }
+  },
+  "additionalProperties": true
+}

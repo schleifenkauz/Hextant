@@ -1,11 +1,13 @@
-apply plugin: HextantLibrary
+apply plugin: 'hextant-library'
 
 hextant_lib {
     description = 'Testing library for Hextant'
 }
 
+version '1.0-SNAPSHOT'
+
 dependencies {
-    compile project(":hextant-main")
+    compile project(':hextant-main')
     compile(spek("api")) {
         exclude group: "org.jetbrains.kotlin"
     }
