@@ -9,7 +9,7 @@ import hextant.codegen.splitPackageAndSimpleName
 import krobot.api.*
 import javax.lang.model.element.TypeElement
 
-internal object AlternativeInterfaceCodegen : EditorClassGen<Alternative>() {
+internal object AlternativeInterfaceCodegen : EditorClassGen<Alternative, TypeElement>() {
     override fun process(element: TypeElement, annotation: Alternative) {
         val name = element.simpleName.toString()
         val qn = extractQualifiedEditorClassName(annotation, element)

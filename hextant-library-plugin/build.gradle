@@ -1,6 +1,6 @@
-apply plugin: 'maven-publish'
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'groovy'
+apply plugin: 'com.gradle.plugin-publish'
 
 pluginBundle {
     website = 'https://github.com/nkb03/hextant'

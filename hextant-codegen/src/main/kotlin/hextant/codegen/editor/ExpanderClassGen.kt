@@ -9,7 +9,7 @@ import hextant.codegen.splitPackageAndSimpleName
 import krobot.api.*
 import javax.lang.model.element.TypeElement
 
-internal object ExpanderClassGen : EditorClassGen<Expandable>() {
+internal object ExpanderClassGen : EditorClassGen<Expandable, TypeElement>() {
     override fun process(element: TypeElement, annotation: Expandable) {
         val name = element.simpleName.toString()
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "Expander")

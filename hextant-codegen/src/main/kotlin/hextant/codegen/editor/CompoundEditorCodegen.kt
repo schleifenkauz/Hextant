@@ -2,42 +2,48 @@ package hextant.codegen.editor
 
 import hextant.codegen.*
 import krobot.api.*
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
+import javax.lang.model.element.*
+import javax.lang.model.element.ElementKind.CONSTRUCTOR
 
-internal object CompoundEditorCodegen : EditorClassGen<Compound>() {
-    override fun process(element: TypeElement, annotation: Compound) {
-        val name = element.simpleName.toString()
+internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
+    override fun process(element: Element, annotation: Compound) {
         val qn = extractQualifiedEditorClassName(annotation, element)
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
-        val members = processingEnv.elementUtils.getAllMembers(element)
-        val constructors = members.filter {
-            it.simpleName.toString() == "<init>"
+        val function = when (element) {
+            is TypeElement -> processingEnv.elementUtils.getAllMembers(element)
+                .firstOrNull { it.simpleName.toString() == "<init>" } as ExecutableElement?
+                ?: fail("Class $element has no constructor")
+            is ExecutableElement -> element
+            else -> fail("Illegal annotation target for @Compound: $element")
         }
-        ensure(constructors.size == 1) { "Class $element with annotation @Compound has ${constructors.size} constructors" }
-        val primary = constructors[0] as ExecutableElement
+        val result =
+            if (function.kind == CONSTRUCTOR) function.enclosingElement.simpleName.toString()
+            else function.returnType.asTypeElement().simpleName.toString()
         val file = kotlinClass(
             pkg,
             imports = {
                 import("hextant.core.editor.*")
-                import(element.toString())
+                if (element is TypeElement) import(element.toString())
+                else if (element is ExecutableElement) {
+                    if (element.kind == CONSTRUCTOR) import(element.enclosingElement.toString())
+                    else {
+                        import(element.returnType.asTypeElement().toString())
+                        val p = processingEnv.elementUtils.getPackageOf(element)
+                        import("$p.${element.simpleName}")
+                    }
+                }
                 import("hextant.context.*")
                 import("validated.reaktive.*")
             },
             name = simpleName,
-            primaryConstructor = {
-                "context" of "Context"
-            },
+            primaryConstructor = { "context" of "Context" },
             inheritance = {
-                extend(
-                    "CompoundEditor".t.parameterizedBy { invariant(name) },
-                    "context".e
-                )
-                implementEditorOfSuperType(annotation, name)
+                extend("CompoundEditor".t.parameterizedBy { invariant(result) }, "context".e)
+                implementEditorOfSuperType(annotation, result)
             }
         ) {
-            val names = primary.parameters.map { it.toString() }
-            for (p in primary.parameters) {
+            val names = function.parameters.map { it.toString() }
+            for (p in function.parameters) {
                 val comp = p?.getAnnotation(Component::class.java)
                 val custom = comp?.let { getTypeMirror { it.editor } }?.toString()
                     .takeIf { it != "hextant.codegen.None" }
@@ -46,15 +52,16 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound>() {
                     by(call("child", call(editorCls, comp?.childContext?.e ?: "context".e)))
                 }
             }
-            addVal(
-                "result",
-                "ReactiveValidated".t.parameterizedBy { invariant(name) }, { override() }) {
+            addVal("result", "ReactiveValidated".t.parameterizedBy { invariant(result) }, { override() }) {
+                val functionName =
+                    if (function.kind == CONSTRUCTOR) function.enclosingElement.simpleName
+                    else function.simpleName
                 initializeWith(
-                    call("composeReactive", *names.mapToArray { n -> n.e select "result" }, "::$name".e)
+                    call("composeReactive", *names.mapToArray { n -> n.e select "result" }, "::$functionName".e)
                 )
             }
         }
         writeKotlinFile(file)
-        generatedEditor(element, "$pkg.$simpleName")
+        if (element is TypeElement) generatedEditor(element, "$pkg.$simpleName")
     }
 }

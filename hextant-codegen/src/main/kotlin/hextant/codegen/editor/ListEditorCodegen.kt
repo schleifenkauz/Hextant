@@ -9,7 +9,7 @@ import hextant.codegen.aspects.FeatureCollector
 import krobot.api.*
 import javax.lang.model.element.TypeElement
 
-internal object ListEditorCodegen : EditorClassGen<EditableList>() {
+internal object ListEditorCodegen : EditorClassGen<EditableList, TypeElement>() {
     override fun process(element: TypeElement, annotation: EditableList) {
         val editorCls = getTypeMirror(annotation::editorCls).takeIf { it.toString() != None::class.qualifiedName }
         val editorClsName = editorCls?.toString() ?: getEditorClassName(element.asType())

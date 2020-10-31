@@ -15,11 +15,11 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeMirror
 
-internal abstract class EditorClassGen<A : Annotation> : AnnotationProcessor<A, TypeElement>() {
+internal abstract class EditorClassGen<A : Annotation, E : Element> : AnnotationProcessor<A, E>() {
     /**
      * Looks up the annotation annotating the given [element] and delegates to [extractQualifiedEditorClassName]
      */
-    private fun lookupQualifiedEditorClassName(element: Element): String {
+    private fun lookupQualifiedEditorClassName(element: TypeElement): String {
         element.getAnnotation(UseEditor::class.java)?.let { ann ->
             val tm = getTypeMirror(ann::cls)
             return tm.toString()
@@ -38,7 +38,9 @@ internal abstract class EditorClassGen<A : Annotation> : AnnotationProcessor<A, 
         val configured = ann.qualifiedEditorClassName
         if (configured != null) return configured
         val pkg = processingEnv.elementUtils.getPackageOf(element)
-        return "$pkg.$packageSuffix.${element.simpleName}$classNameSuffix"
+        val short = element.simpleName.toString()
+        return if (short != "<init>") "$pkg.$packageSuffix.${short.capitalize()}$classNameSuffix"
+        else extractQualifiedEditorClassName(ann, element.enclosingElement, packageSuffix, classNameSuffix)
     }
 
     protected fun KInheritanceRobot.implementEditorOfSuperType(
@@ -83,9 +85,9 @@ internal abstract class EditorClassGen<A : Annotation> : AnnotationProcessor<A, 
 
     protected fun getEditorClassName(tm: TypeMirror): String {
         val t = checkNonPrimitive(tm)
-        val e = processingEnv.typeUtils.asElement(t)
+        val e = t.asTypeElement()
         if (e.toString() == "java.util.List") {
-            val elementType = checkNonPrimitive(t.typeArguments[0]).asElement()
+            val elementType = checkNonPrimitive(t.typeArguments[0]).asTypeElement()
             val ann = elementType.getAnnotation(EditableList::class.java)
             return extractQualifiedEditorClassName(ann, elementType, classNameSuffix = "ListEditor")
         }

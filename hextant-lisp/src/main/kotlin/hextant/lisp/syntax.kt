@@ -72,6 +72,12 @@ data class Unquote(val expr: SExpr) : SExpr()
 @Compound(subtypeOf = SExpr::class)
 data class NormalizedSExpr(val expr: SExpr) : SExpr()
 
+@Compound(subtypeOf = SExpr::class)
+fun lambda(parameters: List<Symbol>, body: SExpr) = quote(list("lambda".s, list(parameters), body))
+
+@Compound(subtypeOf = SExpr::class)
+fun let(name: Symbol, value: SExpr, body: SExpr) = list("let".s, name, value, body)
+
 abstract class Procedure : SExpr() {
     abstract val name: String?
 

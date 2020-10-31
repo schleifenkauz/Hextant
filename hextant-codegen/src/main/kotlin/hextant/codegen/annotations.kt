@@ -17,7 +17,7 @@ sealed class None
 annotation class Token(val classLocation: String = DEFAULT, val subtypeOf: KClass<*> = None::class)
 
 @Retention(SOURCE)
-@Target(CLASS)
+@Target(CLASS, FUNCTION, CONSTRUCTOR)
 annotation class Compound(val classLocation: String = DEFAULT, val subtypeOf: KClass<*> = None::class)
 
 @Retention(SOURCE)
