@@ -16,6 +16,7 @@ plugins {
     id 'io.codearte.nexus-staging' version '0.21.2' apply false
     id 'com.github.nkb03.hextant-library' version '0.1-SNAPSHOT' apply false
     id 'com.github.nkb03.hextant-plugin' version '0.3-SNAPSHOT' apply false
+    id 'org.openjfx.javafxplugin' version '0.0.8' apply false
 }
 
 allprojects {

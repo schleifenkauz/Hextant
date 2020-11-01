@@ -36,6 +36,7 @@ dependencies {
     compile 'org.jetbrains.kotlin:kotlin-reflect'
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlinx_coroutines_version
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-javafx', version: kotlinx_coroutines_version
+    compile group: 'org.openjfx', name: 'javafx', version: '11'
     compile "org.controlsfx:controlsfx:8.40.14"
 
     testImplementation project(":hextant-expr")

@@ -13,3 +13,4 @@ build
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
 sample-project
+libs

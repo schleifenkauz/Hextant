@@ -23,11 +23,10 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import java.io.File
 
-fun main(args: Array<String>) {
-    check(args.size == 1) { "Invalid count of arguments" }
-    val root = File(args[0])
-    check(root.exists()) { "$root does not exist" }
-    val repository = LocalPluginRepository(root)
+fun main() {
+    val plugins = File(System.getProperty("user.home"), "hextant").resolve("plugins")
+    plugins.mkdirs()
+    val repository = LocalPluginRepository(plugins)
     embeddedServer(Netty, 80, "localhost") {
         configure(repository)
     }.start()

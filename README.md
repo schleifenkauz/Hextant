@@ -118,14 +118,10 @@ see [this](https://github.com/NKb03/Hextant/wiki/Why-structural-editors) article
 
 ## How to get it working on my computer?
 
-To build and run Hextant on your computer you need Git, version 1.8 of the Java Development Kit and the Intellij IDE.
-Follow these steps:
+To build and run Hextant on your computer you need Git and version 11 of the Java Development Kit.
+Follow these steps:  
 - Clone the project: ```git clone https://github.com/NKB03/Hextant```.
-- Open the project in IntelliJ and wait for the Gradle import to finish.
-- Build the project.
-- Use the "Launch Hextant" run-configuration to start Hextant.
-- If you don't want to use IntelliJ simply run ``gradlew build`` 
-and then use ``launch.bat`` or ``launch.sh`` depending on your OS.
+- Run the Hextant Launcher: ``gradlew hextant-main:run``
 - Now you should see a window, that looks like this:  
 ![Image couldn't be loaded](gif/launcher.png)
 - To create a new project, use the command ``create <project-type> <project-name>``. 

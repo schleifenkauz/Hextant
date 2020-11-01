@@ -1,11 +1,27 @@
 apply plugin: 'com.github.nkb03.hextant-library'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'org.openjfx.javafxplugin'
+apply plugin: 'application'
 
 hextant_lib {
     description = 'Launcher for the Hextant platform'
 }
 
 version '1.0-SNAPSHOT'
+
+javafx {
+    version = '11.0.2'
+    modules = ['javafx.controls']
+}
+
+application {
+    mainClassName = 'hextant.main.Main'
+    applicationDefaultJvmArgs = ['--illegal-access=permit', '--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED' ]
+}
+
+run {
+    classpath = sourceSets.main.compileClasspath + sourceSets.main.output
+}
 
 kapt {
     useBuildCache = true

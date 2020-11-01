@@ -5,7 +5,6 @@ import hextant.context.*
 import hextant.plugins.Marketplace
 import hextant.plugins.client.HttpPluginClient
 import javafx.stage.Stage
-import java.net.URLClassLoader
 
 object HextantPlatform {
     internal val marketplace = SimpleProperty<Marketplace>("marketplace")
@@ -28,7 +27,7 @@ object HextantPlatform {
      */
     fun projectContext(global: Context = globalContext()) = global.extend {
         val cl = Thread.currentThread().contextClassLoader
-        val hcl = if (cl is HextantClassLoader) cl else HextantClassLoader(this, emptyList(), cl as URLClassLoader)
+        val hcl = if (cl is HextantClassLoader) cl else HextantClassLoader(this, emptyList(), cl)
         set(HextantClassLoader, hcl)
         Properties.initializeProjectContext(this, hcl)
     }
