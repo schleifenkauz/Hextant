@@ -7,6 +7,7 @@ hextant_lib {
 version '1.0-SNAPSHOT'
 
 dependencies {
+    compile project(':hextant-core')
     compile project(':hextant-main')
     compile(spek("api")) {
         exclude group: "org.jetbrains.kotlin"

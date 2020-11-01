@@ -27,7 +27,7 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
     val enabledPlugins get() = enable.stream
     val disabledPlugins get() = disable.stream
 
-    fun enabledIds(): Set<String> = enabled.mapTo(mutableSetOf()) { it.id } + usedBundles
+    fun enabledIds(): Set<String> = enabled.mapTo(mutableSetOf()) { it.id } + usedBundles + "core"
 
     fun enabledPlugins(): Set<Plugin> = enabled
 

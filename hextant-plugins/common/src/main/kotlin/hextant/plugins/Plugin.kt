@@ -10,8 +10,12 @@ class Plugin(val id: String, private val marketplace: Marketplace, scope: Corout
 
     override fun toString(): String = id
 
-    val info = scope.async { marketplace.get(PluginProperty.info, id)!! }
+    val info = scope.async { marketplace.get(PluginProperty.info, id) ?: notFound() }
     val aspects = scope.async { marketplace.get(PluginProperty.aspects, id).orEmpty() }
     val features = scope.async { marketplace.get(PluginProperty.features, id).orEmpty() }
     val implementations = scope.async { marketplace.get(PluginProperty.implementations, id).orEmpty() }
+
+    private fun notFound(): Nothing {
+        error("Plugin $id not found")
+    }
 }

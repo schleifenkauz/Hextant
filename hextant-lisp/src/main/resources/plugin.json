@@ -4,5 +4,10 @@
   "author": "Nikolaus Knop",
   "type": "Language",
   "description": "An editor for Lisp programs",
+  "dependencies": [
+    {
+      "id": "core"
+    }
+  ],
   "initializer": "hextant.lisp.Lisp"
 }

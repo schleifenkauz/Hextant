@@ -19,6 +19,7 @@ internal class HextantClassLoader(
     }
 
     fun addPlugin(id: String) {
+        if (id == "main" || id == "core") return
         val file = context[GlobalDirectory][PLUGIN_CACHE].resolve("$id.jar")
         val url = file.toURI().toURL()
         addURL(url)

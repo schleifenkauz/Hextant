@@ -69,3 +69,10 @@ data class PluginSearch(
     val types: Set<PluginInfo.Type>,
     val excluded: Set<String>
 )
+
+@Serializable
+data class ProjectInfo(
+    val projectType: ProjectType,
+    val enabledPlugins: List<String>,
+    val requiredPlugins: List<String>
+)

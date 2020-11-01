@@ -13,7 +13,7 @@ import javafx.scene.input.ContextMenuEvent
 /**
  * Initializes this scene with the given [context] by registering top level shortcuts and applying registered stylesheets.
  */
-fun Scene.initHextantScene(context: Context) {
+fun Scene.initHextantScene(context: Context, applyStyle: Boolean = true) {
     registerNavigationShortcuts()
     registerCopyPasteShortcuts(context)
     addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED) { ev ->
@@ -22,7 +22,7 @@ fun Scene.initHextantScene(context: Context) {
             ev.consume()
         }
     }
-    context[Internal, Stylesheets].manage(this)
+    if (applyStyle) context[Internal, Stylesheets].manage(this)
 }
 
 internal val Scene.focusedEditorControl: EditorControl<*>?

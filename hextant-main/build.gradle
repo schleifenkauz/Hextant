@@ -1,5 +1,4 @@
 apply plugin: 'hextant-library'
-apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-kapt'
 
 hextant_lib {
@@ -14,15 +13,19 @@ kapt {
 }
 
 dependencies {
-    compile project(":hextant-core")
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    compile 'org.jetbrains.kotlin:kotlin-reflect'
+
+    compile project(':hextant-plugins:client')
+    compileOnly project(":hextant-core")
     kapt project(":hextant-codegen")
-    implementation 'org.jetbrains.kotlin:kotlin-reflect'
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinx_serialization_version"
-    implementation project(':hextant-plugins:client')
 }
 
 jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
     manifest {
-        attributes('Main-Class': 'hextant.main.MainKt')
+        attributes('Main-Class': 'hextant.main.Main')
     }
 }

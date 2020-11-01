@@ -17,6 +17,7 @@ import hextant.main.HextantPlatform.stage
 import hextant.main.plugins.PluginManager
 import hextant.plugin.Aspects
 import hextant.plugin.PluginBuilder.Phase.Initialize
+import hextant.plugins.ProjectInfo
 import hextant.serial.PhysicalFile
 import hextant.serial.SerialProperties.deserializationContext
 import javafx.stage.Stage
@@ -65,15 +66,15 @@ internal class ProjectOpener(
         val manager = PluginManager(globalContext[marketplace], info.requiredPlugins)
         manager.enableAll(info.enabledPlugins)
         context[PluginManager] = manager
-        val plugins = info.enabledPlugins + "core"
-        initializePlugins(plugins, context, Initialize, project = null)
+        val plugins = info.enabledPlugins
+        addPlugins(plugins, context, Initialize, project = null)
         val root = project.resolve(GlobalDirectory.PROJECT_ROOT).toPath()
         val input = context.createInput(root)
         input.bundle[deserializationContext] = context
         val editor = context.withoutUndo { input.readObject() as Editor<*> }
         @Suppress("DEPRECATION")
         editor.setFile(PhysicalFile(editor, root, context))
-        initializePlugins(plugins, context, Initialize, editor)
+        addPlugins(plugins, context, Initialize, editor)
         val project = Project(info.projectType, editor, context, project.toPath())
         context[Project] = project
         val obs = manager.autoLoadAndUnloadPluginsOnChange(context, editor)

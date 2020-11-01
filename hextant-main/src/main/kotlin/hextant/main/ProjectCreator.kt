@@ -10,6 +10,7 @@ import hextant.context.createOutput
 import hextant.main.HextantPlatform.projectContext
 import hextant.main.plugins.PluginManager
 import hextant.plugin.PluginBuilder.Phase.Enable
+import hextant.plugins.ProjectInfo
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -28,7 +29,7 @@ internal class ProjectCreator(
         val context = defaultContext(projectContext(globalContext))
         context[PluginManager] = manager
         context.setProjectRoot(dest.toPath())
-        initializePlugins(enabledPlugins + "core", context, Enable, project = null)
+        addPlugins(enabledPlugins + "core", context, Enable, project = null)
         val instance = getProjectTypeInstance(context[HextantClassLoader], projectType.clazz)
         instance.initializeContext(context)
         val root = instance.createProject(context)

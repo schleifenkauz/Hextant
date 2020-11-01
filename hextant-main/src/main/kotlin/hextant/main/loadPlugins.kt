@@ -17,13 +17,12 @@ import hextant.project.ProjectType
 import kollektion.graph.ImplicitGraph
 import kollektion.graph.topologicalSort
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import reaktive.Observer
 import kotlin.reflect.KClass
 import kotlin.reflect.full.*
 
-internal fun initializePlugins(plugins: Collection<Plugin>, context: Context, phase: Phase, project: Editor<*>?) {
+internal fun addPlugins(plugins: Collection<Plugin>, context: Context, phase: Phase, project: Editor<*>?) {
     val order = PluginGraph(context[PluginManager], plugins).topologicalSort() ?: error("cycle in dependencies")
     for (plugin in order) {
         val aspects = context[Aspects]
@@ -37,29 +36,42 @@ internal fun initializePlugins(plugins: Collection<Plugin>, context: Context, ph
         }
         val info = runBlocking { plugin.info.await() }
         val initializer = getInitializer(context, info)
-        initializer?.apply(context, phase, project)
+        initializer?.tryApplyPhase(phase, id = info.id, context = context, project = project)
     }
 }
 
 @JvmName("initializePluginsById")
-internal fun initializePlugins(pluginIds: Collection<String>, context: Context, phase: Phase, project: Editor<*>?) {
+internal fun addPlugins(pluginIds: Collection<String>, context: Context, phase: Phase, project: Editor<*>?) {
     val plugins = pluginIds.map { id -> context[PluginManager].getPlugin(id) }
-    initializePlugins(plugins, context, phase, project)
+    addPlugins(plugins, context, phase, project)
 }
 
-internal fun disablePlugins(plugins: Collection<Plugin>, context: Context, project: Editor<*>) {
+internal fun disablePlugins(plugins: Collection<Plugin>, context: Context, project: Editor<*>?) {
     val order = PluginGraph(context[PluginManager], plugins).topologicalSort() ?: error("cycle in dependencies")
     for (plugin in order.asReversed()) {
         val info = runBlocking { plugin.info.await() }
         val initializer = getInitializer(context, info) ?: continue
-        initializer.apply(context, Disable, project = null)
-        initializer.apply(context, Disable, project)
+        initializer.tryApplyPhase(Disable, id = info.id, context = context, project = null)
+        if (project != null)
+            initializer.tryApplyPhase(Disable, id = info.id, context = context, project = project)
     }
+}
+
+@JvmName("disablePluginsById")
+internal fun disablePlugins(pluginIds: Collection<String>, context: Context, project: Editor<*>?) {
+    val plugins = pluginIds.map { id -> context[PluginManager].getPlugin(id) }
+    disablePlugins(plugins, context, project)
 }
 
 private fun getInitializer(context: Context, info: PluginInfo): PluginInitializer? {
     if (info.initializer == null) return null
-    val cls = context[HextantClassLoader].loadClass(info.initializer).kotlin
+    val cls = try {
+        context[HextantClassLoader].loadClass(info.initializer).kotlin
+    } catch (ex: ClassNotFoundException) {
+        System.err.println("Initializer class of plugin ${info.id} not found")
+        ex.printStackTrace()
+        return null
+    }
     val initializer = cls.objectInstance ?: cls.createInstance()
     check(initializer is PluginInitializer) { "Invalid initializer $cls" }
     return initializer
@@ -73,7 +85,7 @@ class LocalPluginGraph private constructor(private val infos: Map<String, Plugin
     companion object {
         fun load(context: Context): LocalPluginGraph {
             val infos = context[HextantClassLoader].getResources("plugin.json").toList()
-                .map { url -> Json.decodeFromString<PluginInfo>(url.readText()) }
+                .mapNotNull { url -> Json.tryParse<PluginInfo>("plugin.json") { url.readText() } }
                 .associateBy { info -> info.id }
             return LocalPluginGraph(infos)
         }
@@ -85,7 +97,8 @@ class LocalPluginGraph private constructor(private val infos: Map<String, Plugin
  */
 fun initializePluginsFromClasspath(context: Context, testing: Boolean = false) {
     for (impls in context[HextantClassLoader].getResources("implementations.json")) {
-        val implementations: List<Implementation> = Json.decodeFromString(impls.readText())
+        val implementations: List<Implementation> =
+            Json.tryParse("implementations.json") { impls.readText() } ?: emptyList()
         for (impl in implementations) {
             context[Aspects].addImplementation(impl, context[HextantClassLoader])
         }
@@ -94,16 +107,16 @@ fun initializePluginsFromClasspath(context: Context, testing: Boolean = false) {
     val order = graph.topologicalSort() ?: error("cycle in dependencies")
     for (info in order) {
         val initializer = getInitializer(context, info)
-        initializer?.apply(context, Enable, project = null, testing)
-        initializer?.apply(context, Initialize, project = null, testing)
+        initializer?.tryApplyPhase(Enable, id = info.id, context = context, project = null, testing = testing)
+        initializer?.tryApplyPhase(Initialize, id = info.id, context = context, project = null, testing = testing)
     }
 }
 
 internal fun PluginManager.autoLoadAndUnloadPluginsOnChange(context: Context, project: Editor<*>): Observer =
     enabledPlugins.observe { _, plugins ->
         runBlocking {
-            initializePlugins(plugins, context, Initialize, project = null)
-            initializePlugins(plugins, context, Initialize, project)
+            addPlugins(plugins, context, Initialize, project = null)
+            addPlugins(plugins, context, Initialize, project)
         }
     } and disabledPlugins.observe { _, plugins ->
         runBlocking { disablePlugins(plugins, context, project) }
@@ -115,8 +128,8 @@ internal fun closeProject(context: Context) {
     for (plugin in enabled) {
         val info = runBlocking { plugin.info.await() }
         val initializer = getInitializer(context, info)
-        initializer?.apply(context, Close, project)
-        initializer?.apply(context, Close, project = null)
+        initializer?.tryApplyPhase(Close, id = info.id, context = context, project = project)
+        initializer?.tryApplyPhase(Close, id = info.id, context = context, project = null)
     }
 }
 

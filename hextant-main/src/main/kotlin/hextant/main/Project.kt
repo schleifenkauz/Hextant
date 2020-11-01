@@ -5,6 +5,7 @@ import hextant.context.Context
 import hextant.context.createOutput
 import hextant.core.Editor
 import hextant.main.plugins.PluginManager
+import hextant.plugins.ProjectInfo
 import hextant.plugins.ProjectType
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

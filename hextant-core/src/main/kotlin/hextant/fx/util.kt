@@ -142,13 +142,14 @@ fun Compound.view(editor: Editor<*>, bundle: Bundle = createBundle(), config: Bu
 fun <R> getUserInput(
     editor: Editor<R>,
     control: Node = editor.context.createControl(editor),
-    buttonTypes: List<ButtonType> = listOf(ButtonType.OK, ButtonType.CANCEL)
+    buttonTypes: List<ButtonType> = listOf(ButtonType.OK, ButtonType.CANCEL),
+    applyStyle: Boolean = true
 ): Validated<R> {
     editor.makeRoot()
     val d = Dialog<Validated<R>>()
     d.dialogPane.content = control
     d.dialogPane.buttonTypes.setAll(buttonTypes)
-    d.dialogPane.scene.initHextantScene(editor.context)
+    d.dialogPane.scene.initHextantScene(editor.context, applyStyle)
     val ok = d.dialogPane.lookupButton(ButtonType.OK) as Button
     ok.isDefaultButton = false
     d.dialogPane.registerShortcuts {

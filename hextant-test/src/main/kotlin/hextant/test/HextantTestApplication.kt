@@ -7,10 +7,8 @@ import hextant.main.initializePluginsFromClasspath
 import hextant.project.ProjectType
 import hextant.serial.makeRoot
 import javafx.application.Application
-import javafx.application.Platform
 import javafx.scene.Scene
 import javafx.stage.Stage
-import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 
 /**
@@ -26,8 +24,6 @@ abstract class HextantTestApplication(private val projectType: ProjectType) : Ap
      * Starts the application.
      */
     final override fun start(primaryStage: Stage) {
-        val preloader = HextantPreloader()
-        preloader.start(Stage())
         val context = Properties.defaultContext(HextantPlatform.projectContext(Context.newInstance()))
         initializePluginsFromClasspath(context, testing = true)
         projectType.initializeContext(context)
@@ -38,22 +34,6 @@ abstract class HextantTestApplication(private val projectType: ProjectType) : Ap
         scene.initHextantScene(context)
         primaryStage.scene = scene
         stage = primaryStage
-        showPreloader(preloader, primaryStage)
-    }
-
-    private fun showPreloader(preloader: HextantPreloader, stage: Stage) {
-        thread {
-            for (i in 0..100) {
-                Platform.runLater {
-                    preloader.setProgress(i * 0.01)
-                }
-                Thread.sleep(10)
-            }
-            Platform.runLater {
-                preloader.hide()
-                stage.show()
-            }
-        }
     }
 
     companion object {

@@ -9,6 +9,7 @@ import hextant.command.Command.Type.SingleReceiver
 import hextant.context.Context
 import hextant.context.createControl
 import hextant.fx.showStage
+import hextant.main.GlobalDirectory.Companion.LOCK
 import hextant.main.HextantPlatform.launcher
 import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
@@ -16,6 +17,7 @@ import hextant.main.view.PluginsEditorView
 import hextant.plugins.PluginInfo
 import hextant.plugins.PluginInfo.Type.Global
 import hextant.plugins.PluginInfo.Type.Local
+import java.nio.file.Files
 
 internal fun Commands.registerGlobalCommands(context: Context) {
     registerCommand<Context, Unit> {
@@ -39,6 +41,7 @@ internal fun Commands.registerGlobalCommands(context: Context) {
         executing { ctx, _ ->
             closeProject(ctx)
             ctx[Project].save()
+            Files.delete(ctx[Project].location.resolve(LOCK))
             val loader = context.get<Runnable>(launcher)
             loader.run()
         }

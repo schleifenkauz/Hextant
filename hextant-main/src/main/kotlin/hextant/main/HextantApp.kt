@@ -11,12 +11,11 @@ import hextant.main.HextantPlatform.marketplace
 import hextant.main.HextantPlatform.projectContext
 import hextant.main.HextantPlatform.stage
 import hextant.main.plugins.PluginManager
-import hextant.plugin.PluginBuilder.Phase.Close
+import hextant.plugin.PluginBuilder.Phase
 import javafx.application.Application
 import javafx.stage.Stage
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import java.io.File
 import java.io.IOException
 
@@ -51,27 +50,21 @@ internal class HextantApp : Application() {
     }
 
     override fun stop() {
-        close()
+        Core.apply(launcherContext, Phase.Close, project = null)
+        HextantMain.apply(launcherContext, Phase.Close, project = null)
         saveGlobalPlugins()
     }
 
     private fun readGlobalPlugins(): List<String> {
         val file = globalContext[GlobalDirectory][GLOBAL_PLUGINS]
         if (!file.exists()) return emptyList()
-        val text = file.readText()
-        return Json.decodeFromString(text)
-    }
-
-    private fun close() {
-        for (initializer in listOf(Core, HextantMain)) {
-            initializer.apply(launcherContext, Close, project = null)
-        }
+        return Json.tryParse(GLOBAL_PLUGINS) { file.readText() } ?: emptyList()
     }
 
     private fun saveGlobalPlugins() {
         val enabled = globalContext[PluginManager].enabledPlugins().map { it.id }
         val file = globalContext[GlobalDirectory][GLOBAL_PLUGINS]
-        file.writeText(Json.encodeToString(enabled))
+        file.writeText(Json.encodeToString(serializer(), enabled))
     }
 
     private fun tryGetFile(s: String): File = try {

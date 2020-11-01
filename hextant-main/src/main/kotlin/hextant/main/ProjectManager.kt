@@ -10,17 +10,17 @@ import hextant.command.meta.ProvideCommand
 import hextant.context.Context
 import hextant.fx.getUserInput
 import hextant.main.GlobalDirectory.Companion.PROJECTS
+import hextant.main.GlobalDirectory.Companion.PROJECT_INFO
 import hextant.main.HextantPlatform.marketplace
 import hextant.main.HextantPlatform.stage
 import hextant.main.editor.*
 import hextant.main.plugins.PluginManager
-import hextant.plugins.LocatedProjectType
+import hextant.plugins.*
 import hextant.plugins.PluginInfo.Type.Global
 import hextant.plugins.PluginInfo.Type.Local
-import hextant.plugins.ProjectType
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import validated.ifInvalid
+import java.io.File
 import java.nio.file.Files
 
 internal class ProjectManager(private val globalContext: Context) {
@@ -35,7 +35,7 @@ internal class ProjectManager(private val globalContext: Context) {
         manager.enableAll(required)
         manager.enableAll(globalContext[PluginManager].enabledPlugins().map { it.id })
         val editor = PluginsEditor(globalContext, manager, setOf(Local, Global))
-        val plugins = getUserInput(editor).ifInvalid { return }.map { it.id }
+        val plugins = getUserInput(editor, applyStyle = false).ifInvalid { return }.map { it.id }
         val dest = globalContext[GlobalDirectory][PROJECTS].resolve(projectName)
         val cl = HextantClassLoader(globalContext, plugins)
         cl.executeInNewThread(
@@ -49,6 +49,11 @@ internal class ProjectManager(private val globalContext: Context) {
         )
     }
 
+    private fun acquireLock(project: File): Boolean {
+        val lock = project.resolve(GlobalDirectory.LOCK)
+        return lock.createNewFile()
+    }
+
     @ProvideCommand("Open Project", shortName = "open", description = "Opens a project")
     fun openProject(
         @CommandParameter(
@@ -57,8 +62,9 @@ internal class ProjectManager(private val globalContext: Context) {
         ) name: String
     ) {
         val file = globalContext[GlobalDirectory].getProject(name)
-        val desc = file.resolve(GlobalDirectory.PROJECT_INFO).readText()
-        val info = Json.decodeFromString<ProjectInfo>(desc)
+        if (!acquireLock(file)) return
+        val desc = file.resolve(PROJECT_INFO)
+        val info = Json.tryParse<ProjectInfo>(PROJECT_INFO) { desc.readText() } ?: return
         val cl = HextantClassLoader(globalContext, info.enabledPlugins)
         cl.executeInNewThread("hextant.main.ProjectOpener", file, globalContext, info)
     }
@@ -71,6 +77,7 @@ internal class ProjectManager(private val globalContext: Context) {
         ) project: String
     ) {
         val file = globalContext[GlobalDirectory].getProject(project)
+        if (!acquireLock(file)) return
         file.deleteRecursively()
     }
 
@@ -88,10 +95,12 @@ internal class ProjectManager(private val globalContext: Context) {
             description = "The new name for the project",
             editWith = ProjectNameEditor::class
         ) newName: String
-    ) {
-        val oldLocation = globalContext[GlobalDirectory].getProject(project).toPath()
+    ): String {
+        val oldLocation = globalContext[GlobalDirectory].getProject(project)
+        if (!acquireLock(oldLocation)) return "Cannot rename project: Already opened by another editor"
         val newLocation = oldLocation.resolveSibling(newName)
-        Files.move(oldLocation, newLocation)
+        Files.move(oldLocation.toPath(), newLocation.toPath())
+        return "Successfully renamed project"
     }
 
     @ProvideCommand("Quit", shortName = "quit", description = "Quits the Hextant launcher")

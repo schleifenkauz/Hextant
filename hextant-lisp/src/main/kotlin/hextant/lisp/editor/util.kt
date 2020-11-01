@@ -11,7 +11,7 @@ import hextant.core.editor.replaceWith
 import hextant.lisp.*
 import hextant.lisp.rt.*
 import hextant.plugin.PluginBuilder
-import hextant.plugin.PluginBuilder.Phase.Enable
+import hextant.plugin.PluginBuilder.Phase.Disable
 import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.plugin.registerInspection
 import reaktive.list.ReactiveList
@@ -93,7 +93,7 @@ fun PluginBuilder.addSpecialSyntax(syntax: SpecialSyntax<*>) {
         SpecialSyntax.register(syntax)
         SExprExpanderConfigurator.config.registerKey(syntax.name) { context -> syntax.createTemplate(context) }
     }
-    on(Enable) {
+    on(Disable) {
         SpecialSyntax.unregister(syntax)
         SExprExpanderConfigurator.config.unregisterKey(syntax.name)
     }
