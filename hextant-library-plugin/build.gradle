@@ -1,3 +1,4 @@
+apply plugin: 'maven-publish'
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'groovy'
 apply plugin: 'com.gradle.plugin-publish'
@@ -13,8 +14,8 @@ version = '0.1-SNAPSHOT'
 gradlePlugin {
     plugins {
         hextantLibraryPlugin {
-            id = 'hextant-library'
-            displayName = 'Hextant Library'
+            id = 'com.github.nkb03.hextant-library'
+            displayName = 'Hextant Plugin'
             description = "Gradle plugin for creating libraries for the Hextant platform"
             implementationClass = "hextant.gradle.HextantLibrary"
         }

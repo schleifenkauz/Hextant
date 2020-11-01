@@ -4,12 +4,12 @@
 
 package hextant.fx
 
-import com.sun.javafx.scene.control.skin.TextFieldSkin
 import hextant.core.InputMethod
 import hextant.core.InputMethod.REGULAR
 import hextant.core.InputMethod.VIM
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
+import javafx.scene.control.skin.TextFieldSkin
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyEvent
@@ -49,6 +49,7 @@ open class HextantTextField(
         override fun replaceText(start: Int, end: Int, txt: String?) {
             super.replaceText(start, end, txt)
             userUpdatedText()
+            listOf(1, 2, 3)
         }
 
         override fun deleteChar(previous: Boolean) {

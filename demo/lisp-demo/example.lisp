@@ -1,1 +1,0 @@
-(let square (lambda x (* x x)) (+ (square 8) (square 7)))

@@ -1,9 +1,9 @@
 package hextant.codegen.aspects
 
 import javax.lang.model.type.*
-import javax.lang.model.util.AbstractTypeVisitor6
+import javax.lang.model.util.AbstractTypeVisitor9
 
-internal object JavaToKotlinTypeTranslator : AbstractTypeVisitor6<String, Unit>() {
+internal object JavaToKotlinTypeTranslator : AbstractTypeVisitor9<String, Unit>() {
     override fun visitNoType(t: NoType, p: Unit?): String = "Unit"
 
     override fun visitPrimitive(t: PrimitiveType, p: Unit?): String =
@@ -32,4 +32,12 @@ internal object JavaToKotlinTypeTranslator : AbstractTypeVisitor6<String, Unit>(
 
     override fun visitExecutable(t: ExecutableType, p: Unit?): String =
         "(${t.parameterTypes.joinToString(", ") { visit(it) }}) -> ${visit(t.returnType)}"
+
+    override fun visitUnion(t: UnionType?, p: Unit?): String {
+        throw UnsupportedOperationException("Union types are not supported")
+    }
+
+    override fun visitIntersection(t: IntersectionType?, p: Unit?): String {
+        throw UnsupportedOperationException("Intersection types are not supported")
+    }
 }

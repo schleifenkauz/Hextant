@@ -1,4 +1,4 @@
-apply plugin: 'hextant-library'
+apply plugin: 'com.github.nkb03.hextant-library'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-kapt'
 
@@ -11,8 +11,8 @@ kapt {
 
 task('hextantPublish', type: Copy) {
     from jar.outputs.files
-    into 'C:/Users/Nikolaus Knop/hextant/plugins'
-    rename '(.+)', "core.jar"
+    into System.getProperty('user.home') + '/hextant/plugins'
+    rename '(.+)', 'core.jar'
 }
 
 build.finalizedBy(hextantPublish)
@@ -33,7 +33,6 @@ dependencies {
     compile project(':hextant-codegen')
     kapt project(":hextant-codegen")
 
-    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile 'org.jetbrains.kotlin:kotlin-reflect'
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlinx_coroutines_version
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-javafx', version: kotlinx_coroutines_version

@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         mavenCentral()
-        mavenLocal()
         jcenter()
     }
     dependencies {
@@ -15,16 +14,8 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10' apply false
     id 'com.gradle.plugin-publish' version '0.12.0' apply false
     id 'io.codearte.nexus-staging' version '0.21.2' apply false
-    id 'hextant-library' version '0.1-SNAPSHOT' apply false
-    id 'com.github.nkb03.hextant-plugin' version '0.1-SNAPSHOT' apply false
-}
-
-static String kotlin(Object dep) {
-    return "org.jetbrains.kotlin:kotlin-$dep:1.4.0"
-}
-
-static String spek(Object dep) {
-    return "org.jetbrains.spek:spek-$dep:1.1.5"
+    id 'com.github.nkb03.hextant-library' version '0.1-SNAPSHOT' apply false
+    id 'com.github.nkb03.hextant-plugin' version '0.3-SNAPSHOT' apply false
 }
 
 allprojects {
@@ -42,12 +33,14 @@ subprojects {
 
     apply plugin: 'kotlin'
 
+    sourceCompatibility = 11
+
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
         kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
 }
 

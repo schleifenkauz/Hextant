@@ -1,4 +1,4 @@
-apply plugin: 'hextant-library'
+apply plugin: 'com.github.nkb03.hextant-library'
 version '1.0-SNAPSHOT'
 
 hextant_lib {
@@ -10,7 +10,6 @@ afterEvaluate {
 }
 
 dependencies {
-    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile project(':hextant-plugins:common')
     compile "io.ktor:ktor-client-serialization-jvm:$ktor_version"
     compile "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"

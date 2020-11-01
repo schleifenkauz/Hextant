@@ -30,7 +30,7 @@ class HextantPlugin implements Plugin<Project> {
             kapt {
                 annotationProcessors("hextant.codegen.MainProcessor")
                 useBuildCache = true
-                correctErrorTypes = true
+                correctErrorTypes = target.hasProperty('correctErrorTypes') ? target.property('correctErrorTypes').toBoolean() : true
             }
             afterEvaluate {
                 task('hextantPublish', type: Copy) {

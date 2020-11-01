@@ -1,4 +1,4 @@
-apply plugin: 'hextant-library'
+apply plugin: 'com.github.nkb03.hextant-library'
 apply plugin: 'kotlin-kapt'
 
 hextant_lib {
@@ -13,9 +13,6 @@ kapt {
 }
 
 dependencies {
-    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    compile 'org.jetbrains.kotlin:kotlin-reflect'
-
     compile project(':hextant-plugins:client')
     compileOnly project(":hextant-core")
     kapt project(":hextant-codegen")

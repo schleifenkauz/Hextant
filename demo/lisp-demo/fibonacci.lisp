@@ -1,1 +1,0 @@
-(let fac (lambda (fac n) (if (- n 1) (* n (fac (- n 1))) 1)) (fac fac 12))

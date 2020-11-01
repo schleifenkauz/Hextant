@@ -37,7 +37,7 @@ Most of the time, the leave editors (also called **token editors**) are displaye
 For example, an editor for arithmetic expressions may have editors for integer literals as the leaves. 
 As the user types in some characters, the editor checks, 
 that the string typed by the user is indeed a valid integer literal.   
-![Demo couldn't be loaded](demo/readme/literals.gif)  
+![Demo couldn't be loaded](gif/literals.gif)  
 One may argue, that this is at the end yet again a text-based approach,
 but the distinction to an ordinary text-editor is,
 that textual representation is only used in the leaves (or "tokens" in BNF-jargon) of the editor tree.
@@ -46,7 +46,7 @@ To form such an expression, a **compound editor** is needed.
 Compound editors are editors that are composed of other editors.
 For example in the following GIF there is an editor that is composed of two editors for integer literals
 and one editor for an arithmetic operator.  
-![Demo couldn't be loaded](demo/readme/compound.gif)  
+![Demo couldn't be loaded](gif/compound.gif)  
 To quickly switch between the individual components of a compound editor without using the mouse,
 you can use the shortcuts ``Ctrl+🡄`` and ``Ctrl+🡆``. 
 By pressing ``Ctrl+M`` (for "select more") you select the parent of the currently focused editor
@@ -61,14 +61,14 @@ If not focused, unexpanded are highlighted, so that the user knows that the has 
 The user can type into that text field and then hit ``Enter`` to expand the text to a concrete editor.
 For example, in the following GIF, the text "+" is expanded to a compound editor for binary expressions with "+" as the operator
 and integer literals are expanded to editors for integer literals.  
-![Demo couldn't be loaded](demo/readme/expander.gif)  
+![Demo couldn't be loaded](gif/expander.gif)  
 To replace the editor that was expanded by the placeholder again), the user has to use the keyboard shortcut ``Ctrl+R``.  
 Now suppose, our language of arithmetic expressions is extended with a form ``sum <expressions...>``, 
 that sums up an arbitrary-size list of expressions.
 To represent such an expression with a structured editor, 
 an editor that is composed of arbitrarily many sub-editors of equal shape is needed.
 In Hextant, such editors are called **list editors**.  
-![Demo couldn't be loaded](demo/readme/lists_cooler.gif)  
+![Demo couldn't be loaded](gif/lists_cooler.gif)  
 To add a new editor to a list editor, the shortcut ``Ctrl+Insert`` is used.
 The shortcut ``Ctrl+Remove`` removes the selected item.
 Like with compound editors, the arrow keys can be used to traverse the sub-editors. 
@@ -92,7 +92,7 @@ To execute the command you have to type ``Ctrl+Enter``.
 Commands that have no parameters, can be executed by just pressing ``Ctrl+Enter`` 
 after typing them into the command line, without needing to expand them first. 
 Some commands also have shortcuts assigned to them.  
-![Demo couldn't be loaded](demo/readme/commands.gif) 
+![Demo couldn't be loaded](gif/commands.gif) 
 
 ## Why use Hextant?
 
@@ -124,8 +124,10 @@ Follow these steps:
 - Open the project in IntelliJ and wait for the Gradle import to finish.
 - Build the project.
 - Use the "Launch Hextant" run-configuration to start Hextant.
+- If you don't want to use IntelliJ simply run ``gradlew build`` 
+and then use ``launch.bat`` or ``launch.sh`` depending on your OS.
 - Now you should see a window, that looks like this:  
-![Image couldn't be loaded](demo/readme/launcher.png)
+![Image couldn't be loaded](gif/launcher.png)
 - To create a new project, use the command ``create <project-type> <project-name>``. 
 Some available project types are ``Lisp Project"`` and ``Expression``. 
 - In the window that pops up, you can select additional plugins, you want to use.

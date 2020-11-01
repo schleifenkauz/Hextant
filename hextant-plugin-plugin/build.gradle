@@ -9,7 +9,7 @@ pluginBundle {
     tags = ['hextant']
 }
 
-version = '0.2-SNAPSHOT'
+version = '0.3-SNAPSHOT'
 
 gradlePlugin {
     plugins {

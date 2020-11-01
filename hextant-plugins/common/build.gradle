@@ -1,5 +1,5 @@
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'hextant-library'
+apply plugin: 'com.github.nkb03.hextant-library'
 
 version '1.0-SNAPSHOT'
 
@@ -12,7 +12,6 @@ afterEvaluate {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlinx_coroutines_version
     compile "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
     compile 'org.slf4j:slf4j-simple:1.6.4'
