@@ -32,13 +32,10 @@ class HextantPlugin implements Plugin<Project> {
                 useBuildCache = true
                 correctErrorTypes = target.hasProperty('correctErrorTypes') ? target.property('correctErrorTypes').toBoolean() : true
             }
-            afterEvaluate {
-                task('hextantPublish', type: Copy) {
-                    from jar.outputs.files
-                    into new File(System.getProperty('user.home'), 'hextant/plugins')
-                    rename '(.+)', (config.pluginId ?: project.name) + ".jar"
-                }
-                build.finalizedBy(hextantPublish)
+            task('hextantPublish', type: Copy) {
+                from jar.outputs.files
+                into new File(System.getProperty('user.home'), 'hextant/plugins')
+                rename '(.+)', (config.pluginId ?: project.name) + ".jar"
             }
             jar {
                 from {

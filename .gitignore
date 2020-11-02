@@ -12,5 +12,4 @@ build
 *.iml
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
-sample-project
-libs
+hextant-expr/src/main/kotlin/counter/

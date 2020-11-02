@@ -120,7 +120,12 @@ see [this](https://github.com/NKb03/Hextant/wiki/Why-structural-editors) article
 
 To build and run Hextant on your computer you need Git and version 11 of the Java Development Kit.
 Follow these steps:  
-- Clone the project: ```git clone https://github.com/NKB03/Hextant```.
+- Clone the project: ``git clone https://github.com/NKB03/Hextant``.
+- Build the project: ``gradlew build``. 
+If you are building the project the first time or if you have just used ``gradlew clean``
+you have to use ``gradlew build -PcorrectErrorTypes=false`` instead,
+because otherwise the compilation will fail complaining about missing generated sources.
+- Publish all the default plugins: ``gradlew hextantPublish``.
 - Run the Hextant Launcher: ``gradlew hextant-main:run``
 - Now you should see a window, that looks like this:  
 ![Image couldn't be loaded](gif/launcher.png)

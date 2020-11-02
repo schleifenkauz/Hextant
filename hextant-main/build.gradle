@@ -12,15 +12,12 @@ version '1.0-SNAPSHOT'
 javafx {
     version = '11.0.2'
     modules = ['javafx.controls']
+    configuration = 'compile'
 }
 
 application {
     mainClassName = 'hextant.main.Main'
-    applicationDefaultJvmArgs = ['--illegal-access=permit', '--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED' ]
-}
-
-run {
-    classpath = sourceSets.main.compileClasspath + sourceSets.main.output
+    applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
 }
 
 kapt {
@@ -39,6 +36,9 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
     manifest {
-        attributes('Main-Class': 'hextant.main.Main')
+        attributes(
+                'Main-Class': 'hextant.main.Main',
+                'Add-Opens': 'java.base/jdk.internal.loader'
+        )
     }
 }
