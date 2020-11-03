@@ -1,0 +1,9 @@
+apply plugin: 'com.github.nkb03.hextant-library'
+
+hextant_lib {
+    description = 'Implements installing plugins from maven repositories and from source'
+}
+
+dependencies {
+    compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+}

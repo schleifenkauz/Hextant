@@ -15,7 +15,7 @@ javafx {
 }
 
 application {
-    mainClassName = 'hextant.main.Main'
+    mainClassName = 'hextant.launcher.Main'
     applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
 }
 
@@ -39,10 +39,9 @@ dependencies {
     kapt project(":hextant-codegen")
 }
 
-task('fatJar', type: Jar) {
-    baseName = 'hextant-launcher.jar'
+jar {
+    archiveName = 'launcher.jar'
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
-    with jar
 }

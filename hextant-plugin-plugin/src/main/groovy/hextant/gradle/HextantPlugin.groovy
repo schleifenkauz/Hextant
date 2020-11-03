@@ -35,8 +35,10 @@ class HextantPlugin implements Plugin<Project> {
             }
             task('hextantPublish', type: Copy) {
                 from jar.outputs.files
-                into new File(System.getProperty('user.home'), 'hextant/plugins')
+                def home = System.getenv('HEXTANT_HOME') ?: System.getProperty('user.home') + '/hextant'
+                into new File(home, 'plugins')
                 rename '(.+)', (config.pluginId ?: project.name) + ".jar"
+                dependsOn(jar)
             }
             jar {
                 from {

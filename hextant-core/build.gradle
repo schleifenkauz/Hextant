@@ -51,7 +51,8 @@ dependencies {
     testImplementation project(":hextant-test")
 }
 
-task('fatJar', type: Jar) {
+jar {
+    archiveName = 'core.jar'
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }

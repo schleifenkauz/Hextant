@@ -4,5 +4,5 @@
   "author": "Nikolaus Knop",
   "description": "Launches the Hextant Application",
   "type": "Global",
-  "initializer": "hextant.main.HextantMain"
+  "initializer": "hextant.launcher.HextantMain"
 }
