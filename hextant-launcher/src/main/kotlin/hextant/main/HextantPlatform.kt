@@ -1,9 +1,10 @@
 package hextant.main
 
 import bundles.SimpleProperty
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.Properties
+import hextant.main.plugins.HttpPluginClient
 import hextant.plugins.Marketplace
-import hextant.plugins.client.HttpPluginClient
 import javafx.stage.Stage
 
 object HextantPlatform {
@@ -25,10 +26,9 @@ object HextantPlatform {
     /**
      * Create the root context for a project.
      */
-    fun projectContext(global: Context = globalContext()) = global.extend {
+    fun projectContext(global: Context): Context {
         val cl = Thread.currentThread().contextClassLoader
-        val hcl = if (cl is HextantClassLoader) cl else HextantClassLoader(this, emptyList(), cl)
-        set(HextantClassLoader, hcl)
-        Properties.initializeProjectContext(this, hcl)
+        val hcl = if (cl is HextantClassLoader) cl else HextantClassLoader(global, emptyList(), cl)
+        return Properties.projectContext(global, hcl)
     }
 }

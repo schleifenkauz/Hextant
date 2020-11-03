@@ -7,6 +7,7 @@ package hextant.main
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.context.*
+import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
 import hextant.core.Editor
 import hextant.core.view.EditorControl
@@ -34,7 +35,7 @@ internal class ProjectOpener(
         context.setProjectRoot(project.toPath())
         context[Commands].registerGlobalCommands(context)
         context[Aspects].registerDefaultImplementations()
-        val type = getProjectTypeInstance(context[HextantClassLoader], info.projectType.clazz)
+        val type = getProjectTypeInstance(context[classLoader], info.projectType.clazz)
         type.initializeContext(context)
         val project = loadProject(info, context)
         val view = context.createControl(project.root)

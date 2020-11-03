@@ -2,15 +2,13 @@
  *@author Nikolaus Knop
  */
 
-package hextant.plugins.client
+package hextant.main.plugins
 
 import hextant.plugins.*
 import hextant.plugins.PluginInfo.Type
 import io.ktor.client.HttpClient
 import io.ktor.client.call.TypeInfo
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.request.forms.*
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
@@ -20,23 +18,20 @@ import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.copyAndClose
 import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.net.ConnectException
 import kotlin.reflect.*
 
 class HttpPluginClient(private val url: String, private val downloadDirectory: File) : Marketplace {
-    private val client = HttpClient(Apache) {
-        install(JsonFeature) {
-            serializer = KotlinxSerializer(Json {})
-        }
-    }
+    private val client = HttpClient(Apache)
 
     private val local by lazy { LocalPluginRepository(downloadDirectory) }
 
     @Suppress("UNCHECKED_CAST")
     @OptIn(ExperimentalStdlibApi::class)
-    private fun <T> get(url: String, type: KType, body: Any? = null): T? = runBlocking {
+    private fun <T> get(url: String, type: KType, body: String? = null): T? = runBlocking {
         val response = client.get<HttpResponse>(url) {
             if (body != null) {
                 contentType(ContentType.Application.Json)
@@ -54,7 +49,12 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    private inline fun <reified T> get(url: String, body: Any? = null): T? = get<T>(url, typeOf<T>(), body)
+    private inline fun <reified T, reified B : Any> get(url: String, body: B): T? =
+        get<T>(url, typeOf<T>(), Json.encodeToString(body))
+
+    @OptIn(ExperimentalStdlibApi::class)
+    private inline fun <reified T> get(url: String): T? =
+        get<T>(url, typeOf<T>())
 
     override suspend fun getJarFile(id: String): File? {
         val file = downloadDirectory.resolve("$id.jar")

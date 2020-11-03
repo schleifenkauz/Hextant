@@ -4,7 +4,8 @@
 
 package hextant.context
 
-import bundles.*
+import bundles.Property
+import bundles.PropertyChangeHandlers
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.core.Editor
@@ -36,23 +37,27 @@ object Properties {
      */
     val propertyChangeHandlers = Property<PropertyChangeHandlers, Any, Internal>("property change handlers")
 
-    internal val classLoader = SimpleProperty<ClassLoader>("class loader")
+    /**
+     * The class loader to be used by all plugins.
+     */
+    val classLoader = Property<ClassLoader, Any, Internal>("class loader")
 
     /**
      * Initialize some common properties on the project level.
      */
-    fun initializeProjectContext(context: Context, loader: ClassLoader) = with(context) {
-        set(Internal, Commands, Commands.newInstance())
-        set(Internal, Inspections, Inspections.newInstance())
-        set(Internal, Stylesheets, Stylesheets(loader))
-        set(Internal, logger, Logger.getLogger(javaClass.name))
-        set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
-        set(Internal, SerialProperties.serialContext, createSerialContext())
-        set(Internal, SerialProperties.serial, KSerial.newInstance())
-        set(PropertyRegistrar, PropertyRegistrar())
-        set(Internal, Aspects, Aspects())
-        set(Internal, classLoader, loader)
-    }
+    fun projectContext(parent: Context, loader: ClassLoader) =
+        parent.extend {
+            set(Internal, Commands, Commands.newInstance())
+            set(Internal, Inspections, Inspections.newInstance())
+            set(Internal, Stylesheets, Stylesheets(loader))
+            set(Internal, logger, Logger.getLogger(javaClass.name))
+            set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
+            set(Internal, SerialProperties.serialContext, createSerialContext())
+            set(Internal, SerialProperties.serial, KSerial.newInstance())
+            set(PropertyRegistrar, PropertyRegistrar())
+            set(Internal, Aspects, Aspects())
+            set(Internal, classLoader, loader)
+        }
 
     private fun createSerialContext(): SerialContext = SerialContext.newInstance {
         useUnsafe = true

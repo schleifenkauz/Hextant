@@ -4,6 +4,7 @@
 
 package hextant.main
 
+import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
 import hextant.core.Core
 import hextant.main.GlobalDirectory.Companion.GLOBAL_PLUGINS
@@ -12,6 +13,7 @@ import hextant.main.HextantPlatform.projectContext
 import hextant.main.HextantPlatform.stage
 import hextant.main.plugins.PluginManager
 import hextant.plugin.PluginBuilder.Phase
+import hextant.plugin.initializePluginsFromClasspath
 import javafx.application.Application
 import javafx.stage.Stage
 import kotlinx.serialization.json.Json
@@ -31,7 +33,7 @@ internal class HextantApp : Application() {
         globalContext[PluginManager] = manager
         manager.enableAll(globalPlugins)
         launcherContext.setProjectRoot(launcherContext[GlobalDirectory].root.toPath())
-        initializePluginsFromClasspath(launcherContext)
+        initializePluginsFromClasspath(launcherContext, launcherContext[classLoader])
         val args = parameters.raw
         when (args.size) {
             0 -> {

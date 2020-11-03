@@ -5,6 +5,7 @@
 package hextant.main
 
 import hextant.context.Context
+import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
 import hextant.context.createOutput
 import hextant.main.HextantPlatform.projectContext
@@ -30,7 +31,7 @@ internal class ProjectCreator(
         context[PluginManager] = manager
         context.setProjectRoot(dest.toPath())
         addPlugins(enabledPlugins + "core", context, Enable, project = null)
-        val instance = getProjectTypeInstance(context[HextantClassLoader], projectType.clazz)
+        val instance = getProjectTypeInstance(context[classLoader], projectType.clazz)
         instance.initializeContext(context)
         val root = instance.createProject(context)
         context.createOutput(dest.resolve(GlobalDirectory.PROJECT_ROOT).toPath()).use { out ->

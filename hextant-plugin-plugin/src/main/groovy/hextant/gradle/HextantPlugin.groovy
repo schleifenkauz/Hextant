@@ -24,8 +24,9 @@ class HextantPlugin implements Plugin<Project> {
             }
             dependencies {
                 compileOnly hextantDependency(target, "core")
-                testImplementation hextantDependency(target, "test")
+                compileOnly hextantDependency(target, 'codegen')
                 kapt hextantDependency(target, "codegen")
+                testImplementation hextantDependency(target, "test")
             }
             kapt {
                 annotationProcessors("hextant.codegen.MainProcessor")

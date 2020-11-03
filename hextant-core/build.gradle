@@ -1,8 +1,9 @@
 apply plugin: 'com.github.nkb03.hextant-library'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'org.openjfx.javafxplugin'
 
-version '1.0-SNAPSHOT'
+version '1.1-SNAPSHOT'
 
 kapt {
     useBuildCache = true
@@ -19,6 +20,12 @@ static def nkb03(String dep, String version) {
     return "com.github.nkb03:$dep:$version"
 }
 
+javafx {
+    version = property('javafx_version')
+    modules = ['javafx.controls']
+    configuration = 'api'
+}
+
 dependencies {
     compile nkb03('reaktive', '1.0-SNAPSHOT')
     compile nkb03('kserial', '1.0-SNAPSHOT')
@@ -28,20 +35,23 @@ dependencies {
     compile nkb03('validated', '1.0-SNAPSHOT')
     compile nkb03('validated-reaktive', '1.0-SNAPSHOT')
 
-    compile project(':hextant-codegen')
+    compileOnly project(':hextant-codegen')
     kapt project(":hextant-codegen")
+    compile project(':hextant-plugins:common')
 
     compile 'org.jetbrains.kotlin:kotlin-reflect'
-    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: kotlinx_coroutines_version
-    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-javafx', version: kotlinx_coroutines_version
-    compile "org.controlsfx:controlsfx:8.40.14"
+    compile("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$kotlinx_coroutines_version") {
+        exclude group: 'org.openjfx'
+    }
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
+    compile "org.controlsfx:controlsfx:$javafx_version"
 
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")
-    testImplementation project(":hextant-main")
 }
 
-jar {
+task('fatJar', type: Jar) {
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }

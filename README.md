@@ -126,7 +126,7 @@ If you are building the project the first time or if you have just used ``gradle
 you have to use ``gradlew build -PcorrectErrorTypes=false`` instead,
 because otherwise the compilation will fail complaining about missing generated sources.
 - Publish all the default plugins: ``gradlew hextantPublish``.
-- Run the Hextant Launcher: ``gradlew hextant-main:run``
+- Run the Hextant Launcher: ``gradlew hextant-launcher:run``
 - Now you should see a window, that looks like this:  
 ![Image couldn't be loaded](gif/launcher.png)
 - To create a new project, use the command ``create <project-type> <project-name>``. 

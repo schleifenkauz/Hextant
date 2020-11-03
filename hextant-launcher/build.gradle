@@ -12,12 +12,15 @@ version '1.0-SNAPSHOT'
 javafx {
     version = '11.0.2'
     modules = ['javafx.controls']
-    configuration = 'compile'
 }
 
 application {
     mainClassName = 'hextant.main.Main'
     applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
+}
+
+run {
+    classpath = sourceSets.main.compileClasspath + sourceSets.main.output
 }
 
 kapt {
@@ -26,19 +29,20 @@ kapt {
 }
 
 dependencies {
-    compile project(':hextant-plugins:client')
+    compile("io.ktor:ktor-client-apache:$ktor_version") {
+        exclude group: 'org.jetbrains.kotlin'
+    }
+    compileOnly project(":hextant-plugins:common")
+    compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compileOnly project(":hextant-core")
+    compileOnly project(":hextant-codegen")
     kapt project(":hextant-codegen")
 }
 
-jar {
+task('fatJar', type: Jar) {
+    baseName = 'hextant-launcher.jar'
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
-    manifest {
-        attributes(
-                'Main-Class': 'hextant.main.Main',
-                'Add-Opens': 'java.base/jdk.internal.loader'
-        )
-    }
+    with jar
 }
