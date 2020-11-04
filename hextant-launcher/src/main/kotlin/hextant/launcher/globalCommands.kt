@@ -41,7 +41,8 @@ internal fun Commands.registerGlobalCommands(context: Context) {
         executing { ctx, _ ->
             closeProject(ctx)
             ctx[Project].save()
-            Files.delete(ctx[Project].location.resolve(LOCK))
+            val lock = ctx[Project].location.resolve(LOCK)
+            Files.deleteIfExists(lock)
             val loader = context.get<Runnable>(launcher)
             loader.run()
         }

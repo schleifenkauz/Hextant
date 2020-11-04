@@ -17,7 +17,14 @@ class CLI private constructor(private var workingDirectory: File) {
     }
 
     fun gradle(vararg command: String) {
-        run("gradle", *command)
+        val os = System.getProperty("os.name").toLowerCase()
+        val gradlew = when {
+            os.contains("windows")        -> "gradlew.bat"
+            "nux" in os                   -> "gradlew"
+            "mac" in os || "darwin" in os -> "gradlew"
+            else                          -> error("Unknown operating system: $os")
+        }
+        run(workingDirectory.resolve(gradlew).absolutePath, *command)
     }
 
     fun java(vararg command: String) {
@@ -25,6 +32,7 @@ class CLI private constructor(private var workingDirectory: File) {
     }
 
     private fun run(vararg command: String) {
+        println("Running ${command.joinToString(" ")}")
         val exitCode = ProcessBuilder()
             .directory(workingDirectory)
             .command(*command)
@@ -38,8 +46,11 @@ class CLI private constructor(private var workingDirectory: File) {
     }
 
     fun cd(subDirectory: String): Boolean {
-        workingDirectory = workingDirectory.resolve(subDirectory)
-        return workingDirectory.exists()
+        val wd = workingDirectory.resolve(subDirectory)
+        return if (wd.exists()) {
+            workingDirectory = wd
+            true
+        } else false
     }
 
     companion object {
@@ -48,11 +59,3 @@ class CLI private constructor(private var workingDirectory: File) {
         }
     }
 }
-
-/*
-java
---module-path D:\programs\Java\javafx-sdk-11.0.2\lib
---add-modules javafx.controls
---add-opens java.base/jdk.internal.loader=ALL-UNNAMED
--classpath C:\Users\Nikolaus Knop\hextant\launcher.jar;C:\Users\Nikolaus Knop\hextant\plugins\core.jar hextant.launcher.Main
- */

@@ -40,7 +40,6 @@ dependencies {
 }
 
 jar {
-    archiveName = 'launcher.jar'
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }

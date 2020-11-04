@@ -1,9 +1,0 @@
-{
-  "id": "sample",
-  "name": "Hextant Sample",
-  "author": "Nikolaus Knop",
-  "type": "Language",
-  "description": "Sample language to demonstrate the features of Hextant",
-  "initializer": "hextant.sample.SamplePlugin",
-  "dependencies": []
-}

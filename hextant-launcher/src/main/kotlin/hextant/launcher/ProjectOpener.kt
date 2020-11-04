@@ -31,6 +31,11 @@ internal class ProjectOpener(
     private val info: ProjectInfo
 ) : Runnable {
     override fun run() {
+        val lock = project.resolve(GlobalDirectory.LOCK)
+        if (!lock.createNewFile()) {
+            System.err.println("Project $project already opened")
+            return
+        }
         val context = defaultContext(projectContext(globalContext))
         context.setProjectRoot(project.toPath())
         context[Commands].registerGlobalCommands(context)

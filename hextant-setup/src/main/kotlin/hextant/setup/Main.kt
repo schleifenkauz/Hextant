@@ -96,7 +96,7 @@ object Main {
     }
 
     private const val GROUP = "com.github.nkb03"
-    private val HEXTANT_CORE = MavenCoordinate(GROUP, "hextant-core", "1.0-SNAPSHOT")
+    private val HEXTANT_CORE = MavenCoordinate(GROUP, "hextant-core-fatjar", "1.0-SNAPSHOT")
     private val HEXTANT_LAUNCHER = MavenCoordinate(GROUP, "hextant-launcher", "1.0-SNAPSHOT")
     private const val JAVAFX_SDK = "javafx-sdk"
 }

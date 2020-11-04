@@ -1,5 +1,0 @@
-apply plugin: 'com.github.nkb03.hextant-plugin'
-
-hextant {
-    pluginId = 'sample'
-}

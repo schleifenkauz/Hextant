@@ -1,8 +1,8 @@
 rootProject.name = 'hextant'
 
-include 'hextant-lisp'
 include 'hextant-core'
-include 'hextant-sample'
+include 'hextant-core:fatjar'
+include 'hextant-lisp'
 include 'hextant-expr'
 include 'hextant-test'
 include 'hextant-codegen'
