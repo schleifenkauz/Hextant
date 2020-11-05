@@ -11,7 +11,10 @@ object Main {
     @JvmStatic
     fun main(vararg args: String) {
         checkJavaVersion()
-        if (args.isEmpty()) launch()
+        if (args.isEmpty()) {
+            launch()
+            return
+        }
         when (args[0]) {
             "update", "install" -> updateOrInstall(*args)
             "launch" -> launch()
@@ -38,9 +41,9 @@ object Main {
 
     private fun checkJavaVersion() {
         val version = System.getProperty("java.version")
-        if (!version.startsWith("11")) {
+        if (version < "11") {
             System.err.println("Invalid java version: $version")
-            System.err.println("Only Java 11 is supported")
+            System.err.println("Only version 11 and later is supported")
             exitProcess(1)
         }
     }
@@ -65,14 +68,15 @@ object Main {
         val core = HextantDirectory.resolve("plugins", "core.jar")
         val launcher = HextantDirectory.resolve("launcher.jar")
         if (!core.exists() || !launcher.exists()) {
-            System.err.println("Installing core components.")
-            updateOrInstall()
+            System.err.println("Hextant is not yet installed")
+            System.err.println("Use 'hextant install' to install it")
+            exitProcess(1)
         }
         java(
             "--module-path", File(sdk).resolve("lib").absolutePath,
             "--add-modules", "javafx.controls",
             "--add-opens", "java.base/jdk.internal.loader=ALL-UNNAMED",
-            "-classpath", "\"${launcher.absolutePath}\";\"${core.absolutePath}\"",
+            "-classpath", "$launcher${File.pathSeparatorChar}$core",
             "hextant.launcher.Main"
         )
     }

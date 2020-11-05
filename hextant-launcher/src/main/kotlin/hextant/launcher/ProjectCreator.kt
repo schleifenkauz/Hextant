@@ -23,7 +23,7 @@ internal class ProjectCreator(
     private val globalContext: Context, private val manager: PluginManager
 ) : Runnable {
     override fun run() {
-        dest.mkdir()
+        dest.mkdirs()
         val info = ProjectInfo(projectType, enabledPlugins, requiredPlugins)
         val str = Json.encodeToString(info)
         dest.resolve(GlobalDirectory.PROJECT_INFO).writeText(str)

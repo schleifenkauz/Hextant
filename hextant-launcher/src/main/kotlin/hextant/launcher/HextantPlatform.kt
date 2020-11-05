@@ -3,7 +3,7 @@ package hextant.launcher
 import bundles.SimpleProperty
 import hextant.context.Context
 import hextant.context.Properties
-import hextant.launcher.plugins.HttpPluginClient
+import hextant.plugins.LocalPluginRepository
 import hextant.plugins.Marketplace
 import javafx.stage.Stage
 
@@ -20,7 +20,7 @@ object HextantPlatform {
     fun globalContext(): Context = Context.newInstance {
         val gd = GlobalDirectory.inUserHome()
         set(GlobalDirectory, gd)
-        set(marketplace, HttpPluginClient("http://localhost:80", gd[GlobalDirectory.PLUGIN_CACHE]))
+        set(marketplace, LocalPluginRepository(gd[GlobalDirectory.PLUGIN_CACHE]))
     }
 
     /**

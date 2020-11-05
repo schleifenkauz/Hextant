@@ -18,13 +18,12 @@ class CLI private constructor(private var workingDirectory: File) {
 
     fun gradle(vararg command: String) {
         val os = System.getProperty("os.name").toLowerCase()
-        val gradlew = when {
-            os.contains("windows")        -> "gradlew.bat"
-            "nux" in os                   -> "gradlew"
-            "mac" in os || "darwin" in os -> "gradlew"
+        when {
+            "windows" in os               -> run(workingDirectory.resolve("gradlew.bat").absolutePath, *command)
+            "nux" in os                   -> run("sh", "gradlew", *command)
+            "mac" in os || "darwin" in os -> run("sh", "gradlew", *command)
             else                          -> error("Unknown operating system: $os")
         }
-        run(workingDirectory.resolve(gradlew).absolutePath, *command)
     }
 
     fun java(vararg command: String) {

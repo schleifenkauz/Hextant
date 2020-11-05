@@ -18,7 +18,7 @@ object Plugins {
             }
             gradle("build", "-PcorrectErrorTypes=false")
             gradle("hextantPublish")
-            println("Successfully $action plugin $url")
+            println("Successfully $action plugin $name")
         }
     }
 

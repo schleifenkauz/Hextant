@@ -9,6 +9,7 @@ build
 .idea/modules
 .idea/gradle.xml
 .idea/dictionaries
+.idea/caches
 *.iml
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
