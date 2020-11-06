@@ -11,6 +11,7 @@ import hextant.core.view.CompoundEditorControl
 import hextant.expr.editor.OperatorApplicationEditor
 import hextant.fx.createBorder
 import hextant.settings.Settings
+import javafx.scene.paint.Color
 import reaktive.value.binding.map
 import reaktive.value.fx.asObservableValue
 
@@ -24,6 +25,6 @@ class OperatorApplicationEditorControl @ProvideImplementation(ControlFactory::cl
         view(editor.operand2)
     }
 
-    val border = editor.context[Settings][Style.borderColor].map { c -> createBorder(c, 2.0) }
+    val border = editor.context[Settings][Style.BorderColor].map { c -> createBorder(Color.web(c), 2.0) }
     borderProperty().bind(border.asObservableValue())
 })

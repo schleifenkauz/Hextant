@@ -23,8 +23,7 @@ fun initializePluginsFromClasspath(
 ) {
     val cl = Thread.currentThread().contextClassLoader
     for (impls in cl.getResources("implementations.json")) {
-        val implementations: List<Implementation> =
-            Json.decodeFromString(impls.readText())
+        val implementations: List<Implementation> = Json.decodeFromString(impls.readText())
         for (impl in implementations) {
             context[Aspects].addImplementation(impl, cl)
         }

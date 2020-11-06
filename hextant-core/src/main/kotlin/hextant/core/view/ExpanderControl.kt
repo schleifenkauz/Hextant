@@ -13,7 +13,6 @@ import hextant.completion.gui.CompletionPopup
 import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
-import hextant.core.InputMethod
 import hextant.core.editor.Expander
 import hextant.fx.*
 import javafx.scene.Node

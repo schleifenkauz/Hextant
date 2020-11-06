@@ -8,18 +8,12 @@ import bundles.Property
 import bundles.PropertyChangeHandlers
 import hextant.command.Commands
 import hextant.command.line.*
-import hextant.core.Editor
-import hextant.core.InputMethod
-import hextant.core.editor.getSimpleEditorConstructor
+import hextant.fx.InputMethod
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugin.Aspects
-import hextant.serial.BundleSerializer
-import hextant.serial.SerialProperties
 import hextant.settings.PropertyRegistrar
 import hextant.undo.UndoManager
-import kserial.KSerial
-import kserial.SerialContext
 import java.util.logging.Logger
 
 /**
@@ -52,20 +46,10 @@ object Properties {
             set(Internal, Stylesheets, Stylesheets(loader))
             set(Internal, logger, Logger.getLogger(javaClass.name))
             set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
-            set(Internal, SerialProperties.serialContext, createSerialContext())
-            set(Internal, SerialProperties.serial, KSerial.newInstance())
             set(PropertyRegistrar, PropertyRegistrar())
             set(Internal, Aspects, Aspects())
             set(Internal, classLoader, loader)
         }
-
-    private fun createSerialContext(): SerialContext = SerialContext.newInstance {
-        useUnsafe = true
-        registerConstructor<Editor<*>> { bundle, cls ->
-            cls.getSimpleEditorConstructor().invoke(bundle[SerialProperties.deserializationContext])
-        }
-        register(BundleSerializer)
-    }
 
     /**
      * Extend the given [context] with some core properties.

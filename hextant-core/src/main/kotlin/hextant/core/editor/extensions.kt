@@ -7,6 +7,8 @@ package hextant.core.editor
 import hextant.context.*
 import hextant.context.ClipboardContent.OneEditor
 import hextant.core.Editor
+import hextant.serial.Snapshot
+import hextant.serial.reconstructEditor
 import validated.Validated
 import validated.valid
 
@@ -20,10 +22,14 @@ fun <E : Editor<*>, R : Editor<*>> ExpanderDelegate<E>.map(f: (E) -> R) = object
 }
 
 /**
- * Typesafe version of [Editor.createSnapshot]
+ * Makes a snapshot of this [Editor].
  */
 @Suppress("UNCHECKED_CAST")
-fun <E : Editor<*>> E.snapshot(): EditorSnapshot<E> = createSnapshot() as EditorSnapshot<E>
+fun <E : Editor<*>> E.snapshot(recordClass: Boolean = false): Snapshot<E> {
+    val snapshot = createSnapshot() as Snapshot<E>
+    snapshot.record(this, recordClass)
+    return snapshot
+}
 
 /**
  * Return a sequence iterating over all immediate and recursive children of this editor
@@ -43,7 +49,7 @@ fun <E : Editor<*>> E.moveTo(newContext: Context): E =
 /**
  * Copy this editor for the given [newContext]
  */
-fun <E : Editor<*>> E.copyFor(newContext: Context): E = snapshot().reconstruct(newContext)
+fun <E : Editor<*>> E.copyFor(newContext: Context): E = snapshot(recordClass = true).reconstructEditor(newContext)
 
 /**
  * Copy this [Editor] to the [Clipboard], if this is supported by the editor.
@@ -51,11 +57,8 @@ fun <E : Editor<*>> E.copyFor(newContext: Context): E = snapshot().reconstruct(n
  */
 fun Editor<*>.copyToClipboard(): Boolean {
     if (!supportsCopyPaste()) return false
-    context[Clipboard].copy(
-        OneEditor(
-            snapshot()
-        )
-    )
+    val snapshot = snapshot(recordClass = true)
+    context[Clipboard].copy(OneEditor(snapshot))
     return true
 }
 

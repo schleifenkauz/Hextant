@@ -11,12 +11,12 @@ import hextant.context.*
 import hextant.core.editor.TokenEditor.Compilable.Completed
 import hextant.core.editor.TokenEditor.Compilable.Text
 import hextant.core.view.TokenEditorView
-import hextant.serial.VirtualEditor
-import hextant.serial.virtualize
+import hextant.serial.*
 import hextant.undo.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
+import kotlinx.serialization.json.*
 import reaktive.value.*
 import validated.*
 import validated.reaktive.ReactiveValidated
@@ -79,7 +79,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         view.displayText(text.now)
     }
 
-    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+    override fun createSnapshot(): Snapshot<*> = Snap()
 
     override fun supportsCopyPaste(): Boolean = true
 
@@ -129,11 +129,23 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
             else TextEdit(editor, this.old, other.new)
     }
 
-    private class Snapshot(original: TokenEditor<*, *>) : EditorSnapshot<TokenEditor<*, *>>(original) {
-        private val text = original.text.now
+    private class Snap : Snapshot<TokenEditor<*, *>>() {
+        private lateinit var text: String
 
-        override fun reconstruct(editor: TokenEditor<*, *>) {
-            editor.setText(text)
+        override fun doRecord(original: TokenEditor<*, *>) {
+            text = original.text.now
+        }
+
+        override fun reconstruct(original: TokenEditor<*, *>) {
+            original.setText(text)
+        }
+
+        override fun JsonObjectBuilder.encode() {
+            put("text", JsonPrimitive(text))
+        }
+
+        override fun decode(element: JsonObject) {
+            text = element.getValue("text").string
         }
     }
 }

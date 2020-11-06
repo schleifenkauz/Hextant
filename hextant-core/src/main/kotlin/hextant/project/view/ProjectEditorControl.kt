@@ -13,6 +13,7 @@ import hextant.core.editor.snapshot
 import hextant.core.view.EditorControl
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
+import hextant.serial.reconstructEditor
 import javafx.scene.control.*
 import javafx.scene.control.SelectionMode.MULTIPLE
 import kollektion.DoubleWeakHashMap
@@ -84,14 +85,15 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             }
             on("Ctrl+Shift+C") {
                 val item = selectedEditor() ?: return@on
-                context[Clipboard].copy(OneEditor(item.snapshot()))
+                context[Clipboard].copy(OneEditor(item.snapshot(recordClass = true)))
             }
             on("Ctrl+Shift+V") {
                 val selected = selectedEditor() ?: return@on
                 val content = context[Clipboard].get()
                 if (content is OneEditor) {
-                    val copy =
-                        context.executeSafely("pasting", null) { content.snapshot.reconstruct(context) } ?: return@on
+                    val copy = context.executeSafely("pasting", null) {
+                        content.snapshot.reconstructEditor(context)
+                    } ?: return@on
                     addNewItem(selected, copy as ProjectItemEditor<*, *>)
                 }
             }

@@ -1,24 +1,33 @@
 package hextant.serial
 
-import bundles.Bundle
-import bundles.Property
-import kserial.*
+import bundles.*
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 
-internal object BundleSerializer : InplaceSerializer<Bundle> {
-    override fun serialize(obj: Bundle, output: Output) {
-        output.writeInt(obj.entries.count())
-        for ((prop, value) in obj.entries) {
-            output.writeObject(prop)
-            output.writeObject(value)
+@Suppress("UNCHECKED_CAST")
+@OptIn(ExperimentalSerializationApi::class, InternalSerializationApi::class)
+internal object BundleSerializer : KSerializer<Bundle> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Bundle") {
+        element<BundleEntry>("entries")
+    }
+
+    override fun serialize(encoder: Encoder, value: Bundle) {
+        val entries = value.entries.map { (prop, value) -> BundleEntry(prop, value) }.toList()
+        encoder.encodeStructure(descriptor) {
+            encodeSerializableElement(descriptor, 0, serializer(), entries)
         }
     }
 
-    override fun deserialize(obj: Bundle, input: Input) {
-        val size = input.readInt()
-        repeat(size) {
-            val prop = input.readTyped<Property<Any?, Any, Any>>()
-            val value = input.readObject()
-            obj[prop] = value
+    @Suppress("UNCHECKED_CAST")
+    override fun deserialize(decoder: Decoder): Bundle = decoder.decodeStructure(descriptor) {
+        check(decodeElementIndex(descriptor) == 0)
+        val entries: List<BundleEntry> = decodeSerializableElement(descriptor, 0, serializer())
+        return createBundle {
+            for ((prop, value) in entries) {
+                set(prop as Property<Any?, Any, Any>, value)
+            }
         }
     }
+
 }

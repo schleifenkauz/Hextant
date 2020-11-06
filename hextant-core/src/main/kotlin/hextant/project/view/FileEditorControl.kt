@@ -11,13 +11,13 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.fx.*
-import hextant.impl.observe
 import hextant.project.editor.FileEditor
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import org.controlsfx.glyphfont.FontAwesome.Glyph
 import org.controlsfx.glyphfont.FontAwesome.Glyph.FILE
 import reaktive.Observer
+import reaktive.observe
 import reaktive.value.binding.orElse
 import reaktive.value.now
 

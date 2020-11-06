@@ -5,17 +5,18 @@
 package hextant.core.editor
 
 import hextant.codegen.ProvideFeature
-import hextant.codegen.ProvideImplementation
 import hextant.context.Context
-import hextant.context.EditorFactory
 import javafx.scene.paint.Color
 import validated.*
 
+/**
+ * Editor for colors based on the [Color.web] function.
+ */
 @ProvideFeature
-internal class ColorEditor @ProvideImplementation(EditorFactory::class) constructor(context: Context) :
-    CompletionTokenEditor<Color>(context) {
-    override fun compile(token: String): Validated<Color> = try {
-        valid(Color.web(token))
+class ColorEditor(context: Context) : CompletionTokenEditor<String>(context) {
+    override fun compile(token: String): Validated<String> = try {
+        Color.web(token)
+        valid(token)
     } catch (ex: IllegalArgumentException) {
         invalid("Unrecognizable color string")
     }

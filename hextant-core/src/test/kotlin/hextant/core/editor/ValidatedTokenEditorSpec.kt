@@ -6,22 +6,16 @@ package hextant.core.editor
 
 import hextant.context.Context
 import hextant.core.view.ValidatedTokenEditorView
-import hextant.serial.SerialProperties.deserializationContext
-import hextant.serial.SerialProperties.serialContext
 import hextant.serial.makeRoot
 import hextant.test.*
 import io.mockk.mockk
 import io.mockk.verify
-import kserial.KSerial
-import kserial.readTyped
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.event.EventStream
 import reaktive.value.now
 import validated.*
 import validated.Validated.Valid
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 
 object ValidatedTokenEditorSpec : Spek({
     given("a FilteredTokenEditor") {
@@ -146,33 +140,6 @@ object ValidatedTokenEditorSpec : Spek({
                 }
                 it("should notify the view") {
                     verify { v.setEditable(false) }
-                }
-            }
-        }
-        describe("serialization") {
-            val ser = KSerial.newInstance()
-            val context = testingContext()
-            val baos = ByteArrayOutputStream()
-            val out = ser.createOutput(baos, context[serialContext])
-            val e = Test(context, "123")
-            e.makeRoot()
-            e.beginChange()
-            out.writeObject(e)
-            val input = ser.createInput(ByteArrayInputStream(baos.toByteArray()), context[serialContext])
-            input.bundle[deserializationContext] = context
-            val new = input.readTyped<Test>()
-            on("serializing and deserializing") {
-                test("the deserialized editor should not be editable") {
-                    new.editable.now shouldBe `false`
-                }
-                test("the text should be reconstructed") {
-                    new.text.now shouldEqual "123"
-                }
-                test("the intermediate result should be recompiled") {
-                    new.intermediateResult.now shouldEqual valid(123)
-                }
-                test("the result should be initialized") {
-                    new.result.now shouldEqual valid(123)
                 }
             }
         }

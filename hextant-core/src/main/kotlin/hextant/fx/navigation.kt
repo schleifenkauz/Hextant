@@ -2,7 +2,6 @@ package hextant.fx
 
 import hextant.core.view.EditorControl
 import hextant.core.view.ExpanderControl
-import hextant.impl.iterate
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.input.KeyCode.SHIFT
@@ -104,4 +103,14 @@ internal fun Scene.registerNavigationShortcuts() {
             if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.previous()?.select()
         }
     }
+}
+
+private fun <T : Any> iterate(start: T?, next: (T) -> T?): T? {
+    var current = start ?: return null
+    var nxt = next(current)
+    while (nxt != null) {
+        current = nxt
+        nxt = next(current)
+    }
+    return current
 }

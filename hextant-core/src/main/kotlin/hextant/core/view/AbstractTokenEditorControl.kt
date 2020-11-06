@@ -9,13 +9,12 @@ import bundles.SimpleProperty
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
-import hextant.core.InputMethod
 import hextant.core.editor.TokenEditor
 import hextant.fx.*
-import hextant.impl.observe
 import javafx.scene.input.KeyCode.SPACE
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
+import reaktive.observe
 
 /**
  * An [EditorControl] for [TokenEditor]'s.

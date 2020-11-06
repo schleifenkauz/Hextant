@@ -7,13 +7,13 @@ package hextant.core.editor
 import hextant.completion.Completion
 import hextant.context.Context
 import hextant.context.executeSafely
+import hextant.core.Editor
 import hextant.core.view.ValidatedTokenEditorView
-import hextant.serial.VirtualEditor
-import hextant.serial.virtualize
+import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
 import kotlinx.coroutines.sync.Mutex
-import kserial.Serializable
+import kotlinx.serialization.json.*
 import reaktive.event.event
 import reaktive.event.unitEvent
 import reaktive.value.*
@@ -28,7 +28,7 @@ import validated.reaktive.ReactiveValidated
  * @param [initialText] the initial text, which has to be a valid token. Otherwise an [IllegalArgumentException] is thrown.
  */
 abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
-    AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R>, Serializable {
+    AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R> {
     private val mutex = Mutex()
 
     constructor(context: Context) : this(context, "")
@@ -185,8 +185,8 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         _intermediateResult.set(tryCompile(text.now))
     }
 
-    override fun paste(snapshot: EditorSnapshot<*>): Boolean {
-        if (snapshot !is Snapshot) return false
+    override fun paste(snapshot: Snapshot<out Editor<*>>): Boolean {
+        if (snapshot !is Snap) return false
         val t = snapshot.text
         if (editable.now) setText(t)
         else {
@@ -201,16 +201,28 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         view.displayText(_text.now)
     }
 
-    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+    override fun createSnapshot(): Snapshot<*> = Snap()
 
-    private class Snapshot(original: ValidatedTokenEditor<*>) : EditorSnapshot<ValidatedTokenEditor<*>>(original) {
-        val text = original.text.now
+    private class Snap : Snapshot<ValidatedTokenEditor<*>>() {
+        lateinit var text: String
 
-        override fun reconstruct(editor: ValidatedTokenEditor<*>) {
-            editor._text.now = text
-            editor._intermediateResult.now = editor.tryCompile(editor.text.now)
-            editor._result.now = editor.intermediateResult.now
-            editor._editable.now = false
+        override fun doRecord(original: ValidatedTokenEditor<*>) {
+            text = original.text.now
+        }
+
+        override fun reconstruct(original: ValidatedTokenEditor<*>) {
+            original._text.now = text
+            original._intermediateResult.now = original.tryCompile(original.text.now)
+            original._result.now = original.intermediateResult.now
+            original._editable.now = false
+        }
+
+        override fun JsonObjectBuilder.encode() {
+            put("text", text)
+        }
+
+        override fun decode(element: JsonObject) {
+            text = element.getValue("text").string
         }
     }
 

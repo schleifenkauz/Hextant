@@ -28,6 +28,10 @@ internal fun Stage.setSize(s: WindowSize) {
     when (s) {
         Maximized -> isMaximized = true
         FullScreen -> isFullScreen = true
+        Default -> {
+            width = scene.width
+            height = scene.height
+        }
         FitContent -> {
         }
         is Configured -> {

@@ -1,15 +1,14 @@
-
 import bundles.SimpleReactiveProperty
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.executingCompoundEdit
 import hextant.context.EditorControlGroup
+import hextant.core.editor.ColorEditor
 import hextant.core.view.TokenEditorControl
 import hextant.expr.IntLiteral
 import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.expr.view.Style
-import hextant.fx.WindowSize
 import hextant.fx.runFXWithTimeout
 import hextant.plugin.*
 import hextant.undo.compoundEdit
@@ -135,8 +134,7 @@ object ExprPlugin : PluginInitializer({
         }
         executing { v, (c) -> v.arguments[ColorProperty] = c as String? }
     }
-    configurableProperty(Style.borderColor)
-    set(WindowSize, WindowSize.FitContent)
+    configurableProperty(Style.BorderColor) { ctx -> ColorEditor(ctx) }
     stylesheet("expr.css")
 }) {
     object ColorProperty : SimpleReactiveProperty<String?>("color")

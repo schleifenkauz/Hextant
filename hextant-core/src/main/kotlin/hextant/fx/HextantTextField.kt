@@ -4,9 +4,8 @@
 
 package hextant.fx
 
-import hextant.core.InputMethod
-import hextant.core.InputMethod.REGULAR
-import hextant.core.InputMethod.VIM
+import hextant.fx.InputMethod.REGULAR
+import hextant.fx.InputMethod.VIM
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
 import javafx.scene.control.skin.TextFieldSkin

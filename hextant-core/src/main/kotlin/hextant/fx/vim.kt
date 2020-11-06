@@ -4,7 +4,6 @@
 
 package hextant.fx
 
-import hextant.core.InputMethod
 import javafx.scene.Node
 import javafx.scene.Parent
 

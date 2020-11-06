@@ -7,10 +7,12 @@ package hextant.project.editor
 import hextant.context.Context
 import hextant.context.Internal
 import hextant.core.Editor
-import hextant.core.editor.*
+import hextant.core.editor.CompoundEditor
+import hextant.core.editor.snapshot
 import hextant.project.File
 import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
+import kotlinx.serialization.json.*
 import reaktive.Observer
 import reaktive.event.event
 import reaktive.value.reactiveVariable
@@ -18,12 +20,11 @@ import validated.Validated
 import validated.invalidComponent
 import validated.reaktive.ReactiveValidated
 import validated.reaktive.composeReactive
-import java.nio.file.Path
 
 internal class FileEditor<R> private constructor(context: Context) : CompoundEditor<File<R>>(context),
                                                                      ProjectItemEditor<R, File<R>> {
     private lateinit var id: String
-    private lateinit var path: Path
+    private lateinit var path: java.io.File
     private lateinit var content: VirtualFile<Editor<R>>
 
     override val itemName by child(FileNameEditor(context))
@@ -51,20 +52,32 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
         }
     }
 
-    private class Snapshot<R>(original: FileEditor<R>) : EditorSnapshot<FileEditor<R>>(original) {
-        private val id = original.id
-        private val itemName = original.itemName.snapshot()
+    private class Snap<R> : Snapshot<FileEditor<R>>() {
+        private lateinit var id: String
+        private lateinit var itemName: Snapshot<FileNameEditor>
 
-        init {
+        override fun doRecord(original: FileEditor<R>) {
             original.content.write()
+            id = original.id
+            itemName = original.itemName.snapshot()
         }
 
-        override fun reconstruct(editor: FileEditor<R>) {
-            itemName.reconstruct(editor.itemName)
-            editor.id = id
-            editor.path = editor.context[projectRoot].resolve(id)
-            editor.content = editor.context[FileManager].from(editor.path, editor.context)
-            editor.bindResult()
+        override fun reconstruct(original: FileEditor<R>) {
+            itemName.reconstruct(original.itemName)
+            original.id = id
+            original.path = original.context[projectRoot].resolve(id)
+            original.content = original.context[FileManager].from(original.path, original.context)
+            original.bindResult()
+        }
+
+        override fun JsonObjectBuilder.encode() {
+            put("id", id)
+            put("itemName", itemName.encode())
+        }
+
+        override fun decode(element: JsonObject) {
+            id = element.getValue("id").string
+            itemName = decode<FileNameEditor>(element.getValue("itemName"))
         }
     }
 
@@ -74,7 +87,7 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
         e.setFile(content)
     }
 
-    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+    override fun createSnapshot(): Snapshot<*> = Snap<R>()
 
     override fun supportsCopyPaste(): Boolean = true
 

@@ -22,6 +22,11 @@ sealed class WindowSize {
     object FitContent : WindowSize()
 
     /**
+     * Indicates that the windows size should not be modified.
+     */
+    object Default : WindowSize()
+
+    /**
      * Indicates that the windows size should be set to the given [width] and [height].
      * @property width the width of the window
      * @property height the height of the window
@@ -29,6 +34,6 @@ sealed class WindowSize {
     data class Configured(val width: Double, val height: Double) : WindowSize()
 
     companion object : SimpleProperty<WindowSize>("window size") {
-        override val default: WindowSize = FitContent
+        override val default: WindowSize = Default
     }
 }

@@ -14,16 +14,15 @@ import hextant.core.EditorView
 import hextant.core.editor.copyToClipboard
 import hextant.core.editor.pasteFromClipboard
 import hextant.fx.*
-import hextant.impl.addListener
-import hextant.impl.observe
 import hextant.inspect.Inspections
+import hextant.serial.BundleEntry
+import hextant.serial.Snapshot
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
-import reaktive.Observer
+import kotlinx.serialization.json.*
+import reaktive.*
 import reaktive.value.*
-import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.jvm.jvmName
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -368,36 +367,38 @@ abstract class EditorControl<R : Node>(
         }
     }
 
-    override fun createSnapshot(): ViewSnapshot<*> = Snapshot(this)
+    override fun createSnapshot(): Snapshot<*> = Snap()
 
-    private class Snapshot<C : EditorControl<*>>(original: C) : ViewSnapshot<C> {
-        private val className = original::class.jvmName
-        private val changedArguments = original.changedArguments
-        private val children = original.editorChildren().map { it.snapshot() }
+    private class Snap : Snapshot<EditorControl<*>>() {
+        private lateinit var changedArguments: Map<Property<*, *, *>, Any?>
+        private lateinit var children: List<Snapshot<EditorControl<*>>>
 
-        override fun reconstruct(target: Any, arguments: Bundle): C {
-            val cls = Class.forName(className).kotlin
-            val constructor = cls.primaryConstructor ?: error("$cls has no primary constructor")
-            val targetParameter = constructor.parameters[0]
-            val argumentsParameter = constructor.parameters[1]
-            val instance = constructor.callBy(mapOf(targetParameter to target, argumentsParameter to arguments))
-            @Suppress("UNCHECKED_CAST")
-            reconstruct(instance as C)
-            return instance
+        override fun doRecord(original: EditorControl<*>) {
+            changedArguments = original.changedArguments
+            children = original.editorChildren().map { it.snapshot() }
         }
 
-        override fun reconstruct(view: C) {
-            check(view::class.jvmName == className) {
-                "instance of ${view::class} passed is not valid for snapshot of class $className"
-            }
+        override fun reconstruct(original: EditorControl<*>) {
             for ((p, v) in changedArguments) {
                 @Suppress("UNCHECKED_CAST")
                 p as Property<Any?, Any, Any>
-                view.arguments[p] = v
+                original.arguments[p] = v
             }
-            for ((child, snapshot) in view.editorChildren().zip(children)) {
+            for ((child, snapshot) in original.editorChildren().zip(children)) {
                 snapshot.reconstruct(child)
             }
+        }
+
+        override fun JsonObjectBuilder.encode() {
+            val entries = changedArguments.entries.map { (p, v) -> BundleEntry(p, v) }
+            put("arguments", Json.encodeToJsonElement(entries))
+            put("children", JsonArray(children.map { it.encode() }))
+        }
+
+        override fun decode(element: JsonObject) {
+            val entries: List<BundleEntry> = Json.decodeFromJsonElement(element.getValue("arguments"))
+            changedArguments = entries.associate { it.property to it.value }
+            children = element.getValue("children").jsonArray.map { decode<EditorControl<*>>(it) }
         }
     }
 }

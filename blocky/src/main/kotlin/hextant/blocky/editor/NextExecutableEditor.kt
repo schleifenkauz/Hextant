@@ -8,7 +8,11 @@ import hextant.blocky.End
 import hextant.blocky.Executable
 import hextant.context.Context
 import hextant.core.EditorView
-import hextant.core.editor.*
+import hextant.core.editor.AbstractEditor
+import hextant.core.editor.snapshot
+import hextant.serial.Snapshot
+import hextant.serial.reconstructEditor
+import kotlinx.serialization.json.*
 import reaktive.value.*
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
@@ -31,12 +35,27 @@ class NextExecutableEditor(context: Context) :
         next.set(null)
     }
 
-    private class Snapshot(original: NextExecutableEditor) : EditorSnapshot<NextExecutableEditor>(original) {
-        private val nxt = original.next.now?.snapshot()
+    override fun createSnapshot(): Snapshot<*> = Snap()
 
-        override fun reconstruct(editor: NextExecutableEditor) {
-            val e = nxt?.reconstruct(editor.context)
-            if (e is ExecutableEditor<*>) editor.setNext(e)
+    private class Snap : Snapshot<NextExecutableEditor>() {
+        private var nxt: Snapshot<ExecutableEditor<*>>? = null
+
+        override fun doRecord(original: NextExecutableEditor) {
+            nxt = original.next.now?.snapshot(recordClass = true)
+        }
+
+        override fun reconstruct(original: NextExecutableEditor) {
+            val e = nxt?.reconstructEditor(original.context)
+            if (e is ExecutableEditor<*>) original.setNext(e)
+        }
+
+        override fun JsonObjectBuilder.encode() {
+            put("next", nxt?.encode() ?: JsonNull)
+        }
+
+        override fun decode(element: JsonObject) {
+            val next = element.getValue("next")
+            nxt = if (next == JsonNull) null else decode<ExecutableEditor<*>>(next)
         }
     }
 }

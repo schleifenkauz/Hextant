@@ -6,15 +6,20 @@
 
 package hextant.plugin
 
+import bundles.Bundle
 import bundles.Property
 import hextant.command.*
 import hextant.context.*
 import hextant.fx.Stylesheets
 import hextant.inspect.*
 import hextant.plugin.PluginBuilder.Phase.*
+import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
 import hextant.settings.*
-import java.nio.file.Files
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.serializer
+import kotlin.reflect.*
 
 /**
  * Registers the given [command].
@@ -71,6 +76,42 @@ fun <T> PluginBuilder.set(property: Property<T, Any, Any>, value: T) {
     set(Any(), property, value)
 }
 
+@Suppress("UNCHECKED_CAST")
+private val json = Json {
+    serializersModule = SerializersModule {
+        polymorphic(Bundle::class, Class.forName("bundles.BundleImpl").kotlin as KClass<Bundle>, BundleSerializer)
+    }
+}
+
+@PublishedApi internal fun <T, Read : Any, Write : Read> PluginBuilder.persistentProperty(
+    permission: Write,
+    property: Property<T, Read, Write>,
+    type: KType
+) {
+    val deserializer = json.serializersModule.serializer(type)
+    on(Initialize) { ctx ->
+        if (!testing) {
+            val path = getPath(ctx, property)
+            ctx[permission, property] = if (path.exists()) {
+                path.readJson(deserializer, json) as T
+            } else property.default
+        } else ctx[permission, property] = property.default
+    }
+    on(Close) { ctx ->
+        if (!testing) {
+            val value = ctx[permission, property]
+            val path = getPath(ctx, property)
+            path.writeJson(deserializer, value, json)
+        }
+    }
+    on(Disable) { ctx ->
+        ctx.delete(permission, property)
+        if (!testing) {
+            getPath(ctx, property).delete()
+        }
+    }
+}
+
 /**
  * Registers a *persistent property*.
  *
@@ -78,36 +119,15 @@ fun <T> PluginBuilder.set(property: Property<T, Any, Any>, value: T) {
  * - The value of this property is stored in the project directory and is retrieved when the project is opened.
  * - When the plugin is disabled the value of the property and the corresponding file is deleted.
  */
-fun <T, Read : Any, Write : Read> PluginBuilder.persistentProperty(
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified T, Read : Any, Write : Read> PluginBuilder.persistentProperty(
     permission: Write,
     property: Property<T, Read, Write>
 ) {
-    on(Initialize) { ctx ->
-        if (!testing) {
-            val path = getPath(ctx, property)
-            ctx[permission, property] = if (Files.exists(path)) {
-                val input = context.createInput(path)
-                val value = input.readObject()
-                value as T
-            } else property.default
-        } else ctx[permission, property] = property.default
-    }
-    on(Close) { ctx ->
-        if (!testing) {
-            val output = ctx.createOutput(getPath(ctx, property))
-            val value = ctx[permission, property]
-            output.writeObject(value)
-        }
-    }
-    on(Disable) { ctx ->
-        ctx.delete(permission, property)
-        if (!testing) {
-            Files.deleteIfExists(getPath(ctx, property))
-        }
-    }
+    persistentProperty(permission, property, typeOf<T>())
 }
 
-private fun getPath(ctx: Context, property: Property<*, *, *>) = ctx[projectRoot].resolve("${property.name}.bin")
+private fun getPath(ctx: Context, property: Property<*, *, *>) = ctx[projectRoot].resolve("${property.name}.json")
 
 
 /**

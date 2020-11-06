@@ -4,22 +4,20 @@
 
 package hextant.serial
 
-import hextant.context.*
+import hextant.context.Context
 import hextant.core.Editor
-import hextant.serial.SerialProperties.deserializationContext
 import hextant.serial.SerialProperties.projectRoot
 import reaktive.event.EventStream
 import reaktive.event.event
+import java.io.File
 import java.lang.ref.WeakReference
-import java.nio.file.Files
-import java.nio.file.Path
 
 /**
  * An implementation of a [VirtualFile] that is associated with a concrete physical file.
  */
 class PhysicalFile<E : Editor<*>>(
     obj: E?,
-    private val path: Path,
+    private val path: File,
     private val context: Context
 ) : VirtualFile<E> {
     private var ref = WeakReference(obj)
@@ -38,9 +36,7 @@ class PhysicalFile<E : Editor<*>>(
         checkNotNull(obj) { "Already collected" }
         _write.fire(obj)
         safeIO {
-            val output = context.createOutput(getRealPath())
-            output.writeObject(obj)
-            output.close()
+            obj.saveAsJson(getRealPath())
         }
     }
 
@@ -51,13 +47,10 @@ class PhysicalFile<E : Editor<*>>(
 
     @Suppress("UNCHECKED_CAST")
     private fun read(): E {
-        val input = context.createInput(getRealPath())
-        input.bundle[deserializationContext] = context
-        val obj = input.readObject() as E
-        input.close()
-        _read.fire(obj)
-        ref = WeakReference(obj)
-        return obj
+        val editor = readEditorFromJson(path, context) as E
+        _read.fire(editor)
+        ref = WeakReference(editor)
+        return editor
     }
 
     override fun inMemory(): Boolean = ref.get() != null
@@ -66,7 +59,7 @@ class PhysicalFile<E : Editor<*>>(
         checkNotDeleted()
         val absolute = context[projectRoot].resolve(path)
         safeIO {
-            Files.delete(absolute)
+            absolute.delete()
         }
         deleted = true
     }

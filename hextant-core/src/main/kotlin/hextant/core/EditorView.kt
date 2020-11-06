@@ -5,7 +5,7 @@
 package hextant.core
 
 import bundles.Bundle
-import hextant.core.view.ViewSnapshot
+import hextant.serial.Snapshot
 
 /**
  * A graphical view of an [Editor]
@@ -35,7 +35,6 @@ interface EditorView {
      * Create a snapshot of the current state of this [EditorView].
      *
      * The snapshot should only include layout and style information.
-     * Information about the current state of editing is stored in [hextant.core.editor.EditorSnapshot]s.
      */
-    fun createSnapshot(): ViewSnapshot<*>
+    fun createSnapshot(): Snapshot<*>
 }

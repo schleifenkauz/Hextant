@@ -4,8 +4,14 @@
 
 package hextant.serial
 
+import hextant.context.Context
+import hextant.context.withoutUndo
 import hextant.core.Editor
+import hextant.core.editor.snapshot
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
 import reaktive.value.now
+import java.io.File
 
 /**
  * Return the first editor in the sequence of parents which is a root editor.
@@ -54,3 +60,57 @@ fun Editor<*>.makeRoot() {
     @Suppress("DEPRECATION")
     setFile(InMemoryFile(this))
 }
+
+/**
+ * Makes a [Snapshot] of this [Editor], encodes it as JSON, and then writes it to the given [file],
+ * such that it can be read again by [readEditorFromJson].
+ */
+fun Editor<*>.saveAsJson(file: File) {
+    val snapshot = snapshot(recordClass = true)
+    val json = snapshot.encode()
+    val txt = json.toString()
+    file.writeText(txt)
+}
+
+/**
+ * Reconstructs an [Editor] from the given [file] that has been saved using [saveAsJson].
+ * @param context the context with which the reconstructed editor is created
+ */
+fun readEditorFromJson(file: File, context: Context): Editor<*> {
+    val txt = file.readText()
+    val json = Json.parseToJsonElement(txt)
+    val snapshot = Snapshot.decode<Editor<*>>(json)
+    return context.withoutUndo { snapshot.reconstructEditor(context) }
+}
+
+/**
+ * Reconstruct an [Editor] from the given [Snapshot] using the given [context].
+ */
+fun <E : Editor<*>> Snapshot<E>.reconstructEditor(context: Context) =
+    reconstruct(context) { cls -> cls.getConstructor(Context::class.java) }
+
+/**
+ * Encodes the given [value] as a JSON element and writes the string representation to this [File].
+ */
+fun <T> File.writeJson(serializer: SerializationStrategy<T>, value: T, json: Json = Json) {
+    val txt = json.encodeToString(serializer, value)
+    writeText(txt)
+}
+
+/**
+ * Syntactic sugar for `[writeJson] (serializer<T>(), value)`
+ */
+inline fun <reified T> File.writeJson(value: T, json: Json = Json) {
+    writeJson(serializer(), value, json)
+}
+
+/**
+ * Reads the text from this [File], parses it as a JSON element and then reconstructs an object of type [T] from it.
+ */
+fun <T> File.readJson(deserializer: DeserializationStrategy<T>, json: Json = Json): T =
+    json.decodeFromString(deserializer, readText())
+
+/**
+ * Syntactic sugar for `[readJson] (serializer<T>())`
+ */
+inline fun <reified T> File.readJson(json: Json = Json): T = readJson(serializer(), json)

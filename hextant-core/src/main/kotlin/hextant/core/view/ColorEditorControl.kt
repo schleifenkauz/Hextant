@@ -8,7 +8,6 @@ import bundles.Bundle
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.editor.ColorEditor
-import javafx.scene.paint.Color
 import reaktive.value.binding.map
 import reaktive.value.fx.asObservableValue
 import validated.orNull
@@ -23,5 +22,5 @@ internal class ColorEditorControl @ProvideImplementation(ControlFactory::class) 
         root.styleProperty().bind(style.asObservableValue())
     }
 
-    private fun Color.toCSSColor() = toString().replace("0x", "#")
+    private fun String.toCSSColor() = replace("0x", "#")
 }

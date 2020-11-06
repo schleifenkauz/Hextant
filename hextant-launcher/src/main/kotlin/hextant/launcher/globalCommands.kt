@@ -17,7 +17,6 @@ import hextant.launcher.view.PluginsEditorView
 import hextant.plugins.PluginInfo
 import hextant.plugins.PluginInfo.Type.Global
 import hextant.plugins.PluginInfo.Type.Local
-import java.nio.file.Files
 
 internal fun Commands.registerGlobalCommands(context: Context) {
     registerCommand<Context, Unit> {
@@ -42,7 +41,7 @@ internal fun Commands.registerGlobalCommands(context: Context) {
             closeProject(ctx)
             ctx[Project].save()
             val lock = ctx[Project].location.resolve(LOCK)
-            Files.deleteIfExists(lock)
+            lock.delete()
             val loader = context.get<Runnable>(launcher)
             loader.run()
         }

@@ -8,6 +8,9 @@ import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.EditorView
 import hextant.serial.*
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
+import reaktive.value.now
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.memberProperties
@@ -60,7 +63,40 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
         return res
     }
 
-    override fun createSnapshot(): EditorSnapshot<*> = CompoundEditorSnapshot(this)
+    override fun createSnapshot(): Snapshot<*> = Snap()
+
+    private class Snap : Snapshot<CompoundEditor<*>>() {
+        private lateinit var snapshots: List<Pair<String, Snapshot<Editor<*>>>>
+
+        private fun getComponentName(comp: Editor<*>): String {
+            val acc = comp.accessor.now ?: error("Editor $comp has no accessor")
+            check(acc is PropertyAccessor) { "Children of compound editors must have property accessors, but $comp is accessed by $acc" }
+            return acc.propertyName
+        }
+
+        override fun doRecord(original: CompoundEditor<*>) {
+            snapshots = original.children.now.map { e -> getComponentName(e) to e.snapshot() }
+        }
+
+        override fun reconstruct(original: CompoundEditor<*>) {
+            for ((comp, p) in original.children.now.zip(snapshots)) {
+                val (_, snap) = p
+                snap.reconstruct(comp)
+            }
+        }
+
+        override fun JsonObjectBuilder.encode() {
+            for ((name, snap) in snapshots) {
+                put(name, snap.encode())
+            }
+        }
+
+        override fun decode(element: JsonObject) {
+            snapshots = element.entries
+                .filter { (prop) -> !prop.startsWith('_') }
+                .map { (prop, value) -> prop to decode<Editor<*>>(value) }
+        }
+    }
 
     override fun supportsCopyPaste(): Boolean = children.now.all { e -> e.supportsCopyPaste() }
 

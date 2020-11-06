@@ -15,13 +15,13 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.fx.*
-import hextant.impl.observe
 import javafx.application.Platform
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS
 import javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER
 import javafx.scene.layout.*
 import reaktive.Observer
+import reaktive.observe
 
 /**
  * A JavaFX implementation of the [CommandLineView]

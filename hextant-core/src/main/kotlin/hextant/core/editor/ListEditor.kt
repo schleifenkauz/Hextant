@@ -15,7 +15,7 @@ import hextant.core.view.ListEditorView
 import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kserial.Serializable
+import kotlinx.serialization.json.*
 import reaktive.dependencies
 import reaktive.list.*
 import reaktive.list.binding.values
@@ -32,7 +32,7 @@ import validated.reaktive.ReactiveValidated
 abstract class ListEditor<R, E : Editor<R>>(
     context: Context,
     private val _editors: MutableReactiveList<E>
-) : AbstractEditor<List<R>, ListEditorView>(context), Serializable {
+) : AbstractEditor<List<R>, ListEditorView>(context) {
     constructor(context: Context) : this(context, reactiveList())
 
     private var mayBeEmpty = true
@@ -119,7 +119,8 @@ abstract class ListEditor<R, E : Editor<R>>(
     fun clear(undoable: Boolean = true) {
         if (!mayBeEmpty) return
         if (undoable) {
-            val edit = ClearEdit(virtualize(), editors.now.map { it.snapshot() })
+            val snapshots = editors.now.map { it.snapshot(recordClass = true) }
+            val edit = ClearEdit(virtualize(), snapshots)
             undo.push(edit)
         }
         doClear()
@@ -135,15 +136,15 @@ abstract class ListEditor<R, E : Editor<R>>(
      * Insert all the given [editors] at the specified [idx] into this [ListEditor].
      */
     @Suppress("UNCHECKED_CAST")
-    fun pasteMany(idx: Int, editors: List<EditorSnapshot<*>>, undoable: Boolean = true) {
-        editors as List<EditorSnapshot<E>>
+    fun pasteMany(idx: Int, editors: List<Snapshot<*>>, undoable: Boolean = true) {
+        editors as List<Snapshot<E>>
         if (undoable) {
             val edit = PasteManyEdit(virtualize(), idx, editors)
             undo.push(edit)
         }
         if (editors.any { !editorClass.isInstance(it) }) return
         for ((i, e) in editors.withIndex()) {
-            doAddAt(idx + i, e.reconstruct(childContext()))
+            doAddAt(idx + i, e.reconstructEditor(childContext()))
         }
     }
 
@@ -162,7 +163,7 @@ abstract class ListEditor<R, E : Editor<R>>(
         return editors.now[accessor.index]
     }
 
-    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+    override fun createSnapshot(): Snapshot<*> = Snap<E>()
 
     override fun supportsCopyPaste(): Boolean = editors.now.all { e -> e.supportsCopyPaste() }
 
@@ -172,7 +173,7 @@ abstract class ListEditor<R, E : Editor<R>>(
     fun addAt(index: Int): E? {
         val editor = tryCreateEditor() ?: return null
         if (undo.isActive) {
-            val edit = AddEdit(virtualize(), index, editor.snapshot())
+            val edit = AddEdit(virtualize(), index, editor.snapshot(recordClass = true))
             undo.push(edit)
         }
         doAddAt(index, editor)
@@ -190,7 +191,7 @@ abstract class ListEditor<R, E : Editor<R>>(
      */
     fun addAt(index: Int, editor: E): E {
         if (undo.isActive) {
-            val edit = AddEdit(virtualize(), index, editor.snapshot())
+            val edit = AddEdit(virtualize(), index, editor.snapshot(recordClass = true))
             undo.push(edit)
         }
         val e = editor.moveTo(childContext())
@@ -225,7 +226,7 @@ abstract class ListEditor<R, E : Editor<R>>(
         if (emptyNow()) views { empty() }
         context.executeSafely("removing editor", Unit) { editorRemoved(old, index) }
         if (undo.isActive) {
-            val edit = RemoveEdit(virtualize(), index, old.snapshot())
+            val edit = RemoveEdit(virtualize(), index, old.snapshot(recordClass = true))
             undo.push(edit)
         }
     }
@@ -300,11 +301,11 @@ abstract class ListEditor<R, E : Editor<R>>(
     private class AddEdit<E : Editor<*>>(
         private val editor: VirtualEditor<ListEditor<*, E>>,
         private val index: Int,
-        private val added: EditorSnapshot<E>
+        private val added: Snapshot<E>
     ) : AbstractEdit() {
         override fun doRedo() {
             val e = editor.get()
-            e.addAt(index, added.reconstruct(e.context))
+            e.addAt(index, added.reconstructEditor(e.context))
         }
 
         override fun doUndo() {
@@ -318,7 +319,7 @@ abstract class ListEditor<R, E : Editor<R>>(
     private class RemoveEdit<E : Editor<*>>(
         private val editor: VirtualEditor<ListEditor<*, E>>,
         private val index: Int,
-        private val removed: EditorSnapshot<E>
+        private val removed: Snapshot<E>
     ) : AbstractEdit() {
         override fun doRedo() {
             editor.get().removeAt(index)
@@ -326,7 +327,7 @@ abstract class ListEditor<R, E : Editor<R>>(
 
         override fun doUndo() {
             val e = editor.get()
-            e.addAt(index, removed.reconstruct(e.context))
+            e.addAt(index, removed.reconstructEditor(e.context))
         }
 
         override val actionDescription: String
@@ -335,7 +336,7 @@ abstract class ListEditor<R, E : Editor<R>>(
 
     private class ClearEdit<E : Editor<*>>(
         private val editor: VirtualEditor<ListEditor<*, E>>,
-        private val removed: List<EditorSnapshot<E>>
+        private val removed: List<Snapshot<E>>
     ) : AbstractEdit() {
         override fun doRedo() {
             editor.get().clear()
@@ -353,7 +354,7 @@ abstract class ListEditor<R, E : Editor<R>>(
     private class PasteManyEdit<E : Editor<*>>(
         private val editor: VirtualEditor<ListEditor<*, E>>,
         private val index: Int,
-        private val pasted: List<EditorSnapshot<E>>
+        private val pasted: List<Snapshot<E>>
     ) : AbstractEdit() {
         override fun doRedo() {
             val e = editor.get()
@@ -371,26 +372,26 @@ abstract class ListEditor<R, E : Editor<R>>(
             get() = "Paste many"
     }
 
-    private class Snapshot<E : Editor<*>>(original: ListEditor<*, E>) :
-        EditorSnapshot<ListEditor<*, E>>(original) {
-        private val snapshots = original.editors.now.map { it.snapshot() }
+    private class Snap<E : Editor<*>> : Snapshot<ListEditor<*, E>>() {
+        private lateinit var snapshots: List<Snapshot<E>>
 
-        @Suppress("UNCHECKED_CAST")
-        override fun reconstruct(editor: ListEditor<*, E>) {
-            val editors = snapshots.map { it.reconstruct(editor.childContext()) }
-            editor.setEditors(editors)
+        override fun doRecord(original: ListEditor<*, E>) {
+            snapshots = original.editors.now.map { it.snapshot(recordClass = true) }
         }
-    }
 
-    companion object {
-        /**
-         * Create a [ListEditor] which overrides [createEditor] such that it returns an editor for type results of [R]
-         * using the specified [context]
-         */
-        @OptIn(ExperimentalStdlibApi::class)
-        inline fun <reified R : Any> forType(context: Context): ListEditor<R, Editor<R>> =
-            object : ListEditor<R, Editor<R>>(context) {
-                override fun createEditor(): Editor<R> = context.createEditor<R>()
-            }
+        override fun reconstruct(original: ListEditor<*, E>) {
+            val editors = snapshots.map { it.reconstructEditor(original.childContext()) }
+            original.setEditors(editors)
+        }
+
+        override fun JsonObjectBuilder.encode() {
+            val editors = snapshots.map { it.encode() }
+            put("editors", JsonArray(editors))
+        }
+
+        override fun decode(element: JsonObject) {
+            val editors = element.getValue("editors").jsonArray
+            snapshots = editors.map { decode<E>(it) }
+        }
     }
 }

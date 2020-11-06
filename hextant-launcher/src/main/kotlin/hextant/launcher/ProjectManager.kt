@@ -21,7 +21,6 @@ import hextant.plugins.PluginInfo.Type.Local
 import kotlinx.serialization.json.Json
 import validated.ifInvalid
 import java.io.File
-import java.nio.file.Files
 
 internal class ProjectManager(private val globalContext: Context) {
     @ProvideCommand("Create Project", shortName = "create", description = "Create a new project")
@@ -99,7 +98,7 @@ internal class ProjectManager(private val globalContext: Context) {
         val oldLocation = globalContext[GlobalDirectory].getProject(project)
         if (!acquireLock(oldLocation)) return "Cannot rename project: Already opened by another editor"
         val newLocation = oldLocation.resolveSibling(newName)
-        Files.move(oldLocation.toPath(), newLocation.toPath())
+        oldLocation.renameTo(newLocation)
         return "Successfully renamed project"
     }
 

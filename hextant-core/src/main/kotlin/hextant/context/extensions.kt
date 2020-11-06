@@ -6,11 +6,8 @@ import hextant.core.editor.BidirectionalEditor
 import hextant.core.view.EditorControl
 import hextant.generated.createEditor
 import hextant.plugin.Aspects
-import hextant.serial.SerialProperties
 import hextant.undo.UndoManager
 import hextant.undo.withoutUndo
-import kserial.*
-import java.nio.file.Path
 import java.util.logging.Level
 import kotlin.reflect.KClass
 
@@ -69,24 +66,6 @@ inline fun <reified R : Any> Context.createEditor() = createEditor(R::class)
  */
 inline fun Context.extend(block: Context.() -> Unit = {}): Context =
     Context.newInstance(this, block)
-
-/**
- * Create an [Output] to the given [path] with the [SerialProperties.serialContext] and [SerialProperties.serial] of this [Context].
- */
-fun Context.createOutput(path: Path): Output {
-    val ctx = get(SerialProperties.serialContext)
-    val serial = get(SerialProperties.serial)
-    return serial.createOutput(path, ctx)
-}
-
-/**
- * Create an [Input] from the given [path] with the [SerialProperties.serialContext] and [SerialProperties.serial] of this [Context].
- */
-fun Context.createInput(path: Path): Input {
-    val ctx = get(SerialProperties.serialContext)
-    val serial = get(SerialProperties.serial)
-    return serial.createInput(path, ctx)
-}
 
 /**
  * Tries to execute the given action catching an eventual thrown exception and logging it.

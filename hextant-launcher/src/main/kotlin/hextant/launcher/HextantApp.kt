@@ -14,10 +14,10 @@ import hextant.launcher.HextantPlatform.stage
 import hextant.launcher.plugins.PluginManager
 import hextant.plugin.PluginBuilder.Phase
 import hextant.plugin.initializePluginsFromClasspath
+import hextant.serial.writeJson
 import javafx.application.Application
 import javafx.stage.Stage
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 import java.io.File
 import java.io.IOException
 
@@ -32,7 +32,7 @@ internal class HextantApp : Application() {
         val manager = PluginManager(globalContext[marketplace], emptyList())
         globalContext[PluginManager] = manager
         manager.enableAll(globalPlugins)
-        launcherContext.setProjectRoot(launcherContext[GlobalDirectory].root.toPath())
+        launcherContext.setProjectRoot(launcherContext[GlobalDirectory].root)
         initializePluginsFromClasspath(launcherContext, launcherContext[classLoader])
         val args = parameters.raw
         when (args.size) {
@@ -66,7 +66,7 @@ internal class HextantApp : Application() {
     private fun saveGlobalPlugins() {
         val enabled = globalContext[PluginManager].enabledPlugins().map { it.id }
         val file = globalContext[GlobalDirectory][GLOBAL_PLUGINS]
-        file.writeText(Json.encodeToString(serializer(), enabled))
+        file.writeJson(enabled)
     }
 
     private fun tryGetFile(s: String): File = try {

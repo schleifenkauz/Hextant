@@ -8,8 +8,9 @@ import bundles.SimpleProperty
 import hextant.command.Command
 import hextant.context.*
 import hextant.core.Editor
-import hextant.core.editor.*
-import hextant.serial.makeRoot
+import hextant.core.editor.AbstractEditor
+import hextant.core.editor.snapshot
+import hextant.serial.*
 import reaktive.Observer
 import reaktive.dependencies
 import reaktive.event.EventStream
@@ -148,7 +149,8 @@ class CommandLine(context: Context, val source: CommandSource) :
         byShortcut: Boolean,
         result: Any?
     ) {
-        val item = HistoryItem(command, arguments.map { it.result.now.force() to it.snapshot() }, byShortcut, result)
+        val argumentSnapshots = arguments.map { it.result.now.force() to it.snapshot(recordClass = true) }
+        val item = HistoryItem(command, argumentSnapshots, byShortcut, result)
         history.add(item)
         execute.fire(item)
         views {
@@ -166,12 +168,12 @@ class CommandLine(context: Context, val source: CommandSource) :
     /**
      * Expand to the given [command] and instantiate the editors for the given [arguments].
      */
-    fun resume(command: Command<*, *>, arguments: List<EditorSnapshot<out Editor<Any>>>) {
+    fun resume(command: Command<*, *>, arguments: List<Snapshot<out Editor<Any>>>) {
         reset()
         setCommandName(command.shortName!!)
         val editors = arguments.map {
             context.executeSafely("resuming", null) {
-                context.withoutUndo { it.reconstruct(context) }
+                context.withoutUndo { it.reconstructEditor(context) }
             } ?: return
         }
         editors.forEach { it.makeRoot() }
@@ -218,7 +220,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         /**
          * The supplied arguments
          */
-        val arguments: List<Pair<Any?, EditorSnapshot<out Editor<Any>>>>,
+        val arguments: List<Pair<Any?, Snapshot<out Editor<Any>>>>,
         /**
          * Whether the command was executed by using a shortcut
          */

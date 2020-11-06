@@ -5,7 +5,6 @@
 package hextant.core
 
 import hextant.context.Context
-import hextant.core.editor.EditorSnapshot
 import hextant.core.editor.Expander
 import hextant.serial.*
 import reaktive.collection.ReactiveCollection
@@ -94,7 +93,7 @@ interface Editor<out R> {
      * Paste the given [snapshot] into this [Editor] if it is supported.
      * @return `true` only if pasting the given [snapshot] is supported.
      */
-    fun paste(snapshot: EditorSnapshot<*>): Boolean
+    fun paste(snapshot: Snapshot<out Editor<*>>): Boolean
 
     /**
      * Returns `true` only if this [Editor] supports copy/paste in principle.
@@ -110,6 +109,6 @@ interface Editor<out R> {
     /**
      * Creates a snapshot of this [Editor].
      */
-    fun createSnapshot(): EditorSnapshot<*> =
+    fun createSnapshot(): Snapshot<*> =
         throw UnsupportedOperationException("$javaClass does not implement snapshots")
 }

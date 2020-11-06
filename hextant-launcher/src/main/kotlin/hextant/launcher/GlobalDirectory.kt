@@ -25,7 +25,7 @@ internal class GlobalDirectory(val root: File) {
         const val PROJECTS = "projects"
         const val PLUGIN_CACHE = "plugins"
         const val PROJECT_INFO = "project.json"
-        const val PROJECT_ROOT = "root.bin"
+        const val PROJECT_ROOT = "root.json"
         const val GLOBAL_PLUGINS = "global-plugins.json"
         const val LOCK = ".lock"
     }

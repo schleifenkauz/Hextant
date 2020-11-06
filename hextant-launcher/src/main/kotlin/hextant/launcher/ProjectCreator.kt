@@ -7,13 +7,13 @@ package hextant.launcher
 import hextant.context.Context
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
-import hextant.context.createOutput
+import hextant.launcher.GlobalDirectory.Companion.PROJECT_ROOT
 import hextant.launcher.HextantPlatform.projectContext
 import hextant.launcher.plugins.PluginManager
 import hextant.plugin.PluginBuilder.Phase.Enable
 import hextant.plugins.ProjectInfo
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import hextant.serial.saveAsJson
+import hextant.serial.writeJson
 import java.io.File
 
 internal class ProjectCreator(
@@ -25,19 +25,17 @@ internal class ProjectCreator(
     override fun run() {
         dest.mkdirs()
         val info = ProjectInfo(projectType, enabledPlugins, requiredPlugins)
-        val str = Json.encodeToString(info)
-        dest.resolve(GlobalDirectory.PROJECT_INFO).writeText(str)
+        dest.resolve(GlobalDirectory.PROJECT_INFO).writeJson(info)
         val context = defaultContext(projectContext(globalContext))
         context[PluginManager] = manager
-        context.setProjectRoot(dest.toPath())
+        context.setProjectRoot(dest)
         addPlugins(enabledPlugins + "core", context, Enable, project = null)
         val instance = getProjectTypeInstance(context[classLoader], projectType.clazz)
         instance.initializeContext(context)
         val root = instance.createProject(context)
-        context.createOutput(dest.resolve(GlobalDirectory.PROJECT_ROOT).toPath()).use { out ->
-            out.writeObject(root)
-        }
+        root.saveAsJson(dest.resolve(PROJECT_ROOT))
+        val lock = dest.resolve(GlobalDirectory.LOCK)
+        lock.createNewFile()
         ProjectOpener(dest, globalContext, info).run()
     }
-
 }

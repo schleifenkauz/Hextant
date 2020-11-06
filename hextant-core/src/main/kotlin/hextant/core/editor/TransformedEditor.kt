@@ -6,6 +6,9 @@ package hextant.core.editor
 
 import hextant.core.Editor
 import hextant.core.EditorView
+import hextant.serial.Snapshot
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
 import reaktive.value.binding.map
 import validated.Validated
 import validated.flatMap
@@ -17,14 +20,25 @@ internal class TransformedEditor<T, R>(
 ) : AbstractEditor<R, EditorView>(source.context) {
     override val result: ReactiveValidated<R> = source.result.map { it.flatMap(transform) }
 
-    override fun createSnapshot(): EditorSnapshot<*> = Snapshot(this)
+    override fun createSnapshot(): Snapshot<*> = Snap()
 
-    private class Snapshot(original: TransformedEditor<*, *>) : EditorSnapshot<TransformedEditor<*, *>>(original) {
-        private val snapshot = original.source.snapshot()
+    private class Snap : Snapshot<TransformedEditor<*, *>>() {
+        private lateinit var snapshot: Snapshot<Editor<*>>
 
-        @Suppress("UNCHECKED_CAST")
-        override fun reconstruct(editor: TransformedEditor<*, *>) {
-            snapshot.reconstruct(editor.source)
+        override fun doRecord(original: TransformedEditor<*, *>) {
+            snapshot = original.source.snapshot()
+        }
+
+        override fun reconstruct(original: TransformedEditor<*, *>) {
+            snapshot.reconstruct(original.source)
+        }
+
+        override fun JsonObjectBuilder.encode() {
+            put("source", snapshot.encode())
+        }
+
+        override fun decode(element: JsonObject) {
+            snapshot = decode<Editor<*>>(element.getValue("source"))
         }
     }
 }

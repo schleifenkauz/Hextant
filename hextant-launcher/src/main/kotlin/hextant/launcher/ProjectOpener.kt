@@ -6,10 +6,10 @@ package hextant.launcher
 
 import hextant.command.Commands
 import hextant.command.line.*
-import hextant.context.*
+import hextant.context.Context
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
-import hextant.core.Editor
+import hextant.context.createControl
 import hextant.core.view.EditorControl
 import hextant.fx.*
 import hextant.launcher.HextantPlatform.marketplace
@@ -20,7 +20,7 @@ import hextant.plugin.Aspects
 import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.plugins.ProjectInfo
 import hextant.serial.PhysicalFile
-import hextant.serial.SerialProperties.deserializationContext
+import hextant.serial.readEditorFromJson
 import javafx.stage.Stage
 import reaktive.Observer
 import java.io.File
@@ -31,13 +31,8 @@ internal class ProjectOpener(
     private val info: ProjectInfo
 ) : Runnable {
     override fun run() {
-        val lock = project.resolve(GlobalDirectory.LOCK)
-        if (!lock.createNewFile()) {
-            System.err.println("Project $project already opened")
-            return
-        }
         val context = defaultContext(projectContext(globalContext))
-        context.setProjectRoot(project.toPath())
+        context.setProjectRoot(project)
         context[Commands].registerGlobalCommands(context)
         context[Aspects].registerDefaultImplementations()
         val type = getProjectTypeInstance(context[classLoader], info.projectType.clazz)
@@ -49,8 +44,8 @@ internal class ProjectOpener(
         val stage = globalContext[stage]
         val popup = CommandLinePopup(context, cl)
         registerShortcuts(view, context, popup, stage)
-        stage.setSize(context[WindowSize])
         stage.setScene(view, context)
+        stage.setSize(context[WindowSize])
         view.receiveFocusLater()
     }
 
@@ -74,14 +69,12 @@ internal class ProjectOpener(
         context[PluginManager] = manager
         val plugins = info.enabledPlugins
         addPlugins(plugins, context, Initialize, project = null)
-        val root = project.resolve(GlobalDirectory.PROJECT_ROOT).toPath()
-        val input = context.createInput(root)
-        input.bundle[deserializationContext] = context
-        val editor = context.withoutUndo { input.readObject() as Editor<*> }
+        val root = project.resolve(GlobalDirectory.PROJECT_ROOT)
+        val editor = readEditorFromJson(root, context)
         @Suppress("DEPRECATION")
         editor.setFile(PhysicalFile(editor, root, context))
         addPlugins(plugins, context, Initialize, editor)
-        val project = Project(info.projectType, editor, context, project.toPath())
+        val project = Project(info.projectType, editor, context, project)
         context[Project] = project
         val obs = manager.autoLoadAndUnloadPluginsOnChange(context, editor)
         observers.add(obs)
