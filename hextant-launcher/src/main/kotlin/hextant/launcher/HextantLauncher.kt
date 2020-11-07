@@ -1,7 +1,9 @@
 package hextant.launcher
 
 import bundles.set
-import hextant.command.line.*
+import hextant.command.line.CommandLine
+import hextant.command.line.CommandLineControl.Companion.HISTORY_ITEMS
+import hextant.command.line.SingleCommandSource
 import hextant.context.Context
 import hextant.context.createControl
 import hextant.fx.*
@@ -21,7 +23,7 @@ internal class HextantLauncher(global: Context, private val context: Context) : 
     private val commandLine = run {
         val src = SingleCommandSource(context, context)
         val cl = CommandLine(context, src)
-        context.createControl(cl) { set(CommandLineControl.SHOW_HISTORY, false) }
+        context.createControl(cl) { set(HISTORY_ITEMS, 1) }
     }
 
     private val root = hbox {

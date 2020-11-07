@@ -7,19 +7,19 @@ package hextant.launcher.editor
 import hextant.context.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
-import hextant.launcher.GlobalDirectory
-import hextant.launcher.GlobalDirectory.Companion.LOCK
+import hextant.launcher.Files
+import hextant.launcher.ProjectManager
 import validated.*
 
 internal class ProjectLocationEditor constructor(context: Context) : TokenEditor<String, TokenEditorView>(context) {
     override fun compile(token: String): Validated<String> {
-        val f = context[GlobalDirectory].getProject(token)
+        val f = context[Files].getProject(token)
         return when {
-            !f.exists() || !f.resolve(GlobalDirectory.PROJECT_INFO).exists() ->
+            !f.exists() || !f.resolve(Files.PROJECT_INFO).exists() ->
                 invalid("Project with name '$token' doesn't exist")
-            f.resolve(LOCK).exists()                                         ->
+            context[ProjectManager].isLocked(f)                    ->
                 invalid("Project '$token' already opened by another editor")
-            else                                                             -> valid(token)
+            else                                                   -> valid(token)
         }
     }
 

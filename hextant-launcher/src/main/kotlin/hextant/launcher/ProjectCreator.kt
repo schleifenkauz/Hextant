@@ -8,7 +8,7 @@ import bundles.set
 import hextant.context.Context
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
-import hextant.launcher.GlobalDirectory.Companion.PROJECT_ROOT
+import hextant.launcher.Files.Companion.PROJECT_ROOT
 import hextant.launcher.HextantPlatform.projectContext
 import hextant.launcher.plugins.PluginManager
 import hextant.plugin.PluginBuilder.Phase.Enable
@@ -26,7 +26,7 @@ internal class ProjectCreator(
     override fun run() {
         dest.mkdirs()
         val info = ProjectInfo(projectType, enabledPlugins, requiredPlugins)
-        dest.resolve(GlobalDirectory.PROJECT_INFO).writeJson(info)
+        dest.resolve(Files.PROJECT_INFO).writeJson(info)
         val context = defaultContext(projectContext(globalContext))
         context[PluginManager] = manager
         context.setProjectRoot(dest)
@@ -35,8 +35,7 @@ internal class ProjectCreator(
         instance.initializeContext(context)
         val root = instance.createProject(context)
         root.saveSnapshotAsJson(dest.resolve(PROJECT_ROOT))
-        val lock = dest.resolve(GlobalDirectory.LOCK)
-        lock.createNewFile()
+        check(globalContext[ProjectManager].acquireLock(dest))
         ProjectOpener(dest, globalContext, info).run()
     }
 }

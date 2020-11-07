@@ -7,7 +7,7 @@ package hextant.launcher
 import bundles.PublicProperty
 import bundles.property
 import hextant.context.Context
-import hextant.launcher.GlobalDirectory.Companion.PLUGIN_CACHE
+import hextant.launcher.Files.Companion.PLUGIN_CACHE
 import java.net.URLClassLoader
 
 internal class HextantClassLoader(
@@ -21,7 +21,7 @@ internal class HextantClassLoader(
 
     fun addPlugin(id: String) {
         if (id == "main" || id == "core") return
-        val file = context[GlobalDirectory][PLUGIN_CACHE].resolve("$id.jar")
+        val file = context[Files][PLUGIN_CACHE].resolve("$id.jar")
         val url = file.toURI().toURL()
         addURL(url)
     }

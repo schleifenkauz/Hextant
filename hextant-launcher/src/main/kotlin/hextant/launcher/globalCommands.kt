@@ -9,7 +9,6 @@ import hextant.command.Command.Type.SingleReceiver
 import hextant.context.Context
 import hextant.context.createControl
 import hextant.fx.showStage
-import hextant.launcher.GlobalDirectory.Companion.LOCK
 import hextant.launcher.HextantPlatform.launcher
 import hextant.launcher.editor.*
 import hextant.launcher.plugins.PluginManager
@@ -40,8 +39,7 @@ internal fun Commands.registerGlobalCommands(context: Context) {
         executing { ctx, _ ->
             closeProject(ctx)
             ctx[Project].save()
-            val lock = ctx[Project].location.resolve(LOCK)
-            lock.delete()
+            ctx[ProjectManager].releaseLock(ctx[Project].location)
             val loader = context.get<Runnable>(launcher)
             loader.run()
         }

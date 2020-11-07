@@ -8,7 +8,7 @@ import bundles.PublicProperty
 import bundles.property
 import java.io.File
 
-internal class GlobalDirectory(val root: File) {
+internal class Files(val root: File) {
     init {
         get("projects").mkdirs()
     }
@@ -17,10 +17,10 @@ internal class GlobalDirectory(val root: File) {
 
     fun getProject(name: String): File = get(PROJECTS).resolve(name)
 
-    companion object : PublicProperty<GlobalDirectory> by property("global directory") {
-        fun inUserHome(): GlobalDirectory {
+    companion object : PublicProperty<Files> by property("global directory") {
+        fun inUserHome(): Files {
             val home = File(System.getProperty("user.home"))
-            return GlobalDirectory(home.resolve("hextant"))
+            return Files(home.resolve("hextant"))
         }
 
         const val PROJECTS = "projects"

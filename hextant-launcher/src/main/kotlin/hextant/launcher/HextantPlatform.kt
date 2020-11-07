@@ -19,9 +19,9 @@ object HextantPlatform {
      * Create the global context, that is, the root of all contexts.
      */
     fun globalContext(): Context = Context.newInstance {
-        val gd = GlobalDirectory.inUserHome()
-        set(GlobalDirectory, gd)
-        set(marketplace, LocalPluginRepository(gd[GlobalDirectory.PLUGIN_CACHE]))
+        val gd = Files.inUserHome()
+        set(Files, gd)
+        set(marketplace, LocalPluginRepository(gd[Files.PLUGIN_CACHE]))
     }
 
     /**

@@ -7,12 +7,15 @@ package hextant.launcher
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.context.Context
+import hextant.context.ControlFactory
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
 import hextant.core.view.EditorControl
 import hextant.fx.*
 import hextant.launcher.HextantPlatform.projectContext
 import hextant.launcher.HextantPlatform.stage
+import hextant.launcher.editor.*
+import hextant.launcher.view.*
 import hextant.plugin.Aspects
 import hextant.plugins.ProjectInfo
 import javafx.stage.Stage
@@ -53,5 +56,11 @@ internal class ProjectOpener(
                 popup.show(stage)
             }
         }
+    }
+
+    private fun Aspects.registerDefaultImplementations() {
+        implement(ControlFactory::class, DisabledPluginInfoEditor::class, DisabledPluginInfoEditorControlFactory)
+        implement(ControlFactory::class, EnabledPluginInfoEditor::class, EnabledPluginInfoEditorControlFactory)
+        implement(ControlFactory::class, PluginsEditor::class, PluginsEditorControlFactory)
     }
 }

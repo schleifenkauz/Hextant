@@ -5,8 +5,8 @@ import hextant.context.Context
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
-import hextant.launcher.GlobalDirectory.Companion.DISPLAY
-import hextant.launcher.GlobalDirectory.Companion.PROJECT_ROOT
+import hextant.launcher.Files.Companion.DISPLAY
+import hextant.launcher.Files.Companion.PROJECT_ROOT
 import hextant.launcher.HextantPlatform.marketplace
 import hextant.launcher.plugins.PluginManager
 import hextant.plugin.PluginBuilder.Phase.Initialize
@@ -29,7 +29,7 @@ internal data class Project(
         view.saveSnapshotAsJson(location.resolve(DISPLAY))
         val manager = context[PluginManager]
         val info = ProjectInfo(type, manager.enabledIds().toList(), manager.requiredPlugins)
-        location.resolve(GlobalDirectory.PROJECT_INFO).writeJson(info)
+        location.resolve(Files.PROJECT_INFO).writeJson(info)
         observers.remove(location)!!.kill()
     }
 

@@ -8,7 +8,7 @@ import bundles.set
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
 import hextant.core.Core
-import hextant.launcher.GlobalDirectory.Companion.GLOBAL_PLUGINS
+import hextant.launcher.Files.Companion.GLOBAL_PLUGINS
 import hextant.launcher.HextantPlatform.marketplace
 import hextant.launcher.HextantPlatform.projectContext
 import hextant.launcher.HextantPlatform.stage
@@ -33,7 +33,7 @@ internal class HextantApp : Application() {
         val manager = PluginManager(globalContext[marketplace], emptyList())
         globalContext[PluginManager] = manager
         manager.enableAll(globalPlugins)
-        launcherContext.setProjectRoot(launcherContext[GlobalDirectory].root)
+        launcherContext.setProjectRoot(launcherContext[Files].root)
         initializePluginsFromClasspath(launcherContext, launcherContext[classLoader])
         val args = parameters.raw
         when (args.size) {
@@ -59,14 +59,14 @@ internal class HextantApp : Application() {
     }
 
     private fun readGlobalPlugins(): List<String> {
-        val file = globalContext[GlobalDirectory][GLOBAL_PLUGINS]
+        val file = globalContext[Files][GLOBAL_PLUGINS]
         if (!file.exists()) return emptyList()
         return Json.tryParse(GLOBAL_PLUGINS) { file.readText() } ?: emptyList()
     }
 
     private fun saveGlobalPlugins() {
         val enabled = globalContext[PluginManager].enabledPlugins().map { it.id }
-        val file = globalContext[GlobalDirectory][GLOBAL_PLUGINS]
+        val file = globalContext[Files][GLOBAL_PLUGINS]
         file.writeJson(enabled)
     }
 
