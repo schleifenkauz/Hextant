@@ -13,7 +13,7 @@ import hextant.launcher.HextantPlatform.projectContext
 import hextant.launcher.plugins.PluginManager
 import hextant.plugin.PluginBuilder.Phase.Enable
 import hextant.plugins.ProjectInfo
-import hextant.serial.saveAsJson
+import hextant.serial.saveSnapshotAsJson
 import hextant.serial.writeJson
 import java.io.File
 
@@ -30,11 +30,11 @@ internal class ProjectCreator(
         val context = defaultContext(projectContext(globalContext))
         context[PluginManager] = manager
         context.setProjectRoot(dest)
-        addPlugins(enabledPlugins + "core", context, Enable, project = null)
+        addPlugins(enabledPlugins, context, Enable, project = null)
         val instance = getProjectTypeInstance(context[classLoader], projectType.clazz)
         instance.initializeContext(context)
         val root = instance.createProject(context)
-        root.saveAsJson(dest.resolve(PROJECT_ROOT))
+        root.saveSnapshotAsJson(dest.resolve(PROJECT_ROOT))
         val lock = dest.resolve(GlobalDirectory.LOCK)
         lock.createNewFile()
         ProjectOpener(dest, globalContext, info).run()

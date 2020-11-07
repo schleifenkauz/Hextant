@@ -14,7 +14,7 @@ import validated.reaktive.ReactiveValidated
 /**
  * An editor for results of type [R]
  */
-interface Editor<out R> {
+interface Editor<out R> : SnapshotAware {
     /**
      * A [reaktive.value.ReactiveValue] holding the result of compiling the content of the editor
      */
@@ -105,10 +105,4 @@ interface Editor<out R> {
      * Return the child denoted by the given [accessor] or throw a [InvalidAccessorException] if there is no such child
      */
     fun getSubEditor(accessor: EditorAccessor): Editor<*>
-
-    /**
-     * Creates a snapshot of this [Editor].
-     */
-    fun createSnapshot(): Snapshot<*> =
-        throw UnsupportedOperationException("$javaClass does not implement snapshots")
 }

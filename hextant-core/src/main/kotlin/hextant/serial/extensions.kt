@@ -7,7 +7,6 @@ package hextant.serial
 import hextant.context.Context
 import hextant.context.withoutUndo
 import hextant.core.Editor
-import hextant.core.editor.snapshot
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import reaktive.value.now
@@ -62,10 +61,21 @@ fun Editor<*>.makeRoot() {
 }
 
 /**
- * Makes a [Snapshot] of this [Editor], encodes it as JSON, and then writes it to the given [file],
- * such that it can be read again by [readEditorFromJson].
+ * Makes a snapshot of this [Editor].
  */
-fun Editor<*>.saveAsJson(file: File) {
+@Suppress("UNCHECKED_CAST")
+fun <T : SnapshotAware> T.snapshot(recordClass: Boolean = false): Snapshot<T> {
+    val snapshot = createSnapshot() as Snapshot<T>
+    snapshot.record(this, recordClass)
+    return snapshot
+}
+
+
+/**
+ * Makes a [Snapshot] of this [Editor], encodes it as JSON, and then writes it to the given [file],
+ * such that it can be read again by [reconstructEditorFromJSONSnapshot].
+ */
+fun SnapshotAware.saveSnapshotAsJson(file: File) {
     val snapshot = snapshot(recordClass = true)
     val json = snapshot.encode()
     val txt = json.toString()
@@ -73,10 +83,10 @@ fun Editor<*>.saveAsJson(file: File) {
 }
 
 /**
- * Reconstructs an [Editor] from the given [file] that has been saved using [saveAsJson].
+ * Reconstructs an [Editor] from the given [file] that has been saved using [saveSnapshotAsJson].
  * @param context the context with which the reconstructed editor is created
  */
-fun readEditorFromJson(file: File, context: Context): Editor<*> {
+fun reconstructEditorFromJSONSnapshot(file: File, context: Context): Editor<*> {
     val txt = file.readText()
     val json = Json.parseToJsonElement(txt)
     val snapshot = Snapshot.decode<Editor<*>>(json)

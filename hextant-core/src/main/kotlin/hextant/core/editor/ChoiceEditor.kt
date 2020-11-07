@@ -51,14 +51,14 @@ abstract class ChoiceEditor<C : Any>(default: C, context: Context) : AbstractEdi
         override fun JsonObjectBuilder.encode() {
             put("classOfSelected", selected.javaClass.name)
             val serializer = selected::class.serializer() as KSerializer<C>
-            put("selected", Json.encodeToJsonElement(serializer, selected))
+            put("selected", json.encodeToJsonElement(serializer, selected))
         }
 
         override fun decode(element: JsonObject) {
             val classOfSelected = element.getValue("classOfSelected").string
             val clazz = classOfSelected.loadClass().kotlin
             val serializer = clazz.serializer() as KSerializer<C>
-            selected = Json.decodeFromJsonElement(serializer, element.getValue("selected"))
+            selected = json.decodeFromJsonElement(serializer, element.getValue("selected"))
         }
     }
 }

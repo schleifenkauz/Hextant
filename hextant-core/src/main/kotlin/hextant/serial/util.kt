@@ -4,8 +4,8 @@
 
 package hextant.serial
 
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonPrimitive
+import bundles.bundlesSerializersModule
+import kotlinx.serialization.json.*
 import java.io.IOException
 
 internal inline fun safeIO(action: () -> Unit) {
@@ -24,3 +24,5 @@ internal val JsonElement.string
     }
 
 internal fun String.loadClass() = Thread.currentThread().contextClassLoader.loadClass(this)
+
+internal val json = Json { serializersModule = bundlesSerializersModule }

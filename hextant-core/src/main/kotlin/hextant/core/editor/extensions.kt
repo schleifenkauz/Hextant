@@ -7,8 +7,8 @@ package hextant.core.editor
 import hextant.context.*
 import hextant.context.ClipboardContent.OneEditor
 import hextant.core.Editor
-import hextant.serial.Snapshot
 import hextant.serial.reconstructEditor
+import hextant.serial.snapshot
 import validated.Validated
 import validated.valid
 
@@ -19,16 +19,6 @@ fun <E : Editor<*>, R : Editor<*>> ExpanderDelegate<E>.map(f: (E) -> R) = object
     override fun expand(text: String, context: Context): R? = this@map.expand(text, context)?.let(f)
 
     override fun expand(item: Any, context: Context): R? = this@map.expand(item, context)?.let(f)
-}
-
-/**
- * Makes a snapshot of this [Editor].
- */
-@Suppress("UNCHECKED_CAST")
-fun <E : Editor<*>> E.snapshot(recordClass: Boolean = false): Snapshot<E> {
-    val snapshot = createSnapshot() as Snapshot<E>
-    snapshot.record(this, recordClass)
-    return snapshot
 }
 
 /**

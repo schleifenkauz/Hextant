@@ -36,7 +36,7 @@ class PhysicalFile<E : Editor<*>>(
         checkNotNull(obj) { "Already collected" }
         _write.fire(obj)
         safeIO {
-            obj.saveAsJson(getRealPath())
+            obj.saveSnapshotAsJson(getRealPath())
         }
     }
 
@@ -47,7 +47,7 @@ class PhysicalFile<E : Editor<*>>(
 
     @Suppress("UNCHECKED_CAST")
     private fun read(): E {
-        val editor = readEditorFromJson(path, context) as E
+        val editor = reconstructEditorFromJSONSnapshot(path, context) as E
         _read.fire(editor)
         ref = WeakReference(editor)
         return editor

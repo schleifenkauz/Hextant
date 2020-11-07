@@ -7,7 +7,6 @@ package hextant.project.editor
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.editor.CompoundEditor
-import hextant.core.editor.snapshot
 import hextant.project.File
 import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot

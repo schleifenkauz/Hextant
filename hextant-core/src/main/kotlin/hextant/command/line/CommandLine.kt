@@ -10,7 +10,6 @@ import hextant.command.Command
 import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.AbstractEditor
-import hextant.core.editor.snapshot
 import hextant.serial.*
 import reaktive.Observer
 import reaktive.dependencies

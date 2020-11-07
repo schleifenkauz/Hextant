@@ -2,8 +2,6 @@
  *@author Nikolaus Knop
  */
 
-@file:Suppress("UNCHECKED_CAST")
-
 package hextant.core.view
 
 import bundles.*
@@ -16,7 +14,7 @@ import hextant.core.editor.copyToClipboard
 import hextant.core.editor.pasteFromClipboard
 import hextant.fx.*
 import hextant.inspect.Inspections
-import hextant.serial.Snapshot
+import hextant.serial.*
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
@@ -61,7 +59,7 @@ abstract class EditorControl<R : Node>(
     private val editorChildren = mutableListOf<EditorControl<*>>()
 
     private val changedArguments = mutableMapOf<Property<*, *>, Any>()
-    private val propertyChangeHandlers = context[Properties.propertyChangeHandler]
+    private val propertyChangeHandler = context[Properties.propertyChangeHandler]
     private val propertyObserver: Observer
 
     /**
@@ -91,13 +89,15 @@ abstract class EditorControl<R : Node>(
     init {
         styleClass.add("editor-control")
         for ((p, v) in arguments.entries) {
-            propertyChangeHandlers.valueChanged(this, p as Property<Any, *>, v)
+            @Suppress("UNCHECKED_CAST")
+            propertyChangeHandler.valueChanged(this, p as Property<Any, *>, v)
         }
         propertyObserver = arguments.changed.observe(this) { _, change ->
             val new = change.newValue ?: change.property.default!!
             if (change.newValue != null) changedArguments[change.property] = change.newValue!!
             else changedArguments.remove(change.property)
-            propertyChangeHandlers.valueChanged(this, change.property as Property<Any, *>, new)
+            @Suppress("UNCHECKED_CAST")
+            propertyChangeHandler.valueChanged(this, change.property as Property<Any, *>, new)
             argumentChanged(change.property, change.newValue)
         }
         sceneProperty().addListener(this) { sc ->
@@ -371,6 +371,7 @@ abstract class EditorControl<R : Node>(
 
     override fun createSnapshot(): Snapshot<*> = Snap()
 
+    @Suppress("UNCHECKED_CAST")
     private class Snap : Snapshot<EditorControl<*>>() {
         private lateinit var changedArguments: Map<Property<*, *>, Any>
         private lateinit var children: List<Snapshot<EditorControl<*>>>
@@ -392,12 +393,18 @@ abstract class EditorControl<R : Node>(
         }
 
         override fun JsonObjectBuilder.encode() {
-            put("arguments", Json.encodeToJsonElement(changedArguments))
+            val bundle = createBundle {
+                for ((p, v) in changedArguments) {
+                    set(p as Property<Any, *>, v)
+                }
+            }
+            put("arguments", json.encodeToJsonElement(bundle))
             put("children", JsonArray(children.map { it.encode() }))
         }
 
         override fun decode(element: JsonObject) {
-            changedArguments = Json.decodeFromJsonElement(element.getValue("arguments"))
+            val bundle: Bundle = json.decodeFromJsonElement(element.getValue("arguments"))
+            changedArguments = bundle.entries.associate { (p, v) -> p to v }
             children = element.getValue("children").jsonArray.map { decode<EditorControl<*>>(it) }
         }
     }

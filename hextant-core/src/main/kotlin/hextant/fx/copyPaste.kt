@@ -3,7 +3,7 @@ package hextant.fx
 import hextant.context.*
 import hextant.context.ClipboardContent.MultipleEditors
 import hextant.core.Editor
-import hextant.core.editor.snapshot
+import hextant.serial.snapshot
 import javafx.scene.Scene
 
 private val COPY_MANY = "Ctrl + Shift + C".shortcut

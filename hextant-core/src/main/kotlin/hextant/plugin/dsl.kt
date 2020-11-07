@@ -13,15 +13,12 @@ import hextant.context.Properties.propertyChangeHandler
 import hextant.fx.Stylesheets
 import hextant.inspect.*
 import hextant.plugin.PluginBuilder.Phase.*
+import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
-import hextant.serial.readJson
-import hextant.serial.writeJson
 import hextant.settings.*
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import reaktive.Observer
-import kotlin.reflect.KType
-import kotlin.reflect.typeOf
+import kotlin.reflect.*
 
 /**
  * Registers the given [command].
@@ -83,7 +80,6 @@ fun <T : Any> PluginBuilder.set(property: PublicProperty<T>, value: T) {
     property: Property<T, P>,
     type: KType
 ) {
-    val json = Json { serializersModule = bundlesSerializersModule }
     val serializer = serializer(type)
     on(Initialize) { ctx ->
         if (!testing) {
@@ -171,6 +167,8 @@ inline fun <reified D : Any> PluginBuilder.commandDelegation(noinline delegation
     }
 }
 
+@PublishedApi internal val propertyObservers = mutableMapOf<Pair<KClass<*>, Property<*, *>>, Observer>()
+
 /**
  * Observe the specified [property] for changes in the given context.
  */
@@ -178,12 +176,11 @@ inline fun <reified Ctx : Any, T : Any> PluginBuilder.observeProperty(
     property: Property<T, *>,
     noinline handler: (Ctx, T) -> Unit
 ) {
-    lateinit var observer: Observer
     on(Initialize) { ctx ->
-        observer = ctx[propertyChangeHandler].observe(Ctx::class, property, handler)
+        propertyObservers[Ctx::class to property] = ctx[propertyChangeHandler].observe(Ctx::class, property, handler)
     }
     on(Disable) {
-        observer.kill()
+        propertyObservers.remove(Ctx::class to property)!!.kill()
     }
 
 }

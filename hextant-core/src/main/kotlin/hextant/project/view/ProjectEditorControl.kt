@@ -9,11 +9,11 @@ package hextant.project.view
 import bundles.Bundle
 import hextant.context.*
 import hextant.context.ClipboardContent.OneEditor
-import hextant.core.editor.snapshot
 import hextant.core.view.EditorControl
 import hextant.fx.registerShortcuts
 import hextant.project.editor.*
 import hextant.serial.reconstructEditor
+import hextant.serial.snapshot
 import javafx.scene.control.*
 import javafx.scene.control.SelectionMode.MULTIPLE
 import kollektion.DoubleWeakHashMap

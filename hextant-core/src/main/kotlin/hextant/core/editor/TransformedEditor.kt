@@ -7,6 +7,7 @@ package hextant.core.editor
 import hextant.core.Editor
 import hextant.core.EditorView
 import hextant.serial.Snapshot
+import hextant.serial.snapshot
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
 import reaktive.value.binding.map
