@@ -5,7 +5,6 @@
 package hextant.project.editor
 
 import hextant.context.Context
-import hextant.context.Internal
 import hextant.core.Editor
 import hextant.core.editor.CompoundEditor
 import hextant.core.editor.snapshot
@@ -96,7 +95,7 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
     companion object {
         fun <R> newInstance(context: Context): FileEditor<R> {
             val e = FileEditor<R>(context)
-            e.id = context[Internal, IdGenerator].generateID()
+            e.id = context[IdGenerator].generateID()
             e.path = context[projectRoot].resolve(e.id)
             e.content = context[FileManager].get(RootExpander(context), e.path)
             e.content.write()

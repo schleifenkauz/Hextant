@@ -6,20 +6,22 @@
 
 package hextant.plugin
 
-import bundles.Bundle
-import bundles.Property
+import bundles.*
 import hextant.command.*
 import hextant.context.*
+import hextant.context.Properties.propertyChangeHandler
 import hextant.fx.Stylesheets
 import hextant.inspect.*
 import hextant.plugin.PluginBuilder.Phase.*
-import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
+import hextant.serial.readJson
+import hextant.serial.writeJson
 import hextant.settings.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
-import kotlin.reflect.*
+import reaktive.Observer
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 /**
  * Registers the given [command].
@@ -64,7 +66,7 @@ fun PluginBuilder.stylesheet(resource: String) {
 /**
  * Sets the value of the given [property].
  */
-fun <T, Read : Any, Write : Read> PluginBuilder.set(permission: Write, property: Property<T, Read, Write>, value: T) {
+fun <T : Any, P : Permission> PluginBuilder.set(permission: P, property: Property<T, P>, value: T) {
     on(Initialize) { ctx -> ctx[permission, property] = value }
     on(Disable) { ctx -> ctx.delete(permission, property) }
 }
@@ -72,36 +74,30 @@ fun <T, Read : Any, Write : Read> PluginBuilder.set(permission: Write, property:
 /**
  * Sets the value of the given [property].
  */
-fun <T> PluginBuilder.set(property: Property<T, Any, Any>, value: T) {
-    set(Any(), property, value)
+fun <T : Any> PluginBuilder.set(property: PublicProperty<T>, value: T) {
+    set(property, value)
 }
 
-@Suppress("UNCHECKED_CAST")
-private val json = Json {
-    serializersModule = SerializersModule {
-        polymorphic(Bundle::class, Class.forName("bundles.BundleImpl").kotlin as KClass<Bundle>, BundleSerializer)
-    }
-}
-
-@PublishedApi internal fun <T, Read : Any, Write : Read> PluginBuilder.persistentProperty(
-    permission: Write,
-    property: Property<T, Read, Write>,
+@PublishedApi internal fun <T : Any, P : Permission> PluginBuilder.persistentProperty(
+    permission: P,
+    property: Property<T, P>,
     type: KType
 ) {
-    val deserializer = json.serializersModule.serializer(type)
+    val json = Json { serializersModule = bundlesSerializersModule }
+    val serializer = serializer(type)
     on(Initialize) { ctx ->
         if (!testing) {
             val path = getPath(ctx, property)
             ctx[permission, property] = if (path.exists()) {
-                path.readJson(deserializer, json) as T
-            } else property.default
-        } else ctx[permission, property] = property.default
+                path.readJson(serializer, json) as T
+            } else property.default ?: throw NoSuchElementException("No value for $property")
+        } else ctx[permission, property] = property.default ?: throw NoSuchElementException("No value for $property")
     }
     on(Close) { ctx ->
         if (!testing) {
-            val value = ctx[permission, property]
+            val value = ctx[property]
             val path = getPath(ctx, property)
-            path.writeJson(deserializer, value, json)
+            path.writeJson(serializer, value, json)
         }
     }
     on(Disable) { ctx ->
@@ -120,14 +116,11 @@ private val json = Json {
  * - When the plugin is disabled the value of the property and the corresponding file is deleted.
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T, Read : Any, Write : Read> PluginBuilder.persistentProperty(
-    permission: Write,
-    property: Property<T, Read, Write>
-) {
+inline fun <reified T : Any, P : Permission> PluginBuilder.persistentProperty(permission: P, property: Property<T, P>) {
     persistentProperty(permission, property, typeOf<T>())
 }
 
-private fun getPath(ctx: Context, property: Property<*, *, *>) = ctx[projectRoot].resolve("${property.name}.json")
+private fun getPath(ctx: Context, property: Property<*, *>) = ctx[projectRoot].resolve("${property.name}.json")
 
 
 /**
@@ -136,12 +129,12 @@ private fun getPath(ctx: Context, property: Property<*, *, *>) = ctx[projectRoot
  * @param editorFactory produces the editor used to edit the value of this property.
  * Configurable properties can be set by the user via the command line.
  */
-fun <T : Any> PluginBuilder.configurableProperty(property: Property<T, *, Any>, editorFactory: EditorFactory<T>) {
+fun <T : Any> PluginBuilder.configurableProperty(property: PublicProperty<T>, editorFactory: EditorFactory<T>) {
     val p = ConfigurableProperty(property, editorFactory)
     registerCommand<Context, Unit> {
-        name = "Set property $property"
-        shortName = "set-$property"
-        description = "Sets the value of the property $property"
+        name = "Set property ${property.name}"
+        shortName = "set-${property.name}"
+        description = "Sets the value of the property ${property.name}"
         applicableIf { ctx -> ctx.hasProperty(Settings) }
         addParameter<Any> {
             name = "value"
@@ -162,7 +155,7 @@ fun <T : Any> PluginBuilder.configurableProperty(property: Property<T, *, Any>, 
  * Uses the [EditorFactory] implementation for type [T] to produce the editor.
  * @see configurableProperty
  */
-inline fun <reified T : Any> PluginBuilder.configurableProperty(property: Property<T, *, Any>) {
+inline fun <reified T : Any> PluginBuilder.configurableProperty(property: PublicProperty<T>) {
     configurableProperty(property) { context.createEditor() }
 }
 
@@ -176,4 +169,21 @@ inline fun <reified D : Any> PluginBuilder.commandDelegation(noinline delegation
     on(Disable) { ctx ->
         ctx[Commands].unregisterDelegation(D::class, delegation)
     }
+}
+
+/**
+ * Observe the specified [property] for changes in the given context.
+ */
+inline fun <reified Ctx : Any, T : Any> PluginBuilder.observeProperty(
+    property: Property<T, *>,
+    noinline handler: (Ctx, T) -> Unit
+) {
+    lateinit var observer: Observer
+    on(Initialize) { ctx ->
+        observer = ctx[propertyChangeHandler].observe(Ctx::class, property, handler)
+    }
+    on(Disable) {
+        observer.kill()
+    }
+
 }

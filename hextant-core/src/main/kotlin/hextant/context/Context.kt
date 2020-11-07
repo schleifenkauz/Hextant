@@ -22,7 +22,6 @@ interface Context : Bundle {
         inline fun newInstance(
             parent: Context? = null,
             configure: Context.() -> Unit = {}
-        ): Context = object : AbstractContext(parent = parent) {
-        }.apply(configure)
+        ): Context = ContextImpl(parent).apply(configure)
     }
 }

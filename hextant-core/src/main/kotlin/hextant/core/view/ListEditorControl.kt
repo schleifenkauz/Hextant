@@ -37,12 +37,12 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     /**
      * The orientation in which the sub-editors are displayed.
      */
-    var orientation by property(arguments, ORIENTATION)
+    var orientation by arguments.property(ORIENTATION)
 
     /**
      * The cell factory that is used to create [Cell]s for individual editors.
      */
-    var cellFactory: () -> Cell<*> by property(arguments, CELL_FACTORY)
+    var cellFactory: () -> Cell<*> by arguments.property(CELL_FACTORY)
 
     private var items = orientation.createLayout()
 
@@ -65,7 +65,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
+    override fun argumentChanged(property: Property<*, *>, value: Any?) {
         when (property) {
             ORIENTATION -> orientationChanged(value as Orientation)
             CELL_FACTORY -> cellFactoryChanged()
@@ -237,7 +237,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     /**
      * This method may be overwritten to pass arguments to children of this list editor view
      */
-    protected open fun Bundle.provideChildArguments() {}
+    protected open fun BundleBuilder.provideChildArguments() {}
 
     override fun added(editor: Editor<*>, idx: Int) {
         val view = context.createControl(editor) { provideChildArguments() }
@@ -364,17 +364,17 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         /**
          * The [ListEditorControl.orientation] of items
          */
-        val ORIENTATION = SimpleProperty<Orientation>("list view orientation")
+        val ORIENTATION = publicProperty<Orientation>("list view orientation")
 
         /**
          * The [ListEditorControl.cellFactory] used to display items
          */
-        val CELL_FACTORY = SimpleProperty.withDefault<() -> Cell<*>>("list view cell factory") { DefaultCell() }
+        val CELL_FACTORY = publicProperty<() -> Cell<*>>("list view cell factory") { DefaultCell() }
 
         /**
          * The [Node] that is displayed when no items are in the [ListEditor]
          */
-        val EMPTY_DISPLAY = SimpleProperty.withDefault<() -> Node>("empty display") {
+        val EMPTY_DISPLAY = publicProperty<() -> Node>("empty display") {
             Glyphs.create(PLUS).apply {
                 setColor(Color.TRANSPARENT)
                 hoverProperty().or(focusedProperty()).addListener { _, _, hover ->

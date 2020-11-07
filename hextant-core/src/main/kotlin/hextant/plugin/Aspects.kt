@@ -7,6 +7,7 @@
 package hextant.plugin
 
 import bundles.Property
+import bundles.property
 import hextant.context.Internal
 import hextant.plugins.Implementation
 import kollektion.ClassMap
@@ -61,5 +62,5 @@ class Aspects {
      */
     inline fun <reified A : Any> get(obj: Any): A = get(A::class, obj::class)
 
-    companion object : Property<Aspects, Any, Internal>("aspects")
+    companion object : Property<Aspects, Internal> by property("aspects")
 }

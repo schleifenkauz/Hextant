@@ -5,7 +5,7 @@
 package hextant.core.view
 
 import bundles.Bundle
-import bundles.SimpleProperty
+import bundles.publicProperty
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
@@ -65,6 +65,6 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         /**
          * This property controls the completer of the token editor control
          */
-        val COMPLETER = SimpleProperty.withDefault<Completer<TokenEditor<*, *>, Any>>("token.completer", NoCompleter)
+        val COMPLETER = publicProperty<Completer<TokenEditor<*, *>, Any>>("token.completer", NoCompleter)
     }
 }

@@ -5,6 +5,7 @@
 package hextant.core.view
 
 import bundles.Bundle
+import bundles.set
 import hextant.completion.Completer
 import hextant.core.editor.TokenEditor
 

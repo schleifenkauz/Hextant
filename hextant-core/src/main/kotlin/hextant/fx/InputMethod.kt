@@ -1,6 +1,7 @@
 package hextant.fx
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 
 /**
  * Specifies the way the user interacts with text fields
@@ -16,8 +17,5 @@ enum class InputMethod {
      */
     REGULAR;
 
-    companion object : SimpleProperty<InputMethod>("input method") {
-        override val default: InputMethod
-            get() = REGULAR
-    }
+    companion object : PublicProperty<InputMethod> by property("input method", default = REGULAR)
 }

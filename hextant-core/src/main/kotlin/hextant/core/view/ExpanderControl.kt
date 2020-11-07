@@ -4,8 +4,7 @@
 
 package hextant.core.view
 
-import bundles.Bundle
-import bundles.SimpleProperty
+import bundles.*
 import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
@@ -91,7 +90,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
         view = null
         root = textField
         textField.text = ""
-        requestFocus()
+        runFXWithTimeout { textField.requestFocus() }
     }
 
     final override fun expanded(editor: Editor<*>) {
@@ -121,6 +120,6 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
         /**
          * This property controls the completer of the expander control
          */
-        val COMPLETER = SimpleProperty.withDefault<Completer<Expander<*, *>, Any>>("expander.completer", NoCompleter)
+        val COMPLETER = publicProperty<Completer<Expander<*, *>, Any>>("expander.completer", default = NoCompleter)
     }
 }

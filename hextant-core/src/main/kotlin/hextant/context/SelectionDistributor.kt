@@ -4,7 +4,8 @@
 
 package hextant.context
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.publicProperty
 import hextant.core.EditorView
 import reaktive.set.ReactiveSet
 import reaktive.set.reactiveSet
@@ -99,7 +100,7 @@ interface SelectionDistributor {
         }
     }
 
-    companion object : SimpleProperty<SelectionDistributor>("Selection Distributor") {
+    companion object : PublicProperty<SelectionDistributor> by publicProperty("Selection Distributor") {
         /**
          * Return a new [SelectionDistributor]
          */

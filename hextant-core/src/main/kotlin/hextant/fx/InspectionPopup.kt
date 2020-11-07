@@ -4,7 +4,8 @@
 
 package hextant.fx
 
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.executeSafely
 import hextant.inspect.*
 import javafx.scene.Node
 import javafx.scene.Parent
@@ -72,7 +73,7 @@ internal class InspectionPopup(private val context: Context, private val target:
         private val fixes: Collection<ProblemFix<T>>
     ) : HextantPopup(context) {
         init {
-            context[Internal, Stylesheets].manage(scene)
+            context[Stylesheets].manage(scene)
             content.add(createFixList(fixes))
         }
 

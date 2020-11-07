@@ -5,7 +5,7 @@
 package hextant.core.view
 
 import bundles.Bundle
-import bundles.SimpleProperty
+import bundles.publicProperty
 import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
@@ -64,21 +64,21 @@ open class ValidatedTokenEditorControl @ProvideImplementation(ControlFactory::cl
         /**
          * Keyboard shortcut for the commit change action.
          */
-        val COMMIT_CHANGE = SimpleProperty.withDefault("commit", never())
+        val COMMIT_CHANGE = publicProperty("commit", default = never())
 
         /**
          * Keyboard shortcut for the begin change action.
          */
-        val BEGIN_CHANGE = SimpleProperty.withDefault("begin change", never())
+        val BEGIN_CHANGE = publicProperty("begin change", default = never())
 
         /**
          * Keyboard shortcut for the abort change action.
          */
-        val ABORT_CHANGE = SimpleProperty.withDefault("abort change", never())
+        val ABORT_CHANGE = publicProperty("abort change", default = never())
 
         /**
          * Completer used by the [ValidatedTokenEditorControl]
          */
-        val COMPLETER = SimpleProperty.withDefault<Completer<Context, *>>("completer", NoCompleter)
+        val COMPLETER = publicProperty<Completer<Context, *>>("completer", default = NoCompleter)
     }
 }

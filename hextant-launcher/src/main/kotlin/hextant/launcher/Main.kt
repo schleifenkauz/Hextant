@@ -4,12 +4,14 @@
 
 package hextant.launcher
 
+import bundles.runtimeTypeSafety
 import javafx.application.Application
 import java.io.IOException
 import kotlin.system.exitProcess
 
 internal object Main {
     @JvmStatic fun main(args: Array<String>) {
+        runtimeTypeSafety = false
         System.err.println(args.joinToString(" "))
         try {
             Application.launch(HextantApp::class.java, *args)

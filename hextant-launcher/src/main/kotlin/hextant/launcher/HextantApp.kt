@@ -4,6 +4,7 @@
 
 package hextant.launcher
 
+import bundles.set
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
 import hextant.core.Core

@@ -1,6 +1,7 @@
 package hextant.launcher
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.launcher.GlobalDirectory.Companion.PROJECT_ROOT
@@ -19,5 +20,5 @@ internal data class Project(val type: ProjectType, val root: Editor<*>, val cont
         location.resolve(GlobalDirectory.PROJECT_INFO).writeJson(info)
     }
 
-    companion object : SimpleProperty<Project>("project")
+    companion object : PublicProperty<Project> by property("project")
 }

@@ -1,6 +1,7 @@
 package hextant.launcher
 
-import bundles.SimpleReactiveProperty
+import bundles.PublicProperty
+import bundles.property
 import hextant.context.Context
 import hextant.core.editor.SimpleStringEditor
 import hextant.plugin.*
@@ -13,8 +14,5 @@ internal object HextantMain : PluginInitializer({
     registerCommand(enablePlugin(setOf(PluginInfo.Type.Global)))
     registerCommand(disablePlugin)
 }) {
-    object Header : SimpleReactiveProperty<String>("header") {
-        override val default: String
-            get() = "Hextant"
-    }
+    object Header : PublicProperty<String> by property("header", default = "Hextant")
 }

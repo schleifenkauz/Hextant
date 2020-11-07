@@ -14,11 +14,11 @@ import kotlin.reflect.KClass
 /**
  * Set the given [property] to the given [value] on the first [Context] in the parent-chain that already has this property.
  */
-fun <T, Read : Any, Write : Read> Context.replace(permission: Write, property: Property<T, Read, Write>, value: T) {
+fun <T : Any, P : Permission> Context.replace(permission: P, property: Property<T, P>, value: T) {
     when {
-        hasProperty(permission, property) -> set(permission, property, value)
-        parent != null                    -> parent!!.replace(permission, property, value)
-        else                              -> throw NoSuchElementException("Property $property not configured")
+        hasProperty(property) -> set(permission, property, value)
+        parent != null        -> parent!!.replace(permission, property, value)
+        else                  -> throw NoSuchElementException("Property $property not configured")
     }
 }
 
@@ -33,7 +33,7 @@ fun Context.createControl(editor: Editor<*>, arguments: Bundle = createBundle())
 /**
  * Create a view for the given [editor]. The [configure]-block is used to initialize the [hextant.core.EditorView.arguments].
  */
-inline fun Context.createControl(editor: Editor<*>, configure: Bundle.() -> Unit): EditorControl<*> =
+inline fun Context.createControl(editor: Editor<*>, configure: BundleBuilder.() -> Unit): EditorControl<*> =
     createControl(editor, createBundle(configure))
 
 /**

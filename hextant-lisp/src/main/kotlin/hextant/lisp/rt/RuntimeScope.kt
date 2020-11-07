@@ -4,8 +4,10 @@
 
 package hextant.lisp.rt
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 import hextant.lisp.SExpr
+import kotlin.collections.set
 
 class RuntimeScope private constructor(
     private val parent: RuntimeScope?,
@@ -33,7 +35,7 @@ class RuntimeScope private constructor(
 
     fun child() = RuntimeScope(this, noUserInput)
 
-    companion object : SimpleProperty<RuntimeScope>("runtime scope") {
+    companion object : PublicProperty<RuntimeScope> by property("runtime scope") {
         private val noUserInput = { _: RuntimeScope, _: String -> null }
 
         fun root(userInput: (RuntimeScope, String) -> SExpr? = noUserInput) = RuntimeScope(null, userInput).apply {

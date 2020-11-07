@@ -6,6 +6,4 @@ import hextant.context.Internal
 /**
  * The settings bundle.
  */
-object Settings : Property<Bundle, Any, Internal>("settings") {
-    override val default get() = createBundle()
-}
+object Settings : Property<Bundle, Internal> by property("settings", default = createBundle())

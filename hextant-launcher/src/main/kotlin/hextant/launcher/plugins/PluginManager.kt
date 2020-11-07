@@ -4,7 +4,8 @@
 
 package hextant.launcher.plugins
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 import hextant.launcher.plugins.PluginManager.DisableConfirmation.*
 import hextant.plugins.*
 import kollektion.MultiMap
@@ -272,5 +273,5 @@ internal class PluginManager(private val marketplace: Marketplace, internal val 
         Yes, No, All, None
     }
 
-    companion object : SimpleProperty<PluginManager>("plugin manager")
+    companion object : PublicProperty<PluginManager> by property("plugin manager")
 }

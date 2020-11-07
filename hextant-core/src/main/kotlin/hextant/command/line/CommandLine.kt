@@ -4,7 +4,8 @@
 
 package hextant.command.line
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 import hextant.command.Command
 import hextant.context.*
 import hextant.core.Editor
@@ -231,5 +232,5 @@ class CommandLine(context: Context, val source: CommandSource) :
         val result: Any?
     )
 
-    companion object : SimpleProperty<CommandLine>("command-line")
+    companion object : PublicProperty<CommandLine> by property("command-line")
 }

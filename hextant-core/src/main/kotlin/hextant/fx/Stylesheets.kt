@@ -1,6 +1,7 @@
 package hextant.fx
 
 import bundles.Property
+import bundles.property
 import hextant.context.Internal
 import javafx.scene.Scene
 
@@ -31,5 +32,5 @@ internal class Stylesheets(private val classLoader: ClassLoader) {
         paths.remove(resource)
     }
 
-    companion object : Property<Stylesheets, Any, Internal>("stylesheets")
+    companion object : Property<Stylesheets, Internal> by property("stylesheets")
 }

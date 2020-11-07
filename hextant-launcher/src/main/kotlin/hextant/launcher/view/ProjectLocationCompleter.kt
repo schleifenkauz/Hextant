@@ -13,7 +13,9 @@ import hextant.launcher.GlobalDirectory.Companion.PROJECTS
 internal object ProjectLocationCompleter : ConfiguredCompleter<Editor<*>, String>(CompletionStrategy.simple) {
     override fun completionPool(context: Editor<*>): Collection<String> =
         context.context[GlobalDirectory][PROJECTS].listFiles()!!.filter { d ->
-            d.isDirectory && d.resolve(GlobalDirectory.PROJECT_INFO).exists()
+            d.isDirectory
+                    && d.resolve(GlobalDirectory.PROJECT_INFO).exists()
+                    && !d.resolve(GlobalDirectory.LOCK).exists()
         }.map { it.name }
 
 }

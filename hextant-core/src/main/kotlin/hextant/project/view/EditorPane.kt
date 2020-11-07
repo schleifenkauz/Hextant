@@ -4,7 +4,8 @@
 
 package hextant.project.view
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 import hextant.core.Editor
 
 /**
@@ -21,5 +22,5 @@ interface EditorPane {
      */
     fun deleted(editor: Editor<*>)
 
-    companion object : SimpleProperty<EditorPane>("editor pane")
+    companion object : PublicProperty<EditorPane> by property("editor pane")
 }

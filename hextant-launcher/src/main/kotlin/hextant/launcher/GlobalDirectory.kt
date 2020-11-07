@@ -4,7 +4,8 @@
 
 package hextant.launcher
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 import java.io.File
 
 internal class GlobalDirectory(val root: File) {
@@ -16,7 +17,7 @@ internal class GlobalDirectory(val root: File) {
 
     fun getProject(name: String): File = get(PROJECTS).resolve(name)
 
-    companion object : SimpleProperty<GlobalDirectory>("global directory") {
+    companion object : PublicProperty<GlobalDirectory> by property("global directory") {
         fun inUserHome(): GlobalDirectory {
             val home = File(System.getProperty("user.home"))
             return GlobalDirectory(home.resolve("hextant"))

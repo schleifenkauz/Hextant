@@ -4,6 +4,7 @@
 
 package hextant.inspect
 
+import bundles.set
 import com.natpryce.hamkrest.absent
 import com.sun.javafx.application.PlatformImpl
 import hextant.context.EditorControlGroup

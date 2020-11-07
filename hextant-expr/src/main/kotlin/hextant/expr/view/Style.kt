@@ -1,9 +1,7 @@
 package hextant.expr.view
 
-import bundles.SimpleReactiveProperty
+import bundles.publicProperty
 
 internal object Style {
-    object BorderColor : SimpleReactiveProperty<String>("border-color") {
-        override val default: String get() = "purple"
-    }
+    val BorderColor = publicProperty("border-color", default = "purple")
 }

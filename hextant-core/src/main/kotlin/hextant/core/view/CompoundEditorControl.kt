@@ -35,7 +35,7 @@ open class CompoundEditorControl(
         return v
     }
 
-    override fun argumentChanged(property: Property<*, *, *>, value: Any?) {
+    override fun argumentChanged(property: Property<*, *>, value: Any?) {
         root = createDefaultRoot()
     }
 

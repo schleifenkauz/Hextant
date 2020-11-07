@@ -4,8 +4,8 @@
 
 package hextant.serial
 
-import bundles.Property
-import hextant.context.Internal
+import bundles.PublicProperty
+import bundles.property
 
 /**
  * Generates unique file names.
@@ -22,7 +22,5 @@ class IdGenerator {
         return "$id"
     }
 
-    companion object : Property<IdGenerator, Internal, Internal>("path generator") {
-        override val default: IdGenerator = IdGenerator()
-    }
+    internal companion object : PublicProperty<IdGenerator> by property("path generator", default = IdGenerator())
 }

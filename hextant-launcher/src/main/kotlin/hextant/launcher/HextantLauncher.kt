@@ -1,5 +1,6 @@
 package hextant.launcher
 
+import bundles.set
 import hextant.command.line.*
 import hextant.context.Context
 import hextant.context.createControl
@@ -31,7 +32,7 @@ internal class HextantLauncher(global: Context, private val context: Context) : 
             alignment = CENTER
             spacing = 30.0
             add(label()) {
-                val header = context[Settings][HextantMain.Header]
+                val header = context[Settings].getReactive(HextantMain.Header)
                 textProperty().bind(header.asObservableValue())
                 font = Font(24.0)
             }

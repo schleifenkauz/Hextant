@@ -5,6 +5,7 @@
 package hextant.lisp.view
 
 import bundles.Bundle
+import bundles.set
 import hextant.codegen.ProvideImplementation
 import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy

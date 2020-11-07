@@ -4,8 +4,7 @@
 
 package hextant.context
 
-import bundles.Property
-import bundles.PropertyChangeHandlers
+import bundles.*
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.fx.InputMethod
@@ -23,18 +22,18 @@ object Properties {
     /**
      * The logger property
      */
-    val logger = Property<Logger, Any, Internal>("top level logger")
+    val logger = property<Logger, Internal>("top level logger")
 
 
     /**
-     * The [PropertyChangeHandlers] is used to register properties for views.
+     * The [PropertyChangeHandler] is used to register properties for views.
      */
-    val propertyChangeHandlers = Property<PropertyChangeHandlers, Any, Internal>("property change handlers")
+    val propertyChangeHandler = property<PropertyChangeHandler, Internal>("property change handlers")
 
     /**
      * The class loader to be used by all plugins.
      */
-    val classLoader = Property<ClassLoader, Any, Internal>("class loader")
+    val classLoader = property<ClassLoader, Internal>("class loader")
 
     /**
      * Initialize some common properties on the project level.
@@ -45,7 +44,7 @@ object Properties {
             set(Internal, Inspections, Inspections.newInstance())
             set(Internal, Stylesheets, Stylesheets(loader))
             set(Internal, logger, Logger.getLogger(javaClass.name))
-            set(Internal, propertyChangeHandlers, PropertyChangeHandlers())
+            set(Internal, propertyChangeHandler, PropertyChangeHandler())
             set(PropertyRegistrar, PropertyRegistrar())
             set(Internal, Aspects, Aspects())
             set(Internal, classLoader, loader)

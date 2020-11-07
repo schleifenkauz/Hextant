@@ -4,6 +4,7 @@
 
 package hextant.launcher
 
+import bundles.set
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.context.Context

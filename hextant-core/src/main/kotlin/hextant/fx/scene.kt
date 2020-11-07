@@ -5,7 +5,6 @@
 package hextant.fx
 
 import hextant.context.Context
-import hextant.context.Internal
 import hextant.core.view.EditorControl
 import javafx.scene.Scene
 import javafx.scene.input.ContextMenuEvent
@@ -22,7 +21,7 @@ fun Scene.initHextantScene(context: Context, applyStyle: Boolean = true) {
             ev.consume()
         }
     }
-    if (applyStyle) context[Internal, Stylesheets].manage(this)
+    if (applyStyle) context[Stylesheets].manage(this)
 }
 
 internal val Scene.focusedEditorControl: EditorControl<*>?

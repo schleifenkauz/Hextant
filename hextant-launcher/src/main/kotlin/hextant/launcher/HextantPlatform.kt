@@ -1,6 +1,7 @@
 package hextant.launcher
 
-import bundles.SimpleProperty
+import bundles.publicProperty
+import bundles.set
 import hextant.context.Context
 import hextant.context.Properties
 import hextant.plugins.LocalPluginRepository
@@ -8,11 +9,11 @@ import hextant.plugins.Marketplace
 import javafx.stage.Stage
 
 object HextantPlatform {
-    internal val marketplace = SimpleProperty<Marketplace>("marketplace")
+    internal val marketplace = publicProperty<Marketplace>("marketplace")
 
-    internal val stage = SimpleProperty<Stage>("stage")
+    internal val stage = publicProperty<Stage>("stage")
 
-    internal val launcher = SimpleProperty<HextantLauncher>("launcher")
+    internal val launcher = publicProperty<HextantLauncher>("launcher")
 
     /**
      * Create the global context, that is, the root of all contexts.

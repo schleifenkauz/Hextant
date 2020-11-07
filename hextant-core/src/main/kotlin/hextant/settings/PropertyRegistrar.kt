@@ -4,10 +4,11 @@
 
 package hextant.settings
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.publicProperty
 
 internal class PropertyRegistrar {
     val configurable = mutableSetOf<ConfigurableProperty<*>>()
 
-    companion object : SimpleProperty<PropertyRegistrar>("property registrar")
+    companion object : PublicProperty<PropertyRegistrar> by publicProperty("property registrar")
 }

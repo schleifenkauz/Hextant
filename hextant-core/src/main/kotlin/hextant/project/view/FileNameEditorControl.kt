@@ -5,6 +5,7 @@
 package hextant.project.view
 
 import bundles.Bundle
+import bundles.set
 import hextant.core.editor.ValidatedTokenEditor
 import hextant.core.view.ValidatedTokenEditorControl
 import hextant.fx.shortcut

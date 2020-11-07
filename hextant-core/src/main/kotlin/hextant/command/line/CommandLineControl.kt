@@ -5,7 +5,7 @@
 package hextant.command.line
 
 import bundles.Bundle
-import bundles.SimpleProperty
+import bundles.publicProperty
 import hextant.codegen.ProvideImplementation
 import hextant.command.Command
 import hextant.command.line.CommandLine.HistoryItem
@@ -129,6 +129,9 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
     companion object {
         private const val HISTORY_ITEM_HEIGHT = 32.0
 
-        val SHOW_HISTORY = SimpleProperty.withDefault("show-history", false)
+        /**
+         * Indicates whether the history box should be shown.
+         */
+        val SHOW_HISTORY = publicProperty("show-history", default = false)
     }
 }

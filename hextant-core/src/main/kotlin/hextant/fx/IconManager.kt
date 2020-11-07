@@ -5,6 +5,7 @@
 package hextant.fx
 
 import bundles.Property
+import bundles.property
 import hextant.context.Internal
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -29,7 +30,5 @@ class IconManager {
         return ImageView(image)
     }
 
-    companion object : Property<IconManager, Any, Internal>("icon manager") {
-        override val default: IconManager = IconManager()
-    }
+    companion object : Property<IconManager, Internal> by property("icon manager", default = IconManager())
 }

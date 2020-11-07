@@ -7,6 +7,7 @@
 package hextant.command
 
 import bundles.Property
+import bundles.property
 import hextant.command.meta.collectProvidedCommands
 import hextant.context.Internal
 import kollektion.ClassDAG
@@ -106,7 +107,7 @@ class Commands private constructor() {
      */
     fun all(): Collection<Command<*, *>> = all
 
-    companion object : Property<Commands, Any, Internal>("commands") {
+    companion object : Property<Commands, Internal> by property("commands") {
         /**
          * Return a new [Commands] object
          */

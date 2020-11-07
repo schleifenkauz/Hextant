@@ -25,6 +25,6 @@ class OperatorApplicationEditorControl @ProvideImplementation(ControlFactory::cl
         view(editor.operand2)
     }
 
-    val border = editor.context[Settings][Style.BorderColor].map { c -> createBorder(Color.web(c), 2.0) }
+    val border = editor.context[Settings].getReactive(Style.BorderColor).map { c -> createBorder(Color.web(c), 2.0) }
     borderProperty().bind(border.asObservableValue())
 })

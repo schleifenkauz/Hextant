@@ -1,8 +1,11 @@
-import bundles.SimpleReactiveProperty
+import ExprPlugin.color
+import bundles.publicProperty
+import bundles.set
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.executingCompoundEdit
 import hextant.context.EditorControlGroup
 import hextant.core.editor.ColorEditor
+import hextant.core.view.AbstractTokenEditorControl
 import hextant.core.view.TokenEditorControl
 import hextant.expr.IntLiteral
 import hextant.expr.Operator
@@ -120,22 +123,23 @@ object ExprPlugin : PluginInitializer({
             }
         }
     }
-    //    context[propertyChangeHandlers].forContext<AbstractTokenEditorControl>().handle(ColorProperty) { control, c ->
-    //        control.root.style = c?.let { "-fx-text-fill: $c" }
-    //    }
+    observeProperty<AbstractTokenEditorControl, String>(color) { control, c ->
+        control.root.style = c.let { "-fx-text-fill: $c" }
+    }
     registerCommand<TokenEditorControl, Unit> {
         description = "Sets the text fill"
         name = "Set Color"
         shortName = "color"
         defaultShortcut("Ctrl+F")
         addParameter<String> {
+            editWith(::ColorEditor)
             name = "color"
             description = "The text fill"
         }
-        executing { v, (c) -> v.arguments[ColorProperty] = c as String? }
+        executing { v, (c) -> v.arguments[color] = c as String }
     }
     configurableProperty(Style.BorderColor) { ctx -> ColorEditor(ctx) }
     stylesheet("expr.css")
 }) {
-    object ColorProperty : SimpleReactiveProperty<String?>("color")
+    val color = publicProperty<String>("color")
 }

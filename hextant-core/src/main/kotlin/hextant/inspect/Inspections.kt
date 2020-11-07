@@ -7,6 +7,7 @@
 package hextant.inspect
 
 import bundles.Property
+import bundles.property
 import hextant.context.Internal
 import kollektion.*
 import reaktive.value.ReactiveBoolean
@@ -119,7 +120,7 @@ class Inspections private constructor() {
      */
     fun all(): Collection<Inspection<*>> = all.asSet()
 
-    companion object : Property<Inspections, Any, Internal>("inspections") {
+    companion object : Property<Inspections, Internal> by property("inspections") {
         /**
          * Create a new [Inspections] object.
          */

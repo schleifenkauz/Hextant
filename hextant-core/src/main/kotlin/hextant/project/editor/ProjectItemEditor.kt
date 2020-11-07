@@ -4,7 +4,8 @@
 
 package hextant.project.editor
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.publicProperty
 import hextant.core.Editor
 import hextant.core.editor.ExpanderConfig
 import hextant.project.ProjectItem
@@ -26,12 +27,12 @@ interface ProjectItemEditor<T, I : ProjectItem<T>> : Editor<I> {
     fun deletePhysical()
 
     companion object {
-        private val config = SimpleProperty<ExpanderConfig<*>>("project item expander config")
+        private val config = publicProperty<ExpanderConfig<*>>("project item expander config")
 
         /**
          * The property that is used by the [FileEditor] to produce a root editor.
          */
         @Suppress("UNCHECKED_CAST")
-        fun <R> expanderConfig() = config as SimpleProperty<ExpanderConfig<out Editor<R>>>
+        fun <R> expanderConfig() = config as PublicProperty<ExpanderConfig<out Editor<R>>>
     }
 }

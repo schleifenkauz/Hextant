@@ -4,7 +4,8 @@
 
 package hextant.launcher
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 import hextant.command.meta.CommandParameter
 import hextant.command.meta.ProvideCommand
 import hextant.context.Context
@@ -107,5 +108,5 @@ internal class ProjectManager(private val globalContext: Context) {
         globalContext[stage].close()
     }
 
-    companion object : SimpleProperty<ProjectManager>("project manager")
+    companion object : PublicProperty<ProjectManager> by property("project manager")
 }

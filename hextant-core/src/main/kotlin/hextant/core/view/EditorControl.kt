@@ -2,10 +2,11 @@
  *@author Nikolaus Knop
  */
 
+@file:Suppress("UNCHECKED_CAST")
+
 package hextant.core.view
 
-import bundles.Bundle
-import bundles.Property
+import bundles.*
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.meta.ProvideCommand
 import hextant.context.*
@@ -15,7 +16,6 @@ import hextant.core.editor.copyToClipboard
 import hextant.core.editor.pasteFromClipboard
 import hextant.fx.*
 import hextant.inspect.Inspections
-import hextant.serial.BundleEntry
 import hextant.serial.Snapshot
 import javafx.scene.Node
 import javafx.scene.control.Control
@@ -60,8 +60,8 @@ abstract class EditorControl<R : Node>(
 
     private val editorChildren = mutableListOf<EditorControl<*>>()
 
-    private val changedArguments = mutableMapOf<Property<*, *, *>, Any?>()
-    private val propertyChangeHandlers = context[Internal, Properties.propertyChangeHandlers]
+    private val changedArguments = mutableMapOf<Property<*, *>, Any>()
+    private val propertyChangeHandlers = context[Properties.propertyChangeHandler]
     private val propertyObserver: Observer
 
     /**
@@ -91,11 +91,13 @@ abstract class EditorControl<R : Node>(
     init {
         styleClass.add("editor-control")
         for ((p, v) in arguments.entries) {
-            propertyChangeHandlers.handle(this, p, v)
+            propertyChangeHandlers.valueChanged(this, p as Property<Any, *>, v)
         }
         propertyObserver = arguments.changed.observe(this) { _, change ->
-            changedArguments[change.property] = change.newValue
-            propertyChangeHandlers.handle(this, change.property, change.newValue)
+            val new = change.newValue ?: change.property.default!!
+            if (change.newValue != null) changedArguments[change.property] = change.newValue!!
+            else changedArguments.remove(change.property)
+            propertyChangeHandlers.valueChanged(this, change.property as Property<Any, *>, new)
             argumentChanged(change.property, change.newValue)
         }
         sceneProperty().addListener(this) { sc ->
@@ -108,7 +110,7 @@ abstract class EditorControl<R : Node>(
     /**
      * Is called when one of the display [arguments] changed.
      */
-    open fun argumentChanged(property: Property<*, *, *>, value: Any?) {}
+    open fun argumentChanged(property: Property<*, *>, value: Any?) {}
 
     internal open fun setEditorParent(parent: EditorControl<*>?) {
         editorParent = parent
@@ -370,7 +372,7 @@ abstract class EditorControl<R : Node>(
     override fun createSnapshot(): Snapshot<*> = Snap()
 
     private class Snap : Snapshot<EditorControl<*>>() {
-        private lateinit var changedArguments: Map<Property<*, *, *>, Any?>
+        private lateinit var changedArguments: Map<Property<*, *>, Any>
         private lateinit var children: List<Snapshot<EditorControl<*>>>
 
         override fun doRecord(original: EditorControl<*>) {
@@ -381,7 +383,7 @@ abstract class EditorControl<R : Node>(
         override fun reconstruct(original: EditorControl<*>) {
             for ((p, v) in changedArguments) {
                 @Suppress("UNCHECKED_CAST")
-                p as Property<Any?, Any, Any>
+                p as PublicProperty<Any>
                 original.arguments[p] = v
             }
             for ((child, snapshot) in original.editorChildren().zip(children)) {
@@ -390,14 +392,12 @@ abstract class EditorControl<R : Node>(
         }
 
         override fun JsonObjectBuilder.encode() {
-            val entries = changedArguments.entries.map { (p, v) -> BundleEntry(p, v) }
-            put("arguments", Json.encodeToJsonElement(entries))
+            put("arguments", Json.encodeToJsonElement(changedArguments))
             put("children", JsonArray(children.map { it.encode() }))
         }
 
         override fun decode(element: JsonObject) {
-            val entries: List<BundleEntry> = Json.decodeFromJsonElement(element.getValue("arguments"))
-            changedArguments = entries.associate { it.property to it.value }
+            changedArguments = Json.decodeFromJsonElement(element.getValue("arguments"))
             children = element.getValue("children").jsonArray.map { decode<EditorControl<*>>(it) }
         }
     }

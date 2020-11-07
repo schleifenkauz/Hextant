@@ -4,10 +4,10 @@
 
 package hextant.settings
 
-import bundles.Property
+import bundles.PublicProperty
 import hextant.context.EditorFactory
 
 internal data class ConfigurableProperty<T : Any>(
-    val property: Property<T, *, Any>,
+    val property: PublicProperty<T>,
     val editorFactory: EditorFactory<T>
 )

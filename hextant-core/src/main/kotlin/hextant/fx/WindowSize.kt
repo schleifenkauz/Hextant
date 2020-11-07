@@ -1,6 +1,7 @@
 package hextant.fx
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 
 /**
  * Used to configure the size of the window that is used to display a hextant project.
@@ -33,7 +34,5 @@ sealed class WindowSize {
      */
     data class Configured(val width: Double, val height: Double) : WindowSize()
 
-    companion object : SimpleProperty<WindowSize>("window size") {
-        override val default: WindowSize = Default
-    }
+    companion object : PublicProperty<WindowSize> by property("window size", default = Default)
 }

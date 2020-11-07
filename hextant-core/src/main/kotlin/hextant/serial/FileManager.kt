@@ -4,7 +4,8 @@
 
 package hextant.serial
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 import hextant.context.Context
 import hextant.core.Editor
 import java.io.File
@@ -46,5 +47,5 @@ interface FileManager {
      */
     fun deleteDirectory(dir: File)
 
-    companion object : SimpleProperty<FileManager>("file manager")
+    companion object : PublicProperty<FileManager> by property("file manager")
 }

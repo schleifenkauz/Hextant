@@ -4,8 +4,7 @@
 
 package hextant.context
 
-import bundles.Bundle
-import bundles.SimpleProperty
+import bundles.*
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.generated.createControl
@@ -33,5 +32,5 @@ class EditorControlGroup : ViewGroup<EditorControl<*>> {
 
     override fun hasViewFor(editor: Editor<*>): Boolean = views.containsKey(editor)
 
-    companion object : SimpleProperty<EditorControlGroup>("editor control group")
+    companion object : PublicProperty<EditorControlGroup> by property("editor control group")
 }

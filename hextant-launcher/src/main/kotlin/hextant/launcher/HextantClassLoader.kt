@@ -4,7 +4,8 @@
 
 package hextant.launcher
 
-import bundles.SimpleProperty
+import bundles.PublicProperty
+import bundles.property
 import hextant.context.Context
 import hextant.launcher.GlobalDirectory.Companion.PLUGIN_CACHE
 import java.net.URLClassLoader
@@ -35,7 +36,7 @@ internal class HextantClassLoader(
         return t
     }
 
-    companion object : SimpleProperty<HextantClassLoader>("hextant class loader") {
+    companion object : PublicProperty<HextantClassLoader> by property("hextant class loader") {
         private val systemCL = ClassLoader.getSystemClassLoader()
     }
 }
