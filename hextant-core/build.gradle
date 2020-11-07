@@ -10,12 +10,6 @@ kapt {
     annotationProcessors("hextant.codegen.MainProcessor")
 }
 
-task('hextantPublish', type: Copy) {
-    from jar.outputs.files
-    into System.getProperty('user.home') + '/hextant/plugins'
-    rename '(.+)', 'core.jar'
-}
-
 static def nkb03(String dep, String version) {
     return "com.github.nkb03:$dep:$version"
 }

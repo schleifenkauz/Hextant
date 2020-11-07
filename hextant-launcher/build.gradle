@@ -44,3 +44,9 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
+task('hextantPublish', type: Copy) {
+    from jar.outputs.files
+    into System.getProperty('user.home') + '/hextant'
+    rename '(.+)', 'launcher.jar'
+}
