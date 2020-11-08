@@ -106,16 +106,15 @@ object ExprPlugin : PluginInitializer({
         shortName = "wrap"
         defaultShortcut("Ctrl+W")
         applicableIf { it.isExpanded }
-        addParameter<Operator> {
+        val op = addParameter<Operator> {
             name = "operator"
         }
-        executing { expander, (op) ->
+        executing { expander, args ->
             expander.context.compoundEdit("Wrap in binary expression") {
-                op as Operator
                 val editor = expander.editor.now!!
                 val app = OperatorApplicationEditor(editor.context)
                 expander.setEditor(app)
-                app.operator.setText(op.name)
+                app.operator.setText(args[op].name)
                 app.operand1.setEditor(editor)
                 runFXWithTimeout {
                     expander.context[EditorControlGroup].getViewOf(app.operand2).receiveFocus()
@@ -131,12 +130,12 @@ object ExprPlugin : PluginInitializer({
         name = "Set Color"
         shortName = "color"
         defaultShortcut("Ctrl+F")
-        addParameter<String> {
+        val c = addParameter<String> {
             editWith(::ColorEditor)
             name = "color"
             description = "The text fill"
         }
-        executing { v, (c) -> v.arguments[color] = c as String }
+        executing { v, args -> v.arguments[color] = args[c] }
     }
     configurableProperty(Style.BorderColor) { ctx -> ColorEditor(ctx) }
     stylesheet("expr.css")

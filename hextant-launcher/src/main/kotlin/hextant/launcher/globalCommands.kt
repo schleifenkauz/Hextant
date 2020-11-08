@@ -69,17 +69,16 @@ internal fun enablePlugin(types: Set<PluginInfo.Type>) = command<Context, Unit> 
     description = "Enables a plugin"
     type = SingleReceiver
     applicableIf { ctx -> ctx.hasProperty(PluginManager) }
-    addParameter<PluginInfo> {
+    val plugin = addParameter<PluginInfo> {
         name = "plugin"
         description = "The plugin that should be enabled"
         editWith { ctx -> DisabledPluginInfoEditor(ctx, types) }
     }
-    executing { context, (plugin) ->
-        plugin as PluginInfo
+    executing { context, args ->
         val manager = context[PluginManager]
         val editor = PluginsEditor(context, manager, emptySet())
         val view = context.createControl(editor) as PluginsEditorView
-        editor.enable(manager.getPlugin(plugin.id), view)
+        editor.enable(manager.getPlugin(args[plugin].id), view)
     }
 }
 
@@ -89,16 +88,15 @@ internal val disablePlugin = command<Context, Unit> {
     description = "Disables a plugin"
     type = SingleReceiver
     applicableIf { ctx -> ctx.hasProperty(PluginManager) }
-    addParameter<PluginInfo> {
+    val plugin = addParameter<PluginInfo> {
         name = "plugin"
         description = "The plugin that should be disabled"
         editWith<EnabledPluginInfoEditor>()
     }
-    executing { context, (plugin) ->
-        plugin as PluginInfo
+    executing { context, args ->
         val manager = context[PluginManager]
         val editor = PluginsEditor(context, manager, emptySet())
         val view = context.createControl(editor) as PluginsEditorView
-        editor.disable(manager.getPlugin(plugin.id), view)
+        editor.disable(manager.getPlugin(args[plugin].id), view)
     }
 }

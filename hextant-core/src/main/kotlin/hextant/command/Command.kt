@@ -16,9 +16,9 @@ import kotlin.reflect.KClass
  */
 interface Command<in R : Any, out T : Any> : Enabled {
     /**
-     * Execute this command on [receiver] with the specified [args]
+     * Execute this command on [receiver] with the specified [arguments]
      */
-    fun execute(receiver: R, args: List<Any>): T
+    fun execute(receiver: R, arguments: List<Any>): T
 
     /**
      * @return the short name of this [Command]
@@ -50,7 +50,7 @@ interface Command<in R : Any, out T : Any> : Enabled {
     /**
      * The parameters of this [Command]
      */
-    val parameters: List<Parameter>
+    val parameters: List<Parameter<*>>
 
     /**
      * @return the description of this [Command]
@@ -125,9 +125,9 @@ interface Command<in R : Any, out T : Any> : Enabled {
      * @property description explains what this parameter is used for
      * @property editWith if not `null` this class of editor is used for editing the value of this parameter
      */
-    data class Parameter(
+    data class Parameter<T : Any>(
         val name: String,
-        val type: KClass<*>,
+        val type: KClass<T>,
         val description: String,
         val editWith: EditorFactory<*>?
     ) {
@@ -145,7 +145,7 @@ interface Command<in R : Any, out T : Any> : Enabled {
      * @param type the type of the parameter
      */
     @Builder
-    class ParameterBuilder<T : Any> @PublishedApi internal constructor(val type: KClass<*>) {
+    class ParameterBuilder<T : Any> @PublishedApi internal constructor(val type: KClass<T>) {
         /**
          * The name of the parameter
          */
@@ -180,6 +180,6 @@ interface Command<in R : Any, out T : Any> : Enabled {
             editWith(E::class)
         }
 
-        @PublishedApi internal fun build(): Parameter = Parameter(name, type, description, editorFactory)
+        @PublishedApi internal fun build(): Parameter<T> = Parameter(name, type, description, editorFactory)
     }
 }

@@ -12,17 +12,17 @@ internal val enable = command<Context, String> {
     name = "enable"
     description = "Enables the given object"
     shortName = "enable"
-    addParameter<Enabled> {
+    val enabled = addParameter<Enabled> {
         editWith { ctx -> EnabledEditor(ctx, enabled = false) }
         name = "enabled"
         description = "The object to enable"
     }
-    executing { _, (enabled) ->
-        enabled as Enabled
-        if (enabled.isEnabled.now) "Already enabled"
+    executing { _, args ->
+        val e = args[enabled]
+        if (e.isEnabled.now) "Already enabled"
         else {
-            enabled.enable()
-            "Enabled ${enabled.id}"
+            e.enable()
+            "Enabled ${e.id}"
         }
     }
 }
@@ -31,17 +31,17 @@ internal val disable = command<Context, String> {
     name = "disable"
     description = "Disables the given object"
     shortName = "disable"
-    addParameter<Enabled> {
+    val enabled = addParameter<Enabled> {
         editWith { ctx -> EnabledEditor(ctx, enabled = true) }
         name = "disabled"
         description = "The object to disabled"
     }
-    executing { _, (enabled) ->
-        enabled as Enabled
-        if (!enabled.isEnabled.now) "Already disabled"
+    executing { _, args ->
+        val e = args[enabled]
+        if (!e.isEnabled.now) "Already disabled"
         else {
-            enabled.disable()
-            "Disabled ${enabled.id}"
+            e.disable()
+            "Disabled ${e.id}"
         }
     }
 }

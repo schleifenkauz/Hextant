@@ -21,14 +21,16 @@ internal class DelegatedCommand<D : Any, T : Any, F : Any>(
         get() = original.category
     override val shortcut: Shortcut?
         get() = original.shortcut
-    override val parameters: List<Parameter>
+    override val parameters: List<Parameter<*>>
         get() = original.parameters
     override val description: String
         get() = original.description
     override val commandType: Type
         get() = original.commandType
 
-    override fun doExecute(receiver: F, args: List<Any>): T = original.execute(delegation(receiver)!!, args)
+    override fun doExecute(receiver: F, args: CommandArguments): T = original.execute(delegation(receiver)!!, args)
+
+    override fun execute(receiver: F, arguments: List<Any>): T = original.execute(delegation(receiver)!!, arguments)
 
     @Suppress("UNCHECKED_CAST")
     override fun isApplicableOn(receiver: Any): Boolean {

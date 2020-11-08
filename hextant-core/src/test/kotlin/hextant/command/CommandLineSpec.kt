@@ -30,13 +30,12 @@ internal object CommandLineSpec : Spek({
             description = "command with parameter"
             shortName = "command2"
             name = "command2"
-            addParameter<IntLiteral> {
+            val x = addParameter<IntLiteral> {
                 description = "the parameter"
                 this.name = "x"
             }
-            executing { target, (x) ->
-                x as IntLiteral
-                target.execute(x.value)
+            executing { target, args ->
+                target.execute(args[x].value)
             }
         }
         val commands = Commands.newInstance()

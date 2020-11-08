@@ -11,13 +11,12 @@ internal object CommandSpec : Spek({
         val c = command<CommandSpec, Int> {
             description = "double the passed argument"
             name = "dbl"
-            addParameters {
-                "x"<Int> {
-                    description = "The doubled value"
-                }
+            val x = addParameter<Int> {
+                name = "x"
+                description = "The doubled value"
             }
             executing { spec, args ->
-                spec.double(args[0] as Int)
+                spec.double(args[x])
             }
         }
         on("executing it") {

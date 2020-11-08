@@ -8,7 +8,7 @@ import hextant.command.Command.ParameterBuilder
  */
 @Builder
 class ParametersBuilder @PublishedApi internal constructor() {
-    @PublishedApi internal val parameters: MutableList<Parameter> = mutableListOf()
+    @PublishedApi internal val parameters: MutableList<Parameter<*>> = mutableListOf()
 
     /**
      * Add a parameter build with [block]
@@ -35,5 +35,5 @@ class ParametersBuilder @PublishedApi internal constructor() {
         add(this, block)
     }
 
-    @PublishedApi internal fun build(): List<Parameter> = parameters
+    @PublishedApi internal fun build(): List<Parameter<*>> = parameters
 }

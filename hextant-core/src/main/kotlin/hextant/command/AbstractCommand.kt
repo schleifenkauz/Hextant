@@ -29,24 +29,16 @@ abstract class AbstractCommand<R : Any, T : Any>(
     override val commandType: Type
         get() = MultipleReceivers
 
-    private fun checkArgs(args: List<Any>) {
-        if (args.size > parameters.size) throw ArgumentMismatchException("To many arguments for command $this")
-        if (args.size < parameters.size) throw ArgumentMismatchException("To few arguments for command $this")
-        for ((a, p) in args.zip(parameters)) {
-            if (!p.type.isInstance(a)) throw ArgumentMismatchException("Parameter $a is not an instance of ${p.type}")
-        }
-    }
-
     /**
      * Execute this [Command] on the specified [receiver] and the specified [args]
      */
-    protected abstract fun doExecute(receiver: R, args: List<Any>): T
+    protected abstract fun doExecute(receiver: R, args: CommandArguments): T
 
     /**
-     * Check that the specified [args] match [parameters] and then call [doExecute]
+     * Check that the specified [arguments] match [parameters] and then call [doExecute]
      */
-    final override fun execute(receiver: R, args: List<Any>): T {
-        checkArgs(args)
+    override fun execute(receiver: R, arguments: List<Any>): T {
+        val args = CommandArguments(parameters, arguments)
         return doExecute(receiver, args)
     }
 

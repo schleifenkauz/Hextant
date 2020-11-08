@@ -2,8 +2,6 @@
  * @author Nikolaus Knop
  */
 
-@file:Suppress("UNCHECKED_CAST")
-
 package hextant.plugin
 
 import bundles.*
@@ -75,6 +73,7 @@ fun <T : Any> PluginBuilder.set(property: PublicProperty<T>, value: T) {
     set(property, value)
 }
 
+@Suppress("UNCHECKED_CAST")
 @PublishedApi internal fun <T : Any, P : Permission> PluginBuilder.persistentProperty(
     permission: P,
     property: Property<T, P>,
@@ -125,6 +124,7 @@ private fun getPath(ctx: Context, property: Property<*, *>) = ctx[projectRoot].r
  * @param editorFactory produces the editor used to edit the value of this property.
  * Configurable properties can be set by the user via the command line.
  */
+@Suppress("UNCHECKED_CAST")
 fun <T : Any> PluginBuilder.configurableProperty(property: PublicProperty<T>, editorFactory: EditorFactory<T>) {
     val p = ConfigurableProperty(property, editorFactory)
     registerCommand<Context, Unit> {
@@ -132,13 +132,13 @@ fun <T : Any> PluginBuilder.configurableProperty(property: PublicProperty<T>, ed
         shortName = "set-${property.name}"
         description = "Sets the value of the property ${property.name}"
         applicableIf { ctx -> ctx.hasProperty(Settings) }
-        addParameter<Any> {
+        val value = addParameter<Any> {
             name = "value"
             description = "The value"
             editWith(editorFactory)
         }
-        executing { ctx, (value) ->
-            ctx[Settings][property] = value as T
+        executing { ctx, args ->
+            ctx[Settings][property] = args[value] as T
         }
     }
     on(Initialize) { ctx -> ctx[PropertyRegistrar].configurable.add(p) }

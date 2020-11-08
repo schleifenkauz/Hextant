@@ -1,6 +1,7 @@
 package hextant.setup
 
 import hextant.install.*
+import hextant.install.OperatingSystem.*
 import java.io.File
 import java.util.prefs.Preferences
 import kotlin.system.exitProcess
@@ -11,40 +12,27 @@ object Main {
     @JvmStatic
     fun main(vararg args: String) {
         checkJavaVersion()
-        if (args.isEmpty()) {
-            launch()
-            return
-        }
-        when (args[0]) {
+        when (args.firstOrNull()) {
+            null -> launch()
             "help" -> printHelp()
+            "make-alias" -> makeAlias()
             "update", "install" -> updateOrInstall(*args)
             "launch" -> {
-                if (args.size != 1) {
-                    System.err.println("Usage: launch")
-                    exitProcess(1)
-                }
+                if (args.size != 1) fail("Usage: launch")
                 launch()
             }
-            "open" -> {
-                if (args.size != 2) {
-                    System.err.println("Usage: open <project>")
-                    exitProcess(1)
-                }
-                launch(args[1])
-
-            }
             "set" -> {
-                if (args.size != 3) {
-                    System.err.println("Usage: set <var> <value>")
-                    exitProcess(1)
-                }
+                if (args.size != 3) fail("Usage: set <var> <value>")
                 val (_, prop, value) = args
                 prefs.put(prop, value)
             }
-            else                -> {
-                System.err.println("Unrecognized command ${args[0]}. Use 'help' to print help.")
-            }
+            else                -> fail("Unrecognized command ${args[0]}. Use 'help' to print help.")
         }
+    }
+
+    private fun fail(message: String) {
+        System.err.println(message)
+        exitProcess(1)
     }
 
     private fun printHelp() {
@@ -56,17 +44,24 @@ object Main {
         println("update <plugins>: updates the specified plugins")
         println("Plugins can either be specified as an URL pointing to their version control repository or as a maven coordinate without version")
         println("launch: launches Hextant")
-        println("open <project>: opens the specified project")
         println("set <var> <value>: sets the value of a variable in the Hextant preferences")
+    }
+
+    private fun makeAlias() = CLI {
+        val jar = File(javaClass.protectionDomain.codeSource.location.toURI())
+        when (OperatingSystem.get()) {
+            Windows -> run("doskey", "hextant=java -jar $jar")
+            Linux, Mac -> run("alias", "hextant='java -jar $jar'")
+        }
     }
 
     private fun updateOrInstall(vararg args: String) {
         if (args.size == 1) {
-            installOrUpdate("core")
-            installOrUpdate("launcher")
+            updateOrInstall("core")
+            updateOrInstall("launcher")
         }
         for (ref in args.drop(1)) {
-            installOrUpdate(ref)
+            updateOrInstall(ref)
         }
     }
 
@@ -79,7 +74,7 @@ object Main {
         }
     }
 
-    private fun installOrUpdate(ref: String) {
+    private fun updateOrInstall(ref: String) {
         when (ref) {
             "core" -> HEXTANT_CORE.installOrUpdate(HextantDirectory.resolve("plugins", "core.jar"))
             "launcher" -> HEXTANT_LAUNCHER.installOrUpdate(HextantDirectory.resolve("launcher.jar"))
@@ -94,7 +89,7 @@ object Main {
         }
     }
 
-    private fun launch(project: String = "") = CLI {
+    private fun launch() = CLI {
         val sdk = prefs.get(JAVAFX_SDK, null) ?: System.getenv(JAVAFX_SDK) ?: askJavaFXSDK()
         val core = HextantDirectory.resolve("plugins", "core.jar")
         val launcher = HextantDirectory.resolve("launcher.jar")
@@ -108,8 +103,7 @@ object Main {
             "--add-modules", "javafx.controls",
             "--add-opens", "java.base/jdk.internal.loader=ALL-UNNAMED",
             "-classpath", "$launcher${File.pathSeparatorChar}$core",
-            "hextant.launcher.Main",
-            project
+            "hextant.launcher.Main"
         )
     }
 

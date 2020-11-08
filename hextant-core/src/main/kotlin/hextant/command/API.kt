@@ -28,7 +28,7 @@ inline fun <reified R : Any, T : Any> command(block: CommandBuilder<R, T>.() -> 
  */
 @OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T : Any> parameter(block: ParameterBuilder<T>.() -> Unit) =
-    ParameterBuilder<T>(T::class).apply(block).build()
+    ParameterBuilder(T::class).apply(block).build()
 
 /**
  * Build [Command.Parameter]s
@@ -54,8 +54,8 @@ inline fun <reified R : Any, T : Any> Commands.registerCommand(build: CommandBui
  * to a compound edit with the name of this command as the action description.
  */
 inline fun <E : Editor<*>, T : Any> CommandBuilder<E, T>.executingCompoundEdit(crossinline actions: (E, List<Any?>) -> T) {
-    executing { e, list ->
-        e.context.compoundEdit(name) { actions(e, list) }
+    executing { e, arguments ->
+        e.context.compoundEdit(name) { actions(e, arguments) }
     }
 }
 

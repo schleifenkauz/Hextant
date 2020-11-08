@@ -74,7 +74,7 @@ private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun KParameter.extractParameter(): Command.Parameter {
+private fun KParameter.extractParameter(): Command.Parameter<*> {
     val ann = findAnnotation<CommandParameter>()
     val name = ann?.name?.takeIf { it != DEFAULT } ?: this.name ?: throw Exception("Parameter $this has no name")
     val desc = ann?.description?.takeIf { it != NONE } ?: "No description provided"

@@ -19,13 +19,12 @@ internal object Data {
             name = "print argument"
             description = "prints the argument"
             shortName = "printarg"
-            addParameter<IntLiteral> {
+            val p1 = addParameter<IntLiteral> {
                 name = "arg"
                 description = "The value to print"
             }
-            executing { _, (p1) ->
-                p1 as IntLiteral
-                println(p1.value)
+            executing { _, args ->
+                println(args[p1].value)
             }
             applicableIf { it.isApplicable }
         },
@@ -33,18 +32,16 @@ internal object Data {
             name = "Print sum"
             description = "Prints the sum of two integers"
             shortName = "pntsm"
-            addParameter<IntLiteral> {
+            val p1 = addParameter<IntLiteral> {
                 name = "op1"
                 description = "The first operand"
             }
-            addParameter<IntLiteral> {
+            val p2 = addParameter<IntLiteral> {
                 name = "op2"
                 description = "The second operand"
             }
-            executing { _, (p1, p2) ->
-                p1 as IntLiteral
-                p2 as IntLiteral
-                println(p1.value + p2.value)
+            executing { _, args ->
+                println(args[p1].value + args[p2].value)
             }
             applicableIf { it.isApplicable }
         }

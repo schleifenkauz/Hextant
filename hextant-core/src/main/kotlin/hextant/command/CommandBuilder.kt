@@ -55,11 +55,11 @@ class CommandBuilder<R : Any, T : Any> @PublishedApi internal constructor(privat
      */
     var type: Command.Type = Command.Type.SingleReceiver
 
-    private lateinit var execute: (R, List<Any?>) -> T
+    private lateinit var execute: (R, CommandArguments) -> T
 
     private var applicable: (R) -> Boolean = { true }
 
-    @PublishedApi internal val parameters: MutableList<Command.Parameter> = LinkedList()
+    @PublishedApi internal val parameters: MutableList<Command.Parameter<*>> = LinkedList()
 
     /**
      * Indicates whether the built command should be enabled by default.
@@ -69,22 +69,24 @@ class CommandBuilder<R : Any, T : Any> @PublishedApi internal constructor(privat
     /**
      * Sets the executed function of the built command to [block]
      */
-    fun executing(block: (R, List<Any?>) -> T) {
+    fun executing(block: (R, CommandArguments) -> T) {
         execute = block
     }
 
     /**
      * Adds the specified [parameter] to the built command
      */
-    fun addParameter(parameter: Command.Parameter) {
+    fun addParameter(parameter: Command.Parameter<*>) {
         parameters.add(parameter)
     }
 
     /**
      * Adds a [Command.Parameter] build with [build] to the built command
      */
-    inline fun <reified P : Any> addParameter(build: ParameterBuilder<P>.() -> Unit) {
-        addParameter(parameter(build))
+    inline fun <reified P : Any> addParameter(build: ParameterBuilder<P>.() -> Unit): Command.Parameter<P> {
+        val param = parameter(build)
+        addParameter(param)
+        return param
     }
 
     /**

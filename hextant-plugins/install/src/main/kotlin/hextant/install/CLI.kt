@@ -4,6 +4,7 @@
 
 package hextant.install
 
+import hextant.install.OperatingSystem.*
 import java.io.File
 
 class CLI private constructor(private var workingDirectory: File) {
@@ -17,12 +18,9 @@ class CLI private constructor(private var workingDirectory: File) {
     }
 
     fun gradle(vararg command: String) {
-        val os = System.getProperty("os.name").toLowerCase()
-        when {
-            "windows" in os               -> run(workingDirectory.resolve("gradlew.bat").absolutePath, *command)
-            "nux" in os                   -> run("sh", "gradlew", *command)
-            "mac" in os || "darwin" in os -> run("sh", "gradlew", *command)
-            else                          -> error("Unknown operating system: $os")
+        when (OperatingSystem.get()) {
+            Windows -> run(workingDirectory.resolve("gradlew.bat").absolutePath, *command)
+            Linux, Mac -> run("sh", "gradlew", *command)
         }
     }
 
@@ -30,14 +28,17 @@ class CLI private constructor(private var workingDirectory: File) {
         run("java", *command)
     }
 
-    private fun run(vararg command: String) {
+    fun run(vararg command: String) {
         println("Running ${command.joinToString(" ")}")
-        val exitCode = ProcessBuilder()
+        val proc = ProcessBuilder()
             .directory(workingDirectory)
             .command(*command)
-            .inheritIO()
             .start()
-            .waitFor()
+        runningProcesses.add(proc)
+        proc.inputStream.transferTo(System.out)
+        proc.errorStream.transferTo(System.err)
+        val exitCode = proc.waitFor()
+        runningProcesses.remove(proc)
         if (exitCode != 0) {
             val cmd = command.joinToString(separator = " ")
             error("Command $cmd finished with non zero")
@@ -55,6 +56,13 @@ class CLI private constructor(private var workingDirectory: File) {
     companion object {
         operator fun invoke(workingDirectory: File = File("/"), body: CLI.() -> Unit) {
             CLI(workingDirectory).body()
+        }
+
+        private val runningProcesses = mutableSetOf<Process>()
+
+        fun destroyAllChildProcesses() {
+            for (process in runningProcesses) process.destroy()
+            runningProcesses.clear()
         }
     }
 }
