@@ -55,9 +55,11 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         registerShortcuts {
             on("Ctrl + R") {
                 cl.reset()
+                runFXWithTimeout { receiveFocus() }
             }
             on("Ctrl + Enter") {
                 cl.execute()
+                runFXWithTimeout { receiveFocus() }
             }
             on("Enter") {
                 cl.expand()
@@ -112,7 +114,6 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         current.children.setAll(commandName)
         commandName.isEditable = true
         popup.updateInput("")
-        runFXWithTimeout { receiveFocus() }
     }
 
     override fun addToHistory(item: HistoryItem) {
@@ -136,6 +137,8 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         if (this.arguments[HISTORY_ITEMS] == 1) {
             if (root.children.size == 2) root.children[0] = box
             else root.children.add(0, box)
+        } else if (history.children.size == 1) {
+            root.children.add(0, scrollPane)
         }
         runFXWithTimeout { scrollPane.vvalue = 1.0 }
     }
@@ -148,7 +151,8 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
     }
 
     override fun createDefaultRoot(): Pane = vbox {
-        if (arguments[HISTORY_ITEMS] > 1) add(scrollPane)
+        if (arguments[HISTORY_ITEMS] == 1 && history.children.isNotEmpty()) add(history.children.last())
+        else if (arguments[HISTORY_ITEMS] > 1 && history.children.isNotEmpty()) add(scrollPane)
         add(current)
     }
 

@@ -27,10 +27,10 @@ internal class HextantLauncher(global: Context, private val context: Context) : 
     }
 
     private val root = hbox {
-        setPrefSize(400.0, 400.0)
+        setPrefSize(600.0, 600.0)
         alignment = CENTER
         add(vbox()) {
-            setPrefSize(200.0, 400.0)
+            setPrefSize(400.0, 400.0)
             alignment = CENTER
             spacing = 30.0
             add(label()) {
