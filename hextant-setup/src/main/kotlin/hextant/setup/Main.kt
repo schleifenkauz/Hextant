@@ -16,17 +16,48 @@ object Main {
             return
         }
         when (args[0]) {
+            "help" -> printHelp()
             "update", "install" -> updateOrInstall(*args)
-            "launch" -> launch()
+            "launch" -> {
+                if (args.size != 1) {
+                    System.err.println("Usage: launch")
+                    exitProcess(1)
+                }
+                launch()
+            }
+            "open" -> {
+                if (args.size != 2) {
+                    System.err.println("Usage: open <project>")
+                    exitProcess(1)
+                }
+                launch(args[1])
+
+            }
             "set" -> {
                 if (args.size != 3) {
-                    System.err.println("The 'set'-command expects exactly 2 arguments")
+                    System.err.println("Usage: set <var> <value>")
                     exitProcess(1)
                 }
                 val (_, prop, value) = args
                 prefs.put(prop, value)
             }
+            else                -> {
+                System.err.println("Unrecognized command ${args[0]}. Use 'help' to print help.")
+            }
         }
+    }
+
+    private fun printHelp() {
+        println("Usage: ")
+        println("help: display help information about the Hextant installer")
+        println("install: installs the Hextant Core Plugin and the Launcher")
+        println("update: updates the Hextant Core Plugin and the Launcher")
+        println("install <plugins>: installs the specified plugins")
+        println("update <plugins>: updates the specified plugins")
+        println("Plugins can either be specified as an URL pointing to their version control repository or as a maven coordinate without version")
+        println("launch: launches Hextant")
+        println("open <project>: opens the specified project")
+        println("set <var> <value>: sets the value of a variable in the Hextant preferences")
     }
 
     private fun updateOrInstall(vararg args: String) {
@@ -63,7 +94,7 @@ object Main {
         }
     }
 
-    private fun launch() = CLI {
+    private fun launch(project: String = "") = CLI {
         val sdk = prefs.get(JAVAFX_SDK, null) ?: System.getenv(JAVAFX_SDK) ?: askJavaFXSDK()
         val core = HextantDirectory.resolve("plugins", "core.jar")
         val launcher = HextantDirectory.resolve("launcher.jar")
@@ -77,7 +108,8 @@ object Main {
             "--add-modules", "javafx.controls",
             "--add-opens", "java.base/jdk.internal.loader=ALL-UNNAMED",
             "-classpath", "$launcher${File.pathSeparatorChar}$core",
-            "hextant.launcher.Main"
+            "hextant.launcher.Main",
+            project
         )
     }
 

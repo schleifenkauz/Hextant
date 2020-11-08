@@ -26,7 +26,7 @@ As an example, watch this demo of a Hextant plugin for a language similar to Has
 <div></div>
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=09ni_mwsipc
 " target="_blank"><img src="http://img.youtube.com/vi/09ni_mwsipc/0.jpg" 
-alt="Video could not be loaded" width="560" height="315" border="10" /></a>
+alt="Video could not be loaded" width="560" height="315"/></a>
 
 ## How does it work?
 
@@ -118,6 +118,8 @@ see [this](https://github.com/NKb03/Hextant/wiki/Why-structural-editors) article
 
 ## How to get it working on my computer?
 
+### Installing from source
+
 To build and run Hextant on your computer you need Git and version 11 of the Java Development Kit.
 Follow these steps:  
 - Clone the project: ``git clone https://github.com/NKB03/Hextant``.
@@ -127,7 +129,35 @@ you have to use ``gradlew build -PcorrectErrorTypes=false`` instead,
 because otherwise the compilation will fail complaining about missing generated sources.
 - Publish all the default plugins: ``gradlew hextantPublish``.
 - Run the Hextant Launcher: ``gradlew hextant-launcher:run``
-- Now you should see a window, that looks like this:  
+
+### Using the binary
+
+If you don't want to build Hextant from source, you can also use the [installer](https://github.com/NKb03/Hextant/releases/download/v1.0/hextant.jar).
+To be able to install and use Hextant, you need version 11 or higher of the Java SDK and the JavaFX SDK. 
+The JavaFX SDK can be downloaded from [this](https://gluonhq.com/products/javafx/) site.  
+After having installed the JDK and the JavaFX SDK and having downloaded the installer, you can proceed to install Hextant.
+To get the latest version of the Core Plugin and the Hextant Launcher you have to run ``java -jar hextant.jar install``.
+Plugins can be installed and updated from their version control repositories using the ``install`` command.  
+For example: ``java -jar hextant.jar install https://github.com/NKb03/hextant-sample``.  
+To launch Hextant simply use ``java -jar hextant.jar launch`` or double-click the installer.
+When you launch Hextant for the first time the installer will ask you where your JavaFX SDK is located.
+On Linux you can locate your JavaFX SDK by typing ``find / -name javafx.base.jar``.
+Your JavaFX SDK home should have a sub-directory ``lib`` containing amongst others the file ``javafx.base.jar``.
+If you want to change the location of your JavaFX SDK you can use the command ``java -jar hextant.jar set javafx-sdk <new-location>``. 
+If the launcher recognizes the JavaFX SDK then it will hopefully succeed in starting Hextant.
+
+#### Typical errors and solutions
+
+On some systems launching Hextant will throw a ``LayerInstantiationException`` complaining about duplicate modules.
+This is often caused by the duplication of the ``jrt-fs.jar`` module. 
+To check if this is the case on your system use ``find / -name jrt-fs.jar`` 
+to check if there are multiple versions of this file
+and if the module is indeed duplicated it suffices to delete one of the two (not both) files.
+
+### Creating, opening, renaming and deleting projects
+
+No matter whether you built Hextant from source or used the installer, when you launch it, 
+there should appear a window that looks roughly like this:  
 ![Image couldn't be loaded](gif/launcher.png)
 - To create a new project, use the command ``create <project-type> <project-name>``. 
 Some available project types are ``Lisp Project"`` and ``Expression``. 
@@ -137,7 +167,8 @@ Some available project types are ``Lisp Project"`` and ``Expression``.
 - To save the project use ``Ctrl+S`` or type ``save`` into the project command line.
 - To close the project and return to the launcher window use ``Ctrl+Q`` or type ``quit`` into the project command line.
 - To open a project the command ``open <project>`` can be used from the launcher.
-- Commands for renaming and deleting projects are also supported.
+- Renaming projects can be done with the ``rename <old-name> <new-name>`` command.
+- The command ``delete <project>`` deletes a project. 
 
 ## How to contribute?
 
