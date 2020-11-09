@@ -4,14 +4,12 @@
 
 package hextant.core.editor
 
-import validated.Validated
-
 /**
- * A token type is able to compile text to results of type [R]
+ * A token type is able to transform text to results of type [R]
  */
 interface TokenType<out R> {
     /**
-     * Compile the given [token]
+     * Transform the given [token] to a result or return `null` if the [token] is not valid.
      */
-    fun compile(token: String): Validated<R>
+    fun wrap(token: String): R
 }

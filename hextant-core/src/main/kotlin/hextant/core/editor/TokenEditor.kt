@@ -18,8 +18,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.serialization.json.*
 import reaktive.value.*
-import validated.*
-import validated.reaktive.ReactiveValidated
 
 /**
  * A token editor transforms text to tokens.
@@ -37,11 +35,11 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
             val res = when (compilable) {
                 is Completed -> {
                     val comp = compilable.completion
-                    tryCompile(comp.completion).orElse { tryCompile(comp.completionText) }
+                    tryWrap(comp.completion) ?: tryWrap(comp.completionText)
                 }
-                is Text -> tryCompile(compilable.input)
+                is Text -> tryWrap(compilable.input)
             }
-            _result.set(res)
+            _result.set(res ?: defaultResult())
         }
     }
 
@@ -49,9 +47,11 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         withoutUndo { setText(text) }
     }
 
-    private val _result = reactiveVariable(runBlocking { tryCompile("") })
+    private val resultType = getTypeArgument(TokenEditor::class, 0)
 
-    override val result: ReactiveValidated<R> get() = _result
+    private val _result = reactiveVariable(runBlocking { tryWrap("") ?: defaultResult() })
+
+    override val result: ReactiveValue<R> get() = _result
 
     private var _text = reactiveVariable("")
 
@@ -63,17 +63,28 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     private val undo = context[UndoManager]
 
     /**
-     * Make a result from the given completion item.
+     * Make a result from the given completion item or return `null` if this is not possible.
      */
-    protected open fun compile(item: Any): Validated<R> = invalidComponent()
+    protected open fun wrap(item: Any): R? = null
 
-    override fun compile(token: String): Validated<R> = invalidComponent()
+    /**
+     * The default implementation returns [defaultResult].
+     */
+    override fun wrap(token: String): R = defaultResult()
 
-    private suspend fun tryCompile(item: Any): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { withContext(Dispatchers.Default) { compile(item) } }
+    /**
+     * Returns a default result that is used when no valid result can be produced for a token.
+     */
+    protected open fun defaultResult(): R =
+        @Suppress("UNCHECKED_CAST")
+        if (resultType.isMarkedNullable) null as R
+        else error("default implementation of defaultResult() only works for nullable result types")
 
-    private suspend fun tryCompile(text: String): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { withContext(Dispatchers.Default) { compile(text) } }
+    private suspend fun tryWrap(item: Any): R? =
+        context.executeSafely("compiling item", null) { withContext(Dispatchers.Default) { wrap(item) } }
+
+    private suspend fun tryWrap(text: String): R? =
+        context.executeSafely("compiling item", null) { withContext(Dispatchers.Default) { wrap(text) } }
 
     override fun viewAdded(view: V) {
         view.displayText(text.now)

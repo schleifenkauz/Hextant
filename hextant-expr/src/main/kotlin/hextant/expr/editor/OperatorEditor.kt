@@ -17,6 +17,6 @@ class OperatorEditor constructor(context: Context, text: String) :
     @ProvideImplementation(EditorFactory::class)
     constructor(context: Context) : this(context, "")
 
-    override fun compile(token: String): Validated<Operator> =
+    override fun wrap(token: String): Operator =
         token.takeIf { Operator.isValid(it) }.validated { invalid("Invalid operator $token") }.map { Operator.of(it) }
 }

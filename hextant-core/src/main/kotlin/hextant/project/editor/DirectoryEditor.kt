@@ -6,17 +6,17 @@ package hextant.project.editor
 
 import hextant.context.Context
 import hextant.core.editor.CompoundEditor
-import hextant.core.editor.composeResult
+import hextant.core.editor.composeResultNullable
 import hextant.project.Directory
+import reaktive.value.ReactiveValue
 import reaktive.value.now
-import validated.reaktive.ReactiveValidated
 
 /**
  * An editor for directories.
  */
 class DirectoryEditor<R>(
     context: Context
-) : CompoundEditor<Directory<R>>(context), ProjectItemEditor<R, Directory<R>> {
+) : CompoundEditor<Directory<R>?>(context), ProjectItemEditor<R, Directory<R>> {
     override val itemName by child(FileNameEditor(context))
     internal val items by child(ProjectItemListEditor<R>(context))
 
@@ -27,7 +27,7 @@ class DirectoryEditor<R>(
 
     override fun supportsCopyPaste(): Boolean = true
 
-    override val result: ReactiveValidated<Directory<R>> = composeResult(itemName, items)
+    override val result: ReactiveValue<Directory<R>?> = composeResultNullable(itemName, items)
 
     override fun deletePhysical() {}
 }

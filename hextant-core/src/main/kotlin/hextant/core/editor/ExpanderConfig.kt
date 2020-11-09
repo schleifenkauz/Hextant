@@ -7,8 +7,6 @@ package hextant.core.editor
 import hextant.completion.*
 import hextant.context.Context
 import hextant.core.Editor
-import validated.map
-import validated.orNull
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -104,7 +102,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      */
     fun <T> registerTokenInterceptor(tokenType: TokenType<T>, factory: (ctx: Context, token: T) -> E) {
         registerInterceptor { text: String, ctx: Context ->
-            tokenType.compile(text).map { t -> factory(ctx, t) }.orNull()
+            factory(ctx, tokenType.wrap(text))
         }
     }
 

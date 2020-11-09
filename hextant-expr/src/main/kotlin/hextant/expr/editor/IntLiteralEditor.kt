@@ -25,7 +25,7 @@ class IntLiteralEditor(
 
     constructor(v: IntLiteral, context: Context) : this(context, v.value.toString())
 
-    override fun compile(token: String): Validated<IntLiteral> =
+    override fun wrap(token: String): IntLiteral =
         token.toIntOrNull().validated { invalid("Invalid int literal $token") }.map { IntLiteral(it) }
 
     object Completer : ConfiguredCompleter<Context, String>(CompletionStrategy.simple) {

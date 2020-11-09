@@ -24,7 +24,6 @@ import javafx.scene.layout.Region
 import javafx.stage.PopupWindow
 import javafx.stage.Stage
 import reaktive.value.now
-import validated.Validated
 import validated.invalidComponent
 import kotlin.concurrent.thread
 
@@ -144,9 +143,9 @@ fun <R> getUserInput(
     control: Node = editor.context.createControl(editor),
     buttonTypes: List<ButtonType> = listOf(ButtonType.OK, ButtonType.CANCEL),
     applyStyle: Boolean = true
-): Validated<R> {
+): R? {
     editor.makeRoot()
-    val d = Dialog<Validated<R>>()
+    val d = Dialog<R?>()
     d.dialogPane.content = control
     d.dialogPane.buttonTypes.setAll(buttonTypes)
     d.dialogPane.scene.initHextantScene(editor.context, applyStyle)
@@ -158,7 +157,7 @@ fun <R> getUserInput(
     d.setResultConverter { btn ->
         when (btn) {
             ButtonType.OK -> editor.result.now
-            ButtonType.CANCEL -> invalidComponent
+            ButtonType.CANCEL -> null
             else              -> error("Unexpected button type: $btn")
         }
     }
@@ -167,9 +166,12 @@ fun <R> getUserInput(
             editor.context[EditorControlGroup].getViewOf(editor).receiveFocus()
         }
     }
-    return d.showAndWait().orElse(invalidComponent)
+    return d.showAndWait().orElse(null)
 }
 
+/**
+ * Registers shortcuts for every command applicable on the given [target].
+ */
 fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context) {
     for (command in context[Commands].applicableOn(target)) {
         val shortcut = command.shortcut

@@ -11,6 +11,7 @@ import hextant.serial.*
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
 import reaktive.value.*
+import kotlin.reflect.jvm.jvmErasure
 
 /**
  * Skeletal implementation for [Editor]s
@@ -87,7 +88,7 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
 
     @Suppress("UNCHECKED_CAST")
     override fun paste(snapshot: Snapshot<out Editor<*>>): Boolean {
-        val cls = snapshot.getTypeArgument(Snapshot::class, 0)
+        val cls = snapshot.getTypeArgument(Snapshot::class, 0).jvmErasure
         if (!cls.isInstance(this)) return false
         snapshot as Snapshot<Editor<*>>
         snapshot.reconstruct(this)

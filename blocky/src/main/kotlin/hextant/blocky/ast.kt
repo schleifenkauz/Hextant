@@ -7,17 +7,13 @@ package hextant.blocky
 import hextant.blocky.editor.*
 import hextant.codegen.*
 import hextant.core.editor.TokenType
-import validated.*
 
 @Token
 data class Id(private val str: String) {
     override fun toString(): String = str
 
     companion object : TokenType<Id> {
-        override fun compile(token: String): Validated<Id> = token
-            .takeIf { it.all { c -> c.isLetter() } }
-            .validated { invalid("Invalid identifier '$token'") }
-            .map(::Id)
+        override fun wrap(token: String): Id = Id(token)
     }
 }
 
@@ -27,9 +23,8 @@ sealed class Expr
 
 @Token(subtypeOf = Expr::class)
 data class IntLiteral(val value: Int) : Expr() {
-    companion object : TokenType<IntLiteral> {
-        override fun compile(token: String): Validated<IntLiteral> =
-            token.toIntOrNull()?.let(::IntLiteral).validated { invalid("Invalid integer literal $token") }
+    companion object : TokenType<IntLiteral?> {
+        override fun wrap(token: String): IntLiteral? = token.toIntOrNull()?.let(::IntLiteral)
     }
 }
 
@@ -45,11 +40,10 @@ enum class BinaryOperator(private val str: String) {
 
     override fun toString(): String = str
 
-    companion object : TokenType<BinaryOperator> {
+    companion object : TokenType<BinaryOperator?> {
         private val operators = values().associateBy { it.str }
 
-        override fun compile(token: String): Validated<BinaryOperator> =
-            operators[token].validated { invalid("Invalid binary operator $token") }
+        override fun wrap(token: String): BinaryOperator? = operators[token]
     }
 }
 
@@ -62,11 +56,10 @@ enum class UnaryOperator(private val str: String) {
 
     override fun toString(): String = str
 
-    companion object : TokenType<UnaryOperator> {
+    companion object : TokenType<UnaryOperator?> {
         private val operators = values().associateBy { it.str }
 
-        override fun compile(token: String): Validated<UnaryOperator> =
-            operators[token].validated { invalid("Invalid binary operator $token") }
+        override fun wrap(token: String): UnaryOperator? = operators[token]
     }
 }
 

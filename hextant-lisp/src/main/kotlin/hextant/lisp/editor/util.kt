@@ -15,10 +15,7 @@ import hextant.plugin.PluginBuilder.Phase.Disable
 import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.plugin.registerInspection
 import reaktive.list.ReactiveList
-import reaktive.map
 import reaktive.value.now
-import validated.force
-import validated.orNull
 
 fun SExpr.reconstructEditor(context: Context): SExprExpander = SExprExpander(context).also { e -> e.reconstruct(this) }
 
@@ -74,7 +71,7 @@ val beautify = command<CallExprEditor, Unit> {
     description = "Replaces a common S-Expr with a special syntax"
     defaultShortcut("Ctrl?+B")
     applicableIf { e ->
-        val sym = e.expressions.results.now.firstOrNull()?.orNull() as? Symbol ?: return@applicableIf false
+        val sym = e.expressions.results.now.firstOrNull().orNull() as? Symbol ?: return@applicableIf false
         val syntax = SpecialSyntax.get(sym.name) ?: return@applicableIf false
         val editors = e.expressions.editors.now.map { it.editor.now }
         syntax.arity + 1 == editors.size && syntax.representsEditors(editors)

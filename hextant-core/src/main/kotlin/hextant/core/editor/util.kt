@@ -9,10 +9,12 @@ import hextant.core.Editor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import reaktive.dependencies
+import reaktive.value.ReactiveValue
+import reaktive.value.binding.binding
 import reaktive.value.now
-import validated.reaktive.ReactiveValidated
-import validated.reaktive.composeReactive
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
@@ -27,24 +29,11 @@ internal fun <E : Any> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {
     return { ctx: Context -> cstr.callBy(mapOf(param to ctx)) }
 }
 
-internal fun Any.getTypeArgument(superclass: KClass<*>, index: Int): KClass<*> {
-    val supertype = this::class.allSupertypes.first { it.classifier == superclass }
-    val arg = supertype.arguments[index].type!!
-    return arg.classifier as KClass<*>
-}
+@PublishedApi internal fun <T : Any> List<T?>.takeIfNoNulls(): List<T>? = map { it ?: return null }
 
-/**
- * Return a [ReactiveValidated] that always holds the value of composing a value of type [R]
- * (via the primary constructor) from the results of the given [components].
- */
-inline fun <reified R : Any> composeResult(vararg components: Editor<*>): ReactiveValidated<R> {
-    val cls = R::class
-    val results = components.map { it.result }.toTypedArray()
-    val cstr = cls.primaryConstructor ?: error("$cls has no primary constructor")
-    return composeReactive(*results) {
-        val now = results.map { it.now.get() }.toTypedArray()
-        cstr.call(*now)
-    }
+internal fun Any.getTypeArgument(superclass: KClass<*>, index: Int): KType {
+    val supertype = this::class.allSupertypes.first { it.classifier == superclass }
+    return supertype.arguments[index].type!!
 }
 
 internal fun launchSynchronized(mutex: Mutex, action: suspend () -> Unit) {
@@ -52,3 +41,43 @@ internal fun launchSynchronized(mutex: Mutex, action: suspend () -> Unit) {
         mutex.withLock { action() }
     }
 }
+
+@Suppress("UNCHECKED_CAST")
+@PublishedApi internal inline fun <R> implComposeResult(
+    resultClass: KClass<*>,
+    checkNullComponents: Boolean,
+    crossinline default: () -> R,
+    vararg components: Editor<*>
+): ReactiveValue<R> {
+    val results = components.map { it.result }
+    val cstr = resultClass.primaryConstructor ?: error("$resultClass has no primary constructor")
+    return binding<R>(dependencies(results)) {
+        val comps = results.map { it.now }
+        if (checkNullComponents) for (c in comps) if (c !== null) return@binding default()
+        cstr.call(*comps.toTypedArray()) as R
+    }
+}
+
+/**
+ * Compose a result from the given editor [components] by taking the results of the editors
+ * and passing them to the primary constructor of the class [R].
+ */
+inline fun <reified R> composeResult(vararg components: Editor<*>): ReactiveValue<R> =
+    implComposeResult(R::class, false, { throw AssertionError() }, *components)
+
+/**
+ * Compose a result from the given editor [components] by taking the results of the editors
+ * and passing them to the primary constructor of the class [R].
+ * If any of the component results is null the [default] result is used.
+ */
+inline fun <reified R> composeResult(vararg components: Editor<*>, crossinline default: () -> R): ReactiveValue<R> =
+    implComposeResult(R::class, true, default, *components)
+
+/**
+ * Compose a result from the given editor [components] by taking the results of the editors
+ * and passing them to the primary constructor of the class [R].
+ * If any of the component results is null the composed result is also null.
+ */
+inline fun <reified R : Any> composeResultNullable(vararg components: Editor<*>): ReactiveValue<R?> =
+    composeResult(*components) { null }
+

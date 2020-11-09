@@ -7,6 +7,7 @@ package hextant.core.view
 import bundles.Bundle
 import hextant.context.createControl
 import hextant.core.Editor
+import hextant.core.editor.AbstractListEditor
 import hextant.core.editor.ListEditor
 import hextant.fx.registerShortcuts
 import javafx.scene.control.ListCell
@@ -17,7 +18,7 @@ import reaktive.list.fx.asObservableList
 /**
  * An [EditorControl] that uses a [ListView] to display a [ListEditor]
  */
-class FXListEditorView(private val editor: ListEditor<*, *>, arguments: Bundle) :
+class FXListEditorView(private val editor: AbstractListEditor<*, *, *>, arguments: Bundle) :
     EditorControl<ListView<Editor<*>>>(editor, arguments) {
     override fun createDefaultRoot(): ListView<Editor<*>> = ListView(editor.editors.asObservableList()).apply {
         setCellFactory { Cell() }

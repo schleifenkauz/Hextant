@@ -8,7 +8,6 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.value.now
 import validated.Validated.Valid
-import validated.isValid
 
 object TokenEditorSpec : Spek({
     given("an editable int literal") {

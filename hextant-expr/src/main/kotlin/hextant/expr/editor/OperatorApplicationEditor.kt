@@ -10,7 +10,7 @@ import hextant.core.editor.CompoundEditor
 import hextant.core.editor.composeResult
 import hextant.expr.Operator
 import hextant.expr.OperatorApplication
-import validated.reaktive.ReactiveValidated
+import reaktive.value.ReactiveValue
 
 @ProvideFeature
 class OperatorApplicationEditor(
@@ -24,5 +24,5 @@ class OperatorApplicationEditor(
     val operand1 by child(ExprExpander(context))
     val operand2 by child(ExprExpander(context))
 
-    override val result: ReactiveValidated<OperatorApplication> = composeResult(operand1, operand2, operator)
+    override val result: ReactiveValue<OperatorApplication?> = composeResult(operand1, operand2, operator)
 }

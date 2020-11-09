@@ -9,20 +9,19 @@ import hextant.blocky.Executable
 import hextant.context.Context
 import hextant.core.EditorView
 import hextant.core.editor.AbstractEditor
-import hextant.serial.*
+import hextant.serial.Snapshot
+import hextant.serial.reconstructEditor
 import kotlinx.serialization.json.*
 import reaktive.value.*
-import reaktive.value.binding.flatMap
-import reaktive.value.binding.map
-import validated.*
-import validated.reaktive.ReactiveValidated
+import validated.invalidComponent
+import validated.valid
 
 class NextExecutableEditor(context: Context) :
     AbstractEditor<Executable, EditorView>(context) {
     private val next = reactiveVariable(null as ExecutableEditor<*>?)
 
-    override val result: ReactiveValidated<Executable> = next.flatMap {
-        it?.result?.map { res -> res.or(invalidComponent) } ?: reactiveValue(valid(End))
+    override val result: ReactiveValue<Executable?> = next.flatMap {
+        it.result.map { res -> res.or(invalidComponent) } ?: reactiveValue(valid(End))
     }
 
     fun setNext(next: ExecutableEditor<*>) {
@@ -39,7 +38,7 @@ class NextExecutableEditor(context: Context) :
         private var nxt: Snapshot<ExecutableEditor<*>>? = null
 
         override fun doRecord(original: NextExecutableEditor) {
-            nxt = original.next.now?.snapshot(recordClass = true)
+            nxt = original.next.now.snapshot(recordClass = true)
         }
 
         override fun reconstruct(original: NextExecutableEditor) {

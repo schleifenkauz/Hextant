@@ -165,7 +165,7 @@ object ValidatedTokenEditorSpec : Spek({
     }
 }) {
     class Test(context: Context, initialText: String = "") : ValidatedTokenEditor<Int>(context, initialText) {
-        override fun compile(token: String): Validated<Int> =
+        override fun wrap(token: String): Int =
             token.toIntOrNull().validated { invalid("Invalid int literal") }
     }
 }

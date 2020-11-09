@@ -5,13 +5,13 @@
 package hextant.project.editor
 
 import hextant.context.Context
-import hextant.core.editor.ListEditor
+import hextant.core.editor.NullableListEditor
 import hextant.project.ProjectItem
 import hextant.project.view.EditorPane
 import reaktive.Observer
 
 internal class ProjectItemListEditor<T>(context: Context) :
-    ListEditor<ProjectItem<T>, ProjectItemEditor<T, *>>(context) {
+    NullableListEditor<ProjectItem<T>?, ProjectItemEditor<T, *>>(context) {
     private var commitChangeObserver: Observer? = null
     private var abortChangeObserver: Observer? = null
 

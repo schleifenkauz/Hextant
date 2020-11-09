@@ -17,9 +17,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.json.*
 import reaktive.Observer
 import reaktive.value.*
-import reaktive.value.binding.map
-import validated.*
-import validated.reaktive.ReactiveValidated
+import kotlin.reflect.jvm.jvmErasure
 
 /**
  * Expanders can be imagined as placeholders for more specific editors.
@@ -49,7 +47,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     private val _result = reactiveVariable(defaultResult())
 
-    override val result: ReactiveValidated<R> get() = _result
+    override val result: ReactiveValue<R> get() = _result
 
     private var resultDelegator: Observer? = null
 
@@ -72,8 +70,8 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     val text: ReactiveValue<String?> get() = _text
 
-    @Suppress("UNCHECKED_CAST")
-    private val editorClass by lazy { getTypeArgument(Expander::class, 1) }
+    private val resultType = getTypeArgument(Expander::class, 0)
+    private val editorClass = getTypeArgument(Expander::class, 1).jvmErasure
 
     /**
      * Return the editor that should be wrapped if the expander
@@ -101,7 +99,10 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     /**
      * Returns the result that this expander should have if it is not expanded.
      */
-    protected open fun defaultResult(): Validated<R> = invalidComponent()
+    protected open fun defaultResult(): R =
+        @Suppress("UNCHECKED_CAST")
+        if (resultType.isMarkedNullable) null as R
+        else error("The default implementation of defaultResult() only works for nullable result types")
 
     /**
      * Return `true` iff the given editor can be the content of this expander.
@@ -166,7 +167,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         this.parent?.let { editor.initParent(it) }
         editor.initExpander(this)
         editor.setAccessor(ExpanderContent)
-        resultDelegator = _result.bind(editor.result.map { it.or(invalidComponent()) })
+        resultDelegator = _result.bind(editor.result)
         _editor.set(editor)
         _text.set(null)
         views { expanded(editor) }
@@ -281,7 +282,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     override fun createSnapshot(): Snapshot<*> = Snap()
 
-    override fun supportsCopyPaste(): Boolean = true
+    override fun supportsCopyPaste(): Boolean = editor.now?.supportsCopyPaste() ?: true
 
     override fun viewAdded(view: ExpanderView) {
         when (val s = state) {

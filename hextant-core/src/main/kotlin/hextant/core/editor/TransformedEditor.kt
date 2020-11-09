@@ -10,16 +10,14 @@ import hextant.serial.Snapshot
 import hextant.serial.snapshot
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
+import reaktive.value.ReactiveValue
 import reaktive.value.binding.map
-import validated.Validated
-import validated.flatMap
-import validated.reaktive.ReactiveValidated
 
 internal class TransformedEditor<T, R>(
     internal val source: Editor<T>,
-    transform: (T) -> Validated<R>
+    transform: (T) -> R
 ) : AbstractEditor<R, EditorView>(source.context) {
-    override val result: ReactiveValidated<R> = source.result.map { it.flatMap(transform) }
+    override val result: ReactiveValue<R> = source.result.map(transform)
 
     override fun createSnapshot(): Snapshot<*> = Snap()
 

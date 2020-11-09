@@ -7,19 +7,17 @@ package hextant.project.editor
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.editor.CompoundEditor
+import hextant.core.editor.composeResult
 import hextant.project.File
 import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
 import kotlinx.serialization.json.*
 import reaktive.Observer
 import reaktive.event.event
+import reaktive.value.ReactiveValue
 import reaktive.value.reactiveVariable
-import validated.Validated
-import validated.invalidComponent
-import validated.reaktive.ReactiveValidated
-import validated.reaktive.composeReactive
 
-internal class FileEditor<R> private constructor(context: Context) : CompoundEditor<File<R>>(context),
+internal class FileEditor<R> private constructor(context: Context) : CompoundEditor<File<R>?>(context),
                                                                      ProjectItemEditor<R, File<R>> {
     private lateinit var id: String
     private lateinit var path: java.io.File
@@ -27,7 +25,7 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
 
     override val itemName by child(FileNameEditor(context))
 
-    private val _result = reactiveVariable<Validated<File<R>>>(invalidComponent())
+    private val _result = reactiveVariable<File<R>?>(null)
 
     private var obs: Observer? = null
     private lateinit var observer: Observer
@@ -81,7 +79,7 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
 
     @Suppress("DEPRECATION")
     private fun updateEditor(e: Editor<R>) {
-        obs = _result.bind(composeReactive(itemName.result, e.result, ::File))
+        obs = _result.bind(composeResult(itemName, e))
         e.setFile(content)
     }
 
@@ -89,7 +87,7 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
 
     override fun supportsCopyPaste(): Boolean = true
 
-    override val result: ReactiveValidated<File<R>> get() = _result
+    override val result: ReactiveValue<File<R>?> get() = _result
 
     companion object {
         fun <R> newInstance(context: Context): FileEditor<R> {
