@@ -25,7 +25,7 @@ import reaktive.value.*
  * @param [initialText] the initial text, which has to be a valid token. Otherwise an [IllegalArgumentException] is thrown.
  */
 abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: String) :
-    AbstractEditor<R?, ValidatedTokenEditorView>(context), TokenType<R?> {
+    AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R> {
     private val mutex = Mutex()
 
     constructor(context: Context) : this(context, "")

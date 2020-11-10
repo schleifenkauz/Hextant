@@ -20,7 +20,6 @@ import hextant.plugins.*
 import hextant.plugins.PluginInfo.Type.Global
 import hextant.plugins.PluginInfo.Type.Local
 import kotlinx.serialization.json.Json
-import validated.ifInvalid
 import java.io.File
 
 internal class ProjectManager(private val globalContext: Context) {
@@ -39,10 +38,8 @@ internal class ProjectManager(private val globalContext: Context) {
         manager.enableAll(required)
         manager.enableAll(globalContext[PluginManager].enabledPlugins().map { it.id })
         val editor = PluginsEditor(globalContext, manager, setOf(Local, Global))
-        val plugins = getUserInput(editor, applyStyle = false)
-            .ifInvalid { return "Project creation canceled" }
-            .map { it.id }
-        val cl = HextantClassLoader(globalContext, plugins)
+        val plugins = getUserInput(editor, applyStyle = false) ?: return "Project creation canceled"
+        val cl = HextantClassLoader(globalContext, plugins.map { it.id })
         cl.executeInNewThread(
             "hextant.launcher.ProjectCreator",
             ProjectType(projectType.name, projectType.clazz),

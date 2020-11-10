@@ -1,11 +1,10 @@
-package hextant.core.list
+package hextant.core.editor
 
 import com.nhaarman.mockitokotlin2.*
-import hextant.core.Editor
-import hextant.core.editor.ListEditor
 import hextant.core.view.ListEditorView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
+import hextant.serial.makeRoot
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
@@ -16,7 +15,7 @@ object ListEditorSpec : Spek({
     given("a ListEditor") {
         describe("adding, removing and clearing") {
             val ctx = testingContext()
-            val editor = object : ListEditor<IntLiteral, IntLiteralEditor, Any?, Editor<R>>(ctx) {
+            val editor = object : ListEditor<IntLiteral, IntLiteralEditor>(ctx) {
                 override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
             }
             editor.makeRoot()
@@ -72,8 +71,7 @@ object ListEditorSpec : Spek({
         describe("undo/redo") {
             val ctx = testingContext()
             val undo = ctx[UndoManager]
-            val editor = object :
-                ListEditor<IntLiteral, IntLiteralEditor, Any?, Editor<R>>(ctx) {
+            val editor = object : ListEditor<IntLiteral, IntLiteralEditor>(ctx) {
                 override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
             }
             editor.makeRoot()

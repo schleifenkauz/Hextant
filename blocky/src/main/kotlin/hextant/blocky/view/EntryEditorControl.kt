@@ -12,9 +12,9 @@ import javafx.scene.control.Label
 
 class EntryEditorControl @ProvideImplementation(ControlFactory::class) constructor(
     editor: EntryEditor,
-    argumnts: Bundle
+    arguments: Bundle
 ) :
-    ExecutableEditorControl<Label>(editor, argumnts) {
+    ExecutableEditorControl<Label>(editor, arguments) {
     init {
         configureArrowStart(editor.next)
         styleClass.add("entry")

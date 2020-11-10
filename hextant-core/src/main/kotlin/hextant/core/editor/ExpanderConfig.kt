@@ -100,9 +100,9 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     /**
      * Registers an interceptor that tries to to compile its given text with the given [tokenType].
      */
-    fun <T> registerTokenInterceptor(tokenType: TokenType<T>, factory: (ctx: Context, token: T) -> E) {
+    fun <T : Any> registerTokenInterceptor(tokenType: TokenType<T>, factory: (ctx: Context, token: T) -> E) {
         registerInterceptor { text: String, ctx: Context ->
-            factory(ctx, tokenType.wrap(text))
+            tokenType.wrap(text)?.let { factory(ctx, it) }
         }
     }
 

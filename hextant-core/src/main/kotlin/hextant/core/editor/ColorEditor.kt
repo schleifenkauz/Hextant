@@ -13,7 +13,7 @@ import javafx.scene.paint.Color
  * Editor for colors based on the [Color.web] function.
  */
 @ProvideFeature
-class ColorEditor(context: Context) : TokenEditor<String?, TokenEditorView>(context) {
+class ColorEditor(context: Context) : TokenEditor<String, TokenEditorView>(context) {
     override fun wrap(token: String): String? = try {
         Color.web(token)
         token

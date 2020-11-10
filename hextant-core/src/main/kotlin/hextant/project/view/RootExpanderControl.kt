@@ -12,5 +12,5 @@ import hextant.project.editor.RootExpander
 
 internal class RootExpanderControl(expander: RootExpander<*>, args: Bundle) : ExpanderControl(
     expander, args,
-    expander.context[ProjectItemEditor.expanderConfig<Any?>()].completer(CompletionStrategy.simple)
+    expander.context[ProjectItemEditor.expanderConfig<Any>()].completer(CompletionStrategy.simple)
 )

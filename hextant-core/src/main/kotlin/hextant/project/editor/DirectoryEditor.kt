@@ -6,7 +6,6 @@ package hextant.project.editor
 
 import hextant.context.Context
 import hextant.core.editor.CompoundEditor
-import hextant.core.editor.composeResultNullable
 import hextant.project.Directory
 import reaktive.value.ReactiveValue
 import reaktive.value.now
@@ -14,9 +13,9 @@ import reaktive.value.now
 /**
  * An editor for directories.
  */
-class DirectoryEditor<R>(
+class DirectoryEditor<R : Any>(
     context: Context
-) : CompoundEditor<Directory<R>?>(context), ProjectItemEditor<R, Directory<R>> {
+) : CompoundEditor<Directory<R>>(context), ProjectItemEditor<R, Directory<R>> {
     override val itemName by child(FileNameEditor(context))
     internal val items by child(ProjectItemListEditor<R>(context))
 
@@ -25,9 +24,9 @@ class DirectoryEditor<R>(
         ed !== editor && ed.text.now == name
     }
 
-    override fun supportsCopyPaste(): Boolean = true
+    override val result: ReactiveValue<Directory<R>?> = composeResult { Directory(itemName.get(), items.get()) }
 
-    override val result: ReactiveValue<Directory<R>?> = composeResultNullable(itemName, items)
+    override fun supportsCopyPaste(): Boolean = true
 
     override fun deletePhysical() {}
 }

@@ -9,7 +9,6 @@ import hextant.context.Context
 import hextant.core.editor.CompoundEditor
 import hextant.expr.Sum
 import reaktive.value.ReactiveValue
-import validated.reaktive.composeReactive
 
 @ProvideFeature
 class SumEditor(
@@ -21,5 +20,5 @@ class SumEditor(
         expressions.ensureNotEmpty()
     }
 
-    override val result: ReactiveValue<Sum?> = composeReactive(expressions.result, ::Sum)
+    override val result: ReactiveValue<Sum?> = composeResult { Sum(expressions.now) }
 }

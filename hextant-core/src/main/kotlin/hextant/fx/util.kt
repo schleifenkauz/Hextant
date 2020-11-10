@@ -24,7 +24,6 @@ import javafx.scene.layout.Region
 import javafx.stage.PopupWindow
 import javafx.stage.Stage
 import reaktive.value.now
-import validated.invalidComponent
 import kotlin.concurrent.thread
 
 internal fun control(skin: Skin<out Control>): Control {
@@ -134,11 +133,11 @@ fun Compound.view(editor: Editor<*>, bundle: Bundle = createBundle(), config: Bu
 /**
  * Gets input from the user by showing the given [editor] in a [Dialog] to him.
  *
- * If the user cancels the dialog [invalidComponent] is returned.
+ * If the user cancels the dialog `null` is returned.
  * @param control the [EditorControl] that shows the editor to the user.
  * @param buttonTypes the possible button types.
  */
-fun <R> getUserInput(
+fun <R : Any> getUserInput(
     editor: Editor<R>,
     control: Node = editor.context.createControl(editor),
     buttonTypes: List<ButtonType> = listOf(ButtonType.OK, ButtonType.CANCEL),

@@ -24,7 +24,7 @@ import kotlin.reflect.jvm.jvmErasure
  * They allow the user to type in some text and then *expand* this text into a new editor,
  * which is then substituted for the typed in text.
  */
-abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
+abstract class Expander<out R : Any, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
     private val mutex = Mutex()
 
     constructor(context: Context, editor: E?) : this(context) {
@@ -47,7 +47,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     private val _result = reactiveVariable(defaultResult())
 
-    override val result: ReactiveValue<R> get() = _result
+    final override val result: ReactiveValue<R?> get() = _result
 
     private var resultDelegator: Observer? = null
 
@@ -98,11 +98,10 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     /**
      * Returns the result that this expander should have if it is not expanded.
+     *
+     * The default implementations returns null.
      */
-    protected open fun defaultResult(): R =
-        @Suppress("UNCHECKED_CAST")
-        if (resultType.isMarkedNullable) null as R
-        else error("The default implementation of defaultResult() only works for nullable result types")
+    protected open fun defaultResult(): R? = null
 
     /**
      * Return `true` iff the given editor can be the content of this expander.

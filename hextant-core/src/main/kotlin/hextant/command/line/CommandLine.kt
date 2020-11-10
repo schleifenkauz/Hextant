@@ -24,7 +24,7 @@ import reaktive.value.binding.binding
  * @property source the [CommandSource] that is used to resolve available commands
  */
 class CommandLine(context: Context, val source: CommandSource) :
-    AbstractEditor<CommandApplication?, CommandLineView>(context) {
+    AbstractEditor<CommandApplication, CommandLineView>(context) {
     private var commandName: String = ""
     private var arguments: List<Editor<*>>? = null
     private val _expandedCommand: ReactiveVariable<Command<*, *>?> = reactiveVariable(null)

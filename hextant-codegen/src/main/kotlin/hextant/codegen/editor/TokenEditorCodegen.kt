@@ -41,9 +41,9 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
                     "value" of name
                 }, "context".e, "value".e call "toString")
                 addSingleExprFunction(
-                    "compile",
+                    "wrap",
                     { override() },
-                    parameters = { "token" of "String" }) { name.e.call("compile", "token".e) }
+                    parameters = { "token" of "String" }) { name.e.call("wrap", "token".e) }
             }
             writeKotlinFile(file)
             generatedEditor(element, "$pkg.$simpleName")

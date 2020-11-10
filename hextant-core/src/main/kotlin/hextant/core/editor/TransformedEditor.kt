@@ -13,11 +13,11 @@ import kotlinx.serialization.json.JsonObjectBuilder
 import reaktive.value.ReactiveValue
 import reaktive.value.binding.map
 
-internal class TransformedEditor<T, R>(
+internal class TransformedEditor<T : Any, R : Any>(
     internal val source: Editor<T>,
     transform: (T) -> R
 ) : AbstractEditor<R, EditorView>(source.context) {
-    override val result: ReactiveValue<R> = source.result.map(transform)
+    override val result: ReactiveValue<R?> = source.result.map { it?.let(transform) }
 
     override fun createSnapshot(): Snapshot<*> = Snap()
 

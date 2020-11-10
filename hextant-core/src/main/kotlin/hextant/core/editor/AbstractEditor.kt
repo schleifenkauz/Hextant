@@ -17,7 +17,8 @@ import kotlin.reflect.jvm.jvmErasure
  * Skeletal implementation for [Editor]s
  */
 @Suppress("OverridingDeprecatedMember")
-abstract class AbstractEditor<out R, in V : Any>(override val context: Context) : Editor<R>, AbstractController<V>() {
+abstract class AbstractEditor<out R : Any, in V : Any>(override val context: Context) : Editor<R>,
+                                                                                        AbstractController<V>() {
     final override var parent: Editor<*>? = null
         private set
 

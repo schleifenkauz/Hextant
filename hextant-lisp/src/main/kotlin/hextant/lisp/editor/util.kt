@@ -15,6 +15,7 @@ import hextant.plugin.PluginBuilder.Phase.Disable
 import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.plugin.registerInspection
 import reaktive.list.ReactiveList
+import reaktive.map
 import reaktive.value.now
 
 fun SExpr.reconstructEditor(context: Context): SExprExpander = SExprExpander(context).also { e -> e.reconstruct(this) }
@@ -71,13 +72,13 @@ val beautify = command<CallExprEditor, Unit> {
     description = "Replaces a common S-Expr with a special syntax"
     defaultShortcut("Ctrl?+B")
     applicableIf { e ->
-        val sym = e.expressions.results.now.firstOrNull().orNull() as? Symbol ?: return@applicableIf false
+        val sym = e.expressions.results.now.firstOrNull() as? Symbol ?: return@applicableIf false
         val syntax = SpecialSyntax.get(sym.name) ?: return@applicableIf false
         val editors = e.expressions.editors.now.map { it.editor.now }
         syntax.arity + 1 == editors.size && syntax.representsEditors(editors)
     }
     executing { e, _ ->
-        val sym = e.expressions.results.now[0].force() as Symbol
+        val sym = e.expressions.results.now[0]!! as Symbol
         val syntax = SpecialSyntax.get(sym.name)!!
         val editors = e.expressions.editors.now.map { it.editor.now }
         val special = syntax.representEditors(e.context, editors)
@@ -102,7 +103,7 @@ fun PluginBuilder.addSpecialSyntax(syntax: SpecialSyntax<*>) {
         preventingThat {
             inspected.expressions.editors.map { expanders: ReactiveList<SExprExpander> ->
                 val editors = expanders.now.map { it.editor.now }
-                editors.firstOrNull()?.result?.now?.orNull() == Symbol(syntax.name) && syntax.representsEditors(editors)
+                editors.firstOrNull()?.result?.now == Symbol(syntax.name) && syntax.representsEditors(editors)
             }
         }
         addFix("Replace with ${syntax.name}-form", beautify)

@@ -7,7 +7,6 @@ package hextant.project.editor
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.editor.CompoundEditor
-import hextant.core.editor.composeResult
 import hextant.project.File
 import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
@@ -17,8 +16,8 @@ import reaktive.event.event
 import reaktive.value.ReactiveValue
 import reaktive.value.reactiveVariable
 
-internal class FileEditor<R> private constructor(context: Context) : CompoundEditor<File<R>?>(context),
-                                                                     ProjectItemEditor<R, File<R>> {
+internal class FileEditor<R : Any> private constructor(context: Context) : CompoundEditor<File<R>>(context),
+                                                                           ProjectItemEditor<R, File<R>> {
     private lateinit var id: String
     private lateinit var path: java.io.File
     private lateinit var content: VirtualFile<Editor<R>>
@@ -48,7 +47,7 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
         }
     }
 
-    private class Snap<R> : Snapshot<FileEditor<R>>() {
+    private class Snap<R : Any> : Snapshot<FileEditor<R>>() {
         private lateinit var id: String
         private lateinit var itemName: Snapshot<FileNameEditor>
 
@@ -79,7 +78,7 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
 
     @Suppress("DEPRECATION")
     private fun updateEditor(e: Editor<R>) {
-        obs = _result.bind(composeResult(itemName, e))
+        obs = _result.bind(composeResult { File(itemName.get(), e.get()) })
         e.setFile(content)
     }
 
@@ -90,7 +89,7 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
     override val result: ReactiveValue<File<R>?> get() = _result
 
     companion object {
-        fun <R> newInstance(context: Context): FileEditor<R> {
+        fun <R : Any> newInstance(context: Context): FileEditor<R> {
             val e = FileEditor<R>(context)
             e.id = context[IdGenerator].generateID()
             e.path = context[projectRoot].resolve(e.id)

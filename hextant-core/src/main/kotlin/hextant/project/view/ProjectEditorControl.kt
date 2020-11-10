@@ -100,7 +100,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
         }
     }
 
-    private fun insertEditor(new: ProjectItemEditor<Any?, *>) {
+    private fun insertEditor(new: ProjectItemEditor<Any, *>) {
         val e = selectedEditor()
         if (e != null) {
             addNewItem(e, new)
@@ -119,8 +119,8 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             val e = item.value
             val list = e.parent
             if (list !is ProjectItemListEditor<*>) return
-            list as ProjectItemListEditor<Any?>
-            list.remove(e as ProjectItemEditor<Any?, *>)
+            list as ProjectItemListEditor<Any>
+            list.remove(e as ProjectItemEditor<Any, *>)
             val dir = list.parent
             if (dir !is DirectoryEditor<*>) return
             val v = context[EditorControlGroup].getViewOf(dir)
@@ -135,22 +135,22 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
         when (e) {
             null -> return false
             is DirectoryEditor -> {
-                addItemTo(e.items as ProjectItemListEditor<Any?>, new)
+                addItemTo(e.items as ProjectItemListEditor<Any>, new)
                 items[e]!!.isExpanded = true
             }
             is FileEditor -> {
                 val p = e.parent as? ProjectItemListEditor<*> ?: return false
-                addItemTo(p as ProjectItemListEditor<Any?>, new)
+                addItemTo(p as ProjectItemListEditor<Any>, new)
             }
         }
         return true
     }
 
     private fun addItemTo(
-        p: ProjectItemListEditor<Any?>,
+        p: ProjectItemListEditor<Any>,
         new: ProjectItemEditor<*, *>
     ) {
-        p.withoutUndo { addLast(new as ProjectItemEditor<Any?, *>) }
+        p.withoutUndo { addLast(new as ProjectItemEditor<Any, *>) }
         val item = items[new] ?: error("Did not find tree item associated with $new")
         root.selectionModel.clearSelection()
         root.selectionModel.select(item)

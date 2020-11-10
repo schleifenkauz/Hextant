@@ -18,13 +18,15 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.serialization.json.*
 import reaktive.value.*
+import kotlin.reflect.jvm.jvmErasure
+import kotlin.reflect.safeCast
 
 /**
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
-abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
-                                                                              TokenType<R> {
+abstract class TokenEditor<out R : Any, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
+                                                                                    TokenType<R> {
     private sealed class Compilable {
         data class Completed(val completion: Completion<Any>) : Compilable()
         data class Text(val input: String) : Compilable()
@@ -47,11 +49,11 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         withoutUndo { setText(text) }
     }
 
-    private val resultType = getTypeArgument(TokenEditor::class, 0)
+    private val resultType = getTypeArgument(TokenEditor::class, 0).jvmErasure
 
     private val _result = reactiveVariable(runBlocking { tryWrap("") ?: defaultResult() })
 
-    override val result: ReactiveValue<R> get() = _result
+    override val result: ReactiveValue<R?> get() = _result
 
     private var _text = reactiveVariable("")
 
@@ -65,20 +67,20 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     /**
      * Make a result from the given completion item or return `null` if this is not possible.
      */
-    protected open fun wrap(item: Any): R? = null
+    @Suppress("UNCHECKED_CAST")
+    protected open fun wrap(item: Any): R? = resultType.safeCast(item) as R?
 
     /**
      * The default implementation returns [defaultResult].
      */
-    override fun wrap(token: String): R = defaultResult()
+    override fun wrap(token: String): R? = defaultResult()
 
     /**
      * Returns a default result that is used when no valid result can be produced for a token.
+     *
+     * The default implementations return null.
      */
-    protected open fun defaultResult(): R =
-        @Suppress("UNCHECKED_CAST")
-        if (resultType.isMarkedNullable) null as R
-        else error("default implementation of defaultResult() only works for nullable result types")
+    protected open fun defaultResult(): R? = null
 
     private suspend fun tryWrap(item: Any): R? =
         context.executeSafely("compiling item", null) { withContext(Dispatchers.Default) { wrap(item) } }

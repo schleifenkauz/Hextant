@@ -13,11 +13,12 @@ import reaktive.value.ReactiveValue
 /**
  * An editor for results of type [R]
  */
-interface Editor<out R> : SnapshotAware {
+interface Editor<out R : Any> : SnapshotAware {
     /**
-     * A [reaktive.value.ReactiveValue] holding the result of compiling the content of the editor
+     * A [reaktive.value.ReactiveValue] holding the AST-node currently produced by this editor
+     * or `null` if it is incomplete or there was an error creating it.
      */
-    val result: ReactiveValue<R>
+    val result: ReactiveValue<R?>
 
     /**
      * The parent of this Editor or `null` if this Editor is the root

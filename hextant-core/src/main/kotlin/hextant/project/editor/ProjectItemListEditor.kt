@@ -5,17 +5,17 @@
 package hextant.project.editor
 
 import hextant.context.Context
-import hextant.core.editor.NullableListEditor
+import hextant.core.editor.ListEditor
 import hextant.project.ProjectItem
 import hextant.project.view.EditorPane
 import reaktive.Observer
 
-internal class ProjectItemListEditor<T>(context: Context) :
-    NullableListEditor<ProjectItem<T>?, ProjectItemEditor<T, *>>(context) {
+internal class ProjectItemListEditor<T : Any>(context: Context) :
+    ListEditor<ProjectItem<T>, ProjectItemEditor<T, *>>(context) {
     private var commitChangeObserver: Observer? = null
     private var abortChangeObserver: Observer? = null
 
-    override fun createEditor(): ProjectItemEditor<T, *> = FileEditor.newInstance(context)
+    override fun createEditor(): ProjectItemEditor<T, *> = FileEditor.newInstance<T>(context)
 
     override fun editorRemoved(editor: ProjectItemEditor<T, *>, index: Int) {
         if (editor is FileEditor) {

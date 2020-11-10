@@ -13,7 +13,7 @@ const val DEFAULT = "<default>"
 sealed class None
 
 @Retention(SOURCE)
-@Target(CLASS)
+@Target(CLASS, FUNCTION)
 annotation class Token(val classLocation: String = DEFAULT, val subtypeOf: KClass<*> = None::class)
 
 @Retention(SOURCE)
@@ -42,7 +42,7 @@ annotation class Expandable(
 annotation class EditableList(
     val classLocation: String = DEFAULT,
     val editorCls: KClass<*> = None::class,
-    val childContext: String = DEFAULT
+    val childContext: String = "context"
 )
 
 @Retention(SOURCE)

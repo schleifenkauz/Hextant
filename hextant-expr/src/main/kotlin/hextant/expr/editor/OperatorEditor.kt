@@ -7,7 +7,6 @@ import hextant.context.EditorFactory
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.expr.Operator
-import validated.*
 
 @ProvideFeature
 class OperatorEditor constructor(context: Context, text: String) :
@@ -17,6 +16,5 @@ class OperatorEditor constructor(context: Context, text: String) :
     @ProvideImplementation(EditorFactory::class)
     constructor(context: Context) : this(context, "")
 
-    override fun wrap(token: String): Operator =
-        token.takeIf { Operator.isValid(it) }.validated { invalid("Invalid operator $token") }.map { Operator.of(it) }
+    override fun wrap(token: String): Operator? = if (Operator.isValid(token)) Operator.of(token) else null
 }

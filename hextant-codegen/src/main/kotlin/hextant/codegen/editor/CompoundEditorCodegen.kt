@@ -33,7 +33,7 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
                     }
                 }
                 import("hextant.context.*")
-                import("validated.reaktive.*")
+                import("reaktive.value.*")
             },
             name = simpleName,
             primaryConstructor = { "context" of "Context" },
@@ -52,12 +52,15 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
                     by(call("child", call(editorCls, comp?.childContext?.e ?: "context".e)))
                 }
             }
-            addVal("result", "ReactiveValidated".t.parameterizedBy { invariant(result) }, { override() }) {
-                val functionName =
-                    if (function.kind == CONSTRUCTOR) function.enclosingElement.simpleName
-                    else function.simpleName
+            val type = "ReactiveValue".t.parameterizedBy { invariant("$result?") }
+            addVal("result", type, { override() }) {
+                val fct =
+                    if (function.kind == CONSTRUCTOR) function.enclosingElement.simpleName.toString()
+                    else function.simpleName.toString()
                 initializeWith(
-                    call("composeReactive", *names.mapToArray { n -> n.e select "result" }, "::$functionName".e)
+                    call("composeResult",
+                        lambda { callFunction(fct, *names.mapToArray { n -> n.e call "get" }) }
+                    )
                 )
             }
         }

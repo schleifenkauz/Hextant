@@ -77,5 +77,4 @@ inline fun <reified E : Editor<*>> E.copy(): E = copyFor(context)
 /**
  * Return an editor that transforms the [Editor.result] of this editor with the given function.
  */
-fun <T, R> Editor<T>.map(f: (T) -> R): Editor<R> =
-    TransformedEditor(this, f)
+fun <T : Any, R : Any> Editor<T>.map(f: (T) -> R): Editor<R> = TransformedEditor(this, f)

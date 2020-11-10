@@ -83,6 +83,8 @@ internal fun getOneAnnotation(
     return annotations.first()
 }
 
+internal inline fun <E, reified F> Array<E>.mapToArray(f: (E) -> F) = Array(size) { idx -> f(get(idx)) }
+
 internal inline fun <E, reified F> List<E>.mapToArray(f: (E) -> F) = Array(size) { idx -> f(get(idx)) }
 
 internal fun copyParameters(params: List<VariableElement>): KParametersRobot.() -> Unit = {

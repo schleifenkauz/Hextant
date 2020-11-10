@@ -10,7 +10,6 @@ import hextant.lisp.editor.SExprEditor
 import hextant.lisp.editor.SExprExpanderConfigurator
 import hextant.lisp.rt.RuntimeScope
 import hextant.lisp.rt.evaluate
-import validated.*
 
 @EditorInterface(SExprEditor::class)
 @Expandable(SExprExpanderConfigurator::class, subtypeOf = SExpr::class)
@@ -25,7 +24,7 @@ data class Symbol(val name: String) : SExpr() {
     companion object : TokenType<Symbol> {
         fun isValid(symbol: Symbol) = symbol.name.none { it.isWhitespace() }
 
-        override fun wrap(token: String): Symbol = valid(Symbol(token))
+        override fun wrap(token: String): Symbol = Symbol(token)
     }
 }
 
@@ -34,8 +33,7 @@ data class IntLiteral(override val value: Int) : Literal<Int>() {
     override fun toString(): String = "$value"
 
     companion object : TokenType<IntLiteral> {
-        override fun wrap(token: String): IntLiteral =
-            token.toIntOrNull().validated { invalid("invalid integer literal '$token") }.map(::IntLiteral)
+        override fun wrap(token: String): IntLiteral? = token.toIntOrNull()?.let(::IntLiteral)
     }
 }
 
@@ -46,10 +44,10 @@ sealed class Literal<T : Any> : SExpr() {
 @Token(subtypeOf = SExpr::class)
 data class BooleanLiteral(override val value: Boolean) : Literal<Boolean>() {
     companion object : TokenType<BooleanLiteral> {
-        override fun wrap(token: String): BooleanLiteral = when (token) {
-            "#t" -> valid(BooleanLiteral(true))
-            "#f" -> valid(BooleanLiteral(false))
-            else -> invalid("invalid boolean literal '$token'")
+        override fun wrap(token: String): BooleanLiteral? = when (token) {
+            "#t" -> BooleanLiteral(true)
+            "#f" -> BooleanLiteral(false)
+            else -> null
         }
     }
 }

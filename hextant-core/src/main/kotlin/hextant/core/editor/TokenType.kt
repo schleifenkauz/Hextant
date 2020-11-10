@@ -7,9 +7,9 @@ package hextant.core.editor
 /**
  * A token type is able to transform text to results of type [R]
  */
-interface TokenType<out R> {
+interface TokenType<out R : Any> {
     /**
      * Transform the given [token] to a result or return `null` if the [token] is not valid.
      */
-    fun wrap(token: String): R
+    fun wrap(token: String): R?
 }

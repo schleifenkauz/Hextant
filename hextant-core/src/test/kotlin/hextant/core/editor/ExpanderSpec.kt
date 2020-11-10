@@ -12,7 +12,6 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import org.jetbrains.spek.api.dsl.Pending.No
 import reaktive.value.now
-import validated.valid
 
 object ExpanderSpec : Spek({
     given("an expander") {
@@ -23,20 +22,20 @@ object ExpanderSpec : Spek({
             test("editor.now should be null", No) {
                 ex.editor.now shouldBe `null`
             }
-            test("result.now should be child error", No) {
-                ex.result.now shouldBe invalidComponent
+            test("result.now should be null", No) {
+                ex.result.now shouldBe `null`
             }
             val editor = IntLiteralEditor(context)
-            on("expanding to an editor with error result") {
+            on("expanding to an editor with a null result") {
                 ex.setEditor(editor)
                 test("result.now should be child error", No) {
-                    ex.result.now shouldBe invalidComponent
+                    ex.result.now shouldBe `null`
                 }
             }
             on("wrapped editor gets ok result") {
                 editor.setText("123")
                 test("result.now should be the result of the wrapped editor", No) {
-                    ex.result.now shouldEqual valid(IntLiteral(123))
+                    ex.result.now shouldEqual IntLiteral(123)
                 }
             }
             on("resetting the expander") {
@@ -44,8 +43,8 @@ object ExpanderSpec : Spek({
                 test("editor.now should be null", No) {
                     ex.editor.now shouldBe `null`
                 }
-                test("result.now should be child error", No) {
-                    ex.result.now shouldBe invalidComponent
+                test("result.now should be null", No) {
+                    ex.result.now shouldBe `null`
                 }
             }
         }
@@ -76,7 +75,7 @@ object ExpanderSpec : Spek({
                 on("expanding") {
                     ex.expand()
                     it("should set the result") {
-                        ex.result.now shouldEqual valid(IntLiteral(123))
+                        ex.result.now shouldEqual IntLiteral(123)
                     }
                     it("should notify the views") {
                         verify().expanded(ex.editor.now!!)
@@ -92,8 +91,8 @@ object ExpanderSpec : Spek({
                     it("should set the editor to null") {
                         ex.editor.now shouldBe `null`
                     }
-                    it("should set the result to a child error") {
-                        ex.result.now shouldBe invalidComponent
+                    it("should set the result to null") {
+                        ex.result.now shouldBe `null`
                     }
                     it("should notify the view") {
                         verify().reset()
@@ -122,7 +121,7 @@ object ExpanderSpec : Spek({
             on("redoing") {
                 undo.redo()
                 it("should expand to the last editable") {
-                    ex.result.now shouldEqual valid(IntLiteral(123))
+                    ex.result.now shouldEqual IntLiteral(123)
                 }
             }
             on("resetting") {
@@ -134,7 +133,7 @@ object ExpanderSpec : Spek({
             on("undoing reset") {
                 undo.undo()
                 it("should expand to the last editable") {
-                    ex.result.now shouldEqual valid(IntLiteral(123))
+                    ex.result.now shouldEqual IntLiteral(123)
                 }
             }
             on("redoing reset") {
@@ -157,7 +156,7 @@ object ExpanderSpec : Spek({
             }
             on("redoing set text") {
                 undo.redo()
-                it("should set the text to the text set by settext") {
+                it("should set the text to the text set by setText") {
                     ex.text.now shouldEqual "abc"
                 }
             }
