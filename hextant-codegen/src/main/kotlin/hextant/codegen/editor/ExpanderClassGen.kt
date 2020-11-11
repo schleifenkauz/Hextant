@@ -42,10 +42,6 @@ internal object ExpanderClassGen : EditorClassGen<Expandable, TypeElement>() {
         ) {
             val delegate = delegator.toString().e call "getDelegate"
             addConstructor({ "context" of "Context" }, "context".e, "null".e)
-            addConstructor(
-                { "context" of "Context"; "edited" of name }, "context".e,
-                "context".e.call("createEditor", "edited".e) cast editorType
-            )
             addVal("config") { initializeWith(delegate) }
             addSingleExprFunction(
                 "expand",
@@ -55,8 +51,8 @@ internal object ExpanderClassGen : EditorClassGen<Expandable, TypeElement>() {
             addSingleExprFunction(
                 "expand",
                 { override() },
-                parameters = { "item" of "Any" },
-            ) { "config".e.call("expand", "item".e, "context".e) }
+                parameters = { "completion" of "Any" },
+            ) { "config".e.call("expand", "completion".e, "context".e) }
         }
         writeKotlinFile(file)
         generatedEditor(element, "$pkg.$simpleName")

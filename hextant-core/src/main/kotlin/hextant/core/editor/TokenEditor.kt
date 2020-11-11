@@ -49,6 +49,8 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         withoutUndo { setText(text) }
     }
 
+    private val resultClass = getTypeArgument(TokenEditor::class, 0)
+
     private val _result = reactiveVariable(runBlocking { tryCompile("") })
 
     override val result: ReactiveValidated<R> get() = _result
@@ -65,7 +67,9 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     /**
      * Make a result from the given completion item.
      */
-    protected open fun compile(item: Any): Validated<R> = invalidComponent()
+    @Suppress("UNCHECKED_CAST")
+    protected open fun compile(item: Any): Validated<R> =
+        if (resultClass.isInstance(item)) valid(item as R) else invalidComponent
 
     override fun compile(token: String): Validated<R> = invalidComponent()
 

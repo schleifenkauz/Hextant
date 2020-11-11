@@ -6,7 +6,6 @@ package hextant.project.editor
 
 import hextant.context.Context
 import hextant.core.editor.CompoundEditor
-import hextant.core.editor.composeResult
 import hextant.project.Directory
 import reaktive.value.now
 import validated.reaktive.ReactiveValidated
@@ -27,7 +26,7 @@ class DirectoryEditor<R>(
 
     override fun supportsCopyPaste(): Boolean = true
 
-    override val result: ReactiveValidated<Directory<R>> = composeResult(itemName, items)
+    override val result: ReactiveValidated<Directory<R>> = composeResult { Directory(itemName.get(), items.get()) }
 
     override fun deletePhysical() {}
 }

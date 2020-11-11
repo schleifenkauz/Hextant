@@ -1,7 +1,6 @@
-package hextant.core.list
+package hextant.core.editor
 
 import com.nhaarman.mockitokotlin2.*
-import hextant.core.editor.ListEditor
 import hextant.core.view.ListEditorView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor

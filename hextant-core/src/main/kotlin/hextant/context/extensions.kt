@@ -2,7 +2,6 @@ package hextant.context
 
 import bundles.*
 import hextant.core.Editor
-import hextant.core.editor.BidirectionalEditor
 import hextant.core.view.EditorControl
 import hextant.generated.createEditor
 import hextant.plugin.Aspects
@@ -42,19 +41,6 @@ inline fun Context.createControl(editor: Editor<*>, configure: BundleBuilder.() 
  */
 fun <R : Any> Context.createEditor(resultType: KClass<R>): Editor<R> =
     get(Aspects).createEditor(resultType, this)
-
-/**
- * Uses the [EditorFactory] aspect of this [Context] to create an [Editor] with the given result type
- * and then tries to cast it to a [BidirectionalEditor] to set the result to the given value.
- * @throws NoSuchElementException if there is no editor registered for the given result type
- * or the registered editor is not a [BidirectionalEditor].
- */
-fun <R : Any> Context.createEditor(result: R): Editor<R> {
-    val e = createEditor(result::class)
-    if (e !is BidirectionalEditor) throw NoSuchElementException("Cannot create bidirectional editor for ${result::class}")
-    e.setResult(result)
-    return e
-}
 
 /**
  * Syntactic sugar for createEditor<R>(R::class)

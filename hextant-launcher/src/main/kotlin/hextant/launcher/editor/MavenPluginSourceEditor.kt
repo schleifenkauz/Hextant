@@ -6,14 +6,15 @@ package hextant.launcher.editor
 
 import hextant.codegen.ProvideFeature
 import hextant.context.Context
-import hextant.core.editor.*
+import hextant.core.editor.CompoundEditor
+import hextant.core.editor.SimpleStringEditor
 import hextant.launcher.PluginSource
-import validated.reaktive.ReactiveValidated
+import hextant.launcher.PluginSource.MavenCoordinate
 
 @ProvideFeature
 class MavenPluginSourceEditor(context: Context) : CompoundEditor<PluginSource>(context) {
     val group by child(SimpleStringEditor(context))
     val artifact by child(SimpleStringEditor(context))
 
-    override val result: ReactiveValidated<PluginSource.MavenCoordinate> = composeResult(group, artifact)
+    override val result = composeResult { MavenCoordinate(group.now, artifact.now) }
 }

@@ -11,48 +11,32 @@ import hextant.serial.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
 import reaktive.value.now
+import validated.Validated
+import validated.invalidComponent
+import validated.reaktive.ReactiveValidated
+import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KProperty
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
 
 /**
  * Base class for editors that are composed of multiple sub-editors.
  */
 abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorView>(context) {
-    private val constructor = this::class.primaryConstructor!!
+    /**
+     * Composes a result from the component editor results of this compound editor using the [compose] block.
+     * The result is updated every time one of the [children] of this [CompoundEditor] changes its result
+     * and if any of the component results is incomplete the compound result will be set to the specified [default].
+     */
+    inline fun <R : Any> composeResult(
+        default: Validated<R> = invalidComponent(),
+        crossinline compose: ResultComposer.() -> R
+    ): ReactiveValidated<R> = composeResult(children.now, default, compose)
+
 
     /**
-     * Make the given [editor] a child of this [CompoundEditor].
+     * Default result used when one of the component editors results is `null` or if composition fails.
      */
-    protected fun <E : Editor<*>> child(editor: E): ChildDelegator<E> = ChildDelegatorImpl(editor)
-
-    /**
-     * Used as a delegate for children of this [CompoundEditor]
-     */
-    interface ChildDelegator<E : Editor<*>> {
-        /**
-         * Provides the delegate
-         */
-        operator fun provideDelegate(
-            thisRef: CompoundEditor<*>,
-            property: KProperty<*>
-        ): ReadOnlyProperty<CompoundEditor<*>, E>
-    }
-
-    private inner class ChildDelegatorImpl<E : Editor<*>>(private val editor: E) :
-        ChildDelegator<E> {
-        @Suppress("UNCHECKED_CAST", "DEPRECATION")
-        override fun provideDelegate(
-            thisRef: CompoundEditor<*>,
-            property: KProperty<*>
-        ): ReadOnlyProperty<CompoundEditor<*>, E> {
-            editor.setAccessor(PropertyAccessor(property.name))
-            editor.initParent(this@CompoundEditor)
-            addChild(editor)
-            return delegate(editor)
-        }
-    }
+    protected open fun defaultResult(): R? = null
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
         if (accessor !is PropertyAccessor) throw InvalidAccessorException(accessor)
@@ -62,6 +46,19 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
         if (res !is Editor<*>) throw InvalidAccessorException(accessor)
         return res
     }
+
+    /**
+     * Make the given [editor] a child of this [CompoundEditor].
+     */
+    protected fun <E : Editor<*>> child(editor: E): PropertyDelegateProvider<CompoundEditor<*>, ReadOnlyProperty<Any?, E>> =
+        PropertyDelegateProvider { thisRef, property ->
+            @Suppress("DEPRECATION") editor.setAccessor(PropertyAccessor(property.name))
+            @Suppress("DEPRECATION") editor.initParent(thisRef)
+            thisRef.addChild(editor)
+            ReadOnlyProperty { _, _ -> editor }
+        }
+
+    override fun supportsCopyPaste(): Boolean = children.now.all { e -> e.supportsCopyPaste() }
 
     override fun createSnapshot(): Snapshot<*> = Snap()
 
@@ -96,11 +93,5 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
                 .filter { (prop) -> !prop.startsWith('_') }
                 .map { (prop, value) -> prop to decode<Editor<*>>(value) }
         }
-    }
-
-    override fun supportsCopyPaste(): Boolean = children.now.all { e -> e.supportsCopyPaste() }
-
-    companion object {
-        private fun <T, R> delegate(value: T): ReadOnlyProperty<R, T> = ReadOnlyProperty { _, _ -> value }
     }
 }

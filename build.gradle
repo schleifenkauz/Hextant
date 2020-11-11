@@ -37,8 +37,11 @@ subprojects {
     sourceCompatibility = 11
 
     compileKotlin {
-        kotlinOptions.jvmTarget = "11"
-        kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        kotlinOptions {
+            noStdlib = true
+            jvmTarget = "11"
+            freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        }
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = "11"

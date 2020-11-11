@@ -44,21 +44,7 @@ internal object ListEditorCodegen : EditorClassGen<EditableList, TypeElement>() 
                     callFunction("addAt", {}, "i".e, "e".e)
                 }
             }
-            addConstructor(
-                {
-                    "context" of "Context"
-                    "elements" of type("List").parameterizedBy { invariant(simpleName) }
-                },
-                "context".e
-            ) {
-                addFor("i", "elements".e select "indices") {
-                    addVal("e") initializedWith ("context".e
-                        .call("createEditor", "elements".e["i".e])
-                        .cast(type(editorClsName)))
-                    callFunction("addAt", {}, "i".e, "e".e)
-                }
-            }
-            addSingleExprFunction("createEditor", { override() }) { call(editorClsName, "context".e) }
+            addSingleExprFunction("createEditor", { override() }) { call(editorClsName, annotation.childContext.e) }
         }
         writeKotlinFile(file)
         FeatureCollector.generatedEditor("$pkg.$name")

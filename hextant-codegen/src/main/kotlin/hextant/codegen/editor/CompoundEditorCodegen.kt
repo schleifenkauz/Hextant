@@ -57,7 +57,9 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
                     if (function.kind == CONSTRUCTOR) function.enclosingElement.simpleName
                     else function.simpleName
                 initializeWith(
-                    call("composeReactive", *names.mapToArray { n -> n.e select "result" }, "::$functionName".e)
+                    call("composeResult",
+                        lambda { callFunction(functionName.toString(), *names.mapToArray { n -> n.e call "get" }) }
+                    )
                 )
             }
         }
