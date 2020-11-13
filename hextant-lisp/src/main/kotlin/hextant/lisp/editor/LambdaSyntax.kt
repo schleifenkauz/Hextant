@@ -34,7 +34,7 @@ object LambdaSyntax : SpecialSyntax<LambdaEditor>("lambda", 2) {
         for (parameter in params.expressions.editors.now) {
             parameters.addLast(parameter.editor.now as SymbolEditor)
         }
-        body.setEditor(editors[2])
+        editors[2]?.let { e -> body.expand(e) }
     }
 
     override fun desugar(editor: LambdaEditor): SExprEditor<*> = QuotationEditor(editor.context).withoutUndo {
@@ -44,7 +44,7 @@ object LambdaSyntax : SpecialSyntax<LambdaEditor>("lambda", 2) {
             }
             expressions.addLast(editor.body)
         }
-        quoted.setEditor(e)
+        quoted.expand(e)
     }
 
     override fun createTemplate(context: Context): LambdaEditor = LambdaEditor(context)

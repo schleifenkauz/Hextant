@@ -47,8 +47,8 @@ object ExprPlugin : PluginInitializer({
             val editableOp1 = expander1.editor.now
             val expander2 = oae.operand2
             val editableOp2 = expander2.editor.now
-            if (editableOp2 != null) expander1.setEditor(editableOp2)
-            if (editableOp1 != null) expander2.setEditor(editableOp1)
+            if (editableOp2 != null) expander1.expand(editableOp2)
+            if (editableOp1 != null) expander2.expand(editableOp1)
         }
     }
     registerCommand<OperatorApplicationEditor, Unit> {
@@ -62,7 +62,7 @@ object ExprPlugin : PluginInitializer({
             val ex = oae.expander as ExprExpander
             val res = oae.result.now.force().value
             val editable = IntLiteralEditor(oae.context, res.toString())
-            ex.setEditor(editable)
+            ex.expand(editable)
         }
     }
     registerCommand<ExprEditor<*>, Unit> {
@@ -74,7 +74,7 @@ object ExprPlugin : PluginInitializer({
         }
         executingCompoundEdit { editor, _ ->
             val parentExpander = editor.parent!!.expander as ExprExpander
-            parentExpander.setEditor(editor)
+            parentExpander.expand(editor)
         }
     }
     registerInspection<OperatorApplicationEditor> {
@@ -95,7 +95,7 @@ object ExprPlugin : PluginInitializer({
             }
             fixingBy {
                 val expander = inspected.expander as ExprExpander
-                expander.setEditor(inspected.operand1)
+                expander.expand(inspected.operand1)
             }
         }
     }
@@ -105,7 +105,7 @@ object ExprPlugin : PluginInitializer({
         name = "Wrap in binary expression"
         shortName = "wrap"
         defaultShortcut("Ctrl+W")
-        applicableIf { it.isExpanded }
+        applicableIf { it.isExpanded.now }
         val op = addParameter<Operator> {
             name = "operator"
         }
@@ -113,9 +113,9 @@ object ExprPlugin : PluginInitializer({
             expander.context.compoundEdit("Wrap in binary expression") {
                 val editor = expander.editor.now!!
                 val app = OperatorApplicationEditor(editor.context)
-                expander.setEditor(app)
+                expander.expand(app)
                 app.operator.setText(args[op].name)
-                app.operand1.setEditor(editor)
+                app.operand1.expand(editor)
                 runFXWithTimeout {
                     expander.context[EditorControlGroup].getViewOf(app.operand2).receiveFocus()
                 }

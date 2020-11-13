@@ -11,6 +11,7 @@ import hextant.serial.*
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
 import reaktive.value.*
+import kotlin.reflect.KClass
 
 /**
  * Skeletal implementation for [Editor]s
@@ -85,10 +86,19 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
     override val isRoot: Boolean
         get() = _file != null
 
+    /**
+     * Returns the [KClass] instance for the class that is used to save and reconstruct the state of this editor type.
+     *
+     * The default implementation uses [createSnapshot] to create a snapshot and then returns
+     * the runtime class of the returned object. This may be non-desirable if the constructor of
+     * the snapshot class does any non-trivial work. In this case this method should be overridden
+     * to directly return the runtime class of objects that would be returned by [createSnapshot].
+     */
+    protected open fun snapshotClass(): KClass<out Snapshot<*>> = createSnapshot()::class
+
     @Suppress("UNCHECKED_CAST")
     override fun paste(snapshot: Snapshot<out Editor<*>>): Boolean {
-        val cls = snapshot.getTypeArgument(Snapshot::class, 0)
-        if (!cls.isInstance(this)) return false
+        if (!snapshotClass().isInstance(snapshot)) return false
         snapshot as Snapshot<Editor<*>>
         snapshot.reconstruct(this)
         return true

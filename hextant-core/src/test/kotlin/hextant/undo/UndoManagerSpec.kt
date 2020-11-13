@@ -34,7 +34,7 @@ internal object UndoManagerSpec : Spek({
         testCanUndo(false)
         val e1 = AnEdit()
         on("pushing an edit") {
-            subject.push(e1)
+            subject.record(e1)
             it("should be able to undo") {
                 testCanUndo(true)
             }

@@ -58,7 +58,7 @@ fun Editor<*>.copyToClipboard(): Boolean {
 @Suppress("UNCHECKED_CAST")
 fun <E : Editor<*>> E.replaceWith(other: E) {
     val ex = expander as Expander<*, E>
-    ex.setEditor(other)
+    ex.expand(other)
 }
 
 /**

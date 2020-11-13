@@ -8,7 +8,7 @@ import reaktive.value.now
 
 internal class EnabledCompleter(private val enabled: Boolean) : CompoundCompleter<TokenEditor<*, *>, Enabled>() {
     override fun completions(context: TokenEditor<*, *>, input: String): Collection<Completion<Enabled>> =
-        Companion.completions(context.context, input).filter { it.completion.isEnabled.now == enabled }
+        Companion.completions(context.context, input).filter { it.item.isEnabled.now == enabled }
 
     companion object : CompoundCompleter<Context, Enabled>() {
         init {

@@ -16,8 +16,8 @@ object LetSyntax : SpecialSyntax<LetEditor>("let", 3) {
         editors: List<SExprEditor<*>?>
     ): LetEditor = LetEditor(context).withoutUndo {
         name.setText((editors[1] as SymbolEditor).text.now)
-        value.setEditor(editors[2])
-        body.setEditor(editors[3])
+        editors[2]?.let { value.expand(it) }
+        editors[3]?.let { body.expand(it) }
     }
 
     override fun represent(context: Context, expressions: List<SExpr>): LetEditor = LetEditor(context).withoutUndo {

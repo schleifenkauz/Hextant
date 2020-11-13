@@ -16,6 +16,7 @@ import hextant.core.editor.Expander
 import hextant.fx.*
 import javafx.scene.Node
 import reaktive.Observer
+import reaktive.value.now
 
 /**
  * JavaFX implementation of a [ExpanderView]
@@ -69,7 +70,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
         styleClass.add("expander")
         expander.addView(this)
         completionObserver = popup.completionChosen.observe { _, completion ->
-            if (!expander.isExpanded) expander.complete(completion)
+            if (!expander.isExpanded.now) expander.complete(completion)
         }
     }
 

@@ -17,7 +17,7 @@ interface ExpanderDelegate<out E : Editor<*>> {
     fun expand(text: String, context: Context): E?
 
     /**
-     * Expand the given completion[item] using the specified [context].
+     * Expand the given completion-[item] using the specified [context].
      */
     fun expand(item: Any, context: Context): E?
 }

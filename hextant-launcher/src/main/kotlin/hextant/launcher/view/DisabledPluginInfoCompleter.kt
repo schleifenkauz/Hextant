@@ -20,7 +20,7 @@ internal class DisabledPluginInfoCompleter(private val types: Set<PluginInfo.Typ
                 val match = CompletionStrategy.simple.match(input, info.id) as Match
                 val tooltipText = info.description
                 Completion(
-                    completion = info,
+                    item = info,
                     inputText = input,
                     completionText = info.id,
                     match = match.matchedRegions,

@@ -6,15 +6,14 @@ package hextant.command.meta
 
 import hextant.command.*
 import hextant.command.Command.Category
+import hextant.context.Context
 import hextant.context.EditorFactory
 import hextant.core.Editor
-import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.shortcut
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.*
 import kotlin.reflect.full.*
-import kotlin.reflect.jvm.javaMethod
-import kotlin.reflect.jvm.jvmErasure
+import kotlin.reflect.jvm.*
 
 internal fun <R : Any> KClass<R>.collectProvidedCommands(): Set<Command<R, *>> {
     val dest = mutableSetOf<Command<R, *>>()
@@ -83,3 +82,14 @@ private fun KParameter.extractParameter(): Command.Parameter<*> {
     val factory = constructor?.let { c -> EditorFactory(c) }
     return Command.Parameter(name, type.jvmErasure, desc, factory)
 }
+
+internal fun <E : Any> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {
+    val cstr = this.constructors.find { cstr ->
+        val params = cstr.parameters.filter { !it.isOptional }
+        params.size == 1 && params[0].type.classifier == Context::class
+    } ?: throw NoSuchMethodException("$qualifiedName.<init>(hextant.context.Context)")
+    cstr.isAccessible = true
+    val param = cstr.parameters.find { it.type.classifier == Context::class }!!
+    return { ctx: Context -> cstr.callBy(mapOf(param to ctx)) }
+}
+

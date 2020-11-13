@@ -16,7 +16,7 @@ class ConcurrentUndoManager(private val wrapped: UndoManager) : UndoManager by w
         wrapped.redo()
     }
 
-    @Synchronized override fun push(edit: Edit) {
-        wrapped.push(edit)
+    @Synchronized override fun record(edit: Edit) {
+        wrapped.record(edit)
     }
 }

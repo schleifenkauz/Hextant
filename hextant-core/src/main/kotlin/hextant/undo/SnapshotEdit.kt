@@ -8,7 +8,7 @@ import hextant.core.Editor
 import hextant.serial.Snapshot
 import hextant.serial.VirtualEditor
 
-internal class StateTransition<E : Editor<*>>(
+@PublishedApi internal class SnapshotEdit<E : Editor<*>>(
     private val ref: VirtualEditor<E>,
     private val before: Snapshot<E>,
     private val after: Snapshot<E>,

@@ -8,15 +8,16 @@ import hextant.completion.Completion
 import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.Expander.State.Expanded
-import hextant.core.editor.Expander.State.Unexpanded
+import hextant.core.editor.Expander.State.Text
 import hextant.core.view.ExpanderView
 import hextant.serial.*
-import hextant.undo.StateTransition
+import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.coroutines.sync.Mutex
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.*
-import reaktive.Observer
+import kotlinx.serialization.serializer
 import reaktive.value.*
+import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
 import validated.*
 import validated.reaktive.ReactiveValidated
@@ -26,54 +27,43 @@ import validated.reaktive.ReactiveValidated
  * They allow the user to type in some text and then *expand* this text into a new editor,
  * which is then substituted for the typed in text.
  */
-abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context) {
-    private val mutex = Mutex()
-
+abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context),
+                                                                  TokenType<R> {
     constructor(context: Context, editor: E?) : this(context) {
-        if (editor != null) doChangeState(Expanded(editor))
+        if (editor != null) withoutUndo { this.expand(editor) }
     }
 
     constructor(context: Context, text: String) : this(context) {
-        doChangeState(Unexpanded(text))
+        withoutUndo { setText(text) }
     }
 
-    private sealed class State<out E> {
-        class Unexpanded(val text: String) : State<Nothing>()
-
-        class Expanded<out E>(val content: E) : State<E>()
-    }
-
-    private val undo = context[UndoManager]
-
-    private var state: State<E> = Unexpanded("")
-
-    private val _result = reactiveVariable(defaultResult())
-
-    override val result: ReactiveValidated<R> get() = _result
-
-    private var resultDelegator: Observer? = null
-
-    /**
-     * @return `true` only if the expander is expanded
-     */
-    val isExpanded: Boolean get() = state is Expanded
-
-    private val _editor = reactiveVariable<E?>(null)
-
-    /**
-     * A [ReactiveValue] holding the currently wrapped editor or `null` if the expander is not expanded
-     */
-    val editor: ReactiveValue<E?> get() = _editor
-
-    private val _text = reactiveVariable<String?>(null)
+    private val state: ReactiveVariable<State<E>> = reactiveVariable(initial)
 
     /**
      * A [ReactiveValue] holding the current text of the editor or `null` if it is expanded
      */
-    val text: ReactiveValue<String?> get() = _text
+    val text: ReactiveValue<String?> get() = state.map { (it as? Text)?.text }
 
-    @Suppress("UNCHECKED_CAST")
-    private val editorClass by lazy { getTypeArgument(Expander::class, 1) }
+    /**
+     * A [ReactiveValue] holding the currently wrapped editor or `null` if the expander is not expanded
+     */
+    val editor: ReactiveValue<E?> get() = state.map { (it as? Expanded)?.content }
+
+    /**
+     * @return `true` only if the expander is expanded
+     */
+    val isExpanded: ReactiveBoolean = state.map { it is Expanded }
+
+    override val result: ReactiveValidated<R> = state.flatMap { s ->
+        when (s) {
+            is Text ->
+                if (s.completion == null) reactiveValue(tryCompile(s.text))
+                else reactiveValue(tryCompile(s.completion).orElse { tryCompile(s.text) })
+            is Expanded -> s.content.result
+        }
+    }
+
+    private val editorClass by lazy { javaClass.getMethod("expand", String::class.java).returnType.kotlin }
 
     /**
      * Return the editor that should be wrapped if the expander
@@ -87,6 +77,18 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      * The default implementation returns `null`.
      */
     protected open fun expand(completion: Any): E? = null
+
+    override fun compile(token: String): Validated<R> = invalidComponent()
+
+    /**
+     * Compile the given [completion].
+     *
+     * If the [completion] is a valid one return an instance of [Validated.Valid] wrapping the compiled result.
+     * Otherwise return [Validated.InvalidComponent].
+     *
+     * The default implementation returns [invalidComponent].
+     */
+    protected open fun compile(completion: Any): Validated<R> = invalidComponent()
 
     /**
      * Can be overwritten by extending classes to be notified when [expand] was successfully called
@@ -110,136 +112,98 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     protected open fun accepts(editor: E): Boolean = true
 
     /**
-     * Returns the [Context] that expanded editors should be using.
-     * The default implementation returns the `context` of this Expander.
+     * Return the [Context] that expanded editors should be using.
+     *
+     * The default implementation returns the [context] of this Expander.
      */
-    protected open fun contentContext(): Context = context
+    protected open fun expansionContext(): Context = context
 
-    private fun doChangeState(newState: State<E>) {
-        val oldState = state
-        state = newState
-        when (oldState) {
-            is Expanded -> {
-                doReset()
-                context.executeSafely("resetting", Unit) { onReset(oldState.content) }
-                when (newState) {
-                    is Unexpanded -> {
-                        views { reset() }
-                        doSetText(newState.text)
-                    }
-                    is Expanded   -> {
-                        doExpandTo(newState.content)
-                        context.executeSafely("expanding", Unit) { onExpansion(newState.content) }
-                    }
-                }
-            }
-            is Unexpanded -> {
-                when (newState) {
-                    is Unexpanded -> doSetText(newState.text)
-                    is Expanded   -> {
-                        doExpandTo(newState.content)
-                        context.executeSafely("expanding", Unit) { onExpansion(newState.content) }
-                    }
-                }
-            }
-        }
-    }
+    private fun forceText(): String = text.now ?: error("Expected expander to be unexpanded")
 
-    private fun doSetText(text: String) {
-        _text.set(text)
-        views { displayText(text) }
-    }
-
-    private fun resetViews() {
-        views { reset() }
-    }
-
-    private fun doReset() {
-        resultDelegator?.kill()
-        resultDelegator = null
-        _editor.set(null)
-        _result.set(defaultResult())
-    }
-
-    @Suppress("DEPRECATION")
-    private fun doExpandTo(editor: E) {
-        this.parent?.let { editor.initParent(it) }
-        editor.initExpander(this)
-        editor.setAccessor(ExpanderContent)
-        resultDelegator = _result.bind(editor.result.map { it.or(invalidComponent()) })
-        _editor.set(editor)
-        _text.set(null)
-        views { expanded(editor) }
-    }
-
-    @Suppress("DEPRECATION", "OverridingDeprecatedMember")
-    override fun initParent(parent: Editor<*>) {
-        super.initParent(parent)
-        editor.now?.initParent(parent)
-    }
-
-    private fun changeState(newState: State<E>, actionDescription: String) {
-        val before = snapshot()
-        doChangeState(newState)
-        val after = snapshot()
-        if (undo.isActive) {
-            val edit = StateTransition(virtualize(), before, after, actionDescription)
-            undo.push(edit)
-        }
-    }
-
-    /**
-     * Set the text of this expander
-     * @throws IllegalStateException if the expander is expanded
-     */
-    fun setText(newText: String) {
-        check(state is Unexpanded) { "Cannot set text on expanded expander" }
-        changeState(Unexpanded(newText), "Type")
-    }
-
-    private fun checkUnexpanded(): Unexpanded {
-        val state = state
-        check(state is Unexpanded) { "Cannot expand expanded expander" }
-        return state
-    }
+    private fun forceEditor(): E = editor.now ?: error("Expected expander to be expanded")
 
     private fun tryExpand(text: String) = context.executeSafely("expanding", null) { expand(text) }
 
     private fun tryExpand(item: Any) = context.executeSafely("expanding", null) { expand(item) }
 
-    /**
-     * Expand the current text
-     * @throws IllegalStateException if already expanded
-     */
-    fun expand() {
-        val state = checkUnexpanded()
-        val editor = tryExpand(state.text)
-        if (editor != null) changeState(Expanded(editor), "Expand")
-    }
+    private fun tryCompile(text: String) =
+        context.executeSafely("compiling", invalid("error while compiling")) { compile(text) }
 
-    /**
-     * Use the given [completion] to expand this expander.
-     * @throws IllegalStateException if the expander is already expanded
-     */
-    fun complete(completion: Completion<*>) {
-        checkUnexpanded()
-        val editor = tryExpand(completion.completion) ?: tryExpand(completion.completionText)
-        if (editor != null) {
-            changeState(Expanded(editor), "Complete")
-        } else {
-            setText(completion.completionText)
+    private fun tryCompile(item: Any) =
+        context.executeSafely("compiling", invalid("error while compiling")) { compile(item) }
+
+    private inline fun executeEdit(description: String, action: () -> Unit) {
+        val undo = context[UndoManager]
+        if (!undo.isActive) action()
+        else {
+            val before = state.now
+            action()
+            val after = state.now
+            val edit = StateTransition(virtualize(), before, after, description)
+            undo.record(edit)
         }
     }
 
     /**
-     * Set the wrapped editor to the specified one
+     * Set the text of this expander.
+     * @throws IllegalStateException if the expander is expanded
      */
-    fun setEditor(editor: E?) {
-        if (editor == null) {
-            if (state is Expanded) reset()
-        } else {
-            val e = editor.moveTo(contentContext())
-            changeState(Expanded(e), "Change content")
+    fun setText(newText: String) {
+        forceText()
+        executeEdit("Type") {
+            state.now = Text(newText, null)
+            views { displayText(newText) }
+        }
+    }
+
+    /**
+     * Expand the current text.
+     * @throws IllegalStateException if already expanded
+     */
+    fun expand() {
+        val text = forceText()
+        val editor = tryExpand(text)
+        if (editor != null) expand(editor)
+    }
+
+    /**
+     * Called when the user selects a [completion].
+     *
+     * Either creates an editor from the given completion and expands this expander
+     * or simply compiles the completion and sets the displayed text.
+     * @throws IllegalStateException if the expander is already expanded
+     */
+    fun complete(completion: Completion<*>) {
+        executeEdit("Complete") {
+            complete(completion.item, completion.completionText)
+        }
+    }
+
+    private fun complete(item: Any, text: String) {
+        forceText()
+        val editor = tryExpand(item) ?: tryExpand(text)
+        if (editor != null) expand(editor)
+        else {
+            state.set(Text(text, item))
+            views { displayText(text) }
+        }
+    }
+
+    /**
+     * Expand this expander to the given [editor].
+     *
+     * If the given [editor] doesn't have the right [context] it is copied.
+     */
+    fun expand(editor: E) {
+        @Suppress("DEPRECATION")
+        executeEdit("Expand") {
+            val e = editor.moveTo(expansionContext())
+            state.set(Expanded(e))
+            this.parent?.let { editor.initParent(it) }
+            editor.initExpander(this)
+            editor.setAccessor(ExpanderContent)
+            onExpansion(editor)
+            views { expanded(e) }
         }
     }
 
@@ -248,46 +212,59 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      * @throws IllegalStateException if not expanded
      */
     fun reset() {
-        check(state is Expanded) { "Cannot reset unexpanded expander" }
-        changeState(Unexpanded(""), "Reset")
+        executeEdit("Reset") {
+            val old = forceEditor()
+            state.set(initial)
+            onReset(old)
+            views { reset() }
+        }
+    }
+
+    private fun reconstructState(state: State<E>) {
+        when (state) {
+            is Text -> {
+                if (isExpanded.now) reset()
+                if (state.completion == null) setText(state.text)
+                else complete(state.completion, state.text)
+            }
+            is Expanded -> expand(state.content)
+        }
+    }
+
+    @Suppress("DEPRECATION", "OverridingDeprecatedMember")
+    override fun initParent(parent: Editor<*>) {
+        super.initParent(parent)
+        editor.now?.initParent(parent)
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun paste(snapshot: Snapshot<out Editor<*>>): Boolean {
-        val editor = context.withoutUndo { snapshot.reconstructEditor(contentContext()) }
-        return when {
-            editor is Expander<*, *>                               -> {
-                val text = editor.text.now
-                val e = editor.editor.now
-                when {
-                    text != null                                              -> {
-                        setText(text)
-                        true
-                    }
-                    e != null && editorClass.isInstance(e) && accepts(e as E) -> {
-                        setEditor(e)
-                        true
-                    }
-                    else                                                      -> false
-                }
-            }
-            editorClass.isInstance(editor) && accepts(editor as E) -> {
-                setEditor(editor)
+    override fun paste(snapshot: Snapshot<out Editor<*>>): Boolean =
+        if (snapshot is Snap) {
+            snapshot.reconstruct(this)
+            true
+        } else {
+            val editor = context.withoutUndo { snapshot.reconstructEditor(expansionContext()) }
+            if (editorClass.isInstance(editor) && accepts(editor as E)) {
+                expand(editor)
                 true
-            }
-            else                                                   -> false
+            } else false
         }
-    }
 
     override fun createSnapshot(): Snapshot<*> = Snap()
 
     override fun supportsCopyPaste(): Boolean = true
 
     override fun viewAdded(view: ExpanderView) {
-        when (val s = state) {
-            is Unexpanded -> view.displayText(s.text)
-            is Expanded -> view.expanded(s.content)
+        when (val st = state.now) {
+            is Text -> view.displayText(st.text)
+            is Expanded -> view.expanded(st.content)
         }
+    }
+
+    private sealed class State<out E> {
+        class Text(val text: String, val completion: Any?) : State<Nothing>()
+
+        class Expanded<out E>(val content: E) : State<E>()
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
@@ -295,13 +272,14 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         return editor.now ?: throw InvalidAccessorException(accessor)
     }
 
+    @OptIn(InternalSerializationApi::class)
     private class Snap : Snapshot<Expander<*, *>>() {
         private lateinit var state: State<Snapshot<Editor<*>>>
 
         override fun doRecord(original: Expander<*, *>) {
-            state = when (val st = original.state) {
+            state = when (val st = original.state.now) {
                 is Expanded -> Expanded(st.content.snapshot(recordClass = true))
-                is Unexpanded -> Unexpanded(st.text)
+                is Text -> st
             }
         }
 
@@ -310,17 +288,26 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
             original as Expander<*, Editor<*>>
             when (val st = state) {
                 is Expanded -> {
-                    val editor = st.content.reconstructEditor(original.contentContext())
-                    original.setEditor(editor)
+                    val editor = original.context.withoutUndo {
+                        st.content.reconstructEditor(original.expansionContext())
+                    }
+                    original.expand(editor)
                 }
-                is Unexpanded -> original.setText(st.text)
+                is Text -> original.setText(st.text)
             }
         }
 
         override fun JsonObjectBuilder.encode() {
             when (val st = state) {
                 is Expanded -> put("editor", st.content.encode())
-                is Unexpanded -> put("text", st.text)
+                is Text -> {
+                    if (st.completion != null) {
+                        val cls = st.completion.javaClass
+                        put("completionClass", cls.name)
+                        put("completion", Json.encodeToJsonElement(cls.kotlin.serializer(), st.completion))
+                    }
+                    put("text", st.text)
+                }
             }
         }
 
@@ -332,10 +319,32 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
                 }
                 "text" in element   -> {
                     val text = element.getValue("text").string
-                    Unexpanded(text)
+                    val cls = element["completionClass"]?.string?.loadClass()
+                    val completion = if (cls != null) {
+                        Json.decodeFromJsonElement(cls.kotlin.serializer(), element.getValue("completion"))
+                    } else null
+                    Text(text, completion)
                 }
-                else                -> Unexpanded("")
+                else                -> initial
             }
         }
+    }
+
+    private class StateTransition<E : Editor<*>>(
+        val ref: VirtualEditor<Expander<*, E>>,
+        val before: State<E>, val after: State<E>,
+        override val actionDescription: String
+    ) : AbstractEdit() {
+        override fun doUndo() {
+            ref.get().reconstructState(before)
+        }
+
+        override fun doRedo() {
+            ref.get().reconstructState(after)
+        }
+    }
+
+    companion object {
+        private val initial = Text("", null)
     }
 }

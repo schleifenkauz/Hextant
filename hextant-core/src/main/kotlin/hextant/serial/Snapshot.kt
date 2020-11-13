@@ -7,6 +7,7 @@ package hextant.serial
 import hextant.serial.Snapshot.Companion.decode
 import kotlinx.serialization.json.*
 import java.lang.reflect.Constructor
+import kotlin.reflect.KClass
 
 /**
  * Used to save the state of an object at given point of time.
@@ -15,6 +16,11 @@ import java.lang.reflect.Constructor
  */
 abstract class Snapshot<Original : Any> {
     private var clazz: String? = null
+
+    /**
+     * Returns the class of the object that was recorded on this snapshot.
+     */
+    fun originalClass(): KClass<*> = clazz?.loadClass()?.kotlin ?: error("The class was not recorded")
 
     /**
      * Save a minimal representation of the given [original] to this snapshot.

@@ -38,12 +38,12 @@ interface UndoManager {
     fun redo()
 
     /**
-     * Push the specified [edit] such that [undo] would undo the [Edit].
+     * Record the specified [edit] such that [undo] would undo the [Edit].
      * * All redoable edits are discarded
      * * If the [UndoManager] is not active then this method has no effect.
      * @throws IllegalStateException if the [edit] is not undoable
      */
-    fun push(edit: Edit)
+    fun record(edit: Edit)
 
     /**
      * Begins a compound edit.

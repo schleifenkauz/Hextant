@@ -23,7 +23,7 @@ import validated.*
 fun SExpr.reconstructEditor(context: Context): SExprExpander = SExprExpander(context).also { e -> e.reconstruct(this) }
 
 fun SExprExpander.reconstruct(expr: SExpr) {
-    withoutUndo { setEditor(reconstruct(expr, context)) }
+    withoutUndo { expand(reconstruct(expr, context)) }
 }
 
 private fun reconstruct(expr: SExpr, context: Context): SExprEditor<*> = when (expr) {

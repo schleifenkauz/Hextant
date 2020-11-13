@@ -15,7 +15,7 @@ abstract class ConfiguredExpander<R, E : Editor<R>>(
     context: Context,
     editor: E? = null
 ) : Expander<R, E>(context, editor) {
-    override fun expand(text: String): E? = config.expand(text, context)
+    override fun expand(text: String): E? = config.expand(text, expansionContext())
 
-    override fun expand(completion: Any): E? = config.expand(completion, context)
+    override fun expand(completion: Any): E? = config.expand(completion, expansionContext())
 }

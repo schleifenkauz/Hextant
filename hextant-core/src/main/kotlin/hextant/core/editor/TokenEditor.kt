@@ -2,8 +2,6 @@
  *@author Nikolaus Knop
  */
 
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
 package hextant.core.editor
 
 import hextant.completion.Completion
@@ -32,14 +30,15 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         data class Text(val input: String) : Compilable()
     }
 
+    @OptIn(ObsoleteCoroutinesApi::class)
     private val compiler = GlobalScope.actor<Compilable>(Dispatchers.Main, capacity = Channel.CONFLATED) {
         for (compilable in channel) {
             val res = when (compilable) {
                 is Completed -> {
                     val comp = compilable.completion
-                    tryCompile(comp.completion).orElse { tryCompile(comp.completionText) }
+                    tryCompile(comp.item).orElse { tryCompile(comp.completionText) }
                 }
-                is Text -> tryCompile(compilable.input)
+                is Text      -> tryCompile(compilable.input)
             }
             _result.set(res)
         }
@@ -48,8 +47,6 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     constructor(context: Context, text: String) : this(context) {
         withoutUndo { setText(text) }
     }
-
-    private val resultClass = getTypeArgument(TokenEditor::class, 0)
 
     private val _result = reactiveVariable(runBlocking { tryCompile("") })
 
@@ -63,6 +60,10 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     val text: ReactiveString get() = _text
 
     private val undo = context[UndoManager]
+
+    private fun resultClassHelper(): R = throw AssertionError("This should never ever be called!")
+
+    private val resultClass by lazy { javaClass.getMethod("resultClassHelper").returnType.kotlin }
 
     /**
      * Make a result from the given completion item.
@@ -93,7 +94,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     fun setText(newText: String) {
         if (undo.isActive) {
             val edit = TextEdit(virtualize(), text.now, newText)
-            undo.push(edit)
+            undo.record(edit)
         }
         _text.now = newText
         views { displayText(newText) }
@@ -106,7 +107,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     fun complete(completion: Completion<*>) {
         val t = completion.completionText
         val edit = TextEdit(virtualize(), text.now, t)
-        undo.push(edit)
+        undo.record(edit)
         _text.now = t
         views { displayText(t) }
         GlobalScope.launch { compiler.send(Completed(completion)) }

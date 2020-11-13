@@ -28,7 +28,7 @@ object ExpanderSpec : Spek({
             }
             val editor = IntLiteralEditor(context)
             on("expanding to an editor with error result") {
-                ex.setEditor(editor)
+                ex.expand(editor)
                 test("result.now should be child error", No) {
                     ex.result.now shouldBe invalidComponent
                 }

@@ -15,7 +15,7 @@ object NoUndoManager : UndoManager {
 
     override fun redo() {}
 
-    override fun push(edit: Edit) {}
+    override fun record(edit: Edit) {}
 
     override val undoText: String
         get() = "No undo"

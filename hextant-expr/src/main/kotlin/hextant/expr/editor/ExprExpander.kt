@@ -8,12 +8,15 @@ import hextant.context.Context
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
 import hextant.expr.Expr
+import hextant.expr.IntLiteral
 import hextant.expr.Operator.*
+import validated.*
 
 class ExprExpander(
-    context: Context, editor: ExprEditor<Expr>?
+    context: Context, editor: ExprEditor<Expr>? = null
 ) : ConfiguredExpander<Expr, ExprEditor<Expr>>(config, context, editor), ExprEditor<Expr> {
-    constructor(context: Context) : this(context, null)
+    override fun compile(token: String): Validated<Expr> =
+        token.toIntOrNull().validated { invalid("Invalid int literal $token") }.map { IntLiteral(it) }
 
     companion object {
         val config = ExpanderConfig<ExprEditor<Expr>>().apply {

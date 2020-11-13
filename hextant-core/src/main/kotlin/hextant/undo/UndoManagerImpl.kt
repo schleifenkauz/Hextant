@@ -39,7 +39,7 @@ internal class UndoManagerImpl : UndoManager {
         undoable.push(e)
     }
 
-    override fun push(edit: Edit) {
+    override fun record(edit: Edit) {
         if (!isActive) return
         check(edit.canUndo) { "Attempt to push non-undoable edit to UndoManager" }
         if (compound != null) {
@@ -70,7 +70,7 @@ internal class UndoManagerImpl : UndoManager {
         compound = null
         if (edits.isEmpty()) return
         val e = CompoundEdit(edits, description)
-        push(e)
+        record(e)
     }
 
     override val undoText: String

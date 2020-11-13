@@ -12,7 +12,6 @@ import hextant.core.view.ValidatedTokenEditorView
 import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.json.*
 import reaktive.event.event
 import reaktive.event.unitEvent
@@ -29,8 +28,6 @@ import validated.reaktive.ReactiveValidated
  */
 abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
     AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R> {
-    private val mutex = Mutex()
-
     constructor(context: Context) : this(context, "")
 
     private var oldText: String = initialText
@@ -165,7 +162,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         val t = completion.completionText
         _text.now = t
         views { displayText(t) }
-        val res = tryCompile(completion.completion).orElse { tryCompile(t) }
+        val res = tryCompile(completion.item).orElse { tryCompile(t) }
         _intermediateResult.now = res
         commitChange()
     }
@@ -174,7 +171,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         val oldResult = result.now
         if (oldResult is Valid) {
             val edit = CommitEdit(virtualize(), oldText, oldResult.value, t, res)
-            context[UndoManager].push(edit)
+            context[UndoManager].record(edit)
         }
     }
 

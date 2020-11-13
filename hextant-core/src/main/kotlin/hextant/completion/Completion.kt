@@ -7,7 +7,7 @@ package hextant.completion
 /**
  * A completion of type [T]
  * @constructor
- * @property completion The item that was completed
+ * @property item The item that was completed
  * @property completionText The textual representation of the completed item
  * @property inputText The user input that was completed
  * @property match A list of index ranges that represent matches between the [inputText] and the [completionText]
@@ -16,7 +16,7 @@ package hextant.completion
  * @property icon An image resource that points to 16x16 icon that should is display, or `null`
  */
 class Completion<out T : Any>(
-    val completion: T,
+    val item: T,
     val inputText: String,
     val completionText: String,
     val match: List<IntRange>,

@@ -4,10 +4,10 @@
 
 package hextant.command
 
+import hextant.command.meta.getSimpleEditorConstructor
 import hextant.config.Enabled
 import hextant.context.EditorFactory
 import hextant.core.Editor
-import hextant.core.editor.getSimpleEditorConstructor
 import hextant.fx.Shortcut
 import kotlin.reflect.KClass
 

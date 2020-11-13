@@ -41,7 +41,7 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
 
     private val completionObserver = popup.completionChosen.observe { _, completion ->
         cl.setCommandName(completion.completionText)
-        cl.expand(completion.completion)
+        cl.expand(completion.item)
     }
 
     private val textObserver: Observer
