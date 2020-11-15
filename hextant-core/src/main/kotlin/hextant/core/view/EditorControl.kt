@@ -28,7 +28,7 @@ import reaktive.value.*
  * @property context the [Context] of this [EditorControl]
  */
 abstract class EditorControl<R : Node>(
-    final override val target: Any,
+    final override val target: Editor<*>,
     val context: Context,
     final override val arguments: Bundle
 ) : Control(), EditorView {
@@ -297,7 +297,7 @@ abstract class EditorControl<R : Node>(
         description = "Copy the editor to the clipboard",
         defaultShortcut = "Ctrl?+C"
     )
-    private fun copy(): Boolean = if (target is Editor<*>) target.copyToClipboard() else false
+    private fun copy(): Boolean = target.copyToClipboard()
 
     @ProvideCommand(
         name = "Paste",
@@ -306,7 +306,7 @@ abstract class EditorControl<R : Node>(
         description = "Paste the recently copied content",
         defaultShortcut = "Ctrl?+Shift?+V"
     )
-    private fun paste(): Boolean = if (target is Editor<*>) target.pasteFromClipboard() else false
+    private fun paste(): Boolean = target.pasteFromClipboard()
 
     @ProvideCommand(
         name = "Show Inspections",

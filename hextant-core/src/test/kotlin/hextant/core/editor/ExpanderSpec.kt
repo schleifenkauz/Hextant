@@ -53,7 +53,7 @@ object ExpanderSpec : Spek({
             val context = testingContext()
             val ex = ExpanderSpec.expander(context)
             ex.makeRoot()
-            val view = mockView<ExpanderView>()
+            val view = mockView<ExpanderView>(ex)
             ex.addView(view)
             view.inOrder {
                 on("resetting when not expanded") {

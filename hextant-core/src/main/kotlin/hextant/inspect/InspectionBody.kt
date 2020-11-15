@@ -4,7 +4,7 @@
 
 package hextant.inspect
 
-import org.nikok.kref.weak
+import java.lang.ref.WeakReference
 
 /**
  * Used as a receiver for closures related to inspection registration.
@@ -23,10 +23,10 @@ abstract class InspectionBody<out T : Any> {
     private class Strong<T : Any>(override val inspected: T) : InspectionBody<T>()
 
     private class Weak<T : Any>(inspected: T) : InspectionBody<T>() {
-        private val ref = weak(inspected)
+        private val ref = WeakReference(inspected)
 
         override val inspected: T
-            get() = ref.referent ?: error("Inspected object has already been garbage collected")
+            get() = ref.get() ?: error("Inspected object has already been garbage collected")
     }
 
     companion object {

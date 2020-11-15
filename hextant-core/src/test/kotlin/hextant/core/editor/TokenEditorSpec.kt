@@ -21,7 +21,7 @@ object TokenEditorSpec : Spek({
         val undo: UndoManager = context[UndoManager]
         val editor = IntLiteralEditor(context)
         editor.makeRoot()
-        val view = mockView<TokenEditorView>()
+        val view = mockView<TokenEditorView>(editor)
         view.inOrder {
             on("adding a view") {
                 editor.addView(view)

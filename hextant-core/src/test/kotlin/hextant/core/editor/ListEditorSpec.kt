@@ -19,7 +19,7 @@ object ListEditorSpec : Spek({
                 override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
             }
             editor.makeRoot()
-            val view = mockView<ListEditorView>()
+            val view = mockView<ListEditorView>(editor)
             view.inOrder {
                 on("adding a view") {
                     editor.addView(view)
@@ -76,7 +76,7 @@ object ListEditorSpec : Spek({
                 override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
             }
             editor.makeRoot()
-            val view = mockView<ListEditorView>()
+            val view = mockView<ListEditorView>(editor)
             editor.addView(view)
             on("adding an editable") {
                 editor.addAt(0)

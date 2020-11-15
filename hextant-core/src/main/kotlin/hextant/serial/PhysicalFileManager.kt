@@ -7,19 +7,19 @@ package hextant.serial
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.serial.SerialProperties.projectRoot
-import org.nikok.kref.Ref
-import org.nikok.kref.weak
 import java.io.File
+import java.lang.ref.Reference
+import java.lang.ref.WeakReference
 
 internal class PhysicalFileManager(private val context: Context) : FileManager {
-    private val cache = mutableMapOf<File, Ref<PhysicalFile<*>>>()
+    private val cache = mutableMapOf<File, Reference<PhysicalFile<*>>>()
 
     @Suppress("UNCHECKED_CAST")
     override fun <E : Editor<*>> get(content: E, path: File): VirtualFile<E> {
-        val cached = cache[path]?.referent
+        val cached = cache[path]?.get()
         return if (cached == null) {
             val f = PhysicalFile(content, path, content.context)
-            cache[path] = weak(f)
+            cache[path] = WeakReference(f)
             f
         } else cached as VirtualFile<E>
     }
@@ -44,7 +44,7 @@ internal class PhysicalFileManager(private val context: Context) : FileManager {
 
     override fun deleteFile(path: File) {
         safeIO {
-            val f = cache.remove(path)?.referent ?: error("$path is not managed by this file manager")
+            val f = cache.remove(path)?.get() ?: error("$path is not managed by this file manager")
             f.delete()
         }
     }

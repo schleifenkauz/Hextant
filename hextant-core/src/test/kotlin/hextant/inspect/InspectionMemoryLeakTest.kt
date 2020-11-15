@@ -18,7 +18,7 @@ import hextant.undo.NoUndoManager
 import hextant.undo.UndoManager
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.nikok.kref.*
+import reaktive.getValue
 import reaktive.value.*
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
@@ -36,8 +36,7 @@ class InspectionMemoryLeakTest {
     fun `get problems of editor causes no memory leak`() {
         class Inspected(val error: ReactiveBoolean)
 
-        val w = wrapper(strong(Inspected(reactiveValue(true))))
-        val e by w
+        var e: Inspected? = Inspected(reactiveValue(true))
         val i = Inspections.newInstance()
         i.registerInspection<Inspected> {
             description = "An inspection"
@@ -50,20 +49,21 @@ class InspectionMemoryLeakTest {
             }
         }
         i.getProblems(e!!)
-        w.ref = weak(e!!)
-        System.gc()
-        e shouldBe absent()
+        val r = WeakReference(e)
+        e = null
+        gc()
+        r.get() shouldBe absent()
     }
 
     @Test
     fun `constructing view of editor causes no memory leak`() {
         val ctx = testingContext()
-        val w = wrapper(strong(IntLiteralEditor(ctx)))
-        val e by w
+        var e: IntLiteralEditor? = IntLiteralEditor(ctx)
         val v = WeakReference(ctx.createControl(e!!), ReferenceQueue())
-        w.ref = weak(e!!)
+        val r = WeakReference(e)
+        e = null
         gc()
-        e shouldBe absent()
+        r.get() shouldBe absent()
         v.get() shouldBe absent()
     }
 
@@ -76,8 +76,8 @@ class InspectionMemoryLeakTest {
         val view = ctx.createControl(exp)
         exp.setText("1")
         exp.expand()
-        val e by weak(exp.editor.now!!)
-        val v by weak(ctx[EditorControlGroup].getViewOf(e!!))
+        val e by WeakReference(exp.editor.now!!)
+        val v by WeakReference(ctx[EditorControlGroup].getViewOf(e!!))
         exp.reset()
         gc()
         e shouldBe absent()

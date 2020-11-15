@@ -14,11 +14,11 @@ import hextant.plugin.PluginBuilder
 import hextant.plugin.PluginBuilder.Phase.Disable
 import hextant.plugin.PluginBuilder.Phase.Initialize
 import hextant.plugin.registerInspection
-import reaktive.list.ReactiveList
-import reaktive.map
+import reaktive.list.binding.first
+import reaktive.value.binding.*
 import reaktive.value.now
-import validated.force
-import validated.orNull
+import reaktive.value.reactiveValue
+import validated.*
 
 fun SExpr.reconstructEditor(context: Context): SExprExpander = SExprExpander(context).also { e -> e.reconstruct(this) }
 
@@ -103,9 +103,12 @@ fun PluginBuilder.addSpecialSyntax(syntax: SpecialSyntax<*>) {
         description = "Highlights expressions that can be beautified with a special syntax"
         message { "This expression can be replaced with syntactic sugar" }
         preventingThat {
-            inspected.expressions.editors.map { expanders: ReactiveList<SExprExpander> ->
-                val editors = expanders.now.map { it.editor.now }
-                editors.firstOrNull()?.result?.now?.orNull() == Symbol(syntax.name) && syntax.representsEditors(editors)
+            val rightName = inspected.expressions.editors.first()
+                .flatMap { it?.result ?: reactiveValue(invalidComponent) }
+                .equalTo(valid(Symbol(syntax.name)))
+            rightName.flatMap { right ->
+                if (!right) reactiveValue(false)
+                else binding { syntax.representsEditors(inspected.expressions.editors()) }
             }
         }
         addFix("Replace with ${syntax.name}-form", beautify)

@@ -17,9 +17,9 @@ interface EditorView : SnapshotAware {
     val arguments: Bundle
 
     /**
-     * The object viewed by this [EditorView]
+     * The editor displayed by this [EditorView]
      */
-    val target: Any
+    val target: Editor<*>
 
     /**
      * Visually deselect this [EditorView]
