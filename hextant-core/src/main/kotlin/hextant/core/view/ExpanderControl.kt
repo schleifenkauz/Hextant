@@ -30,13 +30,14 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
 
     private var view: EditorControl<*>? = null
 
-    private val textField = HextantTextField(initialInputMethod = context[InputMethod]).withStyleClass("expander-text")
-
-    private val textObserver: Observer
+    private val textField = HextantTextField(initialInputMethod = context[InputMethod])
 
     private val popup = CompletionPopup(context, expander) { arguments[COMPLETER] }
 
+    private val textObserver: Observer
     private val completionObserver: Observer
+    private val styleObserver: Observer
+    private val textEmptyObserver: Observer
 
     override fun createDefaultRoot(): Node = textField
 
@@ -66,12 +67,18 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
                 popup.updateInput(new)
                 popup.show(root)
             }
+            if (expander.text.now == "") styleClass.add("empty-text")
+            textEmptyObserver = expander.text.observe { _, old, new ->
+                if (new == "") styleClass.add("empty-text")
+                else if (old == "") styleClass.remove("empty-text")
+            }
         }
         styleClass.add("expander")
-        expander.addView(this)
         completionObserver = popup.completionChosen.observe { _, completion ->
             if (!expander.isExpanded.now) expander.complete(completion)
         }
+        styleObserver = context[ResultStyleClasses].apply(this)
+        expander.addView(this)
     }
 
     override fun displayText(text: String) {

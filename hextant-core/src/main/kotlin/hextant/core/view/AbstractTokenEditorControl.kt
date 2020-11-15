@@ -14,7 +14,9 @@ import hextant.fx.*
 import javafx.scene.input.KeyCode.SPACE
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
+import reaktive.Observer
 import reaktive.observe
+import reaktive.value.now
 
 /**
  * An [EditorControl] for [TokenEditor]'s.
@@ -31,6 +33,8 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         popup.show(root)
     }
 
+    private val textEmptyObserver: Observer
+
     private val popup = CompletionPopup(context, editor) { arguments[COMPLETER] }
 
     private val obs = popup.completionChosen.observe(this) { _, c ->
@@ -39,6 +43,11 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
     }
 
     init {
+        if (editor.text.now == "") root.styleClass.add("empty-text")
+        textEmptyObserver = editor.text.observe { _, old, new ->
+            if (new == "") root.styleClass.add("empty-text")
+            else if (old == "") root.styleClass.remove("empty-text")
+        }
         registerShortcut()
     }
 

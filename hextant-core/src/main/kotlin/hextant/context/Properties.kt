@@ -7,8 +7,7 @@ package hextant.context
 import bundles.*
 import hextant.command.Commands
 import hextant.command.line.*
-import hextant.fx.InputMethod
-import hextant.fx.Stylesheets
+import hextant.fx.*
 import hextant.inspect.Inspections
 import hextant.plugin.Aspects
 import hextant.settings.PropertyRegistrar
@@ -47,6 +46,7 @@ object Properties {
             set(Internal, propertyChangeHandler, PropertyChangeHandler())
             set(PropertyRegistrar, PropertyRegistrar())
             set(Internal, Aspects, Aspects())
+            set(ResultStyleClasses, ResultStyleClasses())
             set(Internal, classLoader, loader)
         }
 

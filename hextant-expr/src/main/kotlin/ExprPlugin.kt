@@ -138,6 +138,7 @@ object ExprPlugin : PluginInitializer({
         executing { v, args -> v.arguments[color] = args[c] }
     }
     configurableProperty(Style.BorderColor) { ctx -> ColorEditor(ctx) }
+    resultStyleClass<IntLiteral> { "int-literal" }
     stylesheet("expr.css")
 }) {
     val color = publicProperty<String>("color")

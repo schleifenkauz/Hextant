@@ -8,6 +8,7 @@ import bundles.*
 import hextant.command.*
 import hextant.context.*
 import hextant.context.Properties.propertyChangeHandler
+import hextant.fx.ResultStyleClasses
 import hextant.fx.Stylesheets
 import hextant.inspect.*
 import hextant.plugin.PluginBuilder.Phase.*
@@ -51,11 +52,19 @@ inline fun <reified T : Any> PluginBuilder.registerInspection(block: InspectionB
 }
 
 /**
- * Applies the given [stylesheet]
+ * Apply the given CSS-[stylesheet].
  */
 fun PluginBuilder.stylesheet(resource: String) {
     on(Initialize) { ctx -> ctx[Stylesheets].add(resource) }
     on(Disable) { ctx -> ctx[Stylesheets].remove(resource) }
+}
+
+/**
+ * Register the given [styleClass] for editors whose current result is of type [R].
+ */
+inline fun <reified R : Any> PluginBuilder.resultStyleClass(noinline styleClass: (R) -> String?) {
+    on(Initialize) { ctx -> ctx[ResultStyleClasses].register(R::class, styleClass) }
+    on(Disable) { ctx -> ctx[ResultStyleClasses].unregister(R::class, styleClass) }
 }
 
 /**
