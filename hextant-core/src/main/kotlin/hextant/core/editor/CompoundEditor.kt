@@ -10,10 +10,8 @@ import hextant.core.EditorView
 import hextant.serial.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
+import reaktive.value.ReactiveValue
 import reaktive.value.now
-import validated.Validated
-import validated.invalidComponent
-import validated.reaktive.ReactiveValidated
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.full.memberProperties
@@ -21,17 +19,15 @@ import kotlin.reflect.full.memberProperties
 /**
  * Base class for editors that are composed of multiple sub-editors.
  */
-abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorView>(context) {
+abstract class CompoundEditor<R>(context: Context, strategy: ResultStrategy<R>? = null) :
+    AbstractEditor<R, EditorView>(context, strategy) {
     /**
      * Composes a result from the component editor results of this compound editor using the [compose] block.
      * The result is updated every time one of the [children] of this [CompoundEditor] changes its result
-     * and if any of the component results is incomplete the compound result will be set to the specified [default].
+     * and if any of the component results is incomplete the compound result will be set to the default of the [resultStrategy].
      */
-    inline fun <R : Any> composeResult(
-        default: Validated<R> = invalidComponent(),
-        crossinline compose: ResultComposer.() -> R
-    ): ReactiveValidated<R> = composeResult(children.now, default, compose)
-
+    inline fun compose(crossinline compose: ResultComposer.() -> R): ReactiveValue<R> =
+        composeResult(children.now, resultStrategy::default, compose)
 
     /**
      * Default result used when one of the component editors results is `null` or if composition fails.

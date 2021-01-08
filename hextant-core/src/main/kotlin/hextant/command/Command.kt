@@ -6,9 +6,10 @@ package hextant.command
 
 import hextant.command.meta.getSimpleEditorConstructor
 import hextant.config.Enabled
-import hextant.context.EditorFactory
+import hextant.context.Context
 import hextant.core.Editor
 import hextant.fx.Shortcut
+import validated.Validated
 import kotlin.reflect.KClass
 
 /**
@@ -129,7 +130,7 @@ interface Command<in R : Any, out T : Any> : Enabled {
         val name: String,
         val type: KClass<T>,
         val description: String,
-        val editWith: EditorFactory<*>?
+        val editWith: ((Context) -> Editor<*>)?
     ) {
         override fun toString() = buildString {
             append(name)
@@ -157,12 +158,19 @@ interface Command<in R : Any, out T : Any> : Enabled {
          */
         var description: String = "No description provided"
 
-        private var editorFactory: EditorFactory<T>? = null
+        private var editorFactory: ((Context) -> Editor<*>)? = null
 
         /**
          * This will cause command lines to use the given [factory] to create an editor for the value of this parameter.
          */
-        fun editWith(factory: EditorFactory<T>) {
+        fun editWith(factory: (Context) -> Editor<T?>) {
+            editorFactory = factory
+        }
+
+        /**
+         * This will cause command lines to use the given [factory] to create an editor for the value of this parameter.
+         */
+        fun editWithValidated(factory: (Context) -> Editor<Validated<T>>) {
             editorFactory = factory
         }
 

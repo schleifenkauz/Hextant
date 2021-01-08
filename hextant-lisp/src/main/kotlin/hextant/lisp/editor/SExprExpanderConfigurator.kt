@@ -6,7 +6,6 @@ package hextant.lisp.editor
 
 import hextant.core.editor.ExpanderConfigurator
 import hextant.lisp.IntLiteral
-import hextant.lisp.Symbol
 
 object SExprExpanderConfigurator : ExpanderConfigurator<SExprEditor<*>>({
     "symbol" expand ::SymbolEditor
@@ -18,6 +17,5 @@ object SExprExpanderConfigurator : ExpanderConfigurator<SExprEditor<*>>({
     registerKeys("(", "call", create = ::CallExprEditor)
     "let" expand ::LetEditor
     "lambda" expand ::LambdaEditor
-    registerTokenInterceptor(Symbol, ::SymbolEditor)
-    registerTokenInterceptor(IntLiteral, ::IntLiteralEditor)
+    registerTokenInterceptor(IntLiteral) { ctx, res -> IntLiteralEditor(ctx, res) }
 })

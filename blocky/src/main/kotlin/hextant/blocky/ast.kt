@@ -13,7 +13,7 @@ import validated.*
 data class Id(private val str: String) {
     override fun toString(): String = str
 
-    companion object : TokenType<Id> {
+    companion object : TokenType<Validated<Id>> {
         override fun compile(token: String): Validated<Id> = token
             .takeIf { it.all { c -> c.isLetter() } }
             .validated { invalid("Invalid identifier '$token'") }
@@ -27,7 +27,7 @@ sealed class Expr
 
 @Token(subtypeOf = Expr::class)
 data class IntLiteral(val value: Int) : Expr() {
-    companion object : TokenType<IntLiteral> {
+    companion object : TokenType<Validated<IntLiteral>> {
         override fun compile(token: String): Validated<IntLiteral> =
             token.toIntOrNull()?.let(::IntLiteral).validated { invalid("Invalid integer literal $token") }
     }
@@ -45,7 +45,7 @@ enum class BinaryOperator(private val str: String) {
 
     override fun toString(): String = str
 
-    companion object : TokenType<BinaryOperator> {
+    companion object : TokenType<Validated<BinaryOperator>> {
         private val operators = values().associateBy { it.str }
 
         override fun compile(token: String): Validated<BinaryOperator> =
@@ -62,7 +62,7 @@ enum class UnaryOperator(private val str: String) {
 
     override fun toString(): String = str
 
-    companion object : TokenType<UnaryOperator> {
+    companion object : TokenType<Validated<UnaryOperator>> {
         private val operators = values().associateBy { it.str }
 
         override fun compile(token: String): Validated<UnaryOperator> =

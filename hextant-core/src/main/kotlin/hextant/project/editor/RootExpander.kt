@@ -9,4 +9,4 @@ internal class RootExpander<R>(
     context: Context,
     config: ExpanderDelegate<Editor<R>> = context[ProjectItemEditor.expanderConfig<R>()],
     initial: Editor<R>? = null
-) : ConfiguredExpander<R, Editor<R>>(config, context, initial)
+) : ConfiguredExpander<R, Editor<R>>(config, context, null, initial)

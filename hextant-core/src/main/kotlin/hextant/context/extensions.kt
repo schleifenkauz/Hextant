@@ -56,13 +56,19 @@ inline fun Context.extend(block: Context.() -> Unit = {}): Context =
 /**
  * Tries to execute the given action catching an eventual thrown exception and logging it.
  */
-inline fun <T> Context.executeSafely(description: String, onError: T, action: () -> T): T = try {
+inline fun <T> Context.executeSafely(description: String, onError: () -> T, action: () -> T): T = try {
     action()
 } catch (ex: Throwable) {
     val msg = "Exception while $description: ${ex.message}"
     get(Properties.logger).log(Level.SEVERE, msg, ex)
-    onError
+    onError()
 }
+
+/**
+ * Tries to execute the given action catching an eventual thrown exception and logging it.
+ */
+inline fun <T> Context.executeSafely(description: String, onError: T, action: () -> T): T =
+    executeSafely(description, { onError }, action)
 
 /**
  * Deactivates the [UndoManager] of this context while executing the given [action] and then reactivates it.

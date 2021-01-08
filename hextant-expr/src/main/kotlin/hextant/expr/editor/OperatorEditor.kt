@@ -11,7 +11,7 @@ import validated.*
 
 @ProvideFeature
 class OperatorEditor constructor(context: Context, text: String) :
-    TokenEditor<Operator, TokenEditorView>(context, text) {
+    TokenEditor<Validated<Operator>, TokenEditorView>(context, text) {
     constructor(context: Context, operator: Operator) : this(context, operator.name)
 
     @ProvideImplementation(EditorFactory::class)

@@ -11,13 +11,20 @@ import hextant.serial.*
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
 import reaktive.value.*
+import validated.Validated
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.full.declaredMemberFunctions
+import kotlin.reflect.jvm.jvmErasure
 
 /**
  * Skeletal implementation for [Editor]s
  */
 @Suppress("OverridingDeprecatedMember")
-abstract class AbstractEditor<out R, in V : Any>(override val context: Context) : Editor<R>, AbstractController<V>() {
+abstract class AbstractEditor<out R, in V : Any>(
+    override val context: Context,
+    resultStrategy: ResultStrategy<R>? = null
+) : Editor<R>, AbstractController<V>() {
     final override var parent: Editor<*>? = null
         private set
 
@@ -27,6 +34,14 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
 
     final override var expander: Expander<*, *>? = null
         private set
+
+    private fun resultTypeHelper(): R = throw AssertionError("This should never ever be called!")
+
+    private val resultType by lazy { this::class.declaredMemberFunctions.first { it.name == "resultTypeHelper" }.returnType }
+
+    @Suppress("UNCHECKED_CAST")
+    override val resultStrategy: ResultStrategy<@UnsafeVariance R> =
+        resultStrategy ?: inferResultStrategy(resultType) as ResultStrategy<R>
 
     override fun initParent(parent: Editor<*>) {
         this.parent = parent
@@ -110,5 +125,13 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
 
     override fun views(action: (@UnsafeVariance V).() -> Unit) {
         super.views { context.executeSafely("notify views", Unit) { action() } }
+    }
+
+    companion object {
+        private fun inferResultStrategy(type: KType): ResultStrategy<*> = when {
+            type.jvmErasure == Validated::class -> ResultStrategy.Validate<Nothing>()
+            type.isMarkedNullable               -> ResultStrategy.Nullable<Nothing>()
+            else                                -> ResultStrategy.Simple<Nothing>()
+        }
     }
 }

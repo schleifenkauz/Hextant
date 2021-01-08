@@ -7,7 +7,6 @@ package hextant.command.meta
 import hextant.command.*
 import hextant.command.Command.Category
 import hextant.context.Context
-import hextant.context.EditorFactory
 import hextant.core.Editor
 import hextant.fx.shortcut
 import java.lang.reflect.InvocationTargetException
@@ -79,8 +78,7 @@ private fun KParameter.extractParameter(): Command.Parameter<*> {
     val desc = ann?.description?.takeIf { it != NONE } ?: "No description provided"
     val editWith = ann?.editWith?.takeIf { it != Default::class } as? KClass<out Editor<Any>>
     val constructor = editWith?.getSimpleEditorConstructor()
-    val factory = constructor?.let { c -> EditorFactory(c) }
-    return Command.Parameter(name, type.jvmErasure, desc, factory)
+    return Command.Parameter(name, type.jvmErasure, desc, constructor)
 }
 
 internal fun <E : Any> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {

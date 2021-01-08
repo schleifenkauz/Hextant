@@ -16,15 +16,13 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.serialization.json.*
 import reaktive.value.*
-import validated.*
-import validated.reaktive.ReactiveValidated
 
 /**
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
-abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
-                                                                              TokenType<R> {
+abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, strategy: ResultStrategy<R>? = null) :
+    AbstractEditor<R, V>(context, strategy), TokenType<R> {
     private sealed class Compilable {
         data class Completed(val completion: Completion<Any>) : Compilable()
         data class Text(val input: String) : Compilable()
@@ -36,7 +34,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
             val res = when (compilable) {
                 is Completed -> {
                     val comp = compilable.completion
-                    tryCompile(comp.item).orElse { tryCompile(comp.completionText) }
+                    resultStrategy.chooseFrom(tryCompile(comp.item), tryCompile(comp.completionText))
                 }
                 is Text      -> tryCompile(compilable.input)
             }
@@ -44,13 +42,16 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         }
     }
 
-    constructor(context: Context, text: String) : this(context) {
+    constructor(context: Context, text: String, resultStrategy: ResultStrategy<R>? = null) : this(
+        context,
+        resultStrategy
+    ) {
         withoutUndo { setText(text) }
     }
 
     private val _result = reactiveVariable(runBlocking { tryCompile("") })
 
-    override val result: ReactiveValidated<R> get() = _result
+    override val result: ReactiveValue<R> get() = _result
 
     private var _text = reactiveVariable("")
 
@@ -61,24 +62,24 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
 
     private val undo = context[UndoManager]
 
-    private fun resultClassHelper(): R = throw AssertionError("This should never ever be called!")
-
-    private val resultClass by lazy { javaClass.getMethod("resultClassHelper").returnType.kotlin }
-
     /**
      * Make a result from the given completion item.
+     *
+     * The default implementation returns the default result of the [resultStrategy].
      */
-    @Suppress("UNCHECKED_CAST")
-    protected open fun compile(item: Any): Validated<R> =
-        if (resultClass.isInstance(item)) valid(item as R) else invalidComponent
+    protected open fun compile(item: Any): R = resultStrategy.default()
 
-    override fun compile(token: String): Validated<R> = invalidComponent()
+    override fun compile(token: String): R = resultStrategy.default()
 
-    private suspend fun tryCompile(item: Any): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { withContext(Dispatchers.Default) { compile(item) } }
+    private suspend fun tryCompile(item: Any): R =
+        context.executeSafely("compiling item", resultStrategy.default()) {
+            withContext(Dispatchers.Default) { compile(item) }
+        }
 
-    private suspend fun tryCompile(text: String): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { withContext(Dispatchers.Default) { compile(text) } }
+    private suspend fun tryCompile(text: String): R =
+        context.executeSafely("compiling item", resultStrategy.default()) {
+            withContext(Dispatchers.Default) { compile(text) }
+        }
 
     override fun viewAdded(view: V) {
         view.displayText(text.now)

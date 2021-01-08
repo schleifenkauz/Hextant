@@ -14,7 +14,7 @@ import validated.*
  * Editor for colors based on the [Color.web] function.
  */
 @ProvideFeature
-class ColorEditor(context: Context) : TokenEditor<String, TokenEditorView>(context) {
+class ColorEditor(context: Context) : TokenEditor<Validated<String>, TokenEditorView>(context) {
     override fun compile(token: String): Validated<String> = try {
         Color.web(token)
         valid(token)

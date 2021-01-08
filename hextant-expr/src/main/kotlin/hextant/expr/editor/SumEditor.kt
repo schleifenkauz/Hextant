@@ -8,13 +8,12 @@ import hextant.codegen.ProvideFeature
 import hextant.context.Context
 import hextant.core.editor.CompoundEditor
 import hextant.expr.Sum
+import validated.Validated
 import validated.reaktive.ReactiveValidated
 import validated.reaktive.composeReactive
 
 @ProvideFeature
-class SumEditor(
-    context: Context
-) : CompoundEditor<Sum>(context), ExprEditor<Sum> {
+class SumEditor(context: Context) : CompoundEditor<Validated<Sum>>(context), ExprEditor<Sum> {
     val expressions by child(ExprListEditor(context))
 
     init {

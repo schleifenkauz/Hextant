@@ -91,7 +91,7 @@ internal val disablePlugin = command<Context, Unit> {
     val plugin = addParameter<PluginInfo> {
         name = "plugin"
         description = "The plugin that should be disabled"
-        editWith<EnabledPluginInfoEditor>()
+        editWith { ctx -> EnabledPluginInfoEditor(ctx) }
     }
     executing { context, args ->
         val manager = context[PluginManager]

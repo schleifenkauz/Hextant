@@ -10,8 +10,6 @@ import hextant.core.view.EditorControl
 import reaktive.Observer
 import reaktive.observe
 import reaktive.value.now
-import validated.Validated
-import validated.orNull
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
 
@@ -41,11 +39,11 @@ import kotlin.reflect.full.allSuperclasses
         }
     }
 
-    private fun getStyleClasses(result: Validated<Any?>): Collection<String> {
-        val value = result.orNull() ?: return emptyList()
-        val superclasses = value::class.allSuperclasses + value::class
+    private fun getStyleClasses(result: Any?): Collection<String> {
+        if (result == null) return emptyList()
+        val superclasses = result::class.allSuperclasses + result::class
         return superclasses.mapNotNull { cls ->
-            map[cls].orEmpty().firstNotNull { it(value) }
+            map[cls].orEmpty().firstNotNull { it(result) }
         }
     }
 

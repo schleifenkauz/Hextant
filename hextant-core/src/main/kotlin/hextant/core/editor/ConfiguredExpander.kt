@@ -13,8 +13,9 @@ import hextant.core.Editor
 abstract class ConfiguredExpander<R, E : Editor<R>>(
     private val config: ExpanderDelegate<E>,
     context: Context,
+    strategy: ResultStrategy<R>? = null,
     editor: E? = null
-) : Expander<R, E>(context, editor) {
+) : Expander<R, E>(context, editor, strategy) {
     override fun expand(text: String): E? = config.expand(text, expansionContext())
 
     override fun expand(completion: Any): E? = config.expand(completion, expansionContext())

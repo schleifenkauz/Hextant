@@ -18,14 +18,13 @@ import reaktive.event.event
 import reaktive.value.*
 import reaktive.value.binding.binding
 import validated.*
-import validated.reaktive.ReactiveValidated
 
 /**
  * An editor for [Command]s.
  * @property source the [CommandSource] that is used to resolve available commands
  */
 class CommandLine(context: Context, val source: CommandSource) :
-    AbstractEditor<CommandApplication, CommandLineView>(context) {
+    AbstractEditor<Validated<CommandApplication>, CommandLineView>(context) {
     private var commandName: String = ""
     private var arguments: List<Editor<Any>>? = null
     private val _expandedCommand: ReactiveVariable<Command<*, *>?> = reactiveVariable(null)
@@ -50,7 +49,7 @@ class CommandLine(context: Context, val source: CommandSource) :
 
     private val _result: ReactiveVariable<Validated<CommandApplication>> = reactiveVariable(invalidComponent())
     private var obs: Observer? = null
-    override val result: ReactiveValidated<CommandApplication> get() = _result
+    override val result: ReactiveValue<Validated<CommandApplication>> get() = _result
 
     /**
      * Change the input command name to the given [name].
@@ -85,13 +84,13 @@ class CommandLine(context: Context, val source: CommandSource) :
     fun expand(command: Command<*, *>): Boolean {
         if (isExpanded.now) return false
         val editors = command.parameters.map { p ->
-            @Suppress("UNCHECKED_CAST") val v =
-                if (p.editWith != null) p.editWith.createEditor(context)
-                else context.createEditor(p.type)
+            val v = if (p.editWith != null) p.editWith.invoke(context) else context.createEditor(p.type)
             v.makeRoot()
             v
         }
-        bindResult(command, editors.map { it.result })
+        @Suppress("UNCHECKED_CAST")
+        editors as List<Editor<Any>>
+        bindResult(command, editors)
         expanded(command, editors)
         return true
     }
@@ -103,15 +102,14 @@ class CommandLine(context: Context, val source: CommandSource) :
         views { expanded(cmd, editors) }
     }
 
-    private fun bindResult(
-        cmd: Command<*, *>,
-        arguments: List<ReactiveValidated<Any>>
-    ) {
-        obs = _result.bind(binding<Validated<CommandApplication>>(dependencies(arguments)) {
+    private fun bindResult(cmd: Command<*, *>, editors: List<Editor<Any>>) {
+        val dependencies = dependencies(editors.map { it.result })
+        obs = _result.bind(binding(dependencies) {
             val args = mutableListOf<Any>()
-            for (result in arguments) {
-                val value = result.now.ifInvalid { return@binding invalidComponent() }
-                args.add(value)
+            for (editor in editors) {
+                val result = editor.result.now
+                if (!editor.resultStrategy.isValid(result)) return@binding invalidComponent()
+                args.add(result)
             }
             valid(CommandApplication(cmd, args))
         })
@@ -134,8 +132,8 @@ class CommandLine(context: Context, val source: CommandSource) :
             result
         }
         val result = when (results.size) {
-            0 -> return null
-            1 -> results[0]
+            0    -> return null
+            1    -> results[0]
             else -> Unit
         }
         commandExecuted(command, arguments ?: emptyList(), byShortcut, result)
@@ -145,12 +143,13 @@ class CommandLine(context: Context, val source: CommandSource) :
 
     private fun commandExecuted(
         command: Command<*, *>,
-        arguments: List<Editor<Any>>,
+        editors: List<Editor<Any>>,
         byShortcut: Boolean,
         result: Any?
     ) {
-        val argumentSnapshots = arguments.map { it.result.now.force() to it.snapshot(recordClass = true) }
-        val item = HistoryItem(command, argumentSnapshots, byShortcut, result)
+        val args = editors.map { it.resultStrategy.unwrap(it.result.now) }
+        val snapshots = editors.map { it.snapshot(recordClass = true) }
+        val item = HistoryItem(command, snapshots, args, byShortcut, result)
         history.add(item)
         execute.fire(item)
         views {
@@ -177,7 +176,7 @@ class CommandLine(context: Context, val source: CommandSource) :
             } ?: return
         }
         editors.forEach { it.makeRoot() }
-        bindResult(command, editors.map { it.result })
+        bindResult(command, editors)
         expanded(command, editors)
     }
 
@@ -218,9 +217,13 @@ class CommandLine(context: Context, val source: CommandSource) :
          */
         val command: Command<*, *>,
         /**
+         * Snapshots of the editors that were used to edit the arguments
+         */
+        val argumentEditors: List<Snapshot<Editor<Any>>>,
+        /**
          * The supplied arguments
          */
-        val arguments: List<Pair<Any?, Snapshot<out Editor<Any>>>>,
+        val arguments: List<Any?>,
         /**
          * Whether the command was executed by using a shortcut
          */

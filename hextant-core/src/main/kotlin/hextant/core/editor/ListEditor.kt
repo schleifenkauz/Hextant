@@ -17,22 +17,26 @@ import kotlinx.serialization.json.*
 import reaktive.dependencies
 import reaktive.list.*
 import reaktive.list.binding.values
+import reaktive.value.ReactiveValue
 import reaktive.value.binding.binding
 import validated.*
 import validated.Validated.InvalidComponent
 import validated.Validated.Valid
-import validated.reaktive.ReactiveValidated
 import kotlin.reflect.full.isSubclassOf
 
 /**
  * An editor for multiple child editors of type [E] whose result type is [R]
  */
 @ProvideFeature
-abstract class ListEditor<R, E : Editor<R>>(
+abstract class ListEditor<R, E : Editor<R>, L>(
     context: Context,
-    private val _editors: MutableReactiveList<E>
-) : AbstractEditor<List<R>, ListEditorView>(context) {
-    constructor(context: Context) : this(context, reactiveList())
+    private val _editors: MutableReactiveList<E>,
+    strategy: Strategy<R, L>? = null
+) : AbstractEditor<L, ListEditorView>(context) {
+    constructor(context: Context, strategy: Strategy<R, L>? = null) : this(context, reactiveList(), strategy)
+
+    @Suppress("UNCHECKED_CAST")
+    private val strategy = strategy ?: inferStrategy(resultStrategy) as Strategy<R, L>
 
     private var mayBeEmpty = true
 
@@ -56,12 +60,8 @@ abstract class ListEditor<R, E : Editor<R>>(
     /**
      * The [result] only contains an [Valid] value, if all child results are [Valid]. Otherwise it contains a [InvalidComponent]
      */
-    override val result: ReactiveValidated<List<R>> = binding(dependencies(results)) {
-        results.now.takeIf { it.all { r -> r.isValid } }
-            .validated { invalidComponent() }
-            .map { results ->
-                results.map { res -> res.force() }
-            }
+    override val result: ReactiveValue<L> = binding(dependencies(results)) {
+        this.strategy.compose(results.now)
     }
 
     private val editorClass by lazy { javaClass.getMethod("createEditor").returnType.kotlin }
@@ -310,8 +310,40 @@ abstract class ListEditor<R, E : Editor<R>>(
 
     private fun emptyNow(): Boolean = editors.now.isEmpty()
 
+    interface Strategy<R, L> {
+        fun compose(results: List<R>): L
+
+        class Validate<R> : Strategy<Validated<R>, Validated<List<R>>> {
+            override fun compose(results: List<Validated<R>>): Validated<List<R>> {
+                val result = mutableListOf<R>()
+                for (res in results) {
+                    if (res is Valid) result.add(res.value)
+                    else return invalidComponent()
+                }
+                return valid(result)
+            }
+        }
+
+        class Nullable<R : Any> : Strategy<R?, List<R>?> {
+            override fun compose(results: List<R?>): List<R>? {
+                val result = mutableListOf<R>()
+                for (res in results) {
+                    if (res != null) result.add(res)
+                    else return null
+                }
+                return result
+            }
+        }
+
+        class Simple<R : Any> : Strategy<R, List<R>> {
+            override fun compose(results: List<R>): List<R> {
+                TODO("not implemented")
+            }
+        }
+    }
+
     private class AddEdit<E : Editor<*>>(
-        private val editor: VirtualEditor<ListEditor<*, E>>,
+        private val editor: VirtualEditor<ListEditor<*, E, *>>,
         private val index: Int,
         private val added: Snapshot<E>
     ) : AbstractEdit() {
@@ -329,7 +361,7 @@ abstract class ListEditor<R, E : Editor<R>>(
     }
 
     private class RemoveEdit<E : Editor<*>>(
-        private val editor: VirtualEditor<ListEditor<*, E>>,
+        private val editor: VirtualEditor<ListEditor<*, E, *>>,
         private val index: Int,
         private val removed: Snapshot<E>
     ) : AbstractEdit() {
@@ -347,7 +379,7 @@ abstract class ListEditor<R, E : Editor<R>>(
     }
 
     private class ClearEdit<E : Editor<*>>(
-        private val editor: VirtualEditor<ListEditor<*, E>>,
+        private val editor: VirtualEditor<ListEditor<*, E, *>>,
         private val removed: List<Snapshot<E>>
     ) : AbstractEdit() {
         override fun doRedo() {
@@ -364,7 +396,7 @@ abstract class ListEditor<R, E : Editor<R>>(
     }
 
     private class PasteManyEdit<E : Editor<*>>(
-        private val editor: VirtualEditor<ListEditor<*, E>>,
+        private val editor: VirtualEditor<ListEditor<*, E, *>>,
         private val index: Int,
         private val pasted: List<Snapshot<E>>
     ) : AbstractEdit() {
@@ -384,15 +416,15 @@ abstract class ListEditor<R, E : Editor<R>>(
             get() = "Paste many"
     }
 
-    private class Snap<E : Editor<*>> : Snapshot<ListEditor<*, E>>() {
+    private class Snap<E : Editor<*>> : Snapshot<ListEditor<*, E, *>>() {
         lateinit var snapshots: List<Snapshot<E>>
             private set
 
-        override fun doRecord(original: ListEditor<*, E>) {
+        override fun doRecord(original: ListEditor<*, E, *>) {
             snapshots = original.editors.now.map { it.snapshot(recordClass = true) }
         }
 
-        override fun reconstruct(original: ListEditor<*, E>) {
+        override fun reconstruct(original: ListEditor<*, E, *>) {
             val editors = snapshots.map { it.reconstructEditor(original.childContext()) }
             original.setEditors(editors)
         }
@@ -405,6 +437,16 @@ abstract class ListEditor<R, E : Editor<R>>(
         override fun decode(element: JsonObject) {
             val editors = element.getValue("editors").jsonArray
             snapshots = editors.map { decode<E>(it) }
+        }
+    }
+
+    companion object {
+        private fun <R> inferStrategy(resultStrategy: ResultStrategy<R>): Strategy<*, *> = when (resultStrategy) {
+            is ResultStrategy.Validate<*> -> Strategy.Validate<Nothing>()
+            is ResultStrategy.Nullable<*> -> Strategy.Nullable<Nothing>()
+            is ResultStrategy.Simple      -> Strategy.Simple<Nothing>()
+            else                          -> error("cannot infer ListEditor.Strategy from result strategy $resultStrategy")
+
         }
     }
 }

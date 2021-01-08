@@ -14,7 +14,7 @@ import validated.*
 
 class ExprExpander(
     context: Context, editor: ExprEditor<Expr>? = null
-) : ConfiguredExpander<Expr, ExprEditor<Expr>>(config, context, editor), ExprEditor<Expr> {
+) : ConfiguredExpander<Validated<Expr>, ExprEditor<Expr>>(config, context, editor = editor), ExprEditor<Expr> {
     override fun compile(token: String): Validated<Expr> =
         token.toIntOrNull().validated { invalid("Invalid int literal $token") }.map { IntLiteral(it) }
 

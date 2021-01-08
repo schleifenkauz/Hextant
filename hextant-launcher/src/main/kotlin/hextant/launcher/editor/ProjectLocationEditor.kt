@@ -12,7 +12,7 @@ import hextant.launcher.ProjectManager
 import validated.*
 
 internal class ProjectLocationEditor constructor(context: Context) : TokenEditor<String, TokenEditorView>(context) {
-    override fun compile(token: String): Validated<String> {
+    override fun compile(token: String): String {
         val f = context[Files].getProject(token)
         return when {
             !f.exists() || !f.resolve(Files.PROJECT_INFO).exists() ->

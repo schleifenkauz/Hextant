@@ -19,21 +19,24 @@ import kotlinx.serialization.serializer
 import reaktive.value.*
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
-import validated.*
-import validated.reaktive.ReactiveValidated
+import validated.Validated
+import validated.invalidComponent
 
 /**
  * Expanders can be imagined as placeholders for more specific editors.
  * They allow the user to type in some text and then *expand* this text into a new editor,
  * which is then substituted for the typed in text.
  */
-abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor<R, ExpanderView>(context),
-                                                                  TokenType<R> {
-    constructor(context: Context, editor: E?) : this(context) {
+abstract class Expander<out R, E : Editor<R>>(context: Context, strategy: ResultStrategy<R>? = null) :
+    AbstractEditor<R, ExpanderView>(context, strategy), TokenType<R> {
+    constructor(context: Context, editor: E?, resultStrategy: ResultStrategy<R>? = null) : this(
+        context,
+        resultStrategy
+    ) {
         if (editor != null) withoutUndo { this.expand(editor) }
     }
 
-    constructor(context: Context, text: String) : this(context) {
+    constructor(context: Context, resultStrategy: ResultStrategy<R>, text: String) : this(context, resultStrategy) {
         withoutUndo { setText(text) }
     }
 
@@ -54,31 +57,18 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     val isExpanded: ReactiveBoolean = state.map { it is Expanded }
 
-    override val result: ReactiveValidated<R> = state.flatMap { s ->
+    override val result: ReactiveValue<R> = state.flatMap { s ->
         when (s) {
-            is Text ->
-                if (s.completion == null) reactiveValue(tryCompile(s.text))
-                else reactiveValue(tryCompile(s.completion).orElse { tryCompile(s.text) })
+            is Text     ->
+                if (s.completion == null) reactiveValue(resultStrategy.chooseFrom(tryCompile(s.text)))
+                else reactiveValue(resultStrategy.chooseFrom(tryCompile(s.completion), tryCompile(s.text)))
             is Expanded -> s.content.result
         }
     }
 
     private val editorClass by lazy { javaClass.getMethod("expand", String::class.java).returnType.kotlin }
 
-    /**
-     * Return the editor that should be wrapped if the expander
-     * is expanded with the given [text] or `null` if the text is not valid.
-     */
-    protected abstract fun expand(text: String): E?
-
-    /**
-     * Create an editor from the given [completion] or return `null` if it is not possible.
-     *
-     * The default implementation returns `null`.
-     */
-    protected open fun expand(completion: Any): E? = null
-
-    override fun compile(token: String): Validated<R> = invalidComponent()
+    override fun compile(token: String): R = resultStrategy.default()
 
     /**
      * Compile the given [completion].
@@ -88,7 +78,30 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      *
      * The default implementation returns [invalidComponent].
      */
-    protected open fun compile(completion: Any): Validated<R> = invalidComponent()
+    protected open fun compile(completion: Any): R = resultStrategy.default()
+
+    /**
+     * Return the editor that should be wrapped if the expander
+     * is expanded with the given [text] or `null` if the text is not valid.
+     */
+    protected abstract fun expand(text: String): E?
+
+    private fun tryCompile(text: String): R =
+        context.executeSafely("compiling", resultStrategy.default()) { compile(text) }
+
+    private fun tryCompile(item: Any): R =
+        context.executeSafely("compiling", resultStrategy.default()) { compile(item) }
+
+    /**
+     * Create an editor from the given [completion] or return `null` if it is not possible.
+     *
+     * The default implementation returns `null`.
+     */
+    protected open fun expand(completion: Any): E? = null
+
+    private fun tryExpand(text: String): E? = context.executeSafely("expanding", null) { expand(text) }
+
+    private fun tryExpand(item: Any): E? = context.executeSafely("expanding", null) { expand(item) }
 
     /**
      * Can be overwritten by extending classes to be notified when [expand] was successfully called
@@ -99,11 +112,6 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      * Can be overwritten by extending classes to be notified when [reset] was successfully called
      */
     protected open fun onReset(editor: E) {}
-
-    /**
-     * Returns the result that this expander should have if it is not expanded.
-     */
-    protected open fun defaultResult(): Validated<R> = invalidComponent()
 
     /**
      * Return `true` iff the given editor can be the content of this expander.
@@ -121,16 +129,6 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     private fun forceText(): String = text.now ?: error("Expected expander to be unexpanded")
 
     private fun forceEditor(): E = editor.now ?: error("Expected expander to be expanded")
-
-    private fun tryExpand(text: String) = context.executeSafely("expanding", null) { expand(text) }
-
-    private fun tryExpand(item: Any) = context.executeSafely("expanding", null) { expand(item) }
-
-    private fun tryCompile(text: String) =
-        context.executeSafely("compiling", invalid("error while compiling")) { compile(text) }
-
-    private fun tryCompile(item: Any) =
-        context.executeSafely("compiling", invalid("error while compiling")) { compile(item) }
 
     private inline fun executeEdit(description: String, action: () -> Unit) {
         val undo = context[UndoManager]
@@ -222,7 +220,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     private fun reconstructState(state: State<E>) {
         when (state) {
-            is Text -> {
+            is Text     -> {
                 if (isExpanded.now) reset()
                 if (state.completion == null) setText(state.text)
                 else complete(state.completion, state.text)
@@ -256,7 +254,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
     override fun viewAdded(view: ExpanderView) {
         when (val st = state.now) {
-            is Text -> view.displayText(st.text)
+            is Text     -> view.displayText(st.text)
             is Expanded -> view.expanded(st.content)
         }
     }
@@ -279,7 +277,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         override fun doRecord(original: Expander<*, *>) {
             state = when (val st = original.state.now) {
                 is Expanded -> Expanded(st.content.snapshot(recordClass = true))
-                is Text -> st
+                is Text     -> st
             }
         }
 
@@ -293,14 +291,14 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
                     }
                     original.expand(editor)
                 }
-                is Text -> original.setText(st.text)
+                is Text     -> original.setText(st.text)
             }
         }
 
         override fun JsonObjectBuilder.encode() {
             when (val st = state) {
                 is Expanded -> put("editor", st.content.encode())
-                is Text -> {
+                is Text     -> {
                     if (st.completion != null) {
                         val cls = st.completion.javaClass
                         put("completionClass", cls.name)

@@ -20,7 +20,7 @@ import validated.*
 class IntLiteralEditor(
     context: Context,
     text: String
-) : TokenEditor<IntLiteral, TokenEditorView>(context, text), ExprEditor<IntLiteral> {
+) : TokenEditor<Validated<IntLiteral>, TokenEditorView>(context, text), ExprEditor<IntLiteral> {
     @ProvideImplementation(EditorFactory::class) constructor(context: Context) : this(context, "")
 
     constructor(v: IntLiteral, context: Context) : this(context, v.value.toString())

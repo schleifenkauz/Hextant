@@ -1,3 +1,4 @@
+
 import ExprPlugin.color
 import bundles.publicProperty
 import bundles.set
@@ -11,7 +12,6 @@ import hextant.expr.IntLiteral
 import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
-import hextant.expr.view.Style
 import hextant.fx.runFXWithTimeout
 import hextant.plugin.*
 import hextant.undo.compoundEdit
@@ -131,13 +131,13 @@ object ExprPlugin : PluginInitializer({
         shortName = "color"
         defaultShortcut("Ctrl+F")
         val c = addParameter<String> {
-            editWith(::ColorEditor)
+            editWithValidated(::ColorEditor)
             name = "color"
             description = "The text fill"
         }
         executing { v, args -> v.arguments[color] = args[c] }
     }
-    configurableProperty(Style.BorderColor) { ctx -> ColorEditor(ctx) }
+    //    configurableProperty(Style.BorderColor) { ctx -> ColorEditor(ctx) }
     resultStyleClass<IntLiteral> { "int-literal" }
     stylesheet("expr.css")
 }) {

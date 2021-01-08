@@ -8,6 +8,7 @@ import bundles.*
 import hextant.command.*
 import hextant.context.*
 import hextant.context.Properties.propertyChangeHandler
+import hextant.core.Editor
 import hextant.fx.ResultStyleClasses
 import hextant.fx.Stylesheets
 import hextant.inspect.*
@@ -134,7 +135,7 @@ private fun getPath(ctx: Context, property: Property<*, *>) = ctx[projectRoot].r
  * Configurable properties can be set by the user via the command line.
  */
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> PluginBuilder.configurableProperty(property: PublicProperty<T>, editorFactory: EditorFactory<T>) {
+fun <T : Any> PluginBuilder.configurableProperty(property: PublicProperty<T>, editorFactory: (Context) -> Editor<T>) {
     val p = ConfigurableProperty(property, editorFactory)
     registerCommand<Context, Unit> {
         name = "Set property ${property.name}"

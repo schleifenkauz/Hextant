@@ -22,10 +22,12 @@ sealed class SExpr
 data class Symbol(val name: String) : SExpr() {
     override fun toString(): String = name
 
-    companion object : TokenType<Symbol> {
-        fun isValid(symbol: Symbol) = symbol.name.none { it.isWhitespace() }
+    fun isValid() = name.none { it.isWhitespace() }
 
-        override fun compile(token: String): Validated<Symbol> = valid(Symbol(token))
+    companion object : TokenType<Validated<Symbol>> {
+
+        override fun compile(token: String): Validated<Symbol> =
+            Symbol(token).takeIf { it.isValid() }.validated { invalid("invalid symbol $token") }
     }
 }
 
@@ -33,7 +35,7 @@ data class Symbol(val name: String) : SExpr() {
 data class IntLiteral(override val value: Int) : Literal<Int>() {
     override fun toString(): String = "$value"
 
-    companion object : TokenType<IntLiteral> {
+    companion object : TokenType<Validated<IntLiteral>> {
         override fun compile(token: String): Validated<IntLiteral> =
             token.toIntOrNull().validated { invalid("invalid integer literal '$token") }.map(::IntLiteral)
     }
@@ -45,7 +47,7 @@ sealed class Literal<T : Any> : SExpr() {
 
 @Token(subtypeOf = SExpr::class)
 data class BooleanLiteral(override val value: Boolean) : Literal<Boolean>() {
-    companion object : TokenType<BooleanLiteral> {
+    companion object : TokenType<Validated<BooleanLiteral>> {
         override fun compile(token: String): Validated<BooleanLiteral> = when (token) {
             "#t" -> valid(BooleanLiteral(true))
             "#f" -> valid(BooleanLiteral(false))

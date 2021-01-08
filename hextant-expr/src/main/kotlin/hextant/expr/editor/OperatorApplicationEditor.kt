@@ -9,12 +9,15 @@ import hextant.context.Context
 import hextant.core.editor.CompoundEditor
 import hextant.expr.Operator
 import hextant.expr.OperatorApplication
+import validated.Validated
+import validated.reaktive.ReactiveValidated
+import validated.valid
 
 @ProvideFeature
 class OperatorApplicationEditor(
     context: Context,
     text: String
-) : CompoundEditor<OperatorApplication>(context), ExprEditor<OperatorApplication> {
+) : CompoundEditor<Validated<OperatorApplication>>(context), ExprEditor<OperatorApplication> {
     constructor(operator: Operator, context: Context) : this(context, operator.name)
     constructor(context: Context) : this(context, "")
 
@@ -22,5 +25,6 @@ class OperatorApplicationEditor(
     val operand1 by child(ExprExpander(context))
     val operand2 by child(ExprExpander(context))
 
-    override val result = composeResult { OperatorApplication(operand1.now, operand2.now, operator.now) }
+    override val result: ReactiveValidated<OperatorApplication> =
+        compose { valid(OperatorApplication(operand1.now, operand2.now, operator.now)) }
 }

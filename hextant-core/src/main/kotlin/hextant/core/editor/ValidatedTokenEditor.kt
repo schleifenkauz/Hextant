@@ -26,15 +26,14 @@ import validated.reaktive.ReactiveValidated
  * One can commit or abort a change to get in the not editable state again and call [beginChange] to make the editor editable.
  * @param [initialText] the initial text, which has to be a valid token. Otherwise an [IllegalArgumentException] is thrown.
  */
-abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
-    AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R> {
-    constructor(context: Context) : this(context, "")
+abstract class ValidatedTokenEditor<R>(context: Context, initialText: String = "", strategy: ResultStrategy<R>) :
+    AbstractEditor<R, ValidatedTokenEditorView>(context, strategy), TokenType<Validated<R>> {
 
     private var oldText: String = initialText
     private val _text = reactiveVariable(initialText)
     private val _editable = reactiveVariable(true)
     private val _intermediateResult = reactiveVariable(tryCompile(initialText))
-    private val _result = reactiveVariable(invalidComponent<R>())
+    private val _result = reactiveVariable(resultStrategy.default())
 
     private val beginChange = unitEvent()
     private val abortChange = unitEvent()
@@ -52,7 +51,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
      */
     val editable: ReactiveBoolean get() = _editable
 
-    final override val result: ReactiveValidated<R> get() = _result
+    final override val result: ReactiveValue<R> get() = _result
 
     /**
      * The result compiled from the current [text]
@@ -80,10 +79,10 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
     protected open fun compile(completion: Any): Validated<R> = invalidComponent()
 
     private fun tryCompile(item: Any): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { compile(item) }
+        context.executeSafely("compiling item", invalidComponent()) { compile(item) }
 
     private fun tryCompile(text: String): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { compile(text) }
+        context.executeSafely("compiling item", invalidComponent()) { compile(text) }
 
     /**
      * Begin a change. If the editor is already editable this method just returns.
@@ -123,7 +122,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         if (res !is Valid) return
         if (undoable) recordEdit(text.now, res.value)
         _editable.set(false)
-        _result.set(res)
+        _result.set(res.value)
         oldText = text.now
         commitChange.fire(text.now)
         views.forEach { v ->
@@ -135,7 +134,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         check(!editable.now)
         _text.set(new)
         _intermediateResult.set(valid(result))
-        _result.set(valid(result))
+        _result.set(result)
         oldText = new
         views { displayText(new) }
     }
@@ -169,8 +168,8 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
 
     private fun recordEdit(t: String, res: R) {
         val oldResult = result.now
-        if (oldResult is Valid) {
-            val edit = CommitEdit(virtualize(), oldText, oldResult.value, t, res)
+        if (resultStrategy.isValid(oldResult)) {
+            val edit = CommitEdit(virtualize(), oldText, oldResult, t, res)
             context[UndoManager].record(edit)
         }
     }
@@ -187,8 +186,9 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         val t = snapshot.text
         if (editable.now) setText(t)
         else {
-            val r = tryCompile(t).ifInvalid { return false }
-            setTextAndCommit(t, r)
+            val r = tryCompile(t)
+            if (r !is Valid) return false
+            setTextAndCommit(t, r.value)
         }
         return true
     }

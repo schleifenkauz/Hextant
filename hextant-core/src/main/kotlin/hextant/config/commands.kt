@@ -13,7 +13,7 @@ internal val enable = command<Context, String> {
     description = "Enables the given object"
     shortName = "enable"
     val enabled = addParameter<Enabled> {
-        editWith { ctx -> EnabledEditor(ctx, enabled = false) }
+        editWithValidated { ctx -> EnabledEditor(ctx, enabled = false) }
         name = "enabled"
         description = "The object to enable"
     }
@@ -32,7 +32,7 @@ internal val disable = command<Context, String> {
     description = "Disables the given object"
     shortName = "disable"
     val enabled = addParameter<Enabled> {
-        editWith { ctx -> EnabledEditor(ctx, enabled = true) }
+        editWithValidated { ctx -> EnabledEditor(ctx, enabled = true) }
         name = "disabled"
         description = "The object to disabled"
     }

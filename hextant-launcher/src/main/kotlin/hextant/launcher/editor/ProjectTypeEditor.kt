@@ -22,7 +22,7 @@ internal class ProjectTypeEditor @ProvideImplementation(EditorFactory::class) co
         else                  -> invalidComponent
     }
 
-    override fun compile(token: String): Validated<LocatedProjectType> {
+    override fun compile(token: String): LocatedProjectType {
         if (token.isBlank()) return invalidComponent()
         val pt = runBlocking { context[marketplace].getProjectType(token) }
         return pt.validated { invalid("No project type with name '$token' found") }

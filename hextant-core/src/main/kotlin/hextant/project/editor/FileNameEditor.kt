@@ -11,7 +11,8 @@ import validated.*
 /**
  * An editor for file names.
  */
-class FileNameEditor(context: Context, text: String) : ValidatedTokenEditor<String>(context, text) {
+class FileNameEditor(context: Context, text: String) :
+    ValidatedTokenEditor<String>(context, text, FileNameResultStrategy) {
     constructor(context: Context) : this(context, "")
 
     private fun parentDirectory(): DirectoryEditor<*>? {

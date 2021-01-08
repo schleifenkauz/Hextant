@@ -13,6 +13,7 @@ import hextant.launcher.view.PluginsEditorView
 import hextant.plugins.Plugin
 import hextant.plugins.PluginInfo.Type
 import kotlinx.coroutines.*
+import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
 import validated.valid
 
@@ -21,7 +22,7 @@ internal class PluginsEditor(
     private val manager: PluginManager,
     private val types: Set<Type>
 ) : AbstractEditor<Collection<Plugin>, PluginsEditorView>(context) {
-    override val result get() = reactiveValue(valid(manager.enabledPlugins()))
+    override val result: ReactiveValue<Collection<Plugin>> get() = reactiveValue(valid(manager.enabledPlugins()))
 
     fun enable(plugin: Plugin, view: PluginsEditorView) {
         val activated = try {
