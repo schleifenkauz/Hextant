@@ -16,25 +16,22 @@ import kotlinx.serialization.json.*
 import reaktive.event.event
 import reaktive.event.unitEvent
 import reaktive.value.*
-import validated.*
-import validated.Validated.Valid
-import validated.reaktive.ReactiveValidated
 
 /**
- * A [ValidatedTokenEditor] is an editor whose result is always [Valid]. It can be either editable or not editable.
+ * A [ValidatedTokenEditor] is an editor whose result is always non-null. It can be either editable or not editable.
  * In the editable state setting the text is allowed, but the change is not immediately reflected in the [result].
  * One can commit or abort a change to get in the not editable state again and call [beginChange] to make the editor editable.
- * @param [initialText] the initial text, which has to be a valid token. Otherwise an [IllegalArgumentException] is thrown.
+ * @param [initialText] the initial text, if this is not a valid token the [defaultResult] function is used.
  */
-abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
-    AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R> {
+abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: String) :
+    AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R?> {
     constructor(context: Context) : this(context, "")
 
     private var oldText: String = initialText
     private val _text = reactiveVariable(initialText)
     private val _editable = reactiveVariable(true)
     private val _intermediateResult = reactiveVariable(tryCompile(initialText))
-    private val _result = reactiveVariable(invalidComponent<R>())
+    private val _result = reactiveVariable(compile(initialText) ?: defaultResult())
 
     private val beginChange = unitEvent()
     private val abortChange = unitEvent()
@@ -52,12 +49,12 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
      */
     val editable: ReactiveBoolean get() = _editable
 
-    final override val result: ReactiveValidated<R> get() = _result
+    final override val result: ReactiveValue<R> get() = _result
 
     /**
      * The result compiled from the current [text]
      */
-    val intermediateResult: ReactiveValidated<R> get() = _intermediateResult
+    val intermediateResult: ReactiveValue<R?> get() = _intermediateResult
 
     /**
      * Emits events when the editor becomes editable
@@ -77,13 +74,20 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
     /**
      * Compile a result from the given completion.
      */
-    protected open fun compile(completion: Any): Validated<R> = invalidComponent()
+    protected open fun compile(completion: Any): R? = null
 
-    private fun tryCompile(item: Any): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { compile(item) }
+    /**
+     * Return the result that this editor should have initially, if doesn't recognize the initial text.
+     *
+     * The default implementation throws an [IllegalStateException]
+     */
+    protected open fun defaultResult(): R = error("defaultResult() was not overwritten")
 
-    private fun tryCompile(text: String): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { compile(text) }
+    private fun tryCompile(item: Any): R? =
+        context.executeSafely("compiling item", null) { compile(item) }
+
+    private fun tryCompile(text: String): R? =
+        context.executeSafely("compiling item", null) { compile(text) }
 
     /**
      * Begin a change. If the editor is already editable this method just returns.
@@ -119,9 +123,8 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
      */
     fun commitChange(undoable: Boolean = true) {
         if (!editable.now) return
-        val res = intermediateResult.now
-        if (res !is Valid) return
-        if (undoable) recordEdit(text.now, res.value)
+        val res = intermediateResult.now ?: return
+        if (undoable) recordEdit(text.now, res)
         _editable.set(false)
         _result.set(res)
         oldText = text.now
@@ -134,8 +137,8 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
     private fun setTextAndCommit(new: String, result: R) {
         check(!editable.now)
         _text.set(new)
-        _intermediateResult.set(valid(result))
-        _result.set(valid(result))
+        _intermediateResult.set(result)
+        _result.set(result)
         oldText = new
         views { displayText(new) }
     }
@@ -162,17 +165,15 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         val t = completion.completionText
         _text.now = t
         views { displayText(t) }
-        val res = tryCompile(completion.item).orElse { tryCompile(t) }
+        val res = tryCompile(completion.item) ?: tryCompile(t)
         _intermediateResult.now = res
         commitChange()
     }
 
     private fun recordEdit(t: String, res: R) {
         val oldResult = result.now
-        if (oldResult is Valid) {
-            val edit = CommitEdit(virtualize(), oldText, oldResult.value, t, res)
-            context[UndoManager].record(edit)
-        }
+        val edit = CommitEdit(virtualize(), oldText, oldResult, t, res)
+        context[UndoManager].record(edit)
     }
 
     /**
@@ -187,7 +188,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         val t = snapshot.text
         if (editable.now) setText(t)
         else {
-            val r = tryCompile(t).ifInvalid { return false }
+            val r = tryCompile(t) ?: return false
             setTextAndCommit(t, r)
         }
         return true
@@ -210,7 +211,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         override fun reconstruct(original: ValidatedTokenEditor<*>) {
             original._text.now = text
             original._intermediateResult.now = original.tryCompile(original.text.now)
-            original._result.now = original.intermediateResult.now
+            original._result.now = original.intermediateResult.now!!
             original._editable.now = false
         }
 
@@ -223,7 +224,7 @@ abstract class ValidatedTokenEditor<R>(context: Context, initialText: String) :
         }
     }
 
-    private class CommitEdit<R>(
+    private class CommitEdit<R : Any>(
         private val editor: VirtualEditor<ValidatedTokenEditor<R>>,
         private val old: String, private val oldResult: R,
         private val new: String, private val newResult: R

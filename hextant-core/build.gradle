@@ -24,7 +24,6 @@ dependencies {
     compile nkb03('reaktive', '1.0-SNAPSHOT')
     compile nkb03('bundles', '1.0-SNAPSHOT')
     compile nkb03('kollektion', '1.0-SNAPSHOT')
-    compile nkb03('validated', '1.0-SNAPSHOT')
     compile nkb03('validated-reaktive', '1.0-SNAPSHOT')
 
     compileOnly project(':hextant-codegen')

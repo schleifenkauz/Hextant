@@ -10,11 +10,12 @@ import hextant.core.editor.CompoundEditor
 import hextant.core.editor.SimpleStringEditor
 import hextant.launcher.PluginSource
 import hextant.launcher.PluginSource.MavenCoordinate
+import reaktive.value.ReactiveValue
 
 @ProvideFeature
 class MavenPluginSourceEditor(context: Context) : CompoundEditor<PluginSource>(context) {
     val group by child(SimpleStringEditor(context))
     val artifact by child(SimpleStringEditor(context))
 
-    override val result = composeResult { MavenCoordinate(group.now, artifact.now) }
+    override val result: ReactiveValue<PluginSource> = composeResult { MavenCoordinate(group.now, artifact.now) }
 }

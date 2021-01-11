@@ -78,8 +78,7 @@ internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement
                     "case" of type("kotlin.reflect.KClass").parameterizedBy { invariant(caseVar) }
                 }
                 copyParameters(params)()
-            },
-            returnType = toKotlinType(m.returnType)
+            }
         ) {
             val case = caseParam?.let { ("$it::class").e } ?: "case".e
             val impl = "get"("cls<${aspect.asType()}>()".e, case)

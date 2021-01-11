@@ -15,6 +15,7 @@ internal object AlternativeInterfaceCodegen : EditorClassGen<Alternative, TypeEl
         val qn = extractQualifiedEditorClassName(annotation, element)
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
         val typeParam = name.take(1)
+        val resultType = if (annotation.nullableResult) type(typeParam).nullable() else type(typeParam)
         val file = kotlinInterface(
             pkg, {
                 import("hextant.core.Editor")
@@ -22,7 +23,9 @@ internal object AlternativeInterfaceCodegen : EditorClassGen<Alternative, TypeEl
             },
             simpleName,
             typeParameters = { covariant(typeParam, upperBound = name.t) },
-            inheritance = { implement("Editor".t.parameterizedBy { invariant(typeParam) }) }
+            inheritance = {
+                implement("Editor".t.parameterizedBy { invariant(resultType) })
+            }
         )
         writeKotlinFile(file)
     }

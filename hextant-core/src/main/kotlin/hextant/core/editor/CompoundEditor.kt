@@ -10,33 +10,40 @@ import hextant.core.EditorView
 import hextant.serial.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
+import reaktive.value.ReactiveValue
 import reaktive.value.now
-import validated.Validated
-import validated.invalidComponent
-import validated.reaktive.ReactiveValidated
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.memberProperties
 
 /**
  * Base class for editors that are composed of multiple sub-editors.
  */
 abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorView>(context) {
+    private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
+
     /**
      * Composes a result from the component editor results of this compound editor using the [compose] block.
      * The result is updated every time one of the [children] of this [CompoundEditor] changes its result
      * and if any of the component results is incomplete the compound result will be set to the specified [default].
      */
-    inline fun <R : Any> composeResult(
-        default: Validated<R> = invalidComponent(),
+    inline fun composeResult(
+        default: R = defaultResult(),
         crossinline compose: ResultComposer.() -> R
-    ): ReactiveValidated<R> = composeResult(children.now, default, compose)
-
+    ): ReactiveValue<R> = composeResult(children.now, default, compose)
 
     /**
-     * Default result used when one of the component editors results is `null` or if composition fails.
+     * Returns the result that this token editor should have if it one of its components has an invalid result.
+     *
+     * You must override this method if the result type of your editor is not nullable.
+     * Otherwise the default implementation will throw an [IllegalStateException].
+     * If the default implementation is called on a token editor whose result type is nullable it just returns null.
      */
-    protected open fun defaultResult(): R? = null
+    @Suppress("UNCHECKED_CAST")
+    open fun defaultResult(): R =
+        if (resultType.isMarkedNullable) null as R
+        else error("${this::class}: defaultResult() was not overwritten")
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
         if (accessor !is PropertyAccessor) throw InvalidAccessorException(accessor)

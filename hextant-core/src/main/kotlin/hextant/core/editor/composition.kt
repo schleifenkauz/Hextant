@@ -7,29 +7,48 @@ package hextant.core.editor
 import hextant.context.executeSafely
 import hextant.core.Editor
 import reaktive.dependencies
+import reaktive.value.ReactiveValue
 import reaktive.value.binding.binding
 import reaktive.value.now
-import validated.*
-import validated.reaktive.ReactiveValidated
 
 /**
  * Receiver used by [composeResult] to give easy access to the results of component editors.
  */
 class ResultComposer @PublishedApi internal constructor(private val compound: Editor<*>) {
+    private fun Editor<*>.checkParent() {
+        require(parent == compound) { "Illegal attempt to get result of $this which is not a child of $compound" }
+    }
+
     /**
      * Return the current result of the given [Editor] or immediately terminate result composition if it is null.
      *
      * @throws IllegalArgumentException if the given editor is not a child of the editor for which the result is composed.
      */
-    fun <R> Editor<R>.get(): R {
-        require(parent == compound) { "Illegal attempt to get result of $this which is not a child of $compound" }
-        return result.now.ifInvalid { throw InvalidSubResultException() }
+    fun <R : Any> Editor<R?>.get(): R {
+        checkParent()
+        return result.now ?: throw InvalidSubResultException()
     }
 
     /**
      * Alias for [get].
      */
-    val <R : Any> Editor<R>.now get() = get()
+    val <R : Any> Editor<R?>.now get() = get()
+
+    /**
+     * Return the current result list of the given [ListEditor]
+     * or immediately terminate result composition if any of the results is null.
+     */
+    fun <R : Any> ListEditor<R?, *>.get(): List<R> {
+        checkParent()
+        if (result.now.any { it == null }) throw InvalidSubResultException()
+        @Suppress("UNCHECKED_CAST")
+        return result.now as List<R>
+    }
+
+    /**
+     * Alias for [get].
+     */
+    val <R : Any> ListEditor<R?, *>.now get(): List<R> = get()
 }
 
 @PublishedApi internal class InvalidSubResultException : Exception()
@@ -42,12 +61,12 @@ class ResultComposer @PublishedApi internal constructor(private val compound: Ed
  */
 inline fun <R> Editor<*>.composeResult(
     components: Collection<Editor<*>>,
-    default: Validated<R> = invalidComponent(),
+    default: R,
     crossinline compose: ResultComposer.() -> R
-): ReactiveValidated<R> = binding<Validated<R>>(dependencies(components.map { it.result })) {
-    context.executeSafely("compose result", invalid("error while assembling result")) {
+): ReactiveValue<R> = binding(dependencies(components.map { it.result })) {
+    context.executeSafely("compose result", default) {
         try {
-            valid(ResultComposer(this).compose())
+            ResultComposer(this).compose()
         } catch (ex: InvalidSubResultException) {
             default
         }
@@ -59,6 +78,6 @@ inline fun <R> Editor<*>.composeResult(
  */
 inline fun <R> Editor<*>.composeResult(
     vararg components: Editor<*>,
-    default: Validated<R> = invalidComponent(),
-    crossinline compose: ResultComposer.() -> R?
-) = composeResult(components.asList(), default, compose)
+    default: R,
+    crossinline compose: ResultComposer.() -> R
+): ReactiveValue<R> = composeResult(components.asList(), default, compose)

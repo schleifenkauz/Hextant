@@ -11,9 +11,8 @@ import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.EditorView
 import hextant.core.editor.AbstractEditor
+import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
-import validated.reaktive.ReactiveValidated
-import validated.valid
 
 inline fun <reified V : EditorView> mockView(target: Editor<*>): V = mock {
     on { target }.doReturn(target)
@@ -21,5 +20,5 @@ inline fun <reified V : EditorView> mockView(target: Editor<*>): V = mock {
 }
 
 fun mockEditor(context: Context) = object : AbstractEditor<Unit, EditorView>(context) {
-    override val result: ReactiveValidated<Unit> = reactiveValue(valid(Unit))
+    override val result: ReactiveValue<Unit> = reactiveValue(Unit)
 }

@@ -8,9 +8,6 @@ import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.MatchResult.Match
 import com.natpryce.hamkrest.MatchResult.Mismatch
 import com.natpryce.hamkrest.should.shouldMatch
-import validated.Validated
-import validated.Validated.*
-import validated.isInvalid
 import kotlin.reflect.KClass
 
 /**
@@ -23,7 +20,7 @@ infix fun <T> Described<T>.shouldBe(matcher: Matcher<T>) = shouldMatch(matcher)
 infix fun <T> T.shouldEqual(value: T) = this shouldBe equalTo(value)
 
 inline infix fun <reified E : Throwable> (() -> Unit).shouldThrow(exceptionMatcher: Matcher<E>?) {
-    { this(); Unit } shouldMatch throws(exceptionMatcher)
+    this shouldMatch throws(exceptionMatcher)
 }
 
 
@@ -102,12 +99,3 @@ fun <E> aListOf(vararg elementMatchers: Matcher<E>) = object : Matcher.Primitive
         return Match
     }
 }
-
-//CompileResult matchers
-val notValid = Matcher(Validated<*>::isInvalid)
-
-val invalid: Matcher<Validated<*>> = instanceOf<Invalid>()
-
-val invalidComponent: Matcher<Validated<*>> = equalTo(InvalidComponent)
-
-val valid: Matcher<Validated<*>> = instanceOf<Valid<*>>()

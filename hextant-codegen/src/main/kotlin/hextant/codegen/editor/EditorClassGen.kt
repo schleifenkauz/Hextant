@@ -9,24 +9,24 @@ package hextant.codegen.editor
 import hextant.codegen.*
 import hextant.codegen.aspects.FeatureCollector
 import hextant.codegen.aspects.ImplementationCollector
+import kotlinx.metadata.Flag
 import krobot.api.*
+import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind.CONSTRUCTOR
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeMirror
+import kotlin.reflect.KClass
 
 internal abstract class EditorClassGen<A : Annotation, E : Element> : AnnotationProcessor<A, E>() {
-    /**
-     * Looks up the annotation annotating the given [element] and delegates to [extractQualifiedEditorClassName]
-     */
-    private fun lookupQualifiedEditorClassName(element: TypeElement): String {
-        element.getAnnotation(UseEditor::class.java)?.let { ann ->
-            val tm = getTypeMirror(ann::cls)
-            return tm.toString()
+    protected open fun preprocess(element: E, annotation: A) {}
+
+    fun preprocess(roundEnv: RoundEnvironment) {
+        for (element in roundEnv.getElementsAnnotatedWith(annotationClass)) {
+            val ann = element.getAnnotation(annotationClass)
+            preprocess(element as E, ann)
         }
-        val ann = getOneAnnotation(element, setOf(Token::class, Compound::class, Expandable::class))
-        val suffix = if (ann is Expandable) "Expander" else "Editor"
-        return extractQualifiedEditorClassName(ann, element, classNameSuffix = suffix)
     }
 
     protected fun extractQualifiedEditorClassName(
@@ -38,9 +38,12 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         val configured = ann.qualifiedEditorClassName
         if (configured != null) return configured
         val pkg = processingEnv.elementUtils.getPackageOf(element)
-        val short = element.simpleName.toString()
-        return if (short != "<init>") "$pkg.$packageSuffix.${short.capitalize()}$classNameSuffix"
-        else extractQualifiedEditorClassName(ann, element.enclosingElement, packageSuffix, classNameSuffix)
+        return if (element.kind == CONSTRUCTOR) {
+            extractQualifiedEditorClassName(ann, element.enclosingElement, packageSuffix, classNameSuffix)
+        } else {
+            val capitalized = element.simpleName.toString().capitalize()
+            "$pkg.$packageSuffix.$capitalized$classNameSuffix"
+        }
     }
 
     protected fun KInheritanceRobot.implementEditorOfSuperType(
@@ -57,10 +60,16 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         }
     }
 
-    fun getEditorInterface(type: String, concreteType: String): Pair<KtType, List<TypeMirror>> {
+    private fun hasEditorNullableResultType(element: TypeElement): Boolean {
+        val supertype = metadata.getSupertype(element, "hextant.core.Editor") ?: return true
+        val resultType = supertype.arguments[0].type ?: return true
+        return Flag.Type.IS_NULLABLE(resultType.flags)
+    }
+
+    protected fun getEditorInterface(type: String, concreteType: String): Pair<KtType, List<TypeMirror>> {
         val el = processingEnv.elementUtils.getTypeElement(type)
-        val generated = el.getAnnotation(Alternative::class.java)
-        val linked = el.getAnnotation(EditorInterface::class.java)
+        val generated = el.getAnnotation<Alternative>()
+        val linked = el.getAnnotation<EditorInterface>()
         return when {
             generated == null && linked == null -> fail("Can't find common editor interface for $type")
             generated != null && linked != null -> fail("Conflicting annotations on $type")
@@ -83,16 +92,34 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         }
     }
 
-    protected fun getEditorClassName(tm: TypeMirror): String {
-        val t = checkNonPrimitive(tm)
-        val e = t.asTypeElement()
-        if (e.toString() == "java.util.List") {
-            val elementType = checkNonPrimitive(t.typeArguments[0]).asTypeElement()
-            val ann = elementType.getAnnotation(EditableList::class.java)
-            return extractQualifiedEditorClassName(ann, elementType, classNameSuffix = "ListEditor")
-        }
-        return lookupQualifiedEditorClassName(e)
+    private fun editorResolution(editorClass: () -> KClass<*>): EditorResolution {
+        val element = getTypeMirror(editorClass).asTypeElement()
+        val nullable = hasEditorNullableResultType(element)
+        return EditorResolution(element.toString(), nullable)
     }
+
+    private fun resolveEditor(type: TypeMirror, annotation: Component?): EditorResolution {
+        if (annotation != null && getTypeMirror(annotation::editor).toString() != None::class.qualifiedName)
+            return editorResolution(annotation::editor)
+        val t = checkNonPrimitive(type)
+        val clazz = t.asTypeElement()
+        val custom = clazz.getAnnotation<UseEditor>()
+        if (custom != null) return editorResolution(custom::cls)
+        return if (clazz.toString() == "java.util.List") {
+            val elementType = checkNonPrimitive(t.typeArguments[0]).asTypeElement()
+            val ann = elementType.getAnnotation<EditableList>() ?: fail("Could not locate editor class for type $t")
+            val qn = extractQualifiedEditorClassName(ann, elementType, classNameSuffix = "ListEditor")
+            return EditorResolution(qn) { false }
+        } else {
+            EditorResolution.resolve(clazz) ?: fail("Could not locate editor class for type $t")
+        }
+    }
+
+    protected fun getEditorClassName(type: TypeMirror, annotation: Component? = null): String =
+        resolveEditor(type, annotation).className
+
+    protected fun isResultNullable(type: TypeMirror, annotation: Component? = null): Boolean =
+        resolveEditor(type, annotation).isResultNullable
 
     protected fun generatedEditor(resultType: TypeElement, clazz: String) {
         reprocess.add(Pair(resultType, clazz))

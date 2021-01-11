@@ -10,26 +10,22 @@ import hextant.core.view.ChoiceEditorView
 import hextant.serial.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import reaktive.value.now
-import reaktive.value.reactiveVariable
-import validated.force
-import validated.reaktive.ReactiveValidated
-import validated.valid
+import reaktive.value.*
 
 /**
  * An [Editor] which supports choosing different items of type [C]
  */
 abstract class ChoiceEditor<C : Any>(default: C, context: Context) : AbstractEditor<C, ChoiceEditorView<C>>(context) {
-    private val selected = reactiveVariable(valid(default))
+    private val selected = reactiveVariable(default)
 
-    override val result: ReactiveValidated<C>
+    override val result: ReactiveValue<C>
         get() = selected
 
     /**
      * Select the given [choice]
      */
     fun select(choice: C) {
-        selected.set(valid(choice))
+        selected.set(choice)
         views { selected(choice) }
     }
 
@@ -41,11 +37,11 @@ abstract class ChoiceEditor<C : Any>(default: C, context: Context) : AbstractEdi
         private lateinit var selected: C
 
         override fun doRecord(original: ChoiceEditor<C>) {
-            selected = original.selected.now.force()
+            selected = original.selected.now
         }
 
         override fun reconstruct(original: ChoiceEditor<C>) {
-            original.selected.now = valid(selected)
+            original.selected.now = selected
         }
 
         override fun JsonObjectBuilder.encode() {

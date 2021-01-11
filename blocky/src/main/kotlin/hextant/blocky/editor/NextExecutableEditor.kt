@@ -14,16 +14,13 @@ import kotlinx.serialization.json.*
 import reaktive.value.*
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
-import validated.*
-import validated.reaktive.ReactiveValidated
 
 class NextExecutableEditor(context: Context) :
     AbstractEditor<Executable, EditorView>(context) {
     private val next = reactiveVariable(null as ExecutableEditor<*>?)
 
-    override val result: ReactiveValidated<Executable> = next.flatMap {
-        it?.result?.map { res -> res.or(invalidComponent) } ?: reactiveValue(valid(End))
-    }
+    override val result: ReactiveValue<Executable> =
+        next.flatMap { it?.result?.map { it ?: End } ?: reactiveValue(End) }
 
     fun setNext(next: ExecutableEditor<*>) {
         this.next.set(next)

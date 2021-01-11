@@ -24,10 +24,10 @@ object ExprPlugin : PluginInitializer({
     registerCommand<ExprEditor<*>, Int> {
         name = "Evaluate Expression"
         shortName = "eval"
-        applicableIf { exprEditor -> exprEditor.result.now.isValid }
+        applicableIf { exprEditor -> exprEditor.result.now != null }
         description = "Evaluates the selected expression and prints it to the console"
         executing { editor, _ ->
-            val e = editor.result.now.force()
+            val e = editor.result.now!!
             val v = e.value
             v
         }
@@ -39,7 +39,7 @@ object ExprPlugin : PluginInitializer({
         type = SingleReceiver
         applicableIf { oe ->
             val oae = oe.parent as? OperatorApplicationEditor ?: return@applicableIf false
-            oae.operator.result.now.map { it.isCommutative }.ifInvalid { false }
+            oae.operator.result.now?.isCommutative ?: false
         }
         executingCompoundEdit { oe, _ ->
             val oae = oe.parent as OperatorApplicationEditor
@@ -56,11 +56,11 @@ object ExprPlugin : PluginInitializer({
         shortName = "collapse"
         description = "Partially evaluate the selected expression"
         applicableIf { oae ->
-            oae.result.now.isValid && oae.expander != null
+            oae.result.now != null && oae.expander != null
         }
         executingCompoundEdit { oae, _ ->
             val ex = oae.expander as ExprExpander
-            val res = oae.result.now.force().value
+            val res = oae.result.now!!.value
             val editable = IntLiteralEditor(oae.context, res.toString())
             ex.expand(editable)
         }
@@ -83,8 +83,8 @@ object ExprPlugin : PluginInitializer({
         isSevere(true)
         location { inspected.operator }
         preventingThat {
-            val operandIsZero = inspected.operand2.result.map { it.orNull() is IntLiteral && it.force().value == 0 }
-            val operatorIsPlus = inspected.operator.result.map { it.orNull() == Plus }
+            val operandIsZero = inspected.operand2.result.map { it is IntLiteral && it.value == 0 }
+            val operatorIsPlus = inspected.operator.result.map { it == Plus }
             operatorIsPlus.and(operandIsZero)
         }
         message { "Operation doesn't change the result" }

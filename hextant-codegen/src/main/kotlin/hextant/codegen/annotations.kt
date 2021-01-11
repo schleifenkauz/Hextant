@@ -13,7 +13,7 @@ const val DEFAULT = "<default>"
 sealed class None
 
 @Retention(SOURCE)
-@Target(CLASS, FUNCTION)
+@Target(CLASS, FUNCTION, CONSTRUCTOR)
 annotation class Token(val classLocation: String = DEFAULT, val subtypeOf: KClass<*> = None::class)
 
 @Retention(SOURCE)
@@ -22,7 +22,7 @@ annotation class Compound(val classLocation: String = DEFAULT, val subtypeOf: KC
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class Alternative(val interfaceLocation: String = DEFAULT)
+annotation class Alternative(val nullableResult: Boolean, val interfaceLocation: String = DEFAULT)
 
 @Retention(SOURCE)
 @Target(CLASS)
@@ -34,7 +34,7 @@ annotation class Expandable(
     val delegator: KClass<*>,
     val expanderLocation: String = DEFAULT,
     val subtypeOf: KClass<*> = None::class,
-    val childContext: String = DEFAULT
+    val childContext: String = "context"
 )
 
 @Retention(SOURCE)

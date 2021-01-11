@@ -18,16 +18,15 @@ import reaktive.event.event
 import reaktive.value.*
 import reaktive.value.binding.binding
 import validated.*
-import validated.reaktive.ReactiveValidated
 
 /**
  * An editor for [Command]s.
  * @property source the [CommandSource] that is used to resolve available commands
  */
 class CommandLine(context: Context, val source: CommandSource) :
-    AbstractEditor<CommandApplication, CommandLineView>(context) {
+    AbstractEditor<CommandApplication?, CommandLineView>(context) {
     private var commandName: String = ""
-    private var arguments: List<Editor<Any>>? = null
+    private var arguments: List<Editor<Any?>>? = null
     private val _expandedCommand: ReactiveVariable<Command<*, *>?> = reactiveVariable(null)
     private var history = mutableListOf<HistoryItem>()
     private val expanded = reactiveVariable(false)
@@ -48,9 +47,9 @@ class CommandLine(context: Context, val source: CommandSource) :
      */
     val expandedCommand get() = _expandedCommand
 
-    private val _result: ReactiveVariable<Validated<CommandApplication>> = reactiveVariable(invalidComponent())
+    private val _result: ReactiveVariable<CommandApplication?> = reactiveVariable(null)
     private var obs: Observer? = null
-    override val result: ReactiveValidated<CommandApplication> get() = _result
+    override val result: ReactiveValue<CommandApplication?> get() = _result
 
     /**
      * Change the input command name to the given [name].
@@ -96,7 +95,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         return true
     }
 
-    private fun expanded(cmd: Command<*, *>, editors: List<Editor<Any>>) {
+    private fun expanded(cmd: Command<*, *>, editors: List<Editor<Any?>>) {
         arguments = editors
         _expandedCommand.now = cmd
         isExpanded.now = true
@@ -105,15 +104,15 @@ class CommandLine(context: Context, val source: CommandSource) :
 
     private fun bindResult(
         cmd: Command<*, *>,
-        arguments: List<ReactiveValidated<Any>>
+        arguments: List<ReactiveValue<Any?>>
     ) {
-        obs = _result.bind(binding<Validated<CommandApplication>>(dependencies(arguments)) {
+        obs = _result.bind(binding(dependencies(arguments)) {
             val args = mutableListOf<Any>()
             for (result in arguments) {
-                val value = result.now.ifInvalid { return@binding invalidComponent() }
+                val value = result.now ?: return@binding null
                 args.add(value)
             }
-            valid(CommandApplication(cmd, args))
+            CommandApplication(cmd, args)
         })
     }
 
@@ -126,7 +125,7 @@ class CommandLine(context: Context, val source: CommandSource) :
      */
     fun execute(byShortcut: Boolean = false): Any? {
         if (!isExpanded.now && !expandNoArgCommand()) return null
-        val (command, args) = result.now.ifInvalid { return null }
+        val (command, args) = result.now ?: return null
         val onError = listOf("Error executing $command")
         val results = context.executeSafely("Executing $command", onError) {
             val result = source.executeCommand(command, args)
@@ -145,11 +144,11 @@ class CommandLine(context: Context, val source: CommandSource) :
 
     private fun commandExecuted(
         command: Command<*, *>,
-        arguments: List<Editor<Any>>,
+        arguments: List<Editor<*>>,
         byShortcut: Boolean,
         result: Any?
     ) {
-        val argumentSnapshots = arguments.map { it.result.now.force() to it.snapshot(recordClass = true) }
+        val argumentSnapshots = arguments.map { it.result.now to it.snapshot(recordClass = true) }
         val item = HistoryItem(command, argumentSnapshots, byShortcut, result)
         history.add(item)
         execute.fire(item)
@@ -160,7 +159,7 @@ class CommandLine(context: Context, val source: CommandSource) :
 
     private fun expandNoArgCommand(): Boolean {
         val cmd = availableCommands().find { it.shortName == commandName && it.parameters.isEmpty() } ?: return false
-        _result.set(valid(CommandApplication(cmd, emptyList())))
+        _result.set(CommandApplication(cmd, emptyList()))
         expanded(cmd, emptyList())
         return true
     }
@@ -168,7 +167,7 @@ class CommandLine(context: Context, val source: CommandSource) :
     /**
      * Expand to the given [command] and instantiate the editors for the given [arguments].
      */
-    fun resume(command: Command<*, *>, arguments: List<Snapshot<out Editor<Any>>>) {
+    fun resume(command: Command<*, *>, arguments: List<Snapshot<out Editor<*>>>) {
         reset()
         setCommandName(command.shortName!!)
         val editors = arguments.map {
@@ -204,7 +203,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         commandName = ""
         obs?.kill()
         obs = null
-        _result.set(invalidComponent())
+        _result.set(null)
         views { reset() }
         return true
     }
@@ -220,7 +219,7 @@ class CommandLine(context: Context, val source: CommandSource) :
         /**
          * The supplied arguments
          */
-        val arguments: List<Pair<Any?, Snapshot<out Editor<Any>>>>,
+        val arguments: List<Pair<Any?, Snapshot<out Editor<*>>>>,
         /**
          * Whether the command was executed by using a shortcut
          */

@@ -15,9 +15,9 @@ import hextant.launcher.PluginSource
 
 @ProvideFeature
 class PluginSourceExpander @ProvideImplementation(EditorFactory::class) constructor(context: Context) :
-    ConfiguredExpander<PluginSource, Editor<PluginSource>>(config, context) {
+    ConfiguredExpander<PluginSource?, Editor<PluginSource?>>(config, context) {
     companion object {
-        val config = ExpanderConfig<Editor<PluginSource>>().apply {
+        val config = ExpanderConfig<Editor<PluginSource?>>().apply {
             "http" expand { ctx -> URLPluginSourceEditor(ctx, "http://") }
             "https" expand { ctx -> URLPluginSourceEditor(ctx, "https://") }
             "github" expand ::GitHubPluginSourceEditor

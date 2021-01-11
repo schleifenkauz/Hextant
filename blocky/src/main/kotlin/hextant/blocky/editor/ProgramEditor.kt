@@ -11,8 +11,8 @@ import hextant.core.Editor
 import hextant.core.editor.AbstractEditor
 import hextant.serial.*
 import kotlinx.serialization.json.*
-import validated.reaktive.ReactiveValidated
-import validated.reaktive.composeReactive
+import reaktive.value.ReactiveValue
+import reaktive.value.binding.map
 
 class ProgramEditor(context: Context) :
     AbstractEditor<Program, ProgramEditorView>(context) {
@@ -44,7 +44,7 @@ class ProgramEditor(context: Context) :
         components.forEachIndexed { idx, comp -> view.addedComponent(idx, comp) }
     }
 
-    override val result: ReactiveValidated<Program> = composeReactive(entry.result, ::Program)
+    override val result: ReactiveValue<Program> = entry.result.map { Program(it!!) }
 
     override fun createSnapshot(): Snapshot<*> = Snap()
 

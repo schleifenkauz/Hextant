@@ -7,8 +7,10 @@ package hextant.codegen
 import hextant.codegen.aspects.JavaToKotlinTypeTranslator
 import krobot.api.*
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.AnnotatedConstruct
 import javax.lang.model.element.*
-import javax.lang.model.element.ElementKind.CONSTRUCTOR
+import javax.lang.model.element.ElementKind.*
+import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.type.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
@@ -57,18 +59,18 @@ internal fun splitPackageAndSimpleName(qualifiedName: String): Pair<String?, Str
 
 internal val Annotation.qualifiedEditorClassName: String?
     get() = when (this) {
-        is Token -> this.classLocation.takeIf { it != DEFAULT }
-        is Compound -> this.classLocation.takeIf { it != DEFAULT }
-        is Alternative -> this.interfaceLocation.takeIf { it != DEFAULT }
-        is Expandable -> this.expanderLocation.takeIf { it != DEFAULT }
+        is Token        -> this.classLocation.takeIf { it != DEFAULT }
+        is Compound     -> this.classLocation.takeIf { it != DEFAULT }
+        is Alternative  -> this.interfaceLocation.takeIf { it != DEFAULT }
+        is Expandable   -> this.expanderLocation.takeIf { it != DEFAULT }
         is EditableList -> this.classLocation.takeIf { it != DEFAULT }
         else            -> throw AssertionError()
     }
 
 internal val Annotation.subtypeOf: KClass<*>
     get() = when (this) {
-        is Token -> this.subtypeOf
-        is Compound -> this.subtypeOf
+        is Token      -> this.subtypeOf
+        is Compound   -> this.subtypeOf
         is Expandable -> this.subtypeOf
         else          -> throw AssertionError()
     }
@@ -119,7 +121,7 @@ internal fun TypeMirror.substitute(subst: Map<String, TypeMirror>, env: Processi
         is DeclaredType -> env.typeUtils.getDeclaredType(
             asElement() as TypeElement,
             *typeArguments.mapToArray { t -> t.substitute(subst, env) })
-        is ArrayType -> env.typeUtils.getArrayType(componentType.substitute(subst, env))
+        is ArrayType    -> env.typeUtils.getArrayType(componentType.substitute(subst, env))
         else            -> this
     }
 
@@ -133,3 +135,44 @@ internal fun splitPkgAndName(element: ExecutableElement): Pair<String, String> {
 
 internal fun ExecutableElement.returnType(): TypeMirror =
     if (kind == CONSTRUCTOR) enclosingElement.asType() else returnType
+
+internal fun ProcessingEnvironment.fqName(element: Element): String =
+    when (element.kind) {
+        CLASS       -> element.toString()
+        CONSTRUCTOR -> element.enclosingElement.toString()
+        else        -> {
+            ensure(STATIC in element.modifiers) { "Cannot import non-static function" }
+            val pkg = elementUtils.getPackageOf(element.enclosingElement)
+            "$pkg.${element.simpleName}"
+        }
+    }
+
+internal fun getFunctionName(element: ExecutableElement): String =
+    if (element.kind == CONSTRUCTOR) element.enclosingElement.simpleName.toString()
+    else element.simpleName.toString()
+
+
+internal inline fun <reified A : Annotation> AnnotatedConstruct.getAnnotation(): A? = getAnnotation(A::class.java)
+
+internal inline fun <reified A : Annotation> AnnotatedConstruct.hasAnnotation(): Boolean = getAnnotation<A>() != null
+
+internal inline fun <reified T : Element> Element.enclosedElements(): List<T> =
+    enclosedElements.filterIsInstance<T>()
+
+internal inline fun <reified T : Element> Element.enclosedElements(kind: ElementKind): List<T> =
+    enclosedElements<T>().filter { it.kind == kind }
+
+internal fun TypeElement.getMethod(name: String): ExecutableElement? =
+    enclosedElements<ExecutableElement>(METHOD).find { it.simpleName.toString() == name }
+
+internal fun TypeElement.getEnclosedClass(name: String): TypeElement? =
+    enclosedElements<TypeElement>(CLASS).find { it.simpleName.toString() == name }
+
+internal fun TypeElement.isSubclassOf(type: String): Boolean {
+    if (toString() == type) return true
+    if (superclass !is NoType && superclass.asTypeElement().isSubclassOf(type)) return true
+    for (iface in interfaces) {
+        if (iface.asTypeElement().isSubclassOf(type)) return true
+    }
+    return false
+}

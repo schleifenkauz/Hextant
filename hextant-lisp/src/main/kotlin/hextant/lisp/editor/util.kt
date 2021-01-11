@@ -74,13 +74,13 @@ val beautify = command<CallExprEditor, Unit> {
     description = "Replaces a common S-Expr with a special syntax"
     defaultShortcut("Ctrl?+B")
     applicableIf { e ->
-        val sym = e.expressions.results.now.firstOrNull()?.orNull() as? Symbol ?: return@applicableIf false
+        val sym = e.expressions.results.now.firstOrNull() as? Symbol ?: return@applicableIf false
         val syntax = SpecialSyntax.get(sym.name) ?: return@applicableIf false
         val editors = e.expressions.editors.now.map { it.editor.now }
         syntax.arity + 1 == editors.size && syntax.representsEditors(editors)
     }
     executing { e, _ ->
-        val sym = e.expressions.results.now[0].force() as Symbol
+        val sym = e.expressions.results.now[0] as Symbol
         val syntax = SpecialSyntax.get(sym.name)!!
         val editors = e.expressions.editors.now.map { it.editor.now }
         val special = syntax.representEditors(e.context, editors)
@@ -104,8 +104,8 @@ fun PluginBuilder.addSpecialSyntax(syntax: SpecialSyntax<*>) {
         message { "This expression can be replaced with syntactic sugar" }
         preventingThat {
             val rightName = inspected.expressions.editors.first()
-                .flatMap { it?.result ?: reactiveValue(invalidComponent) }
-                .equalTo(valid(Symbol(syntax.name)))
+                .flatMap { it?.result ?: reactiveValue(null) }
+                .equalTo(Symbol(syntax.name))
             rightName.flatMap { right ->
                 if (!right) reactiveValue(false)
                 else binding { syntax.representsEditors(inspected.expressions.editors()) }

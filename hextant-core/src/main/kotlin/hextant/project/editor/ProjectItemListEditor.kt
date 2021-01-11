@@ -11,7 +11,7 @@ import hextant.project.view.EditorPane
 import reaktive.Observer
 
 internal class ProjectItemListEditor<T>(context: Context) :
-    ListEditor<ProjectItem<T>, ProjectItemEditor<T, *>>(context) {
+    ListEditor<ProjectItem<T>?, ProjectItemEditor<T, *>>(context) {
     private var commitChangeObserver: Observer? = null
     private var abortChangeObserver: Observer? = null
 

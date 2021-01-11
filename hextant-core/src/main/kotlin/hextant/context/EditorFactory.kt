@@ -15,5 +15,5 @@ fun interface EditorFactory<out R : Any> {
     /**
      * Creates a new editor for result of type [R] using the given [context].
      */
-    fun createEditor(context: Context): Editor<R>
+    fun createEditor(context: Context): Editor<R?>
 }

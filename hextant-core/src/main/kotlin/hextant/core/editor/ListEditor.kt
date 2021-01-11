@@ -14,14 +14,10 @@ import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
 import kotlinx.serialization.json.*
-import reaktive.dependencies
 import reaktive.list.*
 import reaktive.list.binding.values
+import reaktive.value.ReactiveValue
 import reaktive.value.binding.binding
-import validated.*
-import validated.Validated.InvalidComponent
-import validated.Validated.Valid
-import validated.reaktive.ReactiveValidated
 import kotlin.reflect.full.isSubclassOf
 
 /**
@@ -33,6 +29,8 @@ abstract class ListEditor<R, E : Editor<R>>(
     private val _editors: MutableReactiveList<E>
 ) : AbstractEditor<List<R>, ListEditorView>(context) {
     constructor(context: Context) : this(context, reactiveList())
+
+    private val editorClass = javaClass.getMethod("createEditor").returnType.kotlin
 
     private var mayBeEmpty = true
 
@@ -53,18 +51,7 @@ abstract class ListEditor<R, E : Editor<R>>(
      */
     val results = editors.map { it.result }.values()
 
-    /**
-     * The [result] only contains an [Valid] value, if all child results are [Valid]. Otherwise it contains a [InvalidComponent]
-     */
-    override val result: ReactiveValidated<List<R>> = binding(dependencies(results)) {
-        results.now.takeIf { it.all { r -> r.isValid } }
-            .validated { invalidComponent() }
-            .map { results ->
-                results.map { res -> res.force() }
-            }
-    }
-
-    private val editorClass by lazy { javaClass.getMethod("createEditor").returnType.kotlin }
+    override val result: ReactiveValue<List<R>> = binding(results) { results.now }
 
     /**
      * Create a new Editor for results of type [E], or null if no new editor should be created

@@ -8,6 +8,7 @@ package hextant.codegen
 
 import hextant.codegen.MainProcessor.Companion.ACCESSOR_PACKAGE
 import hextant.codegen.MainProcessor.Companion.GENERATED_DIR
+import hextant.codegen.editor.KotlinMetadata
 import krobot.api.KotlinFile
 import krobot.api.writeTo
 import java.nio.file.Files
@@ -22,20 +23,24 @@ import kotlin.reflect.KClass
 internal abstract class AnnotationProcessor<A : Annotation, E : Element> {
     protected lateinit var processingEnv: ProcessingEnvironment
         private set
-    protected lateinit var generatedDir: String
+    private lateinit var generatedDir: String
 
     protected lateinit var accessorPackage: String
+        private set
+
+    protected lateinit var metadata: KotlinMetadata
         private set
 
     fun init(env: ProcessingEnvironment) {
         processingEnv = env
         generatedDir = env.options[GENERATED_DIR]!!
         accessorPackage = env.options[ACCESSOR_PACKAGE] ?: "hextant.generated"
+        metadata = KotlinMetadata(env)
     }
 
     abstract fun process(element: E, annotation: A)
 
-    private val annotationClass = getTypeArgument(AnnotationProcessor::class, 0).java as Class<A>
+    protected val annotationClass = getTypeArgument(AnnotationProcessor::class, 0).java as Class<A>
 
     fun process(roundEnv: RoundEnvironment) {
         for (element in roundEnv.getElementsAnnotatedWith(annotationClass)) {

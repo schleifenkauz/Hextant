@@ -9,8 +9,6 @@ import hextant.context.ClipboardContent.OneEditor
 import hextant.core.Editor
 import hextant.serial.reconstructEditor
 import hextant.serial.snapshot
-import validated.Validated
-import validated.valid
 
 /**
  * Return an [ExpanderDelegate] that transforms expanded editors with the given function.
@@ -79,11 +77,4 @@ inline fun <reified E : Editor<*>> E.copy(): E = copyFor(context)
 /**
  * Return an editor that transforms the [Editor.result] of this editor with the given function.
  */
-fun <T, R> Editor<T>.map(f: (T) -> Validated<R>): Editor<R> =
-    TransformedEditor(this, f)
-
-/**
- * Return an editor that transforms the [Editor.result] of this editor with the given function.
- */
-@JvmName("simpleMap")
-fun <T, R> Editor<T>.map(f: (T) -> R): Editor<R> = map { valid(f(it)) }
+fun <T, R> Editor<T>.map(f: (T) -> R): Editor<R> = TransformedEditor(this, f)

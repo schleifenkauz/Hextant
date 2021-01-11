@@ -34,6 +34,7 @@ internal class MainProcessor : AbstractProcessor() {
         if (annotations.isEmpty()) return false
         try {
             for (proc in processors) proc.init(processingEnv)
+            for (proc in editorCodegen) proc.preprocess(roundEnv)
             for (proc in editorCodegen) proc.process(roundEnv)
             for (proc in collectors) proc.process(roundEnv)
             EditorClassGen.reprocessGenerated()

@@ -16,8 +16,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.serialization.json.*
 import reaktive.value.*
-import validated.*
-import validated.reaktive.ReactiveValidated
+import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.full.safeCast
+import kotlin.reflect.jvm.jvmErasure
 
 /**
  * A token editor transforms text to tokens.
@@ -30,13 +31,15 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         data class Text(val input: String) : Compilable()
     }
 
+    private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
+
     @OptIn(ObsoleteCoroutinesApi::class)
     private val compiler = GlobalScope.actor<Compilable>(Dispatchers.Main, capacity = Channel.CONFLATED) {
         for (compilable in channel) {
             val res = when (compilable) {
                 is Completed -> {
                     val comp = compilable.completion
-                    tryCompile(comp.item).orElse { tryCompile(comp.completionText) }
+                    tryCompile(comp.item).takeUnless { it == defaultResult() } ?: tryCompile(comp.completionText)
                 }
                 is Text      -> tryCompile(compilable.input)
             }
@@ -50,7 +53,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
 
     private val _result = reactiveVariable(runBlocking { tryCompile("") })
 
-    override val result: ReactiveValidated<R> get() = _result
+    override val result: ReactiveValue<R> get() = _result
 
     private var _text = reactiveVariable("")
 
@@ -61,24 +64,31 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
 
     private val undo = context[UndoManager]
 
-    private fun resultClassHelper(): R = throw AssertionError("This should never ever be called!")
-
-    private val resultClass by lazy { javaClass.getMethod("resultClassHelper").returnType.kotlin }
+    /**
+     * Returns the result that this token editor should have if it is not able to recognize a token.
+     *
+     * You must override this method if the result type of your editor is not nullable.
+     * Otherwise the default implementation will throw an [IllegalStateException].
+     * If the default implementation is called on a token editor whose result type is nullable it just returns null.
+     */
+    @Suppress("UNCHECKED_CAST")
+    protected open fun defaultResult(): R =
+        if (resultType.isMarkedNullable) null as R
+        else error("Default result must be overwritten for token editors that have a non-nullable result type")
 
     /**
      * Make a result from the given completion item.
      */
     @Suppress("UNCHECKED_CAST")
-    protected open fun compile(item: Any): Validated<R> =
-        if (resultClass.isInstance(item)) valid(item as R) else invalidComponent
+    protected open fun compile(item: Any): R = resultType.jvmErasure.safeCast(item) as R ?: defaultResult()
 
-    override fun compile(token: String): Validated<R> = invalidComponent()
+    override fun compile(token: String): R = defaultResult()
 
-    private suspend fun tryCompile(item: Any): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { withContext(Dispatchers.Default) { compile(item) } }
+    private suspend fun tryCompile(item: Any): R =
+        context.executeSafely("compiling item", defaultResult()) { withContext(Dispatchers.Default) { compile(item) } }
 
-    private suspend fun tryCompile(text: String): Validated<R> =
-        context.executeSafely("compiling item", invalidComponent) { withContext(Dispatchers.Default) { compile(text) } }
+    private suspend fun tryCompile(text: String): R =
+        context.executeSafely("compiling item", defaultResult()) { withContext(Dispatchers.Default) { compile(text) } }
 
     override fun viewAdded(view: V) {
         view.displayText(text.now)

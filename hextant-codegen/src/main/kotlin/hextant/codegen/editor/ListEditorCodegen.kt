@@ -14,6 +14,7 @@ internal object ListEditorCodegen : EditorClassGen<EditableList, TypeElement>() 
         val editorCls = getTypeMirror(annotation::editorCls).takeIf { it.toString() != None::class.qualifiedName }
         val editorClsName = editorCls?.toString() ?: getEditorClassName(element.asType())
         val simpleName = element.simpleName.toString()
+        val nullable = isResultNullable(element.asType())
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "ListEditor")
         val (pkg, name) = splitPackageAndSimpleName(qn)
         val file = kotlinClass(
@@ -27,7 +28,8 @@ internal object ListEditorCodegen : EditorClassGen<EditableList, TypeElement>() 
             primaryConstructor = { "context" of "Context" },
             inheritance = {
                 extend(type("ListEditor").parameterizedBy {
-                    invariant(simpleName)
+                    if (nullable) invariant(type(simpleName).nullable())
+                    else invariant(simpleName)
                     invariant(editorClsName)
                 }, "context".e)
             }

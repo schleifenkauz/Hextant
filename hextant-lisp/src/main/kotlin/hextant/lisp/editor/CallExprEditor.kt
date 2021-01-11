@@ -9,12 +9,11 @@ import hextant.context.Context
 import hextant.core.editor.CompoundEditor
 import hextant.lisp.SExpr
 import hextant.lisp.list
-import validated.reaktive.ReactiveValidated
-import validated.reaktive.mapValidated
+import reaktive.value.ReactiveValue
 
 @ProvideFeature
-class CallExprEditor(context: Context) : CompoundEditor<SExpr>(context), SExprEditor<SExpr> {
+class CallExprEditor(context: Context) : CompoundEditor<SExpr?>(context), SExprEditor<SExpr> {
     val expressions by child(SExprListEditor(context))
 
-    override val result: ReactiveValidated<SExpr> = expressions.result.mapValidated { exprs -> list(exprs) }
+    override val result: ReactiveValue<SExpr?> = composeResult { list(expressions.now) }
 }

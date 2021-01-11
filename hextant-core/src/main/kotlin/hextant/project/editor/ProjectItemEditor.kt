@@ -13,7 +13,7 @@ import hextant.project.ProjectItem
 /**
  * An editor for a [ProjectItem], for example a [hextant.project.File] or a  [hextant.project.Directory].
  */
-interface ProjectItemEditor<T, I : ProjectItem<T>> : Editor<I> {
+interface ProjectItemEditor<T, I : ProjectItem<T>> : Editor<I?> {
     /**
      * The editor for the name of this item
      */

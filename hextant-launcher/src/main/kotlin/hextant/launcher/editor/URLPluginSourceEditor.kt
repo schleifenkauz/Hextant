@@ -9,16 +9,15 @@ import hextant.context.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.launcher.PluginSource
-import validated.*
 import java.net.MalformedURLException
 import java.net.URL
 
 @ProvideFeature
 class URLPluginSourceEditor(context: Context, text: String = "") :
-    TokenEditor<PluginSource, TokenEditorView>(context, text) {
-    override fun compile(token: String): Validated<PluginSource> = try {
-        valid(PluginSource.GitRepo(URL(token)))
+    TokenEditor<PluginSource?, TokenEditorView>(context, text) {
+    override fun compile(token: String): PluginSource? = try {
+        PluginSource.GitRepo(URL(token))
     } catch (e: MalformedURLException) {
-        invalid("Malformed URL '$token'")
+        null
     }
 }

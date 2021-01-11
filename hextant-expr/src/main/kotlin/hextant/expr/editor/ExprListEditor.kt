@@ -10,7 +10,7 @@ import hextant.core.editor.ListEditor
 import hextant.expr.Expr
 
 @ProvideFeature
-class ExprListEditor(context: Context) : ListEditor<Expr, ExprEditor<Expr>>(context) {
+class ExprListEditor(context: Context) : ListEditor<Expr?, ExprEditor<Expr>>(context) {
     override fun createEditor(): ExprEditor<Expr> = ExprExpander(context)
 
     override fun supportsCopyPaste(): Boolean = true

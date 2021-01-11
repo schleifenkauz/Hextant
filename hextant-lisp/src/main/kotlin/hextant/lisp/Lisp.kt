@@ -8,7 +8,6 @@ import hextant.plugin.*
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType
 import reaktive.value.now
-import validated.*
 
 object Lisp : PluginInitializer({
     stylesheet("hextant/lisp/style.css")
@@ -16,14 +15,14 @@ object Lisp : PluginInitializer({
         name = "Evaluate"
         shortName = "eval"
         defaultShortcut("Ctrl?+Shift+E")
-        applicableIf { p -> p.result.now.isValid }
+        applicableIf { p -> p.result.now != null }
         executing { e, _ ->
-            val expr = e.result.now.force()
+            val expr = e.result.now!!
             val scope = RuntimeScope.root { scope, name ->
                 val editor = SExprExpander(e.context)
                 val view = e.context.createControl(editor)
                 val control = vbox(label("Specify value for $name: "), view)
-                getUserInput(editor, control).orNull()?.evaluate(scope)
+                getUserInput(editor, control)?.evaluate(scope)
             }
             try {
                 val v = expr.evaluate(scope)
@@ -37,10 +36,10 @@ object Lisp : PluginInitializer({
     registerCommand<SExprExpander, Unit> {
         name = "Reduce"
         shortName = "reduce"
-        applicableIf { p -> p.result.now.isValid }
+        applicableIf { p -> p.result.now != null }
         defaultShortcut("Ctrl?+E")
         executing { e, _ ->
-            val expr = e.result.now.force()
+            val expr = e.result.now!!
             try {
                 val scope = RuntimeScope.root()
                 val reduced = expr.reduce(scope)

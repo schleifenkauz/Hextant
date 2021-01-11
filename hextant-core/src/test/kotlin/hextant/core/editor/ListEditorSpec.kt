@@ -15,7 +15,7 @@ object ListEditorSpec : Spek({
     given("a ListEditor") {
         describe("adding, removing and clearing") {
             val ctx = testingContext()
-            val editor = object : ListEditor<IntLiteral, IntLiteralEditor>(ctx) {
+            val editor = object : ListEditor<IntLiteral?, IntLiteralEditor>(ctx) {
                 override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
             }
             editor.makeRoot()
@@ -65,14 +65,12 @@ object ListEditorSpec : Spek({
                         verify().empty()
                     }
                 }
-                Unit
             }
         }
         describe("undo/redo") {
             val ctx = testingContext()
             val undo = ctx[UndoManager]
-            val editor = object :
-                ListEditor<IntLiteral, IntLiteralEditor>(ctx) {
+            val editor = object : ListEditor<IntLiteral?, IntLiteralEditor>(ctx) {
                 override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
             }
             editor.makeRoot()

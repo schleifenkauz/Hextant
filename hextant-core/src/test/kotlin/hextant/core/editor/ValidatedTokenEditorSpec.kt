@@ -14,8 +14,6 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import reaktive.event.EventStream
 import reaktive.value.now
-import validated.*
-import validated.Validated.Valid
 
 object ValidatedTokenEditorSpec : Spek({
     given("a FilteredTokenEditor") {
@@ -33,10 +31,10 @@ object ValidatedTokenEditorSpec : Spek({
                     e.text.now shouldEqual "123"
                 }
                 it("should compile the initial text") {
-                    e.intermediateResult.now shouldEqual valid(123)
+                    e.intermediateResult.now shouldEqual 123
                 }
                 it("it should initialize the result with a child error") {
-                    e.result.now shouldEqual invalidComponent()
+                    e.result.now shouldEqual null
                 }
                 it("should not editable") {
                     e.editable.now shouldBe `true`
@@ -60,7 +58,7 @@ object ValidatedTokenEditorSpec : Spek({
                     verify { v.setEditable(false) }
                 }
                 it("should set the result") {
-                    e.result.now shouldEqual Valid(123)
+                    e.result.now shouldEqual 123
                 }
                 it("should not be editable") {
                     e.editable.now shouldBe `false`
@@ -82,10 +80,10 @@ object ValidatedTokenEditorSpec : Spek({
             on("setting the text") {
                 e.setText("invalid")
                 it("should update the intermediate result") {
-                    e.intermediateResult.now shouldBe invalid
+                    e.intermediateResult.now shouldEqual null
                 }
                 it("should not update the result") {
-                    e.result.now shouldEqual valid(123)
+                    e.result.now shouldEqual 123
                 }
                 it("should update the text") {
                     e.text.now shouldEqual "invalid"
@@ -100,7 +98,7 @@ object ValidatedTokenEditorSpec : Spek({
                     e.text.now shouldEqual "123"
                 }
                 it("should revert the intermediate result") {
-                    e.intermediateResult.now shouldEqual valid(123)
+                    e.intermediateResult.now shouldEqual 123
                 }
                 it("should not editable") {
                     e.editable.now shouldBe `false`
@@ -130,7 +128,7 @@ object ValidatedTokenEditorSpec : Spek({
             on("committing the change") {
                 e.commitChange()
                 it("should update the result") {
-                    e.result.now shouldEqual valid(456)
+                    e.result.now shouldEqual 456
                 }
                 it("should not be editable") {
                     e.editable.now shouldBe `false`
@@ -155,17 +153,18 @@ object ValidatedTokenEditorSpec : Spek({
                     copy.text.now shouldEqual "123"
                 }
                 test("the intermediate result should be copied") {
-                    copy.intermediateResult.now shouldEqual valid(123)
+                    copy.intermediateResult.now shouldEqual 123
                 }
                 test("the result should be copied") {
-                    copy.result.now shouldEqual valid(123)
+                    copy.result.now shouldEqual 123
                 }
             }
         }
     }
 }) {
     class Test(context: Context, initialText: String = "") : ValidatedTokenEditor<Int>(context, initialText) {
-        override fun compile(token: String): Validated<Int> =
-            token.toIntOrNull().validated { invalid("Invalid int literal") }
+        override fun defaultResult(): Int = 0
+
+        override fun compile(token: String): Int? = token.toIntOrNull()
     }
 }
