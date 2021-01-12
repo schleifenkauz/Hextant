@@ -9,10 +9,10 @@ package hextant.codegen
 import hextant.codegen.MainProcessor.Companion.ACCESSOR_PACKAGE
 import hextant.codegen.MainProcessor.Companion.GENERATED_DIR
 import hextant.codegen.editor.KotlinMetadata
-import krobot.api.KotlinFile
-import krobot.api.writeTo
-import java.nio.file.Files
-import java.nio.file.Paths
+import krobot.api.KotlinFileRobot
+import krobot.api.kotlinFile
+import krobot.ast.NamedTopLevelElement
+import krobot.ast.TopLevelElement
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
@@ -23,7 +23,8 @@ import kotlin.reflect.KClass
 internal abstract class AnnotationProcessor<A : Annotation, E : Element> {
     protected lateinit var processingEnv: ProcessingEnvironment
         private set
-    private lateinit var generatedDir: String
+    protected lateinit var generatedDir: String
+        private set
 
     protected lateinit var accessorPackage: String
         private set
@@ -49,11 +50,16 @@ internal abstract class AnnotationProcessor<A : Annotation, E : Element> {
         }
     }
 
-    protected fun writeKotlinFile(file: KotlinFile) {
-        val packages = file.pkg?.split('.')?.toTypedArray() ?: emptyArray()
-        val path = Paths.get(generatedDir, *packages, file.name)
-        Files.createDirectories(path.parent)
-        file.writeTo(path)
+    protected fun writeKotlinFile(file: TopLevelElement, name: String) {
+        file.saveToSourceRoot(generatedDir, name)
+    }
+
+    protected fun writeKotlinFile(file: NamedTopLevelElement) {
+        file.saveToSourceRoot(generatedDir)
+    }
+
+    protected inline fun writeKotlinFile(name: String, body: KotlinFileRobot.() -> Unit) {
+        writeKotlinFile(kotlinFile(body), name)
     }
 
     protected inline fun getTypeMirror(classAccessor: () -> KClass<*>): TypeMirror {

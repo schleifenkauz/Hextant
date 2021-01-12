@@ -21,30 +21,20 @@ internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement
 
     override fun finish() {
         if (results.isEmpty()) return
-        val accessors = kotlinFile(accessorPackage, "aspectAccessors.kt") {
-            generateClsFunction()
+        kotlinFile {
+            `package`(accessorPackage)
+            private.inline.`fun`(listOf(invariant("reified T") lowerBound "Any"), "cls")
+                .returnType(type("kotlin.reflect.KClass", "T"))
+                .returns("T::class".e)
             for ((clazz, _) in results) {
                 val element = processingEnv.elementUtils.getTypeElement(clazz.replace('$', '.'))
                 generateAccessors(element)
             }
-        }
-        writeKotlinFile(accessors)
+        }.saveToSourceRoot(generatedDir, "aspectAccessors")
         super.finish()
     }
 
-    private fun KFileRobot.generateClsFunction() {
-        addSingleExprFunction(
-            "cls",
-            modifiers = {
-                private()
-                inline()
-            },
-            typeParameters = { invariant("reified T", type("Any")) }) {
-            "T::class".e
-        }
-    }
-
-    private fun KFileRobot.generateAccessors(aspect: TypeElement) {
+    private fun KotlinFileRobot.generateAccessors(aspect: TypeElement) {
         checkAbstract(aspect)
         val methods = processingEnv.elementUtils.getAllMembers(aspect)
         for (m in methods) {
@@ -59,36 +49,23 @@ internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement
     private fun caseVar(aspect: TypeElement): TypeParameterElement = aspect.typeParameters.lastOrNull()
         ?: fail("$aspect has no type parameters, must have at least one")
 
-    private fun KFileRobot.generateAccessor(m: ExecutableElement, caseVar: String, aspect: TypeElement) {
+    private fun KotlinFileRobot.generateAccessor(m: ExecutableElement, caseVar: String, aspect: TypeElement) {
         val caseParam = m.parameters.find { it.asType().toString() == caseVar }?.toString()
         val name = m.simpleName.toString()
         val params = m.parameters.filter { '$' !in it.toString() }
-        addSingleExprFunction(
-            name,
-            modifiers = {
-                if (PUBLIC !in m.modifiers) internal()
-            },
-            receiver = type("hextant.plugin.Aspects"),
-            typeParameters = {
-                copyTypeParameters(aspect.typeParameters)()
-                copyTypeParameters(m.typeParameters)()
-            },
-            parameters = {
-                if (caseParam == null) {
-                    "case" of type("kotlin.reflect.KClass").parameterizedBy { invariant(caseVar) }
-                }
-                copyParameters(params)()
-            }
-        ) {
-            val case = caseParam?.let { ("$it::class").e } ?: "case".e
-            val impl = "get"("cls<${aspect.asType()}>()".e, case)
-            val args = params.map { it.toString().e }
-            impl.call(name, args)
+        val modifiers = if (PUBLIC !in m.modifiers) internal else noModifiers
+        val parameter = if (caseParam == null) listOf("case" of type("kotlin.reflect.KClass", caseVar)) else emptyList()
+        modifiers.`fun`(copyTypeParameters(aspect.typeParameters) + copyTypeParameters(m.typeParameters), name)
+            .receiver("hextant.plugin.Aspects")
+            .parameters(parameter + copyParameters(params)) returns run {
+            val case = caseParam?.let { "$it::class".e } ?: "case".e
+            val impl = "get"(call("cls", listOf(aspect.asType().t)), case)
+            val args = params.map { p -> p.e }
             if (m.parameters.size != params.size)
-                "with"(impl, lambda {
-                    evaluate("with"("this@$name".e, lambda {
-                        evaluate(call(name, args))
-                    }))
+                "with"(impl, closure {
+                    +"with"(`this`(name), closure {
+                        +call(name, args)
+                    })
                 })
             else impl.call(name, args)
         }

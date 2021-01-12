@@ -31,47 +31,26 @@ internal object ExpanderClassGen : EditorClassGen<Expandable, TypeElement>() {
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "Expander")
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
         val (editorType, _) = getEditorInterface(element.toString(), "*")
-        val delegator = getTypeMirror(annotation::delegator)
-        val nullable = hasDelegatorNullableResultType(delegator.asTypeElement())
-        val file = kotlinClass(
-            pkg, {
+        val delegator = getTypeMirror(annotation::delegator).asTypeElement()
+        val nullableResult = hasDelegatorNullableResultType(delegator)
+        kotlinClass(simpleName)
+            .primaryConstructor("context" of "Context", "editor" of editorType.nullable() default `null`)
+            .extends(type("Expander", type(name).nullable(nullableResult), editorType), "context".e, "editor".e)
+            .implementEditorOfSuperType(annotation, name)
+            .body {
+                `val`("config") initializedWith (delegator.simpleName.e call "getDelegate")
+                override.`fun`("expand", "text" of "String")
+                    .returns("config".e.call("expand", "text".e, annotation.childContext.e))
+                override.`fun`("expand", "completion" of "Any")
+                    .returns("config".e.call("expand", "completion".e, annotation.childContext.e))
+            }
+            .asFile {
+                `package`(pkg)
                 import("hextant.context.*")
                 import("hextant.core.editor.*")
                 import(element.toString())
                 import(delegator.toString())
-            },
-            simpleName,
-            primaryConstructor = {
-                "context" of "Context"
-                "editor" of editorType.nullable()
-            },
-            inheritance = {
-                extend(
-                    "Expander".t.parameterizedBy {
-                        if (nullable) invariant(type(name).nullable())
-                        else invariant(name)
-                        invariant(editorType)
-                    },
-                    "context".e,
-                    "editor".e
-                )
-                implementEditorOfSuperType(annotation, name)
-            }
-        ) {
-            addConstructor({ "context" of "Context" }, "context".e, "null".e)
-            addVal("config") { initializeWith(delegator.toString().e call "getDelegate") }
-            addSingleExprFunction(
-                "expand",
-                { override() },
-                parameters = { "text" of "String" }
-            ) { "config".e.call("expand", "text".e, annotation.childContext.e) }
-            addSingleExprFunction(
-                "expand",
-                { override() },
-                parameters = { "completion" of "Any" },
-            ) { "config".e.call("expand", "completion".e, annotation.childContext.e) }
-        }
-        writeKotlinFile(file)
+            }.saveToSourceRoot(generatedDir)
         generatedEditor(element, "$pkg.$simpleName")
     }
 }

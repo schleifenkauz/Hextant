@@ -6,9 +6,11 @@ package hextant.codegen
 
 import hextant.codegen.aspects.JavaToKotlinTypeTranslator
 import krobot.api.*
+import krobot.ast.*
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.AnnotatedConstruct
 import javax.lang.model.element.*
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.*
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.type.*
@@ -75,34 +77,20 @@ internal val Annotation.subtypeOf: KClass<*>
         else          -> throw AssertionError()
     }
 
-internal fun getOneAnnotation(
-    element: Element,
-    annotationClasses: Set<KClass<out Annotation>>
-): Annotation {
-    val annotations = annotationClasses.mapNotNull { element.getAnnotation(it.java) }
-    ensure(annotations.isNotEmpty()) { "$element is not annotated with any editor codegen annotation" }
-    ensure(annotations.size <= 1) { "$element is annotated with more than one editor codegen annotation" }
-    return annotations.first()
-}
-
 internal inline fun <E, reified F> List<E>.mapToArray(f: (E) -> F) = Array(size) { idx -> f(get(idx)) }
 
-internal fun copyParameters(params: List<VariableElement>): KParametersRobot.() -> Unit = {
-    for (p in params) {
-        p.toString() of toKotlinType(p.asType())
-    }
-}
+internal fun copyParameters(params: List<VariableElement>): List<Parameter> =
+    params.map { p -> p.toString() of toKotlinType(p.asType()) }
 
-internal fun copyTypeParameters(typeParameters: List<TypeParameterElement>): KTypeParametersRobot.() -> Unit = {
-    for (p in typeParameters) {
+internal fun copyTypeParameters(typeParameters: List<TypeParameterElement>): List<TypeParameter> =
+    typeParameters.map { p ->
         ensure(p.bounds.size <= 1) {
             "type parameter $p of ${p.enclosingElement} has ${p.bounds.size} bounds, can have at most one"
         }
-        invariant(p.toString(), toKotlinType(p.bounds[0]))
+        invariant(p.toString()).lowerBound(toKotlinType(p.bounds[0]))
     }
-}
 
-internal fun toKotlinType(t: TypeMirror): KtType {
+internal fun toKotlinType(t: TypeMirror): Type {
     val str = t.accept(JavaToKotlinTypeTranslator, Unit)
     return type(str)
 }
@@ -154,7 +142,8 @@ internal fun getFunctionName(element: ExecutableElement): String =
 
 internal inline fun <reified A : Annotation> AnnotatedConstruct.getAnnotation(): A? = getAnnotation(A::class.java)
 
-internal inline fun <reified A : Annotation> AnnotatedConstruct.hasAnnotation(): Boolean = getAnnotation<A>() != null
+internal inline fun <reified A : Annotation> AnnotatedConstruct.hasAnnotation(): Boolean =
+    getAnnotation<A>() != null
 
 internal inline fun <reified T : Element> Element.enclosedElements(): List<T> =
     enclosedElements.filterIsInstance<T>()

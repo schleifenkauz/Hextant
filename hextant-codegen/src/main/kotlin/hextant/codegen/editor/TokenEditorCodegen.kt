@@ -85,42 +85,27 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
         val functionName = input.getFunctionName()
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
         val result = resultType.simpleName.toString()
-        val file = kotlinClass(
-            pkg,
-            {
+        kotlinClass(simpleName).primaryConstructor("context" of "Context", "text" of "String")
+            .extends(
+                type("TokenEditor", type(result).nullable(resultNullable), type("hextant.core.view.TokenEditorView")),
+                "context".e, "text".e
+            )
+            .implementEditorOfSuperType(annotation, result)
+            .body {
+                constructor("context" of "Context")
+                    .delegate(get("context"), lit(""))
+                constructor("context" of "Context", "value" of result)
+                    .delegate(get("context"), "value".e call "toString")
+                override.`fun`("compile", "token" of "String")
+                    .returns(call(functionName, "token".e))
+            }
+            .asFile {
+                `package`(pkg)
                 import("hextant.context.Context")
                 import("hextant.core.editor.*")
                 import("hextant.core.view.*")
                 for (fqName in imports) import(fqName)
-            },
-            simpleName,
-            primaryConstructor = { "context" of "Context"; "text" of type("String") },
-            inheritance = {
-                extend(
-                    "TokenEditor".t.parameterizedBy {
-                        if (resultNullable) invariant(type(result).nullable())
-                        else invariant(result)
-                        invariant("TokenEditorView")
-                    },
-                    "context".e,
-                    "text".e
-                )
-                implementEditorOfSuperType(annotation, result)
-            }
-        ) {
-            addConstructor({ "context" of "Context" }, "context".e, stringLiteral(""))
-            addConstructor({
-                "context" of "Context"
-                "value" of result
-            }, "context".e, "value".e call "toString")
-            addSingleExprFunction(
-                "compile",
-                { override() },
-                parameters = { "token" of "String" }) {
-                call(functionName, "token".e)
-            }
-        }
-        writeKotlinFile(file)
+            }.saveToSourceRoot(generatedDir)
         generatedEditor(resultType, "$pkg.$simpleName")
     }
 

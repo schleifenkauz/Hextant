@@ -7,6 +7,7 @@ package hextant.codegen.aspects
 import hextant.codegen.*
 import hextant.plugins.Implementation
 import krobot.api.*
+import krobot.ast.Type
 import javax.lang.model.element.*
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
 import javax.lang.model.element.ElementKind.METHOD
@@ -55,7 +56,7 @@ internal object ImplementationCollector :
         decl: ExecutableElement,
         impl: ExecutableElement,
         aspectTypeVar: String
-    ): Triple<String, String, KtType>? {
+    ): Triple<String, String, Type>? {
         val unifier = TypeUnifier(processingEnv)
         for ((a, b) in decl.parameters.zip(impl.parameters)) {
             unifier.unify(a.asType(), b.asType())
@@ -73,32 +74,18 @@ internal object ImplementationCollector :
 
     private fun generateSingleMethodImplementation(
         aspect: TypeElement, methodName: String,
-        typeParameters: List<TypeParameterElement>, parameters: List<Pair<String, KtType>>,
-        fqFeatureName: String, simpleFeatureName: String, featureType: KtType,
+        typeParameters: List<TypeParameterElement>, parameters: List<Pair<String, Type>>,
+        fqFeatureName: String, simpleFeatureName: String, featureType: Type,
         pkg: String, simpleName: String
     ) {
         val name = "$simpleFeatureName${aspect.simpleName}"
-        val impl = kotlinObject(
-            pkg, name = name, modifiers = { internal() },
-            inheritance = {
-                implement(aspect.toString().t.parameterizedBy {
-                    invariant(featureType)
-                })
-            }
-        ) {
-            addSingleExprFunction(
-                methodName,
-                modifiers = { override() },
-                typeParameters = copyTypeParameters(typeParameters),
-                parameters = {
-                    for ((n, type) in parameters) n of type
-                },
-            ) {
-                val fqName = "$pkg.$simpleName"
-                call(fqName, parameters.map { (n, _) -> n.e })
-            }
-        }
-        writeKotlinFile(impl)
+        internal.kotlinObject(name).implements(type(aspect.toString(), featureType)).body {
+            override.`fun`(copyTypeParameters(typeParameters), methodName)
+                .parameters(parameters.map { (n, t) -> n of t })
+                .returns(call("$pkg.$simpleName", parameters.map { (n, _) -> get(n) }))
+        }.asFile {
+            `package`(pkg)
+        }.saveToSourceRoot(generatedDir)
         add(Implementation("$pkg.$name", aspect.runtimeFQName(), fqFeatureName))
     }
 
@@ -106,8 +93,8 @@ internal object ImplementationCollector :
         val aspect = processingEnv.elementUtils.getTypeElement("hextant.context.EditorFactory")
         val (pkg, simpleName) = splitPackageAndSimpleName(clazz)
         generateSingleMethodImplementation(
-            aspect, "createEditor", emptyList(), listOf("context" to "hextant.context.Context".t),
-            resultType.toString(), resultType.simpleName.toString(), type(resultType),
+            aspect, "createEditor", emptyList(), listOf("context" to type("hextant.context.Context")),
+            resultType.toString(), resultType.simpleName.toString(), type(resultType.toString()),
             pkg!!, simpleName
         )
     }

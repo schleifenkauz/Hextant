@@ -17,38 +17,27 @@ internal object ListEditorCodegen : EditorClassGen<EditableList, TypeElement>() 
         val nullable = isResultNullable(element.asType())
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "ListEditor")
         val (pkg, name) = splitPackageAndSimpleName(qn)
-        val file = kotlinClass(
-            pkg, {
+        kotlinClass(name)
+            .primaryConstructor("context" of "Context")
+            .extends(type("ListEditor", type(simpleName).nullable(nullable), type(editorClsName)), "context".e)
+            .body {
+                constructor("context" of "Context", "vararg editors" of editorClsName)
+                    .delegate("context".e)
+                    .body {
+                        `for`("i", `in` = "editors".e select "indices") {
+                            `val`("e") initializedWith "editors".e["i".e]
+                            +call("addAt", "i".e, "e".e)
+                        }
+                    }
+                override.`fun`("createEditor") returns call(editorClsName, get(annotation.childContext))
+            }
+            .asFile {
+                `package`(pkg)
                 import(element.toString())
                 import("hextant.core.editor.ListEditor")
                 import(editorClsName)
                 import("hextant.context.*")
-            },
-            name,
-            primaryConstructor = { "context" of "Context" },
-            inheritance = {
-                extend(type("ListEditor").parameterizedBy {
-                    if (nullable) invariant(type(simpleName).nullable())
-                    else invariant(simpleName)
-                    invariant(editorClsName)
-                }, "context".e)
-            }
-        ) {
-            addConstructor(
-                {
-                    "context" of "Context"
-                    "vararg editors" of editorClsName
-                },
-                "context".e
-            ) {
-                addFor("i", "editors".e select "indices") {
-                    addVal("e") initializedWith "editors".e["i".e]
-                    callFunction("addAt", {}, "i".e, "e".e)
-                }
-            }
-            addSingleExprFunction("createEditor", { override() }) { call(editorClsName, annotation.childContext.e) }
-        }
-        writeKotlinFile(file)
+            }.saveToSourceRoot(generatedDir)
         FeatureCollector.generatedEditor("$pkg.$name")
     }
 }

@@ -11,6 +11,8 @@ import hextant.codegen.aspects.FeatureCollector
 import hextant.codegen.aspects.ImplementationCollector
 import kotlinx.metadata.Flag
 import krobot.api.*
+import krobot.ast.ClassDefinition
+import krobot.ast.Type
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
@@ -46,16 +48,16 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         }
     }
 
-    protected fun KInheritanceRobot.implementEditorOfSuperType(
+    protected fun ClassDefinition.implementEditorOfSuperType(
         annotation: Annotation,
         simpleName: String
-    ) {
+    ): ClassDefinition = apply {
         val supertype = getTypeMirror(annotation::subtypeOf).toString()
         if (supertype != None::class.qualifiedName) {
             val (t, delegated) = getEditorInterface(supertype, simpleName)
-            implement(t)
+            implements(t)
             for (iface in delegated) {
-                implement(type(iface), "$iface.delegate()".e)
+                implements(type(iface.toString()), iface.e call "delegate()")
             }
         }
     }
@@ -66,7 +68,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         return Flag.Type.IS_NULLABLE(resultType.flags)
     }
 
-    protected fun getEditorInterface(type: String, concreteType: String): Pair<KtType, List<TypeMirror>> {
+    protected fun getEditorInterface(type: String, concreteType: String): Pair<Type, List<TypeMirror>> {
         val el = processingEnv.elementUtils.getTypeElement(type)
         val generated = el.getAnnotation<Alternative>()
         val linked = el.getAnnotation<EditorInterface>()
@@ -75,7 +77,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
             generated != null && linked != null -> fail("Conflicting annotations on $type")
             generated != null                   -> {
                 val editorQN = extractQualifiedEditorClassName(generated, el)
-                editorQN.t.parameterizedBy { invariant(concreteType) } to emptyList()
+                type(editorQN, concreteType) to emptyList()
             }
             linked != null                      -> {
                 val t = getTypeMirror(linked::clz)
@@ -86,7 +88,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
                 } catch (ex: MirroredTypesException) {
                     ex.typeMirrors
                 }
-                type(t).parameterizedBy { invariant(concreteType) } to delegated
+                type(t.toString(), concreteType) to delegated
             }
             else                                -> fail("impossible")
         }

@@ -27,21 +27,13 @@ internal object ProjectTypeCollector :
                 val type = element.returnType()
                 val clazz = "${type}Factory"
                 val (pkg, simpleName) = splitPackageAndSimpleName(clazz)
-                val file = kotlinObject(
-                    pkg, name = simpleName, modifiers = { internal() },
-                    inheritance = { implement(type("hextant.project.ProjectType")) }
-                ) {
-                    addSingleExprFunction(
-                        "createProject",
-                        modifiers = { override() },
-                        parameters = { "context" of "hextant.context.Context" },
-                    ) {
-                        val (p, n) = splitPkgAndName(element)
-                        val fqName = "$p.$n"
-                        call(fqName, "context".e)
-                    }
-                }
-                writeKotlinFile(file)
+                internal.kotlinObject(simpleName).implements("hextant.project.ProjectType").body {
+                    val (p, n) = splitPkgAndName(element)
+                    override.`fun`("createProject", "context" of "hextant.context.Context")
+                        .returns(call("$p.$n", get("context")))
+                }.asFile {
+                    `package`(pkg)
+                }.saveToSourceRoot(generatedDir)
                 add(ProjectType(name, clazz))
             }
         }
