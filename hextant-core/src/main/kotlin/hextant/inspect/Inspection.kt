@@ -17,6 +17,11 @@ interface Inspection<in T : Any> : Enabled {
     val description: String
 
     /**
+     * Check whether
+    */
+    fun InspectionBody<T>.applies(): Boolean
+
+    /**
      * @return a [ReactiveBoolean] holding `true` if this inspection reports a problem on the inspected object.
      */
     fun InspectionBody<T>.isProblem(): ReactiveBoolean

@@ -16,10 +16,6 @@ internal fun createControl(editor: ProjectTypeEditor, arguments: Bundle) =
     TokenEditorControl(editor, arguments, ProjectTypeCompleter)
 
 @ProvideImplementation(ControlFactory::class)
-internal fun createControl(editor: ProjectLocationEditor, arguments: Bundle) =
-    TokenEditorControl(editor, arguments, ProjectLocationCompleter)
-
-@ProvideImplementation(ControlFactory::class)
 internal fun createControl(editor: ProjectNameEditor, arguments: Bundle) = TokenEditorControl(editor, arguments)
 
 @ProvideImplementation(ControlFactory::class)

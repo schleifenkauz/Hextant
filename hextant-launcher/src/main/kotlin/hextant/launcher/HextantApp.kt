@@ -45,7 +45,8 @@ internal class HextantApp : Application() {
                 val name = args[0]
                 val project = tryGetFile(name)
                 if (!project.exists()) Main.fail("File with name $project does not exist")
-                globalContext[ProjectManager].openProject(name)
+                val path = globalContext[Files].getProject(name)
+                globalContext[ProjectManager].openProject(path)
             }
             2 -> Main.fail("Too many arguments")
         }

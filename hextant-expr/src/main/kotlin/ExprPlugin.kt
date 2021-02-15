@@ -16,6 +16,7 @@ import hextant.fx.runFXWithTimeout
 import hextant.plugin.*
 import hextant.undo.compoundEdit
 import reaktive.value.binding.and
+import reaktive.value.binding.impl.notNull
 import reaktive.value.binding.map
 import reaktive.value.now
 
@@ -76,10 +77,24 @@ object ExprPlugin : PluginInitializer({
             parentExpander.expand(editor)
         }
     }
+    registerInspection<IntLiteralEditor> {
+        id = "int-literal.syntax"
+        description = "Reports invalid integer literals"
+        isSevere(true)
+        checkingThat { inspected.result.notNull() }
+        message { "'${inspected.text.now}' is not a valid integer literal" }
+    }
+    registerInspection<OperatorEditor> {
+        id = "operator.syntax"
+        description = "Reports invalid operators"
+        isSevere(true)
+        checkingThat { inspected.result.notNull() }
+        message { "'${inspected.text.now}' is not a valid operator" }
+    }
     registerInspection<OperatorApplicationEditor> {
         id = "identical"
         description = "Prevent identical operations"
-        isSevere(true)
+        isSevere(false)
         location { inspected.operator }
         preventingThat {
             val operandIsZero = inspected.operand2.result.map { it is IntLiteral && it.value == 0 }

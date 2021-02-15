@@ -30,11 +30,19 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
      */
     var initiallyEnabled = true
 
+    private var applies: InspectionBody<T>.() -> Boolean = { true }
     private lateinit var isProblem: InspectionBody<T>.() -> ReactiveBoolean
     private lateinit var messageProducer: InspectionBody<T>.() -> String
     private lateinit var severity: Severity
     private var location: InspectionBody<T>.() -> Any = { inspected }
     private var fixes: MutableCollection<ProblemFix<T>> = mutableSetOf()
+
+    /**
+     * The built inspection will be applied to a target only if [predicate] returns true on it.
+    */
+    fun appliesIf(predicate: InspectionBody<T>.() -> Boolean) {
+        applies = predicate
+    }
 
     /**
      * The built inspection will report a problem if [forbidden] is `true`
@@ -109,6 +117,6 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
 
     @PublishedApi internal fun build(): Inspection<T> {
         val fixes: InspectionBody<T>.() -> Collection<ProblemFix<T>> = { fixes.filter { it.run { isApplicable() } } }
-        return InspectionImpl(id, isProblem, description, messageProducer, severity, fixes, location)
+        return InspectionImpl(id, applies, isProblem, description, messageProducer, severity, fixes, location)
     }
 }

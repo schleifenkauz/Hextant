@@ -205,11 +205,19 @@ fun showStage(root: Parent): Stage = Stage().apply {
 fun showStage(editor: Editor<*>) = showStage(editor.context.createControl(editor))
 
 /**
- * Executes the given action at some point such that
+ * Enqueues the given [action] into the JavaFX application thread after some [delay] which is given in milliseconds.
  */
-fun runFXWithTimeout(ms: Long = 10, action: () -> Unit) {
+fun runFXWithTimeout(delay: Long = 10, action: () -> Unit) {
     thread {
-        Thread.sleep(ms)
-        Platform.runLater { action() }
+        Thread.sleep(delay)
+        Platform.runLater(action)
     }
+}
+
+/**
+ * Runs [EditorControl.receiveFocus] on the JavaFX application thread after the given [delay] which is measured in milliseconds.
+ * @see runFXWithTimeout
+ */
+fun EditorControl<*>.receiveFocusLater(delay: Long = 10) {
+    runFXWithTimeout(delay) { receiveFocus() }
 }

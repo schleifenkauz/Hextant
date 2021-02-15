@@ -10,7 +10,6 @@ import hextant.command.meta.CommandParameter
 import hextant.command.meta.ProvideCommand
 import hextant.context.Context
 import hextant.fx.getUserInput
-import hextant.launcher.Files.Companion.PROJECTS
 import hextant.launcher.Files.Companion.PROJECT_INFO
 import hextant.launcher.HextantPlatform.marketplace
 import hextant.launcher.HextantPlatform.stage
@@ -28,9 +27,8 @@ internal class ProjectManager(private val globalContext: Context) {
     @ProvideCommand("Create Project", shortName = "create", description = "Create a new project")
     fun createNewProject(
         @CommandParameter("project type") projectType: LocatedProjectType,
-        @CommandParameter("project name", editWith = ProjectNameEditor::class) projectName: String
+        @CommandParameter("project name", editWith = ProjectNameEditor.Create::class) dest: File
     ): String {
-        val dest = globalContext[Files][PROJECTS].resolve(projectName)
         if (dest.isDirectory) return "Cannot create duplicate project"
         val required = listOf(projectType.pluginId)
         val marketplace = globalContext[marketplace]
@@ -73,15 +71,14 @@ internal class ProjectManager(private val globalContext: Context) {
     fun openProject(
         @CommandParameter(
             description = "The opened project",
-            editWith = ProjectLocationEditor::class
-        ) name: String
+            editWith = ProjectNameEditor.Reference::class
+        ) project: File
     ): String {
-        val file = globalContext[Files].getProject(name)
-        if (!acquireLock(file)) return "Project already opened by another editor"
-        val desc = file.resolve(PROJECT_INFO)
+        if (!acquireLock(project)) return "Project already opened by another editor"
+        val desc = project.resolve(PROJECT_INFO)
         val info = Json.tryParse<ProjectInfo>(PROJECT_INFO) { desc.readText() } ?: return "Project info corrupted"
         val cl = HextantClassLoader(globalContext, info.enabledPlugins)
-        cl.executeInNewThread("hextant.launcher.ProjectOpener", file, globalContext, info)
+        cl.executeInNewThread("hextant.launcher.ProjectOpener", project, globalContext, info)
         return "Successfully opened project"
     }
 
@@ -89,13 +86,12 @@ internal class ProjectManager(private val globalContext: Context) {
     fun deleteProject(
         @CommandParameter(
             description = "The deleted project",
-            editWith = ProjectLocationEditor::class
-        ) project: String
+            editWith = ProjectNameEditor.Reference::class
+        ) project: File
     ): String {
-        val file = globalContext[Files].getProject(project)
-        if (isLocked(file)) return "Project opened by another editor"
+        if (isLocked(project)) return "Project opened by another editor"
         return try {
-            file.deleteRecursively()
+            project.deleteRecursively()
             "Successfully deleted project"
         } catch (e: Exception) {
             e.printStackTrace()
@@ -111,17 +107,15 @@ internal class ProjectManager(private val globalContext: Context) {
     fun renameProject(
         @CommandParameter(
             description = "The project that is renamed",
-            editWith = ProjectLocationEditor::class
-        ) project: String,
+            editWith = ProjectNameEditor.Reference::class
+        ) project: File,
         @CommandParameter(
             description = "The new name for the project",
-            editWith = ProjectNameEditor::class
-        ) newName: String
+            editWith = ProjectNameEditor.Create::class
+        ) newLocation: File
     ): String {
-        val oldLocation = globalContext[Files].getProject(project)
-        if (isLocked(oldLocation)) return "Cannot rename project: Already opened by another editor"
-        val newLocation = oldLocation.resolveSibling(newName)
-        oldLocation.renameTo(newLocation)
+        if (isLocked(project)) return "Cannot rename project: Already opened by another editor"
+        project.renameTo(newLocation)
         return "Successfully renamed project"
     }
 

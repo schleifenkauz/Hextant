@@ -36,6 +36,8 @@ class Inspections private constructor() {
     }
 
     private fun addInspection(inspection: Inspection<Any>, obj: Any) {
+        val applies = inspection.run { InspectionBody.strong(obj).applies() }
+        if (!applies) return
         val manager = getManagerForLocation(inspection, obj)
         val applied = AppliedInspection(obj, inspection)
         manager.addInspection(applied)
@@ -45,10 +47,17 @@ class Inspections private constructor() {
         inspection as Inspection<Any>
         inspections(cls).remove(inspection)
         for (obj in instances[cls]) {
-            val manager = getManagerForLocation(inspection, obj)
-            val applied = AppliedInspection(obj, inspection)
-            manager.removeInspection(applied)
+            if (removeInspection(inspection, obj)) return
         }
+    }
+
+    private fun removeInspection(inspection: Inspection<Any>, obj: Any): Boolean {
+        val applies = inspection.run { InspectionBody.strong(obj).applies() }
+        if (!applies) return true
+        val manager = getManagerForLocation(inspection, obj)
+        val applied = AppliedInspection(obj, inspection)
+        manager.removeInspection(applied)
+        return false
     }
 
     private fun getManagerForLocation(inspection: Inspection<Any>, obj: Any): InspectionManager {

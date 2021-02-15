@@ -9,13 +9,15 @@ import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.launcher.Files
 import hextant.launcher.Files.Companion.PROJECTS
+import java.io.File
 
-internal class ProjectNameEditor(context: Context) : TokenEditor<String?, TokenEditorView>(context) {
-    override fun compile(token: String): String? = when {
-        !token.matches(REGEX)                               -> null
-        context[Files][PROJECTS].resolve(token).isDirectory -> null
-        else                                                -> token
-    }
+internal open class ProjectNameEditor private constructor(val isCreate: Boolean, context: Context) :
+    TokenEditor<File?, TokenEditorView>(context) {
+    override fun compile(token: String): File? =
+        token.takeIf { it.matches(REGEX) }?.let { context[Files].getProject(token) }
+
+    class Create(context: Context) : ProjectNameEditor(true, context)
+    class Reference(context: Context) : ProjectNameEditor(false, context)
 
     companion object {
         private val REGEX = Regex("[^/\\\\:; \t\r\n]+")
