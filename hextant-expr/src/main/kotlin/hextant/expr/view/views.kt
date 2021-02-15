@@ -41,14 +41,8 @@ fun createControl(e: IntLiteralEditor, arguments: Bundle) =
     TokenEditorControl(e, arguments, styleClass = "int-literal")
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(e: ExpressionEditor, arguments: Bundle) = CompoundEditorControl(e, arguments) {
-    view(e.root)
-    view(e.context[CommandLine])
-}
-
-@ProvideImplementation(ControlFactory::class)
-fun createControl(editor: ExprEditorWithCommandLine, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    view(editor.editor)
+fun createControl(editor: ExpressionEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+    view(editor.root)
     val cl = view(editor.context[CommandLine])
     registerShortcuts {
         on("Ctrl+K") {

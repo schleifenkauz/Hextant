@@ -30,6 +30,10 @@ internal data class Project(
         val manager = context[PluginManager]
         val info = ProjectInfo(type, manager.enabledIds().toList(), manager.requiredPlugins)
         location.resolve(Files.PROJECT_INFO).writeJson(info)
+    }
+
+    fun quit() {
+        save()
         observers.remove(location)!!.kill()
     }
 

@@ -18,7 +18,6 @@ import reaktive.list.binding.first
 import reaktive.value.binding.*
 import reaktive.value.now
 import reaktive.value.reactiveValue
-import validated.*
 
 fun SExpr.reconstructEditor(context: Context): SExprExpander = SExprExpander(context).also { e -> e.reconstruct(this) }
 

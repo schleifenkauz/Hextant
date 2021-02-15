@@ -145,27 +145,31 @@ fun <R> getUserInput(
 ): R? {
     editor.makeRoot()
     val d = Dialog<R?>()
-    d.dialogPane.content = control
-    d.dialogPane.buttonTypes.setAll(buttonTypes)
-    d.dialogPane.scene.initHextantScene(editor.context, applyStyle)
-    val ok = d.dialogPane.lookupButton(ButtonType.OK) as Button
-    ok.isDefaultButton = false
-    d.dialogPane.registerShortcuts {
-        on("Ctrl+Enter") { ok.fire() }
-    }
-    d.setResultConverter { btn ->
-        when (btn) {
-            ButtonType.OK     -> editor.result.now
-            ButtonType.CANCEL -> null
-            else              -> error("Unexpected button type: $btn")
+    with(d) {
+        d.dialogPane.content = control
+        d.dialogPane.buttonTypes.setAll(buttonTypes)
+        d.dialogPane.scene.initHextantScene(editor.context, applyStyle)
+        val ok = d.dialogPane.lookupButton(ButtonType.OK) as Button
+        ok.isDefaultButton = false
+        d.dialogPane.registerShortcuts {
+            on("Ctrl+Enter") { ok.fire() }
         }
-    }
-    d.setOnShown {
-        runFXWithTimeout {
-            editor.context[EditorControlGroup].getViewOf(editor).receiveFocus()
+        d.setResultConverter { btn ->
+            when (btn) {
+                ButtonType.OK     -> editor.result.now
+                ButtonType.CANCEL -> null
+                else              -> error("Unexpected button type: $btn")
+            }
         }
+        isResizable = true
+        setOnShown {
+            runFXWithTimeout {
+                isResizable = false
+                editor.context[EditorControlGroup].getViewOf(editor).receiveFocus()
+            }
+        }
+        return d.showAndWait().orElse(null)
     }
-    return d.showAndWait().orElse(null)
 }
 
 fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context) {

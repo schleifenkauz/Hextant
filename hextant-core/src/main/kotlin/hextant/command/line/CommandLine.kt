@@ -17,7 +17,6 @@ import reaktive.event.EventStream
 import reaktive.event.event
 import reaktive.value.*
 import reaktive.value.binding.binding
-import validated.*
 
 /**
  * An editor for [Command]s.

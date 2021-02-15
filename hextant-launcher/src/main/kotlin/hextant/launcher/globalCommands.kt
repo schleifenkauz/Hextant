@@ -38,7 +38,7 @@ internal fun Commands.registerGlobalCommands(context: Context) {
         applicableIf { ctx -> ctx.hasProperty(Project) }
         executing { ctx, _ ->
             closeProject(ctx)
-            ctx[Project].save()
+            ctx[Project].quit()
             ctx[ProjectManager].releaseLock(ctx[Project].location)
             val loader = context.get<Runnable>(launcher)
             loader.run()

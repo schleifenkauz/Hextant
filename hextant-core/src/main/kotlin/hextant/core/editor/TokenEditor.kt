@@ -74,7 +74,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     @Suppress("UNCHECKED_CAST")
     protected open fun defaultResult(): R =
         if (resultType.isMarkedNullable) null as R
-        else error("Default result must be overwritten for token editors that have a non-nullable result type")
+        else error("TokenEditor ${this::class}: non-nullable result type and defaultResult() was not overwritten")
 
     /**
      * Make a result from the given completion item.

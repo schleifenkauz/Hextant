@@ -110,7 +110,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     @Suppress("UNCHECKED_CAST")
     protected open fun defaultResult(): R =
         if (resultType.isMarkedNullable) null as R
-        else error("Default result must be overwritten for token editors that have a non-nullable result type")
+        else error("Expander ${this::class}: non-nullable result type and defaultResult() was not overwritten")
 
     /**
      * Return `true` iff the given editor can be the content of this expander.

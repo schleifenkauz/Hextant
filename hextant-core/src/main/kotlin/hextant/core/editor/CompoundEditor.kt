@@ -16,6 +16,7 @@ import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.jvmName
 
 /**
  * Base class for editors that are composed of multiple sub-editors.
@@ -43,7 +44,7 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
     @Suppress("UNCHECKED_CAST")
     open fun defaultResult(): R =
         if (resultType.isMarkedNullable) null as R
-        else error("${this::class}: defaultResult() was not overwritten")
+        else error("CompoundEditor ${this::class}: non-nullable result type and defaultResult() was not overwritten")
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
         if (accessor !is PropertyAccessor) throw InvalidAccessorException(accessor)

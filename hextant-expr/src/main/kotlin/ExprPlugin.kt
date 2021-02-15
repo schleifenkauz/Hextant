@@ -18,7 +18,6 @@ import hextant.undo.compoundEdit
 import reaktive.value.binding.and
 import reaktive.value.binding.map
 import reaktive.value.now
-import validated.*
 
 object ExprPlugin : PluginInitializer({
     registerCommand<ExprEditor<*>, Int> {
