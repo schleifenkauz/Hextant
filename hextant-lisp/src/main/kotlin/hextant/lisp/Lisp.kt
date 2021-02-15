@@ -1,7 +1,6 @@
 package hextant.lisp
 
-import hextant.context.createControl
-import hextant.fx.*
+import hextant.fx.getUserInput
 import hextant.lisp.editor.*
 import hextant.lisp.rt.*
 import hextant.plugin.*
@@ -20,9 +19,7 @@ object Lisp : PluginInitializer({
             val expr = e.result.now!!
             val scope = RuntimeScope.root { scope, name ->
                 val editor = SExprExpander(e.context)
-                val view = e.context.createControl(editor)
-                val control = vbox(label("Specify value for $name: "), view)
-                getUserInput(editor, control)?.evaluate(scope)
+                getUserInput("Specify value for $name", editor)?.evaluate(scope)
             }
             try {
                 val v = expr.evaluate(scope)

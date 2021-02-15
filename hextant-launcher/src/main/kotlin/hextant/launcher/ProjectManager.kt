@@ -36,7 +36,7 @@ internal class ProjectManager(private val globalContext: Context) {
         manager.enableAll(required)
         manager.enableAll(globalContext[PluginManager].enabledPlugins().map { it.id })
         val editor = PluginsEditor(globalContext, manager, setOf(Local, Global))
-        val plugins = getUserInput(editor, applyStyle = false) ?: return "Project creation canceled"
+        val plugins = getUserInput("Project plugins", editor, applyStyle = false) ?: return "Project creation canceled"
         val pluginIds = plugins.map { it.id }
         val cl = HextantClassLoader(globalContext, pluginIds)
         cl.executeInNewThread(

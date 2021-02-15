@@ -18,22 +18,23 @@ import hextant.launcher.editor.*
 import hextant.launcher.view.*
 import hextant.plugin.Aspects
 import hextant.plugins.ProjectInfo
+import javafx.application.Platform
 import javafx.stage.Stage
 import java.io.File
 
 internal class ProjectOpener(
-    private val project: File,
+    private val path: File,
     private val globalContext: Context,
     private val info: ProjectInfo
 ) : Runnable {
     override fun run() {
         val context = defaultContext(projectContext(globalContext))
-        context.setProjectRoot(project)
+        context.setProjectRoot(path)
         context[Commands].registerGlobalCommands(context)
         context[Aspects].registerDefaultImplementations()
         val type = getProjectTypeInstance(context[classLoader], info.projectType.clazz)
         type.initializeContext(context)
-        val project = Project.open(project, info, context)
+        val project = Project.open(path, info, context)
         val src = SingleCommandSource(context, context)
         val cl = CommandLine(context, src)
         val stage = globalContext[stage]
@@ -41,6 +42,7 @@ internal class ProjectOpener(
         registerShortcuts(project.view, context, popup, stage)
         stage.setScene(project.view, context)
         stage.setSize(context[WindowSize])
+        Platform.runLater { stage.title = "Hextant - ${project.name}" }
         project.view.receiveFocusLater()
     }
 

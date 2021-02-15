@@ -10,6 +10,7 @@ import hextant.fx.*
 import hextant.launcher.HextantPlatform.launcher
 import hextant.launcher.HextantPlatform.stage
 import hextant.settings.Settings
+import javafx.application.Platform
 import javafx.geometry.Pos.CENTER
 import javafx.scene.control.Label
 import javafx.scene.text.Font
@@ -46,6 +47,7 @@ internal class HextantLauncher(global: Context, private val context: Context) : 
         val stage = context[stage]
         if (root.scene != null) root.scene.root = Label()
         stage.setScene(root, context)
+        stage.title = "Hextant Launcher"
         commandLine.receiveFocusLater()
     }
 }

@@ -24,6 +24,8 @@ internal data class Project(
     val context: Context,
     val location: File
 ) {
+    val name: String get() = location.name
+
     fun save() {
         root.saveSnapshotAsJson(location.resolve(PROJECT_ROOT))
         view.saveSnapshotAsJson(location.resolve(DISPLAY))

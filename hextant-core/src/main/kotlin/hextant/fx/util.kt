@@ -138,6 +138,7 @@ fun Compound.view(editor: Editor<*>, bundle: Bundle = createBundle(), config: Bu
  * @param buttonTypes the possible button types.
  */
 fun <R> getUserInput(
+    title: String,
     editor: Editor<R>,
     control: Node = editor.context.createControl(editor),
     buttonTypes: List<ButtonType> = listOf(ButtonType.OK, ButtonType.CANCEL),
@@ -146,15 +147,16 @@ fun <R> getUserInput(
     editor.makeRoot()
     val d = Dialog<R?>()
     with(d) {
-        d.dialogPane.content = control
-        d.dialogPane.buttonTypes.setAll(buttonTypes)
-        d.dialogPane.scene.initHextantScene(editor.context, applyStyle)
-        val ok = d.dialogPane.lookupButton(ButtonType.OK) as Button
+
+        dialogPane.content = control
+        dialogPane.buttonTypes.setAll(buttonTypes)
+        dialogPane.scene.initHextantScene(editor.context, applyStyle)
+        val ok = dialogPane.lookupButton(ButtonType.OK) as Button
         ok.isDefaultButton = false
-        d.dialogPane.registerShortcuts {
+        dialogPane.registerShortcuts {
             on("Ctrl+Enter") { ok.fire() }
         }
-        d.setResultConverter { btn ->
+        setResultConverter { btn ->
             when (btn) {
                 ButtonType.OK     -> editor.result.now
                 ButtonType.CANCEL -> null
@@ -168,7 +170,8 @@ fun <R> getUserInput(
                 editor.context[EditorControlGroup].getViewOf(editor).receiveFocus()
             }
         }
-        return d.showAndWait().orElse(null)
+        d.title = title
+        return showAndWait().orElse(null)
     }
 }
 
