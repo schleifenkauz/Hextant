@@ -24,7 +24,7 @@ import reaktive.value.now
 internal class FileEditorControl @ProvideImplementation(ControlFactory::class) constructor(
     private val editor: FileEditor<*>, arguments: Bundle
 ) : EditorControl<HBox>(editor, arguments) {
-    private val iconProvider = context[IconProvider.property()]
+    private val iconProvider = context[IconProvider.property<Editor<*>>()]
 
     private var currentGlyph = glyphBinding(editor.rootEditor)
 

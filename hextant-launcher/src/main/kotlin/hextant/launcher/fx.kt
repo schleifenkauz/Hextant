@@ -5,6 +5,8 @@
 package hextant.launcher
 
 import hextant.context.Context
+import hextant.context.EditorControlGroup
+import hextant.core.EditorView
 import hextant.core.view.EditorControl
 import hextant.fx.*
 import hextant.fx.WindowSize.*
@@ -34,4 +36,9 @@ internal fun Stage.setSize(s: WindowSize) {
             height = s.height
         }
     }
+}
+
+internal fun setTitleAndFocus(stage: Stage, title: String, view: EditorControl<*>) = runFXWithTimeout {
+    stage.title = title
+    view.receiveFocus()
 }

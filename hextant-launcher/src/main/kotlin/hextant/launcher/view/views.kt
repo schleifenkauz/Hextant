@@ -7,6 +7,7 @@ package hextant.launcher.view
 import bundles.Bundle
 import hextant.codegen.ProvideImplementation
 import hextant.completion.CompletionStrategy
+import hextant.completion.NoCompleter
 import hextant.context.ControlFactory
 import hextant.core.view.*
 import hextant.launcher.editor.*
@@ -16,7 +17,10 @@ internal fun createControl(editor: ProjectTypeEditor, arguments: Bundle) =
     TokenEditorControl(editor, arguments, ProjectTypeCompleter)
 
 @ProvideImplementation(ControlFactory::class)
-internal fun createControl(editor: ProjectNameEditor, arguments: Bundle) = TokenEditorControl(editor, arguments)
+internal fun createControl(editor: ProjectNameEditor, arguments: Bundle): TokenEditorControl {
+    val completer = if (editor.isCreate) NoCompleter else ProjectNameCompleter
+    return TokenEditorControl(editor, arguments, completer)
+}
 
 @ProvideImplementation(ControlFactory::class)
 internal fun createControl(editor: EnabledPluginInfoEditor, arguments: Bundle) =

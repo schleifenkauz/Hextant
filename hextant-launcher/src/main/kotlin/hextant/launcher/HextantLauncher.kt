@@ -47,8 +47,7 @@ internal class HextantLauncher(global: Context, private val context: Context) : 
         val stage = context[stage]
         if (root.scene != null) root.scene.root = Label()
         stage.setScene(root, context)
-        stage.title = "Hextant Launcher"
-        commandLine.receiveFocusLater()
+        setTitleAndFocus(stage, "Hextant - Launcher", commandLine)
     }
 }
 

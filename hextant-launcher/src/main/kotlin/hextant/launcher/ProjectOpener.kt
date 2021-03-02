@@ -42,8 +42,7 @@ internal class ProjectOpener(
         registerShortcuts(project.view, context, popup, stage)
         stage.setScene(project.view, context)
         stage.setSize(context[WindowSize])
-        Platform.runLater { stage.title = "Hextant - ${project.name}" }
-        project.view.receiveFocusLater()
+        setTitleAndFocus(stage, "Hextant - ${project.name}", project.view)
     }
 
     private fun registerShortcuts(

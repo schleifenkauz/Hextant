@@ -11,7 +11,7 @@ import hextant.launcher.Files
 import hextant.launcher.Files.Companion.PROJECTS
 import hextant.launcher.ProjectManager
 
-internal object ProjectLocationCompleter : ConfiguredCompleter<Editor<*>, String>(CompletionStrategy.simple) {
+internal object ProjectNameCompleter : ConfiguredCompleter<Editor<*>, String>(CompletionStrategy.simple) {
     override fun completionPool(context: Editor<*>): Collection<String> =
         context.context[Files][PROJECTS].listFiles()!!
             .filter { it.isDirectory }

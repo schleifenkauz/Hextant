@@ -130,6 +130,29 @@ internal fun hextantLabel(text: String, graphic: Node? = null) = Label(text, gra
 fun Compound.view(editor: Editor<*>, bundle: Bundle = createBundle(), config: Bundle.() -> Unit) =
     view(editor, bundle.apply(config))
 
+fun Dialog<*>.setDefaultButton(type: ButtonType) {
+    for (tp in dialogPane.buttonTypes) {
+        val button = dialogPane.lookupButton(tp) as Button
+        button.isDefaultButton = tp == type
+    }
+}
+
+inline fun <R, D: Dialog<R>> D.showDialog(config: D.() -> Unit = {}): R? {
+    config()
+    isResizable = true
+    setOnShown {
+        runFXWithTimeout(delay = 100) {
+            isResizable = false
+        }
+    }
+    return showAndWait().orElse(null)
+}
+
+fun <R> showDialog(config: Dialog<R>.() -> Unit): R? = Dialog<R>().showDialog(config)
+
+inline fun showConfirmationAlert(yesButton: ButtonType = ButtonType.YES, config: Alert.() -> Unit): Boolean =
+    Alert(Alert.AlertType.CONFIRMATION).showDialog(config) == yesButton
+
 /**
  * Gets input from the user by showing the given [editor] in a [Dialog] to him.
  *
@@ -145,9 +168,7 @@ fun <R> getUserInput(
     applyStyle: Boolean = true
 ): R? {
     editor.makeRoot()
-    val d = Dialog<R?>()
-    with(d) {
-
+    return showDialog<R> {
         dialogPane.content = control
         dialogPane.buttonTypes.setAll(buttonTypes)
         dialogPane.scene.initHextantScene(editor.context, applyStyle)
@@ -158,20 +179,17 @@ fun <R> getUserInput(
         }
         setResultConverter { btn ->
             when (btn) {
-                ButtonType.OK     -> editor.result.now
+                ButtonType.OK -> editor.result.now
                 ButtonType.CANCEL -> null
-                else              -> error("Unexpected button type: $btn")
+                else -> error("Unexpected button type: $btn")
             }
         }
-        isResizable = true
         setOnShown {
             runFXWithTimeout {
-                isResizable = false
                 editor.context[EditorControlGroup].getViewOf(editor).receiveFocus()
             }
         }
-        d.title = title
-        return showAndWait().orElse(null)
+        this.title = title
     }
 }
 

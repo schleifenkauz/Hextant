@@ -10,7 +10,18 @@ import hextant.command.Command
 import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.AbstractEditor
+import hextant.core.editor.allChildren
+import hextant.fx.setDefaultButton
+import hextant.fx.showConfirmationAlert
+import hextant.inspect.Inspections
+import hextant.inspect.Problem
 import hextant.serial.*
+import javafx.scene.control.Alert
+import javafx.scene.control.Alert.AlertType.CONFIRMATION
+import javafx.scene.control.Alert.AlertType.WARNING
+import javafx.scene.control.Button
+import javafx.scene.control.ButtonType
+import javafx.scene.control.Dialog
 import reaktive.Observer
 import reaktive.dependencies
 import reaktive.event.EventStream
@@ -125,6 +136,21 @@ class CommandLine(context: Context, val source: CommandSource) :
     fun execute(byShortcut: Boolean = false): Any? {
         if (!isExpanded.now && !expandNoArgCommand()) return null
         val (command, args) = result.now ?: return null
+        val problems = arguments.orEmpty()
+            .flatMap { it.allChildren + it }
+            .flatMap { e -> context[Inspections].getProblems(e) }
+        if (problems.any { it.severity == Problem.Severity.Error }) {
+            return null
+        }
+        if (problems.isNotEmpty()) {
+            val answer = showConfirmationAlert {
+                headerText = "Argument warnings"
+                contentText = "Do you really want to execute the command?"
+                buttonTypes.setAll(ButtonType.YES, ButtonType.NO)
+                setDefaultButton(ButtonType.NO)
+            }
+            if (!answer) return null
+        }
         val onError = listOf("Error executing $command")
         val results = context.executeSafely("Executing $command", onError) {
             val result = source.executeCommand(command, args)
