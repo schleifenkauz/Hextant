@@ -51,3 +51,11 @@ task('hextantPublish', type: Copy) {
     into System.getProperty('user.home') + '/hextant'
     rename '(.+)', 'launcher.jar'
 }
+
+afterEvaluate {
+    for (proj in [":hextant-expr", ":hextant-lisp", ":hextant-core:fatjar", ":blocky"]) {
+        def task = project(proj).tasks.findByPath("$proj:hextantPublish")
+        if (task == null) println("Task 'hextantPublish' not found for project $proj")
+        else run.dependsOn(task)
+    }
+}

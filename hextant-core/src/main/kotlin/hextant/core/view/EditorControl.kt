@@ -285,8 +285,12 @@ abstract class EditorControl<R : Node>(
 
     private fun initShortcuts() {
         registerShortcuts(this) {
-            handleCommands(receiver, context)
-            handleCommands(receiver.target, context)
+            if (context[SelectionDistributor].selectedViews.now.contains(receiver)) {
+                handleCommands(receiver, context)
+            }
+            if (context[SelectionDistributor].selectedTargets.now.contains(receiver.target)) {
+                handleCommands(receiver.target, context)
+            }
         }
     }
 
@@ -358,11 +362,11 @@ abstract class EditorControl<R : Node>(
                 addStyleCls("error")
                 styleClass.remove("warning")
             }
-            warn  -> {
+            warn -> {
                 addStyleCls("warning")
                 styleClass.remove("error")
             }
-            else  -> {
+            else -> {
                 styleClass.remove("warning")
                 styleClass.remove("error")
             }

@@ -17,6 +17,7 @@ import hextant.plugin.PluginBuilder.Phase
 import hextant.plugin.initializePluginsFromClasspath
 import hextant.serial.writeJson
 import javafx.application.Application
+import javafx.scene.image.Image
 import javafx.stage.Stage
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -27,6 +28,21 @@ internal class HextantApp : Application() {
     private val launcherContext = defaultContext(projectContext(globalContext))
 
     override fun start(primaryStage: Stage) {
+        setupContext(primaryStage)
+        initializePluginsFromClasspath(launcherContext, launcherContext[classLoader])
+        processArguments(parameters.raw)
+        setupStage(primaryStage)
+    }
+
+    private fun setupStage(primaryStage: Stage) {
+        primaryStage.sceneProperty().addListener { sc ->
+            if (sc != null) primaryStage.show()
+        }
+        val icon = javaClass.getResource("icon.jpg")
+        primaryStage.icons.add(Image(icon.toExternalForm()))
+    }
+
+    private fun setupContext(primaryStage: Stage) {
         globalContext[stage] = primaryStage
         globalContext[ProjectManager] = ProjectManager(launcherContext)
         val globalPlugins = readGlobalPlugins()
@@ -34,11 +50,13 @@ internal class HextantApp : Application() {
         globalContext[PluginManager] = manager
         manager.enableAll(globalPlugins)
         launcherContext.setProjectRoot(launcherContext[Files].root)
-        initializePluginsFromClasspath(launcherContext, launcherContext[classLoader])
-        val args = parameters.raw
+    }
+
+    private fun processArguments(args: List<String>) {
         when (args.size) {
             0 -> {
                 val cl = HextantClassLoader(globalContext, plugins = emptyList())
+                Thread.currentThread().contextClassLoader = cl
                 cl.executeInNewThread("hextant.launcher.HextantLauncher", globalContext, launcherContext)
             }
             1 -> {
@@ -50,7 +68,6 @@ internal class HextantApp : Application() {
             }
             2 -> Main.fail("Too many arguments")
         }
-        primaryStage.sceneProperty().addListener { sc -> if (sc != null) primaryStage.show() }
     }
 
     override fun stop() {

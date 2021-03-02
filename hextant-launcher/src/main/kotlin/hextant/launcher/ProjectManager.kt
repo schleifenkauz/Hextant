@@ -39,6 +39,7 @@ internal class ProjectManager(private val globalContext: Context) {
         val plugins = getUserInput("Project plugins", editor, applyStyle = false) ?: return "Project creation canceled"
         val pluginIds = plugins.map { it.id }
         val cl = HextantClassLoader(globalContext, pluginIds)
+        Thread.currentThread().contextClassLoader = cl
         cl.executeInNewThread(
             "hextant.launcher.ProjectCreator",
             ProjectType(projectType.name, projectType.clazz),
@@ -78,6 +79,7 @@ internal class ProjectManager(private val globalContext: Context) {
         val desc = project.resolve(PROJECT_INFO)
         val info = Json.tryParse<ProjectInfo>(PROJECT_INFO) { desc.readText() } ?: return "Project info corrupted"
         val cl = HextantClassLoader(globalContext, info.enabledPlugins)
+        Thread.currentThread().contextClassLoader = cl
         cl.executeInNewThread("hextant.launcher.ProjectOpener", project, globalContext, info)
         return "Successfully opened project"
     }

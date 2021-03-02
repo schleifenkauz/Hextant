@@ -66,7 +66,7 @@ class ContextCommandSource(
             SingleReceiver -> focusedReceivers.asSequence()
                 .map { it.now }
                 .filterNotNull()
-                .filter { r -> command.isApplicableOn(r) }
+                .filter { r -> command.isApplicableOn(r) }.take(1)
                 .map { r ->
                     @Suppress("UNCHECKED_CAST") //we checked this with the filter
                     command as Command<Any, *>
