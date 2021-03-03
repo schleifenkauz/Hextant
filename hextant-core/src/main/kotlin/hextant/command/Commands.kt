@@ -12,7 +12,6 @@ import hextant.command.meta.collectProvidedCommands
 import hextant.context.Internal
 import kollektion.ClassDAG
 import kollektion.MultiMap
-import reaktive.value.now
 import kotlin.reflect.KClass
 
 /**
@@ -44,10 +43,10 @@ class Commands private constructor() {
     /**
      * Register the given [command] for all instances of the specified class.
      */
-    fun <R : Any> register(cls: KClass<R>, command: Command<R, *>) {
+    fun register(command: Command<*, *>) {
         all.add(command)
-        visitClass(cls)
-        dag.subclassesOf(cls).forEach { c -> commands[c].add(command) }
+        visitClass(command.receiverClass)
+        dag.subclassesOf(command.receiverClass).forEach { c -> commands[c].add(command) }
     }
 
     /**
@@ -73,7 +72,7 @@ class Commands private constructor() {
      */
     fun <R : Any> unregister(command: Command<R, *>) {
         check(all.remove(command)) { "Cannot unregister command $command because it was not registered before" }
-        for (cls in dag.subclassesOf(command.receiverCls)) {
+        for (cls in dag.subclassesOf(command.receiverClass)) {
             commands[cls].remove(command)
         }
     }
@@ -99,7 +98,7 @@ class Commands private constructor() {
      * Return a collection of all available commands that are applicable on instances of the given class.
      */
     private fun <R : Any> forClass(cls: KClass<out R>): Collection<Command<R, *>> {
-        return commands[cls].filter { it.isEnabled.now } as Collection<Command<R, *>>
+        return commands[cls] as Collection<Command<R, *>>
     }
 
     /**

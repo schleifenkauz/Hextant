@@ -7,10 +7,11 @@ package hextant.context
 import bundles.*
 import hextant.command.Commands
 import hextant.command.line.*
+import hextant.config.FeatureRegistrar
 import hextant.fx.*
 import hextant.inspect.Inspections
 import hextant.plugin.Aspects
-import hextant.settings.PropertyRegistrar
+import hextant.config.PropertyRegistrar
 import hextant.undo.UndoManager
 import java.util.logging.Logger
 
@@ -41,6 +42,7 @@ object Properties {
         parent.extend {
             set(Internal, Commands, Commands.newInstance())
             set(Internal, Inspections, Inspections.newInstance())
+            set(FeatureRegistrar, FeatureRegistrar(this))
             set(Internal, Stylesheets, Stylesheets(loader))
             set(Internal, logger, Logger.getLogger(javaClass.name))
             set(Internal, propertyChangeHandler, PropertyChangeHandler())

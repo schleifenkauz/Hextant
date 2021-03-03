@@ -1,4 +1,4 @@
-package hextant.settings
+package hextant.config
 
 import bundles.*
 import hextant.context.Internal

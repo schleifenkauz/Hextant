@@ -58,8 +58,8 @@
 }
 
 .command-list, .fix-list, .problem-list, .completions {
-    -fx-border-color: blue;
-    -fx-border-width: 1;
+    -fx-border-color: #282828;
+    -fx-border-width: 2px;
 }
 
 .command-history {

@@ -36,13 +36,6 @@ inline fun <reified T : Any> parameter(block: ParameterBuilder<T>.() -> Unit) =
 inline fun parameters(block: ParametersBuilder.() -> Unit) = ParametersBuilder().apply(block).build()
 
 /**
- * Syntactic sugar for `register(R::class, command)`
- */
-inline fun <reified R : Any> Commands.register(command: Command<R, *>) {
-    register(R::class, command)
-}
-
-/**
  * Register a command built with [build]
  */
 inline fun <reified R : Any, T : Any> Commands.registerCommand(build: CommandBuilder<R, T>.() -> Unit) {

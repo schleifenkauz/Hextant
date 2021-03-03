@@ -18,7 +18,7 @@ internal class InspectionManager {
     private val isProblem = mutableMapOf<AppliedInspection<*>, ReactiveBoolean>()
 
     fun <T : Any> addInspection(inspection: AppliedInspection<T>) = inspection.run {
-        val problem = inspection.isEnabled and inspection.isProblem()
+        val problem = inspection.isProblem()
         isProblem[inspection] = problem
         if (problem.now) {
             reportingInspections.add(inspection)

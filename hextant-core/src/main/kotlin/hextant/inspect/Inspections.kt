@@ -79,10 +79,10 @@ class Inspections private constructor() {
     /**
      * Register the given [inspection] for instances of the given class.
      */
-    fun <T : Any> register(cls: KClass<out T>, inspection: Inspection<T>) {
+    fun <T : Any> register(inspection: Inspection<T>) {
         all.add(inspection)
-        visitClass(cls)
-        for (c in dag.subclassesOf(cls)) {
+        visitClass(inspection.targetClass)
+        for (c in dag.subclassesOf(inspection.targetClass)) {
             addInspection(c, inspection)
         }
     }
@@ -91,9 +91,9 @@ class Inspections private constructor() {
      * Registers a previously registered [inspection].
      * @throws IllegalStateException if the given [inspection] was not registered previously
      */
-    fun <T : Any> unregister(cls: KClass<*>, inspection: Inspection<T>) {
+    fun <T : Any> unregister(inspection: Inspection<T>) {
         check(all.remove(inspection)) { "Cannot unregister inspection $inspection because it was not registered before" }
-        for (c in dag.subclassesOf(cls)) {
+        for (c in dag.subclassesOf(inspection.targetClass)) {
             removeInspection(c, inspection)
         }
     }

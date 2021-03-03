@@ -5,7 +5,9 @@
 package hextant.command
 
 import hextant.command.meta.getSimpleEditorConstructor
-import hextant.config.Enabled
+import hextant.config.Feature
+import hextant.config.FeatureType
+import hextant.context.Context
 import hextant.context.EditorFactory
 import hextant.core.Editor
 import hextant.fx.Shortcut
@@ -14,7 +16,7 @@ import kotlin.reflect.KClass
 /**
  * A Command that is executable on a receiver of type [R]
  */
-interface Command<in R : Any, out T : Any> : Enabled {
+interface Command<in R : Any, out T : Any> : Feature {
     /**
      * Execute this command on [receiver] with the specified [arguments]
      */
@@ -56,12 +58,12 @@ interface Command<in R : Any, out T : Any> : Enabled {
      * @return the description of this [Command]
      * * It should explain what this command does
      */
-    val description: String
+    override val description: String
 
     /**
      * The class of the receiver used for checking the type when executing
      */
-    val receiverCls: KClass<in R>
+    val receiverClass: KClass<in R>
 
     /**
      * The [Type] of this command
@@ -181,5 +183,17 @@ interface Command<in R : Any, out T : Any> : Enabled {
         }
 
         @PublishedApi internal fun build(): Parameter<T> = Parameter(name, type, description, editorFactory)
+    }
+
+    companion object: FeatureType<Command<*, *>>("Command") {
+        override fun onEnable(feature: Command<*, *>, context: Context) {
+            super.onEnable(feature, context)
+            context[Commands].register(feature)
+        }
+
+        override fun onDisable(feature: Command<*, *>, context: Context) {
+            super.onDisable(feature, context)
+            context[Commands].unregister(feature)
+        }
     }
 }

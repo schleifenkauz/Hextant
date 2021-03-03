@@ -6,7 +6,7 @@ import hextant.config.disable
 import hextant.config.enable
 import hextant.context.Internal
 import hextant.plugin.*
-import hextant.settings.Settings
+import hextant.config.Settings
 import hextant.undo.UndoManager
 import reaktive.value.binding.flatMap
 import reaktive.value.now
@@ -17,23 +17,6 @@ import reaktive.value.reactiveValue
  */
 object Core : PluginInitializer({
     persistentProperty(Internal, Settings)
-    //    registerInspection<Editor<*>> {
-    //        id = "syntax-error"
-    //        description = "Highlights syntax errors"
-    //        isSevere(true)
-    //        checkingThat { inspected.result.map { it != null } }
-    //        message {
-    //            val result = inspected.result.now as Invalid
-    //            result.reason
-    //        }
-    //    }
-    //    registerInspection<ValidatedTokenEditor<*>> {
-    //        id = "invalid-intermediate"
-    //        description = "Reports invalid intermediate result"
-    //        checkingThat { inspected.intermediateResult.map { it !is Invalid } }
-    //        message { (inspected.intermediateResult.now as Invalid).reason }
-    //        isSevere(true)
-    //    }
     stylesheet("hextant/core/style.css")
     registerCommand(enable)
     registerCommand(disable)

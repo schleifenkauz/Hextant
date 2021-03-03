@@ -4,13 +4,16 @@
 
 package hextant.inspect
 
-import hextant.config.AbstractEnabled
+import hextant.config.FeatureType
 
 /**
  * Skeletal implementation of [Inspection]
  */
-abstract class AbstractInspection<in T : Any>(initiallyEnabled: Boolean = true) : Inspection<T>,
-                                                                                  AbstractEnabled(initiallyEnabled) {
+abstract class AbstractInspection<in T : Any> : Inspection<T> {
+    override val type: FeatureType<*> get() = Inspection
+
+    override val enabledByDefault: Boolean get() = true
+
     /**
      * Return the message for the problem reported by this [Inspection]
      * * Is only called when [isProblem] is `true`
@@ -23,7 +26,11 @@ abstract class AbstractInspection<in T : Any>(initiallyEnabled: Boolean = true) 
      */
     protected open fun InspectionBody<T>.fixes(): Collection<ProblemFix<T>> = emptyList()
 
+    override fun InspectionBody<T>.applies(): Boolean = true
+
     override fun InspectionBody<T>.location(): Any = inspected
 
     override fun InspectionBody<T>.getProblem(): Problem<in T> = Problem(inspected, message(), severity, fixes())
+
+    override fun toString(): String = "Inspection: <$id>"
 }

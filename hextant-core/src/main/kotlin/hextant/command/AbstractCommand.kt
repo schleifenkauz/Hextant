@@ -7,7 +7,7 @@ package hextant.command
 import hextant.command.Command.Category
 import hextant.command.Command.Type
 import hextant.command.Command.Type.MultipleReceivers
-import hextant.config.AbstractEnabled
+import hextant.config.FeatureType
 import kotlin.reflect.KClass
 
 /**
@@ -15,9 +15,11 @@ import kotlin.reflect.KClass
  * @constructor
  */
 abstract class AbstractCommand<R : Any, T : Any>(
-    override val receiverCls: KClass<R>,
-    initiallyEnabled: Boolean = true
-) : Command<R, T>, AbstractEnabled(initiallyEnabled) {
+    override val receiverClass: KClass<R>,
+    override val enabledByDefault: Boolean = true
+) : Command<R, T> {
+    override val type: FeatureType<*>
+        get() = Command
     override val shortName: String?
         get() = null
     override val category: Category?
@@ -45,5 +47,7 @@ abstract class AbstractCommand<R : Any, T : Any>(
     /**
      * By default return `true` if the specified [receiver] is an instance of [R]
      */
-    override fun isApplicableOn(receiver: Any) = receiverCls.isInstance(receiver)
+    override fun isApplicableOn(receiver: Any) = receiverClass.isInstance(receiver)
+
+    override fun toString(): String = "Command: <$id>"
 }

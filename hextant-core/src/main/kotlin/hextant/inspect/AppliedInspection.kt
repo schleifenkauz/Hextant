@@ -7,7 +7,5 @@ internal data class AppliedInspection<T : Any>(val body: InspectionBody<T>, val 
 
     fun isProblem() = inspection.run { body.isProblem() }
 
-    val isEnabled get() = inspection.isEnabled
-
     val severity get() = inspection.severity
 }

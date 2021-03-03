@@ -4,17 +4,25 @@
 
 package hextant.inspect
 
-import hextant.config.Enabled
+import hextant.config.Feature
+import hextant.config.FeatureType
+import hextant.context.Context
 import reaktive.value.ReactiveBoolean
+import kotlin.reflect.KClass
 
 /**
  * Interface for Inspections
  */
-interface Inspection<in T : Any> : Enabled {
+interface Inspection<in T : Any> : Feature {
+    /**
+     * The class of targets that are inspected by this inspection.
+    */
+    val targetClass: KClass<in T>
+
     /**
      * @return the description of this [Inspection]
      */
-    val description: String
+    override val description: String
 
     /**
      * Check whether
@@ -41,4 +49,16 @@ interface Inspection<in T : Any> : Enabled {
      * If this inspection does not report on the given target the behaviour is implementation-specific.
      */
     fun InspectionBody<T>.getProblem(): Problem<in T>
+
+    companion object: FeatureType<Inspection<*>>("Inspection") {
+        override fun onEnable(feature: Inspection<*>, context: Context) {
+            super.onEnable(feature, context)
+            context[Inspections].register(feature)
+        }
+
+        override fun onDisable(feature: Inspection<*>, context: Context) {
+            super.onDisable(feature, context)
+            context[Inspections].unregister(feature)
+        }
+    }
 }

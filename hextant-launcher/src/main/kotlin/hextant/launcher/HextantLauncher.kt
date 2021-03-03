@@ -9,8 +9,7 @@ import hextant.context.createControl
 import hextant.fx.*
 import hextant.launcher.HextantPlatform.launcher
 import hextant.launcher.HextantPlatform.stage
-import hextant.settings.Settings
-import javafx.application.Platform
+import hextant.config.Settings
 import javafx.geometry.Pos.CENTER
 import javafx.scene.control.Label
 import javafx.scene.text.Font

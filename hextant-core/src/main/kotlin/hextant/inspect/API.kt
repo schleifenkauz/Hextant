@@ -14,14 +14,7 @@ inline fun <T : Any> problemFix(block: ProblemFixBuilder<T>.() -> Unit) = Proble
  * @return an [Inspection] built with [block] inspecting objects1 of type [T].
  */
 inline fun <reified T : Any> inspection(block: InspectionBuilder<T>.() -> Unit): Inspection<T> =
-    InspectionBuilder<T>().apply(block).build()
-
-/**
- * Syntactic sugar for register(T::class, inspection)
- */
-inline fun <reified T : Any> Inspections.register(inspection: Inspection<T>) {
-    register(T::class, inspection)
-}
+    InspectionBuilder(T::class).apply(block).build()
 
 /**
  * Build an inspection with the given [builder] and register it.

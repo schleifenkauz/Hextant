@@ -6,6 +6,9 @@ package hextant.plugin
 
 import bundles.*
 import hextant.command.*
+import hextant.config.*
+import hextant.config.ConfigurableProperty
+import hextant.config.PropertyRegistrar
 import hextant.context.*
 import hextant.context.Properties.propertyChangeHandler
 import hextant.fx.ResultStyleClasses
@@ -14,7 +17,6 @@ import hextant.inspect.*
 import hextant.plugin.PluginBuilder.Phase.*
 import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
-import hextant.settings.*
 import kotlinx.serialization.serializer
 import reaktive.Observer
 import kotlin.reflect.*
@@ -22,9 +24,9 @@ import kotlin.reflect.*
 /**
  * Registers the given [command].
  */
-inline fun <reified R : Any> PluginBuilder.registerCommand(command: Command<R, *>) {
-    on(Initialize) { ctx -> ctx[Commands].register(command) }
-    on(Disable) { ctx -> ctx[Commands].unregister(command) }
+fun <R : Any> PluginBuilder.registerCommand(command: Command<R, *>) {
+    on(Initialize) { ctx -> ctx[FeatureRegistrar].register(command) }
+    on(Disable) { ctx -> ctx[FeatureRegistrar].unregister(command) }
 }
 
 /**
@@ -39,9 +41,9 @@ inline fun <reified R : Any, T : Any> PluginBuilder.registerCommand(block: Comma
 /**
  * Registers the given [inspection].
  */
-inline fun <reified T : Any> PluginBuilder.inspection(inspection: Inspection<T>) {
-    on(Initialize) { ctx -> ctx[Inspections].register(T::class, inspection) }
-    on(Disable) { ctx -> ctx[Inspections].unregister(T::class, inspection) }
+fun <T : Any> PluginBuilder.inspection(inspection: Inspection<T>) {
+    on(Initialize) { ctx -> ctx[FeatureRegistrar].register(inspection) }
+    on(Disable) { ctx -> ctx[FeatureRegistrar].unregister(inspection) }
 }
 
 /**

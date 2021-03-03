@@ -10,7 +10,7 @@ import hextant.context.ControlFactory
 import hextant.core.view.CompoundEditorControl
 import hextant.expr.editor.OperatorApplicationEditor
 import hextant.fx.createBorder
-import hextant.settings.Settings
+import hextant.config.Settings
 import javafx.scene.paint.Color
 import reaktive.value.binding.map
 import reaktive.value.fx.asObservableValue

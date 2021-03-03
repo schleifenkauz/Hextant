@@ -6,23 +6,23 @@ package hextant.config
 
 import hextant.command.command
 import hextant.context.Context
-import reaktive.value.now
 
 internal val enable = command<Context, String> {
     name = "enable"
     description = "Enables the given object"
     shortName = "enable"
-    val enabled = addParameter<Enabled> {
-        editWith { ctx -> EnabledEditor(ctx, enabled = false) }
+    val enabled = addParameter<Feature> {
+        editWith { ctx -> FeatureIdEditor(ctx, enabled = false) }
         name = "enabled"
         description = "The object to enable"
     }
-    executing { _, args ->
-        val e = args[enabled]
-        if (e.isEnabled.now) "Already enabled"
+    executing { ctx, args ->
+        val feature = args[enabled]
+        val registrar = ctx[FeatureRegistrar]
+        if (registrar.isEnabled(feature)) "Already enabled"
         else {
-            e.enable()
-            "Enabled ${e.id}"
+            registrar.enable(feature)
+            "Enabled ${feature.id}"
         }
     }
 }
@@ -31,17 +31,18 @@ internal val disable = command<Context, String> {
     name = "disable"
     description = "Disables the given object"
     shortName = "disable"
-    val enabled = addParameter<Enabled> {
-        editWith { ctx -> EnabledEditor(ctx, enabled = true) }
+    val enabled = addParameter<Feature> {
+        editWith { ctx -> FeatureIdEditor(ctx, enabled = true) }
         name = "disabled"
         description = "The object to disabled"
     }
-    executing { _, args ->
-        val e = args[enabled]
-        if (!e.isEnabled.now) "Already disabled"
+    executing { ctx, args ->
+        val feature = args[enabled]
+        val registrar = ctx[FeatureRegistrar]
+        if (!registrar.isEnabled(feature)) "Already disabled"
         else {
-            e.disable()
-            "Disabled ${e.id}"
+            registrar.disable(feature)
+            "Disabled ${feature.id}"
         }
     }
 }

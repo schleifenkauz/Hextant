@@ -8,11 +8,12 @@ import hextant.command.Command
 import hextant.inspect.Problem.Severity
 import reaktive.value.ReactiveBoolean
 import reaktive.value.binding.map
+import kotlin.reflect.KClass
 
 /**
  * Builder for [Inspection]s
  */
-class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
+class InspectionBuilder<T : Any> @PublishedApi internal constructor(private val targetClass: KClass<T>) {
     /**
      * The [Inspection.id] of the built inspection, must be set.
      */
@@ -39,7 +40,7 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
 
     /**
      * The built inspection will be applied to a target only if [predicate] returns true on it.
-    */
+     */
     fun appliesIf(predicate: InspectionBody<T>.() -> Boolean) {
         applies = predicate
     }
@@ -115,8 +116,43 @@ class InspectionBuilder<T : Any> @PublishedApi internal constructor() {
         addFix(CommandProblemFix(description, command, arguments.asList(), target))
     }
 
-    @PublishedApi internal fun build(): Inspection<T> {
-        val fixes: InspectionBody<T>.() -> Collection<ProblemFix<T>> = { fixes.filter { it.run { isApplicable() } } }
-        return InspectionImpl(id, applies, isProblem, description, messageProducer, severity, fixes, location)
+    @PublishedApi
+    internal fun build(): Inspection<T> {
+        val applicableFixes: InspectionBody<T>.() -> Collection<ProblemFix<T>> = {
+            fixes.filter { it.run { isApplicable() } }
+        }
+        val inspectionId = id
+        val desc = description
+        val sev = severity
+        val enabled = initiallyEnabled
+        val msg = messageProducer
+        val applyCheck = applies
+        val loc = location
+        val targetCls = targetClass
+        val problemPred = isProblem
+        return object : AbstractInspection<T>() {
+            override val targetClass: KClass<in T>
+                get() = targetCls
+
+            override val id: String get() = inspectionId
+
+            override val severity: Severity
+                get() = sev
+
+            override val description: String
+                get() = desc
+
+            override val enabledByDefault: Boolean get() = enabled
+
+            override fun InspectionBody<T>.message(): String = msg()
+
+            override fun InspectionBody<T>.applies(): Boolean = applyCheck()
+
+            override fun InspectionBody<T>.location(): Any = loc()
+
+            override fun InspectionBody<T>.isProblem(): ReactiveBoolean = problemPred()
+
+            override fun InspectionBody<T>.fixes(): Collection<ProblemFix<T>> = applicableFixes()
+        }
     }
 }
