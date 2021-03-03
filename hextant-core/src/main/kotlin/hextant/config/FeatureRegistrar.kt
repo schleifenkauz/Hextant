@@ -4,14 +4,22 @@ package hextant.config
 
 import bundles.PublicProperty
 import bundles.publicProperty
+import bundles.set
+import hextant.config.FeatureRegistrar.FeatureActivation.*
 import hextant.context.Context
 import hextant.context.Properties.logger
 import kollektion.MultiMap
+import kotlinx.serialization.Serializable
 
 internal class FeatureRegistrar(private val context: Context) {
     private val byId = mutableMapOf<String, Feature>()
     private val enabled = MultiMap<FeatureType<*>, Feature>()
     private val disabled = MultiMap<FeatureType<*>, Feature>()
+    private val activation = run {
+        val settings = context[Settings]
+        if (!settings.hasProperty(featureActivation)) settings[featureActivation] = StringActivationMap()
+        settings[featureActivation]
+    }
 
     private fun removeFrom(map: MultiMap<FeatureType<*>, Feature>, feature: Feature) {
         for (type in feature.type.chain()) {
@@ -34,7 +42,12 @@ internal class FeatureRegistrar(private val context: Context) {
             context[logger].warning("Attempt to register feature $feature with duplicate id")
             return
         }
-        if (feature.enabledByDefault) {
+        val isEnabled = when (activation[feature.id] ?: Default) {
+            Default -> feature.enabledByDefault
+            Enabled -> true
+            Disabled -> false
+        }
+        if (isEnabled) {
             addTo(enabled, feature)
             onEnable(feature)
         } else {
@@ -52,6 +65,7 @@ internal class FeatureRegistrar(private val context: Context) {
         } else {
             removeFrom(disabled, feature)
         }
+        activation.remove(feature.id)
     }
 
     fun <F : Feature> enable(feature: F) {
@@ -59,7 +73,10 @@ internal class FeatureRegistrar(private val context: Context) {
             context[logger].warning("Feature ${feature.id} is already enabled")
             return
         }
+        removeFrom(disabled, feature)
         addTo(enabled, feature)
+        if (!feature.enabledByDefault) activation[feature.id] = Enabled
+        else activation.remove(feature.id)
         onEnable(feature)
     }
 
@@ -70,6 +87,8 @@ internal class FeatureRegistrar(private val context: Context) {
         }
         removeFrom(enabled, feature)
         addTo(disabled, feature)
+        if (feature.enabledByDefault) activation[feature.id] = Disabled
+        else activation.remove(feature.id)
         onDisable(feature)
     }
 
@@ -87,5 +106,15 @@ internal class FeatureRegistrar(private val context: Context) {
 
     fun <F : Feature> disabledFeatures(type: FeatureType<out F>): Collection<F> = disabled[type] as Collection<F>
 
-    companion object : PublicProperty<FeatureRegistrar> by publicProperty("feature registrar")
+    private enum class FeatureActivation {
+        Default, Enabled, Disabled
+    }
+
+    @Serializable
+    private class StringActivationMap(private val map: MutableMap<String, FeatureActivation> = mutableMapOf()) :
+        MutableMap<String, FeatureActivation> by map
+
+    companion object : PublicProperty<FeatureRegistrar> by publicProperty("feature registrar") {
+        private val featureActivation = publicProperty<StringActivationMap>("features")
+    }
 }

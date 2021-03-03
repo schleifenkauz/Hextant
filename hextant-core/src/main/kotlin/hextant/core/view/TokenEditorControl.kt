@@ -7,6 +7,7 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.set
 import hextant.completion.Completer
+import hextant.completion.NoCompleter
 import hextant.core.editor.TokenEditor
 
 /**
@@ -17,10 +18,9 @@ open class TokenEditorControl(editor: TokenEditor<*, TokenEditorView>, args: Bun
     constructor(
         editor: TokenEditor<*, TokenEditorView>,
         args: Bundle,
-        completer: Completer<TokenEditor<*, *>, Any>? = null,
+        completer: Completer<TokenEditor<*, *>, Any> = NoCompleter,
         styleClass: String? = null
-    ) : this(editor, args) {
-        if (completer != null) arguments[COMPLETER] = completer
+    ) : this(editor, args.also { it[COMPLETER] = completer}) {
         if (styleClass != null) root.styleClass.add(styleClass)
     }
 

@@ -22,7 +22,7 @@ import kotlin.reflect.full.companionObjectInstance
 
 internal fun addPlugins(plugins: Collection<Plugin>, context: Context, phase: Phase, project: Editor<*>?) {
     val order = PluginGraph(context[PluginManager], plugins).topologicalSort() ?: error("cycle in dependencies")
-    for (plugin in order) {
+    for (plugin in order.reversed()) {
         val aspects = context[Aspects]
         if (project == null) {
             val cl = context[classLoader] as HextantClassLoader

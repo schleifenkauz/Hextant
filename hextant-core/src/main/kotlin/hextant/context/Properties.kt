@@ -42,7 +42,6 @@ object Properties {
         parent.extend {
             set(Internal, Commands, Commands.newInstance())
             set(Internal, Inspections, Inspections.newInstance())
-            set(FeatureRegistrar, FeatureRegistrar(this))
             set(Internal, Stylesheets, Stylesheets(loader))
             set(Internal, logger, Logger.getLogger(javaClass.name))
             set(Internal, propertyChangeHandler, PropertyChangeHandler())
@@ -56,6 +55,7 @@ object Properties {
      * Extend the given [context] with some core properties.
      */
     fun defaultContext(context: Context) = context.extend {
+        set(FeatureRegistrar, FeatureRegistrar(this))
         set(SelectionDistributor, SelectionDistributor.newInstance())
         set(EditorControlGroup, EditorControlGroup())
         set(UndoManager, UndoManager.newInstance())
