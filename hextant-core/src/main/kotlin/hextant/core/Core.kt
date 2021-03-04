@@ -5,7 +5,7 @@ import hextant.command.line.CommandLine
 import hextant.config.disable
 import hextant.config.enable
 import hextant.context.Internal
-import hextant.plugin.*
+import hextant.plugins.*
 import hextant.config.Settings
 import hextant.undo.UndoManager
 import reaktive.value.binding.flatMap

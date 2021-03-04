@@ -13,7 +13,7 @@ import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.expr.view.Style
 import hextant.fx.runFXWithTimeout
-import hextant.plugin.*
+import hextant.plugins.*
 import hextant.undo.compoundEdit
 import reaktive.value.binding.and
 import reaktive.value.binding.impl.notNull

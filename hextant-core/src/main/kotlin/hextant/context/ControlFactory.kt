@@ -13,7 +13,7 @@ import hextant.core.view.EditorControl
  * Interface that allows the creation of views for editors.
  */
 @RequestAspect(optional = true)
-interface ControlFactory<E : Editor<*>> {
+fun interface ControlFactory<E : Editor<*>> {
     /**
      * Create a new [EditorControl] for the given [editor].
      */

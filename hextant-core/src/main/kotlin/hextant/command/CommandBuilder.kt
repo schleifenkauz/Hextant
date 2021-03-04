@@ -74,6 +74,14 @@ class CommandBuilder<R : Any, T : Any> @PublishedApi internal constructor(privat
     }
 
     /**
+     * Sets the executed function of the built command to [block]
+     */
+    @JvmName("executingWithArgumentsReceiver")
+    inline fun executing(crossinline block: CommandArguments.(R) -> T) {
+        executing { rec, args -> args.block(rec) }
+    }
+
+    /**
      * Adds the specified [parameter] to the built command
      */
     fun addParameter(parameter: Command.Parameter<*>) {

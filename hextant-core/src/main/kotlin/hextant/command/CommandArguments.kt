@@ -26,4 +26,6 @@ class CommandArguments internal constructor(parameters: List<Parameter<*>>, args
      * Return the argument that was passed for the given [parameter].
      */
     operator fun <T : Any> get(parameter: Parameter<T>): T = parameter.type.cast(map[parameter])
+
+    operator fun <T : Any> Parameter<T>.invoke(): T = get(this)
 }

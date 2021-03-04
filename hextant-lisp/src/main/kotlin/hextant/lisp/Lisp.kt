@@ -3,7 +3,7 @@ package hextant.lisp
 import hextant.fx.getUserInput
 import hextant.lisp.editor.*
 import hextant.lisp.rt.*
-import hextant.plugin.*
+import hextant.plugins.*
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType
 import reaktive.value.now

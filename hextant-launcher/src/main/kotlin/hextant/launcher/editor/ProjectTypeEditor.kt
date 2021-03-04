@@ -7,9 +7,9 @@ package hextant.launcher.editor
 import hextant.codegen.ProvideImplementation
 import hextant.context.Context
 import hextant.context.EditorFactory
+import hextant.context.Properties.marketplace
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
-import hextant.launcher.HextantPlatform.marketplace
 import hextant.plugins.LocatedProjectType
 import kotlinx.coroutines.runBlocking
 

@@ -5,7 +5,7 @@ import hextant.context.Properties.defaultContext
 import hextant.context.Properties.projectContext
 import hextant.context.createControl
 import hextant.fx.initHextantScene
-import hextant.plugin.initializePluginsFromClasspath
+import hextant.plugins.initializePluginsFromClasspath
 import hextant.project.ProjectType
 import hextant.serial.makeRoot
 import javafx.application.Application

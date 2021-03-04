@@ -10,10 +10,10 @@ import hextant.context.withoutUndo
 import hextant.core.editor.replaceWith
 import hextant.lisp.*
 import hextant.lisp.rt.*
-import hextant.plugin.PluginBuilder
-import hextant.plugin.PluginBuilder.Phase.Disable
-import hextant.plugin.PluginBuilder.Phase.Initialize
-import hextant.plugin.registerInspection
+import hextant.plugins.PluginBuilder
+import hextant.plugins.PluginBuilder.Phase.Disable
+import hextant.plugins.PluginBuilder.Phase.Initialize
+import hextant.plugins.registerInspection
 import reaktive.list.binding.first
 import reaktive.value.binding.*
 import reaktive.value.now

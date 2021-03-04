@@ -1,27 +1,11 @@
 apply plugin: 'com.github.nkb03.hextant-library'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'org.openjfx.javafxplugin'
-apply plugin: 'application'
 
 hextant_lib {
     description = 'Launcher for the Hextant platform'
 }
 
 version '1.0-SNAPSHOT'
-
-javafx {
-    version = '11.0.2'
-    modules = ['javafx.controls']
-}
-
-application {
-    mainClassName = 'hextant.launcher.Main'
-    applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
-}
-
-run {
-    classpath = sourceSets.main.compileClasspath + sourceSets.main.output
-}
 
 kapt {
     useBuildCache = true
@@ -35,7 +19,10 @@ dependencies {
     compileOnly project(":hextant-plugins:common")
     compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile project(":hextant-plugins:install")
+    compile project(":hextant-plugins:common")
+    compile project(":hextant-projects")
     compileOnly project(":hextant-core")
+    compile project(":hextant-main")
     compileOnly project(":hextant-codegen")
     kapt project(":hextant-codegen")
 }
@@ -50,12 +37,4 @@ task('hextantPublish', type: Copy) {
     from jar.outputs.files
     into System.getProperty('user.home') + '/hextant'
     rename '(.+)', 'launcher.jar'
-}
-
-afterEvaluate {
-    for (proj in [":hextant-expr", ":hextant-lisp", ":hextant-core:fatjar", ":blocky"]) {
-        def task = project(proj).tasks.findByPath("$proj:hextantPublish")
-        if (task == null) println("Task 'hextantPublish' not found for project $proj")
-        else run.dependsOn(task)
-    }
 }

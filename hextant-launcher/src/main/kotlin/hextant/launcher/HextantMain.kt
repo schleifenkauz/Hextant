@@ -3,25 +3,36 @@ package hextant.launcher
 import bundles.PublicProperty
 import bundles.property
 import hextant.context.Context
+import hextant.context.Properties.marketplace
 import hextant.core.editor.SimpleStringEditor
 import hextant.fx.ConsoleOutputView
 import hextant.install.CLI
 import hextant.install.Plugins
-import hextant.launcher.HextantPlatform.marketplace
 import hextant.launcher.editor.ProjectNameEditor
-import hextant.plugin.*
-import hextant.plugins.PluginInfo
+import hextant.launcher.editor.ProjectTypeEditor
+import hextant.plugins.*
+import hextant.projects.ProjectManager
+import hextant.serial.Files
 import kotlinx.coroutines.runBlocking
 import reaktive.value.binding.impl.notNull
 import reaktive.value.binding.map
 import reaktive.value.now
+import java.io.File
 
 internal object HextantMain : PluginInitializer({
-    commandDelegation { ctx: Context -> if (ctx.hasProperty(ProjectManager)) ctx[ProjectManager] else null }
     configurableProperty(Header, ::SimpleStringEditor)
-    registerCommand(showPluginManager(setOf(PluginInfo.Type.Global)))
-    registerCommand(enablePlugin(setOf(PluginInfo.Type.Global)))
-    registerCommand(disablePlugin)
+    registerCommand<ProjectManager, String> {
+        val type = addParameter<LocatedProjectType> {
+            editWith { ctx -> ProjectTypeEditor(ctx) }
+        }
+        val proj = addParameter<File> {
+            editWith { ctx -> ProjectNameEditor(isCreate = false, ctx) }
+        }
+        executing { manager ->
+            manager.createNewProject(type(), proj())
+        }
+    }
+    //TODO("more project manager commands")
     registerCommand<Context, Unit> {
         name = "Install plugin"
         shortName = "install"
@@ -38,7 +49,7 @@ internal object HextantMain : PluginInitializer({
                         is PluginSource.GitRepo -> Plugins.installOrUpdatePluginFromSource(p.url.toExternalForm())
                         is PluginSource.MavenCoordinate -> Plugins.installOrUpdateFromMaven(p.group, p.artifact)
                     }
-                    val jar = context[Files]["plugins/$p.jar"]
+                    val jar = context.get(Files)["plugins/$p.jar"]
                     if (jar.exists()) {
                         runBlocking { context[marketplace].upload(jar) }
                     }

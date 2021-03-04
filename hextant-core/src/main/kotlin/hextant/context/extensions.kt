@@ -4,7 +4,7 @@ import bundles.*
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.generated.createEditor
-import hextant.plugin.Aspects
+import hextant.plugins.Aspects
 import hextant.undo.UndoManager
 import hextant.undo.withoutUndo
 import java.util.logging.Level

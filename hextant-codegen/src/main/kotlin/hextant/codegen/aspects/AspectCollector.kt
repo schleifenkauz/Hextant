@@ -56,7 +56,7 @@ internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement
         val modifiers = if (PUBLIC !in m.modifiers) internal else noModifiers
         val parameter = if (caseParam == null) listOf("case" of type("kotlin.reflect.KClass", caseVar)) else emptyList()
         modifiers.`fun`(copyTypeParameters(aspect.typeParameters) + copyTypeParameters(m.typeParameters), name)
-            .receiver("hextant.plugin.Aspects")
+            .receiver("hextant.plugins.Aspects")
             .parameters(parameter + copyParameters(params)) returns run {
             val case = caseParam?.let { "$it::class".e } ?: "case".e
             val impl = "get"(call("cls", listOf(aspect.asType().t)), case)

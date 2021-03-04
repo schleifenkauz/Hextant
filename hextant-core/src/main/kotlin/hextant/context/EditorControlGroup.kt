@@ -8,7 +8,7 @@ import bundles.*
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.generated.createControl
-import hextant.plugin.Aspects
+import hextant.plugins.Aspects
 import kollektion.DoubleWeakHashMap
 
 /**

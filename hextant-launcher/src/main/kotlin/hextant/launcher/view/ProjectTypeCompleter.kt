@@ -3,8 +3,8 @@ package hextant.launcher.view
 import hextant.completion.Completion.Builder
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
+import hextant.context.Properties.marketplace
 import hextant.core.Editor
-import hextant.launcher.HextantPlatform.marketplace
 import hextant.plugins.LocatedProjectType
 import hextant.plugins.Marketplace
 import kotlinx.coroutines.runBlocking
@@ -19,7 +19,7 @@ internal object ProjectTypeCompleter : ConfiguredCompleter<Editor<*>, LocatedPro
         }
     }
 
-    override fun extractText(context: Editor<*>, item: LocatedProjectType): String? = item.name
+    override fun extractText(context: Editor<*>, item: LocatedProjectType): String = item.name
 
     override fun Builder<LocatedProjectType>.configure(context: Editor<*>) {
         infoText = completion.pluginId

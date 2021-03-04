@@ -8,11 +8,16 @@ import bundles.*
 import hextant.command.Commands
 import hextant.command.line.*
 import hextant.config.FeatureRegistrar
+import hextant.config.PropertyRegistrar
 import hextant.fx.*
 import hextant.inspect.Inspections
-import hextant.plugin.Aspects
-import hextant.config.PropertyRegistrar
+import hextant.plugins.Aspects
+import hextant.plugins.HextantClassLoader
+import hextant.plugins.LocalPluginRepository
+import hextant.plugins.Marketplace
+import hextant.serial.Files
 import hextant.undo.UndoManager
+import javafx.stage.Stage
 import java.util.logging.Logger
 
 /**
@@ -34,6 +39,32 @@ object Properties {
      * The class loader to be used by all plugins.
      */
     val classLoader = property<ClassLoader, Internal>("class loader")
+
+    val marketplace = publicProperty<Marketplace>("marketplace")
+
+    val stage = publicProperty<Stage>("stage")
+
+    val globalContext = publicProperty<Context>("global context")
+
+    /**
+     * Create the global context, that is, the root of all contexts.
+     */
+    fun globalContext(): Context = Context.newInstance {
+        val gd = Files.inUserHome()
+        set(Files, gd)
+        set(marketplace, LocalPluginRepository(gd[Files.PLUGIN_CACHE]))
+    }
+
+    /**
+     * Create the root context for a project.
+     */
+    fun projectContext(global: Context): Context {
+        val cl = Thread.currentThread().contextClassLoader
+        val hcl = if (cl is HextantClassLoader) cl else HextantClassLoader(global, emptyList(), cl)
+        return projectContext(global, hcl).apply {
+            set(globalContext, global)
+        }
+    }
 
     /**
      * Initialize some common properties on the project level.
