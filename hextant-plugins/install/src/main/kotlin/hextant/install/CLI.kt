@@ -6,6 +6,7 @@ package hextant.install
 
 import hextant.install.OperatingSystem.*
 import java.io.File
+import java.nio.file.Files
 
 class CLI private constructor(private var workingDirectory: File) {
     fun prompt(message: String): String? {
@@ -53,9 +54,11 @@ class CLI private constructor(private var workingDirectory: File) {
         } else false
     }
 
+    val sep get() = File.pathSeparatorChar
+
     companion object {
-        operator fun invoke(workingDirectory: File = File("/"), body: CLI.() -> Unit) {
-            CLI(workingDirectory).body()
+        operator fun <R> invoke(workingDirectory: File = File("/"), body: CLI.() -> R): R {
+            return CLI(workingDirectory).body()
         }
 
         private val runningProcesses = mutableSetOf<Process>()

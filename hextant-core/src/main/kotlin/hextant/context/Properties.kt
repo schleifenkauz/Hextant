@@ -4,15 +4,21 @@
 
 package hextant.context
 
-import bundles.*
+import bundles.PropertyChangeHandler
+import bundles.property
+import bundles.publicProperty
+import bundles.set
 import hextant.command.Commands
-import hextant.command.line.*
+import hextant.command.line.CommandLine
+import hextant.command.line.CommandReceiverType
+import hextant.command.line.ContextCommandSource
 import hextant.config.FeatureRegistrar
 import hextant.config.PropertyRegistrar
-import hextant.fx.*
+import hextant.fx.InputMethod
+import hextant.fx.ResultStyleClasses
+import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugins.Aspects
-import hextant.plugins.HextantClassLoader
 import hextant.plugins.LocalPluginRepository
 import hextant.plugins.Marketplace
 import hextant.serial.Files
@@ -56,30 +62,18 @@ object Properties {
     }
 
     /**
-     * Create the root context for a project.
-     */
-    fun projectContext(global: Context): Context {
-        val cl = Thread.currentThread().contextClassLoader
-        val hcl = if (cl is HextantClassLoader) cl else HextantClassLoader(global, emptyList(), cl)
-        return projectContext(global, hcl).apply {
-            set(globalContext, global)
-        }
-    }
-
-    /**
      * Initialize some common properties on the project level.
      */
-    fun projectContext(parent: Context, loader: ClassLoader) =
+    fun projectContext(parent: Context) =
         parent.extend {
             set(Internal, Commands, Commands.newInstance())
             set(Internal, Inspections, Inspections.newInstance())
-            set(Internal, Stylesheets, Stylesheets(loader))
+            set(Internal, Stylesheets, Stylesheets())
             set(Internal, logger, Logger.getLogger(javaClass.name))
             set(Internal, propertyChangeHandler, PropertyChangeHandler())
             set(PropertyRegistrar, PropertyRegistrar())
             set(Internal, Aspects, Aspects())
             set(ResultStyleClasses, ResultStyleClasses())
-            set(Internal, classLoader, loader)
         }
 
     /**

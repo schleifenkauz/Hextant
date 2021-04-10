@@ -42,6 +42,6 @@ internal class HextantPreloader : Application() {
     }
 
     companion object {
-        private const val PRELOADER_IMAGE = "icon.jpg"
+        private const val PRELOADER_IMAGE = "hextant/main/icon.jpg"
     }
 }

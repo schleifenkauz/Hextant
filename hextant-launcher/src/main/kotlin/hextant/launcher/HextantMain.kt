@@ -9,29 +9,18 @@ import hextant.fx.ConsoleOutputView
 import hextant.install.CLI
 import hextant.install.Plugins
 import hextant.launcher.editor.ProjectNameEditor
-import hextant.launcher.editor.ProjectTypeEditor
-import hextant.plugins.*
-import hextant.projects.ProjectManager
+import hextant.plugins.PluginInitializer
+import hextant.plugins.configurableProperty
+import hextant.plugins.registerCommand
+import hextant.plugins.registerInspection
 import hextant.serial.Files
 import kotlinx.coroutines.runBlocking
 import reaktive.value.binding.impl.notNull
 import reaktive.value.binding.map
 import reaktive.value.now
-import java.io.File
 
 internal object HextantMain : PluginInitializer({
     configurableProperty(Header, ::SimpleStringEditor)
-    registerCommand<ProjectManager, String> {
-        val type = addParameter<LocatedProjectType> {
-            editWith { ctx -> ProjectTypeEditor(ctx) }
-        }
-        val proj = addParameter<File> {
-            editWith { ctx -> ProjectNameEditor(isCreate = false, ctx) }
-        }
-        executing { manager ->
-            manager.createNewProject(type(), proj())
-        }
-    }
     //TODO("more project manager commands")
     registerCommand<Context, Unit> {
         name = "Install plugin"

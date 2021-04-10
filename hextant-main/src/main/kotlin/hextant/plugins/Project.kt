@@ -2,6 +2,7 @@ package hextant.plugins
 
 import bundles.*
 import hextant.context.Context
+import hextant.context.Properties.classLoader
 import hextant.context.Properties.marketplace
 import hextant.context.createControl
 import hextant.core.Editor
@@ -47,7 +48,10 @@ data class Project(
             val plugins = info.enabledPlugins
             addPlugins(plugins, context, Initialize, project = null)
             val root = location.resolve(PROJECT_ROOT)
-            val editor = reconstructEditorFromJSONSnapshot(root, context)
+            val editor = if (root.exists())
+                reconstructEditorFromJSONSnapshot(root, context)
+            else
+                getProjectTypeInstance(context[classLoader], info.projectType.clazz).createProject(context)
             @Suppress("DEPRECATION")
             editor.setFile(PhysicalFile(editor, root, context))
             addPlugins(plugins, context, Initialize, editor)

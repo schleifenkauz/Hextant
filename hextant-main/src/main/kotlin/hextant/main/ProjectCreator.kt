@@ -2,14 +2,14 @@
  *@author Nikolaus Knop
  */
 
-package hextant.projects
+package hextant.main
 
 import bundles.set
 import hextant.context.Context
+import hextant.context.Internal
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.defaultContext
 import hextant.context.Properties.projectContext
-import hextant.plugins.setProjectRoot
 import hextant.plugins.PluginBuilder.Phase.Enable
 import hextant.plugins.PluginManager
 import hextant.plugins.ProjectInfo
@@ -17,9 +17,11 @@ import hextant.plugins.addPlugins
 import hextant.plugins.getProjectTypeInstance
 import hextant.serial.Files
 import hextant.serial.Files.Companion.PROJECT_ROOT
+import hextant.serial.SerialProperties.projectRoot
 import hextant.serial.saveSnapshotAsJson
 import hextant.serial.writeJson
 import java.io.File
+import kotlin.reflect.full.companionObjectInstance
 
 internal class ProjectCreator(
     private val projectType: hextant.plugins.ProjectType,
@@ -33,7 +35,8 @@ internal class ProjectCreator(
         dest.resolve(Files.PROJECT_INFO).writeJson(info)
         val context = defaultContext(projectContext(globalContext))
         context[PluginManager] = manager
-        context.setProjectRoot(dest)
+        val perm = Internal::class.companionObjectInstance as Internal
+        context.set(perm, projectRoot, dest)
         addPlugins(enabledPlugins, context, Enable, project = null)
         val instance = getProjectTypeInstance(context[classLoader], projectType.clazz)
         instance.initializeContext(context)

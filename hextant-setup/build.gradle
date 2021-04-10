@@ -1,0 +1,20 @@
+apply plugin: 'application'
+
+dependencies {
+    compile project(':hextant-plugins:install')
+    compile project(":hextant-plugins:common")
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+}
+
+mainClassName = 'hextant.setup.Main'
+
+jar {
+    archiveFileName = 'hextant-setup.jar'
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    manifest {
+        attributes('Main-Class': 'hextant.main.Main')
+    }
+}
+

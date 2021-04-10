@@ -9,7 +9,7 @@ import hextant.context.Properties.defaultContext
 import hextant.context.Properties.projectContext
 import hextant.plugins.initializePluginsFromClasspath
 
-private val root = projectContext(Context.newInstance(), HextantTestApplication::class.java.classLoader)
+private val root = projectContext(Context.newInstance())
     .also { ctx -> initializePluginsFromClasspath(ctx, testing = true) }
 
 fun testingContext(block: Context.() -> Unit = {}): Context = defaultContext(root).apply(block)

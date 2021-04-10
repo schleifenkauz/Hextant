@@ -29,7 +29,7 @@ fun initializePluginsFromClasspath(
     val graph = LocalPluginGraph.load(cl)
     val order = graph.topologicalSort() ?: error("cycle in dependencies")
     for (info in order) {
-        val initializer = getInitializer(classLoader, info) ?: continue
+        val initializer = getPluginInitializer(classLoader, info) ?: continue
         check(initializer is PluginInitializer) { "Unrecognized plugin initializer class: ${initializer::class}" }
         initializer.apply(context, Enable, project = null, testing)
         initializer.apply(context, Initialize, project = null, testing)

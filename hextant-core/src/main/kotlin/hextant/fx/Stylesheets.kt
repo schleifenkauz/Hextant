@@ -5,7 +5,7 @@ import bundles.property
 import hextant.context.Internal
 import javafx.scene.Scene
 
-internal class Stylesheets(private val classLoader: ClassLoader) {
+internal class Stylesheets() {
     private val managed = mutableSetOf<Scene>()
     private val paths = mutableListOf<String>()
 
@@ -21,7 +21,7 @@ internal class Stylesheets(private val classLoader: ClassLoader) {
     }
 
     private fun getResource(stylesheet: String): String? {
-        val resource = classLoader.getResource(stylesheet)
+        val resource = javaClass.classLoader.getResource(stylesheet)
         if (resource == null) System.err.println("Can not find stylesheet $stylesheet")
         return resource?.toExternalForm()
     }

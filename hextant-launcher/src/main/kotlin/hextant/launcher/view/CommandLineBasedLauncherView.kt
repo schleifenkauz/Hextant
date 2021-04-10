@@ -15,14 +15,14 @@ import hextant.fx.hbox
 import hextant.fx.label
 import hextant.fx.vbox
 import hextant.launcher.HextantMain
+import hextant.launcher.Launcher
 import javafx.geometry.Pos
 import javafx.scene.layout.HBox
 import javafx.scene.text.Font
 import reaktive.value.fx.asObservableValue
 
-@ProvideImplementation(ControlFactory::class)
-class CommandLineBasedLauncherView(
-    editor: Editor<*>,
+class CommandLineBasedLauncherView @ProvideImplementation(ControlFactory::class) constructor(
+    editor: Launcher,
     parameters: Bundle
 ) : LauncherView, EditorControl<HBox>(editor, parameters) {
     override fun createDefaultRoot(): HBox = hbox {

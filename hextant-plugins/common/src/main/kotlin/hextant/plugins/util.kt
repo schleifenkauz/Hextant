@@ -32,7 +32,7 @@ private fun <T : Any> JarFile.getInfo(property: PluginProperty<T>): T? = getInfo
     return Json.decodeFromString(serializer(type), text) as T
 }
 
-fun getInitializer(classLoader: ClassLoader, info: PluginInfo): Any? {
+fun getPluginInitializer(classLoader: ClassLoader, info: PluginInfo): Any? {
     if (info.initializer == null) return null
     val cls = try {
         classLoader.loadClass(info.initializer).kotlin

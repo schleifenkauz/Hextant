@@ -26,8 +26,7 @@ abstract class HextantTestApplication(private val projectType: ProjectType) : Ap
      * Starts the application.
      */
     final override fun start(primaryStage: Stage) {
-        val cl = javaClass.classLoader
-        val projectContext = projectContext(Context.newInstance(), cl)
+        val projectContext = projectContext(Context.newInstance())
         val context = defaultContext(projectContext)
         initializePluginsFromClasspath(context, testing = true)
         projectType.initializeContext(context)

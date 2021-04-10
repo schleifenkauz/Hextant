@@ -17,12 +17,10 @@ dependencies {
         exclude group: 'org.jetbrains.kotlin'
     }
     compileOnly project(":hextant-plugins:common")
-    compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile project(":hextant-plugins:install")
     compile project(":hextant-plugins:common")
-    compile project(":hextant-projects")
+    compileOnly project(":hextant-main")
     compileOnly project(":hextant-core")
-    compile project(":hextant-main")
     compileOnly project(":hextant-codegen")
     kapt project(":hextant-codegen")
 }
@@ -35,6 +33,6 @@ jar {
 
 task('hextantPublish', type: Copy) {
     from jar.outputs.files
-    into System.getProperty('user.home') + '/hextant'
+    into System.getProperty('user.home') + '/hextant/plugins'
     rename '(.+)', 'launcher.jar'
 }

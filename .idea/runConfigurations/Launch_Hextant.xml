@@ -2,7 +2,7 @@
   <configuration default="false" name="Launch Hextant" type="GradleRunConfiguration" factoryName="Gradle" singleton="false">
     <ExternalSystemSettings>
       <option name="executionName" />
-      <option name="externalProjectPath" value="$PROJECT_DIR$/hextant-launcher" />
+      <option name="externalProjectPath" value="$PROJECT_DIR$/hextant-main" />
       <option name="externalSystemIdString" value="GRADLE" />
       <option name="scriptParameters" value="" />
       <option name="taskDescriptions">
@@ -15,7 +15,9 @@
       </option>
       <option name="vmOptions" value="" />
     </ExternalSystemSettings>
-    <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+    <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <DebugAllEnabled>false</DebugAllEnabled>
     <method v="2" />
   </configuration>
 </component>

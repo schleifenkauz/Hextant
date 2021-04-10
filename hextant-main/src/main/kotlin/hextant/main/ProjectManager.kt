@@ -1,4 +1,4 @@
-package hextant.projects
+package hextant.main
 
 import bundles.PublicProperty
 import bundles.publicProperty
@@ -25,17 +25,14 @@ class ProjectManager(private val context: Context) {
         val editor = PluginsEditor(globalContext, manager, setOf(PluginInfo.Type.Local, PluginInfo.Type.Global))
         val plugins = getUserInput("Project plugins", editor, applyStyle = false) ?: return "Project creation canceled"
         val pluginIds = plugins.map { it.id }
-        val cl = HextantClassLoader(globalContext, pluginIds)
-        Thread.currentThread().contextClassLoader = cl
-        cl.executeInNewThread(
-            "hextant.launcher.ProjectCreator",
+        ProjectCreator(
             ProjectType(projectType.name, projectType.clazz),
             dest,
             required,
             pluginIds,
             globalContext,
             manager
-        )
+        ).run()
         return "Project successfully created"
     }
 
@@ -43,9 +40,7 @@ class ProjectManager(private val context: Context) {
         if (!context[Files].acquireLock(project)) return "Project already opened by another editor"
         val desc = project.resolve(Files.PROJECT_INFO)
         val info = Json.tryParse<ProjectInfo>(Files.PROJECT_INFO) { desc.readText() } ?: return "Project info corrupted"
-        val cl = HextantClassLoader(globalContext, info.enabledPlugins)
-        Thread.currentThread().contextClassLoader = cl
-        cl.executeInNewThread("hextant.launcher.ProjectOpener", project, globalContext, info)
+        ProjectOpener(project, globalContext, info).run()
         return "Successfully opened project"
     }
 

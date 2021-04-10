@@ -1,7 +1,7 @@
 package hextant.plugins
 
 import hextant.context.Context
-import hextant.context.Properties
+import hextant.context.Properties.classLoader
 import hextant.core.Editor
 import hextant.project.ProjectType
 import kollektion.graph.topologicalSort
@@ -15,15 +15,15 @@ fun addPlugins(plugins: Collection<Plugin>, context: Context, phase: PluginBuild
     for (plugin in order.reversed()) {
         val aspects = context[Aspects]
         if (project == null) {
-            val cl = context[Properties.classLoader] as HextantClassLoader
-            cl.addPlugin(plugin.id)
+            val cl = context[classLoader]
+            cl.addPlugin(plugin.id, context)
             val impls = runBlocking { plugin.implementations.await() }
             for (impl in impls) {
                 aspects.addImplementation(impl, cl)
             }
         }
         val info = runBlocking { plugin.info.await() }
-        val initializer = getInitializer(context, info)
+        val initializer = getInitializer(info)
         initializer?.tryApplyPhase(phase, id = info.id, context = context, project = project)
     }
 }
@@ -38,15 +38,15 @@ internal fun disablePlugins(plugins: Collection<Plugin>, context: Context, proje
     val order = PluginGraph(context[PluginManager], plugins).topologicalSort() ?: error("cycle in dependencies")
     for (plugin in order.asReversed()) {
         val info = runBlocking { plugin.info.await() }
-        val initializer = getInitializer(context, info) ?: continue
+        val initializer = getInitializer(info) ?: continue
         initializer.tryApplyPhase(PluginBuilder.Phase.Disable, id = info.id, context = context, project = null)
         if (project != null)
             initializer.tryApplyPhase(PluginBuilder.Phase.Disable, id = info.id, context = context, project = project)
     }
 }
 
-private fun getInitializer(context: Context, info: PluginInfo): PluginInitializer? {
-    val initializer = getInitializer(context[Properties.classLoader], info) ?: return null
+private fun getInitializer(info: PluginInfo): PluginInitializer? {
+    val initializer = getPluginInitializer(Thread.currentThread().contextClassLoader, info) ?: return null
     check(initializer is PluginInitializer) { "Unrecognized plugin initializer class: ${initializer::class}" }
     return initializer
 }
@@ -66,7 +66,7 @@ internal fun closeProject(context: Context) {
     val project = context[Project].root
     for (plugin in enabled) {
         val info = runBlocking { plugin.info.await() }
-        val initializer = getInitializer(context, info)
+        val initializer = getInitializer(info)
         initializer?.tryApplyPhase(PluginBuilder.Phase.Close, id = info.id, context = context, project = project)
         initializer?.tryApplyPhase(PluginBuilder.Phase.Close, id = info.id, context = context, project = null)
     }
