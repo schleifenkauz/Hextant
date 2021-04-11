@@ -51,7 +51,7 @@ inline fun <reified R : Any> Context.createEditor() = createEditor(R::class)
  * Create a new context which has this [Context] as its parent and apply the given [block] to it.
  */
 inline fun Context.extend(block: Context.() -> Unit = {}): Context =
-    Context.newInstance(this, block)
+    Context.create(this, block)
 
 /**
  * Tries to execute the given action catching an eventual thrown exception and logging it.

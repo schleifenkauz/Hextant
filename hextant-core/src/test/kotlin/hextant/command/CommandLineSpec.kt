@@ -8,11 +8,13 @@ import com.nhaarman.mockitokotlin2.*
 import hextant.command.line.*
 import hextant.command.line.CommandLine.HistoryItem
 import hextant.command.line.CommandReceiverType.Targets
+import hextant.context.EditorFactory
 import hextant.context.SelectionDistributor
 import hextant.core.Editor
 import hextant.core.EditorView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
+import hextant.plugins.Aspects
 import hextant.test.testingContext
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
@@ -44,6 +46,7 @@ internal object CommandLineSpec : Spek({
         val t = mock<Target> { on { it.isApplicable }.then { true } }
         val v = mock<EditorView> { on { target }.then { t } }
         lateinit var intEditor: IntLiteralEditor
+        context[Aspects].implement(EditorFactory::class, IntLiteral::class, EditorFactory { ctx -> IntLiteralEditor(ctx) })
         val distributor = SelectionDistributor.newInstance()
         distributor.select(v)
         val cl = CommandLine(context, ContextCommandSource(context, distributor, commands, Targets))
@@ -112,6 +115,7 @@ internal object CommandLineSpec : Spek({
             }
             on("executing after making int editor valid") {
                 intEditor.setText("123")
+                Thread.sleep(10)
                 cl.execute()
                 it("should execute the command") {
                     verify(t).execute(123)
@@ -133,7 +137,7 @@ internal object CommandLineSpec : Spek({
         }
     }
 }) {
-    interface Target {
+    interface Target : Editor<Unit> {
         val isApplicable: Boolean
 
         fun execute()

@@ -22,19 +22,20 @@ object ExpanderSpec : Spek({
             test("editor.now should be null", No) {
                 ex.editor.now shouldBe `null`
             }
-            test("result.now should be child error", No) {
+            test("result.now should be null", No) {
                 ex.result.now shouldEqual null
             }
             val editor = IntLiteralEditor(context)
             on("expanding to an editor with error result") {
                 ex.expand(editor)
-                test("result.now should be child error", No) {
+                test("result.now should be null", No) {
                     ex.result.now shouldEqual null
                 }
             }
             on("wrapped editor gets ok result") {
                 editor.setText("123")
                 test("result.now should be the result of the wrapped editor", No) {
+                    Thread.sleep(10)
                     ex.result.now shouldEqual IntLiteral(123)
                 }
             }
@@ -55,6 +56,11 @@ object ExpanderSpec : Spek({
             val view = mockView<ExpanderView>(ex)
             ex.addView(view)
             view.inOrder {
+                group("initially") {
+                    it("should display the text") {
+                        verify().displayText("")
+                    }
+                }
                 on("resetting when not expanded") {
                     it("should thrown an exception") {
                         { ex.reset() }.shouldThrow<IllegalStateException>()

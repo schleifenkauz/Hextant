@@ -12,8 +12,10 @@ import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.expr.view.Style
+import hextant.fx.WindowSize
 import hextant.fx.runFXWithTimeout
 import hextant.plugins.*
+import hextant.plugins.PluginBuilder.Phase.Initialize
 import hextant.undo.compoundEdit
 import reaktive.value.binding.and
 import reaktive.value.binding.impl.notNull
@@ -154,6 +156,9 @@ object ExprPlugin : PluginInitializer({
     configurableProperty(Style.BorderColor) { ctx -> ColorEditor(ctx) }
     resultStyleClass<IntLiteral> { "int-literal" }
     stylesheet("expr.css")
+    on(Initialize) { context ->
+        context[WindowSize] = WindowSize.FitContent
+    }
 }) {
     val color = publicProperty<String>("color")
 }

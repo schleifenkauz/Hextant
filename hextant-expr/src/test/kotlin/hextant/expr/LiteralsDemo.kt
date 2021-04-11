@@ -8,15 +8,13 @@ import hextant.context.Context
 import hextant.core.Editor
 import hextant.expr.editor.IntLiteralEditor
 import hextant.project.ProjectType
-import hextant.test.HextantTestApplication
+import hextant.test.showTestProject
 
-class LiteralsDemo : HextantTestApplication(LiteralsDemo) {
-    companion object : ProjectType {
-        override fun createProject(context: Context): Editor<*> = IntLiteralEditor(context)
+object LiteralsDemo : ProjectType {
+    override fun createProject(context: Context): Editor<*> = IntLiteralEditor(context)
 
-        @JvmStatic
-        fun main(args: Array<String>) {
-            launch<LiteralsDemo>()
-        }
+    @JvmStatic
+    fun main(args: Array<String>) {
+        showTestProject(this)
     }
 }

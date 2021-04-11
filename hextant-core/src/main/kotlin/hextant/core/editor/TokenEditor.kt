@@ -34,7 +34,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
     private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private val compiler = GlobalScope.actor<Compilable>(Dispatchers.Main, capacity = Channel.CONFLATED) {
+    private val compiler = GlobalScope.actor<Compilable>(Dispatchers.Default, capacity = Channel.CONFLATED) {
         for (compilable in channel) {
             val res = when (compilable) {
                 is Completed -> {

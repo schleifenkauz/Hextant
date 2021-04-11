@@ -13,7 +13,7 @@ import hextant.plugins.editor.DisabledPluginInfoEditor
 import hextant.plugins.editor.EnabledPluginInfoEditor
 import hextant.plugins.editor.PluginsEditor
 import hextant.plugins.view.PluginsEditorView
-import hextant.serial.Files
+import hextant.main.HextantDirectory
 
 fun Commands.registerGlobalCommands() {
     registerCommand<Context, Unit> {
@@ -35,9 +35,8 @@ fun Commands.registerGlobalCommands() {
         defaultShortcut("Ctrl+Q")
         applicableIf { ctx -> ctx.hasProperty(Project) }
         executing { ctx, _ ->
-            closeProject(ctx)
-            ctx[Project].quit()
-            ctx[Files].releaseLock(ctx[Project].location)
+            ctx[Project].save()
+            ctx[HextantDirectory].releaseLock(ctx[Project].location)
         }
     }
     register(showPluginManager(setOf(Local, Global)))

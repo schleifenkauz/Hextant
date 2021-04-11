@@ -15,7 +15,7 @@ import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
 
 inline fun <reified V : EditorView> mockView(target: Editor<*>): V = mock {
-    on { target }.doReturn(target)
+    on { this.target }.doReturn(target)
     on { arguments }.doReturn(createBundle())
 }
 

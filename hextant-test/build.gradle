@@ -8,6 +8,7 @@ version '1.0-SNAPSHOT'
 
 dependencies {
     compile project(':hextant-core')
+    compile project(':hextant-main')
     compile("org.jetbrains.spek:spek-api:1.1.5") {
         exclude group: "org.jetbrains.kotlin"
     }
@@ -23,7 +24,7 @@ dependencies {
     compile("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0") {
         exclude group: "org.jetbrains.kotlin"
     }
-    compile("io.mockk:mockk:1.9.3.kotlin12") {
+    compile("io.mockk:mockk:1.11.0") {
         exclude group: "org.jetbrains.kotlin"
     }
 }

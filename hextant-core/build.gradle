@@ -29,11 +29,12 @@ dependencies {
     kapt project(":hextant-codegen")
     compile project(':hextant-plugins:common')
 
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-common'
     compile 'org.jetbrains.kotlin:kotlin-reflect'
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$kotlinx_coroutines_version") {
         exclude group: 'org.openjfx'
     }
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
     compile "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
     compile "org.controlsfx:controlsfx:$javafx_version"
 

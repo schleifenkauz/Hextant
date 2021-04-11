@@ -1,16 +1,20 @@
-/**
- * @author Nikolaus Knop
- */
-
 package hextant.test
 
+import bundles.set
 import hextant.context.Context
-import hextant.context.Properties.defaultContext
-import hextant.context.Properties.projectContext
-import hextant.plugins.initializePluginsFromClasspath
+import hextant.context.Internal
+import hextant.context.Properties.logger
+import hextant.inspect.Inspections
+import hextant.plugins.Aspects
+import hextant.undo.UndoManager
+import java.util.logging.Logger
+import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.companionObjectInstance
 
-private val root = projectContext(Context.newInstance())
-    .also { ctx -> initializePluginsFromClasspath(ctx, testing = true) }
-
-fun testingContext(block: Context.() -> Unit = {}): Context = defaultContext(root).apply(block)
-
+fun testingContext() = Context.create {
+    set(UndoManager, UndoManager.newInstance())
+    val internal = Internal::class.companionObjectInstance as Internal
+    set(internal, logger, Logger.getLogger("Hextant Test Logger"))
+    set(internal, Aspects, Aspects())
+    set(internal, Inspections, Inspections.newInstance())
+}

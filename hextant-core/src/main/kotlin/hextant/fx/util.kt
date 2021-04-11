@@ -11,6 +11,7 @@ import bundles.createBundle
 import hextant.command.Commands
 import hextant.command.line.CommandLine
 import hextant.context.*
+import hextant.context.Properties.editorCommandLine
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Compound
 import hextant.core.view.EditorControl
@@ -198,7 +199,7 @@ fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context) {
         val shortcut = command.shortcut
         if (shortcut != null) {
             on(shortcut, consume = false) { ev ->
-                val cl = context[CommandLine]
+                val cl = context[editorCommandLine]
                 cl.expand(command)
                 if (command.parameters.isEmpty()) {
                     val result = cl.execute(byShortcut = true)

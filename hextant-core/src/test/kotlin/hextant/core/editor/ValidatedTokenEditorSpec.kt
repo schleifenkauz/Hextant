@@ -19,7 +19,7 @@ object ValidatedTokenEditorSpec : Spek({
     given("a FilteredTokenEditor") {
         describe("basic interactions") {
             val ctx = testingContext()
-            val e = Test(ctx, "123")
+            val e = TestEditor(ctx, "123")
             e.makeRoot()
             val handler = mockk<(EventStream<*>, Any?) -> Unit>(relaxed = true)
             val o1 = e.beganChange.observe(handler)
@@ -33,8 +33,8 @@ object ValidatedTokenEditorSpec : Spek({
                 it("should compile the initial text") {
                     e.intermediateResult.now shouldEqual 123
                 }
-                it("it should initialize the result with a child error") {
-                    e.result.now shouldEqual null
+                it("it should initialize the result") {
+                    e.result.now shouldEqual 123
                 }
                 it("should not editable") {
                     e.editable.now shouldBe `true`
@@ -143,7 +143,7 @@ object ValidatedTokenEditorSpec : Spek({
         }
         describe("copying") {
             val ctx = testingContext()
-            val original = Test(ctx, "123")
+            val original = TestEditor(ctx, "123")
             val copy = original.copy()
             on("copying") {
                 test("the copy should not be editable") {
@@ -162,7 +162,9 @@ object ValidatedTokenEditorSpec : Spek({
         }
     }
 }) {
-    class Test(context: Context, initialText: String = "") : ValidatedTokenEditor<Int>(context, initialText) {
+    class TestEditor(context: Context, initialText: String) : ValidatedTokenEditor<Int>(context, initialText) {
+        constructor(context: Context): this(context, "")
+
         override fun defaultResult(): Int = 0
 
         override fun compile(token: String): Int? = token.toIntOrNull()

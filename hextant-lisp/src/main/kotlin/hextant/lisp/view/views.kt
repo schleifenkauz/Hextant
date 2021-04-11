@@ -10,6 +10,7 @@ import hextant.codegen.ProvideImplementation
 import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.context.*
+import hextant.context.Properties.editorCommandLine
 import hextant.core.view.*
 import hextant.core.view.ListEditorControl.Companion.CELL_FACTORY
 import hextant.core.view.ListEditorControl.Companion.ORIENTATION
@@ -76,7 +77,7 @@ fun createControl(editor: CallExprEditor, arguments: Bundle) = CompoundEditorCon
 fun createControl(editor: LispProject, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     val ctx = editor.context
     view(editor.root)
-    val cl = ctx[CommandLine]
+    val cl = ctx[editorCommandLine]
     view(cl).registerShortcuts {
         on("Ctrl?+I") {
             ctx[SelectionDistributor].focusedView.now?.focus()

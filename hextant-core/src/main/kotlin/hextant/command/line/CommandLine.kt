@@ -254,6 +254,4 @@ class CommandLine(context: Context, val source: CommandSource) :
          */
         val result: Any?
     )
-
-    companion object : PublicProperty<CommandLine> by property("command-line")
 }

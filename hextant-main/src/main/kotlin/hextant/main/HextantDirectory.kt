@@ -2,13 +2,13 @@
  *@author Nikolaus Knop
  */
 
-package hextant.serial
+package hextant.main
 
 import bundles.PublicProperty
 import bundles.property
 import java.io.File
 
-class Files(val root: File) {
+class HextantDirectory(val root: File) {
     private val openedProjects = mutableSetOf<File>()
 
     init {
@@ -35,10 +35,11 @@ class Files(val root: File) {
 
     fun isLocked(project: File) = project.resolve(LOCK).exists()
 
-    companion object : PublicProperty<Files> by property("global directory") {
-        fun inUserHome(): Files {
-            val home = File(System.getProperty("user.home"))
-            return Files(home.resolve("hextant"))
+    companion object : PublicProperty<HextantDirectory> by property("global directory") {
+        fun get(): HextantDirectory {
+            val specified = System.getProperty("hextant.home")
+            val default = System.getProperty("user.home") + "/hextant"
+            return HextantDirectory(File(specified ?: default))
         }
 
         const val PROJECTS = "projects"

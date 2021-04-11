@@ -13,7 +13,7 @@ import hextant.plugins.PluginInitializer
 import hextant.plugins.configurableProperty
 import hextant.plugins.registerCommand
 import hextant.plugins.registerInspection
-import hextant.serial.Files
+import hextant.main.HextantDirectory
 import kotlinx.coroutines.runBlocking
 import reaktive.value.binding.impl.notNull
 import reaktive.value.binding.map
@@ -38,7 +38,7 @@ internal object HextantMain : PluginInitializer({
                         is PluginSource.GitRepo -> Plugins.installOrUpdatePluginFromSource(p.url.toExternalForm())
                         is PluginSource.MavenCoordinate -> Plugins.installOrUpdateFromMaven(p.group, p.artifact)
                     }
-                    val jar = context.get(Files)["plugins/$p.jar"]
+                    val jar = context[HextantDirectory]["plugins/$p.jar"]
                     if (jar.exists()) {
                         runBlocking { context[marketplace].upload(jar) }
                     }
@@ -73,7 +73,7 @@ internal object HextantMain : PluginInitializer({
         isSevere(true)
         checkingThat {
             inspected.result.map { path ->
-                path == null || path.resolve(Files.PROJECT_INFO).isFile
+                path == null || path.resolve(HextantDirectory.PROJECT_INFO).isFile
             }
         }
         message { "Project with name '${inspected.result.now!!.name}' not found" }
@@ -85,7 +85,7 @@ internal object HextantMain : PluginInitializer({
         isSevere(true)
         preventingThat {
             inspected.result.map { path ->
-                path != null && path.resolve(Files.LOCK).isFile
+                path != null && path.resolve(HextantDirectory.LOCK).isFile
             }
         }
         message { "Project '${inspected.result.now!!.name}' is currently opened" }

@@ -7,14 +7,14 @@ package hextant.launcher.view
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
 import hextant.core.Editor
-import hextant.serial.Files
-import hextant.serial.Files.Companion.PROJECTS
+import hextant.main.HextantDirectory
+import hextant.main.HextantDirectory.Companion.PROJECTS
 
 internal object ProjectNameCompleter : ConfiguredCompleter<Editor<*>, String>(CompletionStrategy.simple) {
     override fun completionPool(context: Editor<*>): Collection<String> =
-        context.context[Files][PROJECTS].listFiles()!!
+        context.context[HextantDirectory][PROJECTS].listFiles()!!
             .filter { it.isDirectory }
-            .filter { d -> d.resolve(Files.PROJECT_INFO).exists() && !context.context[Files].isLocked(d) }
+            .filter { d -> d.resolve(HextantDirectory.PROJECT_INFO).exists() && !context.context[HextantDirectory].isLocked(d) }
             .map { it.name }
 
 }

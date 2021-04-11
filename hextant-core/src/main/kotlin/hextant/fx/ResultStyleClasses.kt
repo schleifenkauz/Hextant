@@ -13,7 +13,8 @@ import reaktive.value.now
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
 
-@PublishedApi internal class ResultStyleClasses {
+@PublishedApi
+internal class ResultStyleClasses {
     private val map = mutableMapOf<KClass<*>, (MutableCollection<(Any) -> String?>)>()
 
     fun <R : Any> register(cls: KClass<R>, style: (R) -> String?) {

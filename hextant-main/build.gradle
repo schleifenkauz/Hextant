@@ -11,21 +11,30 @@ javafx {
 }
 
 dependencies {
-    compile project(":hextant-core")
+    compileOnly project(":hextant-core")
     compileOnly project(":hextant-codegen")
-//    runtimeOnly project(":hextant-launcher")
     compile project(":hextant-plugins:install")
-    compile project(":hextant-plugins:common")
     kapt project(":hextant-codegen")
 }
 
+kapt {
+    useBuildCache = true
+    annotationProcessors("hextant.codegen.MainProcessor")
+}
+
 application {
-    mainClassName = 'hextant.main.Main'
+    mainClassName = 'hextant.main.HextantApp'
     applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
 }
 
 run {
     classpath = sourceSets.main.compileClasspath + sourceSets.main.output
+}
+
+task('hextantPublish', type: Copy) {
+    from jar.outputs.files
+    into System.getProperty('user.home') + '/hextant/plugins'
+    rename '(.+)', 'main.jar'
 }
 
 afterEvaluate {

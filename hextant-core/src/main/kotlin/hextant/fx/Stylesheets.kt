@@ -5,7 +5,7 @@ import bundles.property
 import hextant.context.Internal
 import javafx.scene.Scene
 
-internal class Stylesheets() {
+class Stylesheets() {
     private val managed = mutableSetOf<Scene>()
     private val paths = mutableListOf<String>()
 

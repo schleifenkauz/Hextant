@@ -8,15 +8,13 @@ import hextant.context.Context
 import hextant.core.Editor
 import hextant.expr.editor.ExpressionEditor
 import hextant.project.ProjectType
-import hextant.test.HextantTestApplication
+import hextant.test.showTestProject
 
-class CommandsDemo : HextantTestApplication(CommandsDemo) {
-    companion object : ProjectType {
-        override fun createProject(context: Context): Editor<*> = ExpressionEditor(context)
+object CommandsDemo : ProjectType {
+    override fun createProject(context: Context): Editor<*> = ExpressionEditor(context)
 
-        @JvmStatic
-        fun main(args: Array<String>) {
-            launch<CommandsDemo>()
-        }
+    @JvmStatic
+    fun main(args: Array<String>) {
+        showTestProject(this)
     }
 }

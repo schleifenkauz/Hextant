@@ -19,11 +19,8 @@ import hextant.fx.ResultStyleClasses
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugins.Aspects
-import hextant.plugins.LocalPluginRepository
 import hextant.plugins.Marketplace
-import hextant.serial.Files
 import hextant.undo.UndoManager
-import javafx.stage.Stage
 import java.util.logging.Logger
 
 /**
@@ -48,47 +45,31 @@ object Properties {
 
     val marketplace = publicProperty<Marketplace>("marketplace")
 
-    val stage = publicProperty<Stage>("stage")
+    val editorCommandLine = property<CommandLine, Internal>("editor-command-line")
 
-    val globalContext = publicProperty<Context>("global context")
-
-    /**
-     * Create the global context, that is, the root of all contexts.
-     */
-    fun globalContext(): Context = Context.newInstance {
-        val gd = Files.inUserHome()
-        set(Files, gd)
-        set(marketplace, LocalPluginRepository(gd[Files.PLUGIN_CACHE]))
-    }
-
-    /**
-     * Initialize some common properties on the project level.
-     */
-    fun projectContext(parent: Context) =
-        parent.extend {
-            set(Internal, Commands, Commands.newInstance())
-            set(Internal, Inspections, Inspections.newInstance())
-            set(Internal, Stylesheets, Stylesheets())
-            set(Internal, logger, Logger.getLogger(javaClass.name))
-            set(Internal, propertyChangeHandler, PropertyChangeHandler())
-            set(PropertyRegistrar, PropertyRegistrar())
-            set(Internal, Aspects, Aspects())
-            set(ResultStyleClasses, ResultStyleClasses())
-        }
-
-    /**
-     * Extend the given [context] with some core properties.
-     */
-    fun defaultContext(context: Context) = context.extend {
+    fun setupContext(context: Context) = with(context) {
+        set(Internal, classLoader, javaClass.classLoader)
+        set(Internal, Commands, Commands.newInstance())
+        set(Internal, Inspections, Inspections.newInstance())
+        set(Internal, Stylesheets, Stylesheets())
+        set(Internal, logger, Logger.getLogger("Hextant Logger"))
+        set(Internal, propertyChangeHandler, PropertyChangeHandler())
+        set(Internal, Aspects, Aspects())
+        set(PropertyRegistrar, PropertyRegistrar())
+        set(ResultStyleClasses, ResultStyleClasses())
         set(FeatureRegistrar, FeatureRegistrar(this))
         set(SelectionDistributor, SelectionDistributor.newInstance())
         set(EditorControlGroup, EditorControlGroup())
         set(UndoManager, UndoManager.newInstance())
         set(Clipboard, SimpleClipboard())
         set(InputMethod, InputMethod.REGULAR)
-        val clContext = extend {
+        set(Internal, editorCommandLine, createCommandLine(ContextCommandSource(this, *CommandReceiverType.values())))
+    }
+
+    private fun Context.createCommandLine(source: ContextCommandSource): CommandLine {
+        val commandLineContext = extend {
             set(SelectionDistributor, SelectionDistributor.newInstance())
         }
-        set(CommandLine, CommandLine(clContext, ContextCommandSource(this, *CommandReceiverType.values())))
+        return CommandLine(commandLineContext, source)
     }
 }

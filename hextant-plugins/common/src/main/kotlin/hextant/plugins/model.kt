@@ -37,6 +37,8 @@ data class ProjectType(val name: String, val clazz: String)
 
 @Serializable
 data class LocatedProjectType(val name: String, val clazz: String, val pluginId: String) {
+    fun asUnlocated(): ProjectType = ProjectType(name, clazz)
+
     override fun toString(): String = name
 }
 
@@ -72,7 +74,7 @@ data class PluginSearch(
 
 @Serializable
 data class ProjectInfo(
-    val projectType: ProjectType,
+    val projectType: String,
     val enabledPlugins: List<String>,
     val requiredPlugins: List<String>
 )

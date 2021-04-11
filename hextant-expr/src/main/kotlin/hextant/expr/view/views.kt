@@ -10,6 +10,7 @@ import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
 import hextant.context.ControlFactory
+import hextant.context.Properties.editorCommandLine
 import hextant.context.SelectionDistributor
 import hextant.core.Editor
 import hextant.core.view.*
@@ -43,7 +44,7 @@ fun createControl(e: IntLiteralEditor, arguments: Bundle) =
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: ExpressionEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     view(editor.root)
-    val cl = view(editor.context[CommandLine])
+    val cl = view(editor.context[editorCommandLine])
     registerShortcuts {
         on("Ctrl+K") {
             cl.receiveFocus()
@@ -53,4 +54,5 @@ fun createControl(editor: ExpressionEditor, arguments: Bundle) = CompoundEditorC
             selected?.focus()
         }
     }
+    setPrefSize(500.0, 500.0)
 }

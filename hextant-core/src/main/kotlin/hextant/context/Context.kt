@@ -19,7 +19,7 @@ interface Context : Bundle {
         /**
          * Create a new [Context] using the specified [parent]. Before returning execute the [configure] block.
          */
-        inline fun newInstance(
+        inline fun create(
             parent: Context? = null,
             configure: Context.() -> Unit = {}
         ): Context = ContextImpl(parent).apply(configure)
