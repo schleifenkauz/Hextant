@@ -8,8 +8,8 @@ import bundles.Bundle
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.view.EditorControl
-import hextant.plugins.PluginManager.DisableConfirmation
 import hextant.plugins.Plugin
+import hextant.plugins.PluginManager.DisableConfirmation
 import hextant.plugins.editor.PluginsEditor
 import javafx.scene.control.*
 import javafx.scene.control.Alert.AlertType.CONFIRMATION

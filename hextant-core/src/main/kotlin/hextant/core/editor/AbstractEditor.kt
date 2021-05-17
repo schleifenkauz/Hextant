@@ -7,10 +7,15 @@ package hextant.core.editor
 import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.core.Editor
-import hextant.serial.*
+import hextant.serial.EditorAccessor
+import hextant.serial.InvalidAccessorException
+import hextant.serial.Snapshot
+import hextant.serial.VirtualFile
 import reaktive.collection.ReactiveCollection
 import reaktive.list.reactiveList
-import reaktive.value.*
+import reaktive.value.ReactiveValue
+import reaktive.value.now
+import reaktive.value.reactiveVariable
 import kotlin.reflect.KClass
 
 /**

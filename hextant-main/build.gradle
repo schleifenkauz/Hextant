@@ -11,15 +11,25 @@ javafx {
 }
 
 dependencies {
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    compile project(":hextant-cli")
     compileOnly project(":hextant-core")
     compileOnly project(":hextant-codegen")
-    compile project(":hextant-plugins:install")
     kapt project(":hextant-codegen")
 }
 
 kapt {
     useBuildCache = true
     annotationProcessors("hextant.codegen.MainProcessor")
+}
+
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    manifest {
+        attributes 'Main-Class': 'hextant.main.Main'
+    }
 }
 
 application {

@@ -4,7 +4,9 @@
 
 package hextant.core.view
 
-import bundles.*
+import bundles.Bundle
+import bundles.Property
+import bundles.createBundle
 import hextant.context.Context
 import hextant.context.createControl
 import hextant.core.Editor
@@ -12,7 +14,9 @@ import hextant.core.view.CompoundEditorControl.Vertical
 import hextant.fx.Glyphs
 import javafx.scene.Node
 import javafx.scene.control.Label
-import javafx.scene.layout.*
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.VBox
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 

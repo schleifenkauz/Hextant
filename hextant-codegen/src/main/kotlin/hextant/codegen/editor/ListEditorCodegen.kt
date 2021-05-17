@@ -4,8 +4,10 @@
 
 package hextant.codegen.editor
 
-import hextant.codegen.*
+import hextant.codegen.EditableList
+import hextant.codegen.None
 import hextant.codegen.aspects.FeatureCollector
+import hextant.codegen.splitPackageAndSimpleName
 import krobot.api.*
 import javax.lang.model.element.TypeElement
 
@@ -21,7 +23,7 @@ internal object ListEditorCodegen : EditorClassGen<EditableList, TypeElement>() 
             .primaryConstructor("context" of "Context")
             .extends(type("ListEditor", type(simpleName).nullable(nullable), type(editorClsName)), "context".e)
             .body {
-                constructor("context" of "Context", "vararg editors" of editorClsName)
+                +constructor("context" of "Context", "vararg editors" of editorClsName)
                     .delegate("context".e)
                     .body {
                         `for`("i", `in` = "editors".e select "indices") {
@@ -29,7 +31,7 @@ internal object ListEditorCodegen : EditorClassGen<EditableList, TypeElement>() 
                             +call("addAt", "i".e, "e".e)
                         }
                     }
-                override.`fun`("createEditor") returns call(editorClsName, get(annotation.childContext))
+                +override.`fun`("createEditor") returns call(editorClsName, get(annotation.childContext))
             }
             .asFile {
                 `package`(pkg)

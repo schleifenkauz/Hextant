@@ -5,9 +5,14 @@
 package hextant.blocky.view
 
 import bundles.Bundle
-import hextant.blocky.editor.*
+import hextant.blocky.editor.BlockEditor
+import hextant.blocky.editor.BranchEditor
+import hextant.blocky.editor.EntryEditor
+import hextant.blocky.editor.ProgramEditor
 import hextant.codegen.ProvideImplementation
-import hextant.context.*
+import hextant.context.ControlFactory
+import hextant.context.EditorControlGroup
+import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import javafx.scene.Cursor

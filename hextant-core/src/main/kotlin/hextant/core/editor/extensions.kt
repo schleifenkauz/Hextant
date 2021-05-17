@@ -4,8 +4,10 @@
 
 package hextant.core.editor
 
-import hextant.context.*
+import hextant.context.Clipboard
 import hextant.context.ClipboardContent.OneEditor
+import hextant.context.Context
+import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.serial.reconstructEditor
 import hextant.serial.snapshot

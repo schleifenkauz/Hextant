@@ -5,12 +5,16 @@
 package hextant.codegen
 
 import hextant.codegen.aspects.JavaToKotlinTypeTranslator
-import krobot.api.*
-import krobot.ast.*
+import krobot.api.invariant
+import krobot.api.lowerBound
+import krobot.api.of
+import krobot.api.type
+import krobot.ast.Parameter
+import krobot.ast.Type
+import krobot.ast.TypeParameter
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.AnnotatedConstruct
 import javax.lang.model.element.*
-import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.*
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.type.*

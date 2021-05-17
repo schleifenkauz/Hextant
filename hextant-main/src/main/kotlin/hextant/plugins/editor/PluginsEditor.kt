@@ -7,12 +7,14 @@ package hextant.plugins.editor
 import hextant.context.Context
 import hextant.context.Properties.marketplace
 import hextant.core.editor.AbstractEditor
-import hextant.plugins.PluginException
-import hextant.plugins.PluginManager
 import hextant.plugins.Plugin
+import hextant.plugins.PluginException
 import hextant.plugins.PluginInfo.Type
+import hextant.plugins.PluginManager
 import hextant.plugins.view.PluginsEditorView
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
 

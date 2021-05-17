@@ -11,7 +11,10 @@ import hextant.test.*
 import io.mockk.mockk
 import io.mockk.verify
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
+import org.jetbrains.spek.api.dsl.describe
+import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 import reaktive.event.EventStream
 import reaktive.value.now
 

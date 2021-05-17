@@ -1,6 +1,8 @@
 package hextant.serial
 
-import bundles.*
+import bundles.Property
+import bundles.property
+import bundles.publicProperty
 import hextant.context.Context
 import hextant.context.Internal
 import java.io.File
@@ -14,8 +16,4 @@ object SerialProperties {
      */
     val projectRoot = property<File, Internal>("project root")
 
-    /**
-     * The [Context] that is used for creating editors during deserialization.
-     */
-    val deserializationContext = publicProperty<Context>("deserialization context")
 }

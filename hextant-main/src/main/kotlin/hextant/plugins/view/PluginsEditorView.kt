@@ -5,8 +5,8 @@
 package hextant.plugins.view
 
 import hextant.core.EditorView
-import hextant.plugins.PluginManager
 import hextant.plugins.Plugin
+import hextant.plugins.PluginManager
 
 internal interface PluginsEditorView : EditorView {
     val available: MutableCollection<Plugin>

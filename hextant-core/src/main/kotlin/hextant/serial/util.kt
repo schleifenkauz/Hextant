@@ -5,7 +5,9 @@
 package hextant.serial
 
 import bundles.bundlesSerializersModule
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
 
 internal inline fun safeIO(action: () -> Unit) {

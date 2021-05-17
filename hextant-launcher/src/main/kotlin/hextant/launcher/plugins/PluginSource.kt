@@ -2,7 +2,7 @@
  * @author Nikolaus Knop
  */
 
-package hextant.launcher
+package hextant.launcher.plugins
 
 import java.net.URL
 

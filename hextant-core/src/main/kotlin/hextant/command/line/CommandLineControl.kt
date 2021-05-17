@@ -4,7 +4,9 @@
 
 package hextant.command.line
 
-import bundles.*
+import bundles.Bundle
+import bundles.Property
+import bundles.publicProperty
 import hextant.codegen.ProvideImplementation
 import hextant.command.Command
 import hextant.command.line.CommandLine.HistoryItem
@@ -18,7 +20,9 @@ import javafx.application.Platform
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS
 import javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER
-import javafx.scene.layout.*
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.VBox
 import reaktive.Observer
 import reaktive.observe
 
@@ -39,19 +43,10 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
 
     private val popup = CompletionPopup(context, cl) { CommandCompleter }
 
-    private val completionObserver = popup.completionChosen.observe { _, completion ->
-        cl.setCommandName(completion.completionText)
-        cl.expand(completion.item)
-    }
-
+    private val completionObserver: Observer
     private val textObserver: Observer
 
     init {
-        textObserver = commandName.userUpdatedText.observe(this) { _, txt ->
-            cl.setCommandName(txt)
-            popup.updateInput(txt)
-            popup.show(commandName)
-        }
         registerShortcuts {
             on("Ctrl + R") {
                 cl.reset()
@@ -70,6 +65,15 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
             on("Ctrl + Up") {
                 history.children.lastOrNull()?.requestFocus()
             }
+        }
+        completionObserver = popup.completionChosen.observe { _, completion ->
+            cl.setCommandName(completion.completionText)
+            cl.expand(completion.item)
+        }
+        textObserver = commandName.userUpdatedText.observe(this) { _, txt ->
+            cl.setCommandName(txt)
+            popup.updateInput(txt)
+            popup.show(commandName)
         }
         cl.addView(this)
     }
@@ -137,7 +141,7 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         if (this.arguments[HISTORY_ITEMS] == 1) {
             if (root.children.size == 2) root.children[0] = box
             else root.children.add(0, box)
-        } else if (history.children.size == 1) {
+        } else if (!root.children.contains(scrollPane)) {
             root.children.add(0, scrollPane)
         }
         runFXWithTimeout { scrollPane.vvalue = 1.0 }

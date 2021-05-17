@@ -6,7 +6,9 @@ import com.nhaarman.mockitokotlin2.verify
 import hextant.context.SelectionDistributor
 import hextant.test.*
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
+import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 
 internal object SelectionDistributorSpec : Spek({
     val sut = SelectionDistributor.newInstance()

@@ -4,7 +4,9 @@
 
 package hextant.fx
 
-import org.controlsfx.glyphfont.*
+import org.controlsfx.glyphfont.FontAwesome
+import org.controlsfx.glyphfont.Glyph
+import org.controlsfx.glyphfont.GlyphFontRegistry
 
 /**
  * Utility object for creating [Glyph]

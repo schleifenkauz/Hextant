@@ -9,9 +9,11 @@ import hextant.codegen.editor.TokenEditorCodegen.Input.*
 import hextant.codegen.editor.TokenEditorCodegen.Input.Function
 import krobot.api.*
 import org.jetbrains.annotations.Nullable
-import javax.lang.model.element.*
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
 import javax.lang.model.element.ElementKind.METHOD
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.TypeElement
 
 internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
     override fun preprocess(element: Element, annotation: Token) {
@@ -92,11 +94,11 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
             )
             .implementEditorOfSuperType(annotation, result)
             .body {
-                constructor("context" of "Context")
+                +constructor("context" of "Context")
                     .delegate(get("context"), lit(""))
-                constructor("context" of "Context", "value" of result)
+                +constructor("context" of "Context", "value" of result)
                     .delegate(get("context"), "value".e call "toString")
-                override.`fun`("compile", "token" of "String")
+                +override.`fun`("compile", "token" of "String")
                     .returns(call(functionName, "token".e))
             }
             .asFile {

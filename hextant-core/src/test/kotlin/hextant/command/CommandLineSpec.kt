@@ -4,10 +4,15 @@
 
 package hextant.command
 
-import com.nhaarman.mockitokotlin2.*
-import hextant.command.line.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.mock
+import hextant.command.line.CommandLine
 import hextant.command.line.CommandLine.HistoryItem
+import hextant.command.line.CommandLineView
 import hextant.command.line.CommandReceiverType.Targets
+import hextant.command.line.ContextCommandSource
 import hextant.context.EditorFactory
 import hextant.context.SelectionDistributor
 import hextant.core.Editor
@@ -17,7 +22,9 @@ import hextant.expr.editor.IntLiteralEditor
 import hextant.plugins.Aspects
 import hextant.test.testingContext
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
+import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 
 internal object CommandLineSpec : Spek({
     given("a command line") {

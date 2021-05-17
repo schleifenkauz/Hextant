@@ -2,8 +2,9 @@
  *@author Nikolaus Knop
  */
 
-package hextant.install
+package hextant.launcher.plugins
 
+import hextant.cli.FileDownload
 import java.io.File
 import java.net.URL
 

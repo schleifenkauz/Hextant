@@ -4,10 +4,12 @@
 
 package hextant.plugins.view
 
-import hextant.completion.*
+import hextant.completion.Completion
+import hextant.completion.CompletionStrategy
+import hextant.completion.ConfiguredCompleter
 import hextant.core.Editor
-import hextant.plugins.PluginManager
 import hextant.plugins.PluginInfo
+import hextant.plugins.PluginManager
 import kotlinx.coroutines.runBlocking
 
 internal object EnabledPluginInfoCompleter : ConfiguredCompleter<Editor<*>, PluginInfo>(CompletionStrategy.simple) {

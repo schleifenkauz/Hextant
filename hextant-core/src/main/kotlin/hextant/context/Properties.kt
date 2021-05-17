@@ -10,8 +10,10 @@ import bundles.publicProperty
 import bundles.set
 import hextant.command.Commands
 import hextant.command.line.CommandLine
-import hextant.command.line.CommandReceiverType
+import hextant.command.line.CommandReceiverType.*
+import hextant.command.line.CommandSource
 import hextant.command.line.ContextCommandSource
+import hextant.command.line.SingleCommandSource
 import hextant.config.FeatureRegistrar
 import hextant.config.PropertyRegistrar
 import hextant.fx.InputMethod
@@ -45,7 +47,9 @@ object Properties {
 
     val marketplace = publicProperty<Marketplace>("marketplace")
 
-    val editorCommandLine = property<CommandLine, Internal>("editor-command-line")
+    val localCommandLine = property<CommandLine, Internal>("editor-command-line")
+
+    val globalCommandLine = property<CommandLine, Internal>("context-command-line")
 
     fun setupContext(context: Context) = with(context) {
         set(Internal, classLoader, javaClass.classLoader)
@@ -63,10 +67,11 @@ object Properties {
         set(UndoManager, UndoManager.newInstance())
         set(Clipboard, SimpleClipboard())
         set(InputMethod, InputMethod.REGULAR)
-        set(Internal, editorCommandLine, createCommandLine(ContextCommandSource(this, *CommandReceiverType.values())))
+        set(Internal, localCommandLine, createCommandLine(ContextCommandSource(this, Targets, Expanders, Views)))
+        set(Internal, globalCommandLine, createCommandLine(SingleCommandSource(this, this)))
     }
 
-    private fun Context.createCommandLine(source: ContextCommandSource): CommandLine {
+    private fun Context.createCommandLine(source: CommandSource): CommandLine {
         val commandLineContext = extend {
             set(SelectionDistributor, SelectionDistributor.newInstance())
         }

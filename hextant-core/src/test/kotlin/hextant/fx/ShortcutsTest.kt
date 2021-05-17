@@ -7,7 +7,10 @@ package hextant.fx
 import hextant.fx.ModifierValue.DOWN
 import hextant.fx.ModifierValue.MAYBE
 import hextant.fx.ShortcutsTest.event
-import hextant.test.*
+import hextant.test.`false`
+import hextant.test.`true`
+import hextant.test.shouldBe
+import hextant.test.shouldEqual
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent

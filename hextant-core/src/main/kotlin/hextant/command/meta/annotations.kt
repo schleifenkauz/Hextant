@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.FUNCTION)
 annotation class ProvideCommand(
     val name: String = DEFAULT,
-    val shortName: String = NONE,
+    val shortName: String = DEFAULT,
     val category: String = NONE,
     val defaultShortcut: String = NONE,
     val description: String = NONE,

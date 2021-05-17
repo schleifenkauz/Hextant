@@ -14,9 +14,5 @@ internal class PluginGraph(private val manager: PluginManager, plugins: Collecti
         runBlocking { value.info.await().dependencies.map { dep -> manager.getPlugin(dep.id) } }
 
     companion object {
-        fun fromIds(manager: PluginManager, ids: Collection<String>): PluginGraph {
-            val plugins = ids.map { id -> manager.getPlugin(id) }
-            return PluginGraph(manager, plugins)
-        }
     }
 }

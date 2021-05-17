@@ -1,4 +1,4 @@
-package hextant.install
+package hextant.cli
 
 enum class OperatingSystem {
     Linux, Windows, Mac;

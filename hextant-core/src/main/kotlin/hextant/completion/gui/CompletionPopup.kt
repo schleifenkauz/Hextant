@@ -10,16 +10,24 @@ import hextant.completion.Completer
 import hextant.completion.Completion
 import hextant.context.Context
 import hextant.context.executeSafely
-import hextant.fx.*
+import hextant.fx.HextantPopup
+import hextant.fx.IconManager
+import hextant.fx.fixWidth
+import hextant.fx.onAction
 import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.control.Tooltip
-import javafx.scene.layout.*
+import javafx.scene.layout.BorderPane
+import javafx.scene.layout.HBox
+import javafx.scene.layout.VBox
 import javafx.scene.text.TextFlow
 import javafx.stage.Popup
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import reaktive.event.event
 
 /**

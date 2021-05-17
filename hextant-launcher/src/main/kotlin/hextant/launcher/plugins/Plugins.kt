@@ -2,21 +2,24 @@
  *@author Nikolaus Knop
  */
 
-package hextant.install
+package hextant.launcher.plugins
+
+import hextant.cli.CLI
+import hextant.cli.HextantDirectory
 
 object Plugins {
-    fun installOrUpdatePluginFromSource(url: String) = CLI(HextantDirectory.resolve("plugin-src")) {
+    fun installOrUpdatePluginFromSource(url: String) = CLI(HextantDirectory.get("plugin-src")) {
         val name = url.removeSuffix(".git").substringAfterLast('/')
         val action = if (cd(name)) {
-            git("pull", "origin", "master")
+            git("pull", "origin", "master").join()
             "updated"
         } else {
-            git("clone", url)
+            git("clone", url).join()
             cd(name)
             "installed"
         }
-        gradle("build", "-PcorrectErrorTypes=false")
-        gradle("hextantPublish")
+        gradle("build", "-PcorrectErrorTypes=false").join()
+        gradle("hextantPublish").join()
         println("Successfully $action plugin $name")
     }
 

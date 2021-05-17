@@ -7,8 +7,10 @@ package hextant.fx
 import hextant.context.Context
 import javafx.application.Platform
 import javafx.scene.Scene
-import javafx.scene.control.*
+import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.CONFIRMATION
+import javafx.scene.control.ButtonType
+import javafx.scene.control.TextArea
 import javafx.stage.Stage
 import java.io.OutputStream
 import java.io.PrintStream

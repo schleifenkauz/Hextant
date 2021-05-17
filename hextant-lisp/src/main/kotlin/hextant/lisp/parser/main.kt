@@ -7,7 +7,9 @@ package hextant.lisp.parser
 import hextant.lisp.SExpr
 import hextant.lisp.rt.RuntimeScope
 import hextant.lisp.rt.evaluate
-import java.io.*
+import java.io.File
+import java.io.Reader
+import java.io.StringReader
 import java.net.URL
 
 fun parseExpr(input: Reader): SExpr = parseExpr(lex(CharInput(input)))

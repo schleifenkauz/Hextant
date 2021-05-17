@@ -6,15 +6,17 @@ package hextant.expr.view
 
 import bundles.Bundle
 import hextant.codegen.ProvideImplementation
-import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
 import hextant.context.ControlFactory
-import hextant.context.Properties.editorCommandLine
+import hextant.context.Properties.localCommandLine
 import hextant.context.SelectionDistributor
 import hextant.core.Editor
-import hextant.core.view.*
+import hextant.core.view.CompoundEditorControl
+import hextant.core.view.ExpanderControl
+import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
+import hextant.core.view.TokenEditorControl
 import hextant.expr.editor.*
 import hextant.fx.registerShortcuts
 import org.controlsfx.glyphfont.FontAwesome
@@ -44,7 +46,7 @@ fun createControl(e: IntLiteralEditor, arguments: Bundle) =
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: ExpressionEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     view(editor.root)
-    val cl = view(editor.context[editorCommandLine])
+    val cl = view(editor.context[localCommandLine])
     registerShortcuts {
         on("Ctrl+K") {
             cl.receiveFocus()

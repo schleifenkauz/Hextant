@@ -11,7 +11,9 @@ import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.fx.HextantTextField
 import javafx.scene.control.Label
-import javafx.scene.layout.*
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.VBox
 
 class BranchEditorControl @ProvideImplementation(ControlFactory::class) constructor(
     private val editor: BranchEditor, arguments: Bundle

@@ -7,10 +7,19 @@ package hextant.core.editor
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.view.ChoiceEditorView
-import hextant.serial.*
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import reaktive.value.*
+import hextant.serial.Snapshot
+import hextant.serial.json
+import hextant.serial.loadClass
+import hextant.serial.string
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.put
+import kotlinx.serialization.serializer
+import reaktive.value.ReactiveValue
+import reaktive.value.now
+import reaktive.value.reactiveVariable
 
 /**
  * An [Editor] which supports choosing different items of type [C]

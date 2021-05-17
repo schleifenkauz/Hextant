@@ -19,7 +19,9 @@ import hextant.undo.UndoManager
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import reaktive.getValue
-import reaktive.value.*
+import reaktive.value.ReactiveBoolean
+import reaktive.value.now
+import reaktive.value.reactiveValue
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
 
@@ -50,6 +52,7 @@ class InspectionMemoryLeakTest {
         }
         i.getProblems(e!!)
         val r = WeakReference(e)
+
         e = null
         gc()
         r.get() shouldBe absent()

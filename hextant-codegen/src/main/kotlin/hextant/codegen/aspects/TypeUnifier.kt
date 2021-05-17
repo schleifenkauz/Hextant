@@ -1,6 +1,8 @@
 package hextant.codegen.aspects
 
-import hextant.codegen.*
+import hextant.codegen.asTypeElement
+import hextant.codegen.ensure
+import hextant.codegen.supertypes
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.*
 

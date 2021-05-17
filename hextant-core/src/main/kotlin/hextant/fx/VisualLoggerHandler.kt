@@ -12,7 +12,9 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.time.Instant
 import java.util.*
-import java.util.logging.*
+import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
 
 /**
  * Displays [LogRecord] in a [ListView].

@@ -9,8 +9,10 @@ import bundles.publicProperty
 import hextant.core.EditorView
 import reaktive.set.ReactiveSet
 import reaktive.set.reactiveSet
-import reaktive.value.*
+import reaktive.value.ReactiveValue
+import reaktive.value.ReactiveVariable
 import reaktive.value.binding.map
+import reaktive.value.reactiveVariable
 
 /**
  * A [SelectionDistributor] keeps track of targets and views which are selected.

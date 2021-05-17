@@ -1,8 +1,5 @@
 {
-  "projectType": {
-    "name": "Launcher",
-    "clazz": "hextant.launcher.Launcher"
-  },
+  "projectType": "hextant.launcher.Launcher",
   "enabledPlugins": [ "core", "launcher" ],
   "requiredPlugins": ["core", "launcher"]
 }

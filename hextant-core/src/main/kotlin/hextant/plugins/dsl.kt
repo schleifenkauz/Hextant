@@ -5,21 +5,36 @@
 package hextant.plugins
 
 import bundles.*
-import hextant.command.*
-import hextant.config.*
+import hextant.command.Command
+import hextant.command.CommandBuilder
+import hextant.command.Commands
+import hextant.command.command
 import hextant.config.ConfigurableProperty
+import hextant.config.FeatureRegistrar
 import hextant.config.PropertyRegistrar
-import hextant.context.*
+import hextant.config.Settings
+import hextant.context.Context
+import hextant.context.EditorFactory
 import hextant.context.Properties.propertyChangeHandler
+import hextant.context.createEditor
+import hextant.core.Editor
 import hextant.fx.ResultStyleClasses
 import hextant.fx.Stylesheets
-import hextant.inspect.*
+import hextant.inspect.Inspection
+import hextant.inspect.InspectionBuilder
+import hextant.inspect.inspection
 import hextant.plugins.PluginBuilder.Phase.*
-import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
+import hextant.serial.json
+import hextant.serial.readJson
+import hextant.serial.writeJson
 import kotlinx.serialization.serializer
 import reaktive.Observer
-import kotlin.reflect.*
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 /**
  * Registers the given [command].
@@ -99,7 +114,7 @@ fun <T : Any> PluginBuilder.set(property: PublicProperty<T>, value: T) {
             } else property.default ?: throw NoSuchElementException("No value for $property")
         } else ctx[permission, property] = property.default ?: throw NoSuchElementException("No value for $property")
     }
-    on(Close) { ctx ->
+    on(Close) { ctx, _: Editor<*>? ->
         if (!testing) {
             val value = ctx[property]
             val path = getPath(ctx, property)

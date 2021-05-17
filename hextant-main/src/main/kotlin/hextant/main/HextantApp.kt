@@ -6,23 +6,20 @@ package hextant.main
 
 import bundles.publicProperty
 import bundles.set
-import hextant.command.line.CommandLine
+import hextant.cli.HextantDirectory
+import hextant.cli.fail
+import hextant.cli.verifyFile
 import hextant.command.line.CommandLinePopup
-import hextant.command.line.SingleCommandSource
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.Properties
 import hextant.context.Properties.marketplace
 import hextant.fx.*
-import hextant.install.fail
-import hextant.install.verifyFile
-import hextant.main.HextantDirectory.Companion.PROJECT_ROOT
 import hextant.plugins.*
-import hextant.serial.PhysicalFile
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.image.Image
 import javafx.stage.Stage
 import java.io.IOException
-import java.util.prefs.Preferences
 
 class HextantApp : Application() {
     private lateinit var context: Context
@@ -31,6 +28,7 @@ class HextantApp : Application() {
         setupContext()
         context[mainWindow] = primaryStage
         val project = processParameters()
+        context[Project] = project
         project.setRootFile()
         if (PluginSource.dynamic()) project.listenForPluginChanges()
         showProject(project)
@@ -38,23 +36,22 @@ class HextantApp : Application() {
 
     private fun setupContext() {
         PluginSource.fromParameters(parameters)
-        val dir = HextantDirectory.get()
-        if (PluginSource.dynamic()) javaClass.classLoader.addPluginsToClasspath(listOf("core"), dir)
+        if (PluginSource.dynamic()) javaClass.classLoader.addPluginsToClasspath(listOf("core"))
+        bundles.runtimeTypeSafety = false
         context = Context.create {
-            set(HextantDirectory, dir)
-            set(marketplace, LocalPluginRepository(dir[HextantDirectory.PLUGIN_CACHE]))
+            set(marketplace, LocalPluginRepository(HextantDirectory.resolve("plugins")))
         }
         Properties.setupContext(context)
-        registerImplementations(listOf("core", "main"), context)
+        registerImplementations(listOf("main"), context)
+        HextantMain.apply(context, PluginBuilder.Phase.Initialize, null)
     }
 
     private fun registerGlobalCommandLine(context: Context, project: Project) {
-        val src = SingleCommandSource(context, context)
-        val cl = CommandLine(context, src)
         val stage = context[mainWindow]
-        val popup = CommandLinePopup(context, cl)
+        val globalCL = context[Properties.globalCommandLine]
+        val popup = CommandLinePopup(context, globalCL)
         project.view.registerShortcuts {
-            handleCommands(context, context)
+            handleCommands(context, context, globalCL)
             on("Ctrl?+G") {
                 popup.show(stage)
             }
@@ -62,18 +59,19 @@ class HextantApp : Application() {
     }
 
     private fun showProject(project: Project) {
-        context[Project] = project
         registerGlobalCommandLine(context, project)
         val stage = context[mainWindow]
-        val icon = javaClass.getResource("icon.png")
+        val icon = javaClass.getResource("icon_transparent.png")!!
         stage.icons.add(Image(icon.toExternalForm()))
         stage.scene = Scene(project.view)
         stage.scene.initHextantScene(context)
+        stage.setOnShown {
+            project.view.receiveFocusLater()
+        }
         stage.show()
         runFXWithTimeout {
             setSize(stage)
             stage.title = "Hextant - ${project.name}"
-            project.view.receiveFocus()
         }
     }
 
@@ -99,11 +97,11 @@ class HextantApp : Application() {
     private fun processParameters(): Project {
         if (parameters.unnamed.size > 1) fail("Illegal number of arguments")
         val path = parameters.unnamed.firstOrNull()
-            ?: Preferences.userRoot().get("launcher-path", null)
+            ?: HextantDirectory.resolve("launcher").absolutePath
             ?: fail("No default launcher configured")
         return if ("create" in parameters.named) {
-            val projectTypeClass = parameters.named.getValue("create")
-            val project = Project.create(context, projectTypeClass, path.verifyFile())
+            val projectTypeName = parameters.named.getValue("create")
+            val project = Project.create(context, projectTypeName, path.verifyFile())
             if (parameters.named["save"] != "false") project.save()
             project
         } else {
@@ -112,11 +110,9 @@ class HextantApp : Application() {
     }
 
     companion object {
-        private val mainWindow = publicProperty<Stage>("stage")
+        val mainWindow by lazy { publicProperty<Stage>("stage") }
 
-        @JvmStatic
-        fun main(vararg args: String) {
-            bundles.runtimeTypeSafety = false
+        fun launch(vararg args: String) {
             System.err.println(args.joinToString(" "))
             try {
                 launch(HextantApp::class.java, *args)

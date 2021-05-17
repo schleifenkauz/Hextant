@@ -37,7 +37,6 @@ data class ProjectType(val name: String, val clazz: String)
 
 @Serializable
 data class LocatedProjectType(val name: String, val clazz: String, val pluginId: String) {
-    fun asUnlocated(): ProjectType = ProjectType(name, clazz)
 
     override fun toString(): String = name
 }

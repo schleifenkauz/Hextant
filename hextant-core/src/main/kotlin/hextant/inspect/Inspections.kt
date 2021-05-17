@@ -9,7 +9,9 @@ package hextant.inspect
 import bundles.Property
 import bundles.property
 import hextant.context.Internal
-import kollektion.*
+import kollektion.ClassDAG
+import kollektion.Counter
+import kollektion.MultiMap
 import reaktive.value.ReactiveBoolean
 import java.util.*
 import kotlin.reflect.KClass

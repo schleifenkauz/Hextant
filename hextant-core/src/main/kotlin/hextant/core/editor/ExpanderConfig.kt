@@ -4,7 +4,9 @@
 
 package hextant.core.editor
 
-import hextant.completion.*
+import hextant.completion.Completer
+import hextant.completion.CompletionStrategy
+import hextant.completion.ConfiguredCompleter
 import hextant.context.Context
 import hextant.core.Editor
 import java.util.*

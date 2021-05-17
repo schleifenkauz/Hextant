@@ -20,7 +20,7 @@ internal class HextantPreloader : Application() {
 
     override fun start(primaryStage: Stage) {
         stage = primaryStage
-        val image = javaClass.getResource(PRELOADER_IMAGE).toExternalForm()
+        val image = javaClass.getResource(PRELOADER_IMAGE)!!.toExternalForm()
         val view = ImageView(image)
         progressBar = ProgressBar()
         val root = VBox(view, progressBar, info)

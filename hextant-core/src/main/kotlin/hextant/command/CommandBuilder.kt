@@ -10,6 +10,7 @@ import hextant.fx.Shortcut
 import hextant.fx.shortcut
 import java.util.*
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * Builder for [Command]
@@ -59,7 +60,7 @@ class CommandBuilder<R : Any, T : Any> @PublishedApi internal constructor(privat
 
     private var applicable: (R) -> Boolean = { true }
 
-    @PublishedApi internal val parameters: MutableList<Command.Parameter<*>> = LinkedList()
+    @PublishedApi internal val parameters: MutableList<ParameterBuilder<*>> = LinkedList()
 
     /**
      * Indicates whether the built command should be enabled by default.
@@ -82,26 +83,29 @@ class CommandBuilder<R : Any, T : Any> @PublishedApi internal constructor(privat
     }
 
     /**
-     * Adds the specified [parameter] to the built command
-     */
-    fun addParameter(parameter: Command.Parameter<*>) {
-        parameters.add(parameter)
-    }
-
-    /**
      * Adds a [Command.Parameter] build with [build] to the built command
      */
     inline fun <reified P : Any> addParameter(build: ParameterBuilder<P>.() -> Unit): Command.Parameter<P> {
         val param = parameter(build)
-        addParameter(param)
+        parameters.add(ParameterBuilder(P::class).apply(build))
         return param
+    }
+
+    fun parameter(index: Int): ParameterBuilder<*> = parameters[index]
+
+    fun parameter(name: String): ParameterBuilder<*> = parameters.first { it.name == name }
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified P: Any> ParameterBuilder<*>.ofType(): ParameterBuilder<P> {
+        check(P::class.isSubclassOf(this.type)) { "Attempt to cast type of parameter $name to ${P::class}" }
+        return this as ParameterBuilder<P>
     }
 
     /**
      * Adds parameters built with [block] to the build command
      */
     inline fun addParameters(block: ParametersBuilder.() -> Unit) {
-        parameters.addAll(parameters(block))
+        parameters.addAll(ParametersBuilder().apply(block).build())
     }
 
     /**
@@ -113,7 +117,7 @@ class CommandBuilder<R : Any, T : Any> @PublishedApi internal constructor(privat
 
     @PublishedApi internal fun build(): Command<R, T> = CommandImpl(
         name, category, defaultShortcut, shortName,
-        parameters, description, type, execute,
+        parameters.map { it.build() }, description, type, execute,
         applicable, cls, initiallyEnabled
     )
 }

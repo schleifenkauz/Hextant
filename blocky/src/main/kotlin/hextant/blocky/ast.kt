@@ -4,7 +4,10 @@
 
 package hextant.blocky
 
-import hextant.blocky.editor.*
+import hextant.blocky.editor.ExprExpanderDelegator
+import hextant.blocky.editor.NextExecutableEditor
+import hextant.blocky.editor.ProgramEditor
+import hextant.blocky.editor.StatementExpanderDelegator
 import hextant.codegen.*
 import hextant.core.editor.TokenType
 

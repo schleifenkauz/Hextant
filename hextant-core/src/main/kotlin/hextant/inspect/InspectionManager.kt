@@ -6,9 +6,10 @@ package hextant.inspect
 
 import hextant.inspect.Problem.Severity
 import reaktive.Observer
-import reaktive.value.*
-import reaktive.value.binding.and
+import reaktive.value.ReactiveBoolean
 import reaktive.value.binding.notEqualTo
+import reaktive.value.now
+import reaktive.value.reactiveVariable
 
 internal class InspectionManager {
     private val warningCount = reactiveVariable(0)

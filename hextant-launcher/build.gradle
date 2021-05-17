@@ -16,9 +16,9 @@ dependencies {
     compile("io.ktor:ktor-client-apache:$ktor_version") {
         exclude group: 'org.jetbrains.kotlin'
     }
+    compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    compileOnly project(":hextant-cli")
     compileOnly project(":hextant-plugins:common")
-    compile project(":hextant-plugins:install")
-    compile project(":hextant-plugins:common")
     compileOnly project(":hextant-main")
     compileOnly project(":hextant-core")
     compileOnly project(":hextant-codegen")

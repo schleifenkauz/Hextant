@@ -5,7 +5,9 @@
 package hextant.core.editor
 
 import hextant.completion.Completion
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.executeSafely
+import hextant.context.withoutUndo
 import hextant.core.Editor
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Text
@@ -14,7 +16,10 @@ import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
 import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.put
 import kotlinx.serialization.serializer
 import reaktive.value.*
 import reaktive.value.binding.flatMap

@@ -10,17 +10,22 @@ import bundles.Bundle
 import bundles.createBundle
 import hextant.command.Commands
 import hextant.command.line.CommandLine
-import hextant.context.*
-import hextant.context.Properties.editorCommandLine
+import hextant.context.Context
+import hextant.context.EditorControlGroup
+import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Compound
 import hextant.core.view.EditorControl
 import hextant.serial.makeRoot
 import javafx.application.Platform
-import javafx.scene.*
+import javafx.scene.Node
+import javafx.scene.Parent
+import javafx.scene.Scene
 import javafx.scene.control.*
-import javafx.scene.input.*
 import javafx.scene.input.KeyCode.ENTER
+import javafx.scene.input.KeyCombination
+import javafx.scene.input.KeyEvent
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.stage.PopupWindow
 import javafx.stage.Stage
@@ -194,18 +199,17 @@ fun <R> getUserInput(
     }
 }
 
-fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context) {
+fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context, commandLine: CommandLine) {
     for (command in context[Commands].applicableOn(target)) {
         val shortcut = command.shortcut
         if (shortcut != null) {
             on(shortcut, consume = false) { ev ->
-                val cl = context[editorCommandLine]
-                cl.expand(command)
+                commandLine.expand(command)
                 if (command.parameters.isEmpty()) {
-                    val result = cl.execute(byShortcut = true)
+                    val result = commandLine.execute(byShortcut = true)
                     if (result != false) ev.consume()
                 } else {
-                    context[EditorControlGroup].getViewOf(cl).receiveFocus()
+                    context[EditorControlGroup].getViewOf(commandLine).receiveFocus()
                     ev.consume()
                 }
             }

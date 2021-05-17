@@ -11,7 +11,7 @@ import hextant.context.EditorFactory
 import hextant.core.Editor
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
-import hextant.launcher.PluginSource
+import hextant.launcher.plugins.PluginSource
 
 @ProvideFeature
 class PluginSourceExpander @ProvideImplementation(EditorFactory::class) constructor(context: Context) :

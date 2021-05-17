@@ -8,10 +8,13 @@ import hextant.codegen.*
 import hextant.plugins.Implementation
 import krobot.api.*
 import krobot.ast.Type
-import javax.lang.model.element.*
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
 import javax.lang.model.element.ElementKind.METHOD
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.STATIC
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.TypeParameterElement
 import javax.lang.model.type.DeclaredType
 
 internal object ImplementationCollector :
@@ -80,7 +83,7 @@ internal object ImplementationCollector :
     ) {
         val name = "$simpleFeatureName${aspect.simpleName}"
         internal.kotlinObject(name).implements(type(aspect.toString(), featureType)).body {
-            override.`fun`(copyTypeParameters(typeParameters), methodName)
+            +override.`fun`(copyTypeParameters(typeParameters), methodName)
                 .parameters(parameters.map { (n, t) -> n of t })
                 .returns(call("$pkg.$simpleName", parameters.map { (n, _) -> get(n) }))
         }.asFile {

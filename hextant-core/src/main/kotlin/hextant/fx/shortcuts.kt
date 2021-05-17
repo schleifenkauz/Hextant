@@ -8,7 +8,10 @@ import hextant.fx.ModifierValue.*
 import javafx.event.EventType
 import javafx.scene.Node
 import javafx.scene.Scene
-import javafx.scene.input.*
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
+import javafx.scene.input.KeyEvent
 import java.lang.ref.WeakReference
 import java.text.ParseException
 

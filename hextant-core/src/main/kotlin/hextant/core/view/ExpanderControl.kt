@@ -4,7 +4,9 @@
 
 package hextant.core.view
 
-import bundles.*
+import bundles.Bundle
+import bundles.publicProperty
+import bundles.set
 import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter

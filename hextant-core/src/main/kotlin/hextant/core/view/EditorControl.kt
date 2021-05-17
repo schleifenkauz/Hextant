@@ -7,20 +7,28 @@ package hextant.core.view
 import bundles.*
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.meta.ProvideCommand
-import hextant.context.*
+import hextant.context.Context
+import hextant.context.Properties
+import hextant.context.SelectionDistributor
 import hextant.core.Editor
 import hextant.core.EditorView
 import hextant.core.editor.copyToClipboard
 import hextant.core.editor.pasteFromClipboard
 import hextant.fx.*
 import hextant.inspect.Inspections
-import hextant.serial.*
+import hextant.serial.Snapshot
+import hextant.serial.json
+import hextant.serial.snapshot
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
 import kotlinx.serialization.json.*
-import reaktive.*
-import reaktive.value.*
+import reaktive.Observer
+import reaktive.addListener
+import reaktive.observe
+import reaktive.value.ReactiveValue
+import reaktive.value.now
+import reaktive.value.reactiveVariable
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -286,10 +294,10 @@ abstract class EditorControl<R : Node>(
     private fun initShortcuts() {
         registerShortcuts(this) {
             if (context[SelectionDistributor].selectedViews.now.contains(receiver)) {
-                handleCommands(receiver, context)
+                handleCommands(receiver, context, context[Properties.localCommandLine])
             }
             if (context[SelectionDistributor].selectedTargets.now.contains(receiver.target)) {
-                handleCommands(receiver.target, context)
+                handleCommands(receiver.target, context, context[Properties.localCommandLine])
             }
         }
     }

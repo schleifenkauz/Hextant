@@ -5,9 +5,16 @@ import hextant.inspect.Problem.Severity
 import hextant.test.isEmpty
 import hextant.test.shouldEqual
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
-import reaktive.value.*
-import reaktive.value.binding.*
+import org.jetbrains.spek.api.dsl.ActionBody
+import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
+import reaktive.value.ReactiveBoolean
+import reaktive.value.binding.greaterThan
+import reaktive.value.binding.map
+import reaktive.value.binding.not
+import reaktive.value.now
+import reaktive.value.reactiveVariable
 
 internal object InspectionsSpec : Spek({
     given("inspections") {

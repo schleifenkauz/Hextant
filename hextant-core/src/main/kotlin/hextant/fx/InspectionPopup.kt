@@ -6,7 +6,10 @@ package hextant.fx
 
 import hextant.context.Context
 import hextant.context.executeSafely
-import hextant.inspect.*
+import hextant.inspect.InspectionBody
+import hextant.inspect.Inspections
+import hextant.inspect.Problem
+import hextant.inspect.ProblemFix
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.control.Button

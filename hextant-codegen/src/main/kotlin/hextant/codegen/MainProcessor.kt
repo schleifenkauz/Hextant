@@ -4,7 +4,10 @@
 
 package hextant.codegen
 
-import hextant.codegen.aspects.*
+import hextant.codegen.aspects.AspectCollector
+import hextant.codegen.aspects.FeatureCollector
+import hextant.codegen.aspects.ImplementationCollector
+import hextant.codegen.aspects.ProjectTypeCollector
 import hextant.codegen.editor.*
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment

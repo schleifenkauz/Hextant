@@ -1,13 +1,17 @@
 package hextant.plugins.view
 
-import hextant.completion.*
+import hextant.completion.Completer
+import hextant.completion.Completion
 import hextant.completion.CompletionResult.Match
+import hextant.completion.CompletionStrategy
 import hextant.context.Properties.marketplace
 import hextant.core.Editor
-import hextant.plugins.PluginManager
 import hextant.plugins.PluginInfo
+import hextant.plugins.PluginManager
 import hextant.plugins.PluginProperty
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 
 internal class DisabledPluginInfoCompleter(private val types: Set<PluginInfo.Type>) : Completer<Editor<*>, PluginInfo> {
     override fun completions(context: Editor<*>, input: String): Collection<Completion<PluginInfo>> = runBlocking {

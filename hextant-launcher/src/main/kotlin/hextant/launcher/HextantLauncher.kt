@@ -2,26 +2,53 @@ package hextant.launcher
 
 import bundles.PublicProperty
 import bundles.property
+import hextant.cli.CLI
+import hextant.cli.HextantDirectory
+import hextant.command.meta.extract
 import hextant.context.Context
 import hextant.context.Properties.marketplace
 import hextant.core.editor.SimpleStringEditor
 import hextant.fx.ConsoleOutputView
-import hextant.install.CLI
-import hextant.install.Plugins
 import hextant.launcher.editor.ProjectNameEditor
-import hextant.plugins.PluginInitializer
-import hextant.plugins.configurableProperty
-import hextant.plugins.registerCommand
-import hextant.plugins.registerInspection
-import hextant.main.HextantDirectory
+import hextant.launcher.plugins.PluginSource
+import hextant.launcher.plugins.Plugins
+import hextant.plugins.*
 import kotlinx.coroutines.runBlocking
 import reaktive.value.binding.impl.notNull
 import reaktive.value.binding.map
 import reaktive.value.now
+import java.io.File
 
-internal object HextantMain : PluginInitializer({
+internal object HextantLauncher : PluginInitializer({
     configurableProperty(Header, ::SimpleStringEditor)
-    //TODO("more project manager commands")
+    commandDelegation<Context> { ctx -> if (ctx.hasProperty(Launcher)) ctx[Launcher] else null }
+    registerCommand<Launcher, String> {
+        extract(Launcher::create)
+        parameter("dest").ofType<File>().apply {
+            editWith { ctx -> ProjectNameEditor(isCreate = true, ctx) }
+        }
+    }
+    registerCommand<Launcher, String> {
+        extract(Launcher::open)
+        parameter("project").ofType<File>().apply {
+            editWith { ctx -> ProjectNameEditor(isCreate = false, ctx) }
+        }
+    }
+    registerCommand<Launcher, String> {
+        extract(Launcher::delete)
+        parameter("project").ofType<File>().apply {
+            editWith { ctx -> ProjectNameEditor(isCreate = false, ctx) }
+        }
+    }
+    registerCommand<Launcher, String> {
+        extract(Launcher::rename)
+        parameter("project").ofType<File>().apply {
+            editWith { ctx -> ProjectNameEditor(isCreate = false, ctx) }
+        }
+        parameter("newLocation").ofType<File>().apply {
+            editWith { ctx -> ProjectNameEditor(isCreate = true, ctx) }
+        }
+    }
     registerCommand<Context, Unit> {
         name = "Install plugin"
         shortName = "install"
@@ -38,7 +65,7 @@ internal object HextantMain : PluginInitializer({
                         is PluginSource.GitRepo -> Plugins.installOrUpdatePluginFromSource(p.url.toExternalForm())
                         is PluginSource.MavenCoordinate -> Plugins.installOrUpdateFromMaven(p.group, p.artifact)
                     }
-                    val jar = context[HextantDirectory]["plugins/$p.jar"]
+                    val jar = HextantDirectory["plugins/$p.jar"]
                     if (jar.exists()) {
                         runBlocking { context[marketplace].upload(jar) }
                     }

@@ -7,10 +7,12 @@ package hextant.codegen.aspects
 import hextant.codegen.*
 import hextant.plugins.Aspect
 import krobot.api.*
-import javax.lang.model.element.*
 import javax.lang.model.element.ElementKind.INTERFACE
 import javax.lang.model.element.ElementKind.METHOD
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.*
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.TypeParameterElement
 
 internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement, Aspect>("aspects.json") {
     override fun process(element: TypeElement, annotation: RequestAspect) {
@@ -23,7 +25,7 @@ internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement
         if (results.isEmpty()) return
         kotlinFile {
             `package`(accessorPackage)
-            private.inline.`fun`(listOf(invariant("reified T") lowerBound "Any"), "cls")
+            +private.inline.`fun`(listOf(invariant("reified T") lowerBound "Any"), "cls")
                 .returnType(type("kotlin.reflect.KClass", "T"))
                 .returns("T::class".e)
             for ((clazz, _) in results) {
@@ -55,14 +57,14 @@ internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement
         val params = m.parameters.filter { '$' !in it.toString() }
         val modifiers = if (PUBLIC !in m.modifiers) internal else noModifiers
         val parameter = if (caseParam == null) listOf("case" of type("kotlin.reflect.KClass", caseVar)) else emptyList()
-        modifiers.`fun`(copyTypeParameters(aspect.typeParameters) + copyTypeParameters(m.typeParameters), name)
+        +modifiers.`fun`(copyTypeParameters(aspect.typeParameters) + copyTypeParameters(m.typeParameters), name)
             .receiver("hextant.plugins.Aspects")
             .parameters(parameter + copyParameters(params)) returns run {
             val case = caseParam?.let { "$it::class".e } ?: "case".e
             val impl = "get"(call("cls", listOf(aspect.asType().t)), case)
             val args = params.map { p -> p.e }
             if (m.parameters.size != params.size)
-                "with"(impl, closure {
+                +"with"(impl, closure {
                     +"with"(`this`(name), closure {
                         +call(name, args)
                     })

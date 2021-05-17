@@ -18,8 +18,11 @@ import reaktive.list.reactive
 import reaktive.set.ReactiveSet
 import reaktive.set.binding.mapNotNull
 import reaktive.set.unmodifiableReactiveSet
-import reaktive.value.*
+import reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveValue
 import reaktive.value.binding.map
+import reaktive.value.now
+import reaktive.value.reactiveValue
 
 /**
  * A [CommandSource] the uses the [SelectionDistributor] and the [Commands] of the given context.

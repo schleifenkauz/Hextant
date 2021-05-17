@@ -2,20 +2,24 @@ package hextant.command
 
 import hextant.command.Command.Parameter
 import hextant.command.Command.ParameterBuilder
+import kotlin.reflect.KClass
 
 /**
  * Builder for [Parameter]s
  */
 @Builder
 class ParametersBuilder @PublishedApi internal constructor() {
-    @PublishedApi internal val parameters: MutableList<Parameter<*>> = mutableListOf()
+    @PublishedApi internal val parameters: MutableList<ParameterBuilder<*>> = mutableListOf()
+
+    inline fun <P : Any> add(type: KClass<P>, block: ParameterBuilder<P>.() -> Unit) {
+        parameters.add(ParameterBuilder(type).apply(block))
+    }
 
     /**
      * Add a parameter build with [block]
      */
     inline fun <reified P : Any> add(block: ParameterBuilder<P>.() -> Unit) {
-        val p = parameter(block)
-        parameters.add(p)
+        add(P::class, block)
     }
 
     /**
@@ -35,5 +39,5 @@ class ParametersBuilder @PublishedApi internal constructor() {
         add(this, block)
     }
 
-    @PublishedApi internal fun build(): List<Parameter<*>> = parameters
+    @PublishedApi internal fun build(): List<ParameterBuilder<*>> = parameters
 }

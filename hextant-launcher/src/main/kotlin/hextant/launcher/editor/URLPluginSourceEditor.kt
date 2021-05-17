@@ -8,7 +8,7 @@ import hextant.codegen.ProvideFeature
 import hextant.context.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
-import hextant.launcher.PluginSource
+import hextant.launcher.plugins.PluginSource
 import java.net.MalformedURLException
 import java.net.URL
 

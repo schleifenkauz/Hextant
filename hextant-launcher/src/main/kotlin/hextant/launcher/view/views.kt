@@ -9,8 +9,6 @@ import hextant.core.view.CompoundEditorControl
 import hextant.core.view.ExpanderControl
 import hextant.core.view.TokenEditorControl
 import hextant.launcher.editor.*
-import hextant.launcher.editor.ProjectNameEditor
-import hextant.launcher.editor.ProjectTypeEditor
 
 @ProvideImplementation(ControlFactory::class)
 internal fun createControl(editor: ProjectTypeEditor, arguments: Bundle) =

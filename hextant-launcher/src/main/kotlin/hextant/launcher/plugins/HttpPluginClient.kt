@@ -6,23 +6,26 @@ package hextant.launcher.plugins
 
 import hextant.plugins.*
 import hextant.plugins.PluginInfo.Type
-import io.ktor.client.HttpClient
-import io.ktor.client.call.TypeInfo
-import io.ktor.client.engine.apache.Apache
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.apache.*
+import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
-import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.copyAndClose
-import io.ktor.utils.io.streams.asInput
+import io.ktor.util.*
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.net.ConnectException
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.javaType
+import kotlin.reflect.typeOf
 
 class HttpPluginClient(private val url: String, private val downloadDirectory: File) : Marketplace {
     private val client = HttpClient(Apache)

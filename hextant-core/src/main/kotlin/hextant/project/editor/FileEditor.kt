@@ -11,7 +11,9 @@ import hextant.core.editor.composeResult
 import hextant.project.File
 import hextant.serial.*
 import hextant.serial.SerialProperties.projectRoot
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.put
 import reaktive.Observer
 import reaktive.event.event
 import reaktive.value.ReactiveValue

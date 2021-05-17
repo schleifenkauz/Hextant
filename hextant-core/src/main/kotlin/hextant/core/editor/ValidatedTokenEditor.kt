@@ -9,10 +9,15 @@ import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.core.view.ValidatedTokenEditorView
-import hextant.serial.*
+import hextant.serial.Snapshot
+import hextant.serial.VirtualEditor
+import hextant.serial.string
+import hextant.serial.virtualize
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.put
 import reaktive.event.event
 import reaktive.event.unitEvent
 import reaktive.value.*
@@ -31,6 +36,7 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
     private val _text = reactiveVariable(initialText)
     private val _editable = reactiveVariable(true)
     private val _intermediateResult = reactiveVariable(tryCompile(initialText))
+    @Suppress("LeakingThis")
     private val _result = reactiveVariable(compile(initialText) ?: defaultResult())
 
     private val beginChange = unitEvent()

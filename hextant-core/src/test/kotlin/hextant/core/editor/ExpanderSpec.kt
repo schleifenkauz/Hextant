@@ -9,8 +9,11 @@ import hextant.serial.makeRoot
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
 import org.jetbrains.spek.api.dsl.Pending.No
+import org.jetbrains.spek.api.dsl.describe
+import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 import reaktive.value.now
 
 object ExpanderSpec : Spek({

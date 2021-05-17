@@ -7,9 +7,11 @@ package hextant.codegen.aspects
 import hextant.codegen.*
 import hextant.plugins.ProjectType
 import krobot.api.*
-import javax.lang.model.element.*
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.STATIC
+import javax.lang.model.element.TypeElement
 
 internal object ProjectTypeCollector :
     AnnotationCollector<ProvideProjectType, Element, ProjectType>("projectTypes.json") {
@@ -29,7 +31,7 @@ internal object ProjectTypeCollector :
                 val (pkg, simpleName) = splitPackageAndSimpleName(clazz)
                 internal.kotlinObject(simpleName).implements("hextant.project.ProjectType").body {
                     val (p, n) = splitPkgAndName(element)
-                    override.`fun`("createProject", "context" of "hextant.context.Context")
+                    +override.`fun`("createProject", "context" of "hextant.context.Context")
                         .returns(call("$p.$n", get("context")))
                 }.asFile {
                     `package`(pkg)

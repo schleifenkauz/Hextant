@@ -4,12 +4,15 @@
 
 package hextant.context
 
-import bundles.*
+import bundles.Bundle
+import bundles.PublicProperty
+import bundles.property
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.generated.createControl
 import hextant.plugins.Aspects
 import kollektion.DoubleWeakHashMap
+import kotlin.collections.set
 
 /**
  * An [EditorControlGroup] is a [ViewGroup] of [EditorControl]s

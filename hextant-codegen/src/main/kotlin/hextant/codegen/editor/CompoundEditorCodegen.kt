@@ -2,7 +2,9 @@ package hextant.codegen.editor
 
 import hextant.codegen.*
 import krobot.api.*
-import javax.lang.model.element.*
+import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.TypeElement
 
 internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
     override fun preprocess(element: Element, annotation: Compound) {
@@ -33,9 +35,9 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
                     val ann = p.getAnnotation<Component>()
                     val editorCls = getEditorClassName(p.asType(), ann)
                     val ctx = ann?.childContext ?: "context"
-                    `val`(p.simpleName.toString()) by "child"(call(editorCls, get(ctx)))
+                    +`val`(p.simpleName.toString()) by "child"(call(editorCls, get(ctx)))
                 }
-                override.`val`("result").of(type("ReactiveValue", resultType))
+                +override.`val`("result").of(type("ReactiveValue", resultType))
                     .initializedWith(call("composeResult", closure {
                         +call(functionName, names.map { get(it) select "now" })
                     }))

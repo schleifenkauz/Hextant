@@ -1,6 +1,7 @@
-package hextant.plugins
+package hextant.main
 
 import bundles.*
+import hextant.cli.HextantDirectory
 import hextant.context.Context
 import hextant.context.Internal
 import hextant.context.Properties.classLoader
@@ -9,12 +10,18 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.fx.getUserInput
-import hextant.install.fail
-import hextant.main.HextantDirectory
-import hextant.main.HextantDirectory.Companion.DISPLAY
-import hextant.main.HextantDirectory.Companion.PROJECT_ROOT
+import hextant.cli.HextantDirectory.DISPLAY
+import hextant.cli.HextantDirectory.PROJECT_INFO
+import hextant.cli.HextantDirectory.PROJECT_ROOT
+import hextant.cli.fail
+import hextant.plugins.*
 import hextant.plugins.PluginBuilder.Phase.*
+import hextant.plugins.PluginSource
+import hextant.plugins.applyPhase
 import hextant.plugins.editor.PluginsEditor
+import hextant.plugins.loadPluginInfosFromClasspath
+import hextant.plugins.registerImplementations
+import hextant.plugins.registerImplementationsFromClasspath
 import hextant.serial.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -39,10 +46,9 @@ class Project private constructor(
     fun save() {
         root.saveSnapshotAsJson(location.resolve(PROJECT_ROOT))
         view.saveSnapshotAsJson(location.resolve(DISPLAY))
-        location.resolve(HextantDirectory.PROJECT_INFO).writeJson(info)
+        location.resolve(PROJECT_INFO).writeJson(info)
         val plugins = context[PluginManager].enabledPlugins()
-        val project = context[Project].root
-        applyPhase(Close, plugins, context, project)
+        applyPhase(Close, plugins, context, root)
     }
 
     fun setRootFile() {
@@ -70,20 +76,26 @@ class Project private constructor(
             context[PluginManager] = manager
         }
 
-        fun create(context: Context, projectTypeClass: String, dest: File): Project {
+        private fun getProjectType(
+            context: Context,
+            projectTypeName: String
+        ) = (runBlocking { context[marketplace].getProjectType(projectTypeName) }
+            ?: fail("No project type named '$projectTypeName'"))
+
+        fun create(context: Context, projectTypeName: String, dest: File): Project {
             if (dest.isDirectory) fail("Cannot create duplicate project")
+            dest.mkdir()
+            HextantDirectory.acquireLock(dest)
             setProjectRoot(context, dest)
+            val projectType = getProjectType(context, projectTypeName)
             val infos = if (PluginSource.dynamic()) {
-                val projectTypes = runBlocking { context[marketplace].availableProjectTypes() }
-                val projectType = projectTypes.find { it.clazz == projectTypeClass }
-                    ?: fail("No project type named '$projectTypeClass'")
                 val required = listOf(projectType.pluginId)
-                createPluginManager(context, required, emptyList())
+                createPluginManager(context, required, required)
                 val pluginTypes = setOf(PluginInfo.Type.Local, PluginInfo.Type.Global)
                 val editor = PluginsEditor(context, context[PluginManager], pluginTypes)
                 val enabled = getUserInput("Project plugins", editor, applyStyle = false) ?: fail("Aborted")
                 val pluginIds = enabled.map { it.id }
-                addPluginsToClasspath(pluginIds, context)
+                context[classLoader].addPluginsToClasspath(pluginIds)
                 registerImplementations(pluginIds, context)
                 runBlocking { enabled.map { it.info.await() } }
             } else {
@@ -92,17 +104,18 @@ class Project private constructor(
             }
             applyPhase(Initialize, infos, context, project = null)
             applyPhase(Enable, infos, context, project = null)
-            val instance = getProjectTypeInstance(context[classLoader], projectTypeClass)
+            val instance = getProjectTypeInstance(context[classLoader], projectType.clazz)
             instance.initializeContext(context)
             val root = instance.createProject(context)
             applyPhase(Enable, infos, context, root)
             applyPhase(Initialize, infos, context, root)
             val view = context.createControl(root)
-            return Project(projectTypeClass, root, view, context, dest)
+            return Project(projectTypeName, root, view, context, dest)
         }
 
         private fun deserializeProjectRoot(path: File, info: ProjectInfo, context: Context): Editor<Any?> {
-            val type = getProjectTypeInstance(context[classLoader], info.projectType)
+            val projectType = getProjectType(context, info.projectType)
+            val type = getProjectTypeInstance(context[classLoader], projectType.clazz)
             type.initializeContext(context)
             val root = path.resolve(PROJECT_ROOT)
             return if (root.exists()) {
@@ -125,11 +138,12 @@ class Project private constructor(
         }
 
         fun open(context: Context, path: File): Project {
+            check(HextantDirectory.acquireLock(path)) { "Project already opened in another Hextant window" }
             setProjectRoot(context, path)
-            val info = path.resolve(HextantDirectory.PROJECT_INFO).readJson<ProjectInfo>()
+            val info = path.resolve(PROJECT_INFO).readJson<ProjectInfo>()
             val plugins = if (PluginSource.dynamic()) {
                 createPluginManager(context, info.enabledPlugins, info.requiredPlugins)
-                addPluginsToClasspath(info.enabledPlugins, context)
+                context[classLoader].addPluginsToClasspath(info.enabledPlugins)
                 registerImplementations(info.enabledPlugins, context)
                 runBlocking {
                     info.enabledPlugins.mapNotNull { id ->

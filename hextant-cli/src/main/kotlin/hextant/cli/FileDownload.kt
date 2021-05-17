@@ -1,7 +1,11 @@
-package hextant.install
+package hextant.cli
 
-import java.io.*
-import java.net.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLConnection
 import java.nio.channels.Channels
 
 object FileDownload {

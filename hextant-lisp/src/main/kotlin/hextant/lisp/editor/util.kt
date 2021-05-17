@@ -9,13 +9,18 @@ import hextant.context.Context
 import hextant.context.withoutUndo
 import hextant.core.editor.replaceWith
 import hextant.lisp.*
-import hextant.lisp.rt.*
+import hextant.lisp.rt.display
+import hextant.lisp.rt.extractList
+import hextant.lisp.rt.fail
+import hextant.lisp.rt.isList
 import hextant.plugins.PluginBuilder
 import hextant.plugins.PluginBuilder.Phase.Disable
 import hextant.plugins.PluginBuilder.Phase.Initialize
 import hextant.plugins.registerInspection
 import reaktive.list.binding.first
-import reaktive.value.binding.*
+import reaktive.value.binding.binding
+import reaktive.value.binding.equalTo
+import reaktive.value.binding.flatMap
 import reaktive.value.now
 import reaktive.value.reactiveValue
 

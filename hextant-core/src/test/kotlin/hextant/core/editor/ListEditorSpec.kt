@@ -1,6 +1,8 @@
 package hextant.core.editor
 
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.inOrder
 import hextant.core.view.ListEditorView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
@@ -8,8 +10,11 @@ import hextant.serial.makeRoot
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
 import org.jetbrains.spek.api.dsl.Pending.No
+import org.jetbrains.spek.api.dsl.describe
+import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 
 object ListEditorSpec : Spek({
     given("a ListEditor") {

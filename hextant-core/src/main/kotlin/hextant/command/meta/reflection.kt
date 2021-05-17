@@ -2,50 +2,64 @@
  * @author Nikolaus Knop
  */
 
+@file:Suppress("UNCHECKED_CAST")
+
 package hextant.command.meta
 
 import hextant.command.*
 import hextant.command.Command.Category
 import hextant.context.Context
-import hextant.context.EditorFactory
 import hextant.core.Editor
 import hextant.fx.shortcut
 import java.lang.reflect.InvocationTargetException
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.*
-import kotlin.reflect.jvm.*
+import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.jvmErasure
 
 internal fun <R : Any> KClass<R>.collectProvidedCommands(): Set<Command<R, *>> {
     val dest = mutableSetOf<Command<R, *>>()
     for (fct in declaredMemberFunctions) {
-        val ann = fct.findAnnotation<ProvideCommand>() ?: continue
-        val cmd = fct.extractCommand(this, ann)
-        dest.add(cmd)
+        if (fct.hasAnnotation<ProvideCommand>()) {
+            val cmd = extractCommand(fct, this)
+            dest.add(cmd)
+        }
     }
     return dest
 }
 
-private fun <R : Any> KFunction<*>.extractCommand(receiver: KClass<R>, ann: ProvideCommand): Command<R, *> {
-    check(!returnType.isMarkedNullable) { "$this has nullable return type" }
-    javaMethod?.isAccessible = true
-    val name = ann.name.takeIf { it != DEFAULT } ?: this.name
-    val cat = ann.category.takeIf { it != NONE }?.let { Category.withName(it) }
-    val shortcut = ann.defaultShortcut.takeIf { it != NONE }?.shortcut
-    val shortName = when (ann.shortName) {
-        DEFAULT -> name
-        NONE -> null
-        else    -> ann.shortName
+private fun <R : Any> extractCommand(function: KFunction<*>, receiver: KClass<R>): Command<R, *> {
+    check(!function.returnType.isMarkedNullable) { "$function has nullable return type" }
+    return command<R, Any>(receiver) {
+        extract(function as KFunction<Any>)
     }
-    val params = valueParameters.map { it.extractParameter() }
-    val desc = ann.description.takeIf { it != NONE } ?: "No description provided"
-    val type = ann.type
-    val execute = this::executeCommand
-    val applicable: (Any) -> Boolean = { true }
-    val enabled = ann.initiallyEnabled
-    return CommandImpl(name, cat, shortcut, shortName, params, desc, type, execute, applicable, receiver, enabled)
 }
 
-private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any {
+fun <R : Any, T : Any> CommandBuilder<R, T>.extract(function: KFunction<T>) {
+    function.javaMethod?.isAccessible = true
+    val ann = function.findAnnotation<ProvideCommand>()
+    name = ann?.name.takeIf { it != DEFAULT } ?: function.name
+    shortName = when (val n = ann?.shortName) {
+        DEFAULT -> function.name
+        NONE -> null
+        null -> name
+        else    -> n
+    }
+    category = ann?.category.takeIf { it != NONE }?.let { Category.withName(it) }
+    defaultShortcut = ann?.defaultShortcut.takeIf { it != NONE }?.shortcut
+    description = ann?.description.takeIf { it != NONE } ?: "No description provided"
+    type = ann?.type ?: Command.Type.MultipleReceivers
+    initiallyEnabled = ann?.initiallyEnabled ?: true
+    executing { receiver, args -> function.executeCommand(receiver, args) }
+    addParameters {
+        for (parameter in function.valueParameters) extractParameter(parameter)
+    }
+}
+
+private fun <T> KFunction<T>.executeCommand(receiver: Any, args: List<Any?>): T {
     val map = mutableMapOf<KParameter, Any?>()
     map[instanceParameter!!] = receiver
     for (i in this.valueParameters.indices) {
@@ -72,15 +86,13 @@ private fun KFunction<*>.executeCommand(receiver: Any, args: List<Any?>): Any {
     }
 }
 
-@Suppress("UNCHECKED_CAST")
-private fun KParameter.extractParameter(): Command.Parameter<*> {
-    val ann = findAnnotation<CommandParameter>()
-    val name = ann?.name?.takeIf { it != DEFAULT } ?: this.name ?: throw Exception("Parameter $this has no name")
-    val desc = ann?.description?.takeIf { it != NONE } ?: "No description provided"
-    val editWith = ann?.editWith?.takeIf { it != Default::class } as? KClass<out Editor<Any>>
-    val constructor = editWith?.getSimpleEditorConstructor()
-    val factory = constructor?.let { c -> EditorFactory(c) }
-    return Command.Parameter(name, type.jvmErasure, desc, factory)
+private fun ParametersBuilder.extractParameter(parameter: KParameter) = add(parameter.type.jvmErasure) {
+    val ann = parameter.findAnnotation<CommandParameter>()
+    name = ann?.name?.takeIf { it != DEFAULT } ?: parameter.name ?: throw Exception("Parameter $this has no name")
+    description = ann?.description?.takeIf { it != NONE } ?: "No description provided"
+    if (ann?.editWith ?: Default::class != Default::class) {
+        editWith(ann?.editWith as KClass<out Editor<Nothing>>)
+    }
 }
 
 internal fun <E : Any> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {

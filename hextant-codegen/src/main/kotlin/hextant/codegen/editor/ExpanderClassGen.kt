@@ -4,7 +4,9 @@
 
 package hextant.codegen.editor
 
-import hextant.codegen.*
+import hextant.codegen.Expandable
+import hextant.codegen.asTypeElement
+import hextant.codegen.splitPackageAndSimpleName
 import kotlinx.metadata.Flag
 import krobot.api.*
 import javax.lang.model.element.TypeElement
@@ -38,10 +40,10 @@ internal object ExpanderClassGen : EditorClassGen<Expandable, TypeElement>() {
             .extends(type("Expander", type(name).nullable(nullableResult), editorType), "context".e, "editor".e)
             .implementEditorOfSuperType(annotation, name)
             .body {
-                `val`("config") initializedWith (delegator.simpleName.e call "getDelegate")
-                override.`fun`("expand", "text" of "String")
+                +`val`("config") initializedWith (delegator.simpleName.e call "getDelegate")
+                +override.`fun`("expand", "text" of "String")
                     .returns("config".e.call("expand", "text".e, annotation.childContext.e))
-                override.`fun`("expand", "completion" of "Any")
+                +override.`fun`("expand", "completion" of "Any")
                     .returns("config".e.call("expand", "completion".e, annotation.childContext.e))
             }
             .asFile {

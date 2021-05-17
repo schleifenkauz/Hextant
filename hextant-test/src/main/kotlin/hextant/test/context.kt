@@ -8,7 +8,6 @@ import hextant.inspect.Inspections
 import hextant.plugins.Aspects
 import hextant.undo.UndoManager
 import java.util.logging.Logger
-import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.companionObjectInstance
 
 fun testingContext() = Context.create {

@@ -8,7 +8,7 @@ import hextant.codegen.ProvideFeature
 import hextant.context.Context
 import hextant.core.editor.CompoundEditor
 import hextant.core.editor.SimpleStringEditor
-import hextant.launcher.PluginSource
+import hextant.launcher.plugins.PluginSource
 import reaktive.value.ReactiveValue
 import java.net.URL
 

@@ -7,7 +7,7 @@ hextant_lib {
 version = '1.0-SNAPSHOT'
 
 dependencies {
-    implementation 'com.github.nkb03:krobot:1.0-SNAPSHOT'
+    implementation 'com.github.nkb03:krobot:1.1-SNAPSHOT'
     implementation project(':hextant-plugins:common')
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
     implementation 'org.jetbrains.kotlin:kotlin-reflect'

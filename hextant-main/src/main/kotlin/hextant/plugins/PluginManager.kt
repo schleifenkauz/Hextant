@@ -7,11 +7,33 @@ package hextant.plugins
 import bundles.PublicProperty
 import bundles.property
 import hextant.plugins.PluginManager.DisableConfirmation.*
-import hextant.plugins.*
 import kollektion.MultiMap
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import reaktive.event.event
 import java.util.*
+import kotlin.collections.Collection
+import kotlin.collections.Iterable
+import kotlin.collections.List
+import kotlin.collections.MutableSet
+import kotlin.collections.Set
+import kotlin.collections.contains
+import kotlin.collections.emptySet
+import kotlin.collections.find
+import kotlin.collections.flatMap
+import kotlin.collections.flatten
+import kotlin.collections.getOrPut
+import kotlin.collections.isNotEmpty
+import kotlin.collections.joinToString
+import kotlin.collections.map
+import kotlin.collections.mapTo
+import kotlin.collections.mutableMapOf
+import kotlin.collections.mutableSetOf
+import kotlin.collections.orEmpty
+import kotlin.collections.plus
+import kotlin.collections.set
 
 class PluginManager(private val marketplace: Marketplace, val requiredPlugins: List<String>) {
     private val enabled = mutableSetOf<Plugin>()

@@ -8,7 +8,6 @@ import hextant.command.Command.ParameterBuilder
 import hextant.core.Editor
 import hextant.undo.compoundEdit
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
 
 
 /**
@@ -34,7 +33,8 @@ inline fun <reified T : Any> parameter(block: ParameterBuilder<T>.() -> Unit) =
 /**
  * Build [Command.Parameter]s
  */
-inline fun parameters(block: ParametersBuilder.() -> Unit) = ParametersBuilder().apply(block).build()
+inline fun parameters(block: ParametersBuilder.() -> Unit): List<Command.Parameter<*>> =
+    ParametersBuilder().apply(block).build().map { it.build() }
 
 /**
  * Register a command built with [build]

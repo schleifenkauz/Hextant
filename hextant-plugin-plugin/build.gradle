@@ -1,3 +1,4 @@
+//file:noinspection GroovyAssignabilityCheck
 apply plugin: 'maven-publish'
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'groovy'
@@ -9,7 +10,7 @@ pluginBundle {
     tags = ['hextant']
 }
 
-version = '0.2-SNAPSHOT'
+version = '0.2.2-SNAPSHOT'
 
 gradlePlugin {
     plugins {

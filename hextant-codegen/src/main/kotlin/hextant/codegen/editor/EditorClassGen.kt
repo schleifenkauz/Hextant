@@ -10,7 +10,11 @@ import hextant.codegen.*
 import hextant.codegen.aspects.FeatureCollector
 import hextant.codegen.aspects.ImplementationCollector
 import kotlinx.metadata.Flag
-import krobot.api.*
+import krobot.api.call
+import krobot.api.e
+import krobot.api.implements
+import krobot.api.type
+import krobot.ast.CanImplement
 import krobot.ast.ClassDefinition
 import krobot.ast.Type
 import javax.annotation.processing.RoundEnvironment
@@ -48,10 +52,10 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         }
     }
 
-    protected fun ClassDefinition.implementEditorOfSuperType(
+    protected fun <C: ClassDefinition<CanImplement>> C.implementEditorOfSuperType(
         annotation: Annotation,
         simpleName: String
-    ): ClassDefinition = apply {
+    ): C = apply {
         val supertype = getTypeMirror(annotation::subtypeOf).toString()
         if (supertype != None::class.qualifiedName) {
             val (t, delegated) = getEditorInterface(supertype, simpleName)

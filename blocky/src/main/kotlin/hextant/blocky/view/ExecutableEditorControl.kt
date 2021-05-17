@@ -10,7 +10,9 @@ import hextant.blocky.editor.NextExecutableEditor
 import hextant.context.EditorControlGroup
 import hextant.core.view.EditorControl
 import javafx.scene.Parent
-import javafx.scene.control.*
+import javafx.scene.control.ContextMenu
+import javafx.scene.control.Control
+import javafx.scene.control.MenuItem
 
 abstract class ExecutableEditorControl<R : Parent>(private val editor: ExecutableEditor<*>, args: Bundle) :
     EditorControl<R>(editor, args) {

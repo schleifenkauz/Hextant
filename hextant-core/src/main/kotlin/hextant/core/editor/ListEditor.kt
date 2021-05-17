@@ -13,9 +13,14 @@ import hextant.core.view.ListEditorView
 import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.json.*
-import reaktive.list.*
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.jsonArray
+import reaktive.list.MutableReactiveList
+import reaktive.list.ReactiveList
 import reaktive.list.binding.values
+import reaktive.list.reactiveList
 import reaktive.value.ReactiveValue
 import reaktive.value.binding.binding
 import kotlin.reflect.full.isSubclassOf

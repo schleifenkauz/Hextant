@@ -16,7 +16,6 @@ import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.jvmName
 
 /**
  * Base class for editors that are composed of multiple sub-editors.

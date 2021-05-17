@@ -4,15 +4,19 @@
 
 package hextant.core.editor
 
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.never
 import hextant.core.view.TokenEditorView
 import hextant.expr.editor.IntLiteralEditor
 import hextant.serial.makeRoot
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
 import org.jetbrains.spek.api.dsl.Pending.No
+import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 import reaktive.value.now
 
 object TokenEditorSpec : Spek({
@@ -61,7 +65,6 @@ object TokenEditorSpec : Spek({
                     verify(view, never()).displayText(any())
                 }
             }
-            Unit
         }
     }
 })

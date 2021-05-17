@@ -3,5 +3,6 @@
   "name": "Main",
   "author": "Nikolaus Knop",
   "type": "Global",
-  "description": "starts Hextant"
+  "description": "starts Hextant",
+  "initializer": "hextant.main.HextantMain"
 }

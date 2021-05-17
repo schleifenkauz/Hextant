@@ -4,9 +4,11 @@ import hextant.context.Context
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.marketplace
 import hextant.core.Editor
-import hextant.install.fail
+import hextant.cli.HextantDirectory
+import hextant.cli.HextantDirectory.PLUGIN_CACHE
+import hextant.cli.fail
+import hextant.main.Project
 import hextant.plugins.PluginBuilder.Phase.*
-import hextant.main.HextantDirectory
 import javafx.application.Application
 import kollektion.graph.topologicalSort
 import kotlinx.coroutines.runBlocking
@@ -43,17 +45,13 @@ private fun ClassLoader.addURL(path: String) {
     method.invoke(ucp, path)
 }
 
-internal fun ClassLoader.addPluginsToClasspath(pluginIds: List<String>, dir: HextantDirectory) {
+internal fun ClassLoader.addPluginsToClasspath(pluginIds: List<String>) {
     for (id in pluginIds) {
-        if (id in loadedPluginIds) return
-        val file = dir[HextantDirectory.PLUGIN_CACHE].resolve("$id.jar")
+        if (id in loadedPluginIds) continue
+        val file = HextantDirectory[PLUGIN_CACHE].resolve("$id.jar")
         addURL(file.toString())
         loadedPluginIds.add(id)
     }
-}
-
-internal fun addPluginsToClasspath(pluginIds: List<String>, context: Context) {
-    context[classLoader].addPluginsToClasspath(pluginIds, context[HextantDirectory])
 }
 
 internal fun registerImplementations(pluginIds: Collection<String>, context: Context) {
@@ -99,7 +97,7 @@ internal fun Project.listenForPluginChanges(): Observer {
     val manager = context[PluginManager]
     return manager.enabledPlugins.observe { _, plugins ->
         val pluginIds = plugins.map { plugin -> plugin.id }
-        addPluginsToClasspath(pluginIds, context)
+        context[classLoader].addPluginsToClasspath(pluginIds)
         registerImplementations(pluginIds, context)
         applyPhase(Enable, plugins, context, project = null)
         applyPhase(Initialize, plugins, context, project = null)

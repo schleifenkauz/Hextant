@@ -6,9 +6,8 @@ package hextant.fx
 
 import hextant.command.Command
 import hextant.command.Commands
-import hextant.command.line.CommandLine
 import hextant.context.Context
-import hextant.context.Properties.editorCommandLine
+import hextant.context.Properties.localCommandLine
 import javafx.scene.control.Button
 import javafx.scene.layout.VBox
 import javafx.stage.Popup
@@ -41,7 +40,7 @@ internal class CommandsPopup(private val context: Context, private val target: A
     }
 
     private fun expand(command: Command<Any, *>) {
-        val cl = context[editorCommandLine]
+        val cl = context[localCommandLine]
         cl.expand(command)
         if (command.parameters.isEmpty()) {
             cl.execute()

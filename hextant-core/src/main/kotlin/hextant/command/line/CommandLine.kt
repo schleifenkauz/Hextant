@@ -4,8 +4,6 @@
 
 package hextant.command.line
 
-import bundles.PublicProperty
-import bundles.property
 import hextant.command.Command
 import hextant.context.*
 import hextant.core.Editor
@@ -15,19 +13,20 @@ import hextant.fx.setDefaultButton
 import hextant.fx.showConfirmationAlert
 import hextant.inspect.Inspections
 import hextant.inspect.Problem
-import hextant.serial.*
-import javafx.scene.control.Alert
-import javafx.scene.control.Alert.AlertType.CONFIRMATION
-import javafx.scene.control.Alert.AlertType.WARNING
-import javafx.scene.control.Button
+import hextant.serial.Snapshot
+import hextant.serial.makeRoot
+import hextant.serial.reconstructEditor
+import hextant.serial.snapshot
 import javafx.scene.control.ButtonType
-import javafx.scene.control.Dialog
 import reaktive.Observer
 import reaktive.dependencies
 import reaktive.event.EventStream
 import reaktive.event.event
-import reaktive.value.*
+import reaktive.value.ReactiveValue
+import reaktive.value.ReactiveVariable
 import reaktive.value.binding.binding
+import reaktive.value.now
+import reaktive.value.reactiveVariable
 
 /**
  * An editor for [Command]s.

@@ -8,8 +8,8 @@ import hextant.codegen.ProvideFeature
 import hextant.context.Context
 import hextant.core.editor.CompoundEditor
 import hextant.core.editor.SimpleStringEditor
-import hextant.launcher.PluginSource
-import hextant.launcher.PluginSource.MavenCoordinate
+import hextant.launcher.plugins.PluginSource
+import hextant.launcher.plugins.PluginSource.MavenCoordinate
 import reaktive.value.ReactiveValue
 
 @ProvideFeature

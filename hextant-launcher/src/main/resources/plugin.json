@@ -1,8 +1,8 @@
 {
-  "id": "main",
-  "name": "Hextant Main",
+  "id": "launcher",
+  "name": "Hextant Launcher",
   "author": "Nikolaus Knop",
-  "description": "Launches the Hextant Application",
+  "description": "Launcher for Hextant",
   "type": "Global",
-  "initializer": "hextant.launcher.HextantMain"
+  "initializer": "hextant.launcher.HextantLauncher"
 }

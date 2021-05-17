@@ -1,6 +1,9 @@
 package hextant.config
 
-import bundles.*
+import bundles.Bundle
+import bundles.Property
+import bundles.createBundle
+import bundles.property
 import hextant.context.Internal
 
 /**

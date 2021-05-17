@@ -1,7 +1,10 @@
 package hextant.fx
 
-import hextant.context.*
+import hextant.context.Clipboard
 import hextant.context.ClipboardContent.MultipleEditors
+import hextant.context.Context
+import hextant.context.SelectionDistributor
+import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.serial.snapshot
 import javafx.scene.Scene

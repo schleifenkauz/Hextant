@@ -4,7 +4,10 @@
 
 package hextant.lisp.parser
 
-import hextant.lisp.rt.*
+import hextant.lisp.rt.LispRuntimeException
+import hextant.lisp.rt.RuntimeScope
+import hextant.lisp.rt.display
+import hextant.lisp.rt.evaluate
 import java.text.ParseException
 
 fun main() {

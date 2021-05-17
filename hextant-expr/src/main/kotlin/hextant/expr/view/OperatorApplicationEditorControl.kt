@@ -6,11 +6,11 @@ package hextant.expr.view
 
 import bundles.Bundle
 import hextant.codegen.ProvideImplementation
+import hextant.config.Settings
 import hextant.context.ControlFactory
 import hextant.core.view.CompoundEditorControl
 import hextant.expr.editor.OperatorApplicationEditor
 import hextant.fx.createBorder
-import hextant.config.Settings
 import javafx.scene.paint.Color
 import reaktive.value.binding.map
 import reaktive.value.fx.asObservableValue

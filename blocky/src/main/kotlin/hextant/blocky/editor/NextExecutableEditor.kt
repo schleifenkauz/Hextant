@@ -9,11 +9,18 @@ import hextant.blocky.Executable
 import hextant.context.Context
 import hextant.core.EditorView
 import hextant.core.editor.AbstractEditor
-import hextant.serial.*
-import kotlinx.serialization.json.*
-import reaktive.value.*
+import hextant.serial.Snapshot
+import hextant.serial.reconstructEditor
+import hextant.serial.snapshot
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
+import reaktive.value.ReactiveValue
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
+import reaktive.value.now
+import reaktive.value.reactiveValue
+import reaktive.value.reactiveVariable
 
 class NextExecutableEditor(context: Context) :
     AbstractEditor<Executable, EditorView>(context) {

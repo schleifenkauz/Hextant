@@ -10,7 +10,9 @@ import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
-import hextant.fx.*
+import hextant.fx.Glyphs
+import hextant.fx.fontSize
+import hextant.fx.onAction
 import hextant.project.editor.FileEditor
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color

@@ -1,8 +1,13 @@
 package hextant.undo
 
-import hextant.test.*
+import hextant.test.`false`
+import hextant.test.`true`
+import hextant.test.shouldBe
+import hextant.test.shouldThrow
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.*
+import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 
 internal object AbstractEditSpec : Spek({
     given("an edit") {

@@ -6,10 +6,8 @@ package hextant.plugins.view
 
 import bundles.Bundle
 import hextant.codegen.ProvideImplementation
-import hextant.completion.CompletionStrategy
-import hextant.completion.NoCompleter
 import hextant.context.ControlFactory
-import hextant.core.view.*
+import hextant.core.view.TokenEditorControl
 import hextant.plugins.editor.DisabledPluginInfoEditor
 import hextant.plugins.editor.EnabledPluginInfoEditor
 

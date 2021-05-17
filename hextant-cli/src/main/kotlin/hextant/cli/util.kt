@@ -1,4 +1,4 @@
-package hextant.install
+package hextant.cli
 
 import java.io.File
 import java.io.IOException
