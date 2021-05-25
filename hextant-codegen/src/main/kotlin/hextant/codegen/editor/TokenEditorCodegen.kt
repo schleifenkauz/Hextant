@@ -5,6 +5,7 @@
 package hextant.codegen.editor
 
 import hextant.codegen.*
+import hextant.codegen.editor.EditorResolution.Companion.register
 import hextant.codegen.editor.TokenEditorCodegen.Input.*
 import hextant.codegen.editor.TokenEditorCodegen.Input.Function
 import krobot.api.*
@@ -21,7 +22,7 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
         val className = extractQualifiedEditorClassName(annotation, element)
         val resultType = input.getResultType()
         val resultNullable = input.isResultNullable()
-        EditorResolution.register(resultType, className, resultNullable)
+        register(resultType, className) { isNodeKindNullable(annotation) || resultNullable }
     }
 
     private sealed class Input {
@@ -33,12 +34,12 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
     private fun getInput(element: Element): Input = when (element) {
         is ExecutableElement -> {
             when (element.kind) {
-                METHOD      -> Function(element)
+                METHOD -> Function(element)
                 CONSTRUCTOR -> Constructor(element.enclosingElement as TypeElement)
-                else        -> fail("unexpected element $element")
+                else -> fail("unexpected element $element")
             }
         }
-        is TypeElement       -> {
+        is TypeElement -> {
             val companion = element.getEnclosedClass("Companion")
             if (companion != null && companion.isSubclassOf("hextant.core.editor.TokenType")) {
                 val func = companion.getMethod("compile") ?: fail("could not find method 'compile' on $companion")
@@ -51,30 +52,30 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
                 else fail("no valid constructor or companion object found in class $element")
             }
         }
-        else                 -> fail("unexpected element $element")
+        else -> fail("unexpected element $element")
     }
 
     private fun Input.isResultNullable(): Boolean = when (this) {
-        is Function        -> func.hasAnnotation<Nullable>()
-        is Constructor     -> false
+        is Function -> func.hasAnnotation<Nullable>()
+        is Constructor -> false
         is CompanionObject -> func.hasAnnotation<Nullable>()
     }
 
     private fun Input.getResultType(): TypeElement = when (this) {
-        is Function        -> func.returnType.asTypeElement()
-        is Constructor     -> clazz
+        is Function -> func.returnType.asTypeElement()
+        is Constructor -> clazz
         is CompanionObject -> clazz
     }
 
     private fun Input.getFunctionName(): String = when (this) {
-        is Function        -> func.simpleName.toString()
-        is Constructor     -> clazz.simpleName.toString()
+        is Function -> func.simpleName.toString()
+        is Constructor -> clazz.simpleName.toString()
         is CompanionObject -> "${clazz.simpleName}.compile"
     }
 
     private fun Input.getImports(): List<String> = when (this) {
-        is Function        -> listOf(processingEnv.fqName(func), func.returnType.asTypeElement().toString())
-        is Constructor     -> listOf(clazz.toString())
+        is Function -> listOf(processingEnv.fqName(func), func.returnType.asTypeElement().toString())
+        is Constructor -> listOf(clazz.toString())
         is CompanionObject -> listOf(clazz.toString())
     }
 
@@ -82,14 +83,15 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
         val qn = extractQualifiedEditorClassName(annotation, element)
         val input = getInput(element)
         val resultType = input.getResultType()
-        val resultNullable = input.isResultNullable()
+        val resultNullable = input.isResultNullable() || isNodeKindNullable(annotation)
         val imports = input.getImports()
         val functionName = input.getFunctionName()
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
         val result = resultType.simpleName.toString()
+        val resultT = type(result).nullable(resultNullable)
         kotlinClass(simpleName).primaryConstructor("context" of "Context", "text" of "String")
             .extends(
-                type("TokenEditor", type(result).nullable(resultNullable), type("hextant.core.view.TokenEditorView")),
+                type("TokenEditor", resultT, type("hextant.core.view.TokenEditorView")),
                 "context".e, "text".e
             )
             .implementEditorOfSuperType(annotation, result)

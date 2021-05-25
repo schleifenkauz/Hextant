@@ -14,11 +14,11 @@ sealed class None
 
 @Retention(SOURCE)
 @Target(CLASS, FUNCTION, CONSTRUCTOR)
-annotation class Token(val classLocation: String = DEFAULT, val subtypeOf: KClass<*> = None::class)
+annotation class Token(val classLocation: String = DEFAULT, val nodeType: KClass<*> = None::class)
 
 @Retention(SOURCE)
 @Target(CLASS, FUNCTION, CONSTRUCTOR)
-annotation class Compound(val classLocation: String = DEFAULT, val subtypeOf: KClass<*> = None::class)
+annotation class Compound(val classLocation: String = DEFAULT, val nodeType: KClass<*> = None::class)
 
 @Retention(SOURCE)
 @Target(CLASS)
@@ -33,7 +33,7 @@ annotation class EditorInterface(val clz: KClass<*>, vararg val delegated: KClas
 annotation class Expandable(
     val delegator: KClass<*>,
     val expanderLocation: String = DEFAULT,
-    val subtypeOf: KClass<*> = None::class,
+    val nodeType: KClass<*> = None::class,
     val childContext: String = "context"
 )
 

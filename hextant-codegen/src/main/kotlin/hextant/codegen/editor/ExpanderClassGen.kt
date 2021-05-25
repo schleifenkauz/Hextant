@@ -6,6 +6,7 @@ package hextant.codegen.editor
 
 import hextant.codegen.Expandable
 import hextant.codegen.asTypeElement
+import hextant.codegen.editor.EditorResolution.Companion.register
 import hextant.codegen.splitPackageAndSimpleName
 import kotlinx.metadata.Flag
 import krobot.api.*
@@ -15,15 +16,15 @@ internal object ExpanderClassGen : EditorClassGen<Expandable, TypeElement>() {
     override fun preprocess(element: TypeElement, annotation: Expandable) {
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "Expander")
         val delegator = getTypeMirror(annotation::delegator).asTypeElement()
-        val nullable = hasDelegatorNullableResultType(delegator)
-        EditorResolution.register(element, qn, nullable)
+        val nullable = isNodeKindNullable(annotation) || hasDelegatorNullableResultType(delegator)
+        register(element, qn) { nullable }
     }
 
     private fun hasDelegatorNullableResultType(delegator: TypeElement): Boolean {
         val delegatorSupertype =
-            metadata.getSupertype(delegator, "hextant.core.editor.ExpanderDelegator") ?: return true
+            metadata.getSupertype(delegator, "hextant/core/editor/ExpanderDelegator") ?: return true
         val editorType = delegatorSupertype.arguments[0].type ?: return true
-        val editorSupertype = metadata.getSupertype(editorType, "hextant.core.Editor") ?: return true
+        val editorSupertype = metadata.getSupertype(editorType, "hextant/core/Editor") ?: return true
         val resultType = editorSupertype.arguments[0].type ?: return true
         return Flag.Type.IS_NULLABLE(resultType.flags)
     }

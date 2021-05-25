@@ -73,11 +73,11 @@ internal val Annotation.qualifiedEditorClassName: String?
         else            -> throw AssertionError()
     }
 
-internal val Annotation.subtypeOf: KClass<*>
+internal val Annotation.nodeType: KClass<*>
     get() = when (this) {
-        is Token      -> this.subtypeOf
-        is Compound   -> this.subtypeOf
-        is Expandable -> this.subtypeOf
+        is Token      -> this.nodeType
+        is Compound   -> this.nodeType
+        is Expandable -> this.nodeType
         else          -> throw AssertionError()
     }
 

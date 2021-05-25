@@ -18,12 +18,7 @@ data class EditorResolution(
         private val map = mutableMapOf<TypeElement, EditorResolution>()
 
         fun register(resultType: TypeElement, className: String, nullable: () -> Boolean) {
-            val resolution = EditorResolution(className, nullable)
-            map[resultType] = resolution
-        }
-
-        fun register(resultType: TypeElement, className: String, nullable: Boolean) {
-            register(resultType, className) { nullable }
+            map[resultType] = EditorResolution(className, nullable)
         }
 
         fun resolve(resultType: TypeElement): EditorResolution? = map[resultType]

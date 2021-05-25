@@ -12,11 +12,11 @@ import hextant.lisp.rt.RuntimeScope
 import hextant.lisp.rt.evaluate
 
 @EditorInterface(SExprEditor::class)
-@Expandable(SExprExpanderConfigurator::class, subtypeOf = SExpr::class)
+@Expandable(SExprExpanderConfigurator::class, nodeType = SExpr::class)
 @EditableList
 sealed class SExpr
 
-@Token(subtypeOf = SExpr::class)
+@Token(nodeType = SExpr::class)
 @EditableList
 data class Symbol(val name: String) : SExpr() {
     override fun toString(): String = name
@@ -28,7 +28,7 @@ data class Symbol(val name: String) : SExpr() {
     }
 }
 
-@Token(subtypeOf = SExpr::class)
+@Token(nodeType = SExpr::class)
 data class IntLiteral(override val value: Int) : Literal<Int>() {
     override fun toString(): String = "$value"
 
@@ -41,7 +41,7 @@ sealed class Literal<T : Any> : SExpr() {
     abstract val value: T
 }
 
-@Token(subtypeOf = SExpr::class)
+@Token(nodeType = SExpr::class)
 data class BooleanLiteral(override val value: Boolean) : Literal<Boolean>() {
     companion object : TokenType<BooleanLiteral?> {
         override fun compile(token: String): BooleanLiteral? = when (token) {
@@ -58,22 +58,22 @@ object Nil : SExpr() {
     override fun toString(): String = "Nil"
 }
 
-@Compound(subtypeOf = SExpr::class)
+@Compound(nodeType = SExpr::class)
 data class Quotation(val quoted: SExpr) : SExpr()
 
-@Compound(subtypeOf = SExpr::class)
+@Compound(nodeType = SExpr::class)
 data class QuasiQuotation(val quoted: SExpr) : SExpr()
 
-@Compound(subtypeOf = SExpr::class)
+@Compound(nodeType = SExpr::class)
 data class Unquote(val expr: SExpr) : SExpr()
 
-@Compound(subtypeOf = SExpr::class)
+@Compound(nodeType = SExpr::class)
 data class NormalizedSExpr(val expr: SExpr) : SExpr()
 
-@Compound(subtypeOf = SExpr::class)
+@Compound(nodeType = SExpr::class)
 fun lambda(parameters: List<Symbol>, body: SExpr) = quote(list("lambda".s, list(parameters), body))
 
-@Compound(subtypeOf = SExpr::class)
+@Compound(nodeType = SExpr::class)
 fun let(name: Symbol, value: SExpr, body: SExpr) = list("let".s, name, value, body)
 
 abstract class Procedure : SExpr() {

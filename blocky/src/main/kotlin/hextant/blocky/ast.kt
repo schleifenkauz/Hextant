@@ -23,17 +23,17 @@ data class Id(private val str: String) {
 }
 
 @Alternative(nullableResult = true)
-@Expandable(ExprExpanderDelegator::class, subtypeOf = Expr::class)
+@Expandable(ExprExpanderDelegator::class, nodeType = Expr::class)
 sealed class Expr
 
-@Token(subtypeOf = Expr::class)
+@Token(nodeType = Expr::class)
 data class IntLiteral(val value: Int) : Expr() {
     companion object : TokenType<IntLiteral?> {
         override fun compile(token: String): IntLiteral? = token.toIntOrNull()?.let(::IntLiteral)
     }
 }
 
-@Compound(subtypeOf = Expr::class)
+@Compound(nodeType = Expr::class)
 data class Ref(val id: Id) : Expr()
 
 @Token
@@ -52,7 +52,7 @@ enum class BinaryOperator(private val str: String) {
     }
 }
 
-@Compound(subtypeOf = Expr::class)
+@Compound(nodeType = Expr::class)
 data class BinaryExpression(val op: BinaryOperator, val left: Expr, val right: Expr) : Expr()
 
 @Token
@@ -68,36 +68,36 @@ enum class UnaryOperator(private val str: String) {
     }
 }
 
-@Compound(subtypeOf = Expr::class)
+@Compound(nodeType = Expr::class)
 data class UnaryExpression(val op: UnaryOperator, val operand: Expr) : Expr()
 
 @Alternative(nullableResult = true)
-@Expandable(StatementExpanderDelegator::class, subtypeOf = Statement::class)
+@Expandable(StatementExpanderDelegator::class, nodeType = Statement::class)
 @EditableList
 sealed class Statement
 
-@Compound(subtypeOf = Statement::class)
+@Compound(nodeType = Statement::class)
 data class Assign(val name: Id, val value: Expr) : Statement()
 
-@Compound(subtypeOf = Statement::class)
+@Compound(nodeType = Statement::class)
 data class Swap(val left: Id, val right: Id) : Statement()
 
-@Compound(subtypeOf = Statement::class)
+@Compound(nodeType = Statement::class)
 data class Print(val expr: Expr) : Statement()
 
 @UseEditor(NextExecutableEditor::class)
 @Alternative(nullableResult = true)
 sealed class Executable
 
-@Compound(subtypeOf = Executable::class)
+@Compound(nodeType = Executable::class)
 data class Entry(val next: Executable) : Executable()
 
 object End : Executable()
 
-@Compound(subtypeOf = Executable::class)
+@Compound(nodeType = Executable::class)
 data class Block(val statements: List<Statement>, val next: Executable) : Executable()
 
-@Compound(subtypeOf = Executable::class)
+@Compound(nodeType = Executable::class)
 data class Branch(val condition: Expr, val yes: Executable, val no: Executable) : Executable()
 
 @UseEditor(ProgramEditor::class)

@@ -11,7 +11,7 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
         val qn = extractQualifiedEditorClassName(annotation, element)
         val function = extractFunction(element)
         val result = function.returnType().asTypeElement()
-        EditorResolution.register(result, qn) { isResultNullable(function) }
+        EditorResolution.register(result, qn) { isNodeKindNullable(annotation) || isResultNullable(function) }
     }
 
     private fun isResultNullable(function: ExecutableElement) =
@@ -23,7 +23,7 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
         val function = extractFunction(element)
         val resultClass = function.returnType().asTypeElement()
         val result = resultClass.simpleName.toString()
-        val resultType = type(result).nullable(isResultNullable(function))
+        val resultType = type(result).nullable(isNodeKindNullable(annotation) || isResultNullable(function))
         val functionName = getFunctionName(function)
         kotlinClass(simpleName)
             .primaryConstructor("context" of "Context")

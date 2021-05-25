@@ -56,7 +56,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         annotation: Annotation,
         simpleName: String
     ): C = apply {
-        val supertype = getTypeMirror(annotation::subtypeOf).toString()
+        val supertype = getTypeMirror(annotation::nodeType).toString()
         if (supertype != None::class.qualifiedName) {
             val (t, delegated) = getEditorInterface(supertype, simpleName)
             implements(t)
@@ -67,9 +67,23 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
     }
 
     private fun hasEditorNullableResultType(element: TypeElement): Boolean {
-        val supertype = metadata.getSupertype(element, "hextant.core.Editor") ?: return true
+        val supertype = metadata.getSupertype(element, "hextant/core/Editor") ?: return true
         val resultType = supertype.arguments[0].type ?: return true
         return Flag.Type.IS_NULLABLE(resultType.flags)
+    }
+
+    protected fun isNodeKindNullable(annotation: Annotation): Boolean {
+        val supertype = getTypeMirror(annotation::nodeType).toString()
+        if (supertype == None::class.qualifiedName) return false
+        val el = processingEnv.elementUtils.getTypeElement(supertype)
+        val generated = el.getAnnotation<Alternative>()
+        if (generated != null) return generated.nullableResult
+        val linked = el.getAnnotation<EditorInterface>()
+        if (linked != null) {
+            val tm = getTypeMirror(linked::clz)
+            return hasEditorNullableResultType(tm.asTypeElement())
+        }
+        return false
     }
 
     protected fun getEditorInterface(type: String, concreteType: String): Pair<Type, List<TypeMirror>> {
