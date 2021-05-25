@@ -13,11 +13,11 @@ import reaktive.value.ReactiveValue
 import java.net.URL
 
 @ProvideFeature
-class GitHubPluginSourceEditor(context: Context) : CompoundEditor<PluginSource>(context) {
+class GitHubPluginSourceEditor(context: Context) : CompoundEditor<PluginSource?>(context) {
     val userName by child(SimpleStringEditor(context))
     val repository by child(SimpleStringEditor(context))
 
-    override val result: ReactiveValue<PluginSource> = composeResult {
+    override val result: ReactiveValue<PluginSource?> = composeResult {
         PluginSource.GitRepo(URL("https://github.com/${userName.now}/${repository.now}"))
     }
 }

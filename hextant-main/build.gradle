@@ -33,7 +33,7 @@ jar {
 }
 
 application {
-    mainClassName = 'hextant.main.HextantApp'
+    mainClassName = 'hextant.main.Main'
     applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
 }
 

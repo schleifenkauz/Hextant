@@ -13,6 +13,8 @@ object HextantDirectory {
 
     init {
         get("projects").mkdirs()
+        get("plugin-src").mkdir()
+        get("plugins").mkdir()
     }
 
     operator fun get(name: String): File = root.resolve(name)

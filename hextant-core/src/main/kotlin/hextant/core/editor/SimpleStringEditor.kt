@@ -12,4 +12,6 @@ import hextant.core.view.TokenEditorView
  */
 class SimpleStringEditor(context: Context) : TokenEditor<String, TokenEditorView>(context) {
     override fun compile(token: String): String = token
+
+    override fun defaultResult(): String = ""
 }

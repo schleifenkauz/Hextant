@@ -8,7 +8,7 @@ import hextant.cli.CLI
 import hextant.cli.HextantDirectory
 
 object Plugins {
-    fun installOrUpdatePluginFromSource(url: String) = CLI(HextantDirectory.get("plugin-src")) {
+    fun installOrUpdatePluginFromSource(url: String) = CLI(HextantDirectory["plugin-src"]) {
         val name = url.removeSuffix(".git").substringAfterLast('/')
         val action = if (cd(name)) {
             git("pull", "origin", "master").join()
