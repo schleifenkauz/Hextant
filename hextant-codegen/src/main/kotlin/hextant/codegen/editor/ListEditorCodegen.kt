@@ -26,8 +26,8 @@ internal object ListEditorCodegen : EditorClassGen<EditableList, TypeElement>() 
                 +constructor("context" of "Context", "vararg editors" of editorClsName)
                     .delegate("context".e)
                     .body {
-                        `for`("i", `in` = "editors".e select "indices") {
-                            `val`("e") initializedWith "editors".e["i".e]
+                        +`for`("i", `in` = "editors".e select "indices") {
+                            +`val`("e") initializedWith "editors".e["i".e]
                             +call("addAt", "i".e, "e".e)
                         }
                     }
