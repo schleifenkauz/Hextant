@@ -4,13 +4,13 @@
 
 package hextant.command
 
-import hextant.command.meta.getSimpleEditorConstructor
 import hextant.config.Feature
 import hextant.config.FeatureType
 import hextant.context.Context
 import hextant.context.EditorFactory
 import hextant.core.Editor
 import hextant.fx.Shortcut
+import hextant.serial.getConstructor
 import kotlin.reflect.KClass
 
 /**
@@ -172,7 +172,7 @@ interface Command<in R : Any, out T : Any> : Feature {
          * Sets the [Parameter.editWith] to the given [clazz].
          */
         fun editWith(clazz: KClass<out Editor<T>>) {
-            editWith(clazz.getSimpleEditorConstructor())
+            editWith(clazz.getConstructor(Context::class))
         }
 
         /**

@@ -8,7 +8,6 @@ package hextant.command.meta
 
 import hextant.command.*
 import hextant.command.Command.Category
-import hextant.context.Context
 import hextant.core.Editor
 import hextant.fx.shortcut
 import java.lang.reflect.InvocationTargetException
@@ -16,7 +15,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.*
-import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.jvmErasure
 
@@ -95,13 +93,4 @@ private fun ParametersBuilder.extractParameter(parameter: KParameter) = add(para
     }
 }
 
-internal fun <E : Any> KClass<E>.getSimpleEditorConstructor(): (Context) -> E {
-    val cstr = this.constructors.find { cstr ->
-        val params = cstr.parameters.filter { !it.isOptional }
-        params.size == 1 && params[0].type.classifier == Context::class
-    } ?: throw NoSuchMethodException("$qualifiedName.<init>(hextant.context.Context)")
-    cstr.isAccessible = true
-    val param = cstr.parameters.find { it.type.classifier == Context::class }!!
-    return { ctx: Context -> cstr.callBy(mapOf(param to ctx)) }
-}
 

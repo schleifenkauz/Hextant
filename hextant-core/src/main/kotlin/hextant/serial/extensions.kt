@@ -98,8 +98,7 @@ fun reconstructEditorFromJSONSnapshot(file: File, context: Context): Editor<*> {
 /**
  * Reconstruct an [Editor] from the given [Snapshot] using the given [context].
  */
-fun <E : Editor<*>> Snapshot<E>.reconstructEditor(context: Context) =
-    reconstruct(context) { cls -> cls.getConstructor(Context::class.java) }
+fun <E : Editor<*>> Snapshot<E>.reconstructEditor(context: Context) = reconstruct(context)
 
 /**
  * Encodes the given [value] as a JSON element and writes the string representation to this [File].

@@ -45,19 +45,13 @@ abstract class Snapshot<Original : Any> {
 
     /**
      * Reconstruct the original object constructing it by supplying the given [constructorArguments] to the constructor.
-     *
-     * Note that the runtime classes of the [constructorArguments] must exactly match the types of the constructor
-     * that should be used.
      */
-    fun reconstruct(
-        vararg constructorArguments: Any,
-        getConstructor: (Class<Original>) -> Constructor<Original>
-    ): Original {
+    fun reconstruct(vararg constructorArguments: Any): Original {
         check(clazz != null) { "clazz is null: cannot create instance" }
         @Suppress("UNCHECKED_CAST")
-        val cls = clazz!!.loadClass() as Class<Original>
-        val cstr = getConstructor(cls)
-        val instance = cstr.newInstance(*constructorArguments) as Original
+        val cls = clazz!!.loadClass().kotlin as KClass<Original>
+        val cstr = cls.getConstructor(constructorArguments.map { it::class })
+        val instance = cstr(constructorArguments.asList())
         reconstruct(instance)
         return instance
     }
@@ -88,10 +82,9 @@ abstract class Snapshot<Original : Any> {
         fun decode(element: JsonElement): Snapshot<*> {
             require(element is JsonObject) { "Expected json object but got $element" }
             val snapshotType = element.getValue("_type").string
-            val cls = snapshotType.loadClass()
-            val cstr = cls.getConstructor()
-            cstr.isAccessible = true
-            val snapshot = cstr.newInstance()
+            val cls = snapshotType.loadClass().kotlin
+            val cstr = cls.getNoArgConstructor()
+            val snapshot = cstr()
             require(snapshot is Snapshot<*>) { "$snapshotType is not a subtype of hextant.serial.Snapshot" }
             val clazz = element["_class"]?.string
             if (clazz != null) snapshot.clazz = clazz
