@@ -118,41 +118,29 @@ see [this](https://github.com/NKb03/Hextant/wiki/Why-structural-editors) article
 
 ## How to get it working on my computer?
 
+To run Hextant, you need version 11 of the Java Runtime Environment.
+The JavaFX SDK is also required, but it can be installed from the setup wizard on demand.
+
+### Using the 'hextup.sh' script
+
+On Linux systems, just run the following command: 
+`bash <(curl -s https://raw.githubusercontent.com/NKb03/Hextant/master/setup/hextup.sh) install`.
+The command line setup wizard will ask a few questions. In most cases you can pick the default option.
+After the installation finished, you can just type `hextant` into the command line to run the launcher.
+To update Hextant, use `bash <(curl -s https://raw.githubusercontent.com/NKb03/Hextant/master/setup/hextup.sh) update`.
+
 ### Installing from source
 
 To build and run Hextant on your computer you need Git and version 11 of the Java Development Kit.
 Follow these steps:  
 - Clone the project: ``git clone https://github.com/NKB03/Hextant``.
+- Create the hextant home directory: ``gradlew initialSetup``.
 - Build the project: ``gradlew build``. 
 If you are building the project the first time or if you have just used ``gradlew clean``
 you have to use ``gradlew build -PcorrectErrorTypes=false`` instead,
 because otherwise the compilation will fail complaining about missing generated sources.
 - Publish all the default plugins: ``gradlew hextantPublish``.
-- Run the Hextant Launcher: ``gradlew hextant-launcher:run``
-
-### Using the binary
-
-If you don't want to build Hextant from source, you can also use the [installer](https://github.com/NKb03/Hextant/releases/download/v1.0/hextant.jar).
-To be able to install and use Hextant, you need version 11 or higher of the Java SDK and the JavaFX SDK. 
-The JavaFX SDK can be downloaded from [this](https://gluonhq.com/products/javafx/) site.  
-After having installed the JDK and the JavaFX SDK and having downloaded the installer, you can proceed to install Hextant.
-To get the latest version of the Core Plugin and the Hextant Launcher you have to run ``java -jar hextant.jar install``.
-Plugins can be installed and updated from their version control repositories using the ``install`` command.  
-For example: ``java -jar hextant.jar install https://github.com/NKb03/hextant-sample``.  
-To launch Hextant simply use ``java -jar hextant.jar launch`` or double-click the installer.
-When you launch Hextant for the first time the installer will ask you where your JavaFX SDK is located.
-On Linux you can locate your JavaFX SDK by typing ``find / -name javafx.base.jar``.
-Your JavaFX SDK home should have a sub-directory ``lib`` containing amongst others the file ``javafx.base.jar``.
-If you want to change the location of your JavaFX SDK you can use the command ``java -jar hextant.jar set javafx-sdk <new-location>``. 
-If the launcher recognizes the JavaFX SDK then it will hopefully succeed in starting Hextant.
-
-#### Typical errors and solutions
-
-On some systems launching Hextant will throw a ``LayerInstantiationException`` complaining about duplicate modules.
-This is often caused by the duplication of the ``jrt-fs.jar`` module. 
-To check if this is the case on your system use ``find / -name jrt-fs.jar`` 
-to check if there are multiple versions of this file
-and if the module is indeed duplicated it suffices to delete one of the two (not both) files.
+- Run the Hextant Launcher: ``gradlew hextant-main:run``
 
 ### Creating, opening, renaming and deleting projects
 

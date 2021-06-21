@@ -38,7 +38,10 @@ class HextantPlugin implements Plugin<Project> {
                     from jar.outputs.files
                     def home = System.getenv('HEXTANT_HOME') ?: System.getProperty('user.home') + '/hextant'
                     into new File(home, 'plugins')
-                    rename '(.+)', (config.pluginId ?: project.name) + ".jar"
+                    String name = project.name
+                    if (name.startsWith("hextant-")) name = name.drop(7)
+                    if (config.pluginId != null) name = config.pluginId
+                    rename '(.+)', name + ".jar"
                     dependsOn(jar)
                 }
             }

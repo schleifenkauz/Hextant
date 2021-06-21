@@ -25,9 +25,8 @@ class Launcher(context: Context) : AbstractEditor<Unit, EditorView>(context) {
     }
 
     fun create(type: LocatedProjectType, dest: File): String = CLI {
-        val hextant = HextantDirectory.resolve("hextant").toString()
         try {
-            run(hextant, "--create=${type.name}", dest.absolutePath)
+            run("hextant", "--create=${type.name}", dest.absolutePath)
             "Successfully created project"
         } catch (e: Exception) {
             e.printStackTrace()
@@ -36,9 +35,8 @@ class Launcher(context: Context) : AbstractEditor<Unit, EditorView>(context) {
     }
 
     fun open(project: File): String = CLI {
-        val hextant = HextantDirectory.resolve("hextant").toString()
         try {
-            run(hextant, project.absolutePath)
+            run("hextant", project.absolutePath)
             "Successfully opened project"
         } catch (e: Exception) {
             e.printStackTrace()

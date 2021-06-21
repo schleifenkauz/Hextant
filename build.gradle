@@ -15,12 +15,24 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.12.0' apply false
     id 'io.codearte.nexus-staging' version '0.21.2'
     id 'com.github.nkb03.hextant-library' version '0.1-SNAPSHOT' apply false
-    id 'com.github.nkb03.hextant-plugin' version '0.2-SNAPSHOT' apply false
+    id 'com.github.nkb03.hextant-plugin' version '0.2.3-SNAPSHOT' apply false
     id 'org.openjfx.javafxplugin' version '0.0.8' apply false
 }
 
 allprojects {
     group = 'com.github.nkb03'
+}
+
+task initialSetup {
+    group = "build setup"
+    doLast {
+        File launcher = new File(System.getProperty("user.home") + "/hextant" + "/launcher")
+        println(launcher)
+        launcher.mkdirs()
+        File info = new File(launcher, "project.json")
+        String contents = new String(new File(rootDir, "setup/launcher-info.json").readBytes())
+        info.write(contents)
+    }
 }
 
 subprojects {

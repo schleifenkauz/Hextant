@@ -1,21 +1,5 @@
 #!/bin/sh
 
-answer=""
-
-prompt() {
-  echo "$2 (1) Default: $3, (2) Choose"
-  read -r option
-  if [ "$option" = "1" ]; then
-    answer="$3"
-  elif [ "$option" = "2" ]; then
-    echo "$2: "
-    read -r answer
-  else
-    echo "Invalid option. Exiting"
-    exit 1
-  fi
-}
-
 get_jar() {
   wget "https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.nkb03&a=$1&v=$version&t=jar" -O "$hextant_home/plugins/$2"
 }
@@ -45,8 +29,12 @@ setup_javafx_jdk() {
       echo "Autodetected JavaFX SDK located at $javafx_sdk"
     fi
   elif [ "$option" = "2" ]; then
-    prompt "JavaFX SDK install location" "Where should the JavaFX SDK be installed?" "$HOME/lib/javafx-sdk"
-    javafx_sdk="$answer"
+    read -r javafx_sdk
+    default="$HOME/lib/javafx-sdk"
+    echo "Where should the JavaFX SDK be installed? (Default: $default"
+    if [ -z "$javafx_sdk" ]; then
+        javafx_sdk=default
+    fi
     mkdir -p "$javafx_sdk"
     wget https://gluonhq.com/download/javafx-11-0-2-sdk-linux/ -O /tmp/javafx.zip
     7z x /tmp/javafx.zip "-o$javafx_sdk"
@@ -60,16 +48,19 @@ setup_javafx_jdk() {
 }
 
 query_version() {
-  prompt "Version" "Which version Hextant should be installed?" "Latest"
-  version="$answer"
-  if [ "$version" = "Latest" ]; then
+  echo "Which version Hextant should be installed? (Default: Latest)"
+  read -r version
+  if [ -z "$version" ]; then
     version="1.0-SNAPSHOT"
   fi
 }
 
 query_home() {
-  prompt "Location to install Hextant" "Where should Hextant be installed?" "$HOME/hextant"
-  hextant_home="$answer"
+  echo "Location to install Hextant" "Where should Hextant be installed? (Default: $HOME/hextant)"
+  read -r hextant_home
+  if [ -z "$hextant_home" ]; then
+      hextant_home="$HOME/hextant"
+  fi
   echo "export HEXTANT_HOME=$hextant_home" >> ~/.bashrc
 }
 
@@ -92,16 +83,8 @@ java --module-path $javafx_sdk/lib\
   --add-opens java.base/jdk.internal.loader=ALL-UNNAMED\
   -jar $hextant_home/plugins/main.jar \"\$@\"
 "
-  echo "$command" >"$hextant_home/hextant"
-  chmod +x "$hextant_home/hextant"
-}
-
-create_alias() {
-  echo "Create alias hextant startup script? (1) Yes, (2) No"
-  read -r option
-  if [ "$option" = "1" ]; then
-    echo "alias hextant=$hextant_home/hextant" >> ~/.bashrc
-  fi
+  sudo sh -c "echo '$command' > /bin/hextant"
+  sudo chmod +x /bin/hextant
 }
 
 install() {
@@ -114,13 +97,14 @@ install() {
   get_components
   create_launcher
   create_script
-  create_alias
+  echo "Installation successful. Hextant version is $version."
 }
 
 update() {
   hextant_home="$HEXTANT_HOME"
   query_version
   get_components
+  echo "Update successful. Hextant version is $version."
 }
 
 echo "Welcome to the Hextant setup assistant!"
