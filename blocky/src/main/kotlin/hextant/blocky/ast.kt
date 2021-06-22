@@ -22,7 +22,7 @@ data class Id(private val str: String) {
     }
 }
 
-@Alternative(nullableResult = true)
+@NodeType(nullableResult = true)
 @Expandable(ExprExpanderDelegator::class, nodeType = Expr::class)
 sealed class Expr
 
@@ -71,7 +71,7 @@ enum class UnaryOperator(private val str: String) {
 @Compound(nodeType = Expr::class)
 data class UnaryExpression(val op: UnaryOperator, val operand: Expr) : Expr()
 
-@Alternative(nullableResult = true)
+@NodeType(nullableResult = true)
 @Expandable(StatementExpanderDelegator::class, nodeType = Statement::class)
 @EditableList
 sealed class Statement
@@ -86,7 +86,7 @@ data class Swap(val left: Id, val right: Id) : Statement()
 data class Print(val expr: Expr) : Statement()
 
 @UseEditor(NextExecutableEditor::class)
-@Alternative(nullableResult = true)
+@NodeType(nullableResult = true)
 sealed class Executable
 
 @Compound(nodeType = Executable::class)

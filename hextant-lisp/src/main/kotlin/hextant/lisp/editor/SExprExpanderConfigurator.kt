@@ -10,8 +10,8 @@ import hextant.lisp.Symbol
 
 object SExprExpanderConfigurator : ExpanderConfigurator<SExprEditor<*>>({
     "symbol" expand ::SymbolEditor
-    "#t" expand { ctx -> BooleanLiteralEditor(ctx, "#t") }
-    "#f" expand { ctx -> BooleanLiteralEditor(ctx, "#f") }
+    "#t" expand { ctx -> ScalarEditor(ctx, "#t") }
+    "#f" expand { ctx -> ScalarEditor(ctx, "f") }
     registerKeys("'", "quote", create = ::QuotationEditor)
     registerKeys("`", "quasiquote", create = ::QuasiQuotationEditor)
     registerKeys(",", "unquote", create = ::UnquoteEditor)
@@ -19,5 +19,5 @@ object SExprExpanderConfigurator : ExpanderConfigurator<SExprEditor<*>>({
     "let" expand ::LetEditor
     "lambda" expand ::LambdaEditor
     registerTokenInterceptor(Symbol, ::SymbolEditor)
-    registerTokenInterceptor(IntLiteral, ::IntLiteralEditor)
+    registerTokenInterceptor(IntLiteral, ::ScalarEditor)
 })

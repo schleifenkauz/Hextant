@@ -85,7 +85,7 @@ private fun Application.configure(repo: LocalPluginRepository) {
     }
 }
 
-private suspend fun <T : Any> ApplicationCall.respondProperty(
+private suspend inline fun <reified T : Any> ApplicationCall.respondProperty(
     repo: LocalPluginRepository,
     property: PluginProperty<T>
 ) {

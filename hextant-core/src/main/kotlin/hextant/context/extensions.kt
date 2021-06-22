@@ -16,8 +16,8 @@ import kotlin.reflect.KClass
 fun <T : Any, P : Permission> Context.replace(permission: P, property: Property<T, P>, value: T) {
     when {
         hasProperty(property) -> set(permission, property, value)
-        parent != null        -> parent!!.replace(permission, property, value)
-        else                  -> throw NoSuchElementException("Property $property not configured")
+        parent != null -> parent!!.replace(permission, property, value)
+        else -> throw NoSuchElementException("Property $property not configured")
     }
 }
 
@@ -56,13 +56,19 @@ inline fun Context.extend(block: Context.() -> Unit = {}): Context =
 /**
  * Tries to execute the given action catching an eventual thrown exception and logging it.
  */
-inline fun <T> Context.executeSafely(description: String, onError: T, action: () -> T): T = try {
+inline fun <T> Context.executeSafely(description: String, onError: () -> T, action: () -> T): T = try {
     action()
 } catch (ex: Throwable) {
     val msg = "Exception while $description: ${ex.message}"
     get(Properties.logger).log(Level.SEVERE, msg, ex)
-    onError
+    onError()
 }
+
+/**
+ * Tries to execute the given action catching an eventual thrown exception and logging it.
+ */
+inline fun <T> Context.executeSafely(description: String, onError: T, action: () -> T): T =
+    executeSafely(description, { onError }, action)
 
 /**
  * Deactivates the [UndoManager] of this context while executing the given [action] and then reactivates it.

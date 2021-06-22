@@ -92,15 +92,15 @@ fun RuntimeScope.registerBuiltins() {
         v
     }
     builtin("begin", VARARG) { results, _ -> results.last() }
-    builtin("nil?", 1) { (l), _ -> lit(l.unwrap().isNil()) }
-    builtin("pair?", 1) { (p), _ -> lit(p.unwrap().isPair()) }
-    builtin("list?", 1) { (l), _ -> lit(l.unwrap().isList()) }
+    builtin("nil?", 1) { (l), _ -> lit(l.isNil()) }
+    builtin("pair?", 1) { (p), _ -> lit(p.isPair()) }
+    builtin("list?", 1) { (l), _ -> lit(l.isList()) }
     builtinMacro("quote", 1) { (e), _ -> Quotation(e) }
     builtin("car", 1) { (p), _ -> p.car }
     builtin("cdr", 1) { (p), _ -> p.cdr }
     builtin("cons", 2) { (a, b), _ -> Pair(a, b) }
     builtinMacro("if", 3) { (cond, then, otherwise), env ->
-        if (truthy(cond.evaluate(env).unwrap())) then
+        if (truthy(cond.evaluate(env))) then
         else otherwise
     }
     builtin("print", 1) { (v), _ ->
@@ -122,10 +122,10 @@ fun RuntimeScope.registerBuiltins() {
         define(signature, body, env, true)
     }
     builtin("eqv?", 2) { (a, b), _ ->
-        lit(a.unwrap() == b.unwrap())
+        lit(a == b)
     }
     builtin("same?", 2) { (a, b), _ ->
-        lit(a.unwrap() === b.unwrap())
+        lit(a === b)
     }
     builtinMacro("define", 2) { (sym, expr), env ->
         ensure(sym is Symbol) { "${display(sym)} is not a symbol" }

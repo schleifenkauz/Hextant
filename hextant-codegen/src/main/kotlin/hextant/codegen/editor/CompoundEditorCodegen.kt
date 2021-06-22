@@ -11,7 +11,9 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
         val qn = extractQualifiedEditorClassName(annotation, element)
         val function = extractFunction(element)
         val result = function.returnType().asTypeElement()
-        EditorResolution.register(result, qn) { isNodeKindNullable(annotation) || isResultNullable(function) }
+        if (annotation.register) {
+            EditorResolution.register(result, qn) { isNodeKindNullable(annotation) || isResultNullable(function) }
+        }
     }
 
     private fun isResultNullable(function: ExecutableElement) =

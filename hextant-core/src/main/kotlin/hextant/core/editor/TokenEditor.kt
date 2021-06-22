@@ -8,8 +8,6 @@ import hextant.completion.Completion
 import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.context.withoutUndo
-import hextant.core.editor.TokenEditor.Compilable.Completed
-import hextant.core.editor.TokenEditor.Compilable.Text
 import hextant.core.view.TokenEditorView
 import hextant.serial.Snapshot
 import hextant.serial.VirtualEditor
@@ -18,9 +16,6 @@ import hextant.serial.virtualize
 import hextant.undo.AbstractEdit
 import hextant.undo.Edit
 import hextant.undo.UndoManager
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.actor
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.JsonPrimitive
@@ -36,34 +31,13 @@ import kotlin.reflect.jvm.jvmErasure
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
-abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : AbstractEditor<R, V>(context),
-                                                                              TokenType<R> {
-    private sealed class Compilable {
-        data class Completed(val completion: Completion<Any>) : Compilable()
-        data class Text(val input: String) : Compilable()
-    }
-
+abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text: String) :
+    AbstractEditor<R, V>(context), TokenType<R> {
     private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
 
-    @OptIn(ObsoleteCoroutinesApi::class)
-    private val compiler = GlobalScope.actor<Compilable>(Dispatchers.Default, capacity = Channel.CONFLATED) {
-        for (compilable in channel) {
-            val res = when (compilable) {
-                is Completed -> {
-                    val comp = compilable.completion
-                    tryCompile(comp.item).takeUnless { it == defaultResult() } ?: tryCompile(comp.completionText)
-                }
-                is Text      -> tryCompile(compilable.input)
-            }
-            _result.set(res)
-        }
-    }
+    constructor(context: Context) : this(context, "")
 
-    constructor(context: Context, text: String) : this(context) {
-        withoutUndo { setText(text) }
-    }
-
-    private val _result = reactiveVariable(runBlocking { tryCompile("") })
+    private val _result by lazy { reactiveVariable(tryCompile(text)) }
 
     override val result: ReactiveValue<R> get() = _result
 
@@ -88,19 +62,10 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         if (resultType.isMarkedNullable) null as R
         else error("TokenEditor ${this::class}: non-nullable result type and defaultResult() was not overwritten")
 
-    /**
-     * Make a result from the given completion item.
-     */
-    @Suppress("UNCHECKED_CAST")
-    protected open fun compile(item: Any): R = resultType.jvmErasure.safeCast(item) as R ?: defaultResult()
-
     override fun compile(token: String): R = defaultResult()
 
-    private suspend fun tryCompile(item: Any): R =
-        context.executeSafely("compiling item", defaultResult()) { withContext(Dispatchers.Default) { compile(item) } }
-
-    private suspend fun tryCompile(text: String): R =
-        context.executeSafely("compiling item", defaultResult()) { withContext(Dispatchers.Default) { compile(text) } }
+    private fun tryCompile(text: String) =
+        context.executeSafely("compiling item", ::defaultResult) { compile(text) }
 
     override fun viewAdded(view: V) {
         view.displayText(text.now)
@@ -120,7 +85,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         }
         _text.now = newText
         views { displayText(newText) }
-        GlobalScope.launch { compiler.send(Text(newText)) }
+        _result.set(tryCompile(newText))
     }
 
     /**
@@ -132,7 +97,11 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context) : Ab
         undo.record(edit)
         _text.now = t
         views { displayText(t) }
-        GlobalScope.launch { compiler.send(Completed(completion)) }
+        @Suppress("UNCHECKED_CAST")
+        val res = resultType.jvmErasure.safeCast(completion.item) as R?
+            ?: tryCompile(completion.completionText)
+            ?: defaultResult()
+        _result.set(res)
     }
 
     private class TextEdit(

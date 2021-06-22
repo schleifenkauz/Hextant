@@ -17,7 +17,7 @@ import javax.lang.model.element.TypeParameterElement
 internal object AspectCollector : AnnotationCollector<RequestAspect, TypeElement, Aspect>("aspects.json") {
     override fun process(element: TypeElement, annotation: RequestAspect) {
         val target = caseVar(element).bounds.firstOrNull()?.asTypeElement()?.runtimeFQName()
-            ?: throw ProcessingException("Cannot deduce target of aspect $element")
+            ?: fail("Cannot deduce target of aspect $element")
         add(Aspect(element.runtimeFQName(), target, annotation.optional))
     }
 

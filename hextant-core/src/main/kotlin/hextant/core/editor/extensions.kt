@@ -22,6 +22,11 @@ fun <E : Editor<*>, R : Editor<*>> ExpanderDelegate<E>.map(f: (E) -> R) = object
 }
 
 /**
+ * Return a [TokenType] that transforms compiled results with the given function.
+*/
+fun <R, F> TokenType<R>.map(f: (R) -> F) = TokenType { token -> f(this@map.compile(token)) }
+
+/**
  * Return a sequence iterating over all immediate and recursive children of this editor
  */
 val Editor<*>.allChildren: Sequence<Editor<*>>

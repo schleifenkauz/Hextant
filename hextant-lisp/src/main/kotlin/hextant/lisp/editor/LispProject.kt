@@ -9,7 +9,7 @@ import hextant.project.ProjectType
 import reaktive.value.ReactiveValue
 
 class LispProject(context: Context) : CompoundEditor<SExpr?>(context) {
-    val root by child(SExprExpander(context))
+    val root by child(SExprExpander(context,))
 
     override val result: ReactiveValue<SExpr?> get() = root.result
 

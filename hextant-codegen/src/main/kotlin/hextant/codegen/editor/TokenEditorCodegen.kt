@@ -22,7 +22,9 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
         val className = extractQualifiedEditorClassName(annotation, element)
         val resultType = input.getResultType()
         val resultNullable = input.isResultNullable()
-        register(resultType, className) { isNodeKindNullable(annotation) || resultNullable }
+        if (annotation.register) {
+            register(resultType, className) { isNodeKindNullable(annotation) || resultNullable }
+        }
     }
 
     private sealed class Input {

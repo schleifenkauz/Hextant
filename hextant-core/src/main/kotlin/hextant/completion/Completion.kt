@@ -11,9 +11,9 @@ package hextant.completion
  * @property completionText The textual representation of the completed item
  * @property inputText The user input that was completed
  * @property match A list of index ranges that represent matches between the [inputText] and the [completionText]
- * @property tooltipText The text that is displayed, when the user hovers the completion item, or `null`
+ * @property tooltipText The text that is displayed, when the user hovers the completion item
  * @property infoText Additional information on the completion item, or `null` if there is no additional info
- * @property icon An image resource that points to 16x16 icon that should is display, or `null`
+ * @property icon An image resource that points to 16x16 icon that should is display
  */
 class Completion<out T : Any>(
     val item: T,

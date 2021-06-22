@@ -6,21 +6,33 @@ package hextant.lisp.rt
 
 import hextant.lisp.*
 
+
+fun <T> SExpr.traverse(combine: (T, T) -> T, extract: (Scalar) -> T): T = when (this) {
+    is Scalar -> extract(this)
+    is Pair -> combine(car.traverse(combine, extract), cdr.traverse(combine, extract))
+    is Procedure -> error("")
+    is QuasiQuotation -> quoted.traverse(combine, extract)
+    is Quotation -> quoted.traverse(combine, extract)
+    is Unquote -> expr.traverse(combine, extract)
+}
+
+fun SExpr.isSyntacticallyCorrect() = traverse(Boolean::and) { it !is IllegalScalar }
+
 fun SExpr.evaluate(scope: RuntimeScope = RuntimeScope.root()): SExpr =
     when (this) {
-        is NormalizedSExpr -> this
         is Symbol -> scope.get(name) ?: fail("unbound variable $name")
-        is QuasiQuotation -> normalized(quoted.unquoteAfterCommas(scope))
+        is QuasiQuotation -> quote(quoted.unquoteAfterCommas(scope))
         is Unquote -> fail("comma is illegal outside of quasi-quotation")
         is Pair -> {
             ensure(isList())
-            val proc = car.evaluate(scope).unwrap()
+            val proc = car.evaluate(scope)
             ensure(proc is Procedure) { "${display(proc)} is not a procedure" }
             val args = cdr.extractList()
             apply(proc, args, scope)
         }
         is Nil -> fail("Illegal empty application ()")
         is Literal<*>, is Procedure, is Quotation -> this
+        is IllegalScalar -> fail("Syntax error: $this")
     }
 
 private fun SExpr.unquoteAfterCommas(scope: RuntimeScope): SExpr = when (this) {
@@ -28,7 +40,7 @@ private fun SExpr.unquoteAfterCommas(scope: RuntimeScope): SExpr = when (this) {
     is Unquote -> expr.evaluate(scope)
     is QuasiQuotation -> fail("Nested quasi-quotations are not supported")
     is Quotation -> Quotation(quoted.unquoteAfterCommas(scope))
-    else              -> this
+    else -> this
 }
 
 private fun apply(proc: Procedure, arguments: List<SExpr>, scope: RuntimeScope): SExpr {
@@ -48,7 +60,8 @@ private data class BuiltinSyntax(
 val SExpr.isValue
     get() = when (this) {
         is Symbol, is Pair, Nil, is QuasiQuotation, is Unquote -> false
-        is Literal<*>, is Quotation, is Procedure, is NormalizedSExpr -> true
+        is Literal<*>, is Quotation, is Procedure, is IllegalScalar -> true
+
     }
 
 private val syntax = listOf(
@@ -66,28 +79,28 @@ private val syntax = listOf(
     },
     BuiltinSyntax("eval", 1) { (expr), _ ->
         ensure(expr.isValue)
-        expr.unwrap()
+        expr
     }
 ).associateBy { it.name }
 
 fun SExpr.reduce(scope: RuntimeScope): SExpr = when (this) {
-    is NormalizedSExpr -> this
     is Symbol -> scope.get(name) ?: fail("unbound variable $name")
     is QuasiQuotation -> quoted.reduceQuasiQuotation()
     is Unquote -> fail("comma is illegal outside of quasi-quotation")
     is Pair -> run {
         ensure(isList()) { "bad syntax" }
         val arguments = cdr.extractList()
-        when (val c = car.unwrap()) {
+        when (val c = car) {
             is Symbol ->
                 if (c.name in syntax) syntax.getValue(c.name).definition(arguments, scope)
-                else applyFunction(scope.get(c.name)?.unwrap() ?: fail("unbound variable ${c.name}"), arguments, scope)
-            else      -> applyFunction(c, arguments, scope)
+                else
+                    applyFunction(scope.get(c.name) ?: fail("unbound variable ${c.name}"), arguments, scope)
+            else -> applyFunction(c, arguments, scope)
         }
     }
-    is Quotation -> normalized(quoted)
     is Nil -> fail("Illegal empty application ()")
-    is Literal<*>, is Procedure -> this
+    is Literal<*>, is Procedure, is Quotation -> this
+    is IllegalScalar -> this
 }
 
 private fun SExpr.reduceQuasiQuotation(): SExpr = when (this) {
@@ -95,9 +108,9 @@ private fun SExpr.reduceQuasiQuotation(): SExpr = when (this) {
     is Pair -> Pair("list".s, list(extractList().map { it.reduceQuasiQuotation() }))
     is QuasiQuotation -> fail("Nested quasi-quotation is illegal")
     is Unquote -> expr
-    is NormalizedSExpr -> quote(expr)
     is Symbol, is Nil, is Quotation -> quote(this)
     is Procedure -> fail("cannot happen")
+    is IllegalScalar -> this
 }
 
 private fun SExpr.substitute(substitution: Map<String, SExpr>): SExpr = when (this) {
@@ -112,7 +125,7 @@ private fun SExpr.substitute(substitution: Map<String, SExpr>): SExpr = when (th
         )
     )
     is Unquote -> fail("Unquote is illegal outside of quasi-quotation")
-    is Procedure, is Literal<*>, is Quotation, is Nil, is NormalizedSExpr -> this
+    is Procedure, is Literal<*>, is Quotation, is Nil, is IllegalScalar -> this
 }
 
 private fun SExpr.substituteInsideQuasiQuotation(substitution: Map<String, SExpr>): SExpr = when (this) {
@@ -123,13 +136,13 @@ private fun SExpr.substituteInsideQuasiQuotation(substitution: Map<String, SExpr
     is QuasiQuotation -> fail("Nested quasi-quotation is illegal")
     is Unquote -> Unquote(expr.substitute(substitution))
     is Procedure -> fail("cannot happen")
-    else              -> this
+    else -> this
 }
 
 private fun applyFunction(proc: SExpr, arguments: List<SExpr>, scope: RuntimeScope): SExpr {
     if (arguments.any { !it.isValue }) fail("Not all arguments are evaluated")
     return when {
-        proc.isList()   -> {
+        proc.isList() -> {
             val lst = proc.extractList()
             ensure(lst.size == 3)
             ensure(lst[0] == quote(Symbol("lambda")))
@@ -146,8 +159,8 @@ private fun applyFunction(proc: SExpr, arguments: List<SExpr>, scope: RuntimeSco
         }
         proc is Builtin -> {
             if (proc.arity != VARARG && proc.arity != arguments.size) fail("Arity mismatch")
-            normalized(proc.call(arguments, scope))
+            proc.call(arguments, scope)
         }
-        else            -> fail("Unknown type of procedure")
+        else -> fail("Unknown type of procedure")
     }
 }

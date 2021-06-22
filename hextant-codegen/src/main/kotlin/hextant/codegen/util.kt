@@ -18,6 +18,7 @@ import javax.lang.model.element.*
 import javax.lang.model.element.ElementKind.*
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.type.*
+import javax.tools.Diagnostic
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.jvm.jvmErasure
@@ -25,6 +26,18 @@ import kotlin.reflect.jvm.jvmErasure
 internal fun fail(msg: String): Nothing {
     throw ProcessingException(msg)
 }
+
+fun ProcessingEnvironment.tryExecute(context: String, action: () -> Unit) {
+    try {
+        action()
+    } catch (e: ProcessingException) {
+        messager.printMessage(Diagnostic.Kind.ERROR, "Error while $context: ${e.message}")
+    } catch (e: Throwable) {
+        messager.printMessage(Diagnostic.Kind.ERROR, "Unexpected error while $context: ${e.message}")
+        e.printStackTrace()
+    }
+}
+
 
 internal inline fun ensure(condition: Boolean, message: () -> String) {
     if (!condition) {
@@ -67,7 +80,7 @@ internal val Annotation.qualifiedEditorClassName: String?
     get() = when (this) {
         is Token        -> this.classLocation.takeIf { it != DEFAULT }
         is Compound     -> this.classLocation.takeIf { it != DEFAULT }
-        is Alternative  -> this.interfaceLocation.takeIf { it != DEFAULT }
+        is NodeType  -> this.interfaceLocation.takeIf { it != DEFAULT }
         is Expandable   -> this.expanderLocation.takeIf { it != DEFAULT }
         is EditableList -> this.classLocation.takeIf { it != DEFAULT }
         else            -> throw AssertionError()

@@ -46,7 +46,9 @@ internal abstract class AnnotationProcessor<A : Annotation, E : Element> {
     fun process(roundEnv: RoundEnvironment) {
         for (element in roundEnv.getElementsAnnotatedWith(annotationClass)) {
             val ann = element.getAnnotation(annotationClass)
-            process(element as E, ann)
+            processingEnv.tryExecute("processing $ann on $element") {
+                process(element as E, ann)
+            }
         }
     }
 

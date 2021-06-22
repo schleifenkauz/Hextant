@@ -25,6 +25,7 @@ import reaktive.value.*
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
 import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.full.safeCast
 import kotlin.reflect.jvm.jvmErasure
 
 /**
@@ -63,12 +64,14 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     val isExpanded: ReactiveBoolean = state.map { it is Expanded }
 
-    override val result: ReactiveValue<R> = state.flatMap { s ->
-        when (s) {
-            is Text     ->
-                if (s.completion == null) reactiveValue(tryCompile(s.text))
-                else reactiveValue(tryCompile(s.completion).takeIf { it != defaultResult() } ?: tryCompile(s.text))
-            is Expanded -> s.content.result
+    override val result: ReactiveValue<R> by lazy {
+        state.flatMap { s ->
+            when (s) {
+                is Text ->
+                    if (s.completion == null) reactiveValue(tryCompile(s.text))
+                    else reactiveValue(tryCompile(s.completion) ?: tryCompile(s.text))
+                is Expanded -> s.content.result
+            }
         }
     }
 
@@ -86,14 +89,6 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     protected open fun expand(completion: Any): E? = null
 
     override fun compile(token: String): R = defaultResult()
-
-    /**
-     * Compile the given [completion].
-     *
-     * If the [completion] is valid return a corresponding result. Otherwise return `null`.
-     * The default implementation returns `null`.
-     */
-    protected open fun compile(completion: Any): R? = null
 
     /**
      * Can be overwritten by extending classes to be notified when [expand] was successfully called
@@ -139,10 +134,10 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     private fun tryExpand(item: Any) = context.executeSafely("expanding", null) { expand(item) }
 
     private fun tryCompile(text: String): R =
-        context.executeSafely("compiling", defaultResult()) { compile(text) }
+        context.executeSafely("compiling", ::defaultResult) { compile(text) }
 
-    private fun tryCompile(item: Any): R? =
-        context.executeSafely("compiling", null) { compile(item) }
+    @Suppress("UNCHECKED_CAST")
+    private fun tryCompile(item: Any): R? = resultType.jvmErasure.safeCast(item) as R?
 
     private inline fun executeEdit(description: String, action: () -> Unit) {
         val undo = context[UndoManager]

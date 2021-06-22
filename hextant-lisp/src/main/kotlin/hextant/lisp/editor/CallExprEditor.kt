@@ -12,8 +12,8 @@ import hextant.lisp.list
 import reaktive.value.ReactiveValue
 
 @ProvideFeature
-class CallExprEditor(context: Context) : CompoundEditor<SExpr?>(context), SExprEditor<SExpr> {
+class CallExprEditor(context: Context) : CompoundEditor<SExpr>(context), SExprEditor<SExpr> {
     val expressions by child(SExprListEditor(context))
 
-    override val result: ReactiveValue<SExpr?> = composeResult { list(expressions.now) }
+    override val result: ReactiveValue<SExpr> = composeResult { list(expressions.now) }
 }

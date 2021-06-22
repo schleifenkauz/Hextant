@@ -23,5 +23,3 @@ fun list(exprs: List<SExpr>) = exprs.foldRight(nil) { e, acc -> Pair(e, acc) }
 fun list(vararg exprs: SExpr) = list(exprs.asList())
 
 fun quote(e: SExpr): SExpr = if (e is Literal<*>) e else Quotation(e)
-
-fun normalized(e: SExpr): SExpr = NormalizedSExpr(e)

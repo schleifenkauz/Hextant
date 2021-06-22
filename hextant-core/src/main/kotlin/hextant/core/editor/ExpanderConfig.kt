@@ -32,7 +32,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
         }
 
     private fun keys(): Set<String> =
-        if (fallback is ExpanderConfig) constant.keys + fallback.keys() else constant.keys
+        if (fallback is ExpanderConfig<*>) constant.keys + fallback.keys() else constant.keys
 
     /**
      * Return an [ExpanderConfig] which uses the given [ExpanderDelegate] as a fallback option when expanding editors.
@@ -41,9 +41,9 @@ class ExpanderConfig<E : Editor<*>> private constructor(
         ExpanderConfig(fallback, constant, interceptors, typeSafeInterceptors)
 
     /**
-     * Return an [ExpanderConfig] that uses the given transformation function to make editors of type [R] from editors of type [E].
+     * Return an [ExpanderConfig] that uses the given transformation function to make editors of type [F] from editors of type [E].
      */
-    fun <R : Editor<*>> transform(f: (E) -> R): ExpanderConfig<R> {
+    fun <F : Editor<*>> transform(f: (E) -> F): ExpanderConfig<F> {
         val fb = if (fallback is ExpanderConfig) fallback.transform(f) else fallback?.map(f)
         val constant = constant.mapValuesTo(mutableMapOf()) { (_, fct) -> { ctx: Context -> f(fct(ctx)) } }
         val interceptors = interceptors.mapTo(LinkedList()) { fct ->

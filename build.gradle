@@ -10,12 +10,12 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.30'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.10'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.30' apply false
     id 'com.gradle.plugin-publish' version '0.12.0' apply false
     id 'io.codearte.nexus-staging' version '0.21.2'
     id 'com.github.nkb03.hextant-library' version '0.1-SNAPSHOT' apply false
-    id 'com.github.nkb03.hextant-plugin' version '0.2.3-SNAPSHOT' apply false
+    id 'com.github.nkb03.hextant-plugin' version '0.2.4-SNAPSHOT' apply false
     id 'org.openjfx.javafxplugin' version '0.0.8' apply false
 }
 
@@ -51,8 +51,9 @@ subprojects {
     compileKotlin {
         kotlinOptions {
             noStdlib = true
-            jvmTarget = "11"
-            freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+            jvmTarget = '11'
+            freeCompilerArgs += '-Xopt-in=kotlin.RequiresOptIn'
+            languageVersion = '1.5'
         }
     }
     compileTestKotlin {

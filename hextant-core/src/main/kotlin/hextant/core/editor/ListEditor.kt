@@ -56,7 +56,7 @@ abstract class ListEditor<R, E : Editor<R>>(
      */
     val results = editors.map { it.result }.values()
 
-    override val result: ReactiveValue<List<R>> = binding(results) { results.now }
+    override val result: ReactiveValue<List<R>> = binding(results) { results.now.toList() }
 
     /**
      * Create a new Editor for results of type [E], or null if no new editor should be created

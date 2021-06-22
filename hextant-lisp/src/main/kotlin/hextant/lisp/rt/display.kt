@@ -28,7 +28,7 @@ fun StringBuilder.display(value: SExpr) {
             append(',')
             display(value.expr)
         }
-        is NormalizedSExpr -> display(value.expr)
+        is IllegalScalar -> append("<illegal: ${value.token}>")
     }
 }
 

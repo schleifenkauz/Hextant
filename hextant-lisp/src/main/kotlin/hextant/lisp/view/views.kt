@@ -21,6 +21,7 @@ import hextant.core.view.ListEditorControl.SeparatorCell
 import hextant.core.view.TokenEditorControl
 import hextant.fx.registerShortcuts
 import hextant.fx.view
+import hextant.lisp.Scalar
 import hextant.lisp.editor.*
 import reaktive.value.now
 
@@ -29,12 +30,8 @@ fun createControl(editor: SymbolEditor, arguments: Bundle) =
     TokenEditorControl(editor, arguments, styleClass = "symbol")
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: IntLiteralEditor, arguments: Bundle) =
-    TokenEditorControl(editor, arguments, styleClass = "int-literal")
-
-@ProvideImplementation(ControlFactory::class)
-fun createControl(editor: BooleanLiteralEditor, arguments: Bundle) =
-    TokenEditorControl(editor, arguments, styleClass = "boolean-literal")
+fun createControl(editor: ScalarEditor, arguments: Bundle) =
+    TokenEditorControl(editor, arguments, styleClass = "scalar")
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: QuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
@@ -46,7 +43,7 @@ fun createControl(editor: QuotationEditor, arguments: Bundle) = CompoundEditorCo
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: SExprExpander, arguments: Bundle) =
-    ExpanderControl(editor, arguments, SExprExpanderConfigurator.config.completer(CompletionStrategy.simple))
+    ExpanderControl(editor, arguments, SExprExpander.config.completer(CompletionStrategy.simple))
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: QuasiQuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
@@ -121,10 +118,4 @@ fun createControl(editor: LambdaEditor, arguments: Bundle) = CompoundEditorContr
         operator(" -> ")
         view(editor.body)
     }
-}
-
-@ProvideImplementation(ControlFactory::class)
-fun createControl(editor: NormalizedSExprEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    view(editor.expr)
-    styleClass.add("normalized")
 }

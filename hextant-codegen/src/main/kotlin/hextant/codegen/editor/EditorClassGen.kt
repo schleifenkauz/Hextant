@@ -17,6 +17,7 @@ import krobot.api.type
 import krobot.ast.CanImplement
 import krobot.ast.ClassDefinition
 import krobot.ast.Type
+import java.util.*
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
@@ -31,7 +32,9 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
     fun preprocess(roundEnv: RoundEnvironment) {
         for (element in roundEnv.getElementsAnnotatedWith(annotationClass)) {
             val ann = element.getAnnotation(annotationClass)
-            preprocess(element as E, ann)
+            processingEnv.tryExecute("preprocessing $ann on $element") {
+                preprocess(element as E, ann)
+            }
         }
     }
 
@@ -47,7 +50,8 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         return if (element.kind == CONSTRUCTOR) {
             extractQualifiedEditorClassName(ann, element.enclosingElement, packageSuffix, classNameSuffix)
         } else {
-            val capitalized = element.simpleName.toString().capitalize()
+            val capitalized = element.simpleName.toString()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             "$pkg.$packageSuffix.$capitalized$classNameSuffix"
         }
     }
@@ -76,7 +80,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         val supertype = getTypeMirror(annotation::nodeType).toString()
         if (supertype == None::class.qualifiedName) return false
         val el = processingEnv.elementUtils.getTypeElement(supertype)
-        val generated = el.getAnnotation<Alternative>()
+        val generated = el.getAnnotation<NodeType>()
         if (generated != null) return generated.nullableResult
         val linked = el.getAnnotation<EditorInterface>()
         if (linked != null) {
@@ -88,7 +92,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
 
     protected fun getEditorInterface(type: String, concreteType: String): Pair<Type, List<TypeMirror>> {
         val el = processingEnv.elementUtils.getTypeElement(type)
-        val generated = el.getAnnotation<Alternative>()
+        val generated = el.getAnnotation<NodeType>()
         val linked = el.getAnnotation<EditorInterface>()
         return when {
             generated == null && linked == null -> fail("Can't find common editor interface for $type")

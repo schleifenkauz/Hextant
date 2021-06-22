@@ -12,6 +12,7 @@ javafx {
 
 dependencies {
     compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    compile 'org.jetbrains.kotlin:kotlin-reflect'
     compile project(":hextant-cli")
     compileOnly project(":hextant-core")
     compileOnly project(":hextant-codegen")

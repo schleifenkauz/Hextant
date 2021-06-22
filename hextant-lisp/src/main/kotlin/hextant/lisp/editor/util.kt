@@ -27,13 +27,13 @@ import reaktive.value.reactiveValue
 fun SExpr.reconstructEditor(context: Context): SExprExpander = SExprExpander(context).also { e -> e.reconstruct(this) }
 
 fun SExprExpander.reconstruct(expr: SExpr) {
-    withoutUndo { expand(reconstruct(expr, context)) }
+    expand(withoutUndo { reconstruct(expr, context) })
 }
 
 private fun reconstruct(expr: SExpr, context: Context): SExprEditor<*> = when (expr) {
-    is Symbol          -> (SymbolEditor(context, expr))
-    is IntLiteral      -> (IntLiteralEditor(context, expr))
-    is BooleanLiteral -> BooleanLiteralEditor(context, expr)
+    is Symbol -> SymbolEditor(context, expr)
+    is IntLiteral -> ScalarEditor(context, expr)
+    is BooleanLiteral -> ScalarEditor(context, expr)
     is Pair -> run {
         assert(expr.isList()) { "Can't reconstruct expression ${(display(expr))}" }
         val exprs = expr.extractList()
@@ -66,10 +66,7 @@ private fun reconstruct(expr: SExpr, context: Context): SExprEditor<*> = when (e
         }
         body.reconstruct(expr.body)
     }
-    is NormalizedSExpr -> NormalizedSExprEditor(context).apply {
-        this.expr.reconstruct(expr.expr)
-    }
-    else               -> fail("Can't reconstruct expression ${display(expr)}")
+    else -> fail("Can't reconstruct expression ${display(expr)}")
 }
 
 val beautify = command<CallExprEditor, Unit> {
@@ -95,11 +92,11 @@ val beautify = command<CallExprEditor, Unit> {
 fun PluginBuilder.addSpecialSyntax(syntax: SpecialSyntax<*>) {
     on(Initialize) {
         SpecialSyntax.register(syntax)
-        SExprExpanderConfigurator.config.registerKey(syntax.name) { context -> syntax.createTemplate(context) }
+        SExprExpander.config.registerKey(syntax.name) { context -> syntax.createTemplate(context) }
     }
     on(Disable) {
         SpecialSyntax.unregister(syntax)
-        SExprExpanderConfigurator.config.unregisterKey(syntax.name)
+        SExprExpander.config.unregisterKey(syntax.name)
     }
     registerInspection<CallExprEditor> {
         id = "syntactic-sugar.${syntax.name}"

@@ -61,14 +61,14 @@ class ResultComposer @PublishedApi internal constructor(private val compound: Ed
  */
 inline fun <R> Editor<*>.composeResult(
     components: Collection<Editor<*>>,
-    default: R,
+    crossinline default: () -> R,
     crossinline compose: ResultComposer.() -> R
 ): ReactiveValue<R> = binding(dependencies(components.map { it.result })) {
     context.executeSafely("compose result", default) {
         try {
             ResultComposer(this).compose()
         } catch (ex: InvalidSubResultException) {
-            default
+            default()
         }
     }
 }
@@ -78,6 +78,6 @@ inline fun <R> Editor<*>.composeResult(
  */
 inline fun <R> Editor<*>.composeResult(
     vararg components: Editor<*>,
-    default: R,
+    crossinline default: () -> R,
     crossinline compose: ResultComposer.() -> R
 ): ReactiveValue<R> = composeResult(components.asList(), default, compose)

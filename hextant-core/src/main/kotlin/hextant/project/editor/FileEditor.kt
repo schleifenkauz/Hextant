@@ -81,7 +81,7 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
 
     @Suppress("DEPRECATION")
     private fun updateEditor(e: Editor<R>) {
-        obs = _result.bind(composeResult<File<R>?>(itemName, e, default = null) { File(itemName.now, e.now) })
+        obs = _result.bind(composeResult<File<R>?>(itemName, e, default = { null }) { File(itemName.now, e.now) })
         e.setFile(content)
     }
 

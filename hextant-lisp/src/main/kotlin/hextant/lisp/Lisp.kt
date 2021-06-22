@@ -2,10 +2,7 @@ package hextant.lisp
 
 import hextant.fx.getUserInput
 import hextant.lisp.editor.*
-import hextant.lisp.rt.LispRuntimeException
-import hextant.lisp.rt.RuntimeScope
-import hextant.lisp.rt.evaluate
-import hextant.lisp.rt.reduce
+import hextant.lisp.rt.*
 import hextant.plugins.PluginInitializer
 import hextant.plugins.registerCommand
 import hextant.plugins.stylesheet
@@ -19,16 +16,16 @@ object Lisp : PluginInitializer({
         name = "Evaluate"
         shortName = "eval"
         defaultShortcut("Ctrl?+Shift+E")
-        applicableIf { p -> p.result.now != null }
+        applicableIf { p -> p.result.now.isSyntacticallyCorrect() }
         executing { e, _ ->
-            val expr = e.result.now!!
+            val expr = e.result.now
             val scope = RuntimeScope.root { scope, name ->
                 val editor = SExprExpander(e.context)
                 getUserInput("Specify value for $name", editor)?.evaluate(scope)
             }
             try {
                 val v = expr.evaluate(scope)
-                e.reconstruct(v)
+                println(display(v))
             } catch (ex: LispRuntimeException) {
                 Alert(AlertType.ERROR, ex.message).show()
                 ex.printStackTrace()
@@ -38,10 +35,10 @@ object Lisp : PluginInitializer({
     registerCommand<SExprExpander, Unit> {
         name = "Reduce"
         shortName = "reduce"
-        applicableIf { p -> p.result.now != null }
+        applicableIf { p -> p.result.now.isSyntacticallyCorrect() }
         defaultShortcut("Ctrl?+E")
         executing { e, _ ->
-            val expr = e.result.now!!
+            val expr = e.result.now
             try {
                 val scope = RuntimeScope.root()
                 val reduced = expr.reduce(scope)

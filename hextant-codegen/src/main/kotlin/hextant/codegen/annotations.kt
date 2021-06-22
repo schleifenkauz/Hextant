@@ -14,15 +14,23 @@ sealed class None
 
 @Retention(SOURCE)
 @Target(CLASS, FUNCTION, CONSTRUCTOR)
-annotation class Token(val classLocation: String = DEFAULT, val nodeType: KClass<*> = None::class)
+annotation class Token(
+    val classLocation: String = DEFAULT,
+    val nodeType: KClass<*> = None::class,
+    val register: Boolean = true
+)
 
 @Retention(SOURCE)
 @Target(CLASS, FUNCTION, CONSTRUCTOR)
-annotation class Compound(val classLocation: String = DEFAULT, val nodeType: KClass<*> = None::class)
+annotation class Compound(
+    val classLocation: String = DEFAULT,
+    val nodeType: KClass<*> = None::class,
+    val register: Boolean = true
+)
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class Alternative(val nullableResult: Boolean, val interfaceLocation: String = DEFAULT)
+annotation class NodeType(val nullableResult: Boolean, val interfaceLocation: String = DEFAULT)
 
 @Retention(SOURCE)
 @Target(CLASS)

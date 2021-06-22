@@ -29,7 +29,7 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
      * and if any of the component results is incomplete the compound result will be set to the specified [default].
      */
     inline fun composeResult(
-        default: R = defaultResult(),
+        crossinline default: () -> R = ::defaultResult,
         crossinline compose: ResultComposer.() -> R
     ): ReactiveValue<R> = composeResult(children.now, default, compose)
 

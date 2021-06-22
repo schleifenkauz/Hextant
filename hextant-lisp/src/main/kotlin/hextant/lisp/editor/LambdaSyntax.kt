@@ -1,7 +1,6 @@
 package hextant.lisp.editor
 
 import hextant.context.Context
-import hextant.context.withoutUndo
 import hextant.lisp.SExpr
 import hextant.lisp.Symbol
 import hextant.lisp.rt.extractList
@@ -18,7 +17,7 @@ object LambdaSyntax : SpecialSyntax<LambdaEditor>("lambda", 2) {
     }
 
     override fun represent(context: Context, expressions: List<SExpr>): LambdaEditor =
-        LambdaEditor(context).withoutUndo {
+        LambdaEditor(context).apply {
             for (param in expressions[1].extractList()) {
                 val name = (param as Symbol).name
                 parameters.addLast(SymbolEditor(context, name))
@@ -29,7 +28,7 @@ object LambdaSyntax : SpecialSyntax<LambdaEditor>("lambda", 2) {
     override fun representEditors(
         context: Context,
         editors: List<SExprEditor<*>?>
-    ): LambdaEditor = LambdaEditor(context).withoutUndo {
+    ): LambdaEditor = LambdaEditor(context).apply {
         val params = editors[1] as CallExprEditor
         for (parameter in params.expressions.editors.now) {
             parameters.addLast(parameter.editor.now as SymbolEditor)
@@ -37,7 +36,7 @@ object LambdaSyntax : SpecialSyntax<LambdaEditor>("lambda", 2) {
         editors[2]?.let { e -> body.expand(e) }
     }
 
-    override fun desugar(editor: LambdaEditor): SExprEditor<*> = QuotationEditor(editor.context).withoutUndo {
+    override fun desugar(editor: LambdaEditor): SExprEditor<*> = QuotationEditor(editor.context).apply {
         val e = CallExprEditor(editor.context).apply {
             for (p in editor.parameters.editors.now) {
                 expressions.addLast(SExprExpander(context, p))
