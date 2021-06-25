@@ -16,11 +16,11 @@ import hextant.lisp.rt.evaluate
 @EditorInterface(SExprEditor::class)
 @EditableList
 @UseEditor(SExprExpander::class)
-sealed interface SExpr
+sealed class SExpr
 
-sealed interface SelfEvaluating : SExpr
+interface SelfEvaluating
 
-sealed interface Scalar : SExpr {
+sealed class Scalar : SExpr() {
     companion object : TokenTypeConfig<Scalar>({
         "#f" compilesTo BooleanLiteral(false)
         "#t" compilesTo BooleanLiteral(true)
@@ -36,17 +36,17 @@ sealed interface Scalar : SExpr {
     })
 }
 
-data class IllegalScalar(val token: String) : Scalar {
+data class IllegalScalar(val token: String) : Scalar() {
     override fun toString(): String = "<illegal: $token>"
 }
 
-sealed interface Literal<T : Any> : SelfEvaluating, Scalar {
-    val value: T
+sealed class Literal<T : Any> : SelfEvaluating, Scalar() {
+    abstract val value: T
 }
 
 @Token(nodeType = SExpr::class)
 @EditableList
-data class Symbol(val name: String) : Scalar {
+data class Symbol(val name: String) : Scalar() {
     override fun toString(): String = name
 
     companion object : TokenType<Symbol> {
@@ -56,7 +56,7 @@ data class Symbol(val name: String) : Scalar {
     }
 }
 
-data class IntLiteral(override val value: Int) : Literal<Int> {
+data class IntLiteral(override val value: Int) : Literal<Int>() {
     override fun toString(): String = "$value"
 
     companion object : TokenType<IntLiteral?> {
@@ -64,7 +64,7 @@ data class IntLiteral(override val value: Int) : Literal<Int> {
     }
 }
 
-data class BooleanLiteral(override val value: Boolean) : Literal<Boolean> {
+data class BooleanLiteral(override val value: Boolean) : Literal<Boolean>() {
     override fun toString(): String = "<boolean: $value>"
 
     companion object : TokenType<BooleanLiteral?> {
@@ -76,28 +76,28 @@ data class BooleanLiteral(override val value: Boolean) : Literal<Boolean> {
     }
 }
 
-data class Pair(var car: SExpr, var cdr: SExpr) : SExpr
+data class Pair(var car: SExpr, var cdr: SExpr) : SExpr()
 
-object Nil : Scalar {
+object Nil : Scalar() {
     override fun toString(): String = "Nil"
 }
 
 @Compound(nodeType = SExpr::class)
-data class Quotation(val quoted: SExpr) : SelfEvaluating
+data class Quotation(val quoted: SExpr) : SExpr(), SelfEvaluating
 
 @Compound(nodeType = SExpr::class)
-data class QuasiQuotation(val quoted: SExpr) : SExpr
+data class QuasiQuotation(val quoted: SExpr) : SExpr()
 
 @Compound(nodeType = SExpr::class)
-data class Unquote(val expr: SExpr) : SExpr
+data class Unquote(val expr: SExpr) : SExpr()
 
 @Compound(nodeType = SExpr::class, register = false)
-fun lambda(parameters: List<Symbol>, body: SExpr) = quote(list("lambda".s, list(parameters), body))
+fun lambda(parameters: List<Symbol>, body: SExpr) = list("lambda".s, list(parameters), body)
 
 @Compound(nodeType = SExpr::class, register = false)
 fun let(name: Symbol, value: SExpr, body: SExpr) = list("let".s, name, value, body)
 
-abstract class Procedure : SelfEvaluating {
+abstract class Procedure : SExpr(), SelfEvaluating {
     abstract val name: String?
 
     abstract val isMacro: Boolean

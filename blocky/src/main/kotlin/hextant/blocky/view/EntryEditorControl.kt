@@ -5,13 +5,12 @@
 package hextant.blocky.view
 
 import bundles.Bundle
-import hextant.blocky.editor.EntryEditor
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import javafx.scene.control.Label
 
 class EntryEditorControl @ProvideImplementation(ControlFactory::class) constructor(
-    editor: EntryEditor,
+    editor: hextant.blocky.editor.EntryEditor,
     argumnts: Bundle
 ) :
     ExecutableEditorControl<Label>(editor, argumnts) {

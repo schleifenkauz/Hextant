@@ -27,13 +27,16 @@ import reaktive.value.reactiveValue
 fun SExpr.reconstructEditor(context: Context): SExprExpander = SExprExpander(context).also { e -> e.reconstruct(this) }
 
 fun SExprExpander.reconstruct(expr: SExpr) {
-    expand(withoutUndo { reconstruct(expr, context) })
+    when (expr) {
+        is Scalar -> {
+            if (isExpanded.now) reset()
+            setText(display(expr))
+        }
+        else -> expand(context.withoutUndo { reconstruct(expr, context) })
+    }
 }
 
 private fun reconstruct(expr: SExpr, context: Context): SExprEditor<*> = when (expr) {
-    is Symbol -> SymbolEditor(context, expr)
-    is IntLiteral -> ScalarEditor(context, expr)
-    is BooleanLiteral -> ScalarEditor(context, expr)
     is Pair -> run {
         assert(expr.isList()) { "Can't reconstruct expression ${(display(expr))}" }
         val exprs = expr.extractList()

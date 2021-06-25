@@ -50,13 +50,12 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         return if (element.kind == CONSTRUCTOR) {
             extractQualifiedEditorClassName(ann, element.enclosingElement, packageSuffix, classNameSuffix)
         } else {
-            val capitalized = element.simpleName.toString()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            val capitalized = element.simpleName.toString().capitalize()
             "$pkg.$packageSuffix.$capitalized$classNameSuffix"
         }
     }
 
-    protected fun <C: ClassDefinition<CanImplement>> C.implementEditorOfSuperType(
+    protected fun <C : ClassDefinition<CanImplement>> C.implementEditorOfSuperType(
         annotation: Annotation,
         simpleName: String
     ): C = apply {
@@ -97,11 +96,11 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         return when {
             generated == null && linked == null -> fail("Can't find common editor interface for $type")
             generated != null && linked != null -> fail("Conflicting annotations on $type")
-            generated != null                   -> {
+            generated != null -> {
                 val editorQN = extractQualifiedEditorClassName(generated, el)
                 type(editorQN, concreteType) to emptyList()
             }
-            linked != null                      -> {
+            linked != null -> {
                 val t = getTypeMirror(linked::clz)
                 val delegated = try {
                     linked.delegated
@@ -112,7 +111,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
                 }
                 type(t.toString(), concreteType) to delegated
             }
-            else                                -> fail("impossible")
+            else -> fail("impossible")
         }
     }
 

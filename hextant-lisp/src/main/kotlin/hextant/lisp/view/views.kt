@@ -21,7 +21,6 @@ import hextant.core.view.ListEditorControl.SeparatorCell
 import hextant.core.view.TokenEditorControl
 import hextant.fx.registerShortcuts
 import hextant.fx.view
-import hextant.lisp.Scalar
 import hextant.lisp.editor.*
 import reaktive.value.now
 
@@ -39,6 +38,7 @@ fun createControl(editor: QuotationEditor, arguments: Bundle) = CompoundEditorCo
         operator("'")
         view(editor.quoted)
     }
+    styleClass.add("quote")
 }
 
 @ProvideImplementation(ControlFactory::class)
@@ -51,6 +51,7 @@ fun createControl(editor: QuasiQuotationEditor, arguments: Bundle) = CompoundEdi
         operator("`")
         view(editor.quoted)
     }
+    styleClass.add("quasiquote")
 }
 
 @ProvideImplementation(ControlFactory::class)
@@ -59,6 +60,7 @@ fun createControl(editor: UnquoteEditor, arguments: Bundle) = CompoundEditorCont
         operator(",")
         view(editor.expr)
     }
+    styleClass.add("unquote")
 }
 
 @ProvideImplementation(ControlFactory::class)
@@ -71,6 +73,7 @@ fun createControl(editor: CallExprEditor, arguments: Bundle) = CompoundEditorCon
         }
         operator(")")
     }
+    styleClass.add("compound-expr")
 }
 
 @ProvideImplementation(ControlFactory::class)

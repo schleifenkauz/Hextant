@@ -87,7 +87,7 @@ abstract class ListEditor<R, E : Editor<R>>(
      * Adds or removes children such that this list editor has exactly [size] children.
      */
     fun resize(size: Int): Boolean {
-        withoutUndo {
+        context.withoutUndo {
             if (!mayBeEmpty && size == 0) return false
             val old = editors.now.size
             when {

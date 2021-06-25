@@ -5,7 +5,6 @@
 package hextant.blocky.view
 
 import bundles.Bundle
-import hextant.blocky.editor.BlockEditor
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.context.createControl
@@ -14,7 +13,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 
 class BlockEditorControl @ProvideImplementation(ControlFactory::class) constructor(
-    private val editor: BlockEditor, arguments: Bundle
+    private val editor: hextant.blocky.editor.BlockEditor, arguments: Bundle
 ) : ExecutableEditorControl<Pane>(editor, arguments) {
     init {
         configureArrowStart(editor.next)

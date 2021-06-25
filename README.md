@@ -135,10 +135,7 @@ To build and run Hextant on your computer you need Git and version 11 of the Jav
 Follow these steps:  
 - Clone the project: ``git clone https://github.com/NKB03/Hextant``.
 - Create the hextant home directory: ``gradlew initialSetup``.
-- Build the project: ``gradlew build``. 
-If you are building the project the first time or if you have just used ``gradlew clean``
-you have to use ``gradlew build -PcorrectErrorTypes=false`` instead,
-because otherwise the compilation will fail complaining about missing generated sources.
+- Build the project: ``gradlew build``.
 - Publish all the default plugins: ``gradlew hextantPublish``.
 - Run the Hextant Launcher: ``gradlew hextant-main:run``
 

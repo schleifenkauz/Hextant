@@ -40,11 +40,11 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
 
     constructor(context: Context, editor: E?) : this(context) {
-        if (editor != null) withoutUndo { this.expand(editor) }
+        if (editor != null) withoutUndo { expand(editor) }
     }
 
     constructor(context: Context, text: String) : this(context) {
-        withoutUndo { setText(text) }
+        context.withoutUndo { setText(text) }
     }
 
     private val state: ReactiveVariable<State<E>> = reactiveVariable(initial)

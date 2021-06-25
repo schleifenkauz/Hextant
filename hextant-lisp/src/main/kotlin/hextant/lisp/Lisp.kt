@@ -3,11 +3,11 @@ package hextant.lisp
 import hextant.fx.getUserInput
 import hextant.lisp.editor.*
 import hextant.lisp.rt.*
-import hextant.plugins.PluginInitializer
-import hextant.plugins.registerCommand
-import hextant.plugins.stylesheet
+import hextant.plugins.*
+import hextant.undo.compoundEdit
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType
+import reaktive.value.binding.map
 import reaktive.value.now
 
 object Lisp : PluginInitializer({
@@ -26,6 +26,9 @@ object Lisp : PluginInitializer({
             try {
                 val v = expr.evaluate(scope)
                 println(display(v))
+                e.context.compoundEdit("subsitute result") {
+                    e.reconstruct(v)
+                }
             } catch (ex: LispRuntimeException) {
                 Alert(AlertType.ERROR, ex.message).show()
                 ex.printStackTrace()
@@ -49,7 +52,17 @@ object Lisp : PluginInitializer({
             }
         }
     }
+    registerInspection<ScalarEditor> {
+        id = "illegal-symbol"
+        description = "Reports symbols that do not match the lexer rules"
+        isSevere(true)
+        preventingThat { inspected.result.map { it is IllegalScalar } }
+        message { "${inspected.result.now}" }
+    }
     registerCommand(beautify)
     addSpecialSyntax(LetSyntax)
     addSpecialSyntax(LambdaSyntax)
+    resultStyleClass<IntLiteral> { "int-literal" }
+    resultStyleClass<BooleanLiteral> { "boolean-literal" }
+    resultStyleClass<Symbol> { "symbol" }
 })

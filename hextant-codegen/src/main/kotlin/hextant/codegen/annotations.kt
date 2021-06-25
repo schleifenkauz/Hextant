@@ -71,7 +71,7 @@ annotation class ProvideFeature
 
 @Retention(SOURCE)
 @Target(CLASS, CONSTRUCTOR, FUNCTION)
-annotation class ProvideImplementation(val aspect: KClass<*> = None::class)
+annotation class ProvideImplementation(val aspect: KClass<*> = None::class, val feature: String = DEFAULT)
 
 @Retention(SOURCE)
 @Target(CLASS, CONSTRUCTOR, FUNCTION)

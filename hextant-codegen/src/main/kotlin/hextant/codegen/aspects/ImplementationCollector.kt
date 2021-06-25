@@ -16,6 +16,8 @@ import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.TypeParameterElement
 import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.TypeMirror
+import javax.tools.Diagnostic
 
 internal object ImplementationCollector :
     AnnotationCollector<ProvideImplementation, Element, Implementation>("implementations.json") {
@@ -42,13 +44,29 @@ internal object ImplementationCollector :
                 val methods = aspect.enclosedElements.filter { it.kind == METHOD }
                 val decl = methods.singleOrNull() as? ExecutableElement
                     ?: fail("$aspect has ${methods.size} methods, must have exactly one")
-                val (fqFeatureName, simpleFeatureName, featureType) = inferFeature(decl, element, typeVar) ?: return
+                val configuredFeature = annotation.feature
+                val (fqName, shortName, featureType) = when {
+                    configuredFeature != DEFAULT -> Triple(
+                        configuredFeature,
+                        configuredFeature.substringAfterLast('.'),
+                        type(configuredFeature)
+                    )
+                    else -> {
+                        val featureType = inferFeature(decl, element, typeVar) ?: return
+                        val featureElement = featureType.asTypeElement()
+                        Triple(
+                            featureElement.runtimeFQName(),
+                            featureElement.simpleName.toString(),
+                            toKotlinType(featureType)
+                        )
+                    }
+                }
                 val (pkg, simpleName) = splitPkgAndName(element)
                 val typeParameters = element.typeParameters
                 val parameters = element.parameters.map { it.toString() to toKotlinType(it.asType()) }
                 generateSingleMethodImplementation(
                     aspect, decl.simpleName.toString(), typeParameters, parameters,
-                    fqFeatureName, simpleFeatureName, featureType,
+                    fqName, shortName, featureType,
                     pkg, simpleName
                 )
             }
@@ -59,7 +77,7 @@ internal object ImplementationCollector :
         decl: ExecutableElement,
         impl: ExecutableElement,
         aspectTypeVar: String
-    ): Triple<String, String, Type>? {
+    ): TypeMirror? {
         val unifier = TypeUnifier(processingEnv)
         for ((a, b) in decl.parameters.zip(impl.parameters)) {
             unifier.unify(a.asType(), b.asType())
@@ -68,11 +86,12 @@ internal object ImplementationCollector :
         unifier.unify(decl.returnType, ret)
         val featureType = unifier.lookup(aspectTypeVar)
             ?: error("Cannot infer feature type for $impl from method signature")
-        if (featureType.toString() == "error.NonExistentClass") return null
+        if (featureType.toString() == "error.NonExistentClass") {
+            processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, "feature type would be error.NonExistentClass")
+            return null
+        }
         check(featureType is DeclaredType) { "Invalid feature type $featureType" }
-        val feature = featureType.asTypeElement()
-        val featureName = feature.simpleName.toString()
-        return Triple(feature.runtimeFQName(), featureName, toKotlinType(featureType))
+        return featureType
     }
 
     private fun generateSingleMethodImplementation(

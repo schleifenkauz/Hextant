@@ -1,7 +1,3 @@
-.hextant-text.string-literal {
-    -fx-text-fill: #075307;
-}
-
 .hextant-text.int-literal {
     -fx-text-fill: #285cde;
 }
@@ -10,17 +6,13 @@
     -fx-text-fill: #cd5a13;
 }
 
-.lisp-call {
+.compound-expr {
     -fx-border-color: #207153;
     -fx-border-width: 3;
 }
 
 .hextant-text.symbol {
     -fx-text-fill: #a37dd2;
-}
-
-.normalized {
-    -fx-background-color: #072f03;
 }
 
 .quote {

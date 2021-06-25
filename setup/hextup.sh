@@ -81,6 +81,7 @@ create_script() {
 java --module-path $javafx_sdk/lib\
   --add-modules javafx.controls\
   --add-opens java.base/jdk.internal.loader=ALL-UNNAMED\
+  -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
   -jar $hextant_home/plugins/main.jar \"\$@\"
 "
   sudo sh -c "echo '$command' > /bin/hextant"

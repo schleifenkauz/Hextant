@@ -39,8 +39,7 @@ fun SExpr.extractList(): List<SExpr> {
 fun SExpr.unquote() = if (this is Quotation) quoted else fail("$this cannot be unquoted")
 
 fun SExpr.symbolList() = extractList()
-    .map { it as? Quotation ?: fail("expected symbol but got $it") }
-    .map { it.quoted as? Symbol ?: fail("expected symbol but got $it") }
+    .map { it as? Symbol ?: fail("expected symbol but got $it") }
     .map { it.name }
 
 fun truthy(condition: SExpr) = condition != f && condition != nil

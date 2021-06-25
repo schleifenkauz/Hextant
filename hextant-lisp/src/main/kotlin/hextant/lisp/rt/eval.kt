@@ -141,23 +141,13 @@ private fun SExpr.substituteInsideQuasiQuotation(substitution: Map<String, SExpr
 
 private fun applyFunction(proc: SExpr, arguments: List<SExpr>, scope: RuntimeScope): SExpr {
     if (arguments.any { !it.isValue }) fail("Not all arguments are evaluated")
-    return when {
-        proc.isList() -> {
-            val lst = proc.extractList()
-            ensure(lst.size == 3)
-            ensure(lst[0] == quote(Symbol("lambda")))
-            ensure(lst[1].isList())
-            val parameters = lst[1].symbolList()
-            val body = lst[2].unquote()
-            if (parameters.size != arguments.size) fail("Arity mismatch")
-            body.substitute(parameters.zip(arguments).toMap())
-        }
-        proc is Closure -> {
+    return when (proc) {
+        is Closure -> {
             if (proc.arity != VARARG && proc.arity != arguments.size) fail("Arity mismatch")
             val subst = proc.parameters.zip(arguments).toMap()
             proc.body.substitute(subst)
         }
-        proc is Builtin -> {
+        is Builtin -> {
             if (proc.arity != VARARG && proc.arity != arguments.size) fail("Arity mismatch")
             proc.call(arguments, scope)
         }
