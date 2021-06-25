@@ -4,6 +4,7 @@
 
 package hextant.command.line
 
+import bundles.set
 import hextant.command.Command
 import hextant.context.*
 import hextant.core.Editor
@@ -32,7 +33,7 @@ import reaktive.value.reactiveVariable
  * An editor for [Command]s.
  * @property source the [CommandSource] that is used to resolve available commands
  */
-class CommandLine(context: Context, val source: CommandSource) :
+class CommandLine private constructor(context: Context, val source: CommandSource) :
     AbstractEditor<CommandApplication?, CommandLineView>(context) {
     private var commandName: String = ""
     private var arguments: List<Editor<Any?>>? = null
@@ -253,4 +254,13 @@ class CommandLine(context: Context, val source: CommandSource) :
          */
         val result: Any?
     )
+
+    companion object {
+        fun create(context: Context, source: CommandSource): CommandLine {
+            val commandLineContext = context.extend {
+                set(SelectionDistributor, SelectionDistributor.newInstance())
+            }
+            return CommandLine(commandLineContext, source)
+        }
+    }
 }

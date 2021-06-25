@@ -9,7 +9,6 @@ import hextant.core.editor.TokenType
 import hextant.core.editor.TokenTypeConfig
 import hextant.lisp.editor.SExprEditor
 import hextant.lisp.editor.SExprExpander
-import hextant.lisp.editor.SExprExpanderConfigurator
 import hextant.lisp.rt.RuntimeScope
 import hextant.lisp.rt.evaluate
 
@@ -21,7 +20,7 @@ sealed class SExpr
 interface SelfEvaluating
 
 sealed class Scalar : SExpr() {
-    companion object : TokenTypeConfig<Scalar>({
+    companion object : TokenTypeConfig<SExpr>({
         "#f" compilesTo BooleanLiteral(false)
         "#t" compilesTo BooleanLiteral(true)
         registerInterceptor { token -> IllegalScalar(token) }
@@ -32,6 +31,20 @@ sealed class Scalar : SExpr() {
         }
         registerInterceptor { token ->
             token.toIntOrNull()?.let { v -> IntLiteral(v) }
+        }
+        registerInterceptor { token ->
+            if (token.startsWith("'"))
+                Scalar.compile(token.drop(1))
+                    .takeIf { it !is IllegalScalar }
+                    ?.let(::Quotation)
+            else null
+        }
+        registerInterceptor { token ->
+            if (token.startsWith(","))
+                Scalar.compile(token.drop(1))
+                    .takeIf { it !is IllegalScalar }
+                    ?.let(::Unquote)
+            else null
         }
     })
 }
@@ -50,7 +63,13 @@ data class Symbol(val name: String) : Scalar() {
     override fun toString(): String = name
 
     companion object : TokenType<Symbol> {
-        val validatedTokenType = TokenType { tok -> compile(tok).takeIf { tok.none { it.isWhitespace() } } }
+        fun validate(name: String): String = when {
+            name.isEmpty() -> "empty symbols are invalid"
+            name.isBlank() -> "blank symbols are invalid"
+            name.any { it.isWhitespace() } -> "symbol contains whitespace"
+            name.any { it in "()[]'`," } -> "symbol contains illegal characters"
+            else -> "ok"
+        }
 
         override fun compile(token: String): Symbol = Symbol(token)
     }
@@ -92,15 +111,17 @@ data class QuasiQuotation(val quoted: SExpr) : SExpr()
 data class Unquote(val expr: SExpr) : SExpr()
 
 @Compound(nodeType = SExpr::class, register = false)
-fun lambda(parameters: List<Symbol>, body: SExpr) = list("lambda".s, list(parameters), body)
+fun lambda(parameters: List<Symbol>, body: SExpr) = macroInvocation("lambda".s, listOf(list(parameters), body))
 
 @Compound(nodeType = SExpr::class, register = false)
-fun let(name: Symbol, value: SExpr, body: SExpr) = list("let".s, name, value, body)
+fun let(name: Symbol, value: SExpr, body: SExpr) = macroInvocation("let".s, listOf(name, value, body))
+
+@Compound(nodeType = SExpr::class, register = false)
+fun macroInvocation(macro: SExpr, arguments: List<SExpr>) =
+    list("eval".s, list(macro, *arguments.map(::quote).toTypedArray()))
 
 abstract class Procedure : SExpr(), SelfEvaluating {
     abstract val name: String?
-
-    abstract val isMacro: Boolean
 
     abstract val arity: Int
 
@@ -110,7 +131,6 @@ abstract class Procedure : SExpr(), SelfEvaluating {
 data class Builtin(
     override val name: String,
     override val arity: Int,
-    override val isMacro: Boolean,
     private val def: (arguments: List<SExpr>, callerScope: RuntimeScope) -> SExpr
 ) : Procedure() {
     override fun call(arguments: List<SExpr>, callerScope: RuntimeScope): SExpr = def(arguments, callerScope)
@@ -120,7 +140,6 @@ data class Closure(
     override val name: String?,
     val parameters: List<String>,
     val body: SExpr,
-    override val isMacro: Boolean,
     val closureScope: RuntimeScope
 ) : Procedure() {
     override val arity: Int

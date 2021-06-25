@@ -34,7 +34,7 @@ fun StringBuilder.display(value: SExpr) {
 
 private fun StringBuilder.displayProcedure(value: Procedure) {
     append('<')
-    if (value.isMacro) append("macro") else append("procedure")
+    append("procedure")
     append(' ')
     if (value.name != null) {
         append(value.name)

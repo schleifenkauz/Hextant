@@ -17,7 +17,7 @@ object HextantMain : PluginInitializer({
         name = "Save Project"
         shortName = "save"
         description = "Saves the project"
-        type = Command.Type.SingleReceiver
+        type = SingleReceiver
         defaultShortcut("Ctrl+S")
         applicableIf { ctx: Context -> ctx.hasProperty(Project) }
         executing { ctx: Context, _ ->
@@ -28,7 +28,7 @@ object HextantMain : PluginInitializer({
         name = "Quit"
         shortName = "quit"
         description = "Saves and closes the current project and opens the launcher"
-        type = Command.Type.SingleReceiver
+        type = SingleReceiver
         defaultShortcut("Ctrl+Q")
         applicableIf { ctx -> ctx.hasProperty(Project) }
         executing { ctx, _ ->
@@ -47,7 +47,7 @@ object HextantMain : PluginInitializer({
         executing { ctx, _ ->
             val manager = ctx[PluginManager]
             val editor = PluginsEditor(ctx, manager, setOf(PluginInfo.Type.Local, PluginInfo.Type.Global))
-            showStage(editor)
+            showStage(editor, applyStyle = false)
         }
     }
     registerCommand<Context, Unit> {

@@ -15,8 +15,11 @@ import hextant.serial.virtualize
  */
 inline fun <T> Context.compoundEdit(description: String, actions: () -> T): T = with(get(UndoManager)) {
     beginCompoundEdit()
-    val res = actions()
-    finishCompoundEdit(description)
+    val res = try {
+        actions()
+    } finally {
+        finishCompoundEdit(description)
+    }
     res
 }
 

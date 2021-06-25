@@ -59,7 +59,7 @@ abstract class Snapshot<Original : Any> {
     /**
      * Serialize this snapshot as a JSON element.
      */
-    protected abstract fun JsonObjectBuilder.encode()
+    abstract fun JsonObjectBuilder.encode()
 
     /**
      * Serialize this snapshot as a JSON element.
@@ -73,7 +73,7 @@ abstract class Snapshot<Original : Any> {
     /**
      * Read in a serialized snapshot represented as a JSON element.
      */
-    protected abstract fun decode(element: JsonObject)
+    abstract fun decode(element: JsonObject)
 
     companion object {
         /**
@@ -93,7 +93,7 @@ abstract class Snapshot<Original : Any> {
         }
 
         /**
-         * Syntactic sugar for [decode].
+         * Syntactic sugar for [decode] as [O].
          */
         @Suppress("UNCHECKED_CAST")
         @JvmName("decodeTypesafe")

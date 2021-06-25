@@ -280,7 +280,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     }
 
     @OptIn(InternalSerializationApi::class)
-    private class Snap : Snapshot<Expander<*, *>>() {
+    class Snap : Snapshot<Expander<*, *>>() {
         private lateinit var state: State<Snapshot<Editor<*>>>
 
         override fun doRecord(original: Expander<*, *>) {

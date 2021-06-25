@@ -19,6 +19,7 @@ import hextant.inspect.Inspections
 import hextant.serial.Snapshot
 import hextant.serial.json
 import hextant.serial.snapshot
+import javafx.css.PseudoClass
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
@@ -289,6 +290,10 @@ abstract class EditorControl<R : Node>(
     private fun setSelected(selected: Boolean) {
         _isSelected.set(selected)
         root.pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
+    }
+
+    override fun changePseudoClassState(pseudoClass: PseudoClass, active: Boolean) {
+        pseudoClassStateChanged(pseudoClass, active)
     }
 
     private fun initShortcuts() {

@@ -17,15 +17,7 @@ private fun RuntimeScope.builtin(
     arity: Int,
     def: (arguments: List<SExpr>, callerScope: RuntimeScope) -> SExpr
 ) {
-    addBuiltin(Builtin(name, arity, false, def))
-}
-
-private fun RuntimeScope.builtinMacro(
-    name: String,
-    arity: Int,
-    def: (arguments: List<SExpr>, callerScope: RuntimeScope) -> SExpr
-) {
-    addBuiltin(Builtin(name, arity, true, def))
+    addBuiltin(Builtin(name, arity, def))
 }
 
 private inline fun <T, reified L : Literal<T>> RuntimeScope.multiOperator(
@@ -66,13 +58,12 @@ private inline fun RuntimeScope.shortCircuitingOperator(
 private fun define(
     signature: SExpr,
     body: SExpr,
-    scope: RuntimeScope,
-    isMacro: Boolean
+    scope: RuntimeScope
 ): SExpr {
     val symbols = signature.symbolList()
     val name = symbols.first()
     val parameters = symbols.drop(1)
-    val proc = Closure(name, parameters, body, isMacro, closureScope = scope)
+    val proc = Closure(name, parameters, body, closureScope = scope)
     scope.define(name, proc)
     return t
 }
@@ -86,7 +77,7 @@ fun RuntimeScope.registerBuiltins() {
     shortCircuitingOperator("or", onCondition = t, default = f) { o, env -> truthy(o.evaluate(env)) }
     operator("xor", ::BooleanLiteral, Boolean::xor)
     builtin("fail", 1) { (msg), _ -> fail(display(msg)) }
-    builtinMacro("assert", 1) { (cond), env ->
+    builtin("assert", 1) { (cond), env ->
         val v = cond.evaluate(env)
         ensure(v) { "Assertion failed: ${display(cond)}" }
         v
@@ -95,11 +86,11 @@ fun RuntimeScope.registerBuiltins() {
     builtin("nil?", 1) { (l), _ -> lit(l.isNil()) }
     builtin("pair?", 1) { (p), _ -> lit(p.isPair()) }
     builtin("list?", 1) { (l), _ -> lit(l.isList()) }
-    builtinMacro("quote", 1) { (e), _ -> Quotation(e) }
+    builtin("quote", 1) { (e), _ -> Quotation(e) }
     builtin("car", 1) { (p), _ -> p.car }
     builtin("cdr", 1) { (p), _ -> p.cdr }
     builtin("cons", 2) { (a, b), _ -> Pair(a, b) }
-    builtinMacro("if", 3) { (cond, then, otherwise), env ->
+    builtin("if", 3) { (cond, then, otherwise), env ->
         if (truthy(cond.evaluate(env))) then
         else otherwise
     }
@@ -109,17 +100,11 @@ fun RuntimeScope.registerBuiltins() {
     }
     builtin("list", VARARG) { elements, _ -> elements.foldRight(nil) { e, acc -> Pair(e, acc) } }
     builtin("eval", 1) { (e), env -> e.evaluate(env) }
-    builtinMacro("lambda", 2) { (parameters, body), env ->
-        Closure(null, parameters.symbolList(), body, isMacro = false, closureScope = env)
+    builtin("lambda", 2) { (parameters, body), env ->
+        Closure(null, parameters.symbolList(), body, closureScope = env)
     }
-    builtinMacro("macro", 2) { (parameters, body), env ->
-        Closure(null, parameters.symbolList(), body, isMacro = true, closureScope = env)
-    }
-    builtinMacro("defun", 2) { (signature, body), env ->
-        define(signature, body, env, false)
-    }
-    builtinMacro("defmacro", 2) { (signature, body), env ->
-        define(signature, body, env, true)
+    builtin("defun", 2) { (signature, body), env ->
+        define(signature, body, env)
     }
     builtin("eqv?", 2) { (a, b), _ ->
         lit(a == b)
@@ -127,7 +112,7 @@ fun RuntimeScope.registerBuiltins() {
     builtin("same?", 2) { (a, b), _ ->
         lit(a === b)
     }
-    builtinMacro("define", 2) { (sym, expr), env ->
+    builtin("define", 2) { (sym, expr), env ->
         ensure(sym is Symbol) { "${display(sym)} is not a symbol" }
         val v = expr.evaluate(env)
         env.define(sym.name, v)
@@ -138,7 +123,7 @@ fun RuntimeScope.registerBuiltins() {
         env.set(sym.name, value)
         value
     }
-    builtinMacro("setq!", 2) { (sym, expr), env ->
+    builtin("setq!", 2) { (sym, expr), env ->
         ensure(sym is Symbol) { "${display(sym)} is not a symbol" }
         val v = expr.evaluate(env)
         env.set(sym.name, v)
@@ -154,7 +139,7 @@ fun RuntimeScope.registerBuiltins() {
         p.cdr = v
         v
     }
-    builtinMacro("let", 3) { (sym, value, body), env ->
+    builtin("let", 3) { (sym, value, body), env ->
         ensure(sym is Symbol) { "bad syntax" }
         val e = env.child()
         e.define(sym.name, value.evaluate(env))

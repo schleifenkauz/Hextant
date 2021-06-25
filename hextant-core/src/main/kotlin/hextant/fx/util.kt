@@ -143,7 +143,7 @@ fun Dialog<*>.setDefaultButton(type: ButtonType) {
     }
 }
 
-inline fun <R, D: Dialog<R>> D.showDialog(config: D.() -> Unit = {}): R? {
+inline fun <R, D : Dialog<R>> D.showDialog(config: D.() -> Unit = {}): R? {
     config()
     isResizable = true
     setOnShown {
@@ -220,15 +220,17 @@ fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context, command
 /**
  * Shows a new [Stage] with the given node as the root.
  */
-fun showStage(root: Parent): Stage = Stage().apply {
+fun showStage(root: Parent, context: Context, applyStyle: Boolean): Stage = Stage().apply {
     scene = Scene(root)
+    scene.initHextantScene(context, applyStyle)
     show()
 }
 
 /**
  * Shows a [Stage] with the view of the given [editor] as the root.
  */
-fun showStage(editor: Editor<*>) = showStage(editor.context.createControl(editor))
+fun showStage(editor: Editor<*>, applyStyle: Boolean) =
+    showStage(editor.context.createControl(editor), editor.context, applyStyle)
 
 /**
  * Enqueues the given [action] into the JavaFX application thread after some [delay] which is given in milliseconds.

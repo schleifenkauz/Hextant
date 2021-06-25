@@ -44,7 +44,7 @@ class CommandLineBasedLauncherView @ProvideImplementation(ControlFactory::class)
 
     private fun createCommandLine(): EditorControl<*> {
         val src = SingleCommandSource(context, context)
-        val cl = CommandLine(context, src)
+        val cl = CommandLine.create(context, src)
         return context.createControl(cl) { set(HISTORY_ITEMS, 1) }
     }
 

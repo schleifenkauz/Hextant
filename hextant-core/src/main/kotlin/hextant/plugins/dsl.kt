@@ -96,7 +96,7 @@ fun <T : Any, P : Permission> PluginBuilder.set(permission: P, property: Propert
  * Sets the value of the given [property].
  */
 fun <T : Any> PluginBuilder.set(property: PublicProperty<T>, value: T) {
-    set(property, value)
+    context[property] = value
 }
 
 @Suppress("UNCHECKED_CAST")

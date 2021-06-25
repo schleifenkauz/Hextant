@@ -7,6 +7,7 @@ package hextant.lisp.view
 import bundles.Bundle
 import bundles.set
 import hextant.codegen.ProvideImplementation
+import hextant.command.line.CommandLine
 import hextant.completion.CompletionStrategy
 import hextant.context.ControlFactory
 import hextant.context.EditorControlGroup
@@ -27,10 +28,6 @@ import reaktive.value.now
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: SymbolEditor, arguments: Bundle) =
     TokenEditorControl(editor, arguments, styleClass = "symbol")
-
-@ProvideImplementation(ControlFactory::class)
-fun createControl(editor: ScalarEditor, arguments: Bundle) =
-    TokenEditorControl(editor, arguments, styleClass = "scalar")
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: QuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
@@ -77,21 +74,24 @@ fun createControl(editor: CallExprEditor, arguments: Bundle) = CompoundEditorCon
 }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: LispProject, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    val ctx = editor.context
-    view(editor.root)
-    val cl = ctx[localCommandLine]
-    view(cl).registerShortcuts {
-        on("Ctrl?+I") {
-            ctx[SelectionDistributor].focusedView.now?.focus()
+fun createControl(editor: LispProject, arguments: Bundle) =
+    createViewWithCommandLine(editor.root, arguments, editor.context[localCommandLine])
+
+fun createViewWithCommandLine(root: SExprExpander, arguments: Bundle, commandLine: CommandLine) =
+    CompoundEditorControl(root, arguments) {
+        val ctx = root.context
+        view(root)
+        view(commandLine).registerShortcuts {
+            on("Ctrl?+I") {
+                ctx[SelectionDistributor].focusedView.now?.focus()
+            }
+        }
+        registerShortcuts {
+            on("Ctrl?+K") {
+                ctx[EditorControlGroup].getViewOf(commandLine).receiveFocus()
+            }
         }
     }
-    registerShortcuts {
-        on("Ctrl?+K") {
-            ctx[EditorControlGroup].getViewOf(cl).receiveFocus()
-        }
-    }
-}
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: LetEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
@@ -120,5 +120,19 @@ fun createControl(editor: LambdaEditor, arguments: Bundle) = CompoundEditorContr
         }
         operator(" -> ")
         view(editor.body)
+    }
+}
+
+@ProvideImplementation(ControlFactory::class)
+fun createControl(editor: MacroInvocationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+    line {
+        operator("[")
+        view(editor.macro)
+        space()
+        view(editor.arguments) {
+            set(ORIENTATION, Horizontal)
+            set(CELL_FACTORY) { SeparatorCell(" ") }
+        }
+        operator("]")
     }
 }

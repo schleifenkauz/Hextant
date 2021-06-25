@@ -6,7 +6,6 @@ package hextant.lisp.rt
 
 import hextant.lisp.*
 
-
 fun <T> SExpr.traverse(combine: (T, T) -> T, extract: (Scalar) -> T): T = when (this) {
     is Scalar -> extract(this)
     is Pair -> combine(car.traverse(combine, extract), cdr.traverse(combine, extract))
@@ -20,8 +19,10 @@ fun SExpr.isSyntacticallyCorrect() = traverse(Boolean::and) { it !is IllegalScal
 
 fun SExpr.evaluate(scope: RuntimeScope = RuntimeScope.root()): SExpr =
     when (this) {
+        is Literal<*>, is Procedure -> this
         is Symbol -> scope.get(name) ?: fail("unbound variable $name")
-        is QuasiQuotation -> quote(quoted.unquoteAfterCommas(scope))
+        is Quotation -> quoted
+        is QuasiQuotation -> quoted.unquoteAfterCommas(scope)
         is Unquote -> fail("comma is illegal outside of quasi-quotation")
         is Pair -> {
             ensure(isList())
@@ -31,7 +32,6 @@ fun SExpr.evaluate(scope: RuntimeScope = RuntimeScope.root()): SExpr =
             apply(proc, args, scope)
         }
         is Nil -> fail("Illegal empty application ()")
-        is Literal<*>, is Procedure, is Quotation -> this
         is IllegalScalar -> fail("Syntax error: $this")
     }
 
@@ -47,8 +47,7 @@ private fun apply(proc: Procedure, arguments: List<SExpr>, scope: RuntimeScope):
     if (proc.arity != VARARG) ensure(arguments.size == proc.arity) {
         "Arity mismatch: ${display(proc)} was called with ${arguments.size} arguments"
     }
-    return if (proc.isMacro) proc.call(arguments, scope).evaluate(scope)
-    else proc.call(arguments.map { it.evaluate(scope) }, scope)
+    return proc.call(arguments.map { it.evaluate(scope) }, scope)
 }
 
 private data class BuiltinSyntax(
@@ -84,7 +83,9 @@ private val syntax = listOf(
 ).associateBy { it.name }
 
 fun SExpr.reduce(scope: RuntimeScope): SExpr = when (this) {
+    is Literal<*>, is Procedure -> this
     is Symbol -> scope.get(name) ?: fail("unbound variable $name")
+    is Quotation -> quoted
     is QuasiQuotation -> quoted.reduceQuasiQuotation()
     is Unquote -> fail("comma is illegal outside of quasi-quotation")
     is Pair -> run {
@@ -93,13 +94,11 @@ fun SExpr.reduce(scope: RuntimeScope): SExpr = when (this) {
         when (val c = car) {
             is Symbol ->
                 if (c.name in syntax) syntax.getValue(c.name).definition(arguments, scope)
-                else
-                    applyFunction(scope.get(c.name) ?: fail("unbound variable ${c.name}"), arguments, scope)
+                else applyFunction(scope.get(c.name) ?: fail("unbound variable ${c.name}"), arguments, scope)
             else -> applyFunction(c, arguments, scope)
         }
     }
     is Nil -> fail("Illegal empty application ()")
-    is Literal<*>, is Procedure, is Quotation -> this
     is IllegalScalar -> this
 }
 

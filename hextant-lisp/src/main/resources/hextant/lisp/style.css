@@ -15,8 +15,16 @@
     -fx-text-fill: #a37dd2;
 }
 
+.hextant-text.scalar-quote {
+    -fx-text-fill: blue;
+}
+
+.hextant-text.scalar-unquote {
+    -fx-text-fill: purple;
+}
+
 .quote {
-    -fx-border-color: #0000ff;
+    -fx-border-color: blue;
     -fx-border-width: 2;
 }
 
@@ -28,4 +36,8 @@
 .quasi-quote {
     -fx-border-color: orange;
     -fx-border-width: 2;
+}
+
+:normalized {
+    -fx-background-color: rgb(32, 51, 46) !important;
 }

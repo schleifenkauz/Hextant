@@ -6,6 +6,7 @@ package hextant.core
 
 import bundles.Bundle
 import hextant.serial.SnapshotAware
+import javafx.css.PseudoClass
 
 /**
  * A graphical view of an [Editor]
@@ -30,4 +31,9 @@ interface EditorView : SnapshotAware {
      * Focus this [EditorView]
      */
     fun focus()
+
+    /**
+     * Change the state of the specified [pseudoClass].
+     */
+    fun changePseudoClassState(pseudoClass: PseudoClass, active: Boolean)
 }

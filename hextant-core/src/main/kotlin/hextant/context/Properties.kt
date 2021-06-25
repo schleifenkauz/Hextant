@@ -67,14 +67,8 @@ object Properties {
         set(UndoManager, UndoManager.newInstance())
         set(Clipboard, SimpleClipboard())
         set(InputMethod, InputMethod.REGULAR)
-        set(Internal, localCommandLine, createCommandLine(ContextCommandSource(this, Targets, Expanders, Views)))
-        set(Internal, globalCommandLine, createCommandLine(SingleCommandSource(this, this)))
+        set(Internal, localCommandLine, CommandLine.create(this, ContextCommandSource(this, Targets, Expanders, Views)))
+        set(Internal, globalCommandLine, CommandLine.create(this, SingleCommandSource(this, this)))
     }
 
-    private fun Context.createCommandLine(source: CommandSource): CommandLine {
-        val commandLineContext = extend {
-            set(SelectionDistributor, SelectionDistributor.newInstance())
-        }
-        return CommandLine(commandLineContext, source)
-    }
 }
