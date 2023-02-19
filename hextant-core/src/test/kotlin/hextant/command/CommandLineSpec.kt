@@ -56,7 +56,7 @@ internal object CommandLineSpec : Spek({
         context[Aspects].implement(EditorFactory::class, IntLiteral::class, EditorFactory { ctx -> IntLiteralEditor(ctx) })
         val distributor = SelectionDistributor.newInstance()
         distributor.select(v)
-        val cl = CommandLine(context, ContextCommandSource(context, distributor, commands, Targets))
+        val cl = CommandLine.create(context, ContextCommandSource(context, distributor, commands, Targets))
         val view = mock<CommandLineView> {
             on { expanded(any(), any()) }.then {
                 if (it.getArgument<Command<*, *>>(0).shortName == "command2") {

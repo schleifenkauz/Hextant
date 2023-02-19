@@ -15,6 +15,6 @@ object ExpanderDemo : ProjectType {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        showTestProject(ExpanderDemo)
+        showTestProject(this)
     }
 }

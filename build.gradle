@@ -2,6 +2,7 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
+        mavenLocal()
     }
     dependencies {
         classpath 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.17'
@@ -23,7 +24,7 @@ allprojects {
     group = 'com.github.nkb03'
 }
 
-task initialSetup {
+tasks.register('initialSetup') {
     group = "build setup"
     doLast {
         File launcher = new File(System.getProperty("user.home") + "/hextant" + "/launcher")
@@ -42,6 +43,7 @@ subprojects {
         maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots'
         }
+        mavenLocal()
     }
 
     apply plugin: 'kotlin'

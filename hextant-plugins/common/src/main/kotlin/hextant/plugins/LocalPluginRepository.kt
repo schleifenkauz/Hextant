@@ -11,6 +11,7 @@ import java.io.InputStream
 import java.util.*
 import java.util.jar.JarFile
 import kotlin.collections.set
+import kotlin.reflect.full.isSubclassOf
 
 class LocalPluginRepository(private val root: File) : Marketplace {
     private val trie = Trie<PluginInfo>()
@@ -89,7 +90,17 @@ class LocalPluginRepository(private val root: File) : Marketplace {
 
     override suspend fun availableProjectTypes(): List<LocatedProjectType> = projectTypes.values.toList()
 
-    override suspend fun getProjectType(name: String): LocatedProjectType? = projectTypes[name]
+    override suspend fun getProjectType(name: String): LocatedProjectType? =
+        projectTypes[name] ?: anonymousProjectType(name)
+
+    private fun anonymousProjectType(className: String): LocatedProjectType? = try {
+        val clazz = Class.forName(className).kotlin
+        if (clazz.isSubclassOf(CLS_PROJECT_TYPE))
+            LocatedProjectType("<anonymous>", className, "<anonymous>")
+        else null
+    } catch (e: ClassNotFoundException) {
+        null
+    }
 
     override suspend fun getJarFile(id: String): File? {
         val file = root.resolve("$id.jar")
@@ -105,5 +116,9 @@ class LocalPluginRepository(private val root: File) : Marketplace {
         val dest = File(root, name)
         file.copyTo(dest.outputStream())
         uploaded(dest)
+    }
+
+    companion object {
+        private val CLS_PROJECT_TYPE = Class.forName("hextant.project.ProjectType").kotlin
     }
 }
