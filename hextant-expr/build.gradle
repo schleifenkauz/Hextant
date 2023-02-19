@@ -6,5 +6,4 @@ hextant {
 
 dependencies {
     testImplementation project(':hextant-test')
-    testImplementation project(':hextant-codegen')
 }
