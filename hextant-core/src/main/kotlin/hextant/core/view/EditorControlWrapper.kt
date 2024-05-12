@@ -20,7 +20,7 @@ class EditorControlWrapper(
         setChildren(view)
     }
 
-    override fun argumentChanged(property: Property<*, *>, value: Any?) {
+    override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
         view.argumentChanged(property, value)
     }
 

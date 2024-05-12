@@ -20,8 +20,7 @@ import hextant.fx.*
  */
 open class ValidatedTokenEditorControl @ProvideImplementation(ControlFactory::class) constructor(
     private val editor: ValidatedTokenEditor<*>, arguments: Bundle
-) :
-    EditorControl<HextantTextField>(editor, arguments), ValidatedTokenEditorView {
+) : EditorControl<HextantTextField>(editor, arguments), ValidatedTokenEditorView {
     private val popup = CompletionPopup.forContext(context) { arguments[COMPLETER] }
 
     private val textObserver = root.userUpdatedText.observe { _, new ->

@@ -2,6 +2,10 @@ package hextant.main
 
 import bundles.*
 import hextant.cli.HextantDirectory
+import hextant.cli.HextantDirectory.DISPLAY
+import hextant.cli.HextantDirectory.PROJECT_INFO
+import hextant.cli.HextantDirectory.PROJECT_ROOT
+import hextant.cli.fail
 import hextant.context.Context
 import hextant.context.Internal
 import hextant.context.Properties.classLoader
@@ -10,18 +14,9 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.fx.getUserInput
-import hextant.cli.HextantDirectory.DISPLAY
-import hextant.cli.HextantDirectory.PROJECT_INFO
-import hextant.cli.HextantDirectory.PROJECT_ROOT
-import hextant.cli.fail
 import hextant.plugins.*
 import hextant.plugins.PluginBuilder.Phase.*
-import hextant.plugins.PluginSource
-import hextant.plugins.applyPhase
 import hextant.plugins.editor.PluginsEditor
-import hextant.plugins.loadPluginInfosFromClasspath
-import hextant.plugins.registerImplementations
-import hextant.plugins.registerImplementationsFromClasspath
 import hextant.serial.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -130,7 +125,7 @@ class Project private constructor(
             val display = path.resolve(DISPLAY)
             if (display.exists()) {
                 val json = Json.parseToJsonElement(display.readText())
-                val snap = Snapshot.decode<EditorControl<*>>(json)
+                val snap = Snapshot.decodeFromJson<EditorControl<*>>(json)
                 view.root
                 snap.reconstruct(view)
             }

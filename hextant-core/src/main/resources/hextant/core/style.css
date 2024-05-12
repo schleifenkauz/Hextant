@@ -193,3 +193,19 @@
 .empty-text {
     -fx-background-color: #1e5b54;
 }
+
+.standard-empty-display {
+    -fx-padding: 3px;
+    -fx-text-fill: transparent;
+    -fx-background-color: transparent;
+}
+
+.standard-empty-display:hover {
+    -fx-text-fill: white;
+    -fx-background-color: #303030;
+}
+
+.standard-empty-display:focused {
+    -fx-text-fill: white;
+    -fx-background-color: #303030;
+}

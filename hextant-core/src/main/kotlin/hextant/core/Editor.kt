@@ -72,7 +72,7 @@ interface Editor<out R> : SnapshotAware {
      * It is likely to be removed soon and using it can cause all sorts of bugs.
      */
     @Deprecated("Treat as internal")
-    fun initExpander(expander: Expander<@UnsafeVariance R, *>)
+    fun initExpander(expander: Expander<*, *>)
 
     /**
      * This method should be considered an implementation detail.

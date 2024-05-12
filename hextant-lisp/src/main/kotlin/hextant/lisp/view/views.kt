@@ -31,11 +31,11 @@ fun createControl(editor: SymbolEditor, arguments: Bundle) =
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: QuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    line {
+    horizontal {
         operator("'")
         view(editor.quoted)
+        styleClass.add("quote")
     }
-    styleClass.add("quote")
 }
 
 @ProvideImplementation(ControlFactory::class)
@@ -44,33 +44,33 @@ fun createControl(editor: SExprExpander, arguments: Bundle) =
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: QuasiQuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    line {
+    horizontal {
         operator("`")
         view(editor.quoted)
+        styleClass("quasiquote")
     }
-    styleClass.add("quasiquote")
 }
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: UnquoteEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    line {
+    horizontal {
         operator(",")
         view(editor.expr)
+        styleClass("unquote")
     }
-    styleClass.add("unquote")
 }
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: CallExprEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    line {
+    horizontal {
         operator("(")
         view(editor.expressions) {
             set(ORIENTATION, Horizontal)
             set(CELL_FACTORY) { SeparatorCell(" ") }
         }
         operator(")")
+        styleClass("compound-expr")
     }
-    styleClass.add("compound-expr")
 }
 
 @ProvideImplementation(ControlFactory::class)
@@ -79,30 +79,32 @@ fun createControl(editor: LispProject, arguments: Bundle) =
 
 fun createViewWithCommandLine(root: SExprExpander, arguments: Bundle, commandLine: CommandLine) =
     CompoundEditorControl(root, arguments) {
-        val ctx = root.context
-        view(root)
-        view(commandLine).registerShortcuts {
-            on("Ctrl?+I") {
-                ctx[SelectionDistributor].focusedView.now?.focus()
+        vertical {
+            val ctx = root.context
+            view(root)
+            view(commandLine).registerShortcuts {
+                on("Ctrl?+I") {
+                    ctx[SelectionDistributor].focusedView.now?.focus()
+                }
             }
-        }
-        registerShortcuts {
-            on("Ctrl?+K") {
-                ctx[EditorControlGroup].getViewOf(commandLine).receiveFocus()
+            this.root.registerShortcuts {
+                on("Ctrl?+K") {
+                    ctx[EditorControlGroup].getViewOf(commandLine).receiveFocus()
+                }
             }
         }
     }
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: LetEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    line {
+    horizontal {
         keyword("let")
         space()
         view(editor.name)
         keyword("=")
         view(editor.value)
     }
-    line {
+    horizontal {
         keyword("in")
         space()
         view(editor.body)
@@ -111,7 +113,7 @@ fun createControl(editor: LetEditor, arguments: Bundle) = CompoundEditorControl(
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: LambdaEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    line {
+    horizontal {
         keyword("lambda")
         space()
         view(editor.parameters) {
@@ -125,7 +127,7 @@ fun createControl(editor: LambdaEditor, arguments: Bundle) = CompoundEditorContr
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: MacroInvocationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    line {
+    horizontal {
         operator("[")
         view(editor.macro)
         space()

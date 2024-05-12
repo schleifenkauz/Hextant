@@ -79,7 +79,13 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      * Return the editor that should be wrapped if the expander
      * is expanded with the given [text] or `null` if the text is not valid.
      */
-    protected abstract fun expand(text: String): E?
+    protected open fun expand(text: String): E? = null
+
+    /**
+     * Return the editor that should be wrapped if the given [text] is typed into this expander
+     * or `null` if the text is not auto-expandable.
+     */
+    protected open fun autoExpand(text: String): E? = null
 
     /**
      * Create an editor from the given [completion] or return `null` if it is not possible.
@@ -157,9 +163,16 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     fun setText(newText: String) {
         forceText()
-        executeEdit("Type") {
-            state.now = Text(newText, null)
-            views { displayText(newText) }
+        val autoExpanded = context.executeSafely("auto-expanding", null) { autoExpand(newText) }
+        if (autoExpanded != null) {
+            executeEdit("AutoExpand") {
+                expand(autoExpanded)
+            }
+        } else {
+            executeEdit("Type") {
+                state.now = Text(newText, null)
+                views { displayText(newText) }
+            }
         }
     }
 
@@ -170,7 +183,11 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     fun expand() {
         val text = forceText()
         val editor = tryExpand(text)
-        if (editor != null) expand(editor)
+        if (editor != null) {
+            executeEdit("Expand") {
+                expand(editor)
+            }
+        }
     }
 
     /**
@@ -202,16 +219,15 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      * If the given [editor] doesn't have the right [context] it is copied.
      */
     fun expand(editor: E) {
+        val e = editor.moveTo(expansionContext())
+        state.set(Expanded(e))
+        this.parent?.let { editor.initParent(it) }
         @Suppress("DEPRECATION")
-        executeEdit("Expand") {
-            val e = editor.moveTo(expansionContext())
-            state.set(Expanded(e))
-            this.parent?.let { editor.initParent(it) }
-            editor.initExpander(this)
-            editor.setAccessor(ExpanderContent)
-            onExpansion(editor)
-            views { expanded(e) }
-        }
+        editor.initExpander(this)
+        @Suppress("DEPRECATION")
+        editor.setAccessor(ExpanderContent)
+        views { expanded(e) }
+        onExpansion(editor)
     }
 
     /**
@@ -238,6 +254,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         }
     }
 
+    @Deprecated("Treat as internal")
     @Suppress("DEPRECATION", "OverridingDeprecatedMember")
     override fun initParent(parent: Editor<*>) {
         super.initParent(parent)
@@ -306,7 +323,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
 
         override fun JsonObjectBuilder.encode() {
             when (val st = state) {
-                is Expanded -> put("editor", st.content.encode())
+                is Expanded -> put("editor", st.content.encodeToJson())
                 is Text     -> {
                     if (st.completion != null) {
                         val cls = st.completion.javaClass
@@ -321,7 +338,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         override fun decode(element: JsonObject) {
             state = when {
                 "editor" in element -> {
-                    val editor = decode<Editor<*>>(element.getValue("editor"))
+                    val editor = decodeFromJson<Editor<*>>(element.getValue("editor"))
                     Expanded(editor)
                 }
                 "text" in element   -> {

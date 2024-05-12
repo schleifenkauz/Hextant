@@ -69,13 +69,13 @@ class ProgramEditor(context: Context) :
         }
 
         override fun JsonObjectBuilder.encode() {
-            put("entry", entry.encode())
-            put("components", JsonArray(components.map { it.encode() }))
+            put("entry", entry.encodeToJson())
+            put("components", JsonArray(components.map { it.encodeToJson() }))
         }
 
         override fun decode(element: JsonObject) {
-            entry = decode<EntryEditor>(element.getValue("entry"))
-            components = element.getValue("components").jsonArray.map { decode<Editor<*>>(it) }
+            entry = decodeFromJson<EntryEditor>(element.getValue("entry"))
+            components = element.getValue("components").jsonArray.map { decodeFromJson<Editor<*>>(it) }
         }
     }
 }

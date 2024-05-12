@@ -2,23 +2,16 @@
  * @author Nikolaus Knop
  */
 
-@file:Suppress("UNCHECKED_CAST")
-
 package hextant.codegen.editor
 
 import hextant.codegen.*
 import hextant.codegen.aspects.FeatureCollector
 import hextant.codegen.aspects.ImplementationCollector
 import kotlinx.metadata.Flag
-import krobot.api.call
-import krobot.api.e
-import krobot.api.implements
-import krobot.api.type
+import krobot.api.*
 import krobot.ast.CanImplement
 import krobot.ast.ClassDefinition
 import krobot.ast.Type
-import java.util.*
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
 import javax.lang.model.element.TypeElement
@@ -27,17 +20,6 @@ import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
 internal abstract class EditorClassGen<A : Annotation, E : Element> : AnnotationProcessor<A, E>() {
-    protected open fun preprocess(element: E, annotation: A) {}
-
-    fun preprocess(roundEnv: RoundEnvironment) {
-        for (element in roundEnv.getElementsAnnotatedWith(annotationClass)) {
-            val ann = element.getAnnotation(annotationClass)
-            processingEnv.tryExecute("preprocessing $ann on $element") {
-                preprocess(element as E, ann)
-            }
-        }
-    }
-
     protected fun extractQualifiedEditorClassName(
         ann: Annotation,
         element: Element,
@@ -69,7 +51,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         }
     }
 
-    private fun hasEditorNullableResultType(element: TypeElement): Boolean {
+    fun hasEditorNullableResultType(element: TypeElement): Boolean {
         val supertype = metadata.getSupertype(element, "hextant/core/Editor") ?: return true
         val resultType = supertype.arguments[0].type ?: return true
         return Flag.Type.IS_NULLABLE(resultType.flags)
@@ -115,6 +97,10 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         }
     }
 
+    protected fun classModifiers(serializable: Boolean) =
+        if (serializable) `@`("kotlinx.serialization.Serializable(with=hextant.serial.SnapshotAware.Serializer::class)")
+        else noModifiers
+
     private fun editorResolution(editorClass: () -> KClass<*>): EditorResolution {
         val element = getTypeMirror(editorClass).asTypeElement()
         val nullable = hasEditorNullableResultType(element)
@@ -130,7 +116,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         if (custom != null) return editorResolution(custom::cls)
         return if (clazz.toString() == "java.util.List") {
             val elementType = checkNonPrimitive(t.typeArguments[0]).asTypeElement()
-            val ann = elementType.getAnnotation<EditableList>() ?: fail("Could not locate editor class for type $t")
+            val ann = elementType.getAnnotation<ListEditor>() ?: fail("Could not locate editor class for type $t")
             val qn = extractQualifiedEditorClassName(ann, elementType, classNameSuffix = "ListEditor")
             return EditorResolution(qn) { false }
         } else {

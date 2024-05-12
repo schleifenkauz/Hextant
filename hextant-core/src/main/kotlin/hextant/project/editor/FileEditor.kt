@@ -70,12 +70,12 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
 
         override fun JsonObjectBuilder.encode() {
             put("id", id)
-            put("itemName", itemName.encode())
+            put("itemName", itemName.encodeToJson())
         }
 
         override fun decode(element: JsonObject) {
             id = element.getValue("id").string
-            itemName = decode<FileNameEditor>(element.getValue("itemName"))
+            itemName = decodeFromJson<FileNameEditor>(element.getValue("itemName"))
         }
     }
 

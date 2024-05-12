@@ -16,7 +16,6 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.AnnotatedConstruct
 import javax.lang.model.element.*
 import javax.lang.model.element.ElementKind.*
-import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.type.*
 import javax.tools.Diagnostic
 import kotlin.reflect.KClass
@@ -78,20 +77,22 @@ internal fun splitPackageAndSimpleName(qualifiedName: String): Pair<String?, Str
 
 internal val Annotation.qualifiedEditorClassName: String?
     get() = when (this) {
-        is Token        -> this.classLocation.takeIf { it != DEFAULT }
-        is Compound     -> this.classLocation.takeIf { it != DEFAULT }
-        is NodeType  -> this.interfaceLocation.takeIf { it != DEFAULT }
-        is Expandable   -> this.expanderLocation.takeIf { it != DEFAULT }
-        is EditableList -> this.classLocation.takeIf { it != DEFAULT }
-        else            -> throw AssertionError()
+        is Token -> this.classLocation.takeIf { it != DEFAULT }
+        is Compound -> this.classLocation.takeIf { it != DEFAULT }
+        is NodeType -> this.interfaceLocation.takeIf { it != DEFAULT }
+        is Expandable -> this.expanderLocation.takeIf { it != DEFAULT }
+        is Choice -> this.classLocation.takeIf { it != DEFAULT }
+        is ListEditor -> this.classLocation.takeIf { it != DEFAULT }
+        else -> throw AssertionError()
     }
 
 internal val Annotation.nodeType: KClass<*>
     get() = when (this) {
-        is Token      -> this.nodeType
-        is Compound   -> this.nodeType
+        is Token -> this.nodeType
+        is Compound -> this.nodeType
         is Expandable -> this.nodeType
-        else          -> throw AssertionError()
+        is Choice -> this.nodeType
+        else -> throw AssertionError()
     }
 
 internal inline fun <E, reified F> List<E>.mapToArray(f: (E) -> F) = Array(size) { idx -> f(get(idx)) }
@@ -126,8 +127,9 @@ internal fun TypeMirror.substitute(subst: Map<String, TypeMirror>, env: Processi
         is DeclaredType -> env.typeUtils.getDeclaredType(
             asElement() as TypeElement,
             *typeArguments.mapToArray { t -> t.substitute(subst, env) })
-        is ArrayType    -> env.typeUtils.getArrayType(componentType.substitute(subst, env))
-        else            -> this
+
+        is ArrayType -> env.typeUtils.getArrayType(componentType.substitute(subst, env))
+        else -> this
     }
 
 internal fun splitPkgAndName(element: ExecutableElement): Pair<String, String> {
@@ -143,10 +145,10 @@ internal fun ExecutableElement.returnType(): TypeMirror =
 
 internal fun ProcessingEnvironment.fqName(element: Element): String =
     when (element.kind) {
-        CLASS       -> element.toString()
+        CLASS -> element.toString()
         CONSTRUCTOR -> element.enclosingElement.toString()
-        else        -> {
-            ensure(STATIC in element.modifiers) { "Cannot import non-static function" }
+        else -> {
+            /*ensure(STATIC in element.modifiers) { "Cannot import non-static function" }*/
             val pkg = elementUtils.getPackageOf(element.enclosingElement)
             "$pkg.${element.simpleName}"
         }
@@ -182,3 +184,6 @@ internal fun TypeElement.isSubclassOf(type: String): Boolean {
     }
     return false
 }
+
+internal fun AnnotationMirror.getValue(element: String) =
+    elementValues.entries.find { (el) -> el.simpleName.toString() == element }?.value

@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference
  * * Note that this implementation does not store strong references to the registered views
  */
 abstract class AbstractController<in V : Any> {
-    private val mutableViews = mutableSetOf<WeakReference<V>>()
+    private val mutableViews = mutableListOf<WeakReference<V>>()
     /**
      * @return a sequence of all views registered to this editor
      */
@@ -34,8 +34,13 @@ abstract class AbstractController<in V : Any> {
     /**
      * Execute the given [action] on all views
      */
-    protected open fun views(action: (@UnsafeVariance V).() -> Unit) {
-        views.forEach(action)
+    open fun views(action: (@UnsafeVariance V).() -> Unit) {
+        try {
+            views.forEach(action)
+        } catch (e: Throwable) {
+            println("Exception while updating views")
+            e.printStackTrace()
+        }
     }
 
     /**
@@ -45,6 +50,9 @@ abstract class AbstractController<in V : Any> {
      * * Adding a view to an editor will not prevent the view from being garbage collected
      */
     fun addView(view: V) {
+        if (view in views) {
+            throw IllegalArgumentException("View already added: $view")
+        }
         mutableViews.add(WeakReference(view))
         viewAdded(view)
     }

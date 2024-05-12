@@ -390,13 +390,13 @@ abstract class ListEditor<R, E : Editor<R>>(
         }
 
         override fun JsonObjectBuilder.encode() {
-            val editors = snapshots.map { it.encode() }
+            val editors = snapshots.map { it.encodeToJson() }
             put("editors", JsonArray(editors))
         }
 
         override fun decode(element: JsonObject) {
             val editors = element.getValue("editors").jsonArray
-            snapshots = editors.map { decode<E>(it) }
+            snapshots = editors.map { decodeFromJson<E>(it) }
         }
     }
 }

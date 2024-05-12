@@ -33,3 +33,17 @@ data class IndexAccessor(val index: Int) : EditorAccessor() {
 object ExpanderContent : EditorAccessor() {
     override fun toString(): String = ".editor.now"
 }
+
+/**
+ * The editor accessed by this accessor is the child of an [hextant.core.editor.ChoiceEditor]
+ * */
+object ChoiceEditorContent : EditorAccessor() {
+    override fun toString(): String = ".content.now"
+}
+
+/**
+ * The editor accessed by this accessor is the child of an [hextant.core.editor.ChoiceEditor]
+ * */
+object OptionalEditorContent : EditorAccessor() {
+    override fun toString(): String = ".optionalContent.now"
+}

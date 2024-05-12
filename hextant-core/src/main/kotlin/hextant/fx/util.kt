@@ -14,7 +14,7 @@ import hextant.context.Context
 import hextant.context.EditorControlGroup
 import hextant.context.createControl
 import hextant.core.Editor
-import hextant.core.view.CompoundEditorControl.Compound
+import hextant.core.view.CompoundEditorControl.Layout
 import hextant.core.view.EditorControl
 import hextant.serial.makeRoot
 import javafx.application.Platform
@@ -133,8 +133,12 @@ internal fun hextantLabel(text: String, graphic: Node? = null) = Label(text, gra
  * Add the editor control for the given [editor] to this compound view.
  * The [config] block is used to initialize properties of the [hextant.core.EditorView.arguments] bundle.
  */
-fun Compound.view(editor: Editor<*>, bundle: Bundle = createBundle(), config: Bundle.() -> Unit) =
-    view(editor, bundle.apply(config))
+fun Layout.view(
+    editor: Editor<*>,
+    bundle: Bundle = createBundle(),
+    cached: Boolean = true,
+    config: Bundle.() -> Unit
+) = view(editor, bundle.apply(config), cached)
 
 fun Dialog<*>.setDefaultButton(type: ButtonType) {
     for (tp in dialogPane.buttonTypes) {

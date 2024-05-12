@@ -14,6 +14,8 @@ import kotlin.reflect.KClass
  * @constructor Instantiates this annotation, you can use `"<default>"` for the string parameters to use the default value.
  * @property name The [Command.name] of the registered command, defaults to the functions name
  * @property shortName The [Command.shortName] of the registered command, defaults to the function name
+ * @property applicableIf Reference a method of this class which takes no arguments and returns a boolean. This method
+ * will be used to check if the command is applicable in the current state.
  * @property category The [Command.category] of the registered command, defaults to `null`
  * @property defaultShortcut the shortcut that triggers this command
  * @property description The [Command.description] of the registered command, defaults to `"No description provided"`
@@ -24,6 +26,7 @@ import kotlin.reflect.KClass
 annotation class ProvideCommand(
     val name: String = DEFAULT,
     val shortName: String = DEFAULT,
+    val applicableIf: String = DEFAULT,
     val category: String = NONE,
     val defaultShortcut: String = NONE,
     val description: String = NONE,

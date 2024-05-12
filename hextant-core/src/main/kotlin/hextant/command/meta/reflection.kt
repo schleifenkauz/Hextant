@@ -3,6 +3,7 @@
  */
 
 @file:Suppress("UNCHECKED_CAST")
+@file:OptIn(ExperimentalStdlibApi::class)
 
 package hextant.command.meta
 
@@ -17,6 +18,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.*
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.jvmErasure
+import kotlin.reflect.typeOf
 
 internal fun <R : Any> KClass<R>.collectProvidedCommands(): Set<Command<R, *>> {
     val dest = mutableSetOf<Command<R, *>>()
@@ -29,14 +31,17 @@ internal fun <R : Any> KClass<R>.collectProvidedCommands(): Set<Command<R, *>> {
     return dest
 }
 
-private fun <R : Any> extractCommand(function: KFunction<*>, receiver: KClass<R>): Command<R, *> {
+private fun <R : Any> extractCommand(function: KFunction<*>, receiverCls: KClass<R>): Command<R, *> {
     check(!function.returnType.isMarkedNullable) { "$function has nullable return type" }
-    return command<R, Any>(receiver) {
-        extract(function as KFunction<Any>)
+    return command<R, Any>(receiverCls) {
+        extract(function as KFunction<Any>, receiverCls)
     }
 }
 
-fun <R : Any, T : Any> CommandBuilder<R, T>.extract(function: KFunction<T>) {
+@PublishedApi
+internal fun <R : Any, T : Any> CommandBuilder<R, T>.extract(
+    function: KFunction<T>, receiverCls: KClass<R>
+) {
     function.javaMethod?.isAccessible = true
     val ann = function.findAnnotation<ProvideCommand>()
     name = ann?.name.takeIf { it != DEFAULT } ?: function.name
@@ -44,7 +49,13 @@ fun <R : Any, T : Any> CommandBuilder<R, T>.extract(function: KFunction<T>) {
         DEFAULT -> function.name
         NONE -> null
         null -> name
-        else    -> n
+        else -> n
+    }
+    if (ann != null && ann.applicableIf != DEFAULT) {
+        val func = receiverCls.memberFunctions.find { it.name == ann.applicableIf }
+            ?: error("Applicability check function ${ann.applicableIf} not found for command $name in $receiverCls")
+        check(func.returnType == typeOf<Boolean>())
+        applicableIf { receiver -> func.call(receiver) as Boolean }
     }
     category = ann?.category.takeIf { it != NONE }?.let { Category.withName(it) }
     defaultShortcut = ann?.defaultShortcut.takeIf { it != NONE }?.shortcut
@@ -56,6 +67,8 @@ fun <R : Any, T : Any> CommandBuilder<R, T>.extract(function: KFunction<T>) {
         for (parameter in function.valueParameters) extractParameter(parameter)
     }
 }
+
+inline fun <reified R : Any, T : Any> CommandBuilder<R, T>.extract(function: KFunction<T>) = extract(function, R::class)
 
 private fun <T> KFunction<T>.executeCommand(receiver: Any, args: List<Any?>): T {
     val map = mutableMapOf<KParameter, Any?>()

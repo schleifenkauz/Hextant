@@ -10,10 +10,12 @@ import hextant.context.ControlFactory
 import hextant.core.view.CompoundEditorControl
 import hextant.expr.editor.SumEditor
 
-class SumEditorControl @ProvideImplementation(ControlFactory::class) constructor(editor: SumEditor, arguments: Bundle) :
-    CompoundEditorControl(editor, arguments, {
-        line {
-            operator("∑")
-            view(editor.expressions)
-        }
-    })
+class SumEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+    private val editor: SumEditor, arguments: Bundle
+) : CompoundEditorControl(editor, arguments) {
+    override fun build(): Layout = horizontal {
+        operator("∑")
+        view(editor.expressions)
+    }
+
+}

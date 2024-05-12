@@ -82,7 +82,7 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         commandName.smartSetText(name)
     }
 
-    override fun argumentChanged(property: Property<*, *>, value: Any?) {
+    override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
         when (property) {
             HISTORY_ITEMS -> {
                 val count = value as Int

@@ -7,7 +7,6 @@ package hextant.core.editor
 import hextant.completion.Completion
 import hextant.context.Context
 import hextant.context.executeSafely
-import hextant.context.withoutUndo
 import hextant.core.view.TokenEditorView
 import hextant.serial.Snapshot
 import hextant.serial.VirtualEditor
@@ -41,7 +40,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text
 
     override val result: ReactiveValue<R> get() = _result
 
-    private var _text = reactiveVariable("")
+    private var _text = reactiveVariable(text)
 
     /**
      * A [ReactiveValue] holding the current textual content of this editor

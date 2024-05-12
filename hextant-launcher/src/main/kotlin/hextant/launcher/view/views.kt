@@ -22,7 +22,7 @@ internal fun createControl(editor: ProjectNameEditor, arguments: Bundle): TokenE
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: MavenPluginSourceEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    line {
+    horizontal {
         view(editor.group)
         operator(":")
         view(editor.artifact)
@@ -40,7 +40,7 @@ fun createControl(editor: URLPluginSourceEditor, arguments: Bundle) =
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: GitHubPluginSourceEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    line {
+    horizontal {
         operator("https://github.com/")
         view(editor.userName)
         operator("/")

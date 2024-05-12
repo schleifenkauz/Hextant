@@ -3,7 +3,7 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'org.openjfx.javafxplugin'
 
-version '1.0-SNAPSHOT'
+version '1.1-SNAPSHOT'
 
 kapt {
     useBuildCache = true

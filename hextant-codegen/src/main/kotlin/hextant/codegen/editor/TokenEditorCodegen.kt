@@ -91,7 +91,8 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
         val result = resultType.simpleName.toString()
         val resultT = type(result).nullable(resultNullable)
-        kotlinClass(simpleName).primaryConstructor("context" of "Context", "text" of "String")
+        classModifiers(annotation.serializable).kotlinClass(simpleName)
+            .primaryConstructor("context" of "Context", "text" of "String")
             .extends(
                 type("TokenEditor", resultT, type("hextant.core.view.TokenEditorView")),
                 "context".e, "text".e

@@ -17,7 +17,7 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
     }
 
     private fun isResultNullable(function: ExecutableElement) =
-        function.parameters.any { isResultNullable(it.asType()) }
+        function.parameters.any { p -> isResultNullable(p.asType(), p.getAnnotation<Component>()) }
 
     override fun process(element: Element, annotation: Compound) {
         val qn = extractQualifiedEditorClassName(annotation, element)
@@ -27,19 +27,22 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
         val result = resultClass.simpleName.toString()
         val resultType = type(result).nullable(isNodeKindNullable(annotation) || isResultNullable(function))
         val functionName = getFunctionName(function)
-        kotlinClass(simpleName)
-            .primaryConstructor("context" of "Context")
+        val parameters = function.parameters.map { p ->
+            val ann = p.getAnnotation<Component>()
+            val editorCls = getEditorClassName(p.asType(), ann)
+            val ctx = ann?.childContext ?: "context"
+            p.simpleName.toString() of editorCls default call(editorCls, get(ctx))
+        }
+        val names = function.parameters.map { p -> p.simpleName.toString() }
+        classModifiers(annotation.serializable).kotlinClass(simpleName)
+            .primaryConstructor(listOf("context" of "Context") + parameters)
             .extends(type("CompoundEditor", resultType), "context".e)
             .implementEditorOfSuperType(annotation, result)
             .body {
-                val names = function.parameters.map { it.toString() }
-                for (p in function.parameters) {
-                    val ann = p.getAnnotation<Component>()
-                    val editorCls = getEditorClassName(p.asType(), ann)
-                    val ctx = ann?.childContext ?: "context"
-                    +`val`(p.simpleName.toString()) by "child"(call(editorCls, get(ctx)))
+                for (name in names) {
+                    `val`(name) by "child"(get(name))
                 }
-                +override.`val`("result").of(type("ReactiveValue", resultType))
+                override.`val`("result").of(type("ReactiveValue", resultType))
                     .initializedWith(call("composeResult", closure {
                         +call(functionName, names.map { get(it) select "now" })
                     }))
@@ -52,7 +55,7 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
                 import("reaktive.value.ReactiveValue")
                 import(processingEnv.fqName(element))
             }.saveToSourceRoot(generatedDir)
-        if (element is TypeElement) generatedEditor(element, "$pkg.$simpleName")
+        if (element is TypeElement) generatedEditor(element, qn)
     }
 
     private fun extractFunction(element: Element) = when (element) {

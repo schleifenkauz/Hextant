@@ -17,7 +17,8 @@ sealed class None
 annotation class Token(
     val classLocation: String = DEFAULT,
     val nodeType: KClass<*> = None::class,
-    val register: Boolean = true
+    val register: Boolean = true,
+    val serializable: Boolean = false
 )
 
 @Retention(SOURCE)
@@ -25,12 +26,17 @@ annotation class Token(
 annotation class Compound(
     val classLocation: String = DEFAULT,
     val nodeType: KClass<*> = None::class,
-    val register: Boolean = true
+    val register: Boolean = true,
+    val serializable: Boolean = false
 )
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class NodeType(val nullableResult: Boolean, val interfaceLocation: String = DEFAULT)
+annotation class NodeType(
+    val nullableResult: Boolean,
+    val interfaceLocation: String = DEFAULT,
+    val serializable: Boolean = false
+)
 
 @Retention(SOURCE)
 @Target(CLASS)
@@ -42,15 +48,30 @@ annotation class Expandable(
     val delegator: KClass<*>,
     val expanderLocation: String = DEFAULT,
     val nodeType: KClass<*> = None::class,
-    val childContext: String = "context"
+    val childContext: String = "context",
+    val serializable: Boolean = false
 )
 
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class EditableList(
+annotation class Choice(
+    val defaultValue: String,
+    val classLocation: String = DEFAULT,
+    val nodeType: KClass<*> = None::class,
+    val serializable: Boolean = false
+)
+
+@Retention(SOURCE)
+@Target(CLASS)
+annotation class RegisterEditor(val nodeType: KClass<*> = None::class)
+
+@Retention(SOURCE)
+@Target(CLASS)
+annotation class ListEditor(
     val classLocation: String = DEFAULT,
     val editorCls: KClass<*> = None::class,
-    val childContext: String = "context"
+    val childContext: String = "context",
+    val serializable: Boolean = false
 )
 
 @Retention(SOURCE)

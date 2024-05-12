@@ -17,6 +17,7 @@ import hextant.fx.runFXWithTimeout
 import hextant.plugins.*
 import hextant.plugins.PluginBuilder.Phase.Initialize
 import hextant.undo.compoundEdit
+import javafx.scene.paint.Color
 import reaktive.value.binding.and
 import reaktive.value.binding.impl.notNull
 import reaktive.value.binding.map
@@ -138,7 +139,7 @@ object ExprPlugin : PluginInitializer({
             }
         }
     }
-    observeProperty<AbstractTokenEditorControl, String>(color) { control, c ->
+    observeProperty<AbstractTokenEditorControl, Color>(color) { control, c ->
         control.root.style = c.let { "-fx-text-fill: $c" }
     }
     registerCommand<TokenEditorControl, Unit> {
@@ -146,7 +147,7 @@ object ExprPlugin : PluginInitializer({
         name = "Set Color"
         shortName = "color"
         defaultShortcut("Ctrl+F")
-        val c = addParameter<String> {
+        val c = addParameter<Color> {
             editWith(::ColorEditor)
             name = "color"
             description = "The text fill"
@@ -160,5 +161,5 @@ object ExprPlugin : PluginInitializer({
         context[WindowSize] = WindowSize.FitContent
     }
 }) {
-    val color = publicProperty<String>("color")
+    val color = publicProperty<Color>("color")
 }

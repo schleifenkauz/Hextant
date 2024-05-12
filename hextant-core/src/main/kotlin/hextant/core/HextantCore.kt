@@ -1,22 +1,39 @@
 package hextant.core
 
+import bundles.PropertyChangeHandler
+import bundles.set
 import hextant.command.Command.Type.SingleReceiver
+import hextant.command.Commands
 import hextant.command.line.CommandLine
-import hextant.config.Settings
+import hextant.command.line.CommandReceiverType.*
+import hextant.command.line.ContextCommandSource
+import hextant.command.line.SingleCommandSource
+import hextant.config.FeatureRegistrar
+import hextant.config.PropertyRegistrar
 import hextant.config.disable
 import hextant.config.enable
-import hextant.context.Internal
+import hextant.context.*
+import hextant.context.Properties.classLoader
+import hextant.context.Properties.globalCommandLine
+import hextant.context.Properties.localCommandLine
+import hextant.context.Properties.logger
+import hextant.context.Properties.propertyChangeHandler
+import hextant.fx.InputMethod
+import hextant.fx.ResultStyleClasses
+import hextant.fx.Stylesheets
+import hextant.inspect.Inspections
 import hextant.plugins.*
 import hextant.undo.UndoManager
 import reaktive.value.binding.flatMap
 import reaktive.value.now
 import reaktive.value.reactiveValue
+import java.util.logging.Logger
 
 /**
  * The core plugin registers basic editors, views and commands.
  */
-object Core : PluginInitializer({
-    persistentProperty(Internal, Settings)
+object HextantCore : PluginInitializer({
+    /*persistentProperty(Internal, Settings)*/
     stylesheet("hextant/core/style.css")
     registerCommand(enable)
     registerCommand(disable)
@@ -62,4 +79,24 @@ object Core : PluginInitializer({
             "Command '$name' is not available in the current context"
         }
     }
-})
+}) {
+    fun defaultContext() = Context.create {
+        set(Internal, classLoader, javaClass.classLoader)
+        set(Internal, Commands, Commands.newInstance())
+        set(Internal, Inspections, Inspections.newInstance())
+        set(Internal, Stylesheets, Stylesheets())
+        set(Internal, logger, Logger.getLogger("Hextant Logger"))
+        set(Internal, propertyChangeHandler, PropertyChangeHandler())
+        set(Internal, Aspects, Aspects())
+        set(PropertyRegistrar, PropertyRegistrar())
+        set(ResultStyleClasses, ResultStyleClasses())
+        set(FeatureRegistrar, FeatureRegistrar(this))
+        set(SelectionDistributor, SelectionDistributor.newInstance())
+        set(EditorControlGroup, EditorControlGroup())
+        set(UndoManager, UndoManager.newInstance())
+        set(Clipboard, SimpleClipboard())
+        set(InputMethod, InputMethod.REGULAR)
+        set(Internal, localCommandLine, CommandLine.create(this, ContextCommandSource(this, Targets, Expanders, Views)))
+        set(Internal, globalCommandLine, CommandLine.create(this, SingleCommandSource(this, this)))
+    }
+}

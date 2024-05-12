@@ -134,7 +134,7 @@ class ChildrenAdder @PublishedApi internal constructor(private val children: Mut
 /**
  * Add children to this [Pane].
  */
-inline fun Pane.children(block: ChildrenAdder.() -> Unit) {
+inline fun <P : Pane> P.children(block: ChildrenAdder.() -> Unit) = apply {
     ChildrenAdder(children).block()
 }
 

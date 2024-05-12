@@ -52,12 +52,12 @@ class NextExecutableEditor(context: Context) :
         }
 
         override fun JsonObjectBuilder.encode() {
-            put("next", nxt?.encode() ?: JsonNull)
+            put("next", nxt?.encodeToJson() ?: JsonNull)
         }
 
         override fun decode(element: JsonObject) {
             val next = element.getValue("next")
-            nxt = if (next == JsonNull) null else decode<ExecutableEditor<*>>(next)
+            nxt = if (next == JsonNull) null else decodeFromJson<ExecutableEditor<*>>(next)
         }
     }
 }

@@ -7,22 +7,8 @@ package hextant.context
 import bundles.PropertyChangeHandler
 import bundles.property
 import bundles.publicProperty
-import bundles.set
-import hextant.command.Commands
 import hextant.command.line.CommandLine
-import hextant.command.line.CommandReceiverType.*
-import hextant.command.line.CommandSource
-import hextant.command.line.ContextCommandSource
-import hextant.command.line.SingleCommandSource
-import hextant.config.FeatureRegistrar
-import hextant.config.PropertyRegistrar
-import hextant.fx.InputMethod
-import hextant.fx.ResultStyleClasses
-import hextant.fx.Stylesheets
-import hextant.inspect.Inspections
-import hextant.plugins.Aspects
 import hextant.plugins.Marketplace
-import hextant.undo.UndoManager
 import java.util.logging.Logger
 
 /**
@@ -50,25 +36,4 @@ object Properties {
     val localCommandLine = property<CommandLine, Internal>("editor-command-line")
 
     val globalCommandLine = property<CommandLine, Internal>("context-command-line")
-
-    fun setupContext(context: Context) = with(context) {
-        set(Internal, classLoader, javaClass.classLoader)
-        set(Internal, Commands, Commands.newInstance())
-        set(Internal, Inspections, Inspections.newInstance())
-        set(Internal, Stylesheets, Stylesheets())
-        set(Internal, logger, Logger.getLogger("Hextant Logger"))
-        set(Internal, propertyChangeHandler, PropertyChangeHandler())
-        set(Internal, Aspects, Aspects())
-        set(PropertyRegistrar, PropertyRegistrar())
-        set(ResultStyleClasses, ResultStyleClasses())
-        set(FeatureRegistrar, FeatureRegistrar(this))
-        set(SelectionDistributor, SelectionDistributor.newInstance())
-        set(EditorControlGroup, EditorControlGroup())
-        set(UndoManager, UndoManager.newInstance())
-        set(Clipboard, SimpleClipboard())
-        set(InputMethod, InputMethod.REGULAR)
-        set(Internal, localCommandLine, CommandLine.create(this, ContextCommandSource(this, Targets, Expanders, Views)))
-        set(Internal, globalCommandLine, CommandLine.create(this, SingleCommandSource(this, this)))
-    }
-
 }

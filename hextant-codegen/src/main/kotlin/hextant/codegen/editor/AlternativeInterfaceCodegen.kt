@@ -15,7 +15,7 @@ internal object AlternativeInterfaceCodegen : EditorClassGen<NodeType, TypeEleme
         val qn = extractQualifiedEditorClassName(annotation, element)
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
         val typeParam = name.take(1)
-        kotlinInterface(simpleName, out(typeParam) lowerBound name)
+        classModifiers(annotation.serializable).kotlinInterface(simpleName, out(typeParam) lowerBound name)
             .implements(type("Editor", type(typeParam).nullable(annotation.nullableResult)))
             .asFile {
                 `package`(pkg)
@@ -23,4 +23,5 @@ internal object AlternativeInterfaceCodegen : EditorClassGen<NodeType, TypeEleme
                 import(element.toString())
             }.saveToSourceRoot(generatedDir)
     }
+
 }

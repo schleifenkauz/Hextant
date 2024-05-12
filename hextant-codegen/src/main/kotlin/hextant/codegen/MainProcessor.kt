@@ -21,7 +21,9 @@ internal class MainProcessor : AbstractProcessor() {
         fqName<NodeType>(),
         fqName<EditorInterface>(),
         fqName<Expandable>(),
-        fqName<EditableList>(),
+        fqName<Choice>(),
+        fqName<ListEditor>(),
+        fqName<RegisterEditor>(),
         fqName<RequestAspect>(),
         fqName<ProvideFeature>(),
         fqName<ProvideImplementation>(),
@@ -48,11 +50,13 @@ internal class MainProcessor : AbstractProcessor() {
         const val ACCESSOR_PACKAGE = "hextant.aspect.accessor.pkg"
 
         private val editorCodegen = listOf(
+            EditorRegistrar,
             TokenEditorCodegen,
             CompoundEditorCodegen,
             AlternativeInterfaceCodegen,
             ExpanderClassGen,
-            ListEditorCodegen
+            ListEditorCodegen,
+            ChoiceEditorCodegen
         )
 
         private val collectors = listOf(

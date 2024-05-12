@@ -39,9 +39,20 @@ internal abstract class AnnotationProcessor<A : Annotation, E : Element> {
         metadata = KotlinMetadata(env)
     }
 
+    protected open fun preprocess(element: E, annotation: A) {}
+
+    fun preprocess(roundEnv: RoundEnvironment) {
+        for (element in roundEnv.getElementsAnnotatedWith(annotationClass)) {
+            val ann = element.getAnnotation(annotationClass)
+            processingEnv.tryExecute("preprocessing $ann on $element") {
+                preprocess(element as E, ann)
+            }
+        }
+    }
+
     abstract fun process(element: E, annotation: A)
 
-    protected val annotationClass = getTypeArgument(AnnotationProcessor::class, 0).java as Class<A>
+    private val annotationClass = getTypeArgument(AnnotationProcessor::class, 0).java as Class<A>
 
     fun process(roundEnv: RoundEnvironment) {
         for (element in roundEnv.getElementsAnnotatedWith(annotationClass)) {

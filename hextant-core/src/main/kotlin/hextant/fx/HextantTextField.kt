@@ -12,7 +12,6 @@ import javafx.scene.control.skin.TextFieldSkin
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyEvent
-import javafx.scene.layout.Region
 import javafx.scene.text.Font
 import javafx.scene.text.Text
 import reaktive.event.event
@@ -22,8 +21,16 @@ import reaktive.event.event
  */
 open class HextantTextField(
     text: String? = "",
-    initialInputMethod: InputMethod = REGULAR
+    initialInputMethod: InputMethod = REGULAR,
+    autoSize: Boolean = true
 ) : TextField(text) {
+    var isAutoSize: Boolean = autoSize
+        set(value) {
+            field = value
+            if (isAutoSize) updateWidth(text)
+            else prefWidth = USE_COMPUTED_SIZE
+        }
+
     override fun createDefaultSkin(): Skin<*> = HextantTextFieldSkin()
 
     private val userUpdatesText = event<String>()
@@ -82,15 +89,17 @@ open class HextantTextField(
         }
         addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
             when {
-                INPUT_MODE.match(ev) && inputMethod == VIM && !isEditable  -> {
+                INPUT_MODE.match(ev) && inputMethod == VIM && !isEditable -> {
                     isEditable = true
                     ev.consume()
                 }
+
                 COMMAND_MODE.match(ev) && inputMethod == VIM && isEditable -> {
                     isEditable = false
                     ev.consume()
                 }
-                isEditable && shouldConsume(ev)                            -> {
+
+                isEditable && shouldConsume(ev) -> {
                     ev.consume()
                 }
             }
@@ -105,12 +114,12 @@ open class HextantTextField(
     }
 
     private fun autoSize() {
-        maxWidth = Region.USE_PREF_SIZE
-        minWidth = Region.USE_PREF_SIZE
+        /*maxWidth = Region.USE_PREF_SIZE
+        minWidth = Region.USE_PREF_SIZE*/
         textProperty().addListener { _, _, new ->
-            updateWidth(new)
+            if (isAutoSize) updateWidth(new)
         }
-        updateWidth(text)
+        if (isAutoSize) updateWidth(text)
     }
 
     private fun updateWidth(text: String) {
@@ -123,12 +132,12 @@ open class HextantTextField(
 
         private fun shouldConsume(ev: KeyEvent): Boolean = when {
             ev.code.isFunctionKey || ev.code.isMediaKey || ev.code.isModifierKey -> false
-            ev.isControlDown || ev.isAltDown                                     -> false
-            ev.code in controlKeys                                               -> false
-            else                                                                 -> true
+            ev.isControlDown || ev.isAltDown -> false
+            ev.code in controlKeys -> false
+            else -> true
         }
 
-        private val controlKeys = setOf(ENTER, ESCAPE, TAB)
+        private val controlKeys = setOf(ENTER, ESCAPE, TAB, INSERT, DELETE)
 
         private val INPUT_MODE = KeyCodeCombination(I)
 

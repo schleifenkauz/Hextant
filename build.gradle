@@ -39,10 +39,9 @@ tasks.register('initialSetup') {
 subprojects {
     repositories {
         mavenCentral()
-        jcenter()
-        maven {
+        /*maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots'
-        }
+        }*/
         mavenLocal()
     }
 

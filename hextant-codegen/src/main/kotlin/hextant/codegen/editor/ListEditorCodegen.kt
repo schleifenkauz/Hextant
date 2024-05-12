@@ -4,22 +4,22 @@
 
 package hextant.codegen.editor
 
-import hextant.codegen.EditableList
+import hextant.codegen.ListEditor
 import hextant.codegen.None
 import hextant.codegen.aspects.FeatureCollector
 import hextant.codegen.splitPackageAndSimpleName
 import krobot.api.*
 import javax.lang.model.element.TypeElement
 
-internal object ListEditorCodegen : EditorClassGen<EditableList, TypeElement>() {
-    override fun process(element: TypeElement, annotation: EditableList) {
+internal object ListEditorCodegen : EditorClassGen<ListEditor, TypeElement>() {
+    override fun process(element: TypeElement, annotation: ListEditor) {
         val editorCls = getTypeMirror(annotation::editorCls).takeIf { it.toString() != None::class.qualifiedName }
         val editorClsName = editorCls?.toString() ?: getEditorClassName(element.asType())
         val simpleName = element.simpleName.toString()
         val nullable = isResultNullable(element.asType())
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "ListEditor")
         val (pkg, name) = splitPackageAndSimpleName(qn)
-        kotlinClass(name)
+        classModifiers(annotation.serializable).kotlinClass(name)
             .primaryConstructor("context" of "Context")
             .extends(type("ListEditor", type(simpleName).nullable(nullable), type(editorClsName)), "context".e)
             .body {

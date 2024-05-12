@@ -79,7 +79,7 @@ fun <T : SnapshotAware> T.snapshot(recordClass: Boolean = false): Snapshot<T> {
  */
 fun SnapshotAware.saveSnapshotAsJson(file: File) {
     val snapshot = snapshot(recordClass = true)
-    val json = snapshot.encode()
+    val json = snapshot.encodeToJson()
     val txt = json.toString()
     file.writeText(txt)
 }
@@ -91,7 +91,7 @@ fun SnapshotAware.saveSnapshotAsJson(file: File) {
 fun reconstructEditorFromJSONSnapshot(file: File, context: Context): Editor<*> {
     val txt = file.readText()
     val json = Json.parseToJsonElement(txt)
-    val snapshot = Snapshot.decode<Editor<*>>(json)
+    val snapshot = Snapshot.decodeFromJson<Editor<*>>(json)
     return context.withoutUndo { snapshot.reconstructEditor(context) }
 }
 

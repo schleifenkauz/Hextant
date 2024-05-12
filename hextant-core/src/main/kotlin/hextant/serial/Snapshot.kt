@@ -4,9 +4,15 @@
 
 package hextant.serial
 
-import hextant.serial.Snapshot.Companion.decode
+import hextant.serial.Snapshot.Companion.decodeFromJson
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.serialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
-import java.lang.reflect.Constructor
+import kotlinx.serialization.serializer
 import kotlin.reflect.KClass
 
 /**
@@ -14,6 +20,7 @@ import kotlin.reflect.KClass
  * Snapshots can be used to reduce the memory impact of saving an object for later.
  * @param Original the type of the original object.
  */
+@Serializable(with = Snapshot.Serializer::class)
 abstract class Snapshot<Original : Any> {
     private var clazz: String? = null
 
@@ -64,7 +71,7 @@ abstract class Snapshot<Original : Any> {
     /**
      * Serialize this snapshot as a JSON element.
      */
-    fun encode(): JsonElement = buildJsonObject {
+    fun encodeToJson(): JsonObject = buildJsonObject {
         put("_type", this@Snapshot.javaClass.name)
         if (clazz != null) put("_class", clazz)
         encode()
@@ -77,9 +84,9 @@ abstract class Snapshot<Original : Any> {
 
     companion object {
         /**
-         * Decodes the given [element], which has been encoded with the [Snapshot.encode] function, as a [Snapshot].
+         * Decodes the given [element], which has been encoded with the [Snapshot.encodeToJson] function, as a [Snapshot].
          */
-        fun decode(element: JsonElement): Snapshot<*> {
+        fun decodeFromJson(element: JsonElement): Snapshot<*> {
             require(element is JsonObject) { "Expected json object but got $element" }
             val snapshotType = element.getValue("_type").string
             val cls = snapshotType.loadClass().kotlin
@@ -93,10 +100,24 @@ abstract class Snapshot<Original : Any> {
         }
 
         /**
-         * Syntactic sugar for [decode] as [O].
+         * Syntactic sugar for [decodeFromJson] as [O].
          */
         @Suppress("UNCHECKED_CAST")
         @JvmName("decodeTypesafe")
-        fun <O : Any> decode(element: JsonElement): Snapshot<O> = decode(element) as Snapshot<O>
+        fun <O : Any> decodeFromJson(element: JsonElement): Snapshot<O> = decodeFromJson(element) as Snapshot<O>
+    }
+
+    object Serializer : KSerializer<Snapshot<*>> {
+        override val descriptor: SerialDescriptor = serialDescriptor<JsonObject>()
+
+        override fun deserialize(decoder: Decoder): Snapshot<*> {
+            val obj = decoder.decodeSerializableValue(serializer<JsonObject>())
+            return decodeFromJson(obj)
+        }
+
+        override fun serialize(encoder: Encoder, value: Snapshot<*>) {
+            val obj = value.encodeToJson()
+            encoder.encodeSerializableValue(serializer<JsonObject>(), obj)
+        }
     }
 }

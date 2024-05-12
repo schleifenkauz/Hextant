@@ -8,6 +8,7 @@ import hextant.context.Context
 import hextant.core.editor.CompoundEditor
 import hextant.project.Directory
 import reaktive.value.ReactiveValue
+import reaktive.value.binding.binding
 import reaktive.value.now
 
 /**
@@ -26,7 +27,9 @@ class DirectoryEditor<R>(
 
     override fun supportsCopyPaste(): Boolean = true
 
-    override val result: ReactiveValue<Directory<R>?> = composeResult { Directory(itemName.get(), items.get()) }
+    override val result: ReactiveValue<Directory<R>?> = binding(itemName.result, items.result) { name, children ->
+        Directory(name, children.filterNotNull())
+    }
 
     override fun deletePhysical() {}
 }

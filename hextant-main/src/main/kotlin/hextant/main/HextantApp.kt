@@ -13,6 +13,7 @@ import hextant.command.line.CommandLinePopup
 import hextant.context.Context
 import hextant.context.Properties
 import hextant.context.Properties.marketplace
+import hextant.core.HextantCore
 import hextant.fx.*
 import hextant.plugins.*
 import javafx.application.Application
@@ -38,10 +39,9 @@ class HextantApp : Application() {
         PluginSource.fromParameters(parameters)
         if (PluginSource.dynamic()) javaClass.classLoader.addPluginsToClasspath(listOf("core"))
         bundles.runtimeTypeSafety = false
-        context = Context.create {
+        context = HextantCore.defaultContext().apply {
             set(marketplace, LocalPluginRepository(HextantDirectory.resolve("plugins")))
         }
-        Properties.setupContext(context)
         registerImplementations(listOf("main"), context)
         HextantMain.apply(context, PluginBuilder.Phase.Initialize, null)
     }

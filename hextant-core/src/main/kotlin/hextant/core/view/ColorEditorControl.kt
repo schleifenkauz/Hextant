@@ -16,9 +16,7 @@ internal class ColorEditorControl @ProvideImplementation(ControlFactory::class) 
     arguments: Bundle
 ) : TokenEditorControl(editor, arguments) {
     init {
-        val style = editor.result.map { c -> if (c != null) "-fx-text-fill: ${c.toCSSColor()}" else null }
+        val style = editor.result.map { c -> "-fx-text-fill: ${ColorEditor.toString(c)}" }
         root.styleProperty().bind(style.asObservableValue())
     }
-
-    private fun String.toCSSColor() = replace("0x", "#")
 }

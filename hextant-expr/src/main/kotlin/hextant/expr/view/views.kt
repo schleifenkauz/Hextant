@@ -45,16 +45,18 @@ fun createControl(e: IntLiteralEditor, arguments: Bundle) =
 
 @ProvideImplementation(ControlFactory::class)
 fun createControl(editor: ExpressionEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
-    view(editor.root)
-    val cl = view(editor.context[localCommandLine])
-    registerShortcuts {
-        on("Ctrl+K") {
-            cl.receiveFocus()
+    vertical {
+        view(editor.root)
+        val cl = view(editor.context[localCommandLine])
+        root.registerShortcuts {
+            on("Ctrl+K") {
+                cl.receiveFocus()
+            }
+            on("Ctrl+I") {
+                val selected = editor.context[SelectionDistributor].focusedView.now
+                selected?.focus()
+            }
         }
-        on("Ctrl+I") {
-            val selected = editor.context[SelectionDistributor].focusedView.now
-            selected?.focus()
-        }
+        root.setPrefSize(500.0, 500.0)
     }
-    setPrefSize(500.0, 500.0)
 }

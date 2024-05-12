@@ -13,7 +13,7 @@ import hextant.lisp.rt.RuntimeScope
 import hextant.lisp.rt.evaluate
 
 @EditorInterface(SExprEditor::class)
-@EditableList
+@ListEditor
 @UseEditor(SExprExpander::class)
 sealed class SExpr
 
@@ -58,7 +58,7 @@ sealed class Literal<T : Any> : SelfEvaluating, Scalar() {
 }
 
 @Token(nodeType = SExpr::class)
-@EditableList
+@ListEditor
 data class Symbol(val name: String) : Scalar() {
     override fun toString(): String = name
 

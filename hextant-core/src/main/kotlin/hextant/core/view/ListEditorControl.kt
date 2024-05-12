@@ -15,12 +15,11 @@ import hextant.fx.ModifierValue.DOWN
 import hextant.fx.ModifierValue.MAYBE
 import javafx.scene.Node
 import javafx.scene.control.*
-import javafx.scene.control.ContentDisplay.RIGHT
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
+import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
-import javafx.scene.paint.Color
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 
@@ -67,7 +66,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun argumentChanged(property: Property<*, *>, value: Any?) {
+    override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
         when (property) {
             ORIENTATION -> orientationChanged(value as Orientation)
             CELL_FACTORY -> cellFactoryChanged()
@@ -78,144 +77,6 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
 
     private fun cells(items: List<Editor<*>>) =
         items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, context.createControl(e)) }
-
-    /**
-     * The default type of cell. It just displays the editor control of the contained editor.
-     */
-    class DefaultCell : Cell<EditorControl<*>>() {
-        override fun updateItem(item: EditorControl<*>) {
-            root = item
-        }
-    }
-
-    /**
-     * The numbered cell prefixes the view of the editor with its 1-based index in the list.
-     */
-    class NumberedCell : Cell<Label>() {
-        init {
-            root = Label()
-            root.contentDisplay = RIGHT
-        }
-
-        override fun updateIndex(idx: Int) {
-            root.text = "${idx + 1}."
-        }
-
-        override fun updateItem(item: EditorControl<*>) {
-            root.graphic = item
-        }
-    }
-
-    /**
-     * The prefix cell displays the view of the editor right of a given prefix-[Node].
-     */
-    class PrefixCell(prefix: Node) : Cell<HBox>() {
-        constructor(text: String) : this(Label(text))
-
-        init {
-            root = HBox(prefix)
-        }
-
-        override fun updateItem(item: EditorControl<*>) {
-            if (root.children.size == 2) {
-                root.children[1] = item
-            } else if (root.children.size == 1) {
-                root.children.add(1, item)
-            }
-        }
-    }
-
-    /**
-     * The separator cell separates editor views with a given [separator] node.
-     */
-    class SeparatorCell(private val separator: Node) : Cell<HBox>() {
-        constructor(text: String) : this(Label(text))
-
-        private var left: Node? = null
-            get() = if (root.children.size == 2) root.children[0] else null
-            set(l) {
-                when {
-                    l == null && field != null -> root.children.removeAt(0)
-                    l == null                  -> {
-                    }
-                    field != null              -> root.children[0] = l
-                    else                       -> root.children.add(0, l)
-                }
-                field = l
-            }
-
-        private var right: Node
-            get() = root.children[root.children.size - 1]
-            set(value) {
-                if (root.children.size == 2) {
-                    root.children[1] = value
-                } else root.children.add(root.children.size, value)
-            }
-
-        init {
-            root = HBox()
-        }
-
-        override fun updateIndex(idx: Int) {
-            left = if (idx != 0) separator
-            else null
-        }
-
-        override fun updateItem(item: EditorControl<*>) {
-            right = item
-        }
-    }
-
-    /**
-     * Superclass for cells that are used to display editors in a [ListEditorControl]
-     */
-    abstract class Cell<R : Node> : Control() {
-        /**
-         * The index of the editor in the [ListEditor]
-         */
-        var index: Int = -1
-            internal set(value) {
-                field = value
-                updateIndex(value)
-            }
-
-        /**
-         * The [EditorControl] that displays the editor
-         */
-        var item: EditorControl<*>? = null
-            internal set(value) {
-                value!!
-                field = value
-                updateItem(value)
-            }
-
-        private var _root: R? = null
-
-        /**
-         * The node that displays the item
-         */
-        protected var root: R
-            get() = _root ?: throw IllegalStateException("Root not initialized")
-            set(value) {
-                _root = value
-                setRoot(value)
-            }
-
-        @Suppress("KDocMissingDocumentation")
-        override fun requestFocus() {
-            item?.receiveFocus()
-        }
-
-        /**
-         * This method is called when the [index] changes.
-         */
-        protected open fun updateIndex(idx: Int) {}
-
-        /**
-         * This method is called when the [item] is updated.
-         */
-        protected open fun updateItem(item: EditorControl<*>) {}
-    }
 
     init {
         editor.addView(this)
@@ -244,7 +105,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     override fun added(editor: Editor<*>, idx: Int) {
         val view = context.createControl(editor) { provideChildArguments() }
         val c = getCell(idx, view)
-        cells.drop(idx).forEach { cell -> cell.index = cell.index + 1 }
+        cells.drop(idx).forEach { cell -> cell.index += 1 }
         cells.add(idx, c)
         items.children.add(idx, c)
         addChild(view, idx)
@@ -330,6 +191,137 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         }
     }
 
+    /**
+     * Superclass for cells that are used to display editors in a [ListEditorControl]
+     */
+    abstract class Cell<R : Node> : Control() {
+        /**
+         * The index of the editor in the [ListEditor]
+         */
+        var index: Int = -1
+            internal set(value) {
+                field = value
+                updateIndex(value)
+            }
+
+        /**
+         * The [EditorControl] that displays the editor
+         */
+        var item: EditorControl<*>? = null
+            internal set(value) {
+                value!!
+                field = value
+                updateItem(value)
+            }
+
+        private var _root: R? = null
+
+        /**
+         * The node that displays the item
+         */
+        var root: R
+            get() = _root ?: throw IllegalStateException("Root not initialized")
+            protected set(value) {
+                _root = value
+                setRoot(value)
+            }
+
+        @Suppress("KDocMissingDocumentation")
+        override fun requestFocus() {
+            item?.receiveFocus()
+        }
+
+        /**
+         * This method is called when the [index] changes.
+         */
+        protected open fun updateIndex(idx: Int) {}
+
+        /**
+         * This method is called when the [item] is updated.
+         */
+        protected open fun updateItem(item: EditorControl<*>) {}
+
+        companion object {
+            fun <N : Node> create(displayItem: (control: EditorControl<*>) -> N) = object : Cell<N>() {
+                override fun updateItem(item: EditorControl<*>) {
+                    root = displayItem(item)
+                }
+            }
+        }
+    }
+
+
+    /**
+     * The default type of cell. It just displays the editor control of the contained editor.
+     */
+    class DefaultCell(private val displayItem: (control: EditorControl<*>) -> Node = { it }) : Cell<Node>() {
+        override fun updateItem(item: EditorControl<*>) {
+            root = displayItem(item)
+        }
+    }
+
+    /**
+     * The numbered cell prefixes the view of the editor with its 1-based index in the list.
+     */
+    open class NumberedCell(
+        private val startIndex: Int = 1,
+        private val displayItem: (control: EditorControl<*>) -> Node = { it }
+    ) : Cell<HBox>() {
+        private val label = Label().withStyleClass("editor-list-number")
+
+        init {
+            root = HBox(label, Region()).withStyleClass("numbered-cell")
+        }
+
+        override fun updateIndex(idx: Int) {
+            label.text = "${idx + startIndex}."
+        }
+
+        override fun updateItem(item: EditorControl<*>) {
+            root.children[1] = displayItem(item)
+        }
+    }
+
+    /**
+     * The prefix cell displays the view of the editor right of a given prefix-[Node].
+     */
+    class PrefixCell(
+        prefix: Node,
+        private val displayItem: (control: EditorControl<*>) -> Node = { it }
+    ) : Cell<HBox>() {
+        constructor(text: String) : this(Label(text))
+
+        init {
+            root = HBox(prefix, Region()).withStyleClass("prefix-cell")
+        }
+
+        override fun updateItem(item: EditorControl<*>) {
+            root.children[1] = displayItem(item)
+        }
+    }
+
+    /**
+     * The separator cell separates editor views with a given [separator] node.
+     */
+    class SeparatorCell(
+        private val separator: Node,
+        private val displayItem: (control: EditorControl<*>) -> Node = { it }
+    ) : Cell<HBox>() {
+        constructor(text: String) : this(Label(text))
+
+        init {
+            root = HBox(Region(), Region()).withStyleClass("separator-cell")
+        }
+
+        override fun updateIndex(idx: Int) {
+            root.children[0] = if (idx != 0) separator else Region()
+        }
+
+        override fun updateItem(item: EditorControl<*>) {
+            root.children[1] = displayItem(item)
+        }
+    }
+
     companion object {
         private val ADD_ITEM_AFTER = shortcut(KeyCode.INSERT) { control(MAYBE) }
 
@@ -377,13 +369,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
          * The [Node] that is displayed when no items are in the [ListEditor]
          */
         val EMPTY_DISPLAY = publicProperty<() -> Node>("empty display") {
-            Glyphs.create(PLUS).apply {
-                setColor(Color.TRANSPARENT)
-                hoverProperty().or(focusedProperty()).addListener { _, _, hover ->
-                    if (hover) setColor(Color.WHITE)
-                    else setColor(Color.TRANSPARENT)
-                }
-            }
+            Glyphs.create(PLUS).withStyleClass("standard-empty-display")
         }
     }
 }

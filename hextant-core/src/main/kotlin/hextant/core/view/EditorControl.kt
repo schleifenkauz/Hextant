@@ -106,8 +106,9 @@ abstract class EditorControl<R : Node>(
             if (change.newValue != null) changedArguments[change.property] = change.newValue!!
             else changedArguments.remove(change.property)
             @Suppress("UNCHECKED_CAST")
-            propertyChangeHandler.valueChanged(this, change.property as Property<Any, *>, new)
-            argumentChanged(change.property, change.newValue)
+            val property = change.property as Property<Any, *>
+            propertyChangeHandler.valueChanged(this, property, new)
+            argumentChanged(property, new)
         }
         sceneProperty().addListener(this) { sc ->
             if (sc != null) handleProblem(hasError.now, hasWarning.now)
@@ -119,7 +120,7 @@ abstract class EditorControl<R : Node>(
     /**
      * Is called when one of the display [arguments] changed.
      */
-    open fun argumentChanged(property: Property<*, *>, value: Any?) {}
+    open fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {}
 
     internal open fun setEditorParent(parent: EditorControl<*>?) {
         editorParent = parent
@@ -375,10 +376,12 @@ abstract class EditorControl<R : Node>(
                 addStyleCls("error")
                 styleClass.remove("warning")
             }
+
             warn -> {
                 addStyleCls("warning")
                 styleClass.remove("error")
             }
+
             else -> {
                 styleClass.remove("warning")
                 styleClass.remove("error")
@@ -416,13 +419,13 @@ abstract class EditorControl<R : Node>(
                 }
             }
             put("arguments", json.encodeToJsonElement(bundle))
-            put("children", JsonArray(children.map { it.encode() }))
+            put("children", JsonArray(children.map { it.encodeToJson() }))
         }
 
         override fun decode(element: JsonObject) {
             val bundle: Bundle = json.decodeFromJsonElement(element.getValue("arguments"))
             changedArguments = bundle.entries.associate { (p, v) -> p to v }
-            children = element.getValue("children").jsonArray.map { decode<EditorControl<*>>(it) }
+            children = element.getValue("children").jsonArray.map { decodeFromJson<EditorControl<*>>(it) }
         }
     }
 }

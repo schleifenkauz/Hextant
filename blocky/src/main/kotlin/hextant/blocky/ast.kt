@@ -73,7 +73,7 @@ data class UnaryExpression(val op: UnaryOperator, val operand: Expr) : Expr()
 
 @NodeType(nullableResult = true)
 @Expandable(StatementExpanderDelegator::class, nodeType = Statement::class)
-@EditableList
+@ListEditor
 sealed class Statement
 
 @Compound(nodeType = Statement::class)

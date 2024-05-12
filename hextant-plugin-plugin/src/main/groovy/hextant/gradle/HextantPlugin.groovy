@@ -23,8 +23,8 @@ class HextantPlugin implements Plugin<Project> {
                 }
             }
             dependencies {
-                compileOnly hextantDependency(target, "core")
-                compileOnly hextantDependency(target, 'codegen')
+                api hextantDependency(target, "core")
+                api hextantDependency(target, 'codegen')
                 kapt hextantDependency(target, "codegen")
                 testImplementation hextantDependency(target, "test")
             }
@@ -47,7 +47,7 @@ class HextantPlugin implements Plugin<Project> {
             }
             jar {
                 from {
-                    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+                    configurations.api.collect { it.isDirectory() ? it : zipTree(it) }
                 }
             }
         }

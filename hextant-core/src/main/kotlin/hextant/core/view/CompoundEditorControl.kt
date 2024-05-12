@@ -7,11 +7,10 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.Property
 import bundles.createBundle
-import hextant.context.Context
 import hextant.context.createControl
 import hextant.core.Editor
-import hextant.core.view.CompoundEditorControl.Vertical
 import hextant.fx.Glyphs
+import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
@@ -19,27 +18,33 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
+import reaktive.Observer
+import reaktive.Reactive
 
 /**
  * A [CompoundEditorControl] is an [EditorControl] composed of multiple
  * [EditorControl]'s, keywords, operators, lines and spaces
  */
-open class CompoundEditorControl(
+abstract class CompoundEditorControl(
     editor: Editor<*>,
     args: Bundle,
-    private val build: Vertical.(args: Bundle) -> Unit
-) : EditorControl<Vertical>(editor, args) {
+) : EditorControl<Node>(editor, args) {
+    private val cachedViews = mutableMapOf<Editor<*>, EditorControl<*>>()
+
     private var firstChildToFocus: EditorControl<*>? = null
 
-    override fun createDefaultRoot(): Vertical {
-        val v = Vertical()
-        build(v, arguments)
-        if (v.firstEditorChild != null) firstChildToFocus = v.firstEditorChild
-        setChildren(v.editorChildren)
-        return v
+    protected abstract fun build(): Layout
+
+    private val observers = mutableListOf<Observer>()
+
+    override fun createDefaultRoot(): Node {
+        val layout = build()
+        if (layout.firstEditorChild != null) firstChildToFocus = layout.firstEditorChild
+        setChildren(layout.editorChildren)
+        return if (layout.root.children.size == 1) layout.root.children[0] else layout.root
     }
 
-    override fun argumentChanged(property: Property<*, *>, value: Any?) {
+    override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
         root = createDefaultRoot()
     }
 
@@ -47,192 +52,197 @@ open class CompoundEditorControl(
         firstChildToFocus?.receiveFocus()
     }
 
+    protected fun triggerLayoutOnChange(reactive: Reactive) {
+        val obs = reactive.observe {
+            root = createDefaultRoot()
+        }
+        observers.add(obs)
+    }
+
+    fun vertical(block: Vertical.() -> Unit) = Vertical(cachedViews, mutableListOf()).apply(block)
+
+    fun horizontal(block: Horizontal.() -> Unit) = Horizontal(cachedViews, mutableListOf()).apply(block)
+
     /**
      * Base interface for [Vertical] and [Horizontal] boxes
      */
-    interface Compound {
+    abstract class Layout internal constructor(
+        @PublishedApi internal val cachedViews: MutableMap<Editor<*>, EditorControl<*>>,
+        @PublishedApi internal val editorChildren: MutableList<EditorControl<*>>
+    ) {
+        @PublishedApi
+        internal var firstEditorChild: EditorControl<*>? = null
+
+        abstract val root: Pane
+
         /**
          * Creates a view for the given [editor] with the specified [args] and add it to this compound control
          * @return the created view for further configuration
          */
-        fun view(editor: Editor<*>, args: Bundle = createBundle()): EditorControl<*>
+        fun view(editor: Editor<*>, args: Bundle = createBundle(), cached: Boolean = true): EditorControl<*> {
+            val control =
+                if (cached && editor in cachedViews) cachedViews.getValue(editor)
+                else editor.context.createControl(editor, args)
+            if (cached) cachedViews[editor] = control
+            if (firstEditorChild == null) firstEditorChild = control
+            root.children.add(control)
+            editorChildren.add(control)
+            return control
+        }
 
         /**
          * Add a [Label] containing a single space to this compound control
          * @return the created [Label] for further configuration
          */
-        fun space(): Label
+        fun space(): Label {
+            val l = Label(" ")
+            root.children.add(l)
+            return l
+        }
 
         /**
          * Add a [Node] displaying the given keyword to this compound control.
          * The resulting node has the `keyword` style-class.
          * @return the created [Node] for further configuration
          */
-        fun keyword(name: String): Node
+        fun keyword(name: String): Node {
+            val l = hextant.fx.keyword(name)
+            root.children.add(l)
+            return l
+        }
 
         /**
          * Add a [Node] displaying the given operator to this compound control.
          * The resulting node has the `operator` style-class.
          * @return the created [Node] for further configuration
          */
-        fun operator(str: String): Node
+        fun operator(str: String): Node {
+            val l = hextant.fx.operator(str)
+            root.children.add(l)
+            return l
+        }
 
         /**
          * Add the given [Node] to this compound control and return it.
          */
-        fun <N : Node> node(node: N): N
+        fun <N : Node> add(node: N): N {
+            if (node is EditorControl<*>) {
+                if (firstEditorChild == null) firstEditorChild = node
+                editorChildren.add(node)
+            }
+            root.children.add(node)
+            return node
+        }
 
         /**
          * Add the given [Glyph] to this compound control and return it.
          */
-        fun icon(glyph: FontAwesome.Glyph): Glyph
+        fun icon(glyph: FontAwesome.Glyph): Glyph {
+            val g = Glyphs.create(glyph)
+            root.children.add(g)
+            return g
+        }
+
+        fun styleClass(vararg names: String) {
+            root.styleClass.addAll(*names)
+        }
     }
 
     /**
      * A vertical box
      */
-    inner class Vertical internal constructor() : VBox(),
-                                                  Compound {
-        internal var firstEditorChild: EditorControl<*>? = null
-            private set
+    class Vertical @PublishedApi internal constructor(
+        cachedViews: MutableMap<Editor<*>, EditorControl<*>>,
+        editorChildren: MutableList<EditorControl<*>>
+    ) : Layout(cachedViews, editorChildren) {
+        override val root: VBox = VBox()
 
-        internal val editorChildren: MutableList<EditorControl<*>> = mutableListOf()
-
-        override fun view(editor: Editor<*>, args: Bundle): EditorControl<*> =
-            view(editor, this, context, args).also {
-                if (firstEditorChild == null) firstEditorChild = it
-                editorChildren.add(it)
+        var spacing
+            get() = root.spacing
+            set(value) {
+                root.spacing = value
             }
-
-        override fun space() = space(this)
-
-        override fun keyword(name: String): Node =
-            keyword(name, this)
-
-        override fun operator(str: String): Node =
-            operator(str, this)
 
         /**
          * Add a [Horizontal] box to this control and configure it with the given [build] block.
          */
-        fun line(build: Horizontal.() -> Unit): Horizontal {
-            val horizontal = Horizontal().apply(build)
+        fun line(spacing: Double = 0.0, alignment: Pos = Pos.CENTER_LEFT, build: Horizontal.() -> Unit): Horizontal =
+            horizontal(spacing, alignment, build)
+
+        inline fun horizontal(
+            spacing: Double = 0.0,
+            alignment: Pos = Pos.CENTER_LEFT,
+            build: Horizontal.() -> Unit
+        ): Horizontal {
+            val horizontal = Horizontal(cachedViews, editorChildren).apply(build)
             if (horizontal.firstEditorChild != null && this.firstEditorChild == null)
                 this.firstEditorChild = horizontal.firstEditorChild
-            children.add(horizontal)
-            editorChildren.addAll(horizontal.editorChildren)
+            horizontal.root.spacing = spacing
+            horizontal.root.alignment = alignment
+            root.children.add(horizontal.root)
             return horizontal
         }
 
         /**
          * Create a [Vertical] box configured with [build] and add it together with some leading space to this box.
          */
-        fun indented(build: Vertical.() -> Unit): HBox {
+        inline fun indented(build: Vertical.() -> Unit): HBox {
             val indent = Label("  ")
-            val v = Vertical().apply(build)
+            val v = Vertical(cachedViews, editorChildren).apply(build)
             if (v.firstEditorChild != null && this.firstEditorChild == null)
                 this.firstEditorChild = v.firstEditorChild
-            val indented = HBox(indent, v)
-            children.add(indented)
-            editorChildren.addAll(v.editorChildren)
+            val indented = HBox(indent, v.root)
+            root.children.add(indented)
             return indented
-        }
-
-        override fun <N : Node> node(node: N): N {
-            if (node is EditorControl<*>) {
-                if (firstEditorChild == null) firstEditorChild = node
-                editorChildren.add(node)
-            }
-            children.add(node)
-            return node
-        }
-
-        override fun icon(glyph: FontAwesome.Glyph): Glyph {
-            val g = Glyphs.create(glyph)
-            children.add(g)
-            return g
         }
     }
 
     /**
      * A horizontal box
      */
-    inner class Horizontal internal constructor() : HBox(),
-                                                    Compound {
-        internal val editorChildren: MutableList<EditorControl<*>> = mutableListOf()
+    class Horizontal @PublishedApi internal constructor(
+        cachedViews: MutableMap<Editor<*>, EditorControl<*>>,
+        editorChildren: MutableList<EditorControl<*>>
+    ) : Layout(cachedViews, editorChildren) {
+        override val root: HBox = HBox()
 
-        internal var firstEditorChild: EditorControl<*>? = null
-            private set
-
-        override fun view(editor: Editor<*>, args: Bundle): EditorControl<*> =
-            view(editor, this, context, args).also {
-                if (firstEditorChild == null) firstEditorChild = it
-                editorChildren.add(it)
+        var spacing
+            get() = root.spacing
+            set(value) {
+                root.spacing = value
             }
 
-        override fun <N : Node> node(node: N): N {
-            if (node is EditorControl<*>) {
-                if (firstEditorChild == null) firstEditorChild = node
-                editorChildren.add(node)
-            }
-            children.add(node)
-            return node
+        inline fun vertical(
+            spacing: Double = 0.0,
+            build: Vertical.() -> Unit
+        ): Vertical {
+            val vertical = Vertical(cachedViews, editorChildren).apply(build)
+            if (vertical.firstEditorChild != null && this.firstEditorChild == null)
+                this.firstEditorChild = vertical.firstEditorChild
+            vertical.root.spacing = spacing
+            root.children.add(vertical.root)
+            return vertical
         }
-
-        override fun icon(glyph: FontAwesome.Glyph): Glyph {
-            val g = Glyphs.create(glyph)
-            children.add(g)
-            return g
-        }
-
-        override fun space() = space(this)
-
-        override fun keyword(name: String): Node =
-            keyword(name, this)
-
-        override fun operator(str: String): Node =
-            operator(str, this)
     }
 
     companion object {
-        private fun view(
-            editable: Editor<*>,
-            pane: Pane,
-            context: Context,
-            args: Bundle
-        ): EditorControl<*> {
-            val c = context.createControl(editable, args)
-            pane.children.add(c)
-            return c
-        }
-
-        private fun keyword(name: String, pane: Pane): Node {
-            val l = hextant.fx.keyword(name)
-            pane.children.add(l)
-            return l
-        }
-
-        private fun operator(name: String, pane: Pane): Node {
-            val l = hextant.fx.operator(name)
-            pane.children.add(l)
-            return l
-        }
-
-        private fun space(pane: Pane): Label {
-            val l = Label(" ")
-            pane.children.add(l)
-            return l
-        }
-
         /**
-         * Create a [CompoundEditorControl] and apply the given [build] block to it.
+         * Create a [CompoundEditorControl] for the [editor] which lays its components out using [buildLayout].
+         * Any changes emitted from the [layoutTriggers] cause the [buildLayout] function to be reevaluated.
          */
-        fun build(
+        operator fun invoke(
             editor: Editor<*>,
             args: Bundle = createBundle(),
-            build: Vertical.(Bundle) -> Unit
-        ): CompoundEditorControl = object : CompoundEditorControl(editor, args, build) {
+            vararg layoutTriggers: Reactive,
+            buildLayout: CompoundEditorControl.() -> Layout,
+        ): CompoundEditorControl = object : CompoundEditorControl(editor, args) {
+            init {
+                for (trigger in layoutTriggers) {
+                    triggerLayoutOnChange(trigger)
+                }
+            }
 
+            override fun build(): Layout = buildLayout()
         }
     }
 }

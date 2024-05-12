@@ -172,8 +172,16 @@ class ExpanderConfig<E : Editor<*>> private constructor(
             typeSafeInterceptors.getOrPut(cls) { LinkedList() }.addAll(interceptors)
         }
     }
+
     /**
      * Return an [ExpanderConfig] which first tries the given [config] and then uses this configuration as a fallback option.
      */
     fun extendWith(config: ExpanderConfig<E>) = config.withFallback(this)
+
+    companion object {
+        operator fun <E : Editor<*>> invoke(
+            fallback: ExpanderConfig<E>? = null,
+            build: ExpanderDelegate<E>.() -> Unit
+        ) = ExpanderConfig(fallback).apply(build)
+    }
 }

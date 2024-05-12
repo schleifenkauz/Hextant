@@ -91,14 +91,14 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
 
         override fun JsonObjectBuilder.encode() {
             for ((name, snap) in snapshots) {
-                put(name, snap.encode())
+                put(name, snap.encodeToJson())
             }
         }
 
         override fun decode(element: JsonObject) {
             snapshots = element.entries
                 .filter { (prop) -> !prop.startsWith('_') }
-                .map { (prop, value) -> prop to decode<Editor<*>>(value) }
+                .map { (prop, value) -> prop to decodeFromJson<Editor<*>>(value) }
         }
     }
 }

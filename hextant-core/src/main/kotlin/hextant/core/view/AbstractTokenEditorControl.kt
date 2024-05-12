@@ -57,7 +57,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         }
     }
 
-    final override fun createDefaultRoot() = textField
+    override fun createDefaultRoot() = textField
 
     final override fun displayText(newText: String) {
         if (root.text != newText) {
