@@ -127,7 +127,7 @@ class Project private constructor(
                 val json = Json.parseToJsonElement(display.readText())
                 val snap = Snapshot.decodeFromJson<EditorControl<*>>(json)
                 view.root
-                snap.reconstruct(view)
+                snap.reconstructObject(view)
             }
             return view
         }

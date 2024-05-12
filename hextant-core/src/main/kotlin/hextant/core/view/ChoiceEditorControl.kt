@@ -18,7 +18,6 @@ import hextant.core.view.ChoiceEditorControl.Layout.Vertical
 import hextant.fx.children
 import hextant.fx.withStyleClass
 import javafx.collections.FXCollections.observableList
-import javafx.scene.Node
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
@@ -32,11 +31,9 @@ import reaktive.value.now
 open class ChoiceEditorControl<C : Any, E : Editor<*>>(
     val editor: ChoiceEditor<C, *, E>,
     arguments: Bundle
-) : ChoiceEditorView<C, E>, EditorControl<Pane>(editor, arguments) {
+) : ChoiceEditorView<C, E>, WrappingEditorControl<Pane>(editor, arguments) {
     private val comboBox = SearchableComboBox(observableList(editor.choices()))
         .withStyleClass("choice-editor-combo-box")
-    private var contentEditor: Node? = context.createControl(editor.content.now)
-        .withStyleClass("choice-editor-content")
 
     init {
         comboBox.valueProperty().addListener { _, _, item ->
@@ -60,8 +57,8 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
         if (comboBox.value != choice) {
             comboBox.selectionModel.select(choice)
         }
-        contentEditor = if (content !is SimpleEditor<*>) {
-            context.createControl(editor.content.now)
+        wrapped = if (content !is SimpleEditor<*>) {
+            context.createControl(editor.content.now).withStyleClass("choice-editor-content")
         } else null
         root = createDefaultRoot()
     }
@@ -71,7 +68,7 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
         Vertical -> VBox().withStyleClass("vertical-choice-editor")
     }.withStyleClass("choice-editor").children {
         +comboBox
-        contentEditor?.let { +it }
+        wrapped?.let { +it }
     }
 
     enum class Layout {

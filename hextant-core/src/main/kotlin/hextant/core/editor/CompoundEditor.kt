@@ -82,16 +82,16 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
             snapshots = original.children.now.map { e -> getComponentName(e) to e.snapshot() }
         }
 
-        override fun reconstruct(original: CompoundEditor<*>) {
+        override fun reconstructObject(original: CompoundEditor<*>) {
             for ((comp, p) in original.children.now.zip(snapshots)) {
                 val (_, snap) = p
-                snap.reconstruct(comp)
+                snap.reconstructObject(comp)
             }
         }
 
-        override fun JsonObjectBuilder.encode() {
+        override fun encode(builder: JsonObjectBuilder) {
             for ((name, snap) in snapshots) {
-                put(name, snap.encodeToJson())
+                builder.put(name, snap.encodeToJson())
             }
         }
 

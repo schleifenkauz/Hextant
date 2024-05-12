@@ -37,14 +37,14 @@ class SExprExpander(context: Context, editor: SExprEditor<*>? = null) :
             isNormalized = original.isNormalized
         }
 
-        override fun reconstruct(original: SExprExpander) {
-            wrapped.reconstruct(original)
+        override fun reconstructObject(original: SExprExpander) {
+            wrapped.reconstructObject(original)
             original.isNormalized = isNormalized
         }
 
-        override fun JsonObjectBuilder.encode() {
-            with(wrapped) { this@encode.encode() }
-            put("isNormalized", JsonPrimitive(isNormalized))
+        override fun encode(builder: JsonObjectBuilder) {
+            with(wrapped) { encode(builder) }
+            builder.put("isNormalized", JsonPrimitive(this.isNormalized))
         }
 
         override fun decode(element: JsonObject) {

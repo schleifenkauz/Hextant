@@ -63,14 +63,14 @@ class ProgramEditor(context: Context) :
         }
 
         @Suppress("UNCHECKED_CAST")
-        override fun reconstruct(original: ProgramEditor) {
-            entry.reconstruct(original.entry)
+        override fun reconstructObject(original: ProgramEditor) {
+            entry.reconstructObject(original.entry)
             original.components.addAll(components.map { it.reconstructEditor(original.context) })
         }
 
-        override fun JsonObjectBuilder.encode() {
-            put("entry", entry.encodeToJson())
-            put("components", JsonArray(components.map { it.encodeToJson() }))
+        override fun encode(builder: JsonObjectBuilder) {
+            builder.put("entry", this.entry.encodeToJson())
+            builder.put("components", JsonArray(this.components.map { it.encodeToJson() }))
         }
 
         override fun decode(element: JsonObject) {

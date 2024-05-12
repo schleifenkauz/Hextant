@@ -67,14 +67,14 @@ abstract class EditorControl<R : Node>(
 
     private val editorChildren = mutableListOf<EditorControl<*>>()
 
-    private val changedArguments = mutableMapOf<Property<*, *>, Any>()
+    internal val changedArguments = mutableMapOf<Property<*, *>, Any>()
     private val propertyChangeHandler = context[Properties.propertyChangeHandler]
     private val propertyObserver: Observer
 
     /**
      * Return a list of child [EditorControl]'s
      */
-    fun editorChildren(): List<EditorControl<*>> = editorChildren
+    open fun editorChildren(): List<EditorControl<*>> = editorChildren
 
     internal var next: EditorControl<*>? = null
         private set
@@ -139,7 +139,7 @@ abstract class EditorControl<R : Node>(
      * For all children their parent is set to this [EditorControl].
      * The left and right [EditorControl]s of the children are set according to their order in the list.
      */
-    protected fun setChildren(children: List<EditorControl<*>>) {
+    protected open fun setChildren(children: List<EditorControl<*>>) {
         editorChildren.clear()
         if (children.isEmpty()) return
         editorChildren.addAll(children)
@@ -158,7 +158,7 @@ abstract class EditorControl<R : Node>(
     /**
      * Make the given [EditorControl] a child of this editor control.
      */
-    protected fun addChild(child: EditorControl<*>, idx: Int) {
+    protected open fun addChild(child: EditorControl<*>, idx: Int) {
         val prev = editorChildren.getOrNull(idx - 1)
         val next = editorChildren.getOrNull(idx)
         prev?.setNext(child)
@@ -176,7 +176,7 @@ abstract class EditorControl<R : Node>(
     /**
      * Remove the editor child at the given [index]
      */
-    protected fun removeChild(index: Int) {
+    protected open fun removeChild(index: Int) {
         val prev = editorChildren.getOrNull(index - 1)
         val next = editorChildren.getOrNull(index + 1)
         prev?.setNext(next)
@@ -347,7 +347,7 @@ abstract class EditorControl<R : Node>(
         type = SingleReceiver
     )
     private fun shrinkSelection() {
-        val childToSelect = lastExtendingChild ?: editorChildren.firstOrNull() ?: return
+        val childToSelect = lastExtendingChild ?: editorChildren().firstOrNull() ?: return
         childToSelect.requestFocus()
         if (isSelected.now) toggleSelection()
     }
@@ -391,40 +391,59 @@ abstract class EditorControl<R : Node>(
 
     override fun createSnapshot(): Snapshot<*> = Snap()
 
-    @Suppress("UNCHECKED_CAST")
-    private class Snap : Snapshot<EditorControl<*>>() {
+    protected abstract class AbstractSnap<C : EditorControl<*>> : Snapshot<C>() {
         private lateinit var changedArguments: Map<Property<*, *>, Any>
-        private lateinit var children: List<Snapshot<EditorControl<*>>>
 
-        override fun doRecord(original: EditorControl<*>) {
+        override fun doRecord(original: C) {
             changedArguments = original.changedArguments
-            children = original.editorChildren().map { it.snapshot() }
         }
 
-        override fun reconstruct(original: EditorControl<*>) {
+        override fun reconstructObject(original: C) {
             for ((p, v) in changedArguments) {
                 @Suppress("UNCHECKED_CAST")
                 p as PublicProperty<Any>
                 original.arguments[p] = v
             }
-            for ((child, snapshot) in original.editorChildren().zip(children)) {
-                snapshot.reconstruct(child)
-            }
         }
 
-        override fun JsonObjectBuilder.encode() {
+        override fun encode(builder: JsonObjectBuilder) {
+            @Suppress("UNCHECKED_CAST")
             val bundle = createBundle {
                 for ((p, v) in changedArguments) {
                     set(p as Property<Any, *>, v)
                 }
             }
-            put("arguments", json.encodeToJsonElement(bundle))
-            put("children", JsonArray(children.map { it.encodeToJson() }))
+            builder.put("arguments", json.encodeToJsonElement(bundle))
         }
 
         override fun decode(element: JsonObject) {
             val bundle: Bundle = json.decodeFromJsonElement(element.getValue("arguments"))
             changedArguments = bundle.entries.associate { (p, v) -> p to v }
+        }
+    }
+
+    private class Snap : AbstractSnap<EditorControl<*>>() {
+        private lateinit var children: List<Snapshot<EditorControl<*>>>
+
+        override fun doRecord(original: EditorControl<*>) {
+            super.doRecord(original)
+            children = original.editorChildren().map { it.snapshot() }
+        }
+
+        override fun reconstructObject(original: EditorControl<*>) {
+            super.reconstructObject(original)
+            for ((child, snapshot) in original.editorChildren().zip(children)) {
+                snapshot.reconstructObject(child)
+            }
+        }
+
+        override fun encode(builder: JsonObjectBuilder) {
+            super.encode(builder)
+            builder.put("children", JsonArray(this.children.map { it.encodeToJson() }))
+        }
+
+        override fun decode(element: JsonObject) {
+            super.decode(element)
             children = element.getValue("children").jsonArray.map { decodeFromJson<EditorControl<*>>(it) }
         }
     }

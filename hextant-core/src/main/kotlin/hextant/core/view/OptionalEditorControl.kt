@@ -17,7 +17,7 @@ import reaktive.value.now
 class OptionalEditorControl @ProvideImplementation(ControlFactory::class) constructor(
     private val editor: hextant.core.editor.OptionalEditor<*, *>,
     arguments: Bundle = createBundle()
-) : EditorControl<Node>(editor, arguments), OptionalEditorView {
+) : WrappingEditorControl<Node>(editor, arguments), OptionalEditorView {
     private val emptyDisplay = arguments[EMPTY_DISPLAY].invoke()
 
     init {
@@ -38,7 +38,10 @@ class OptionalEditorControl @ProvideImplementation(ControlFactory::class) constr
     }
 
     override fun display(content: Editor<*>) {
-        root = context.createControl(content)
+        val view = context.createControl(content)
+        wrapped = view
+        root = view
+        view.receiveFocus()
     }
 
     override fun createDefaultRoot(): Node {

@@ -105,7 +105,7 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
     override fun paste(snapshot: Snapshot<out Editor<*>>): Boolean {
         if (!snapshotClass().isInstance(snapshot)) return false
         snapshot as Snapshot<Editor<*>>
-        snapshot.reconstruct(this)
+        snapshot.reconstructObject(this)
         return true
     }
 

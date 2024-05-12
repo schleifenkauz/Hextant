@@ -68,12 +68,12 @@ open class TransformedEditor<T, R>(
             snapshot = original.source.snapshot()
         }
 
-        override fun reconstruct(original: TransformedEditor<*, *>) {
-            snapshot.reconstruct(original.source)
+        override fun reconstructObject(original: TransformedEditor<*, *>) {
+            snapshot.reconstructObject(original.source)
         }
 
-        override fun JsonObjectBuilder.encode() {
-            put("source", snapshot.encodeToJson())
+        override fun encode(builder: JsonObjectBuilder) {
+            builder.put("source", this.snapshot.encodeToJson())
         }
 
         override fun decode(element: JsonObject) {

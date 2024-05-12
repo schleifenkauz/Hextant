@@ -131,12 +131,12 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text
             text = original.text.now
         }
 
-        override fun reconstruct(original: TokenEditor<*, *>) {
+        override fun reconstructObject(original: TokenEditor<*, *>) {
             original.setText(text)
         }
 
-        override fun JsonObjectBuilder.encode() {
-            put("text", JsonPrimitive(text))
+        override fun encode(builder: JsonObjectBuilder) {
+            builder.put("text", JsonPrimitive(this.text))
         }
 
         override fun decode(element: JsonObject) {

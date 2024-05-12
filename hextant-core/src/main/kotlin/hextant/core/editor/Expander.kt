@@ -264,7 +264,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     @Suppress("UNCHECKED_CAST")
     override fun paste(snapshot: Snapshot<out Editor<*>>): Boolean =
         if (snapshot is Snap) {
-            snapshot.reconstruct(this)
+            snapshot.reconstructObject(this)
             true
         } else {
             val editor = context.withoutUndo { snapshot.reconstructEditor(expansionContext()) }
@@ -308,7 +308,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         }
 
         @Suppress("UNCHECKED_CAST")
-        override fun reconstruct(original: Expander<*, *>) {
+        override fun reconstructObject(original: Expander<*, *>) {
             original as Expander<*, Editor<*>>
             when (val st = state) {
                 is Expanded -> {
@@ -321,16 +321,16 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
             }
         }
 
-        override fun JsonObjectBuilder.encode() {
+        override fun encode(builder: JsonObjectBuilder) {
             when (val st = state) {
-                is Expanded -> put("editor", st.content.encodeToJson())
+                is Expanded -> builder.put("editor", st.content.encodeToJson())
                 is Text     -> {
                     if (st.completion != null) {
                         val cls = st.completion.javaClass
-                        put("completionClass", cls.name)
-                        put("completion", Json.encodeToJsonElement(cls.kotlin.serializer(), st.completion))
+                        builder.put("completionClass", cls.name)
+                        builder.put("completion", Json.encodeToJsonElement(cls.kotlin.serializer(), st.completion))
                     }
-                    put("text", st.text)
+                    builder.put("text", st.text)
                 }
             }
         }
