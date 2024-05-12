@@ -46,13 +46,13 @@ class NextExecutableEditor(context: Context) :
             nxt = original.next.now?.snapshot(recordClass = true)
         }
 
-        override fun reconstruct(original: NextExecutableEditor) {
+        override fun reconstructObject(original: NextExecutableEditor) {
             val e = nxt?.reconstructEditor(original.context)
             if (e is ExecutableEditor<*>) original.setNext(e)
         }
 
-        override fun JsonObjectBuilder.encode() {
-            put("next", nxt?.encodeToJson() ?: JsonNull)
+        override fun encode(builder: JsonObjectBuilder) {
+            builder.put("next", this.nxt?.encodeToJson() ?: JsonNull)
         }
 
         override fun decode(element: JsonObject) {

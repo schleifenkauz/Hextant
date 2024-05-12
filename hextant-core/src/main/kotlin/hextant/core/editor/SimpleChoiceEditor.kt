@@ -53,14 +53,14 @@ abstract class SimpleChoiceEditor<C : Any>(context: Context, default: C) :
             selected = original.result.now
         }
 
-        override fun reconstruct(original: SimpleChoiceEditor<C>) {
+        override fun reconstructObject(original: SimpleChoiceEditor<C>) {
             original._selected.now = selected
         }
 
-        override fun JsonObjectBuilder.encode() {
-            put("classOfSelected", selected.javaClass.name)
+        override fun encode(builder: JsonObjectBuilder) {
+            builder.put("classOfSelected", this.selected.javaClass.name)
             val serializer = selected::class.serializer() as KSerializer<C>
-            put("selected", json.encodeToJsonElement(serializer, selected))
+            builder.put("selected", json.encodeToJsonElement(serializer, this.selected))
         }
 
         override fun decode(element: JsonObject) {

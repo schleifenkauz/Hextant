@@ -69,10 +69,10 @@ class Launcher(context: Context) : AbstractEditor<Unit, EditorView>(context) {
         override fun doRecord(original: Launcher) {
         }
 
-        override fun reconstruct(original: Launcher) {
+        override fun reconstructObject(original: Launcher) {
         }
 
-        override fun JsonObjectBuilder.encode() {
+        override fun encode(builder: JsonObjectBuilder) {
         }
 
         override fun decode(element: JsonObject) {

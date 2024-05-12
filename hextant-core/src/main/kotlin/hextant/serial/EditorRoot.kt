@@ -26,7 +26,7 @@ class EditorRoot<E : Editor<*>>(val editor: E, val control: EditorControl<*>) {
     fun clone(): EditorRoot<E> {
         val editorCopy = editor.copyFor(editor.context)
         val controlCopy = editor.context.createControl(editorCopy)
-        control.snapshot().reconstruct(controlCopy)
+        control.snapshot().reconstructObject(controlCopy)
         return EditorRoot(editorCopy, controlCopy)
     }
 
@@ -41,12 +41,15 @@ class EditorRoot<E : Editor<*>>(val editor: E, val control: EditorControl<*>) {
             encoder.encodeSerializableValue(serializer(), obj)
         }
 
+        @Suppress("UNCHECKED_CAST")
         override fun deserialize(decoder: Decoder): EditorRoot<*> {
             val obj = decoder.decodeSerializableValue(serializer<JsonObject>())
             val editorSnapshot = Snapshot.decodeFromJson(obj.getValue("editor"))
             val editor = editorSnapshot.reconstruct(SnapshotAware.Serializer.reconstructionContext) as Editor<*>
-            val controlSnapshot = Snapshot.decodeFromJson(obj.getValue("control"))
-            val control = controlSnapshot.reconstruct(editor) as EditorControl<*>
+            val controlSnapshot = Snapshot.decodeFromJson(obj.getValue("control")) as Snapshot<EditorControl<*>>
+            val control = editor.context.createControl(editor)
+            control.root
+            controlSnapshot.reconstructObject(control)
             return EditorRoot(editor, control)
         }
     }

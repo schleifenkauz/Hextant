@@ -26,11 +26,10 @@ import reaktive.value.now
 open class ExpanderControl @ProvideImplementation(ControlFactory::class) constructor(
     private val expander: Expander<*, *>,
     args: Bundle
-) : ExpanderView, EditorControl<Node>(expander, args) {
+) : ExpanderView, WrappingEditorControl<Node>(expander, args) {
     constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<Expander<*, *>, Any>) :
             this(expander, args.also { it[COMPLETER] = completer })
 
-    private var view: EditorControl<*>? = null
 
     private val textField = HextantTextField(initialInputMethod = context[InputMethod])
 
@@ -42,21 +41,6 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     private val textEmptyObserver: Observer
 
     override fun createDefaultRoot(): Node = textField
-
-    override fun setEditorParent(parent: EditorControl<*>?) {
-        super.setEditorParent(parent)
-        view?.setEditorParent(parent)
-    }
-
-    override fun setNext(nxt: EditorControl<*>?) {
-        super.setNext(nxt)
-        view?.setNext(nxt)
-    }
-
-    override fun setPrevious(prev: EditorControl<*>?) {
-        super.setPrevious(prev)
-        view?.setPrevious(prev)
-    }
 
     init {
         with(textField) {
@@ -91,13 +75,13 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     }
 
     override fun receiveFocus() {
-        if (view != null) view!!.receiveFocus()
+        if (wrapped != null) wrapped!!.receiveFocus()
         else textField.requestFocus()
     }
 
     override fun reset() {
         removeChild(0)
-        view = null
+        wrapped = null
         root = textField
         textField.text = ""
         runFXWithTimeout { textField.requestFocus() }
@@ -106,15 +90,9 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     final override fun expanded(editor: Editor<*>) {
         if (root is EditorControl<*>) removeChild(0)
         val v = context.createControl(editor)
-        addChild(v, 0)
-        v.registerShortcuts {
-            on("Ctrl? + R") { expander.reset() }
-        }
-        v.setNext(next)
-        v.setPrevious(previous)
-        v.setEditorParent(editorParent)
+        v.registerShortcuts { on("Ctrl? + R") { expander.reset() } }
+        wrapped = v
         v.root //initialize root
-        view = v
         root = v
         v.receiveFocus()
         onExpansion(editor, v)

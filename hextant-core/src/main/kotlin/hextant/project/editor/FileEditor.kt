@@ -60,17 +60,17 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
             itemName = original.itemName.snapshot()
         }
 
-        override fun reconstruct(original: FileEditor<R>) {
-            itemName.reconstruct(original.itemName)
+        override fun reconstructObject(original: FileEditor<R>) {
+            itemName.reconstructObject(original.itemName)
             original.id = id
             original.path = original.context[projectRoot].resolve(id)
             original.content = original.context[FileManager].from(original.path, original.context)
             original.bindResult()
         }
 
-        override fun JsonObjectBuilder.encode() {
-            put("id", id)
-            put("itemName", itemName.encodeToJson())
+        override fun encode(builder: JsonObjectBuilder) {
+            builder.put("id", this.id)
+            builder.put("itemName", this.itemName.encodeToJson())
         }
 
         override fun decode(element: JsonObject) {

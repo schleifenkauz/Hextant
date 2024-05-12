@@ -48,7 +48,7 @@ abstract class Snapshot<Original : Any> {
     /**
      * Reconstruct the last original object that was [record]ed to this snapshot.
      */
-    abstract fun reconstruct(original: Original)
+    abstract fun reconstructObject(original: Original)
 
     /**
      * Reconstruct the original object constructing it by supplying the given [constructorArguments] to the constructor.
@@ -59,14 +59,14 @@ abstract class Snapshot<Original : Any> {
         val cls = clazz!!.loadClass().kotlin as KClass<Original>
         val cstr = cls.getConstructor(constructorArguments.map { it::class })
         val instance = cstr(constructorArguments.asList())
-        reconstruct(instance)
+        reconstructObject(instance)
         return instance
     }
 
     /**
      * Serialize this snapshot as a JSON element.
      */
-    abstract fun JsonObjectBuilder.encode()
+    abstract fun encode(builder: JsonObjectBuilder)
 
     /**
      * Serialize this snapshot as a JSON element.
@@ -74,7 +74,7 @@ abstract class Snapshot<Original : Any> {
     fun encodeToJson(): JsonObject = buildJsonObject {
         put("_type", this@Snapshot.javaClass.name)
         if (clazz != null) put("_class", clazz)
-        encode()
+        encode(this)
     }
 
     /**

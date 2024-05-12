@@ -120,15 +120,15 @@ abstract class OptionalEditor<R, E : Editor<R>>(context: Context, initialContent
         }
 
         @Suppress("UNCHECKED_CAST")
-        override fun reconstruct(original: OptionalEditor<*, *>) {
+        override fun reconstructObject(original: OptionalEditor<*, *>) {
             original as OptionalEditor<*, Editor<*>>
             val reconstructed = content?.reconstructEditor(original.context)
             if (reconstructed != null) original.setContent(reconstructed)
         }
 
-        override fun JsonObjectBuilder.encode() {
+        override fun encode(builder: JsonObjectBuilder) {
             if (content != null)
-                put("content", json.encodeToJsonElement(Serializer, content!!))
+                builder.put("content", json.encodeToJsonElement(Serializer, this.content!!))
         }
 
         @Suppress("UNCHECKED_CAST")

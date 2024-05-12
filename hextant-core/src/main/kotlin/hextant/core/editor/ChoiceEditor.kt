@@ -98,17 +98,17 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>>(context: Context, default
             content = original.content.now.snapshot(recordClass = true)
         }
 
-        override fun reconstruct(original: ChoiceEditor<*, *, *>) {
+        override fun reconstructObject(original: ChoiceEditor<*, *, *>) {
             original as ChoiceEditor<Any, *, Editor<*>>
             val editor = content.reconstructEditor(original.context)
             original.doSelect(selected, editor)
         }
 
-        override fun JsonObjectBuilder.encode() {
-            put("classOfSelected", selected.javaClass.name)
+        override fun encode(builder: JsonObjectBuilder) {
+            builder.put("classOfSelected", this.selected.javaClass.name)
             val serializer = selected::class.serializer() as KSerializer<Any>
-            put("selected", json.encodeToJsonElement(serializer, selected))
-            put("content", json.encodeToJsonElement(Serializer, content))
+            builder.put("selected", json.encodeToJsonElement(serializer, this.selected))
+            builder.put("content", json.encodeToJsonElement(Serializer, this.content))
         }
 
         override fun decode(element: JsonObject) {

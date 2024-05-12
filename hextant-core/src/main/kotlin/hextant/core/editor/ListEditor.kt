@@ -91,10 +91,10 @@ abstract class ListEditor<R, E : Editor<R>>(
             if (!mayBeEmpty && size == 0) return false
             val old = editors.now.size
             when {
-                old < size -> repeat(size - old) { i ->
+                old > size -> repeat(size - old) { i ->
                     doAddAt(old + i, tryCreateEditor() ?: error("createEditor() returned null"))
                 }
-                old > size -> for (i in size downTo old) {
+                old < size -> for (i in size downTo old) {
                     removeAt(i)
                 }
             }
@@ -161,7 +161,7 @@ abstract class ListEditor<R, E : Editor<R>>(
         }
         @Suppress("UNCHECKED_CAST")
         snapshot as Snapshot<Any>
-        snapshot.reconstruct(this)
+        snapshot.reconstructObject(this)
         return true
     }
 
@@ -384,14 +384,14 @@ abstract class ListEditor<R, E : Editor<R>>(
             snapshots = original.editors.now.map { it.snapshot(recordClass = true) }
         }
 
-        override fun reconstruct(original: ListEditor<*, E>) {
+        override fun reconstructObject(original: ListEditor<*, E>) {
             val editors = snapshots.map { it.reconstructEditor(original.childContext()) }
             original.setEditors(editors)
         }
 
-        override fun JsonObjectBuilder.encode() {
+        override fun encode(builder: JsonObjectBuilder) {
             val editors = snapshots.map { it.encodeToJson() }
-            put("editors", JsonArray(editors))
+            builder.put("editors", JsonArray(editors))
         }
 
         override fun decode(element: JsonObject) {

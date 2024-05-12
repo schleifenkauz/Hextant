@@ -211,15 +211,15 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
             text = original.text.now
         }
 
-        override fun reconstruct(original: ValidatedTokenEditor<*>) {
+        override fun reconstructObject(original: ValidatedTokenEditor<*>) {
             original._text.now = text
             original._intermediateResult.now = original.tryCompile(original.text.now)
             original._result.now = original.intermediateResult.now!!
             original._editable.now = false
         }
 
-        override fun JsonObjectBuilder.encode() {
-            put("text", text)
+        override fun encode(builder: JsonObjectBuilder) {
+            builder.put("text", this.text)
         }
 
         override fun decode(element: JsonObject) {

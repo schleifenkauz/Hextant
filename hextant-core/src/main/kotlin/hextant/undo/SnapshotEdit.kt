@@ -15,10 +15,10 @@ import hextant.serial.VirtualEditor
     override val actionDescription: String
 ) : AbstractEdit() {
     override fun doRedo() {
-        after.reconstruct(ref.get())
+        after.reconstructObject(ref.get())
     }
 
     override fun doUndo() {
-        before.reconstruct(ref.get())
+        before.reconstructObject(ref.get())
     }
 }
