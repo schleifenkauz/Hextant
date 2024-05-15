@@ -17,7 +17,7 @@ import reaktive.value.now
 import reaktive.value.reactiveVariable
 
 abstract class SimpleChoiceEditor<C : Any>(context: Context, default: C) :
-    AbstractEditor<C, SimpleChoiceEditorView<C>>(context) {
+    AbstractEditor<C, SimpleChoiceEditorView<C>>(context), ComboBoxSource<C> {
 
     private val _selected = reactiveVariable(default)
 
@@ -26,17 +26,17 @@ abstract class SimpleChoiceEditor<C : Any>(context: Context, default: C) :
     /**
      * Select the given [choice]
      */
-    fun select(choice: C) {
+    override fun select(choice: C) {
         if (choice == result.now) return
         _selected.set(choice)
         views { selected(choice) }
     }
 
-    open fun toString(choice: C): String = choice.toString()
+    override fun toString(choice: C): String = choice.toString()
 
-    open fun fromString(string: String): C? = null
+    override fun fromString(str: String): C? = null
 
-    abstract fun choices(): List<C>
+    abstract override fun choices(): List<C>
 
     override fun createSnapshot(): Snapshot<*> = Snap<C>()
 

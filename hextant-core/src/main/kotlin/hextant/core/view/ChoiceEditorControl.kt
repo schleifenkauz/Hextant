@@ -15,14 +15,16 @@ import hextant.core.editor.ChoiceEditor
 import hextant.core.editor.SimpleEditor
 import hextant.core.view.ChoiceEditorControl.Layout.Horizontal
 import hextant.core.view.ChoiceEditorControl.Layout.Vertical
+import hextant.fx.ComboBoxConfig
+import hextant.fx.LazyComboBox
 import hextant.fx.children
 import hextant.fx.withStyleClass
 import javafx.collections.FXCollections.observableList
+import javafx.scene.control.ComboBox
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.util.StringConverter
-import org.controlsfx.control.SearchableComboBox
 import reaktive.value.now
 
 /**
@@ -32,24 +34,16 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
     val editor: ChoiceEditor<C, *, E>,
     arguments: Bundle
 ) : ChoiceEditorView<C, E>, WrappingEditorControl<Pane>(editor, arguments) {
-    private val comboBox = SearchableComboBox(observableList(editor.choices()))
-        .withStyleClass("choice-editor-combo-box")
+    private val comboBox = ComboBoxConfig.createComboBox(editor, arguments)
 
     init {
-        comboBox.valueProperty().addListener { _, _, item ->
-            if (item != null) editor.select(item)
-        }
-        comboBox.converter = object : StringConverter<C>() {
-            override fun toString(item: C?): String = if (item != null) editor.toString(item) else "<null>"
-
-            override fun fromString(str: String?): C? = if (str != null) editor.fromString(str) else null
-        }
         editor.addView(this)
     }
 
     override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
         when (property) {
             LAYOUT -> root = createDefaultRoot()
+            ComboBoxConfig.searchable -> ComboBoxConfig.setSearchable(comboBox, value as Boolean)
         }
     }
 

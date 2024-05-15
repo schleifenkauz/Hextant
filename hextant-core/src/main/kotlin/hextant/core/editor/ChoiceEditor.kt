@@ -25,7 +25,7 @@ import reaktive.value.reactiveVariable
  * An [Editor] which supports choosing different items of type [C]
  */
 abstract class ChoiceEditor<C : Any, R, E : Editor<R>>(context: Context, default: C) :
-    AbstractEditor<R, ChoiceEditorView<C, E>>(context) {
+    AbstractEditor<R, ChoiceEditorView<C, E>>(context), ComboBoxSource<C> {
     private val _selected = reactiveVariable(default)
     private val _content = reactiveVariable(createEditor(default))
 
@@ -42,7 +42,7 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>>(context: Context, default
     /**
      * Select the given [choice]
      */
-    fun select(choice: C) {
+    override fun select(choice: C) {
         if (choice == selected.now) return
         val editor = createEditor(choice)
         select(choice, editor)
@@ -60,11 +60,9 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>>(context: Context, default
         editor.setAccessor(ChoiceEditorContent)
     }
 
-    open fun toString(choice: C): String = choice.toString()
+    override fun toString(choice: C): String = choice.toString()
 
-    open fun fromString(str: String): C? = null
-
-    abstract fun choices(): List<C>
+    override fun fromString(str: String): C? = null
 
     protected abstract fun createEditor(choice: C): E
 
