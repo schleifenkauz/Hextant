@@ -95,6 +95,25 @@ abstract class EditorControl<R : Node>(
      */
     val isSelected: ReactiveValue<Boolean> get() = _isSelected
 
+    /**
+     * The current root of this control
+     * * Initially it has the value of [createDefaultRoot]
+     * * Setting it updates the look of this control
+     */
+    var root: R
+        get() = _root ?: createDefaultRoot().also { root = it }
+        protected set(newRoot) {
+            _root = newRoot
+            root.isFocusTraversable = true
+            root.focusedProperty().addListener(this) { focused ->
+                if (focused && !manuallySelecting) {
+                    if (isShiftDown) doToggleSelection()
+                    else doSelect()
+                }
+            }
+            setRoot(newRoot)
+        }
+
     init {
         styleClass.add("editor-control")
         for ((p, v) in arguments.entries) {
@@ -115,6 +134,10 @@ abstract class EditorControl<R : Node>(
         }
         isFocusTraversable = false
         initShortcuts()
+    }
+
+    private fun initializeControl() {
+        if (_root == null) root = createDefaultRoot()
     }
 
     /**
@@ -144,7 +167,6 @@ abstract class EditorControl<R : Node>(
         if (children.isEmpty()) return
         editorChildren.addAll(children)
         children.forEach {
-            it.root
             it.setEditorParent(this)
         }
         children.zipWithNext { previous, next ->
@@ -196,25 +218,6 @@ abstract class EditorControl<R : Node>(
      */
     protected abstract fun createDefaultRoot(): R
 
-    /**
-     * The current root of this control
-     * * Initially it has the value of [createDefaultRoot]
-     * * Setting it updates the look of this control
-     */
-    var root: R
-        get() = _root ?: createDefaultRoot().also { root = it }
-        protected set(newRoot) {
-            _root = newRoot
-            root.isFocusTraversable = true
-            root.focusedProperty().addListener(this) { focused ->
-                if (focused && !manuallySelecting) {
-                    if (isShiftDown) doToggleSelection()
-                    else doSelect()
-                }
-            }
-            setRoot(newRoot)
-        }
-
     private var lastExtendingChild: EditorControl<*>? = null
 
     /**
@@ -254,7 +257,7 @@ abstract class EditorControl<R : Node>(
     /**
      * Select this editor control and request focus.
      */
-    fun select() {
+    override fun select() {
         if (doSelect()) {
             justFocus()
         }
@@ -338,7 +341,6 @@ abstract class EditorControl<R : Node>(
         return inspectionPopup.isShowing
     }
 
-
     @ProvideCommand(
         name = "Shrink Selection",
         shortName = "shrink",
@@ -389,16 +391,21 @@ abstract class EditorControl<R : Node>(
         }
     }
 
-    override fun createSnapshot(): Snapshot<*> = Snap()
+    override fun createSnapshot(): Snapshot<*> {
+        initializeControl()
+        return Snap()
+    }
 
     protected abstract class AbstractSnap<C : EditorControl<*>> : Snapshot<C>() {
         private lateinit var changedArguments: Map<Property<*, *>, Any>
 
         override fun doRecord(original: C) {
+            original.initializeControl()
             changedArguments = original.changedArguments
         }
 
         override fun reconstructObject(original: C) {
+            original.initializeControl()
             for ((p, v) in changedArguments) {
                 @Suppress("UNCHECKED_CAST")
                 p as PublicProperty<Any>

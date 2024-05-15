@@ -65,7 +65,6 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         addChildren()
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
         when (property) {
             ORIENTATION -> orientationChanged(value as Orientation)
@@ -79,8 +78,8 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, context.createControl(e)) }
 
     init {
-        editor.addView(this)
         initEmptyDisplay()
+        editor.addView(this)
     }
 
     private fun initEmptyDisplay() {
@@ -113,7 +112,6 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     }
 
     private fun getCell(idx: Int, control: EditorControl<*>): Cell<*> {
-        control.root //Initialize root
         return cellFactory().apply {
             item = control
             index = idx

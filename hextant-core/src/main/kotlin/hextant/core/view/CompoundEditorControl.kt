@@ -28,6 +28,7 @@ import reaktive.Reactive
 abstract class CompoundEditorControl(
     editor: Editor<*>,
     args: Bundle,
+    initializeRoot: Boolean = true
 ) : EditorControl<Node>(editor, args) {
     private val cachedViews = mutableMapOf<Editor<*>, EditorControl<*>>()
 

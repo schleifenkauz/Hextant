@@ -84,20 +84,21 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
 
     override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
         when (property) {
-            HISTORY_ITEMS -> {
-                val count = value as Int
-                when {
-                    count <= 0 -> root.children.remove(scrollPane)
-                    count == 1 -> {
-                        root.children.remove(scrollPane)
-                        val last = history.children.lastOrNull()
-                        if (last != null) root.children.add(0, last)
-                    }
-                    else       -> {
-                        if (scrollPane !in root.children) root.children.add(0, scrollPane)
-                        scrollPane.maxHeight = arguments[HISTORY_ITEMS] * HISTORY_ITEM_HEIGHT
-                    }
-                }
+            HISTORY_ITEMS -> setHistoryItems(value as Int)
+        }
+    }
+
+    private fun setHistoryItems(count: Int) {
+        when {
+            count <= 0 -> root.children.setAll(current)
+            count == 1 -> {
+                val last = history.children.lastOrNull()
+                if (last != null) root.children.setAll(last, current)
+            }
+
+            else -> {
+                root.children.setAll(scrollPane, current)
+                scrollPane.maxHeight = arguments[HISTORY_ITEMS] * HISTORY_ITEM_HEIGHT
             }
         }
     }
@@ -141,7 +142,7 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
         if (this.arguments[HISTORY_ITEMS] == 1) {
             if (root.children.size == 2) root.children[0] = box
             else root.children.add(0, box)
-        } else if (!root.children.contains(scrollPane)) {
+        } else if (scrollPane !in root.children && this.arguments[HISTORY_ITEMS] != 0) {
             root.children.add(0, scrollPane)
         }
         runFXWithTimeout { scrollPane.vvalue = 1.0 }
@@ -155,8 +156,10 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
     }
 
     override fun createDefaultRoot(): Pane = vbox {
-        if (arguments[HISTORY_ITEMS] == 1 && history.children.isNotEmpty()) add(history.children.last())
-        else if (arguments[HISTORY_ITEMS] > 1 && history.children.isNotEmpty()) add(scrollPane)
+        when {
+            arguments[HISTORY_ITEMS] == 1 && history.children.isNotEmpty() -> add(history.children.last())
+            arguments[HISTORY_ITEMS] > 1 && history.children.isNotEmpty() -> add(scrollPane)
+        }
         add(current)
     }
 

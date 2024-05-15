@@ -48,7 +48,6 @@ class EditorRoot<E : Editor<*>>(val editor: E, val control: EditorControl<*>) {
             val editor = editorSnapshot.reconstruct(SnapshotAware.Serializer.reconstructionContext) as Editor<*>
             val controlSnapshot = Snapshot.decodeFromJson(obj.getValue("control")) as Snapshot<EditorControl<*>>
             val control = editor.context.createControl(editor)
-            control.root
             controlSnapshot.reconstructObject(control)
             return EditorRoot(editor, control)
         }

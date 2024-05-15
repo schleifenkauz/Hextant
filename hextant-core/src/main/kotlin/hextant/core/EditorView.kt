@@ -28,6 +28,11 @@ interface EditorView : SnapshotAware {
     fun deselect()
 
     /**
+     * Select this [EditorView]
+     * */
+    fun select()
+
+    /**
      * Focus this [EditorView]
      */
     fun focus()

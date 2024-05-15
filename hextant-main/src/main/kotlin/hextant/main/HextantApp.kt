@@ -4,6 +4,7 @@
 
 package hextant.main
 
+import bundles.createBundle
 import bundles.publicProperty
 import bundles.set
 import hextant.cli.HextantDirectory
@@ -49,7 +50,7 @@ class HextantApp : Application() {
     private fun registerGlobalCommandLine(context: Context, project: Project) {
         val stage = context[mainWindow]
         val globalCL = context[Properties.globalCommandLine]
-        val popup = CommandLinePopup(context, globalCL)
+        val popup = CommandLinePopup(context, globalCL, arguments = createBundle())
         project.view.registerShortcuts {
             handleCommands(context, context, globalCL)
             on("Ctrl?+G") {

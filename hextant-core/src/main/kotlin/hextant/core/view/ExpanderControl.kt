@@ -91,7 +91,6 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
         val v = context.createControl(editor)
         v.registerShortcuts { on("Ctrl? + R") { expander.reset() } }
         wrapped = v
-        v.root //initialize root
         root = v
         v.receiveFocus()
         onExpansion(editor, v)

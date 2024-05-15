@@ -126,7 +126,6 @@ class Project private constructor(
             if (display.exists()) {
                 val json = Json.parseToJsonElement(display.readText())
                 val snap = Snapshot.decodeFromJson<EditorControl<*>>(json)
-                view.root
                 snap.reconstructObject(view)
             }
             return view
