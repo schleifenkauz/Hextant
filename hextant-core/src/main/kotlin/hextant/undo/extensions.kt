@@ -6,8 +6,11 @@ package hextant.undo
 
 import hextant.context.Context
 import hextant.core.Editor
+import hextant.fx.KeyEventHandlerBody
+import hextant.fx.registerShortcuts
 import hextant.serial.snapshot
 import hextant.serial.virtualize
+import javafx.scene.Node
 
 /**
  * Calls [UndoManager.beginCompoundEdit] before [UndoManager.finishCompoundEdit] after executing the given [actions].
@@ -33,6 +36,8 @@ inline fun <T> UndoManager.withoutUndo(action: () -> T): T {
     isActive = false
     try {
         return action()
+    } catch (ex: Throwable) {
+        throw ex
     } finally {
         isActive = true
     }
@@ -51,4 +56,19 @@ inline fun <E : Editor<*>, R> E.makeUndoableEdit(description: String, action: ()
     val edit = SnapshotEdit(virtualize(), before, after, description)
     undo.record(edit)
     return result
+}
+
+fun Node.registerHistoryShortcuts(manager: UndoManager) {
+    registerShortcuts {
+        historyShortcuts(manager)
+    }
+}
+
+fun KeyEventHandlerBody<Unit>.historyShortcuts(manager: UndoManager) {
+    on("Ctrl?+Z") {
+        manager.undo()
+    }
+    on("Ctrl?+Shift+Z") {
+        manager.redo()
+    }
 }

@@ -1,13 +1,17 @@
 package hextant.undo
 
+import reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveString
+import reaktive.value.reactiveValue
+
 /**
  * An [UndoManager] that never records edits
  */
 object NoUndoManager : UndoManager {
-    override val canUndo: Boolean
-        get() = false
-    override val canRedo: Boolean
-        get() = false
+    override val canUndo: ReactiveBoolean
+        get() = reactiveValue(false)
+    override val canRedo: ReactiveBoolean
+        get() = reactiveValue(false)
 
     override var isActive: Boolean = true
 
@@ -17,10 +21,10 @@ object NoUndoManager : UndoManager {
 
     override fun record(edit: Edit) {}
 
-    override val undoText: String
-        get() = "No undo"
-    override val redoText: String
-        get() = "No redo"
+    override val undoText: ReactiveString
+        get() = reactiveValue("No undo")
+    override val redoText: ReactiveString
+        get() = reactiveValue("No redo")
 
     override fun beginCompoundEdit() {}
 

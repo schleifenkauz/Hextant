@@ -7,6 +7,8 @@ package hextant.undo
 
 import bundles.PublicProperty
 import bundles.property
+import reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveString
 
 /**
  * The UndoManager is responsible for managing stacks of edits and undo and redo them
@@ -15,12 +17,12 @@ interface UndoManager {
     /**
      * Indicates whether this [UndoManager] can currently undo an [Edit].
      */
-    val canUndo: Boolean
+    val canUndo: ReactiveBoolean
 
     /**
      * Indicates whether this [UndoManager] can currently redo an [Edit].
      */
-    val canRedo: Boolean
+    val canRedo: ReactiveBoolean
 
     /**
      * Indicates whether this [UndoManager] currently records undoable edits.
@@ -64,12 +66,12 @@ interface UndoManager {
     /**
      * The human-readable description of the currently undoable [Edit]
      */
-    val undoText: String
+    val undoText: ReactiveString
 
     /**
      * The human-readable description of the currently undoable [Edit]
      */
-    val redoText: String
+    val redoText: ReactiveString
 
     companion object : PublicProperty<UndoManager> by property("undo manager") {
         /**

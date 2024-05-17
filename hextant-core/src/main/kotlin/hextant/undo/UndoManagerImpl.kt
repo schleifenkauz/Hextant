@@ -4,39 +4,53 @@
 
 package hextant.undo
 
+import reaktive.value.*
 import java.util.*
 
 internal class UndoManagerImpl : UndoManager {
     private val redoable = LinkedList<Edit>()
-
     private val undoable = LinkedList<Edit>()
-
     private var compound: MutableList<Edit>? = null
 
-    override val canUndo: Boolean
-        get() = undoable.isNotEmpty()
+    private val _canUndo = reactiveVariable(false)
+    private val _canRedo = reactiveVariable(false)
+    private val _undoText = reactiveVariable("Cannot undo")
+    private val _redoText = reactiveVariable("Cannot redo")
 
-    override val canRedo: Boolean
-        get() = redoable.isNotEmpty()
+    override val canUndo: ReactiveBoolean get() = _canUndo
+    override val canRedo: ReactiveBoolean get() = _canRedo
+    override val undoText: ReactiveString
+        get() = _undoText
+    override val redoText: ReactiveString
+        get() = _redoText
 
     override var isActive: Boolean = true
 
+    private fun updateReactiveVariables() {
+        _canRedo.now = redoable.isNotEmpty()
+        _redoText.now = redoable.peek()?.run { "Redo $actionDescription" } ?: "Cannot redo"
+        _canUndo.now = undoable.isNotEmpty()
+        _undoText.now = undoable.peek()?.run { "Undo $actionDescription" } ?: "Cannot undo"
+    }
+
     override fun undo() {
-        check(canUndo) { "Cannot undo" }
+        check(canUndo.now) { "Cannot undo" }
         check(compound == null) { "Undo during compound edit is not possible" }
         val e = undoable.poll()
         println("Undo ${e.actionDescription}")
         withoutUndo { e.undo() }
         redoable.push(e)
+        updateReactiveVariables()
     }
 
     override fun redo() {
-        check(canRedo) { "Cannot redo" }
+        check(canRedo.now) { "Cannot redo" }
         check(compound == null) { "Redo during compound edit is not possible" }
         val e = redoable.poll()
         println("Redo ${e.actionDescription}")
         withoutUndo { e.redo() }
         undoable.push(e)
+        updateReactiveVariables()
     }
 
     override fun record(edit: Edit) {
@@ -57,6 +71,7 @@ internal class UndoManagerImpl : UndoManager {
                 undoable.push(edit)
             }
         } else undoable.push(edit)
+        updateReactiveVariables()
     }
 
     override fun beginCompoundEdit() {
@@ -72,9 +87,4 @@ internal class UndoManagerImpl : UndoManager {
         val e = CompoundEdit(edits, description)
         record(e)
     }
-
-    override val undoText: String
-        get() = undoable.peek()?.run { "Undo $actionDescription" } ?: "Cannot undo"
-    override val redoText: String
-        get() = redoable.peek()?.run { "Redo $actionDescription" } ?: "Cannot redo"
 }
