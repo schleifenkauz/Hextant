@@ -118,7 +118,7 @@ abstract class ListEditor<R, E : Editor<R>>(
     private fun doClear() {
         for (e in editors.now) context.executeSafely("clearing editors", Unit) { editorRemoved(e, 0) }
         _editors.now.clear()
-        views { empty() }
+        notifyViews { empty() }
     }
 
     /**
@@ -224,8 +224,8 @@ abstract class ListEditor<R, E : Editor<R>>(
         if (!mayRemove()) return
         val old = _editors.now.removeAt(index)
         updateIndicesFrom(index)
-        views { removed(index) }
-        if (emptyNow()) views { empty() }
+        notifyViews { removed(index) }
+        if (emptyNow()) notifyViews { empty() }
         context.executeSafely("removing editor", Unit) { editorRemoved(old, index) }
         if (undo.isActive) {
             val edit = RemoveEdit(virtualize(), index, old.snapshot(recordClass = true))
@@ -279,7 +279,7 @@ abstract class ListEditor<R, E : Editor<R>>(
         editor.setAccessor(IndexAccessor(index))
         _editors.now.add(index, editor)
         updateIndicesFrom(index + 1)
-        views {
+        notifyViews {
             if (emptyBefore) notEmpty()
             added(editor, index)
         }

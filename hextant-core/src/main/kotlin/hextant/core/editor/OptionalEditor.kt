@@ -53,20 +53,20 @@ abstract class OptionalEditor<R, E : Editor<R>>(context: Context, initialContent
 
     private fun doReset() {
         _editor.set(null)
-        views { removed() }
+        notifyViews { removed() }
     }
 
     private fun doExpand() {
         val editor = createEditor()
         setContent(editor)
-        views { focus() }
+        notifyViews { focus() }
     }
 
     private fun setContent(content: E) {
         parent?.let { content.initParent(it) }
         content.setAccessor(OptionalEditorContent)
         _editor.set(content)
-        views { display(content) }
+        notifyViews { display(content) }
     }
 
     @Deprecated("Treat as internal")

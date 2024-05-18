@@ -29,7 +29,7 @@ abstract class SimpleChoiceEditor<C : Any>(context: Context, default: C) :
     override fun select(choice: C) {
         if (choice == result.now) return
         _selected.set(choice)
-        views { selected(choice) }
+        notifyViews { selected(choice) }
     }
 
     override fun toString(choice: C): String = choice.toString()

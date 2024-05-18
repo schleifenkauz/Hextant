@@ -83,7 +83,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text
             undo.record(edit)
         }
         _text.now = newText
-        views { displayText(newText) }
+        notifyViews { displayText(newText) }
         _result.set(tryCompile(newText))
     }
 
@@ -95,7 +95,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text
         val edit = TextEdit(virtualize(), text.now, t)
         undo.record(edit)
         _text.now = t
-        views { displayText(t) }
+        notifyViews { displayText(t) }
         @Suppress("UNCHECKED_CAST")
         val res = resultType.jvmErasure.safeCast(completion.item) as R?
             ?: tryCompile(completion.completionText)

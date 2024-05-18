@@ -68,7 +68,7 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
     fun setCommandName(name: String) {
         check(!isExpanded.now) { "Command already expanded, can't change name to '$name'" }
         commandName = name
-        views { displayCommandName(name) }
+        notifyViews { displayCommandName(name) }
     }
 
     /**
@@ -109,7 +109,7 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
         arguments = editors
         _expandedCommand.now = cmd
         isExpanded.now = true
-        views { expanded(cmd, editors) }
+        notifyViews { expanded(cmd, editors) }
     }
 
     private fun bindResult(
@@ -177,7 +177,7 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
         val item = HistoryItem(command, argumentSnapshots, byShortcut, result)
         history.add(item)
         execute.fire(item)
-        views {
+        notifyViews {
             addToHistory(item)
         }
     }
@@ -229,7 +229,7 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
         obs?.kill()
         obs = null
         _result.set(null)
-        views { reset() }
+        notifyViews { reset() }
         return true
     }
 

@@ -21,7 +21,7 @@ class SExprExpander(context: Context, editor: SExprEditor<*>? = null) :
         set(value) {
             context[UndoManager].record(PropertyEdit(this::isNormalized, field, value, "normalize"))
             field = value
-            views {
+            notifyViews {
                 changePseudoClassState(PseudoClass.getPseudoClass("normalized"), value)
             }
         }

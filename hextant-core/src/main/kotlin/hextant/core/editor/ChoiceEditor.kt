@@ -50,7 +50,7 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>>(context: Context, default
 
     fun select(choice: C, editor: E) {
         doSelect(choice, editor)
-        views { selected(choice, editor) }
+        notifyViews { selected(choice, editor) }
     }
 
     private fun doSelect(choice: C, editor: E) {

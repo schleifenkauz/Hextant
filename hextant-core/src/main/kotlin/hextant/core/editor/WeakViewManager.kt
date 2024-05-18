@@ -1,21 +1,13 @@
-/**
- * @author Nikolaus Knop
- */
-
 package hextant.core.editor
 
 import java.lang.ref.WeakReference
 
-/**
- * Skeletal implementation for MVC-Controllers
- * * Note that this implementation does not store strong references to the registered views
- */
-abstract class AbstractController<in V : Any> {
+internal class WeakViewManager<V: Any> : ViewManager<V> {
     private val mutableViews = mutableListOf<WeakReference<V>>()
     /**
      * @return a sequence of all views registered to this editor
      */
-    protected val views: Sequence<@UnsafeVariance V>
+    override val views: Sequence<@UnsafeVariance V>
         get() {
             val itr = mutableViews.iterator()
             tailrec fun next(): V? =
@@ -34,7 +26,7 @@ abstract class AbstractController<in V : Any> {
     /**
      * Execute the given [action] on all views
      */
-    open fun views(action: (@UnsafeVariance V).() -> Unit) {
+    override fun notifyViews(action: (@UnsafeVariance V).() -> Unit) {
         try {
             views.forEach(action)
         } catch (e: Throwable) {
@@ -49,17 +41,10 @@ abstract class AbstractController<in V : Any> {
      * so be careful when adding a view in the constructor
      * * Adding a view to an editor will not prevent the view from being garbage collected
      */
-    fun addView(view: V) {
+    override fun addView(view: V) {
         if (view in views) {
             throw IllegalArgumentException("View already added: $view")
         }
         mutableViews.add(WeakReference(view))
-        viewAdded(view)
     }
-
-    /**
-     * Is called when the specified [view] is added
-     * * The default implementation does nothing
-     */
-    protected open fun viewAdded(view: V) {}
 }

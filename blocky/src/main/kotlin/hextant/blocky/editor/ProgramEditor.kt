@@ -31,7 +31,7 @@ class ProgramEditor(context: Context) :
 
     fun addComponent(comp: Editor<*>) {
         components.add(comp)
-        views {
+        notifyViews {
             addedComponent(components.size - 1, comp)
         }
     }
@@ -40,7 +40,7 @@ class ProgramEditor(context: Context) :
         val idx = components.indexOf(comp)
         if (idx == -1) error("Component $comp not present")
         components.removeAt(idx)
-        views {
+        notifyViews {
             removedComponent(comp)
         }
     }

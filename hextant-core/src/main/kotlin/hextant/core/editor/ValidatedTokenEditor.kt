@@ -99,9 +99,7 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
         if (editable.now) return
         _editable.set(true)
         beginChange.fire()
-        views.forEach { v ->
-            v.setEditable(true)
-        }
+        notifyViews { setEditable(true) }
     }
 
     /**
@@ -113,9 +111,7 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
             _editable.set(false)
             _text.set(oldText)
             abortChange.fire()
-            views.forEach { v ->
-                v.setEditable(false)
-            }
+            notifyViews { setEditable(false) }
             _intermediateResult.now = tryCompile(oldText)
         }
     }
@@ -132,9 +128,7 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
         _result.set(res)
         oldText = text.now
         commitChange.fire(text.now)
-        views.forEach { v ->
-            v.setEditable(false)
-        }
+        notifyViews { setEditable(false) }
     }
 
     private fun setTextAndCommit(new: String, result: R) {
@@ -143,7 +137,7 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
         _intermediateResult.set(result)
         _result.set(result)
         oldText = new
-        views { displayText(new) }
+        notifyViews { displayText(new) }
     }
 
     /**
@@ -153,9 +147,7 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
     fun setText(new: String) {
         check(editable.now) { "not editable" }
         _text.now = new
-        views.forEach { v ->
-            v.displayText(new)
-        }
+        notifyViews { displayText(new) }
         _intermediateResult.now = tryCompile(new)
     }
 
@@ -167,7 +159,7 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
         check(editable.now) { "not editable" }
         val t = completion.completionText
         _text.now = t
-        views { displayText(t) }
+        notifyViews { displayText(t) }
         val res = tryCompile(completion.item) ?: tryCompile(t)
         _intermediateResult.now = res
         commitChange()

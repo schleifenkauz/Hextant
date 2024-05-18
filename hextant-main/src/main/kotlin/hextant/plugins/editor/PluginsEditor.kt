@@ -31,7 +31,7 @@ internal class PluginsEditor(
         } catch (e: PluginException) {
             return view.alertError(e.message!!)
         }
-        views {
+        notifyViews {
             launch {
                 available.removeAll(activated)
                 enabled.addAll(activated.filter { it.matches(enabledSearchText) })
@@ -52,7 +52,7 @@ internal class PluginsEditor(
             return view.alertError(e.message!!)
         }
 
-        views {
+        notifyViews {
             launch {
                 available.addAll(disabled.filter { it.info.await().type in types && it.matches(availableSearchText) })
                 enabled.removeAll(disabled)

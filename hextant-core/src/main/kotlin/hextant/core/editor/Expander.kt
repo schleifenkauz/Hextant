@@ -171,7 +171,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         } else {
             executeEdit("Type") {
                 state.now = Text(newText, null)
-                views { displayText(newText) }
+                notifyViews { displayText(newText) }
             }
         }
     }
@@ -209,7 +209,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         if (editor != null) expand(editor)
         else {
             state.set(Text(text, item))
-            views { displayText(text) }
+            notifyViews { displayText(text) }
         }
     }
 
@@ -226,7 +226,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
         editor.initExpander(this)
         @Suppress("DEPRECATION")
         editor.setAccessor(ExpanderContent)
-        views { expanded(e) }
+        notifyViews { expanded(e) }
         onExpansion(editor)
     }
 
@@ -239,7 +239,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
             val old = forceEditor()
             state.set(initial)
             onReset(old)
-            views { reset() }
+            notifyViews { reset() }
         }
     }
 
