@@ -22,4 +22,6 @@ interface ViewManager<V : Any> {
     companion object {
         fun <V : Any> createWeakViewManager(): ViewManager<V> = WeakViewManager()
     }
+
+    fun removeView(view: V)
 }

@@ -47,4 +47,8 @@ internal class WeakViewManager<V: Any> : ViewManager<V> {
         }
         mutableViews.add(WeakReference(view))
     }
+
+    override fun removeView(view: V) {
+        mutableViews.removeIf { ref -> ref.get() == view }
+    }
 }
