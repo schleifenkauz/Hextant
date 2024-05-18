@@ -55,6 +55,7 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
             context.createControl(editor.content.now).withStyleClass("choice-editor-content")
         } else null
         root = createDefaultRoot()
+        wrapped?.receiveFocus()
     }
 
     override fun createDefaultRoot(): Pane = when (arguments[LAYOUT]) {

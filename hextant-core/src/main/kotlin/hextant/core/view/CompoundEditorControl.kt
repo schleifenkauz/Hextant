@@ -28,15 +28,14 @@ import reaktive.Reactive
 abstract class CompoundEditorControl(
     editor: Editor<*>,
     args: Bundle,
-    initializeRoot: Boolean = true
 ) : EditorControl<Node>(editor, args) {
     private val cachedViews = mutableMapOf<Editor<*>, EditorControl<*>>()
 
     private var firstChildToFocus: EditorControl<*>? = null
 
-    protected abstract fun build(): Layout
-
     private val observers = mutableListOf<Observer>()
+
+    protected abstract fun build(): Layout
 
     override fun createDefaultRoot(): Node {
         val layout = build()

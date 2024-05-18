@@ -19,6 +19,7 @@ import hextant.inspect.Inspections
 import hextant.serial.Snapshot
 import hextant.serial.json
 import hextant.serial.snapshot
+import javafx.application.Platform
 import javafx.css.PseudoClass
 import javafx.scene.Node
 import javafx.scene.control.Control
@@ -136,7 +137,7 @@ abstract class EditorControl<R : Node>(
         initShortcuts()
     }
 
-    private fun initializeControl() {
+    internal fun initializeControl() {
         if (_root == null) root = createDefaultRoot()
     }
 
@@ -229,7 +230,9 @@ abstract class EditorControl<R : Node>(
     }
 
     override fun focus() {
-        root.requestFocus()
+        Platform.runLater {
+            root.requestFocus()
+        }
     }
 
     /**
@@ -391,10 +394,7 @@ abstract class EditorControl<R : Node>(
         }
     }
 
-    override fun createSnapshot(): Snapshot<*> {
-        initializeControl()
-        return Snap()
-    }
+    override fun createSnapshot(): Snapshot<*> = Snap()
 
     protected abstract class AbstractSnap<C : EditorControl<*>> : Snapshot<C>() {
         private lateinit var changedArguments: Map<Property<*, *>, Any>
