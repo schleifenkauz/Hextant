@@ -29,6 +29,8 @@ interface UndoManager {
      */
     var isActive: Boolean
 
+    val accumulatesCompoundEdit: Boolean
+
     /**
      * Undo the last done or redone [Edit].
      */
@@ -52,7 +54,7 @@ interface UndoManager {
      * Edits pushed between calls of [beginCompoundEdit] and [finishCompoundEdit] are combined in a single compound edit.
      * @throws IllegalStateException if [finishCompoundEdit] has already been called after the last call to [finishCompoundEdit].
      */
-    fun beginCompoundEdit()
+    fun beginCompoundEdit(description: String? = null)
 
     /**
      * Finishes a compound edit began with [beginCompoundEdit].
@@ -61,7 +63,7 @@ interface UndoManager {
      * @param description the [Edit.actionDescription] of the compound edit
      * @throws IllegalStateException if [beginCompoundEdit] was not called previously.
      */
-    fun finishCompoundEdit(description: String)
+    fun finishCompoundEdit(description: String? = null)
 
     /**
      * The human-readable description of the currently undoable [Edit]

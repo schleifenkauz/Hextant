@@ -35,11 +35,13 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
     final override var expander: Expander<*, *>? = null
         private set
 
+    @Deprecated("Treat as internal")
     override fun initParent(parent: Editor<*>) {
         this.parent = parent
         onInitParent(parent)
     }
 
+    @Deprecated("Treat as internal")
     override fun initExpander(expander: Expander<*, *>) {
         this.expander = expander
     }
@@ -48,6 +50,7 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
 
     final override val accessor: ReactiveValue<EditorAccessor?> get() = _accessor
 
+    @Deprecated("Treat as internal")
     override fun setAccessor(acc: EditorAccessor) {
         _accessor.now = acc
     }
@@ -83,6 +86,7 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
 
     private var _file: VirtualFile<Editor<*>>? = null
 
+    @Deprecated("Treat as internal")
     override fun setFile(file: VirtualFile<Editor<*>>) {
         _file = file
     }

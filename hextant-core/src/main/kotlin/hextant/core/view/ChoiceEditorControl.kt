@@ -16,15 +16,11 @@ import hextant.core.editor.SimpleEditor
 import hextant.core.view.ChoiceEditorControl.Layout.Horizontal
 import hextant.core.view.ChoiceEditorControl.Layout.Vertical
 import hextant.fx.ComboBoxConfig
-import hextant.fx.LazyComboBox
 import hextant.fx.children
 import hextant.fx.withStyleClass
-import javafx.collections.FXCollections.observableList
-import javafx.scene.control.ComboBox
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
-import javafx.util.StringConverter
 import reaktive.value.now
 
 /**

@@ -64,6 +64,7 @@ abstract class OptionalEditor<R, E : Editor<R>>(context: Context, initialContent
 
     private fun setContent(content: E) {
         parent?.let { content.initParent(it) }
+        @Suppress("DEPRECATION")
         content.setAccessor(OptionalEditorContent)
         _editor.set(content)
         notifyViews { display(content) }
@@ -71,7 +72,9 @@ abstract class OptionalEditor<R, E : Editor<R>>(context: Context, initialContent
 
     @Deprecated("Treat as internal")
     override fun initParent(parent: Editor<*>) {
+        @Suppress("DEPRECATION")
         super.initParent(parent)
+        @Suppress("DEPRECATION")
         content.now?.initParent(parent)
     }
 

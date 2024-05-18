@@ -15,6 +15,9 @@ object NoUndoManager : UndoManager {
 
     override var isActive: Boolean = true
 
+    override val accumulatesCompoundEdit: Boolean
+        get() = false
+
     override fun undo() {}
 
     override fun redo() {}
@@ -26,7 +29,7 @@ object NoUndoManager : UndoManager {
     override val redoText: ReactiveString
         get() = reactiveValue("No redo")
 
-    override fun beginCompoundEdit() {}
+    override fun beginCompoundEdit(description: String?) {}
 
-    override fun finishCompoundEdit(description: String) {}
+    override fun finishCompoundEdit(description: String?) {}
 }

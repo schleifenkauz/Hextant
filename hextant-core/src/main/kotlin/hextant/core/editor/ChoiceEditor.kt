@@ -27,7 +27,7 @@ import reaktive.value.reactiveVariable
 abstract class ChoiceEditor<C : Any, R, E : Editor<R>>(context: Context, default: C) :
     AbstractEditor<R, ChoiceEditorView<C, E>>(context), ComboBoxSource<C> {
     private val _selected = reactiveVariable(default)
-    private val _content = reactiveVariable(createEditor(default))
+    private val _content = reactiveVariable(this.createEditor(default))
 
     val selected: ReactiveValue<C> get() = _selected
     val content: ReactiveValue<E> get() = _content

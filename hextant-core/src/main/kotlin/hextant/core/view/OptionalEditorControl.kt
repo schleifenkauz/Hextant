@@ -41,6 +41,7 @@ class OptionalEditorControl @ProvideImplementation(ControlFactory::class) constr
         val view = context.createControl(content)
         wrapped = view
         root = view
+        view.initializeControl()
         view.receiveFocus()
     }
 

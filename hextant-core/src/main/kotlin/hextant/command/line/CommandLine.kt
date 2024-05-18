@@ -94,7 +94,7 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
     fun expand(command: Command<*, *>): Boolean {
         if (isExpanded.now) return false
         val editors = command.parameters.map { p ->
-            @Suppress("UNCHECKED_CAST") val v =
+            val v =
                 if (p.editWith != null) p.editWith.createEditor(context)
                 else context.createEditor(p.type)
             v.makeRoot()

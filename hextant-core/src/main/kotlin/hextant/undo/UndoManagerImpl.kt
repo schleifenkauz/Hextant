@@ -10,6 +10,7 @@ import java.util.*
 internal class UndoManagerImpl : UndoManager {
     private val redoable = LinkedList<Edit>()
     private val undoable = LinkedList<Edit>()
+    private var compoundDescription: String? = null
     private var compound: MutableList<Edit>? = null
 
     private val _canUndo = reactiveVariable(false)
@@ -25,6 +26,9 @@ internal class UndoManagerImpl : UndoManager {
         get() = _redoText
 
     override var isActive: Boolean = true
+
+    override val accumulatesCompoundEdit: Boolean
+        get() = compound != null
 
     private fun updateReactiveVariables() {
         _canRedo.now = redoable.isNotEmpty()
@@ -74,17 +78,31 @@ internal class UndoManagerImpl : UndoManager {
         updateReactiveVariables()
     }
 
-    override fun beginCompoundEdit() {
-        check(compound == null) { "Compound edit already began" }
+    override fun beginCompoundEdit(description: String?) {
+        if (compound != null) {
+            System.err.println("Compound edit already begun description: $compoundDescription, new: $description")
+            return
+        }
         compound = mutableListOf()
+        compoundDescription = description
     }
 
-    override fun finishCompoundEdit(description: String) {
+    override fun finishCompoundEdit(description: String?) {
         val edits = compound
-        check(edits != null) { "Compound edit was not started" }
+        if (edits == null) {
+            System.err.println("No compound already begun (description: $description)")
+            return
+        }
         compound = null
-        if (edits.isEmpty()) return
-        val e = CompoundEdit(edits, description)
-        record(e)
+        val desc = compoundDescription ?: description ?: error("no description for compound edit provided")
+        compoundDescription = null
+        when (edits.size) {
+            0 -> return
+            1 -> record(edits[0])
+            else -> {
+                val e = CompoundEdit(edits, desc)
+                record(e)
+            }
+        }
     }
 }
