@@ -83,13 +83,13 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     }
 
     private fun initEmptyDisplay() {
-        emptyDisplay.setOnMouseClicked {
+        emptyDisplay?.setOnMouseClicked {
             editor.addAt(0)
         }
         registerShortcuts {
             on(PASTE_MANY) { editor.pasteManyFromClipboard(0) }
         }
-        emptyDisplay.registerShortcuts {
+        emptyDisplay?.registerShortcuts {
             on(ADD_ITEM_AFTER) { editor.addAt(0) }
         }
     }
@@ -144,7 +144,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     override fun empty() {
         items.children.clear()
         cells.clear()
-        root = emptyDisplay
+        root = emptyDisplay ?: items
     }
 
     override fun notEmpty() {
@@ -153,7 +153,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
 
     override fun receiveFocus() {
         val firstChild = cells.firstOrNull() ?: emptyDisplay
-        firstChild.requestFocus()
+        firstChild?.requestFocus()
     }
 
     /**
@@ -366,7 +366,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         /**
          * The [Node] that is displayed when no items are in the [ListEditor]
          */
-        val EMPTY_DISPLAY = publicProperty<() -> Node>("empty display") {
+        val EMPTY_DISPLAY = publicProperty<() -> Node?>("empty display") {
             Glyphs.create(PLUS).withStyleClass("standard-empty-display")
         }
     }
