@@ -40,7 +40,7 @@ internal fun control(skin: Skin<out Control>): Control {
     }
 }
 
-internal fun Control.setRoot(node: Node) {
+fun Control.setRoot(node: Node) {
     skin = null
     skin = skin(this, node)
 }
