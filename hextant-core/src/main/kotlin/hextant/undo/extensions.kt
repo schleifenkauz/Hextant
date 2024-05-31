@@ -11,6 +11,7 @@ import hextant.fx.registerShortcuts
 import hextant.serial.snapshot
 import hextant.serial.virtualize
 import javafx.scene.Node
+import reaktive.value.now
 
 /**
  * Calls [UndoManager.beginCompoundEdit] before [UndoManager.finishCompoundEdit] after executing the given [actions].
@@ -66,9 +67,9 @@ fun Node.registerHistoryShortcuts(manager: UndoManager) {
 
 fun KeyEventHandlerBody<Unit>.historyShortcuts(manager: UndoManager) {
     on("Ctrl?+Z") {
-        manager.undo()
+        if (manager.canUndo.now) manager.undo()
     }
     on("Ctrl?+Shift+Z") {
-        manager.redo()
+        if (manager.canRedo.now) manager.redo()
     }
 }

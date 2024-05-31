@@ -2,12 +2,12 @@ package hextant.core.editor
 
 import java.lang.ref.WeakReference
 
-internal class WeakViewManager<V: Any> : ViewManager<V> {
+internal class WeakListenerManager<V: Any> : ListenerManager<V> {
     private val mutableViews = mutableListOf<WeakReference<V>>()
     /**
      * @return a sequence of all views registered to this editor
      */
-    override val views: Sequence<@UnsafeVariance V>
+    override val listeners: Sequence<@UnsafeVariance V>
         get() {
             val itr = mutableViews.iterator()
             tailrec fun next(): V? =
@@ -26,9 +26,9 @@ internal class WeakViewManager<V: Any> : ViewManager<V> {
     /**
      * Execute the given [action] on all views
      */
-    override fun notifyViews(action: (@UnsafeVariance V).() -> Unit) {
+    override fun notifyListeners(action: (@UnsafeVariance V).() -> Unit) {
         try {
-            views.forEach(action)
+            listeners.forEach(action)
         } catch (e: Throwable) {
             println("Exception while updating views")
             e.printStackTrace()
@@ -36,19 +36,19 @@ internal class WeakViewManager<V: Any> : ViewManager<V> {
     }
 
     /**
-     * Add the specified [view] to this editor, such that it will be notified when the editor is modified
+     * Add the specified [listener] to this editor, such that it will be notified when the editor is modified
      * * eventually the editor will directly call methods of the view
      * so be careful when adding a view in the constructor
      * * Adding a view to an editor will not prevent the view from being garbage collected
      */
-    override fun addView(view: V) {
-        if (view in views) {
-            throw IllegalArgumentException("View already added: $view")
+    override fun addListener(listener: V) {
+        if (listener in listeners) {
+            throw IllegalArgumentException("View already added: $listener")
         }
-        mutableViews.add(WeakReference(view))
+        mutableViews.add(WeakReference(listener))
     }
 
-    override fun removeView(view: V) {
+    override fun removeListener(view: V) {
         mutableViews.removeIf { ref -> ref.get() == view }
     }
 }

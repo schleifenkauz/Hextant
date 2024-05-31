@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
  */
 @Suppress("OverridingDeprecatedMember")
 abstract class AbstractEditor<out R, in V : Any>(override val context: Context) : Editor<R> {
-    private val viewManager: ViewManager<V> = ViewManager.createWeakViewManager()
+    private val viewManager: ListenerManager<V> = ListenerManager.createWeakListenerManager()
 
     final override var parent: Editor<*>? = null
         private set
@@ -116,7 +116,7 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
     }
 
     fun notifyViews(action: (@UnsafeVariance V).() -> Unit) {
-        viewManager.notifyViews {
+        viewManager.notifyListeners {
             context.executeSafely("notify views", Unit) {
                 action()
             }
@@ -126,7 +126,7 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
     protected open fun viewAdded(view: V) {}
 
     fun addView(view: V) {
-        viewManager.addView(view)
+        viewManager.addListener(view)
         viewAdded(view)
     }
 }

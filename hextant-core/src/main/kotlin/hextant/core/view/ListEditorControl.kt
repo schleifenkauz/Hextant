@@ -124,11 +124,12 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
             on(ADD_ITEM_AFTER) { editor.addAt(index + 1) }
             on(ADD_ITEM_BEFORE) { editor.addAt(index) }
             on(REMOVE_ITEM) { editor.removeAt(index) }
-            on(PASTE_MANY) {
-                editor.pasteManyFromClipboard(index)
-            }
+            on(PASTE_MANY) { editor.pasteManyFromClipboard(index) }
             if (cells.size > index + 1) on(orientation.nextCombination) { cells[index + 1].requestLayout() }
             if (cells.size > index + 1) on(orientation.previousCombination) { cells[index - 1].requestLayout() }
+        }
+        addEditorButton?.setOnAction {
+            editor.addAt(index + 1)
         }
     }
 
@@ -212,6 +213,8 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
                 updateItem(value)
             }
 
+        open val addEditorButton: Button? = null
+
         private var _root: R? = null
 
         /**
@@ -263,16 +266,20 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
      */
     open class NumberedCell(
         private val startIndex: Int = 1,
+        final override val addEditorButton: Button? = null,
         private val displayItem: (control: EditorControl<*>) -> Node = { it }
     ) : Cell<HBox>() {
-        private val label = Label().withStyleClass("editor-list-number")
+        private val indexLabel = Label().withStyleClass("editor-list-number")
 
         init {
-            root = HBox(label, Region()).withStyleClass("numbered-cell")
+            root = HBox(indexLabel, Region()).withStyleClass("numbered-cell")
+            if (addEditorButton != null) {
+                root.children.add(addEditorButton)
+            }
         }
 
         override fun updateIndex(idx: Int) {
-            label.text = "${idx + startIndex}."
+            indexLabel.text = "${idx + startIndex}."
         }
 
         override fun updateItem(item: EditorControl<*>) {
