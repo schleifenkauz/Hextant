@@ -41,6 +41,8 @@ interface UndoManager {
      */
     fun redo()
 
+    fun reset()
+
     /**
      * Record the specified [edit] such that [undo] would undo the [Edit].
      * * All redoable edits are discarded

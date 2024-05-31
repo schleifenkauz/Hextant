@@ -14,11 +14,11 @@ dependencies {
     }
 }
 
-jar {
+/*jar {
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
-}
+}*/
 
 task('hextantPublish', type: Copy) {
     from jar.outputs.files

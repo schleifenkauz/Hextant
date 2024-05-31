@@ -57,6 +57,14 @@ internal class UndoManagerImpl : UndoManager {
         updateReactiveVariables()
     }
 
+    override fun reset() {
+        redoable.clear()
+        undoable.clear()
+        compoundDescription = null
+        compound = null
+        updateReactiveVariables()
+    }
+
     override fun record(edit: Edit) {
         if (!isActive) return
         check(edit.canUndo) { "Attempt to push non-undoable edit to UndoManager" }

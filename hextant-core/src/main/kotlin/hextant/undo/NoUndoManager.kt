@@ -22,6 +22,8 @@ object NoUndoManager : UndoManager {
 
     override fun redo() {}
 
+    override fun reset() {}
+
     override fun record(edit: Edit) {}
 
     override val undoText: ReactiveString
