@@ -23,7 +23,7 @@ fun <E : Editor<*>, R : Editor<*>> ExpanderDelegate<E>.map(f: (E) -> R) = object
 
 /**
  * Return a [TokenType] that transforms compiled results with the given function.
-*/
+ */
 fun <R, F> TokenType<R>.map(f: (R) -> F) = TokenType { token -> f(this@map.compile(token)) }
 
 /**
@@ -85,3 +85,11 @@ inline fun <reified E : Editor<*>> E.copy(): E = copyFor(context)
  * Return an editor that transforms the [Editor.result] of this editor with the given function.
  */
 fun <T, R> Editor<T>.map(f: (T) -> R): Editor<R> = TransformedEditor(this, f)
+
+inline fun <reified P : Editor<*>> Editor<*>.getParent(): P? {
+    var e = this
+    while (true) {
+        if (e is P) return e
+        e = e.parent ?: return null
+    }
+}
