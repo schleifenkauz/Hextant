@@ -4,17 +4,23 @@
 
 package hextant.fx
 
+import hextant.core.view.ListEditorControl
+import hextant.core.view.ListEditorControl.Companion.ADD_WITH_COMMA
 import hextant.fx.InputMethod.REGULAR
 import hextant.fx.InputMethod.VIM
+import javafx.scene.Node
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
 import javafx.scene.control.skin.TextFieldSkin
+import javafx.scene.input.InputMethodEvent
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyEvent
+import javafx.scene.layout.Region
 import javafx.scene.text.Font
 import javafx.scene.text.Text
 import reaktive.event.event
+import kotlin.concurrent.thread
 
 /**
  * A Text field that adds the "hextant-text" style class and does automatically resize its width
@@ -55,7 +61,6 @@ open class HextantTextField(
         override fun replaceText(start: Int, end: Int, txt: String?) {
             super.replaceText(start, end, txt)
             userUpdatedText()
-            listOf(1, 2, 3)
         }
 
         override fun deleteChar(previous: Boolean) {
@@ -104,8 +109,9 @@ open class HextantTextField(
                 }
             }
         }
-        updateWidth(this.text)
-        runFXWithTimeout(50) { autoSize() }
+        sceneProperty().addListener { _ ->
+            runFXWithTimeout(100) { autoSize() }
+        }
     }
 
     override fun requestFocus() {
@@ -114,8 +120,6 @@ open class HextantTextField(
     }
 
     private fun autoSize() {
-        /*maxWidth = Region.USE_PREF_SIZE
-        minWidth = Region.USE_PREF_SIZE*/
         textProperty().addListener { _, _, new ->
             if (isAutoSize) updateWidth(new)
         }
@@ -124,7 +128,12 @@ open class HextantTextField(
 
     private fun updateWidth(text: String) {
         val textWidth = TextUtils.computeTextWidth(font, text) + 2.0
+        prefWidth = 0.0
+        minWidth = 0.0
+        maxWidth = 0.0
         prefWidth = textWidth.coerceAtLeast(10.0)
+        maxWidth = prefWidth
+        minWidth = prefWidth
     }
 
     companion object {
