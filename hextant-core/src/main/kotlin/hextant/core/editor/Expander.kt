@@ -12,6 +12,7 @@ import hextant.core.Editor
 import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Text
 import hextant.core.view.ExpanderView
+import hextant.core.view.ListEditorControl
 import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
@@ -85,7 +86,28 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      * Return the editor that should be wrapped if the given [text] is typed into this expander
      * or `null` if the text is not auto-expandable.
      */
-    protected open fun autoExpand(text: String): E? = null
+    protected open fun autoExpand(text: String): Boolean {
+        if (text.endsWith(",") && parent is ListEditor<*, *>) {
+            val listEditor = parent as ListEditor<*, *>
+            val (index) = accessor.now as IndexAccessor
+            val addWithComma = listEditor.viewManager.listeners.any { v ->
+                v is ListEditorControl && v.arguments[ListEditorControl.ADD_WITH_COMMA]
+            }
+            if (addWithComma) {
+                listEditor.addAt(index + 1)
+                notifyViews { setText(text.removeSuffix(",")) }
+                return true
+            }
+        }
+        return false
+    }
+
+    protected fun autoExpandTo(editor: E): Boolean {
+        executeEdit("AutoExpand") {
+            expand(editor)
+        }
+        return true
+    }
 
     /**
      * Create an editor from the given [completion] or return `null` if it is not possible.
@@ -145,7 +167,7 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
     @Suppress("UNCHECKED_CAST")
     private fun tryCompile(item: Any): R? = resultType.jvmErasure.safeCast(item) as R?
 
-    private inline fun executeEdit(description: String, action: () -> Unit) {
+    protected fun executeEdit(description: String, action: () -> Unit) {
         val undo = context[UndoManager]
         if (!undo.isActive) action()
         else {
@@ -163,12 +185,8 @@ abstract class Expander<out R, E : Editor<R>>(context: Context) : AbstractEditor
      */
     fun setText(newText: String) {
         forceText()
-        val autoExpanded = context.executeSafely("auto-expanding", null) { autoExpand(newText) }
-        if (autoExpanded != null) {
-            executeEdit("AutoExpand") {
-                expand(autoExpanded)
-            }
-        } else {
+        val autoExpanded = context.executeSafely("auto-expanding", false) { autoExpand(newText) }
+        if (!autoExpanded) {
             executeEdit("Type") {
                 state.now = Text(newText, null)
                 notifyViews { displayText(newText) }

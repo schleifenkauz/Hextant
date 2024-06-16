@@ -69,7 +69,7 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
 
     override fun createSnapshot(): Snapshot<*> = Snap()
 
-    private class Snap : Snapshot<CompoundEditor<*>>() {
+    protected open class Snap : Snapshot<CompoundEditor<*>>() {
         private lateinit var snapshots: List<Pair<String, Snapshot<Editor<*>>>>
 
         private fun getComponentName(comp: Editor<*>): String {

@@ -7,11 +7,10 @@ package hextant.core.editor
 import hextant.completion.Completion
 import hextant.context.Context
 import hextant.context.executeSafely
+import hextant.core.view.ListEditorControl
 import hextant.core.view.TokenEditorView
-import hextant.serial.Snapshot
-import hextant.serial.VirtualEditor
+import hextant.serial.*
 import hextant.serial.string
-import hextant.serial.virtualize
 import hextant.undo.AbstractEdit
 import hextant.undo.Edit
 import hextant.undo.UndoManager
@@ -78,6 +77,18 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text
      * Set the text of this editor, such that the result is automatically updated
      */
     fun setText(newText: String) {
+        if (newText.endsWith(",")) {
+            val listEditor = parent as ListEditor<*, *>
+            val (index) = accessor.now as IndexAccessor
+            val addWithComma = listEditor.viewManager.listeners.any { v ->
+                v is ListEditorControl && v.arguments[ListEditorControl.ADD_WITH_COMMA]
+            }
+            if (addWithComma) {
+                listEditor.addAt(index + 1)
+                notifyViews { setText(newText.removeSuffix(",")) }
+                return
+            }
+        }
         if (undo.isActive) {
             val edit = TextEdit(virtualize(), text.now, newText)
             undo.record(edit)

@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
  */
 class ExpanderConfig<E : Editor<*>> private constructor(
     private val fallback: ExpanderDelegate<E>?,
-    private val constant: MutableMap<String, (Context) -> E>,
+    private val constant: MutableMap<String, (Context) -> E?>,
     private val interceptors: LinkedList<(String, Context) -> E?>,
     private val typeSafeInterceptors: MutableMap<KClass<*>, LinkedList<(Any, Context) -> E?>>
 ) : ExpanderDelegate<E> {
@@ -45,7 +45,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      */
     fun <F : Editor<*>> transform(f: (E) -> F): ExpanderConfig<F> {
         val fb = if (fallback is ExpanderConfig) fallback.transform(f) else fallback?.map(f)
-        val constant = constant.mapValuesTo(mutableMapOf()) { (_, fct) -> { ctx: Context -> f(fct(ctx)) } }
+        val constant = constant.mapValuesTo(mutableMapOf()) { (_, fct) -> { ctx: Context -> fct(ctx)?.let(f) } }
         val interceptors = interceptors.mapTo(LinkedList()) { fct ->
             { text: String, ctx: Context -> fct(text, ctx)?.let(f) }
         }
@@ -62,14 +62,14 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      * * Previous invocation with the same [key] are overridden.
      * @see unregisterKey
      */
-    fun registerKey(key: String, create: (ctx: Context) -> E) {
+    fun registerKey(key: String, create: (ctx: Context) -> E?) {
         constant[key] = create
     }
 
     /**
      * Same as [registerKey] but registers the same editor factory for multiple keys.
      */
-    fun registerKeys(key: String, vararg more: String, create: (ctx: Context) -> E) {
+    fun registerKeys(key: String, vararg more: String, create: (ctx: Context) -> E?) {
         registerKey(key, create)
         for (k in more) registerKey(k, create)
     }
@@ -77,7 +77,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     /**
      * Alias for [registerKey].
      */
-    infix fun String.expand(create: (ctx: Context) -> E) {
+    infix fun String.expand(create: (ctx: Context) -> E?) {
         registerKey(this, create = create)
     }
 
@@ -137,7 +137,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      */
     override fun expand(text: String, context: Context): E? {
         val constant = constant[text]
-        if (constant != null) return constant(context)
+        if (constant != null) constant(context)?.let { editor -> return editor }
         for (i in interceptors) {
             val e = i(text, context)
             if (e != null) return e

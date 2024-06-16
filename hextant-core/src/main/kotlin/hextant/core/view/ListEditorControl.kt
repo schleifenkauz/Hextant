@@ -16,6 +16,7 @@ import hextant.fx.ModifierValue.MAYBE
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
@@ -128,6 +129,12 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
             if (cells.size > index + 1) on(orientation.nextCombination) { cells[index + 1].requestLayout() }
             if (cells.size > index + 1) on(orientation.previousCombination) { cells[index - 1].requestLayout() }
         }
+        /*addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
+            if (arguments[ADD_WITH_COMMA] && shortcut(KeyCode.COMMA).matches(ev)) {
+                editor.addAt(index + 1)
+                ev.consume()
+            }
+        }*/
         addEditorButton?.setOnAction {
             editor.addAt(index + 1)
         }
@@ -376,5 +383,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         val EMPTY_DISPLAY = publicProperty<() -> Node?>("empty display") {
             Glyphs.create(PLUS).withStyleClass("standard-empty-display")
         }
+
+        val ADD_WITH_COMMA = publicProperty<Boolean>("Add with comma", false)
     }
 }

@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
  */
 @Suppress("OverridingDeprecatedMember")
 abstract class AbstractEditor<out R, in V : Any>(override val context: Context) : Editor<R> {
-    private val viewManager: ListenerManager<V> = ListenerManager.createWeakListenerManager()
+    val viewManager: ListenerManager<@UnsafeVariance V> = ListenerManager.createWeakListenerManager()
 
     final override var parent: Editor<*>? = null
         private set
