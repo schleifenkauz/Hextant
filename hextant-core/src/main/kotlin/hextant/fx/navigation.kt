@@ -5,6 +5,7 @@ import hextant.core.view.ExpanderControl
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.input.KeyCode.SHIFT
+import javafx.scene.input.KeyCode.TAB
 import javafx.scene.input.KeyEvent
 import reaktive.value.now
 
@@ -95,12 +96,13 @@ internal fun Scene.registerNavigationShortcuts() {
             moveNext()
         }
     }
-    registerShortcuts(KeyEvent.ANY) {
-        on(TRAV_NEXT) {
-            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.next()?.select()
-        }
-        on(TRAV_PREV) {
-            if (it.eventType == KeyEvent.KEY_RELEASED) focusedEditorControl?.previous()?.select()
+    addEventFilter(KeyEvent.ANY) { ev ->
+        if (ev.code == TAB) {
+            val control = focusedEditorControl ?: return@addEventFilter
+            ev.consume()
+            if (ev.eventType != KeyEvent.KEY_RELEASED) return@addEventFilter
+            if (TRAV_NEXT.matches(ev)) control.next()?.select()
+            else if (TRAV_PREV.matches(ev)) control.previous()?.select()
         }
     }
 }
