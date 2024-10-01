@@ -53,7 +53,7 @@ subprojects {
         kotlinOptions {
             noStdlib = true
             jvmTarget = '11'
-            freeCompilerArgs += '-Xopt-in=kotlin.RequiresOptIn'
+            freeCompilerArgs += '-opt-in=kotlin.RequiresOptIn'
 //            languageVersion = '1.5'
         }
     }

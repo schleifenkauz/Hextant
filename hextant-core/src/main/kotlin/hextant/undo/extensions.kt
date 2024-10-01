@@ -66,10 +66,10 @@ fun Node.registerHistoryShortcuts(manager: UndoManager) {
 }
 
 fun KeyEventHandlerBody<Unit>.historyShortcuts(manager: UndoManager) {
-    on("Ctrl?+Z") {
+    on("Ctrl+Z") {
         if (manager.canUndo.now) manager.undo()
     }
-    on("Ctrl?+Shift+Z") {
+    on("Ctrl+Shift+Z") {
         if (manager.canRedo.now) manager.redo()
     }
 }
