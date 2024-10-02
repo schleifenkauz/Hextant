@@ -63,6 +63,8 @@ abstract class CompoundEditorControl(
 
     fun horizontal(block: Horizontal.() -> Unit) = Horizontal(cachedViews, mutableListOf()).apply(block)
 
+    fun getSubControl(editor: Editor<*>) = cachedViews[editor]
+
     /**
      * Base interface for [Vertical] and [Horizontal] boxes
      */
