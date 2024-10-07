@@ -7,7 +7,6 @@ package hextant.codegen.editor
 import hextant.codegen.getAnnotation
 import kotlinx.metadata.*
 import kotlinx.metadata.KmClassifier.TypeParameter
-import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import kotlinx.metadata.jvm.KotlinClassMetadata.Class
 import javax.annotation.processing.ProcessingEnvironment
@@ -16,18 +15,8 @@ import javax.lang.model.element.TypeElement
 class KotlinMetadata(private val processingEnv: ProcessingEnvironment) {
     private fun kotlinMetadata(element: TypeElement): KmClass? {
         val metadata = element.getAnnotation<Metadata>() ?: return null
-        val header = KotlinClassHeader(
-            metadata.kind,
-            metadata.metadataVersion,
-            metadata.bytecodeVersion,
-            metadata.data1,
-            metadata.data2,
-            metadata.extraString,
-            metadata.packageName,
-            metadata.extraInt
-        )
-        val clazz = KotlinClassMetadata.read(header) as Class
-        return clazz.toKmClass()
+        val clazz = KotlinClassMetadata.readLenient(metadata) as Class
+        return clazz.kmClass
     }
 
     private fun kotlinMetadata(className: ClassName): KmClass? {
@@ -37,7 +26,8 @@ class KotlinMetadata(private val processingEnv: ProcessingEnvironment) {
     }
 
     private fun KmType.substitute(subst: Map<Int, KmType>): KmType {
-        val t = KmType(flags)
+        val t = KmType()
+        t.isNullable = this.isNullable
         val c = classifier
         if (c is TypeParameter) return subst[c.id] ?: this
         t.classifier = c

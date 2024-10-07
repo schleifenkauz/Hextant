@@ -1,5 +1,14 @@
-apply plugin: 'com.github.nkb03.hextant-plugin'
+apply plugin: 'kotlin-kapt'
 
-hextant {
-    pluginId = 'blocky'
+dependencies {
+    compileOnly project(":hextant-core")
+    compileOnly project(":hextant-codegen")
+    kapt project(":hextant-codegen")
+    testImplementation project(':hextant-test')
+}
+
+kapt {
+    annotationProcessors("hextant.codegen.MainProcessor")
+    useBuildCache = true
+    correctErrorTypes = true
 }

@@ -7,6 +7,7 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import reaktive.value.now
 
 internal object UndoManagerSpec : Spek({
     given("a new undo manager") {
@@ -14,11 +15,11 @@ internal object UndoManagerSpec : Spek({
         fun testCanUndo(expected: Boolean) {
             if (expected) {
                 it("should be able to undo") {
-                    subject.canUndo shouldBe `true`
+                    subject.canUndo.now shouldBe `true`
                 }
             } else {
                 it("should not be able to undo") {
-                    subject.canUndo shouldBe `false`
+                    subject.canUndo.now shouldBe `false`
                 }
             }
         }
@@ -26,11 +27,11 @@ internal object UndoManagerSpec : Spek({
         fun testCanRedo(expected: Boolean) {
             if (expected) {
                 it("should be able to redo") {
-                    subject.canRedo shouldBe `true`
+                    subject.canRedo.now shouldBe `true`
                 }
             } else {
                 it("should not be able to redo") {
-                    subject.canRedo shouldBe `false`
+                    subject.canRedo.now shouldBe `false`
                 }
             }
         }

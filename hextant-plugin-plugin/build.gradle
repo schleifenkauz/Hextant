@@ -4,11 +4,11 @@ apply plugin: 'java-gradle-plugin'
 apply plugin: 'groovy'
 apply plugin: 'com.gradle.plugin-publish'
 
-pluginBundle {
+/*pluginBundle {
     website = 'https://github.com/nkb03/hextant'
     vcsUrl = 'https://github.com/nkb03/hextant'
     tags = ['hextant']
-}
+}*/
 
 version = '0.2.5'
 

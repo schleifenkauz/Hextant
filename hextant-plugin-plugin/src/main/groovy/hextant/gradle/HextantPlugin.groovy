@@ -47,7 +47,7 @@ class HextantPlugin implements Plugin<Project> {
             }
             jar {
                 from {
-                    configurations.api.collect { it.isDirectory() ? it : zipTree(it) }
+                    configurations.all.collect { it.isDirectory() ? it : zipTree(it) }
                 }
             }
         }

@@ -1,15 +1,17 @@
-apply plugin: 'com.github.nkb03.hextant-library'
+//apply plugin: 'com.github.nkb03.hextant-library'
 
+/*
 hextant_lib {
     description = 'The Hextant Core with Batteries included'
 }
+*/
 
 archivesBaseName = 'hextant-core-fatjar'
 
 version '1.0-SNAPSHOT'
 
 dependencies {
-    compile(project(':hextant-core')) {
+    api(project(':hextant-core')) {
         exclude group: 'org.openjfx'
     }
 }

@@ -16,7 +16,6 @@ import kotlin.reflect.typeOf
 @OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T> JarFile.getInfo(name: String): T? = getInfo(name, typeOf<T>())
 
-@Suppress("BlockingMethodInNonBlockingContext")
 suspend fun <T : Any> Marketplace.getInfo(property: PluginProperty<T>, pluginId: String): T? =
     withContext(Dispatchers.IO) {
         val file = getJarFile(pluginId) ?: return@withContext null

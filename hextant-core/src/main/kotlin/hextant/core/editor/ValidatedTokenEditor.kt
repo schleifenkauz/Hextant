@@ -204,6 +204,8 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
         }
 
         override fun reconstructObject(original: ValidatedTokenEditor<*>) {
+            @Suppress("UNCHECKED_CAST")
+            original as ValidatedTokenEditor<Any>
             original._text.now = text
             original._intermediateResult.now = original.tryCompile(original.text.now)
             original._result.now = original.intermediateResult.now!!

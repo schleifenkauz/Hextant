@@ -22,15 +22,15 @@ import hextant.core.view.ListEditorControl.SeparatorCell
 import hextant.core.view.TokenEditorControl
 import hextant.fx.registerShortcuts
 import hextant.fx.view
-import hextant.lisp.editor.*
+import hextant.lisp.editor.SExprExpander
 import reaktive.value.now
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: SymbolEditor, arguments: Bundle) =
+fun createControl(editor: hextant.lisp.editor.SymbolEditor, arguments: Bundle) =
     TokenEditorControl(editor, arguments, styleClass = "symbol")
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: QuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+fun createControl(editor: hextant.lisp.editor.QuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     horizontal {
         operator("'")
         view(editor.quoted)
@@ -39,11 +39,11 @@ fun createControl(editor: QuotationEditor, arguments: Bundle) = CompoundEditorCo
 }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: SExprExpander, arguments: Bundle) =
+fun createControl(editor: hextant.lisp.editor.SExprExpander, arguments: Bundle) =
     ExpanderControl(editor, arguments, SExprExpander.config.completer(CompletionStrategy.simple))
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: QuasiQuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+fun createControl(editor: hextant.lisp.editor.QuasiQuotationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     horizontal {
         operator("`")
         view(editor.quoted)
@@ -52,7 +52,7 @@ fun createControl(editor: QuasiQuotationEditor, arguments: Bundle) = CompoundEdi
 }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: UnquoteEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+fun createControl(editor: hextant.lisp.editor.UnquoteEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     horizontal {
         operator(",")
         view(editor.expr)
@@ -61,7 +61,7 @@ fun createControl(editor: UnquoteEditor, arguments: Bundle) = CompoundEditorCont
 }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: CallExprEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+fun createControl(editor: hextant.lisp.editor.CallExprEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     horizontal {
         operator("(")
         view(editor.expressions) {
@@ -74,10 +74,10 @@ fun createControl(editor: CallExprEditor, arguments: Bundle) = CompoundEditorCon
 }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: LispProject, arguments: Bundle) =
+fun createControl(editor: hextant.lisp.editor.LispProject, arguments: Bundle) =
     createViewWithCommandLine(editor.root, arguments, editor.context[localCommandLine])
 
-fun createViewWithCommandLine(root: SExprExpander, arguments: Bundle, commandLine: CommandLine) =
+fun createViewWithCommandLine(root: hextant.lisp.editor.SExprExpander, arguments: Bundle, commandLine: CommandLine) =
     CompoundEditorControl(root, arguments) {
         vertical {
             val ctx = root.context
@@ -96,7 +96,7 @@ fun createViewWithCommandLine(root: SExprExpander, arguments: Bundle, commandLin
     }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: LetEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+fun createControl(editor: hextant.lisp.editor.LetEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     horizontal {
         keyword("let")
         space()
@@ -112,7 +112,7 @@ fun createControl(editor: LetEditor, arguments: Bundle) = CompoundEditorControl(
 }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: LambdaEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+fun createControl(editor: hextant.lisp.editor.LambdaEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     horizontal {
         keyword("lambda")
         space()
@@ -126,7 +126,7 @@ fun createControl(editor: LambdaEditor, arguments: Bundle) = CompoundEditorContr
 }
 
 @ProvideImplementation(ControlFactory::class)
-fun createControl(editor: MacroInvocationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
+fun createControl(editor: hextant.lisp.editor.MacroInvocationEditor, arguments: Bundle) = CompoundEditorControl(editor, arguments) {
     horizontal {
         operator("[")
         view(editor.macro)

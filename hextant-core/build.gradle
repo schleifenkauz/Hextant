@@ -1,9 +1,20 @@
-apply plugin: 'com.github.nkb03.hextant-library'
+//apply plugin: 'com.github.nkb03.hextant-library'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'org.openjfx.javafxplugin'
+apply plugin: 'maven-publish'
+apply plugin: 'org.jetbrains.dokka'
 
 version '1.1-SNAPSHOT'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact kotlinSourcesJar
+        }
+    }
+}
 
 kapt {
     useBuildCache = true
@@ -21,22 +32,22 @@ javafx {
 }
 
 dependencies {
-    compile nkb03('reaktive', '1.0-SNAPSHOT')
-    compile nkb03('bundles', '1.0-SNAPSHOT')
-    compile nkb03('kollektion', '1.0-SNAPSHOT')
+    api nkb03('reaktive', '1.0-SNAPSHOT')
+    api nkb03('bundles', '1.0-SNAPSHOT')
+    api nkb03('kollektion', '1.0-SNAPSHOT')
 
-    compileOnly project(':hextant-codegen')
+    api project(':hextant-codegen')
     kapt project(":hextant-codegen")
-    compile project(':hextant-plugins:common')
+    api project(':hextant-plugins:common')
 
-    compile 'org.jetbrains.kotlin:kotlin-stdlib-common'
-    compile 'org.jetbrains.kotlin:kotlin-reflect'
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$kotlinx_coroutines_version") {
+    api 'org.jetbrains.kotlin:kotlin-stdlib-common'
+    api 'org.jetbrains.kotlin:kotlin-reflect'
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$kotlinx_coroutines_version") {
         exclude group: 'org.openjfx'
     }
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
-    compile "org.controlsfx:controlsfx:$javafx_version"
+    api "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
+    api "org.controlsfx:controlsfx:11.1.2"
 
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")

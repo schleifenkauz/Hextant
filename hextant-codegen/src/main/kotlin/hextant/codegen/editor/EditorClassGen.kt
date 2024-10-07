@@ -7,7 +7,7 @@ package hextant.codegen.editor
 import hextant.codegen.*
 import hextant.codegen.aspects.FeatureCollector
 import hextant.codegen.aspects.ImplementationCollector
-import kotlinx.metadata.Flag
+import kotlinx.metadata.isNullable
 import krobot.api.*
 import krobot.ast.CanImplement
 import krobot.ast.ClassDefinition
@@ -54,7 +54,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
     fun hasEditorNullableResultType(element: TypeElement): Boolean {
         val supertype = metadata.getSupertype(element, "hextant/core/Editor") ?: return true
         val resultType = supertype.arguments[0].type ?: return true
-        return Flag.Type.IS_NULLABLE(resultType.flags)
+        return resultType.isNullable
     }
 
     protected fun isNodeKindNullable(annotation: Annotation): Boolean {

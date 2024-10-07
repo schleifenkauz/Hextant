@@ -1,7 +1,7 @@
 apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'application'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'com.github.nkb03.hextant-library'
+//apply plugin: 'com.github.nkb03.hextant-library'
 
 version '1.0-SNAPSHOT'
 
@@ -11,11 +11,10 @@ javafx {
 }
 
 dependencies {
-    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    compile 'org.jetbrains.kotlin:kotlin-reflect'
-    compile project(":hextant-cli")
+    api 'org.jetbrains.kotlin:kotlin-reflect'
+    api project(":hextant-cli")
     compileOnly project(":hextant-core")
-    compileOnly project(":hextant-codegen")
+    api project(":hextant-codegen")
     kapt project(":hextant-codegen")
 }
 
@@ -25,8 +24,9 @@ kapt {
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     manifest {
         attributes 'Main-Class': 'hextant.main.Main'
@@ -49,7 +49,7 @@ task('hextantPublish', type: Copy) {
 }
 
 afterEvaluate {
-    for (proj in [":hextant-expr", ":hextant-lisp", ":hextant-core:fatjar", ":blocky"]) {
+    for (proj in [/*":hextant-expr", ":hextant-lisp", ":hextant-core:fatjar", ":blocky"*/]) {
         def task = project(proj).tasks.findByPath("$proj:hextantPublish")
         if (task == null) println("Task 'hextantPublish' not found for project $proj")
         else run.dependsOn(task)

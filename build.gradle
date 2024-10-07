@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         mavenCentral()
-        jcenter()
         mavenLocal()
     }
     dependencies {
@@ -11,13 +10,13 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.6.21'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.30' apply false
-    id 'com.gradle.plugin-publish' version '0.12.0' apply false
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version" apply false
+    id 'com.gradle.plugin-publish' version '1.3.0' apply false
     id 'io.codearte.nexus-staging' version '0.21.2'
     id 'com.github.nkb03.hextant-library' version '0.1-SNAPSHOT' apply false
     id 'com.github.nkb03.hextant-plugin' version '0.2.3-SNAPSHOT' apply false
-    id 'org.openjfx.javafxplugin' version '0.0.8' apply false
+    id 'org.openjfx.javafxplugin' version '0.1.0' apply false
 }
 
 allprojects {
@@ -39,26 +38,22 @@ tasks.register('initialSetup') {
 subprojects {
     repositories {
         mavenCentral()
-        /*maven {
-            url 'https://oss.sonatype.org/content/repositories/snapshots'
-        }*/
         mavenLocal()
     }
 
     apply plugin: 'kotlin'
 
-    sourceCompatibility = 11
+    kotlin {
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(19))
+        }
+    }
 
     compileKotlin {
         kotlinOptions {
-            noStdlib = true
-            jvmTarget = '11'
+            jvmTarget = 19
             freeCompilerArgs += '-opt-in=kotlin.RequiresOptIn'
-//            languageVersion = '1.5'
         }
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "11"
     }
 }
 

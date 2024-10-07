@@ -48,8 +48,8 @@ internal class InspectionManager {
 
     private fun changeCount(type: Severity, delta: Int) {
         when (type) {
-            Severity.Warning -> warningCount.now += delta
-            Severity.Error -> errorCount.now += delta
+            Severity.Warning -> warningCount.set(warningCount.now + delta)
+            Severity.Error -> errorCount.set(warningCount.now + delta)
         }
     }
 

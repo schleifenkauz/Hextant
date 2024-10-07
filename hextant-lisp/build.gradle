@@ -1,16 +1,14 @@
-apply plugin: 'com.github.nkb03.hextant-plugin'
+apply plugin: 'kotlin-kapt'
 
-hextant {
-    pluginId = 'lisp'
+dependencies {
+    compileOnly project(":hextant-core")
+    implementation project(":hextant-codegen")
+    kapt project(":hextant-codegen")
+    testImplementation project(':hextant-test')
 }
 
-task replJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': 'hextant.lispy.parser.ReplKt'
-    }
-    baseName = 'repl'
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    with jar
+kapt {
+    annotationProcessors("hextant.codegen.MainProcessor")
+    useBuildCache = true
+    correctErrorTypes = true
 }

@@ -1,11 +1,13 @@
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.github.nkb03.hextant-library'
+//apply plugin: 'com.github.nkb03.hextant-library'
 
 version '1.0-SNAPSHOT'
 
+/*
 hextant_lib {
     description = "Defines the Plugin model"
 }
+*/
 
 afterEvaluate {
     archivesBaseName = 'hextant-plugins-common'
