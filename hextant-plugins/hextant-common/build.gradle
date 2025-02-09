@@ -1,13 +1,16 @@
 apply plugin: 'kotlinx-serialization'
-//apply plugin: 'com.github.nkb03.hextant-library'
+apply plugin: 'maven-publish'
 
 version '1.0-SNAPSHOT'
 
-/*
-hextant_lib {
-    description = "Defines the Plugin model"
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact kotlinSourcesJar
+        }
+    }
 }
-*/
 
 afterEvaluate {
     archivesBaseName = 'hextant-plugins-common'

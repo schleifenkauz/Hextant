@@ -1,5 +1,5 @@
 dependencies {
-    api project(":hextant-plugins:common")
+    api project(":hextant-plugins:hextant-common")
     api "com.github.nkb03:kollektion:1.0-SNAPSHOT"
     api "io.ktor:ktor-server-netty:$ktor_version"
     api "io.ktor:ktor-serialization:$ktor_version"

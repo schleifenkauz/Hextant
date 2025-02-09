@@ -38,7 +38,7 @@ dependencies {
 
     api project(':hextant-codegen')
     kapt project(":hextant-codegen")
-    api project(':hextant-plugins:common')
+    api project(':hextant-plugins:hextant-common')
 
     api 'org.jetbrains.kotlin:kotlin-stdlib-common'
     api 'org.jetbrains.kotlin:kotlin-reflect'

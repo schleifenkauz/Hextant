@@ -16,6 +16,7 @@ import io.ktor.http.*
 import io.ktor.util.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
+import io.ktor.utils.io.core.internal.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
@@ -110,6 +111,7 @@ class HttpPluginClient(private val url: String, private val downloadDirectory: F
         local.getProjectType(name)
     }
 
+    @OptIn(DangerousInternalIoApi::class)
     @KtorExperimentalAPI
     override suspend fun upload(jar: File) {
         val parts = formData {

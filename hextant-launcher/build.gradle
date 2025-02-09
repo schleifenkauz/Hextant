@@ -13,7 +13,7 @@ dependencies {
     }
     compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compileOnly project(":hextant-cli")
-    compileOnly project(":hextant-plugins:common")
+    compileOnly project(":hextant-plugins:hextant-common")
     compileOnly project(":hextant-main")
     compileOnly project(":hextant-core")
     implementation project(":hextant-codegen")
