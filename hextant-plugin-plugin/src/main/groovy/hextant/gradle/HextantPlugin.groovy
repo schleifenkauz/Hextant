@@ -7,7 +7,7 @@ import org.gradle.api.tasks.Copy
 class HextantPlugin implements Plugin<Project> {
     static def hextantDependency(Project project, String lib) {
         if (project.parent != null && project.parent.name == "hextant") return project.project(":hextant-$lib")
-        else "com.github.nkb03:hextant-$lib:1.0-SNAPSHOT"
+        else "de.schleifenkauz:hextant-$lib:1.0-SNAPSHOT"
     }
 
     @Override

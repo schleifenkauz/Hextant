@@ -14,7 +14,7 @@ publishing {
 version = '1.0-SNAPSHOT'
 
 dependencies {
-    implementation 'com.github.nkb03:krobot:1.1-SNAPSHOT'
+    implementation 'de.schleifenkauz:krobot:1.1-SNAPSHOT'
     implementation project(':hextant-plugins:hextant-common')
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
     implementation 'org.jetbrains.kotlin:kotlin-reflect'

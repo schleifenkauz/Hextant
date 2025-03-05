@@ -1,7 +1,7 @@
 #!/bin/sh
 
 get_jar() {
-  wget "https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.nkb03&a=$1&v=$version&t=jar" -O "$hextant_home/plugins/$2"
+  wget "https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.schleifenkauz&a=$1&v=$version&t=jar" -O "$hextant_home/plugins/$2"
 }
 
 check_java() {
@@ -73,7 +73,7 @@ get_components() {
 
 create_launcher() {
   mkdir -p "$hextant_home/launcher"
-  wget https://raw.githubusercontent.com/NKb03/Hextant/master/setup/launcher-info.json -O "$hextant_home/launcher/project.json"
+  wget https://raw.githubusercontent.com/schleifenkauz/Hextant/master/setup/launcher-info.json -O "$hextant_home/launcher/project.json"
 }
 
 create_script() {

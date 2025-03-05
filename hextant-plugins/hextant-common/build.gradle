@@ -21,5 +21,5 @@ dependencies {
     compileOnly "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
     implementation 'org.slf4j:slf4j-simple:1.6.4'
     compileOnly 'org.jetbrains.kotlin:kotlin-reflect'
-    compileOnly "com.github.nkb03:kollektion:1.0-SNAPSHOT"
+    compileOnly "de.schleifenkauz:kollektion:1.0-SNAPSHOT"
 }

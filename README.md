@@ -113,8 +113,8 @@ Developers can create plugins that extend the features and syntax of languages d
 These syntax-extension plugins are **modular** in the sense, that different syntax-extensions plugins can be mixed seamlessly.
 For each project, he works on, a programmer can put together a language that fits his specific needs by installing the adequate plugins.
 
-For a more detailed discussion of these advantages and of solutions to inconveniences that arise with the use of structural editors, 
-see [this](https://github.com/NKb03/Hextant/wiki/Why-structural-editors) article.
+For a more detailed discussion of these advantages and of solutions to inconveniences that arise with the use of structural editors,
+see [this](https://github.com/schleifenkauz/Hextant/wiki/Why-structural-editors) article.
 
 ## How to get it working on my computer?
 
@@ -123,17 +123,19 @@ The JavaFX SDK is also required, but it can be installed from the setup wizard o
 
 ### Using the 'hextup.sh' script
 
-On Linux systems, just run the following command: 
-`bash <(curl -s https://raw.githubusercontent.com/NKb03/Hextant/master/setup/hextup.sh) install`.
+On Linux systems, just run the following command:
+`bash <(curl -s https://raw.githubusercontent.com/schleifenkauz/Hextant/master/setup/hextup.sh) install`.
 The command line setup wizard will ask a few questions. In most cases you can pick the default option.
 After the installation finished, you can just type `hextant` into the command line to run the launcher.
-To update Hextant, use `bash <(curl -s https://raw.githubusercontent.com/NKb03/Hextant/master/setup/hextup.sh) update`.
+To update Hextant, use
+`bash <(curl -s https://raw.githubusercontent.com/schleifenkauz/Hextant/master/setup/hextup.sh) update`.
 
 ### Installing from source
 
 To build and run Hextant on your computer you need Git and version 11 of the Java Development Kit.
 Follow these steps:  
-- Clone the project: ``git clone https://github.com/NKB03/Hextant``.
+
+- Clone the project: ``git clone https://github.com/schleifenkauz/Hextant``.
 - Create the hextant home directory: ``gradlew initialSetup``.
 - Build the project: ``gradlew build``.
 - Publish all the default plugins: ``gradlew hextantPublish``.
@@ -161,8 +163,9 @@ There are essentially three ways in which you can contribute to Hextant.
 
 1. By trying out Hextant and suggesting possible improvements. 
 If you notice some inconvenience while using Hextant or have an idea for a new feature/plugin just open a new issue.
-2. By developing a plugin for your language of choice. 
-You can refer to [this](https://github.com/NKb03/Hextant/wiki/Writing-plugins) tutorial to learn how to write plugins.
+2. By developing a plugin for your language of choice.
+   You can refer to [this](https://github.com/schleifenkauz/Hextant/wiki/Writing-plugins) tutorial to learn how to write
+   plugins.
 3. By working on the core-framework.
 
 All three ways of contributing are greatly appreciated. 

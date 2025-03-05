@@ -19,13 +19,13 @@ class HextantLibrary implements Plugin<Project> {
                 project {
                     name target.name
                     description extension.description
-                    url 'https://github.com/nkb03/hextant'
+                    url 'https://github.com/schleifenkauz/hextant'
                     inceptionYear '2020'
 
                     scm {
-                        url 'https://github.com/nkb03/hextant'
-                        connection 'git:https://github.com/nkb03/hextant.git'
-                        developerConnection 'git:git://github.com/nkb03/hextant.git'
+                        url 'https://github.com/schleifenkauz/hextant'
+                        connection 'git:https://github.com/schleifenkauz/hextant.git'
+                        developerConnection 'git:git://github.com/schleifenkauz/hextant.git'
                     }
 
                     licenses {

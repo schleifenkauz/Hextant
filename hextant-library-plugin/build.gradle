@@ -16,7 +16,7 @@ version = '0.1-SNAPSHOT'
 gradlePlugin {
     plugins {
         hextantLibraryPlugin {
-            id = 'com.github.nkb03.hextant-library'
+            id = 'de.schleifenkauz.hextant-library'
             displayName = 'Hextant Plugin'
             description = "Gradle plugin for creating libraries for the Hextant platform"
             implementationClass = "hextant.gradle.HextantLibrary"

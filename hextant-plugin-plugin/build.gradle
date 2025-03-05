@@ -15,7 +15,7 @@ version = '0.2.5'
 gradlePlugin {
     plugins {
         hextantPlugin {
-            id = 'com.github.nkb03.hextant-plugin'
+            id = 'de.schleifenkauz.hextant-plugin'
             displayName = 'Hextant Plugin'
             description = "Gradle plugin for creating plugins for the Hextant platform"
             implementationClass = "hextant.gradle.HextantPlugin"

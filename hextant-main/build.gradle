@@ -1,7 +1,6 @@
 apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'application'
 apply plugin: 'kotlin-kapt'
-//apply plugin: 'com.github.nkb03.hextant-library'
 
 version '1.0-SNAPSHOT'
 
