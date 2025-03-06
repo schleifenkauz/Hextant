@@ -4,9 +4,9 @@
 
 package hextant.project.view
 
+import fxutils.setRoot
 import hextant.context.createControl
 import hextant.core.Editor
-import hextant.fx.setRoot
 import javafx.scene.control.Control
 import javafx.scene.control.Label
 

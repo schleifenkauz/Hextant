@@ -7,10 +7,10 @@
 
 package hextant.command.meta
 
+import fxutils.shortcut
 import hextant.command.*
 import hextant.command.Command.Category
 import hextant.core.Editor
-import hextant.fx.shortcut
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction

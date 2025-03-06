@@ -4,6 +4,7 @@
 
 package hextant.fx
 
+import fxutils.registerShortcuts
 import hextant.context.Context
 import javafx.beans.InvalidationListener
 import javafx.scene.Parent

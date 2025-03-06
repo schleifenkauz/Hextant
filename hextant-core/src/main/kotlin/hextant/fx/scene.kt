@@ -4,6 +4,7 @@
 
 package hextant.fx
 
+import fxutils.show
 import hextant.context.Context
 import hextant.core.view.EditorControl
 import javafx.scene.Scene

@@ -7,6 +7,9 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.publicProperty
 import bundles.set
+import fxutils.registerShortcuts
+import fxutils.runFXWithTimeout
+import fxutils.show
 import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter

@@ -5,12 +5,12 @@
 package hextant.project.view
 
 import bundles.Bundle
+import fxutils.Glyphs
+import fxutils.fontSize
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.view.EditorControl
-import hextant.fx.Glyphs
-import hextant.fx.fontSize
 import hextant.project.editor.DirectoryEditor
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color

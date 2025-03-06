@@ -6,11 +6,16 @@ package hextant.core.view
 
 import bundles.Bundle
 import bundles.publicProperty
+import fxutils.registerShortcut
+import fxutils.show
+import fxutils.smartSetText
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
 import hextant.core.editor.TokenEditor
-import hextant.fx.*
+import hextant.fx.HextantTextField
+import hextant.fx.InputMethod
+import hextant.fx.selectNext
 import javafx.scene.input.KeyCode.SPACE
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination

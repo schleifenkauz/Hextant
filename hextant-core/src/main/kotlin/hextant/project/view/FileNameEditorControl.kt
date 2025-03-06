@@ -6,9 +6,9 @@ package hextant.project.view
 
 import bundles.Bundle
 import bundles.set
+import fxutils.shortcut
 import hextant.core.editor.ValidatedTokenEditor
 import hextant.core.view.ValidatedTokenEditorControl
-import hextant.fx.shortcut
 import javafx.scene.input.KeyCode.*
 
 internal class FileNameEditorControl(editor: ValidatedTokenEditor<*>, arguments: Bundle) :

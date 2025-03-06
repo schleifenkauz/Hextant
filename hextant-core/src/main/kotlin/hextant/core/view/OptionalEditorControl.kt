@@ -3,13 +3,13 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.createBundle
 import bundles.publicProperty
+import fxutils.Glyphs
+import fxutils.registerShortcuts
+import fxutils.withStyleClass
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
-import hextant.fx.Glyphs
-import hextant.fx.registerShortcuts
-import hextant.fx.withStyleClass
 import javafx.scene.Node
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 import reaktive.value.now

@@ -4,6 +4,7 @@
 
 package hextant.fx
 
+import fxutils.withStyle
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.layout.BorderPane

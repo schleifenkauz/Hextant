@@ -7,10 +7,10 @@
 package hextant.project.view
 
 import bundles.Bundle
+import fxutils.registerShortcuts
 import hextant.context.*
 import hextant.context.ClipboardContent.OneEditor
 import hextant.core.view.EditorControl
-import hextant.fx.registerShortcuts
 import hextant.project.editor.DirectoryEditor
 import hextant.project.editor.FileEditor
 import hextant.project.editor.ProjectItemEditor

@@ -4,10 +4,10 @@
 
 package hextant.command
 
+import fxutils.Shortcut
+import fxutils.shortcut
 import hextant.command.Command.Category
 import hextant.command.Command.ParameterBuilder
-import hextant.fx.Shortcut
-import hextant.fx.shortcut
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf

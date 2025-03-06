@@ -4,8 +4,8 @@
 
 package hextant.command
 
+import fxutils.Shortcut
 import hextant.command.Command.*
-import hextant.fx.Shortcut
 import kotlin.reflect.KClass
 
 internal class CommandImpl<R : Any, T : Any>(

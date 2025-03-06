@@ -5,13 +5,13 @@
 package hextant.command.line
 
 import bundles.set
+import fxutils.setDefaultButton
+import fxutils.showConfirmationAlert
 import hextant.command.Command
 import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.AbstractEditor
 import hextant.core.editor.allChildren
-import hextant.fx.setDefaultButton
-import hextant.fx.showConfirmationAlert
 import hextant.inspect.Inspections
 import hextant.inspect.Problem
 import hextant.serial.Snapshot

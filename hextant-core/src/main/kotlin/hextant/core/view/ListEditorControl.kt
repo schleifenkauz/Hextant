@@ -5,18 +5,15 @@
 package hextant.core.view
 
 import bundles.*
+import fxutils.*
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.ListEditor
-import hextant.fx.*
-import hextant.fx.ModifierValue.DOWN
-import hextant.fx.ModifierValue.MAYBE
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
@@ -335,11 +332,12 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     }
 
     companion object {
-        private val ADD_ITEM_AFTER = shortcut(KeyCode.INSERT) { control(MAYBE) }
+        private val ADD_ITEM_AFTER = shortcut(KeyCode.INSERT) { control(ModifierValue.MAYBE) }
 
-        private val ADD_ITEM_BEFORE = shortcut(KeyCode.INSERT) { shift(DOWN); control(MAYBE) }
+        private val ADD_ITEM_BEFORE =
+            shortcut(KeyCode.INSERT) { shift(ModifierValue.DOWN); control(ModifierValue.MAYBE) }
 
-        private val REMOVE_ITEM = shortcut(KeyCode.DELETE) { control(MAYBE) }
+        private val REMOVE_ITEM = shortcut(KeyCode.DELETE) { control(ModifierValue.MAYBE) }
 
         private const val PASTE_MANY = "Ctrl + Shift + V"
 

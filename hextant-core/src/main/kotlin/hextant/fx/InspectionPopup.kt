@@ -4,6 +4,7 @@
 
 package hextant.fx
 
+import fxutils.registerShortcut
 import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.inspect.InspectionBody

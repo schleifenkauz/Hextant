@@ -7,6 +7,7 @@ package hextant.command.line
 import bundles.Bundle
 import bundles.Property
 import bundles.publicProperty
+import fxutils.*
 import hextant.codegen.ProvideImplementation
 import hextant.command.Command
 import hextant.command.line.CommandLine.HistoryItem
@@ -15,7 +16,7 @@ import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
-import hextant.fx.*
+import hextant.fx.HextantTextField
 import javafx.application.Platform
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS

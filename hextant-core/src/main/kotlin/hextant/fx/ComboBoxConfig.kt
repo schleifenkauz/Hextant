@@ -2,6 +2,7 @@ package hextant.fx
 
 import bundles.Bundle
 import bundles.publicProperty
+import fxutils.withStyleClass
 import hextant.core.editor.ComboBoxSource
 import impl.org.controlsfx.skin.SearchableComboBoxSkin
 import javafx.collections.FXCollections.observableList

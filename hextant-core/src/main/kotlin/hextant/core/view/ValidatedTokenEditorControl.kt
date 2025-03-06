@@ -6,6 +6,10 @@ package hextant.core.view
 
 import bundles.Bundle
 import bundles.publicProperty
+import fxutils.never
+import fxutils.registerShortcuts
+import fxutils.show
+import fxutils.smartSetText
 import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter

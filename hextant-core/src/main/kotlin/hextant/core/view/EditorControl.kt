@@ -5,6 +5,10 @@
 package hextant.core.view
 
 import bundles.*
+import fxutils.PseudoClasses
+import fxutils.registerShortcuts
+import fxutils.setRoot
+import fxutils.show
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.meta.ProvideCommand
 import hextant.context.Context

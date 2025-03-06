@@ -7,9 +7,9 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.Property
 import bundles.createBundle
+import fxutils.Glyphs
 import hextant.context.createControl
 import hextant.core.Editor
-import hextant.fx.Glyphs
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.Label
@@ -108,7 +108,7 @@ abstract class CompoundEditorControl(
          * @return the created [Node] for further configuration
          */
         fun keyword(name: String): Node {
-            val l = hextant.fx.keyword(name)
+            val l = fxutils.keyword(name)
             root.children.add(l)
             return l
         }
@@ -119,7 +119,7 @@ abstract class CompoundEditorControl(
          * @return the created [Node] for further configuration
          */
         fun operator(str: String): Node {
-            val l = hextant.fx.operator(str)
+            val l = fxutils.operator(str)
             root.children.add(l)
             return l
         }

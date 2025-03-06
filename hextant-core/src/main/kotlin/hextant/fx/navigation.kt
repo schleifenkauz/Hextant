@@ -1,5 +1,7 @@
 package hextant.fx
 
+import fxutils.registerShortcuts
+import fxutils.shortcut
 import hextant.core.view.EditorControl
 import hextant.core.view.ExpanderControl
 import javafx.scene.Node

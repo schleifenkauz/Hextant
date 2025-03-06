@@ -4,10 +4,10 @@
 
 package hextant.undo
 
+import fxutils.KeyEventHandlerBody
+import fxutils.registerShortcuts
 import hextant.context.Context
 import hextant.core.Editor
-import hextant.fx.KeyEventHandlerBody
-import hextant.fx.registerShortcuts
 import hextant.serial.snapshot
 import hextant.serial.virtualize
 import javafx.scene.Node

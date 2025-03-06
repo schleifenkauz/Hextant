@@ -5,10 +5,10 @@
 package hextant.core.view
 
 import bundles.Bundle
+import fxutils.registerShortcuts
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.ListEditor
-import hextant.fx.registerShortcuts
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.control.SelectionMode.MULTIPLE

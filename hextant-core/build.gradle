@@ -31,6 +31,7 @@ dependencies {
     api "de.schleifenkauz:reaktive:1.0-SNAPSHOT"
     api "de.schleifenkauz:bundles:1.0-SNAPSHOT"
     api "de.schleifenkauz:kollektion:1.0-SNAPSHOT"
+    api "de.schleifenkauz:fx-utils:1.0-SNAPSHOT"
 
     api project(':hextant-codegen')
     kapt project(":hextant-codegen")
@@ -43,7 +44,6 @@ dependencies {
         exclude group: 'org.openjfx'
     }
     api "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
-    api "org.controlsfx:controlsfx:11.1.2"
 
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")

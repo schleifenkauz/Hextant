@@ -7,6 +7,8 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.Property
 import bundles.publicProperty
+import fxutils.children
+import fxutils.withStyleClass
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.context.createControl
@@ -16,8 +18,6 @@ import hextant.core.editor.SimpleEditor
 import hextant.core.view.ChoiceEditorControl.Layout.Horizontal
 import hextant.core.view.ChoiceEditorControl.Layout.Vertical
 import hextant.fx.ComboBoxConfig
-import hextant.fx.children
-import hextant.fx.withStyleClass
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox

@@ -1,13 +1,11 @@
-/**
- * @author Nikolaus Knop
- */
-
-@file:Suppress("UNCHECKED_CAST")
-
 package hextant.fx
 
 import bundles.Bundle
 import bundles.createBundle
+import fxutils.KeyEventHandlerBody
+import fxutils.registerShortcuts
+import fxutils.runFXWithTimeout
+import fxutils.showDialog
 import hextant.command.Commands
 import hextant.command.line.CommandLine
 import hextant.context.Context
@@ -17,117 +15,14 @@ import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Layout
 import hextant.core.view.EditorControl
 import hextant.serial.makeRoot
-import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.Scene
-import javafx.scene.control.*
-import javafx.scene.input.KeyCode.ENTER
-import javafx.scene.input.KeyCombination
-import javafx.scene.input.KeyEvent
-import javafx.scene.input.MouseEvent
-import javafx.scene.layout.Region
-import javafx.stage.PopupWindow
+import javafx.scene.control.Button
+import javafx.scene.control.ButtonType
+import javafx.scene.control.Dialog
 import javafx.stage.Stage
 import reaktive.value.now
-import kotlin.concurrent.thread
-
-internal fun control(skin: Skin<out Control>): Control {
-    return object : Control() {
-        init {
-            setSkin(skin)
-        }
-    }
-}
-
-fun Control.setRoot(node: Node) {
-    skin = null
-    skin = skin(this, node)
-}
-
-internal fun skin(control: Control, node: Node): Skin<Control> = SimpleSkin(control, node)
-
-
-private class SimpleSkin(
-    private val control: Control, private val node: Node
-) : Skin<Control> {
-    override fun getSkinnable(): Control = control
-
-    override fun getNode(): Node = node
-
-    override fun dispose() {}
-}
-
-internal inline fun Node.registerShortcut(s: KeyCombination, crossinline action: () -> Unit) {
-    addEventHandler(KeyEvent.KEY_RELEASED) { k ->
-        if (s.match(k)) {
-            action()
-            k.consume()
-        }
-    }
-}
-
-internal fun PopupWindow.show(node: Node) {
-    val p = node.localToScreen(0.0, node.prefHeight(-1.0)) ?: return
-    show(node, p.x, p.y)
-}
-
-internal fun TextField.smartSetText(new: String) {
-    val previous = text
-    if (previous != new) {
-        text = new
-        if (new.startsWith(previous)) {
-            positionCaret(new.length)
-        }
-    }
-}
-
-internal fun Node.onAction(action: () -> Unit) {
-    addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
-        if (ev.code == ENTER) {
-            action()
-            ev.consume()
-        }
-    }
-    addEventHandler(MouseEvent.MOUSE_PRESSED) { ev ->
-        if (ev.clickCount >= 2) {
-            action()
-            ev.consume()
-        }
-    }
-}
-
-/**
- * Return a [Label] with the given text and with the 'hextant-text' and the 'keyword' style class.
- */
-fun keyword(name: String) = Label(name).apply {
-    styleClass.add("hextant-text")
-    styleClass.add("keyword")
-}
-
-/**
- * Return a [Label] with the given text and with the 'hextant-text' and the 'operator' style class.
- */
-fun operator(name: String) = Label(name).apply {
-    styleClass.add("hextant-text")
-    styleClass.add("operator")
-}
-
-internal fun Region.fixWidth(value: Double) {
-    prefWidth = value
-    minWidth = value
-    maxWidth = value
-}
-
-internal fun <N : Node> N.withStyleClass(vararg names: String) = apply { styleClass.addAll(*names) }
-
-internal fun <N : Node> N.withStyle(style: String) = also { it.style = style }
-
-internal fun <C : Control> C.withTooltip(tooltip: Tooltip) = apply { this.tooltip = tooltip }
-
-internal fun <C : Control> C.withTooltip(text: String) = withTooltip(Tooltip(text))
-
-internal fun hextantLabel(text: String, graphic: Node? = null) = Label(text, graphic).withStyleClass("hextant-text")
 
 /**
  * Add the editor control for the given [editor] to this compound view.
@@ -139,29 +34,6 @@ fun Layout.view(
     cached: Boolean = true,
     config: Bundle.() -> Unit
 ) = view(editor, bundle.apply(config), cached)
-
-fun Dialog<*>.setDefaultButton(type: ButtonType) {
-    for (tp in dialogPane.buttonTypes) {
-        val button = dialogPane.lookupButton(tp) as Button
-        button.isDefaultButton = tp == type
-    }
-}
-
-inline fun <R, D : Dialog<R>> D.showDialog(config: D.() -> Unit = {}): R? {
-    config()
-    isResizable = true
-    setOnShown {
-        runFXWithTimeout(delay = 100) {
-            isResizable = false
-        }
-    }
-    return showAndWait().orElse(null)
-}
-
-fun <R> showDialog(config: Dialog<R>.() -> Unit): R? = Dialog<R>().showDialog(config)
-
-inline fun showConfirmationAlert(yesButton: ButtonType = ButtonType.YES, config: Alert.() -> Unit): Boolean =
-    Alert(Alert.AlertType.CONFIRMATION).showDialog(config) == yesButton
 
 /**
  * Gets input from the user by showing the given [editor] in a [Dialog] to him.
@@ -235,16 +107,6 @@ fun showStage(root: Parent, context: Context, applyStyle: Boolean): Stage = Stag
  */
 fun showStage(editor: Editor<*>, applyStyle: Boolean) =
     showStage(editor.context.createControl(editor), editor.context, applyStyle)
-
-/**
- * Enqueues the given [action] into the JavaFX application thread after some [delay] which is given in milliseconds.
- */
-fun runFXWithTimeout(delay: Long = 10, action: () -> Unit) {
-    thread {
-        Thread.sleep(delay)
-        Platform.runLater(action)
-    }
-}
 
 /**
  * Runs [EditorControl.receiveFocus] on the JavaFX application thread after the given [delay] which is measured in milliseconds.

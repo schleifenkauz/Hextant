@@ -4,12 +4,12 @@
 
 package hextant.command
 
+import fxutils.Shortcut
 import hextant.config.Feature
 import hextant.config.FeatureType
 import hextant.context.Context
 import hextant.context.EditorFactory
 import hextant.core.Editor
-import hextant.fx.Shortcut
 import hextant.serial.getConstructor
 import kotlin.reflect.KClass
 

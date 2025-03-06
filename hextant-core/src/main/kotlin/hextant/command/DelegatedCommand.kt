@@ -5,7 +5,7 @@
 package hextant.command
 
 import hextant.command.Command.*
-import hextant.fx.Shortcut
+import fxutils.Shortcut
 import kotlin.reflect.KClass
 
 internal class DelegatedCommand<D : Any, T : Any, F : Any>(

@@ -4,6 +4,7 @@
 
 package hextant.fx
 
+import fxutils.runFXWithTimeout
 import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Companion.ADD_WITH_COMMA
 import hextant.fx.InputMethod.REGULAR

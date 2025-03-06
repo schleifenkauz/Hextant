@@ -1,5 +1,7 @@
 package hextant.fx
 
+import fxutils.registerShortcuts
+import fxutils.shortcut
 import hextant.context.Clipboard
 import hextant.context.ClipboardContent.MultipleEditors
 import hextant.context.Context

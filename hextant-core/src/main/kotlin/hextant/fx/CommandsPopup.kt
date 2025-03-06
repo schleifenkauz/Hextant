@@ -4,6 +4,8 @@
 
 package hextant.fx
 
+import fxutils.registerShortcuts
+import fxutils.withStyleClass
 import hextant.command.Command
 import hextant.command.Commands
 import hextant.context.Context
