@@ -32,5 +32,7 @@ class Stylesheets {
         paths.remove(resource)
     }
 
+    fun all(): Collection<String> = paths
+
     companion object : Property<Stylesheets, Internal> by property("stylesheets")
 }

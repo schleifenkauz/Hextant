@@ -5,6 +5,7 @@
 package hextant.expr.view
 
 import bundles.Bundle
+import fxutils.registerShortcuts
 import hextant.codegen.ProvideImplementation
 import hextant.completion.CompletionStrategy
 import hextant.completion.CompoundCompleter
@@ -18,7 +19,6 @@ import hextant.core.view.ListEditorControl
 import hextant.core.view.ListEditorControl.Orientation.Horizontal
 import hextant.core.view.TokenEditorControl
 import hextant.expr.editor.*
-import hextant.fx.registerShortcuts
 import org.controlsfx.glyphfont.FontAwesome
 import reaktive.value.now
 

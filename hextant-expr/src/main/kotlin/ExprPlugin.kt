@@ -1,6 +1,7 @@
 import ExprPlugin.color
 import bundles.publicProperty
 import bundles.set
+import fxutils.runFXWithTimeout
 import hextant.command.Command.Type.SingleReceiver
 import hextant.command.executingCompoundEdit
 import hextant.context.EditorControlGroup
@@ -13,7 +14,6 @@ import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
 import hextant.expr.view.Style
 import hextant.fx.WindowSize
-import hextant.fx.runFXWithTimeout
 import hextant.plugins.*
 import hextant.plugins.PluginBuilder.Phase.Initialize
 import hextant.undo.compoundEdit

@@ -4,13 +4,14 @@
 
 package hextant.fx
 
-import hextant.fx.ModifierValue.DOWN
-import hextant.fx.ModifierValue.MAYBE
+import fxutils.ModifierValue.DOWN
+import fxutils.ModifierValue.MAYBE
+import fxutils.shortcut
 import hextant.fx.ShortcutsTest.event
 import hextant.test.`false`
-import hextant.test.`true`
 import hextant.test.shouldBe
 import hextant.test.shouldEqual
+import hextant.test.`true`
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent

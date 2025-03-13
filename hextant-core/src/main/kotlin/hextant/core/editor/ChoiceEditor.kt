@@ -25,7 +25,7 @@ import reaktive.value.reactiveVariable
  * An [Editor] which supports choosing different items of type [C]
  */
 abstract class ChoiceEditor<C : Any, R, E : Editor<R>>(context: Context, default: C) :
-    AbstractEditor<R, ChoiceEditorView<C, E>>(context), ComboBoxSource<C> {
+    AbstractEditor<R, ChoiceEditorView<C, E>>(context), ChoiceSource<C> {
     private val _selected = reactiveVariable(default)
     private val _content = reactiveVariable(this.createEditor(default))
 

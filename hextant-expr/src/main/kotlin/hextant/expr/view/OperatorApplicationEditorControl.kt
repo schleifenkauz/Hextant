@@ -5,12 +5,12 @@
 package hextant.expr.view
 
 import bundles.Bundle
+import fxutils.createBorder
 import hextant.codegen.ProvideImplementation
 import hextant.config.Settings
 import hextant.context.ControlFactory
 import hextant.core.view.CompoundEditorControl
 import hextant.expr.editor.OperatorApplicationEditor
-import hextant.fx.createBorder
 import reaktive.value.binding.map
 import reaktive.value.fx.asObservableValue
 

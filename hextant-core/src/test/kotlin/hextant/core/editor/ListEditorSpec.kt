@@ -15,6 +15,7 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import reaktive.value.now
 
 object ListEditorSpec : Spek({
     given("a ListEditor") {
@@ -84,7 +85,7 @@ object ListEditorSpec : Spek({
             on("adding an editable") {
                 editor.addAt(0)
                 it("should be able to undo") {
-                    undo.canUndo shouldBe `true`
+                    undo.canUndo.now shouldBe `true`
                 }
             }
             on("undoing") {
@@ -102,7 +103,7 @@ object ListEditorSpec : Spek({
             on("removing an element") {
                 editor.removeAt(0)
                 it("should be able to undo") {
-                    undo.canUndo shouldBe `true`
+                    undo.canUndo.now shouldBe `true`
                 }
             }
             on("undoing removing the element") {

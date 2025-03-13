@@ -18,7 +18,9 @@ import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.Expander
-import hextant.fx.*
+import hextant.fx.HextantTextField
+import hextant.fx.InputMethod
+import hextant.fx.ResultStyleClasses
 import javafx.scene.Node
 import reaktive.Observer
 import reaktive.value.now
@@ -73,7 +75,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     override fun displayText(text: String) {
         if (text != textField.text) {
             textField.text = text
-            popup.show(root)
+            if (scene != null) popup.show(root)
         }
     }
 

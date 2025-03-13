@@ -1,6 +1,6 @@
 package hextant.core.editor
 
-interface ComboBoxSource<C : Any> {
+interface ChoiceSource<C : Any> {
     /**
      * Select the given [choice]
      */

@@ -7,6 +7,7 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.Property
 import bundles.publicProperty
+import fxutils.button
 import fxutils.children
 import fxutils.withStyleClass
 import hextant.codegen.ProvideImplementation
@@ -17,7 +18,6 @@ import hextant.core.editor.ChoiceEditor
 import hextant.core.editor.SimpleEditor
 import hextant.core.view.ChoiceEditorControl.Layout.Horizontal
 import hextant.core.view.ChoiceEditorControl.Layout.Vertical
-import hextant.fx.ComboBoxConfig
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
@@ -30,7 +30,12 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
     val editor: ChoiceEditor<C, *, E>,
     arguments: Bundle
 ) : ChoiceEditorView<C, E>, WrappingEditorControl<Pane>(editor, arguments) {
-    private val comboBox = ComboBoxConfig.createComboBox(editor, arguments)
+    private val listView = ChoiceEditorListView(editor)
+    private val button = button {
+        listView.showPopup(anchorNode = this, initialOption = editor.selected.now) { option ->
+            editor.select(option)
+        }
+    }
 
     init {
         editor.addView(this)
@@ -39,14 +44,11 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
     override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
         when (property) {
             LAYOUT -> root = createDefaultRoot()
-            ComboBoxConfig.searchable -> ComboBoxConfig.setSearchable(comboBox, value as Boolean)
         }
     }
 
     override fun selected(choice: C, content: E) {
-        if (comboBox.value != choice) {
-            comboBox.selectionModel.select(choice)
-        }
+        button.text = editor.toString(choice)
         wrapped = if (content !is SimpleEditor<*>) {
             context.createControl(editor.content.now).withStyleClass("choice-editor-content")
         } else null
@@ -58,7 +60,7 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
         Horizontal -> HBox().withStyleClass("horizontal-choice-editor")
         Vertical -> VBox().withStyleClass("vertical-choice-editor")
     }.withStyleClass("choice-editor").children {
-        +comboBox
+        +button
         wrapped?.let { +it }
     }
 

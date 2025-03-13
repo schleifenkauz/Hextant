@@ -39,7 +39,7 @@ object TokenEditorSpec : Spek({
                     verify().displayText("abc")
                 }
                 test("the undo manager should be able to undo") {
-                    undo.canUndo shouldBe `true`
+                    undo.canUndo.now shouldBe `true`
                 }
             }
             on("undoing") {

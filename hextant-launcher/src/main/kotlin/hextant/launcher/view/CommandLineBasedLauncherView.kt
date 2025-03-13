@@ -1,6 +1,10 @@
 package hextant.launcher.view
 
 import bundles.Bundle
+import fxutils.add
+import fxutils.hbox
+import fxutils.label
+import fxutils.vbox
 import hextant.codegen.ProvideImplementation
 import hextant.command.line.CommandLine
 import hextant.command.line.CommandLineControl.Companion.HISTORY_ITEMS
@@ -9,10 +13,6 @@ import hextant.config.Settings
 import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.view.EditorControl
-import hextant.fx.add
-import hextant.fx.hbox
-import hextant.fx.label
-import hextant.fx.vbox
 import hextant.launcher.HextantLauncher
 import hextant.launcher.Launcher
 import javafx.geometry.Pos

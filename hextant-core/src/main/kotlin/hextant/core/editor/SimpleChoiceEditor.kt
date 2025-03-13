@@ -17,7 +17,7 @@ import reaktive.value.now
 import reaktive.value.reactiveVariable
 
 abstract class SimpleChoiceEditor<C : Any>(context: Context, default: C) :
-    AbstractEditor<C, SimpleChoiceEditorView<C>>(context), ComboBoxSource<C> {
+    AbstractEditor<C, SimpleChoiceEditorView<C>>(context), ChoiceSource<C> {
 
     private val _selected = reactiveVariable(default)
 

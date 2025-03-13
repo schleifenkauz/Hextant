@@ -3,7 +3,7 @@ package hextant.fx
 import bundles.Bundle
 import bundles.publicProperty
 import fxutils.withStyleClass
-import hextant.core.editor.ComboBoxSource
+import hextant.core.editor.ChoiceSource
 import impl.org.controlsfx.skin.SearchableComboBoxSkin
 import javafx.collections.FXCollections.observableList
 import javafx.scene.control.ComboBox
@@ -20,7 +20,7 @@ object ComboBoxConfig {
             else ComboBoxListViewSkin(comboBox)
     }
 
-    fun <C : Any> createComboBox(source: ComboBoxSource<C>, arguments: Bundle): ComboBox<C> {
+    fun <C : Any> createComboBox(source: ChoiceSource<C>, arguments: Bundle): ComboBox<C> {
         val comboBox = when (arguments[lazy]) {
             false -> ComboBox(observableList(source.choices()))
             true -> LazyComboBox(source::choices)

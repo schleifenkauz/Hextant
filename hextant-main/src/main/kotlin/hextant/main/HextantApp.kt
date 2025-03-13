@@ -7,6 +7,8 @@ package hextant.main
 import bundles.createBundle
 import bundles.publicProperty
 import bundles.set
+import fxutils.registerShortcuts
+import fxutils.runFXWithTimeout
 import hextant.cli.HextantDirectory
 import hextant.cli.fail
 import hextant.cli.verifyFile
@@ -15,7 +17,10 @@ import hextant.context.Context
 import hextant.context.Properties
 import hextant.context.Properties.marketplace
 import hextant.core.HextantCore
-import hextant.fx.*
+import hextant.fx.WindowSize
+import hextant.fx.handleCommands
+import hextant.fx.initHextantScene
+import hextant.fx.receiveFocusLater
 import hextant.plugins.*
 import javafx.application.Application
 import javafx.scene.Scene

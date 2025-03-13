@@ -118,7 +118,7 @@ object ExpanderSpec : Spek({
                 ex.setText("123")
                 ex.expand()
                 it("should push an edit") {
-                    undo.canUndo shouldBe `true`
+                    undo.canUndo.now shouldBe `true`
                 }
             }
             on("undoing") {
@@ -136,7 +136,7 @@ object ExpanderSpec : Spek({
             on("resetting") {
                 ex.reset()
                 it("should push an edit") {
-                    undo.canUndo shouldBe `true`
+                    undo.canUndo.now shouldBe `true`
                 }
             }
             on("undoing reset") {
@@ -154,7 +154,7 @@ object ExpanderSpec : Spek({
             on("setting the text") {
                 ex.setText("abc")
                 it("should push an edit") {
-                    undo.canUndo shouldBe `true`
+                    undo.canUndo.now shouldBe `true`
                 }
             }
             on("undoing set text") {

@@ -1,4 +1,5 @@
 apply plugin: 'kotlin-kapt'
+apply plugin: 'org.openjfx.javafxplugin'
 
 dependencies {
     compileOnly project(":hextant-core")

@@ -67,7 +67,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
     final override fun displayText(newText: String) {
         if (root.text != newText) {
             root.smartSetText(newText)
-            popup.show(root)
+            if (scene != null) popup.show(root)
         }
     }
 
