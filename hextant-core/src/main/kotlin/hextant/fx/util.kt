@@ -14,7 +14,6 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.CompoundEditorControl.Layout
 import hextant.core.view.EditorControl
-import hextant.serial.makeRoot
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.Scene
@@ -49,7 +48,6 @@ fun <R> getUserInput(
     buttonTypes: List<ButtonType> = listOf(ButtonType.OK, ButtonType.CANCEL),
     applyStyle: Boolean = true
 ): R? {
-    editor.makeRoot()
     return showDialog<R> {
         dialogPane.content = control
         dialogPane.buttonTypes.setAll(buttonTypes)

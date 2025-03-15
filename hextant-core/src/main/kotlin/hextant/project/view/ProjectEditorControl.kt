@@ -8,15 +8,17 @@ package hextant.project.view
 
 import bundles.Bundle
 import fxutils.registerShortcuts
-import hextant.context.*
+import hextant.context.Clipboard
 import hextant.context.ClipboardContent.OneEditor
+import hextant.context.EditorControlGroup
+import hextant.context.createControl
+import hextant.context.withoutUndo
+import hextant.core.editor.snapshot
 import hextant.core.view.EditorControl
 import hextant.project.editor.DirectoryEditor
 import hextant.project.editor.FileEditor
 import hextant.project.editor.ProjectItemEditor
 import hextant.project.editor.ProjectItemListEditor
-import hextant.serial.reconstructEditor
-import hextant.serial.snapshot
 import javafx.scene.control.SelectionMode.MULTIPLE
 import javafx.scene.control.TreeCell
 import javafx.scene.control.TreeItem
@@ -78,7 +80,7 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
                 insertEditor(FileEditor.newInstance(context))
             }
             on("Ctrl?+D") {
-                insertEditor(DirectoryEditor(context))
+                insertEditor(DirectoryEditor())
             }
             on("Delete") {
                 val selected = root.selectionModel.selectedItems.toList()
@@ -90,16 +92,13 @@ class ProjectEditorControl(private val editor: ProjectItemEditor<*, *>, argument
             }
             on("Ctrl+Shift+C") {
                 val item = selectedEditor() ?: return@on
-                context[Clipboard].copy(OneEditor(item.snapshot(recordClass = true)))
+                context[Clipboard].copy(OneEditor(item.snapshot()))
             }
             on("Ctrl+Shift+V") {
                 val selected = selectedEditor() ?: return@on
                 val content = context[Clipboard].get()
-                if (content is OneEditor) {
-                    val copy = context.executeSafely("pasting", null) {
-                        content.snapshot.reconstructEditor(context)
-                    } ?: return@on
-                    addNewItem(selected, copy as ProjectItemEditor<*, *>)
+                if (content is OneEditor && content.content is ProjectItemEditor<*, *>) {
+                    addNewItem(selected, content.content)
                 }
             }
         }

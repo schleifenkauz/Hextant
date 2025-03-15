@@ -4,101 +4,50 @@
 
 package hextant.serial
 
-import hextant.context.Context
-import hextant.context.withoutUndo
 import hextant.core.Editor
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import kotlinx.serialization.serializer
-import reaktive.value.now
 import java.io.File
 
 /**
- * Return the first editor in the sequence of parents which is a root editor.
+ * Return the first editor in the sequence of parents which has no parent.
  */
 val Editor<*>.root: Editor<*>
     get() {
         var cur = this
-        while (!cur.isRoot) {
-            cur = cur.parent ?: error("Editor has no root")
+        while (cur.parent != null) {
+            cur = cur.parent!!
         }
         return cur
     }
 
-/**
- * @return the location of this editor relative to its root
- */
-val <E : Editor<*>> E.location: EditorLocation<E>
-    get() {
-        var cur: Editor<*> = this
-        val accessors = mutableListOf<EditorAccessor>()
-        while (true) {
-            if (cur.isRoot) break
-            while (cur.expander != null) {
-                cur = cur.expander!!
-                if (cur.isRoot) break
-                accessors.add(ExpanderContent)
-            }
-            if (cur.isRoot) break
-            val acc = cur.accessor.now ?: error("Editor has no accessor")
-            cur = cur.parent ?: error("Editor has no parent")
-            accessors.add(acc)
-        }
-        accessors.reverse()
-        return AccessorChain(accessors)
-    }
 
 /**
- * Virtualize this editor
+ * Encodes this [Editor] as JSON, and then writes it to the given [file],
+ * such that it can be read again by [readEditorFromJson].
  */
-fun <E : Editor<*>> E.virtualize(): VirtualEditor<E> = LocatedVirtualEditor(this, file!!, location)
-
-/**
- * Makes this editor a root of the editor tree by assigning an [InMemoryFile]
- */
-fun Editor<*>.makeRoot() {
-    @Suppress("DEPRECATION")
-    setFile(InMemoryFile(this))
+@OptIn(ExperimentalSerializationApi::class)
+fun Editor<*>.saveAsJson(file: File) {
+    val stream = file.outputStream().buffered()
+    json.encodeToStream(serializer<Editor<*>>(), this, stream)
+    stream.close()
 }
 
 /**
- * Makes a snapshot of this [Editor].
+ * Reconstructs an [Editor] from the given [file] that has been saved using [saveAsJson].
  */
-@Suppress("UNCHECKED_CAST")
-fun <T : SnapshotAware> T.snapshot(recordClass: Boolean = false): Snapshot<T> {
-    val snapshot = createSnapshot() as Snapshot<T>
-    snapshot.record(this, recordClass)
-    return snapshot
+@OptIn(ExperimentalSerializationApi::class)
+fun readEditorFromJson(file: File): Editor<*> {
+    val stream = file.inputStream().buffered()
+    val editor = json.decodeFromStream<Editor<*>>(stream)
+    stream.close()
+    return editor
 }
-
-
-/**
- * Makes a [Snapshot] of this [Editor], encodes it as JSON, and then writes it to the given [file],
- * such that it can be read again by [reconstructEditorFromJSONSnapshot].
- */
-fun SnapshotAware.saveSnapshotAsJson(file: File) {
-    val snapshot = snapshot(recordClass = true)
-    val json = snapshot.encodeToJson()
-    val txt = json.toString()
-    file.writeText(txt)
-}
-
-/**
- * Reconstructs an [Editor] from the given [file] that has been saved using [saveSnapshotAsJson].
- * @param context the context with which the reconstructed editor is created
- */
-fun reconstructEditorFromJSONSnapshot(file: File, context: Context): Editor<*> {
-    val txt = file.readText()
-    val json = Json.parseToJsonElement(txt)
-    val snapshot = Snapshot.decodeFromJson<Editor<*>>(json)
-    return context.withoutUndo { snapshot.reconstructEditor(context) }
-}
-
-/**
- * Reconstruct an [Editor] from the given [Snapshot] using the given [context].
- */
-fun <E : Editor<*>> Snapshot<E>.reconstructEditor(context: Context) = reconstruct(context)
 
 /**
  * Encodes the given [value] as a JSON element and writes the string representation to this [File].

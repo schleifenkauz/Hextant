@@ -31,20 +31,28 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
             val ann = p.getAnnotation<Component>()
             val editorCls = getEditorClassName(p.asType(), ann)
             val ctx = ann?.childContext ?: "context"
-            p.simpleName.toString() of editorCls default call(editorCls, get(ctx))
+            "val ${p.simpleName}" of editorCls default call(editorCls, get(ctx))
         }
-        val names = function.parameters.map { p -> p.simpleName.toString() }
+        val componentNames = function.parameters.map { p -> p.simpleName.toString() }
         classModifiers(annotation.serializable).kotlinClass(simpleName)
-            .primaryConstructor(listOf("context" of "Context") + parameters)
+            .primaryConstructor(parameters)
             .extends(type("CompoundEditor", resultType), "context".e)
             .implementEditorOfSuperType(annotation, result)
             .body {
-                for (name in names) {
-                    `val`(name) by "child"(get(name))
+                +override.`fun`(
+                    "locate",
+                    "parent" of "Editor<*>?",
+                    "accessor" of "EditorAccessor",
+                    "expander" of "Expander<*, *>?"
+                ).body {
+                    +"super.locate(parent, accessor, expander)"
+                    for (component in componentNames) {
+                        +"${component}.locate(parent = this, PropertyAccessor(\"${component}\"))"
+                    }
                 }
                 override.`val`("result").of(type("ReactiveValue", resultType))
                     .initializedWith(call("composeResult", closure {
-                        +call(functionName, names.map { get(it) select "now" })
+                        +call(functionName, componentNames.map { component -> get(component) select "now" })
                     }))
             }
             .asFile {
@@ -59,10 +67,11 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
     }
 
     private fun extractFunction(element: Element) = when (element) {
-        is TypeElement       -> processingEnv.elementUtils.getAllMembers(element)
+        is TypeElement -> processingEnv.elementUtils.getAllMembers(element)
             .firstOrNull { it.simpleName.toString() == "<init>" } as ExecutableElement?
             ?: fail("Class $element has no constructor")
+
         is ExecutableElement -> element
-        else                 -> fail("Illegal annotation target for @Compound: $element")
+        else -> fail("Illegal annotation target for @Compound: $element")
     }
 }

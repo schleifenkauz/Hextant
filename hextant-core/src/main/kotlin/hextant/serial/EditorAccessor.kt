@@ -23,7 +23,7 @@ data class PropertyAccessor(val propertyName: String) : EditorAccessor() {
  *
  * @property index the zero-based index of this editor in the list of its siblings.
  */
-data class IndexAccessor(val index: Int) : EditorAccessor() {
+data class IndexAccessor(var index: Int) : EditorAccessor() {
     override fun toString(): String = "[$index]"
 }
 
@@ -31,19 +31,19 @@ data class IndexAccessor(val index: Int) : EditorAccessor() {
  * The editor accessed by this accessor is the child of an [hextant.core.editor.Expander].
  */
 object ExpanderContent : EditorAccessor() {
-    override fun toString(): String = ".editor.now"
+    override fun toString(): String = ".editor"
 }
 
 /**
  * The editor accessed by this accessor is the child of an [hextant.core.editor.ChoiceEditor]
  * */
 object ChoiceEditorContent : EditorAccessor() {
-    override fun toString(): String = ".content.now"
+    override fun toString(): String = ".content"
 }
 
 /**
  * The editor accessed by this accessor is the child of an [hextant.core.editor.ChoiceEditor]
  * */
 object OptionalEditorContent : EditorAccessor() {
-    override fun toString(): String = ".optionalContent.now"
+    override fun toString(): String = ".optionalContent"
 }

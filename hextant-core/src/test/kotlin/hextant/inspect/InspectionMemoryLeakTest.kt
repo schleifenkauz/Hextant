@@ -4,6 +4,7 @@
 
 package hextant.inspect
 
+import bundles.createBundle
 import bundles.set
 import com.natpryce.hamkrest.absent
 import com.sun.javafx.application.PlatformImpl
@@ -11,7 +12,7 @@ import hextant.context.EditorControlGroup
 import hextant.context.createControl
 import hextant.expr.editor.ExprExpander
 import hextant.expr.editor.IntLiteralEditor
-import hextant.serial.makeRoot
+import hextant.expr.view.createControl
 import hextant.test.shouldBe
 import hextant.test.testingContext
 import hextant.undo.NoUndoManager
@@ -41,6 +42,7 @@ class InspectionMemoryLeakTest {
         var e: Inspected? = Inspected(reactiveValue(true))
         val i = Inspections.newInstance()
         i.registerInspection<Inspected> {
+            id = "test-inspection"
             description = "An inspection"
             message { "error" }
             isSevere(true)
@@ -61,7 +63,7 @@ class InspectionMemoryLeakTest {
     @Test
     fun `constructing view of editor causes no memory leak`() {
         val ctx = testingContext()
-        var e: IntLiteralEditor? = IntLiteralEditor(ctx)
+        var e: IntLiteralEditor? = IntLiteralEditor()
         val v = WeakReference(ctx.createControl(e!!), ReferenceQueue())
         val r = WeakReference(e)
         e = null
@@ -74,9 +76,9 @@ class InspectionMemoryLeakTest {
     fun `expanding and resetting expander causes no leak`() {
         val ctx = testingContext()
         ctx[UndoManager] = NoUndoManager
-        val exp = ExprExpander(ctx)
-        exp.makeRoot()
-        val view = ctx.createControl(exp)
+        val exp = ExprExpander()
+        exp.initialize(ctx)
+        val view = createControl(exp, createBundle())
         exp.setText("1")
         exp.expand()
         val e by WeakReference(exp.editor.now!!)

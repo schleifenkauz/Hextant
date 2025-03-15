@@ -7,9 +7,6 @@ package hextant.undo
 import fxutils.KeyEventHandlerBody
 import fxutils.registerShortcuts
 import hextant.context.Context
-import hextant.core.Editor
-import hextant.serial.snapshot
-import hextant.serial.virtualize
 import javafx.scene.Node
 import reaktive.value.now
 
@@ -42,21 +39,6 @@ inline fun <T> UndoManager.withoutUndo(action: () -> T): T {
     } finally {
         isActive = true
     }
-}
-
-/**
- * Execute the given [action] and record an edit with the specified [description] that will reset
- * this editor to the state before [action] was executed if undone.
- */
-inline fun <E : Editor<*>, R> E.makeUndoableEdit(description: String, action: () -> R): R {
-    val undo = context[UndoManager]
-    if (!undo.isActive) return action()
-    val before = snapshot()
-    val result = action()
-    val after = snapshot()
-    val edit = SnapshotEdit(virtualize(), before, after, description)
-    undo.record(edit)
-    return result
 }
 
 fun Node.registerHistoryShortcuts(manager: UndoManager) {

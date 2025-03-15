@@ -4,7 +4,8 @@
 
 package hextant.core.view
 
-import bundles.*
+import bundles.Bundle
+import bundles.Property
 import fxutils.PseudoClasses
 import fxutils.registerShortcuts
 import fxutils.setRoot
@@ -18,23 +19,25 @@ import hextant.core.Editor
 import hextant.core.EditorView
 import hextant.core.editor.copyToClipboard
 import hextant.core.editor.pasteFromClipboard
-import hextant.fx.*
+import hextant.fx.CommandsPopup
+import hextant.fx.InspectionPopup
+import hextant.fx.handleCommands
+import hextant.fx.isShiftDown
 import hextant.inspect.Inspections
-import hextant.serial.Snapshot
-import hextant.serial.json
-import hextant.serial.snapshot
 import javafx.application.Platform
 import javafx.css.PseudoClass
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.buildJsonObject
 import reaktive.Observer
 import reaktive.addListener
 import reaktive.observe
 import reaktive.value.ReactiveValue
 import reaktive.value.now
 import reaktive.value.reactiveVariable
+import kotlin.collections.set
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -398,64 +401,9 @@ abstract class EditorControl<R : Node>(
         }
     }
 
-    override fun createSnapshot(): Snapshot<*> = Snap()
+    fun exportJsonArgumentTree(): JsonElement = buildJsonObject {} //TODO
 
-    protected abstract class AbstractSnap<C : EditorControl<*>> : Snapshot<C>() {
-        private lateinit var changedArguments: Map<Property<*, *>, Any>
-
-        override fun doRecord(original: C) {
-            original.initializeControl()
-            changedArguments = original.changedArguments
-        }
-
-        override fun reconstructObject(original: C) {
-            original.initializeControl()
-            for ((p, v) in changedArguments) {
-                @Suppress("UNCHECKED_CAST")
-                p as PublicProperty<Any>
-                original.arguments[p] = v
-            }
-        }
-
-        override fun encode(builder: JsonObjectBuilder) {
-            @Suppress("UNCHECKED_CAST")
-            val bundle = createBundle {
-                for ((p, v) in changedArguments) {
-                    set(p as Property<Any, *>, v)
-                }
-            }
-            builder.put("arguments", json.encodeToJsonElement(bundle))
-        }
-
-        override fun decode(element: JsonObject) {
-            val bundle: Bundle = json.decodeFromJsonElement(element.getValue("arguments"))
-            changedArguments = bundle.entries.associate { (p, v) -> p to v }
-        }
-    }
-
-    private class Snap : AbstractSnap<EditorControl<*>>() {
-        private lateinit var children: List<Snapshot<EditorControl<*>>>
-
-        override fun doRecord(original: EditorControl<*>) {
-            super.doRecord(original)
-            children = original.editorChildren().map { it.snapshot() }
-        }
-
-        override fun reconstructObject(original: EditorControl<*>) {
-            super.reconstructObject(original)
-            for ((child, snapshot) in original.editorChildren().zip(children)) {
-                snapshot.reconstructObject(child)
-            }
-        }
-
-        override fun encode(builder: JsonObjectBuilder) {
-            super.encode(builder)
-            builder.put("children", JsonArray(this.children.map { it.encodeToJson() }))
-        }
-
-        override fun decode(element: JsonObject) {
-            super.decode(element)
-            children = element.getValue("children").jsonArray.map { decodeFromJson<EditorControl<*>>(it) }
-        }
+    fun importJsonArgumentTree(tree: JsonElement){
+        //TODO
     }
 }

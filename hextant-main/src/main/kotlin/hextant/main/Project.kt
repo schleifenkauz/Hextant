@@ -19,7 +19,7 @@ import hextant.plugins.PluginBuilder.Phase.*
 import hextant.plugins.editor.PluginsEditor
 import hextant.serial.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import java.io.File
 import kotlin.reflect.full.companionObjectInstance
 
@@ -39,16 +39,12 @@ class Project private constructor(
         )
 
     fun save() {
-        root.saveSnapshotAsJson(location.resolve(PROJECT_ROOT))
-        view.saveSnapshotAsJson(location.resolve(DISPLAY))
+        root.saveAsJson(location.resolve(PROJECT_ROOT))
+        val argumentTree = view.exportJsonArgumentTree()
+        location.resolve(DISPLAY).writeJson(argumentTree)
         location.resolve(PROJECT_INFO).writeJson(info)
         val plugins = context[PluginManager].enabledPlugins()
         applyPhase(Close, plugins, context, root)
-    }
-
-    fun setRootFile() {
-        @Suppress("DEPRECATION")
-        root.setFile(PhysicalFile(root, location.resolve(PROJECT_ROOT), context))
     }
 
     companion object : PublicProperty<Project> by property("project") {
@@ -87,7 +83,7 @@ class Project private constructor(
                 val required = listOf(projectType.pluginId)
                 createPluginManager(context, required, required)
                 val pluginTypes = setOf(PluginInfo.Type.Local, PluginInfo.Type.Global)
-                val editor = PluginsEditor(context, context[PluginManager], pluginTypes)
+                val editor = PluginsEditor(context[PluginManager], pluginTypes)
                 val enabled = getUserInput("Project plugins", editor, applyStyle = false) ?: fail("Aborted")
                 val pluginIds = enabled.map { it.id }
                 context[classLoader].addPluginsToClasspath(pluginIds)
@@ -114,7 +110,7 @@ class Project private constructor(
             type.initializeContext(context)
             val root = path.resolve(PROJECT_ROOT)
             return if (root.exists()) {
-                reconstructEditorFromJSONSnapshot(root, context)
+                readEditorFromJson(root)
             } else {
                 type.createProject(context)
             }
@@ -124,9 +120,8 @@ class Project private constructor(
             val view = context.createControl(root)
             val display = path.resolve(DISPLAY)
             if (display.exists()) {
-                val json = Json.parseToJsonElement(display.readText())
-                val snap = Snapshot.decodeFromJson<EditorControl<*>>(json)
-                snap.reconstructObject(view)
+                val argumentTree = display.readJson<JsonElement>()
+                view.importJsonArgumentTree(argumentTree)
             }
             return view
         }

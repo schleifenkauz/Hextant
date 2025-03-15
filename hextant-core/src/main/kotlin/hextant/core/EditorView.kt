@@ -5,13 +5,12 @@
 package hextant.core
 
 import bundles.Bundle
-import hextant.serial.SnapshotAware
 import javafx.css.PseudoClass
 
 /**
  * A graphical view of an [Editor]
  */
-interface EditorView : SnapshotAware {
+interface EditorView {
     /**
      * The arguments for this view, mutating those will change the ways it displays the content
      */

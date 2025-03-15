@@ -12,12 +12,10 @@ import hextant.context.*
 import hextant.core.Editor
 import hextant.core.editor.AbstractEditor
 import hextant.core.editor.allChildren
+import hextant.core.editor.snapshot
 import hextant.inspect.Inspections
 import hextant.inspect.Problem
-import hextant.serial.Snapshot
-import hextant.serial.makeRoot
-import hextant.serial.reconstructEditor
-import hextant.serial.snapshot
+import hextant.serial.PropertyAccessor
 import javafx.scene.control.ButtonType
 import reaktive.Observer
 import reaktive.dependencies
@@ -33,8 +31,8 @@ import reaktive.value.reactiveVariable
  * An editor for [Command]s.
  * @property source the [CommandSource] that is used to resolve available commands
  */
-class CommandLine private constructor(context: Context, val source: CommandSource) :
-    AbstractEditor<CommandApplication?, CommandLineView>(context) {
+class CommandLine private constructor(val source: CommandSource) :
+    AbstractEditor<CommandApplication?, CommandLineView>() {
     private var commandName: String = ""
     private var arguments: List<Editor<Any?>>? = null
     private val _expandedCommand: ReactiveVariable<Command<*, *>?> = reactiveVariable(null)
@@ -94,11 +92,13 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
     fun expand(command: Command<*, *>): Boolean {
         if (isExpanded.now) return false
         val editors = command.parameters.map { p ->
-            val v =
-                if (p.editWith != null) p.editWith.createEditor(context)
+            val editor =
+                if (p.editWith != null) p.editWith.createEditor()
                 else context.createEditor(p.type)
-            v.makeRoot()
-            v
+            editor.initialize(context)
+            editor.locate(this, PropertyAccessor(p.name))
+            addChild(editor)
+            editor
         }
         bindResult(command, editors.map { it.result })
         expanded(command, editors)
@@ -173,7 +173,7 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
         byShortcut: Boolean,
         result: Any?
     ) {
-        val argumentSnapshots = arguments.map { it.result.now to it.snapshot(recordClass = true) }
+        val argumentSnapshots = arguments.map { e -> Pair(e.result.now, e.snapshot()) }
         val item = HistoryItem(command, argumentSnapshots, byShortcut, result)
         history.add(item)
         execute.fire(item)
@@ -192,17 +192,11 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
     /**
      * Expand to the given [command] and instantiate the editors for the given [arguments].
      */
-    fun resume(command: Command<*, *>, arguments: List<Snapshot<out Editor<*>>>) {
+    fun resume(command: Command<*, *>, arguments: List<Editor<*>>) {
         reset()
         setCommandName(command.shortName!!)
-        val editors = arguments.map {
-            context.executeSafely("resuming", null) {
-                context.withoutUndo { it.reconstructEditor(context) }
-            } ?: return
-        }
-        editors.forEach { it.makeRoot() }
-        bindResult(command, editors.map { it.result })
-        expanded(command, editors)
+        bindResult(command, arguments.map { it.result })
+        expanded(command, arguments)
     }
 
     override fun viewAdded(view: CommandLineView) {
@@ -244,7 +238,7 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
         /**
          * The supplied arguments
          */
-        val arguments: List<Pair<Any?, Snapshot<out Editor<*>>>>,
+        val arguments: List<Pair<Any?, Editor<*>>>,
         /**
          * Whether the command was executed by using a shortcut
          */
@@ -257,10 +251,11 @@ class CommandLine private constructor(context: Context, val source: CommandSourc
 
     companion object {
         fun create(context: Context, source: CommandSource): CommandLine {
-            val commandLineContext = context.extend {
+            val commandLine = CommandLine(source)
+            commandLine.initialize(context.extend {
                 set(SelectionDistributor, SelectionDistributor.newInstance())
-            }
-            return CommandLine(commandLineContext, source)
+            })
+            return commandLine
         }
     }
 }

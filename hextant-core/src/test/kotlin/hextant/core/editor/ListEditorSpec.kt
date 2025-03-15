@@ -6,7 +6,6 @@ import com.nhaarman.mockitokotlin2.inOrder
 import hextant.core.view.ListEditorView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
-import hextant.serial.makeRoot
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
@@ -21,10 +20,10 @@ object ListEditorSpec : Spek({
     given("a ListEditor") {
         describe("adding, removing and clearing") {
             val ctx = testingContext()
-            val editor = object : ListEditor<IntLiteral?, IntLiteralEditor>(ctx) {
-                override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
+            val editor = object : ListEditor<IntLiteral?, IntLiteralEditor>() {
+                override fun createEditor(): IntLiteralEditor = IntLiteralEditor()
             }
-            editor.makeRoot()
+            editor.initialize(ctx)
             val view = mockView<ListEditorView>(editor)
             view.inOrder {
                 on("adding a view") {
@@ -76,10 +75,10 @@ object ListEditorSpec : Spek({
         describe("undo/redo") {
             val ctx = testingContext()
             val undo = ctx[UndoManager]
-            val editor = object : ListEditor<IntLiteral?, IntLiteralEditor>(ctx) {
-                override fun createEditor(): IntLiteralEditor = IntLiteralEditor(context)
+            val editor = object : ListEditor<IntLiteral?, IntLiteralEditor>() {
+                override fun createEditor(): IntLiteralEditor = IntLiteralEditor()
             }
-            editor.makeRoot()
+            editor.initialize(ctx)
             val view = mockView<ListEditorView>(editor)
             editor.addView(view)
             on("adding an editable") {

@@ -5,7 +5,6 @@
 package hextant.context
 
 import hextant.core.Editor
-import hextant.serial.Snapshot
 
 /**
  * Represent the content of the clipboard
@@ -18,13 +17,13 @@ sealed class ClipboardContent {
 
     /**
      * The clipboard contains one editor.
-     * @property snapshot the snapshot of the copied editor.
+     * @property content the snapshot of the copied editor.
      */
-    data class OneEditor(val snapshot: Snapshot<out Editor<*>>) : ClipboardContent()
+    data class OneEditor(val content: Editor<*>) : ClipboardContent()
 
     /**
      * The clipboard contains multiple editors.
-     * @property snapshots the snapshots of the copied editors.
+     * @property editors the snapshots of the copied editors.
      */
-    data class MultipleEditors(val snapshots: List<Snapshot<*>>) : ClipboardContent()
+    data class MultipleEditors(val editors: List<Editor<*>>) : ClipboardContent()
 }

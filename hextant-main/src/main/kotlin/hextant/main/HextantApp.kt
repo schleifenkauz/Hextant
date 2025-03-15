@@ -36,7 +36,6 @@ class HextantApp : Application() {
         context[mainWindow] = primaryStage
         val project = processParameters()
         context[Project] = project
-        project.setRootFile()
         if (PluginSource.dynamic()) project.listenForPluginChanges()
         showProject(project)
     }

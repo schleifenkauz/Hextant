@@ -9,8 +9,6 @@ import hextant.context.ClipboardContent.OneEditor
 import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.core.Editor
-import hextant.serial.reconstructEditor
-import hextant.serial.snapshot
 
 /**
  * Return an [ExpanderDelegate] that transforms expanded editors with the given function.
@@ -31,20 +29,18 @@ fun <R, F> TokenType<R>.map(f: (R) -> F) = TokenType { token -> f(this@map.compi
  */
 val Editor<*>.allChildren: Sequence<Editor<*>>
     get() {
-        val directChildren = children.now.asSequence()
-        return directChildren.asSequence() + directChildren.flatMap { it.allChildren }
+        val directChildren = getChildren().asSequence()
+        return directChildren + directChildren.flatMap { e -> e.allChildren }
     }
 
-/**
- * If this editor is already in the specified [newContext] just returns it, otherwise copies the editor to the new context
- */
-fun <E : Editor<*>> E.moveTo(newContext: Context): E =
-    if (this.context == newContext) this else this.copyFor(newContext)
+
+@Suppress("UNCHECKED_CAST")
+fun <E: Editor<*>> E.snapshot() = implCopy() as E
 
 /**
  * Copy this editor for the given [newContext]
  */
-fun <E : Editor<*>> E.copyFor(newContext: Context): E = snapshot(recordClass = true).reconstructEditor(newContext)
+fun <E : Editor<*>> E.copyFor(newContext: Context): E = snapshot().also { e -> e.initialize(newContext) }
 
 /**
  * Copy this [Editor] to the [Clipboard], if this is supported by the editor.
@@ -52,7 +48,7 @@ fun <E : Editor<*>> E.copyFor(newContext: Context): E = snapshot(recordClass = t
  */
 fun Editor<*>.copyToClipboard(): Boolean {
     if (!supportsCopyPaste()) return false
-    val snapshot = snapshot(recordClass = true)
+    val snapshot = snapshot()
     context[Clipboard].copy(OneEditor(snapshot))
     return true
 }
@@ -73,13 +69,8 @@ fun <E : Editor<*>> E.replaceWith(other: E) {
 fun Editor<*>.pasteFromClipboard(): Boolean {
     val content = context[Clipboard].get()
     if (content !is OneEditor) return false
-    return context.executeSafely("pasting", false) { paste(content.snapshot) }
+    return context.executeSafely("pasting", false) { paste(content.content) }
 }
-
-/**
- * Returns a copy of the given Editor for the same [Context]
- */
-inline fun <reified E : Editor<*>> E.copy(): E = copyFor(context)
 
 /**
  * Return an editor that transforms the [Editor.result] of this editor with the given function.

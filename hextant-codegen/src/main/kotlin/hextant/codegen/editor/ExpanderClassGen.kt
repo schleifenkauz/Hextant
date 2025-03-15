@@ -37,11 +37,17 @@ internal object ExpanderClassGen : EditorClassGen<Expandable, TypeElement>() {
         val delegator = getTypeMirror(annotation::delegator).asTypeElement()
         val nullableResult = hasDelegatorNullableResultType(delegator)
         classModifiers(annotation.serializable).kotlinClass(simpleName)
-            .primaryConstructor("context" of "Context", "editor" of editorType.nullable() default `null`)
-            .extends(type("Expander", type(name).nullable(nullableResult), editorType), "context".e, "editor".e)
+            .primaryConstructor()
+            .extends(type("Expander", type(name).nullable(nullableResult), editorType))
             .implementEditorOfSuperType(annotation, name)
             .body {
                 `val`("config") initializedWith (delegator.simpleName.e call "getDelegate")
+                +constructor("editor" of editorType).body {
+                    +"setInitialContent(editor)"
+                }
+                +constructor("text" of "String").body {
+                    +"setInitialText(text)"
+                }
                 +override.`fun`("expand", "text" of "String")
                     .returns("config".e.call("expand", "text".e, annotation.childContext.e))
                 +override.`fun`("expand", "completion" of "Any")

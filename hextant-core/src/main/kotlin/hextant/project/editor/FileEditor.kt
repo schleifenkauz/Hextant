@@ -9,83 +9,32 @@ import hextant.core.Editor
 import hextant.core.editor.CompoundEditor
 import hextant.core.editor.composeResult
 import hextant.project.File
-import hextant.serial.*
+import hextant.serial.IdGenerator
 import hextant.serial.SerialProperties.projectRoot
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonObjectBuilder
-import kotlinx.serialization.json.put
 import reaktive.Observer
 import reaktive.event.event
 import reaktive.value.ReactiveValue
 import reaktive.value.reactiveVariable
 
-internal class FileEditor<R> private constructor(context: Context) : CompoundEditor<File<R>?>(context),
+internal class FileEditor<R> private constructor() : CompoundEditor<File<R>?>(),
                                                                      ProjectItemEditor<R, File<R>> {
     private lateinit var id: String
     private lateinit var path: java.io.File
-    private lateinit var content: VirtualFile<Editor<R>>
+    private lateinit var content: Editor<R>
 
-    override val itemName by child(FileNameEditor(context))
+    override val itemName by child(FileNameEditor())
 
     private val _result = reactiveVariable<File<R>?>(null)
 
-    private var obs: Observer? = null
-    private lateinit var observer: Observer
+    private var observer: Observer? = null
 
     private val rootEditorChange = event<Editor<R>>()
     internal val rootEditorChanged get() = rootEditorChange.stream
-    internal val rootEditor get() = content.get()
+    internal val rootEditor get() = content
 
-
-    override fun deletePhysical() {
-        context[FileManager].deleteFile(path)
-    }
-
-    private fun bindResult() {
-        updateEditor(content.get())
-        observer = content.read.observe { _, e ->
-            obs?.kill()
-            updateEditor(e)
-            rootEditorChange.fire(e)
-        }
-    }
-
-    private class Snap<R> : Snapshot<FileEditor<R>>() {
-        private lateinit var id: String
-        private lateinit var itemName: Snapshot<FileNameEditor>
-
-        override fun doRecord(original: FileEditor<R>) {
-            original.content.write()
-            id = original.id
-            itemName = original.itemName.snapshot()
-        }
-
-        override fun reconstructObject(original: FileEditor<R>) {
-            itemName.reconstructObject(original.itemName)
-            original.id = id
-            original.path = original.context[projectRoot].resolve(id)
-            original.content = original.context[FileManager].from(original.path, original.context)
-            original.bindResult()
-        }
-
-        override fun encode(builder: JsonObjectBuilder) {
-            builder.put("id", this.id)
-            builder.put("itemName", this.itemName.encodeToJson())
-        }
-
-        override fun decode(element: JsonObject) {
-            id = element.getValue("id").string
-            itemName = decodeFromJson<FileNameEditor>(element.getValue("itemName"))
-        }
-    }
-
-    @Suppress("DEPRECATION")
     private fun updateEditor(e: Editor<R>) {
-        obs = _result.bind(composeResult<File<R>?>(itemName, e, default = { null }) { File(itemName.now, e.now) })
-        e.setFile(content)
+        observer = _result.bind(composeResult<File<R>?>(itemName, e, default = { null }) { File(itemName.now, e.now) })
     }
-
-    override fun createSnapshot(): Snapshot<*> = Snap<R>()
 
     override fun supportsCopyPaste(): Boolean = true
 
@@ -93,12 +42,12 @@ internal class FileEditor<R> private constructor(context: Context) : CompoundEdi
 
     companion object {
         fun <R> newInstance(context: Context): FileEditor<R> {
-            val e = FileEditor<R>(context)
+            val e = FileEditor<R>()
+            e.initialize(context)
             e.id = context[IdGenerator].generateID()
             e.path = context[projectRoot].resolve(e.id)
-            e.content = context[FileManager].get(RootExpander(context), e.path)
-            e.content.write()
-            e.bindResult()
+            e.content = RootExpander()
+            e.updateEditor(e.content)
             return e
         }
     }

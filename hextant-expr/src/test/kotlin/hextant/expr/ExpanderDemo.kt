@@ -11,7 +11,7 @@ import hextant.project.ProjectType
 import hextant.test.showTestProject
 
 object ExpanderDemo : ProjectType {
-    override fun createProject(context: Context): Editor<*> = ExprExpander(context)
+    override fun createProject(context: Context): Editor<*> = ExprExpander()
 
     @JvmStatic
     fun main(args: Array<String>) {

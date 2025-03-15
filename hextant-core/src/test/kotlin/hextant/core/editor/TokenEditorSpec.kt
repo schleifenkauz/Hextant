@@ -9,7 +9,6 @@ import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.never
 import hextant.core.view.TokenEditorView
 import hextant.expr.editor.IntLiteralEditor
-import hextant.serial.makeRoot
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
@@ -23,8 +22,8 @@ object TokenEditorSpec : Spek({
     given("a token editor") {
         val context = testingContext()
         val undo: UndoManager = context[UndoManager]
-        val editor = IntLiteralEditor(context)
-        editor.makeRoot()
+        val editor = IntLiteralEditor()
+        editor.initialize(context)
         val view = mockView<TokenEditorView>(editor)
         view.inOrder {
             on("adding a view") {

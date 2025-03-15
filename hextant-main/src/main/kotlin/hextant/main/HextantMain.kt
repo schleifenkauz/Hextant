@@ -1,15 +1,17 @@
 package hextant.main
 
 import hextant.cli.HextantDirectory
-import hextant.command.Command
 import hextant.command.Command.Type.SingleReceiver
 import hextant.context.Context
 import hextant.context.createControl
 import hextant.fx.showStage
-import hextant.plugins.*
+import hextant.plugins.PluginInfo
+import hextant.plugins.PluginInitializer
+import hextant.plugins.PluginManager
 import hextant.plugins.editor.DisabledPluginInfoEditor
 import hextant.plugins.editor.EnabledPluginInfoEditor
 import hextant.plugins.editor.PluginsEditor
+import hextant.plugins.registerCommand
 import hextant.plugins.view.PluginsEditorView
 
 object HextantMain : PluginInitializer({
@@ -46,7 +48,7 @@ object HextantMain : PluginInitializer({
         applicableIf { ctx -> ctx.hasProperty(PluginManager) }
         executing { ctx, _ ->
             val manager = ctx[PluginManager]
-            val editor = PluginsEditor(ctx, manager, setOf(PluginInfo.Type.Local, PluginInfo.Type.Global))
+            val editor = PluginsEditor(manager, setOf(PluginInfo.Type.Local, PluginInfo.Type.Global))
             showStage(editor, applyStyle = false)
         }
     }
@@ -59,11 +61,11 @@ object HextantMain : PluginInitializer({
         val plugin = addParameter<PluginInfo> {
             name = "plugin"
             description = "The plugin that should be enabled"
-            editWith { ctx -> DisabledPluginInfoEditor(ctx, setOf(PluginInfo.Type.Local, PluginInfo.Type.Global)) }
+            editWith { DisabledPluginInfoEditor(setOf(PluginInfo.Type.Local, PluginInfo.Type.Global)) }
         }
         executing { context, args ->
             val manager = context[PluginManager]
-            val editor = PluginsEditor(context, manager, emptySet())
+            val editor = PluginsEditor(manager, emptySet())
             val view = context.createControl(editor) as PluginsEditorView
             editor.enable(manager.getPlugin(args[plugin].id), view)
         }
@@ -81,7 +83,7 @@ object HextantMain : PluginInitializer({
         }
         executing { context, args ->
             val manager = context[PluginManager]
-            val editor = PluginsEditor(context, manager, emptySet())
+            val editor = PluginsEditor(manager, emptySet())
             val view = context.createControl(editor) as PluginsEditorView
             editor.disable(manager.getPlugin(args[plugin].id), view)
         }

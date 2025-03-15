@@ -1,9 +1,9 @@
 package hextant.core.editor
 
-import hextant.context.Context
 import hextant.core.view.TokenEditorView
+import kotlinx.serialization.Serializable
 
-open class ConfiguredTokenEditor<R>(private val tokenType: TokenType<R>, context: Context, text: String = "") :
-    TokenEditor<R, TokenEditorView>(context, text) {
+@Serializable
+open class ConfiguredTokenEditor<R>(private val tokenType: TokenType<R>) : TokenEditor<R, TokenEditorView>() {
     override fun compile(token: String): R = tokenType.compile(token)
 }

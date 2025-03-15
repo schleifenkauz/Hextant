@@ -53,7 +53,7 @@ internal object CommandLineSpec : Spek({
         val t = mock<Target> { on { it.isApplicable }.then { true } }
         val v = mock<EditorView> { on { target }.then { t } }
         lateinit var intEditor: IntLiteralEditor
-        context[Aspects].implement(EditorFactory::class, IntLiteral::class, EditorFactory { ctx -> IntLiteralEditor(ctx) })
+        context[Aspects].implement(EditorFactory::class, IntLiteral::class, EditorFactory { IntLiteralEditor() })
         val distributor = SelectionDistributor.newInstance()
         distributor.select(v)
         val cl = CommandLine.create(context, ContextCommandSource(context, distributor, commands, Targets))

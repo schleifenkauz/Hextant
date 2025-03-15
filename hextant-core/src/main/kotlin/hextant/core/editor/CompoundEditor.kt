@@ -7,11 +7,11 @@ package hextant.core.editor
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.EditorView
-import hextant.serial.*
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonObjectBuilder
+import hextant.serial.EditorAccessor
+import hextant.serial.InvalidAccessorException
+import hextant.serial.PropertyAccessor
+import kotlinx.serialization.Serializable
 import reaktive.value.ReactiveValue
-import reaktive.value.now
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.full.memberFunctions
@@ -20,7 +20,8 @@ import kotlin.reflect.full.memberProperties
 /**
  * Base class for editors that are composed of multiple sub-editors.
  */
-abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorView>(context) {
+@Serializable
+abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
     private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
 
     /**
@@ -31,7 +32,7 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
     inline fun composeResult(
         crossinline default: () -> R = ::defaultResult,
         crossinline compose: ResultComposer.() -> R
-    ): ReactiveValue<R> = composeResult(children.now, default, compose)
+    ): ReactiveValue<R> = composeResult(getChildren(), default, compose)
 
     /**
      * Returns the result that this token editor should have if it one of its components has an invalid result.
@@ -57,48 +58,33 @@ abstract class CompoundEditor<R>(context: Context) : AbstractEditor<R, EditorVie
     /**
      * Make the given [editor] a child of this [CompoundEditor].
      */
-    protected fun <E : Editor<*>> child(editor: E): PropertyDelegateProvider<CompoundEditor<*>, ReadOnlyProperty<Any?, E>> =
+    protected fun <E : Editor<*>> child(
+        editor: E, context: Context = this.context
+    ): PropertyDelegateProvider<CompoundEditor<*>, ReadOnlyProperty<Any?, E>> =
         PropertyDelegateProvider { thisRef, property ->
-            @Suppress("DEPRECATION") editor.setAccessor(PropertyAccessor(property.name))
-            @Suppress("DEPRECATION") editor.initParent(thisRef)
+            editor.initialize(context)
+            val acc = PropertyAccessor(property.name)
+            editor.locate(this, acc)
             thisRef.addChild(editor)
             ReadOnlyProperty { _, _ -> editor }
         }
 
-    override fun supportsCopyPaste(): Boolean = children.now.all { e -> e.supportsCopyPaste() }
+    override fun supportsCopyPaste(): Boolean = getChildren().all { e -> e.supportsCopyPaste() }
 
-    override fun createSnapshot(): Snapshot<*> = Snap()
-
-    protected open class Snap : Snapshot<CompoundEditor<*>>() {
-        private lateinit var snapshots: List<Pair<String, Snapshot<Editor<*>>>>
-
-        private fun getComponentName(comp: Editor<*>): String {
-            val acc = comp.accessor.now ?: error("Editor $comp has no accessor")
-            check(acc is PropertyAccessor) { "Children of compound editors must have property accessors, but $comp is accessed by $acc" }
-            return acc.propertyName
-        }
-
-        override fun doRecord(original: CompoundEditor<*>) {
-            snapshots = original.children.now.map { e -> getComponentName(e) to e.snapshot() }
-        }
-
-        override fun reconstructObject(original: CompoundEditor<*>) {
-            for ((comp, p) in original.children.now.zip(snapshots)) {
-                val (_, snap) = p
-                snap.reconstructObject(comp)
+    override fun paste(editor: Editor<*>): Boolean {
+        if (this::class.java.isInstance(editor)) {
+            editor as CompoundEditor
+            val childrenByProperty = mutableMapOf<String, Editor<*>>()
+            for (child in getChildren()) {
+                val acc = child.accessor as? PropertyAccessor ?: continue
+                childrenByProperty[acc.propertyName] = child
+            }
+            for (child in editor.getChildren()) {
+                val acc = child.accessor as? PropertyAccessor ?: continue
+                val myChild = childrenByProperty[acc.propertyName] ?: continue
+                myChild.paste(child)
             }
         }
-
-        override fun encode(builder: JsonObjectBuilder) {
-            for ((name, snap) in snapshots) {
-                builder.put(name, snap.encodeToJson())
-            }
-        }
-
-        override fun decode(element: JsonObject) {
-            snapshots = element.entries
-                .filter { (prop) -> !prop.startsWith('_') }
-                .map { (prop, value) -> prop to decodeFromJson<Editor<*>>(value) }
-        }
+        return false
     }
 }

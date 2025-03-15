@@ -4,14 +4,12 @@
 
 package hextant.project.editor
 
-import hextant.context.Context
 import hextant.core.editor.ListEditor
 import hextant.project.ProjectItem
 import hextant.project.view.EditorPane
 import reaktive.Observer
 
-internal class ProjectItemListEditor<T>(context: Context) :
-    ListEditor<ProjectItem<T>?, ProjectItemEditor<T, *>>(context) {
+internal class ProjectItemListEditor<T>() : ListEditor<ProjectItem<T>?, ProjectItemEditor<T, *>>() {
     private var commitChangeObserver: Observer? = null
     private var abortChangeObserver: Observer? = null
 
@@ -22,7 +20,6 @@ internal class ProjectItemListEditor<T>(context: Context) :
             val root = editor.rootEditor
             context[EditorPane].deleted(root)
         }
-        editor.deletePhysical()
     }
 
     override fun editorAdded(editor: ProjectItemEditor<T, *>, index: Int) {

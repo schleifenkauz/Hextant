@@ -21,11 +21,6 @@ interface ProjectItemEditor<T, I : ProjectItem<T>> : Editor<I?> {
 
     override fun supportsCopyPaste(): Boolean = true
 
-    /**
-     * Deletes the physical representation of this project item.
-     */
-    fun deletePhysical()
-
     companion object {
         private val config = publicProperty<ExpanderConfig<*>>("project item expander config")
 

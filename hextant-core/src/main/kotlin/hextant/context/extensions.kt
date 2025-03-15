@@ -40,7 +40,7 @@ inline fun Context.createControl(editor: Editor<*>, configure: BundleBuilder.() 
  * @throws NoSuchElementException if there is no editor registered for the given result type.
  */
 fun <R : Any> Context.createEditor(resultType: KClass<R>): Editor<R?> =
-    get(Aspects).createEditor(resultType, this)
+    get(Aspects).createEditor(resultType)
 
 /**
  * Syntactic sugar for createEditor<R>(R::class)

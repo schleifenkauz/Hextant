@@ -4,6 +4,10 @@
 
 package hextant.plugins.editor
 
-import hextant.context.Context
+import hextant.plugins.PluginInfo
 
-internal class EnabledPluginInfoEditor(context: Context) : PluginInfoEditor(context)
+internal class EnabledPluginInfoEditor : PluginInfoEditor() {
+    override fun compile(token: String): PluginInfo {
+        TODO("Not yet implemented")
+    }
+}

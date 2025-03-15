@@ -4,7 +4,6 @@
 
 package hextant.plugins.editor
 
-import hextant.context.Context
 import hextant.context.Properties.marketplace
 import hextant.core.editor.AbstractEditor
 import hextant.plugins.Plugin
@@ -19,10 +18,9 @@ import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
 
 internal class PluginsEditor(
-    context: Context,
     private val manager: PluginManager,
     private val types: Set<Type>
-) : AbstractEditor<Collection<Plugin>, PluginsEditorView>(context) {
+) : AbstractEditor<Collection<Plugin>, PluginsEditorView>() {
     override val result: ReactiveValue<Collection<Plugin>> get() = reactiveValue(manager.enabledPlugins())
 
     fun enable(plugin: Plugin, view: PluginsEditorView) {

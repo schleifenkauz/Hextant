@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Initial setup" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="Publish main modules" type="GradleRunConfiguration" factoryName="Gradle">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -10,14 +10,17 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="initialSetup" />
+          <option value="hextant-plugins:hextant-common:publishToMavenLocal" />
+          <option value="hextant-codegen:publishToMavenLocal" />
+          <option value="hextant-core:publishToMavenLocal" />
         </list>
       </option>
-      <option name="vmOptions" value="" />
+      <option name="vmOptions" />
     </ExternalSystemSettings>
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
     <DebugAllEnabled>false</DebugAllEnabled>
+    <RunAsTest>false</RunAsTest>
     <method v="2" />
   </configuration>
 </component>

@@ -9,63 +9,70 @@ import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
-import hextant.serial.Snapshot
-import hextant.serial.VirtualFile
-import reaktive.collection.ReactiveCollection
-import reaktive.list.reactiveList
-import reaktive.value.ReactiveValue
-import reaktive.value.now
-import reaktive.value.reactiveVariable
-import kotlin.reflect.KClass
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 
 /**
- * Skeletal implementation for [Editor]s
+ * Basic implementation for [Editor]s.
  */
-@Suppress("OverridingDeprecatedMember")
-abstract class AbstractEditor<out R, in V : Any>(override val context: Context) : Editor<R> {
-    val viewManager: ListenerManager<@UnsafeVariance V> = ListenerManager.createWeakListenerManager()
+@Serializable
+abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
+    @Transient
+    final override lateinit var context: Context
+        private set
 
+    @Transient
     final override var parent: Editor<*>? = null
         private set
 
-    private val _children = reactiveList<Editor<*>>()
+    @Transient
+    final override lateinit var accessor: EditorAccessor
+        private set
 
-    override val children: ReactiveCollection<Editor<*>> get() = _children
-
+    @Transient
     final override var expander: Expander<*, *>? = null
         private set
 
-    @Deprecated("Treat as internal")
-    override fun initParent(parent: Editor<*>) {
-        this.parent = parent
-        onInitParent(parent)
+    @Transient
+    private val children = mutableListOf<Editor<*>>()
+
+    @Transient
+    val viewManager: ListenerManager<@UnsafeVariance V> = ListenerManager.createWeakListenerManager()
+
+    override fun getChildren(): Collection<Editor<*>> = children
+
+    override fun initialize(context: Context) {
+        this.context = context
+        for (child in children) {
+            child.initialize(context)
+        }
     }
 
-    @Deprecated("Treat as internal")
-    override fun initExpander(expander: Expander<*, *>) {
+    override fun locate(parent: Editor<*>?, accessor: EditorAccessor, expander: Expander<*, *>?) {
+        this.parent = parent
+        this.accessor = accessor
         this.expander = expander
     }
 
-    private val _accessor = reactiveVariable<EditorAccessor?>(null)
-
-    final override val accessor: ReactiveValue<EditorAccessor?> get() = _accessor
-
-    @Deprecated("Treat as internal")
-    override fun setAccessor(acc: EditorAccessor) {
-        _accessor.now = acc
+    override fun implCopy(): Editor<R> {
+        val serializer = serializer<Editor<R>>()
+        val json = Json.encodeToString(serializer, this)
+        return Json.decodeFromString(serializer, json)
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
         throw InvalidAccessorException(accessor)
     }
 
+    override fun paste(editor: Editor<*>): Boolean = false
+
     /**
      * Makes the [editor] a child of this editor and just returns it
      */
     protected fun <E : Editor<*>> addChild(editor: E): E {
-        @Suppress("DEPRECATION")
-        editor.initParent(this)
-        _children.now.add(editor)
+        children.add(editor)
         return editor
     }
 
@@ -74,7 +81,7 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
      * @throws IllegalStateException if [editor] is not a child of this editor.
      */
     protected fun <E : Editor<*>> removeChild(editor: E) {
-        if (!_children.now.remove(editor)) throw IllegalStateException("$editor is not a child of $this")
+        if (!children.remove(editor)) throw IllegalStateException("$editor is not a child of $this")
     }
 
     /**
@@ -82,37 +89,6 @@ abstract class AbstractEditor<out R, in V : Any>(override val context: Context) 
      */
     protected fun children(vararg children: Editor<*>) {
         for (c in children) addChild(c)
-    }
-
-    private var _file: VirtualFile<Editor<*>>? = null
-
-    @Deprecated("Treat as internal")
-    override fun setFile(file: VirtualFile<Editor<*>>) {
-        _file = file
-    }
-
-    override val file: VirtualFile<Editor<*>>?
-        get() = _file ?: parent?.file ?: expander?.file
-
-    override val isRoot: Boolean
-        get() = _file != null
-
-    /**
-     * Returns the [KClass] instance for the class that is used to save and reconstruct the state of this editor type.
-     *
-     * The default implementation uses [createSnapshot] to create a snapshot and then returns
-     * the runtime class of the returned object. This may be non-desirable if the constructor of
-     * the snapshot class does any non-trivial work. In this case this method should be overridden
-     * to directly return the runtime class of objects that would be returned by [createSnapshot].
-     */
-    protected open fun snapshotClass(): KClass<out Snapshot<*>> = createSnapshot()::class
-
-    @Suppress("UNCHECKED_CAST")
-    override fun paste(snapshot: Snapshot<out Editor<*>>): Boolean {
-        if (!snapshotClass().isInstance(snapshot)) return false
-        snapshot as Snapshot<Editor<*>>
-        snapshot.reconstructObject(this)
-        return true
     }
 
     fun notifyViews(action: (@UnsafeVariance V).() -> Unit) {

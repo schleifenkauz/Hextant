@@ -4,30 +4,30 @@
 
 package hextant.expr.editor
 
-import hextant.context.Context
 import hextant.core.editor.ConfiguredExpander
 import hextant.core.editor.ExpanderConfig
 import hextant.expr.Expr
 import hextant.expr.IntLiteral
 import hextant.expr.Operator.*
 
-class ExprExpander(
-    context: Context, editor: ExprEditor<Expr>? = null
-) : ConfiguredExpander<Expr?, ExprEditor<Expr>>(config, context, editor), ExprEditor<Expr> {
+class ExprExpander : ConfiguredExpander<Expr?, ExprEditor<Expr>>(), ExprEditor<Expr> {
+    init {
+        configure(config)
+    }
+
     override fun compile(token: String): Expr? = token.toIntOrNull()?.let { IntLiteral(it) }
 
     companion object {
         val config = ExpanderConfig<ExprEditor<Expr>>().apply {
-            registerKey("num") { context -> IntLiteralEditor(context) }
-            registerKey("+") { context -> OperatorApplicationEditor(Plus, context) }
-            registerKey("-") { context -> OperatorApplicationEditor(Minus, context) }
-            registerKey("*") { context -> OperatorApplicationEditor(Times, context) }
-            registerKey("/") { context -> OperatorApplicationEditor(Div, context) }
-            registerKey("sum") { context -> SumEditor(context) }
-            registerInterceptor { item: Int, ctx: Context -> IntLiteralEditor(ctx, item.toString()) }
-            registerInterceptor { text, context ->
+            registerKey("num") { _ -> IntLiteralEditor() }
+            registerKey("+") { OperatorApplicationEditor(Plus) }
+            registerKey("-") { OperatorApplicationEditor(Minus) }
+            registerKey("*") { OperatorApplicationEditor(Times) }
+            registerKey("/") { OperatorApplicationEditor(Div) }
+            registerKey("sum") { context -> SumEditor() }
+            registerInterceptor { text, _ ->
                 val int = text.toIntOrNull()
-                if (int != null) IntLiteralEditor(context, int.toString())
+                if (int != null) IntLiteralEditor(IntLiteral(int))
                 else null
             }
         }

@@ -17,13 +17,14 @@ internal object ChoiceEditorCodegen : EditorClassGen<Choice, Element>() {
         val qn = extractQualifiedEditorClassName(annotation, element)
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
         classModifiers(annotation.serializable).kotlinClass(simpleName)
-            .primaryConstructor(
-                "context" of "Context",
-                "default" of nodeType.simpleName.toString() default annotation.defaultValue.e
-            )
-            .extends(type("SimpleChoiceEditor", nodeType.simpleName.toString()), "context".e, "default".e)
+            .extends(type("SimpleChoiceEditor", nodeType.simpleName.toString()))
             .implementEditorOfSuperType(annotation, nodeType.simpleName.toString())
             .body {
+                +constructor(
+                    "default" of nodeType.simpleName.toString() default annotation.defaultValue.e
+                ).body {
+                    +"setInitial(default)"
+                }
                 +override.`fun`("choices") returns choicesFunc.e
             }
             .asFile {

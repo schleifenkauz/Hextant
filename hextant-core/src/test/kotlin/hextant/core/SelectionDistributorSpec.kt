@@ -12,7 +12,6 @@ import org.jetbrains.spek.api.dsl.on
 
 internal object SelectionDistributorSpec : Spek({
     val sut = SelectionDistributor.newInstance()
-    val ctx = testingContext()
     given("a selection distributor") {
         test("no editors should be selected") {
             sut.selectedTargets.now shouldMatch isEmpty
@@ -20,7 +19,7 @@ internal object SelectionDistributorSpec : Spek({
         test("no views should be selected") {
             sut.selectedViews.now shouldMatch isEmpty
         }
-        val view1 = mockView<EditorView>(mockEditor(ctx))
+        val view1 = mockView<EditorView>(mockEditor())
         on("selecting an editor when no other is selected") {
             val selected = sut.select(view1)
             it("should return true") {
@@ -33,7 +32,7 @@ internal object SelectionDistributorSpec : Spek({
                 sut.selectedTargets.now shouldBe equalTo(setOf(view1.target))
             }
         }
-        val view2 = mockView<EditorView>(mockEditor(ctx))
+        val view2 = mockView<EditorView>(mockEditor())
         on("selecting another editor") {
             val selected = sut.select(view2)
             it("should return true") {

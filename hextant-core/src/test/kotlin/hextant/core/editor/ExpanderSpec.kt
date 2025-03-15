@@ -5,7 +5,6 @@ import hextant.context.Context
 import hextant.core.view.ExpanderView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
-import hextant.serial.makeRoot
 import hextant.test.*
 import hextant.undo.UndoManager
 import org.jetbrains.spek.api.Spek
@@ -21,14 +20,13 @@ object ExpanderSpec : Spek({
         describe("compiling result") {
             val context = testingContext()
             val ex = ExpanderSpec.expander(context)
-            ex.makeRoot()
             test("editor.now should be null", No) {
                 ex.editor.now shouldBe `null`
             }
             test("result.now should be null", No) {
                 ex.result.now shouldEqual null
             }
-            val editor = IntLiteralEditor(context)
+            val editor = IntLiteralEditor()
             on("expanding to an editor with error result") {
                 ex.expand(editor)
                 test("result.now should be null", No) {
@@ -55,7 +53,6 @@ object ExpanderSpec : Spek({
         describe("notifying views") {
             val context = testingContext()
             val ex = ExpanderSpec.expander(context)
-            ex.makeRoot()
             val view = mockView<ExpanderView>(ex)
             ex.addView(view)
             view.inOrder {
@@ -113,7 +110,6 @@ object ExpanderSpec : Spek({
             val context = testingContext()
             val undo = context[UndoManager]
             val ex = ExpanderSpec.expander(context)
-            ex.makeRoot()
             on("expanding") {
                 ex.setText("123")
                 ex.expand()
@@ -172,8 +168,10 @@ object ExpanderSpec : Spek({
         }
     }
 }) {
-    private fun expander(context: Context) = object : Expander<IntLiteral?, IntLiteralEditor>(context) {
+    private fun expander(context: Context) = SimpleExpander().also { e -> e.initialize(context) }
+
+    class SimpleExpander : Expander<IntLiteral?, IntLiteralEditor>() {
         override fun expand(text: String): IntLiteralEditor? =
-            if (text.toIntOrNull() != null) IntLiteralEditor(context, text) else null
+            if (text.toIntOrNull() != null) IntLiteralEditor() else null
     }
 }

@@ -12,7 +12,7 @@ internal val enable = command<Context, String> {
     description = "Enables the given object"
     shortName = "enable"
     val enabled = addParameter<Feature> {
-        editWith { ctx -> FeatureIdEditor(ctx, enabled = false) }
+        editWith { FeatureIdEditor(enabled = false) }
         name = "enabled"
         description = "The object to enable"
     }
@@ -32,7 +32,7 @@ internal val disable = command<Context, String> {
     description = "Disables the given object"
     shortName = "disable"
     val enabled = addParameter<Feature> {
-        editWith { ctx -> FeatureIdEditor(ctx, enabled = true) }
+        editWith { FeatureIdEditor(enabled = true) }
         name = "disabled"
         description = "The object to disabled"
     }

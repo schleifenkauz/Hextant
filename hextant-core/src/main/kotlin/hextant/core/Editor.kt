@@ -6,18 +6,25 @@ package hextant.core
 
 import hextant.context.Context
 import hextant.core.editor.Expander
-import hextant.serial.*
-import reaktive.collection.ReactiveCollection
+import hextant.serial.EditorAccessor
+import hextant.serial.InvalidAccessorException
+import kotlinx.serialization.Polymorphic
 import reaktive.value.ReactiveValue
 
 /**
  * An editor for results of type [R]
  */
-interface Editor<out R> : SnapshotAware {
+@Polymorphic
+interface Editor<out R> {
     /**
      * A [reaktive.value.ReactiveValue] holding the result of compiling the content of the editor
      */
     val result: ReactiveValue<R>
+
+    /**
+     * The context of this editor
+     */
+    val context: Context
 
     /**
      * The parent of this Editor or `null` if this Editor is the root
@@ -27,12 +34,7 @@ interface Editor<out R> : SnapshotAware {
     /**
      * @return the location of this editor relative its parent
      */
-    val accessor: ReactiveValue<EditorAccessor?>
-
-    /**
-     * The children of this editor
-     */
-    val children: ReactiveCollection<Editor<*>>
+    val accessor: EditorAccessor?
 
     /**
      * The Expander that expanded this editor
@@ -40,64 +42,36 @@ interface Editor<out R> : SnapshotAware {
     val expander: Expander<*, *>?
 
     /**
-     * The context of this editor
+     * The children of this editor
      */
-    val context: Context
+    fun getChildren(): Collection<Editor<*>>
 
     /**
-     * The file of this editor
+     * Initialize this editor in the given [context]
      */
-    val file: VirtualFile<Editor<*>>?
+    fun initialize(context: Context)
 
     /**
-     * Returns `true` only if this editor can be the root of an editor tree
+     * Locate this editor in the editor tree.
      */
-    val isRoot: Boolean
+    fun locate(parent: Editor<*>?, accessor: EditorAccessor, expander: Expander<*, *>? = null)
 
     /**
-     * This method should be considered an implementation detail.
-     * It is likely to be removed soon and using it can cause all sorts of bugs.
+     * Return the child denoted by the given [accessor] or throw a [InvalidAccessorException] if there is no such child
      */
-    fun initParent(parent: Editor<*>)
+    fun getSubEditor(accessor: EditorAccessor): Editor<*>
 
     /**
-     * Called when this editor is added to the editor tree.
-     * @param parent the editor of this editor in the editor tree.
+     * Paste the given [editor] into this [Editor] if it is supported.
+     * @return `true` only if pasting the given [editor] was successful.
      */
-    fun onInitParent(parent: Editor<*>) {}
+    fun paste(editor: Editor<*>): Boolean
 
-    /**
-     * This method should be considered an implementation detail.
-     * It is likely to be removed soon and using it can cause all sorts of bugs.
-     */
-    fun initExpander(expander: Expander<*, *>)
-
-    /**
-     * This method should be considered an implementation detail.
-     * It is likely to be removed soon and using it can cause all sorts of bugs.
-     */
-    fun setAccessor(acc: EditorAccessor)
-
-    /**
-     * This method should be considered an implementation detail.
-     * It is likely to be removed soon and using it can cause all sorts of bugs.
-     */
-    fun setFile(file: VirtualFile<Editor<*>>)
-
-    /**
-     * Paste the given [snapshot] into this [Editor] if it is supported.
-     * @return `true` only if pasting the given [snapshot] is supported.
-     */
-    fun paste(snapshot: Snapshot<out Editor<*>>): Boolean
+    fun implCopy(): Editor<R>
 
     /**
      * Returns `true` only if this [Editor] supports copy/paste in principle.
      * The default implementation returns `false`.
      */
     fun supportsCopyPaste(): Boolean = false
-
-    /**
-     * Return the child denoted by the given [accessor] or throw a [InvalidAccessorException] if there is no such child
-     */
-    fun getSubEditor(accessor: EditorAccessor): Editor<*>
 }

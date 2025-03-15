@@ -4,9 +4,7 @@
 
 package hextant.core.editor
 
-import hextant.context.Context
 import hextant.core.view.ValidatedTokenEditorView
-import hextant.serial.makeRoot
 import hextant.test.*
 import io.mockk.mockk
 import io.mockk.verify
@@ -22,8 +20,8 @@ object ValidatedTokenEditorSpec : Spek({
     given("a FilteredTokenEditor") {
         describe("basic interactions") {
             val ctx = testingContext()
-            val e = TestEditor(ctx, "123")
-            e.makeRoot()
+            val e = TestEditor()
+            e.initialize(ctx)
             val handler = mockk<(EventStream<*>, Any?) -> Unit>(relaxed = true)
             val o1 = e.beganChange.observe(handler)
             val o2 = e.abortedChange.observe(handler)
@@ -146,8 +144,9 @@ object ValidatedTokenEditorSpec : Spek({
         }
         describe("copying") {
             val ctx = testingContext()
-            val original = TestEditor(ctx, "123")
-            val copy = original.copy()
+            val original = TestEditor()
+            original.initialize(ctx)
+            val copy = original.snapshot()
             on("copying") {
                 test("the copy should not be editable") {
                     copy.editable.now shouldBe `false`
@@ -165,8 +164,10 @@ object ValidatedTokenEditorSpec : Spek({
         }
     }
 }) {
-    class TestEditor(context: Context, initialText: String) : ValidatedTokenEditor<Int>(context, initialText) {
-        constructor(context: Context): this(context, "")
+    class TestEditor() : ValidatedTokenEditor<Int>() {
+        constructor(text: String) : this() {
+            setInitialText(text)
+        }
 
         override fun defaultResult(): Int = 0
 

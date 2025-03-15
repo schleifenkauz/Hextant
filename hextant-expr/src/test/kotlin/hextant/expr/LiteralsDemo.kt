@@ -11,7 +11,7 @@ import hextant.project.ProjectType
 import hextant.test.showTestProject
 
 object LiteralsDemo : ProjectType {
-    override fun createProject(context: Context): Editor<*> = IntLiteralEditor(context)
+    override fun createProject(context: Context): Editor<*> = IntLiteralEditor()
 
     @JvmStatic
     fun main(args: Array<String>) {

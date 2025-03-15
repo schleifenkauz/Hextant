@@ -6,21 +6,15 @@ package hextant.core.editor
 
 import hextant.completion.Completion
 import hextant.context.Context
-import hextant.context.executeSafely
+import hextant.core.Editor
 import hextant.core.view.ListEditorControl
 import hextant.core.view.TokenEditorView
-import hextant.serial.*
-import hextant.serial.string
+import hextant.serial.IndexAccessor
 import hextant.undo.AbstractEdit
 import hextant.undo.Edit
 import hextant.undo.UndoManager
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonObjectBuilder
-import kotlinx.serialization.json.JsonPrimitive
-import reaktive.value.ReactiveString
-import reaktive.value.ReactiveValue
-import reaktive.value.now
-import reaktive.value.reactiveVariable
+import kotlinx.serialization.Transient
+import reaktive.value.*
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.safeCast
 import kotlin.reflect.jvm.jvmErasure
@@ -29,49 +23,45 @@ import kotlin.reflect.jvm.jvmErasure
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
-abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text: String) :
-    AbstractEditor<R, V>(context), TokenType<R> {
-    private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
+abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>(), TokenType<R> {
+    @Transient
+    private val resultType = this::class.memberFunctions.first { f -> f.name == "compile" }.returnType
 
-    constructor(context: Context) : this(context, "")
+    @Transient
+    private lateinit var _result: ReactiveVariable<R>
 
-    private val _result by lazy { reactiveVariable(tryCompile(text)) }
+    final override val result: ReactiveValue<R> get() = _result
 
-    override val result: ReactiveValue<R> get() = _result
-
-    private var _text = reactiveVariable(text)
+    private var _text = reactiveVariable("")
 
     /**
      * A [ReactiveValue] holding the current textual content of this editor
      */
     val text: ReactiveString get() = _text
 
-    private val undo = context[UndoManager]
-
-    /**
-     * Returns the result that this token editor should have if it is not able to recognize a token.
-     *
-     * You must override this method if the result type of your editor is not nullable.
-     * Otherwise the default implementation will throw an [IllegalStateException].
-     * If the default implementation is called on a token editor whose result type is nullable it just returns null.
-     */
-    @Suppress("UNCHECKED_CAST")
-    protected open fun defaultResult(): R =
-        if (resultType.isMarkedNullable) null as R
-        else error("TokenEditor ${this::class}: non-nullable result type and defaultResult() was not overwritten")
-
-    override fun compile(token: String): R = defaultResult()
-
-    private fun tryCompile(text: String) =
-        context.executeSafely("compiling item", ::defaultResult) { compile(text) }
-
     override fun viewAdded(view: V) {
         view.displayText(text.now)
     }
 
-    override fun createSnapshot(): Snapshot<*> = Snap()
+    fun setInitialText(text: String) {
+        _text.now = text
+    }
+
+    override fun initialize(context: Context) {
+        super.initialize(context)
+        _result.now = compile(text.now)
+    }
 
     override fun supportsCopyPaste(): Boolean = true
+
+    override fun paste(editor: Editor<*>): Boolean {
+        if (this::class.isInstance(editor)) {
+            val token = editor as TokenEditor<*, *>
+            setText(token.text.now)
+            return true
+        }
+        return false
+    }
 
     /**
      * Set the text of this editor, such that the result is automatically updated
@@ -79,7 +69,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text
     fun setText(newText: String) {
         if (newText.endsWith(",")) {
             val listEditor = parent as ListEditor<*, *>
-            val (index) = accessor.now as IndexAccessor
+            val (index) = accessor as IndexAccessor
             val addWithComma = listEditor.viewManager.listeners.any { v ->
                 v is ListEditorControl && v.arguments[ListEditorControl.ADD_WITH_COMMA]
             }
@@ -89,13 +79,13 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text
                 return
             }
         }
-        if (undo.isActive) {
-            val edit = TextEdit(virtualize(), text.now, newText)
-            undo.record(edit)
+        if (context[UndoManager].isActive) {
+            val edit = TextEdit(this, text.now, newText)
+            context[UndoManager].record(edit)
         }
         _text.now = newText
         notifyViews { displayText(newText) }
-        _result.set(tryCompile(newText))
+        _result.set(compile(newText))
     }
 
     /**
@@ -103,28 +93,27 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text
      */
     fun complete(completion: Completion<*>) {
         val t = completion.completionText
-        val edit = TextEdit(virtualize(), text.now, t)
-        undo.record(edit)
+        val edit = TextEdit(this, text.now, t)
+        context[UndoManager].record(edit)
         _text.now = t
         notifyViews { displayText(t) }
         @Suppress("UNCHECKED_CAST")
         val res = resultType.jvmErasure.safeCast(completion.item) as R?
-            ?: tryCompile(completion.completionText)
-            ?: defaultResult()
+            ?: compile(completion.completionText)
         _result.set(res)
     }
 
     private class TextEdit(
-        private val editor: VirtualEditor<TokenEditor<*, *>>,
+        private val editor: TokenEditor<*, *>,
         private val old: String,
         private val new: String
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.get().setText(new)
+            editor.setText(new)
         }
 
         override fun doUndo() {
-            editor.get().setText(old)
+            editor.setText(old)
         }
 
         override val actionDescription: String
@@ -133,25 +122,5 @@ abstract class TokenEditor<out R, in V : TokenEditorView>(context: Context, text
         override fun mergeWith(other: Edit): Edit? =
             if (other !is TextEdit || other.editor !== this.editor) null
             else TextEdit(editor, this.old, other.new)
-    }
-
-    private class Snap : Snapshot<TokenEditor<*, *>>() {
-        private lateinit var text: String
-
-        override fun doRecord(original: TokenEditor<*, *>) {
-            text = original.text.now
-        }
-
-        override fun reconstructObject(original: TokenEditor<*, *>) {
-            original.setText(text)
-        }
-
-        override fun encode(builder: JsonObjectBuilder) {
-            builder.put("text", JsonPrimitive(this.text))
-        }
-
-        override fun decode(element: JsonObject) {
-            text = element.getValue("text").string
-        }
     }
 }

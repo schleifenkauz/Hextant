@@ -92,17 +92,19 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
         val result = resultType.simpleName.toString()
         val resultT = type(result).nullable(resultNullable)
         classModifiers(annotation.serializable).kotlinClass(simpleName)
-            .primaryConstructor("context" of "Context", "text" of "String")
+            .primaryConstructor()
             .extends(
-                type("TokenEditor", resultT, type("hextant.core.view.TokenEditorView")),
-                "context".e, "text".e
+                type("TokenEditor", resultT, type("hextant.core.view.TokenEditorView"))
             )
             .implementEditorOfSuperType(annotation, result)
             .body {
-                +constructor("context" of "Context")
-                    .delegate(get("context"), lit(""))
-                +constructor("context" of "Context", "value" of result)
-                    .delegate(get("context"), "value".e call "toString")
+                +constructor("text" of "String")
+                    .delegate()
+                    .body {
+                        +"setInitialText(text)"
+                    }
+                +constructor("value" of result)
+                    .delegate("value.toString()".e)
                 +override.`fun`("compile", "token" of "String")
                     .returns(call(functionName, "token".e))
             }

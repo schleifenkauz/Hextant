@@ -64,7 +64,7 @@ object ExprPlugin : PluginInitializer({
         executingCompoundEdit { oae, _ ->
             val ex = oae.expander as ExprExpander
             val res = oae.result.now!!.value
-            val editable = IntLiteralEditor(oae.context, res.toString())
+            val editable = IntLiteralEditor(IntLiteral(res))
             ex.expand(editable)
         }
     }
@@ -129,7 +129,7 @@ object ExprPlugin : PluginInitializer({
         executing { expander, args ->
             expander.context.compoundEdit("Wrap in binary expression") {
                 val editor = expander.editor.now!!
-                val app = OperatorApplicationEditor(editor.context)
+                val app = OperatorApplicationEditor()
                 expander.expand(app)
                 app.operator.setText(args[op].name)
                 app.operand1.expand(editor)
@@ -154,7 +154,7 @@ object ExprPlugin : PluginInitializer({
         }
         executing { v, args -> v.arguments[color] = args[c] }
     }
-    configurableProperty(Style.BorderColor) { ctx -> ColorEditor(ctx) }
+    configurableProperty(Style.BorderColor) { ColorEditor() }
     resultStyleClass<IntLiteral> { "int-literal" }
     stylesheet("expr.css")
     on(Initialize) { context ->

@@ -172,7 +172,8 @@ interface Command<in R : Any, out T : Any> : Feature {
          * Sets the [Parameter.editWith] to the given [clazz].
          */
         fun editWith(clazz: KClass<out Editor<T>>) {
-            editWith(clazz.getConstructor(Context::class))
+            val constructor = clazz.getConstructor(emptyList())
+            editWith { constructor(emptyList()) }
         }
 
         /**

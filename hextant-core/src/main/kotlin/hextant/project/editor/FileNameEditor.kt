@@ -4,14 +4,15 @@
 
 package hextant.project.editor
 
-import hextant.context.Context
 import hextant.core.editor.ValidatedTokenEditor
 
 /**
  * An editor for file names.
  */
-class FileNameEditor(context: Context, text: String) : ValidatedTokenEditor<String>(context, text) {
-    constructor(context: Context) : this(context, "")
+class FileNameEditor() : ValidatedTokenEditor<String>() {
+    constructor(text: String) : this() {
+        setInitialText(text)
+    }
 
     override fun defaultResult(): String = "<invalid>"
 

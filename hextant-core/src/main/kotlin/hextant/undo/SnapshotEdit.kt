@@ -5,20 +5,19 @@
 package hextant.undo
 
 import hextant.core.Editor
-import hextant.serial.Snapshot
-import hextant.serial.VirtualEditor
+import hextant.core.editor.Expander
 
 @PublishedApi internal class SnapshotEdit<E : Editor<*>>(
-    private val ref: VirtualEditor<E>,
-    private val before: Snapshot<E>,
-    private val after: Snapshot<E>,
+    private val ref: Expander<*, E>,
+    private val before: E,
+    private val after: E,
     override val actionDescription: String
 ) : AbstractEdit() {
     override fun doRedo() {
-        after.reconstructObject(ref.get())
+        ref.expand(after)
     }
 
     override fun doUndo() {
-        before.reconstructObject(ref.get())
+        ref.expand(before)
     }
 }

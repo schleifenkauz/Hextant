@@ -6,9 +6,12 @@ import hextant.core.editor.CompoundEditor
 import hextant.expr.Expression
 import reaktive.value.ReactiveValue
 
-class ExpressionEditor @ProvideProjectType("Expression") constructor(context: Context) :
-    CompoundEditor<Expression?>(context) {
-    val root by child(ExprExpander(context))
+class ExpressionEditor @ProvideProjectType("Expression") constructor(context: Context) : CompoundEditor<Expression?>() {
+    val root by child(ExprExpander())
+
+    init {
+        initialize(context)
+    }
 
     override val result: ReactiveValue<Expression?> = composeResult { Expression(root.get()) }
 }

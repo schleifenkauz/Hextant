@@ -8,7 +8,7 @@ import hextant.context.Context
 import hextant.context.SelectionDistributor
 import hextant.context.executeSafely
 import hextant.core.Editor
-import hextant.serial.snapshot
+import hextant.core.editor.snapshot
 import javafx.scene.Scene
 
 private val COPY_MANY = "Ctrl + Shift + C".shortcut
@@ -18,7 +18,7 @@ private fun copyManyToClipboard(context: Context) {
     if (selected.any { it !is Editor<*> }) return
     val snapshots = selected.map {
         context.executeSafely("copying", null) {
-            (it as Editor<*>).snapshot(recordClass = true)
+            (it as Editor<*>).snapshot()
         } ?: return
     }
     context[Clipboard].copy(MultipleEditors(snapshots))

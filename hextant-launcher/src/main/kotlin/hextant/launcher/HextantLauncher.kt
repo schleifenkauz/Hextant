@@ -25,28 +25,28 @@ internal object HextantLauncher : PluginInitializer({
     registerCommand<Launcher, String> {
         extract(Launcher::create)
         parameter("dest").ofType<File>().apply {
-            editWith { ctx -> ProjectNameEditor(isCreate = true, ctx) }
+            editWith { ProjectNameEditor(isCreate = true) }
         }
     }
     registerCommand<Launcher, String> {
         extract(Launcher::open)
         parameter("project").ofType<File>().apply {
-            editWith { ctx -> ProjectNameEditor(isCreate = false, ctx) }
+            editWith { ProjectNameEditor(isCreate = false) }
         }
     }
     registerCommand<Launcher, String> {
         extract(Launcher::delete)
         parameter("project").ofType<File>().apply {
-            editWith { ctx -> ProjectNameEditor(isCreate = false, ctx) }
+            editWith { ProjectNameEditor(isCreate = false) }
         }
     }
     registerCommand<Launcher, String> {
         extract(Launcher::rename)
         parameter("project").ofType<File>().apply {
-            editWith { ctx -> ProjectNameEditor(isCreate = false, ctx) }
+            editWith { ProjectNameEditor(isCreate = false) }
         }
         parameter("newLocation").ofType<File>().apply {
-            editWith { ctx -> ProjectNameEditor(isCreate = true, ctx) }
+            editWith { ProjectNameEditor(isCreate = true) }
         }
     }
     registerCommand<Context, Unit> {

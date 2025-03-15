@@ -44,7 +44,7 @@ sealed class Operator(private val operation: (Int, Int) -> Int, val name: String
 
 data class Sum(val expressions: List<Expr>) : Expr {
     override val value: Int
-        get() = expressions.sumBy { it.value }
+        get() = expressions.sumOf(Expr::value)
 
     override fun toString(): String = buildString {
         append("sum ")

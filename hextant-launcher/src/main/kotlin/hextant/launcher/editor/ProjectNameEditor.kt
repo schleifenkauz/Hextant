@@ -4,14 +4,13 @@
 
 package hextant.launcher.editor
 
-import hextant.context.Context
 import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.cli.HextantDirectory
 import java.io.File
 
-internal open class ProjectNameEditor(val isCreate: Boolean, context: Context) :
-    TokenEditor<File?, TokenEditorView>(context) {
+internal open class ProjectNameEditor(val isCreate: Boolean) :
+    TokenEditor<File?, TokenEditorView>() {
     override fun compile(token: String): File? =
         token.takeIf { it.matches(REGEX) }?.let { HextantDirectory.getProject(token) }
 

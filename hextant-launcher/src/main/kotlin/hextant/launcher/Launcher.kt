@@ -12,14 +12,11 @@ import hextant.core.EditorView
 import hextant.core.editor.AbstractEditor
 import hextant.plugins.LocatedProjectType
 import hextant.project.ProjectType
-import hextant.serial.Snapshot
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonObjectBuilder
 import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
 import java.io.File
 
-class Launcher(context: Context) : AbstractEditor<Unit, EditorView>(context) {
+class Launcher(context: Context) : AbstractEditor<Unit, EditorView>() {
     init {
         context[Launcher] = this
     }
@@ -62,22 +59,6 @@ class Launcher(context: Context) : AbstractEditor<Unit, EditorView>(context) {
     }
 
     override val result: ReactiveValue<Unit> = reactiveValue(Unit)
-
-    override fun createSnapshot(): Snapshot<*> = Snap()
-
-    private class Snap : Snapshot<Launcher>() {
-        override fun doRecord(original: Launcher) {
-        }
-
-        override fun reconstructObject(original: Launcher) {
-        }
-
-        override fun encode(builder: JsonObjectBuilder) {
-        }
-
-        override fun decode(element: JsonObject) {
-        }
-    }
 
     @ProvideProjectType("Launcher")
     companion object : ProjectType, PublicProperty<Launcher> by property("launcher") {

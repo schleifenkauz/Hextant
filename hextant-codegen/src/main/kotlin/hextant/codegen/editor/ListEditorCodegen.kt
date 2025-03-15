@@ -20,16 +20,13 @@ internal object ListEditorCodegen : EditorClassGen<ListEditor, TypeElement>() {
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "ListEditor")
         val (pkg, name) = splitPackageAndSimpleName(qn)
         classModifiers(annotation.serializable).kotlinClass(name)
-            .primaryConstructor("context" of "Context")
-            .extends(type("ListEditor", type(simpleName).nullable(nullable), type(editorClsName)), "context".e)
+            .primaryConstructor()
+            .extends(type("ListEditor", type(simpleName).nullable(nullable), type(editorClsName)))
             .body {
-                +constructor("context" of "Context", "vararg editors" of editorClsName)
-                    .delegate("context".e)
+                +constructor("vararg editors" of editorClsName)
+                    .delegate()
                     .body {
-                        +`for`("i", `in` = "editors".e select "indices") {
-                            +`val`("e") initializedWith "editors".e["i".e]
-                            +call("addAt", "i".e, "e".e)
-                        }
+                        +"setInitialEditors(*editors)"
                     }
                 +override.`fun`("createEditor") returns call(editorClsName, get(annotation.childContext))
             }

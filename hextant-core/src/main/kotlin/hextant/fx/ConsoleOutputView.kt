@@ -69,7 +69,7 @@ class ConsoleOutputView(private val context: Context) : OutputStream() {
             setOnCloseRequest {
                 if (failed) hide()
                 else if (confirmStop()) {
-                    t.stop()
+                    t.interrupt()
                     prematureExit()
                     hide()
                     restoreIO()

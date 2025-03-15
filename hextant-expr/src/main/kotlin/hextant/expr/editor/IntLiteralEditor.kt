@@ -16,13 +16,11 @@ import hextant.core.view.TokenEditorView
 import hextant.expr.IntLiteral
 
 @ProvideFeature
-class IntLiteralEditor(
-    context: Context,
-    text: String
-) : TokenEditor<IntLiteral?, TokenEditorView>(context, text), ExprEditor<IntLiteral> {
-    @ProvideImplementation(EditorFactory::class) constructor(context: Context) : this(context, "")
-
-    constructor(v: IntLiteral, context: Context) : this(context, v.value.toString())
+class IntLiteralEditor @ProvideImplementation(EditorFactory::class) constructor() :
+    TokenEditor<IntLiteral?, TokenEditorView>(), ExprEditor<IntLiteral> {
+    constructor(v: IntLiteral) : this() {
+        setInitialText(v.value.toString())
+    }
 
     override fun compile(token: String): IntLiteral? =
         token.toIntOrNull()?.let { IntLiteral(it) }

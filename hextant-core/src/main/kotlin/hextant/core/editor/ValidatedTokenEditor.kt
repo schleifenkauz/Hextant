@@ -9,13 +9,10 @@ import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.core.view.ValidatedTokenEditorView
-import hextant.serial.*
-import hextant.serial.string
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonObjectBuilder
-import kotlinx.serialization.json.put
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import reaktive.event.event
 import reaktive.event.unitEvent
 import reaktive.value.*
@@ -24,23 +21,43 @@ import reaktive.value.*
  * A [ValidatedTokenEditor] is an editor whose result is always non-null. It can be either editable or not editable.
  * In the editable state setting the text is allowed, but the change is not immediately reflected in the [result].
  * One can commit or abort a change to get in the not editable state again and call [beginChange] to make the editor editable.
- * @param [initialText] the initial text, if this is not a valid token the [defaultResult] function is used.
  */
-abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: String) :
-    AbstractEditor<R, ValidatedTokenEditorView>(context), TokenType<R?> {
-    constructor(context: Context) : this(context, "")
+@Serializable
+abstract class ValidatedTokenEditor<R : Any>() : AbstractEditor<R, ValidatedTokenEditorView>(), TokenType<R?> {
+    private lateinit var _text: ReactiveVariable<String>
 
-    private var oldText: String = initialText
-    private val _text = reactiveVariable(initialText)
-    private val _editable = reactiveVariable(true)
-    private val _intermediateResult = reactiveVariable(tryCompile(initialText))
+    @Transient
+    private lateinit var oldText: String
 
-    @Suppress("LeakingThis")
-    private val _result = reactiveVariable(compile(initialText) ?: defaultResult())
+    @Transient
+    private val _editable: ReactiveVariable<Boolean> = reactiveVariable(false)
 
+    @Transient
+    private lateinit var _intermediateResult: ReactiveVariable<R?>
+
+    @Transient
+    private lateinit var _result: ReactiveVariable<R>
+
+    fun setInitialText(initialText: String) {
+        oldText = initialText
+        _text = reactiveVariable(initialText)
+        _editable.set(true)
+    }
+
+    @Transient
     private val beginChange = unitEvent()
+
+    @Transient
     private val abortChange = unitEvent()
+
+    @Transient
     private val commitChange = event<String>()
+
+    override fun initialize(context: Context) {
+        super.initialize(context)
+        _intermediateResult = reactiveVariable(tryCompile(text.now))
+        _result = reactiveVariable(tryCompile(text.now) ?: defaultResult())
+    }
 
     /**
      * The visible text
@@ -167,7 +184,7 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
 
     private fun recordEdit(t: String, res: R) {
         val oldResult = result.now
-        val edit = CommitEdit(virtualize(), oldText, oldResult, t, res)
+        val edit = CommitEdit(this, oldText, oldResult, t, res)
         context[UndoManager].record(edit)
     }
 
@@ -178,9 +195,9 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
         _intermediateResult.set(tryCompile(text.now))
     }
 
-    override fun paste(snapshot: Snapshot<out Editor<*>>): Boolean {
-        if (snapshot !is Snap) return false
-        val t = snapshot.text
+    override fun paste(editor: Editor<*>): Boolean {
+        if (editor !is ValidatedTokenEditor) return false
+        val t = editor.text.now
         if (editable.now) setText(t)
         else {
             val r = tryCompile(t) ?: return false
@@ -194,44 +211,17 @@ abstract class ValidatedTokenEditor<R : Any>(context: Context, initialText: Stri
         view.displayText(_text.now)
     }
 
-    override fun createSnapshot(): Snapshot<*> = Snap()
-
-    private class Snap : Snapshot<ValidatedTokenEditor<*>>() {
-        lateinit var text: String
-
-        override fun doRecord(original: ValidatedTokenEditor<*>) {
-            text = original.text.now
-        }
-
-        override fun reconstructObject(original: ValidatedTokenEditor<*>) {
-            @Suppress("UNCHECKED_CAST")
-            original as ValidatedTokenEditor<Any>
-            original._text.now = text
-            original._intermediateResult.now = original.tryCompile(original.text.now)
-            original._result.now = original.intermediateResult.now!!
-            original._editable.now = false
-        }
-
-        override fun encode(builder: JsonObjectBuilder) {
-            builder.put("text", this.text)
-        }
-
-        override fun decode(element: JsonObject) {
-            text = element.getValue("text").string
-        }
-    }
-
     private class CommitEdit<R : Any>(
-        private val editor: VirtualEditor<ValidatedTokenEditor<R>>,
+        private val editor: ValidatedTokenEditor<R>,
         private val old: String, private val oldResult: R,
         private val new: String, private val newResult: R
     ) : AbstractEdit() {
         override fun doUndo() {
-            editor.get().setTextAndCommit(old, oldResult)
+            editor.setTextAndCommit(old, oldResult)
         }
 
         override fun doRedo() {
-            editor.get().setTextAndCommit(new, newResult)
+            editor.setTextAndCommit(new, newResult)
         }
 
         override val actionDescription: String
