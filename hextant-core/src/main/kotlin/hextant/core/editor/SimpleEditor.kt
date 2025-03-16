@@ -1,14 +1,21 @@
 package hextant.core.editor
 
 import hextant.core.Editor
+import kotlinx.serialization.Serializable
 import reaktive.value.ReactiveValue
+import reaktive.value.ReactiveVariable
 import reaktive.value.now
 import reaktive.value.reactiveVariable
 
-open class SimpleEditor<R : Any>(result: R) : AbstractEditor<R, SimpleEditor.View<R>>() {
-    private var _result = reactiveVariable(result)
+@Serializable
+open class SimpleEditor<R : Any> : AbstractEditor<R, SimpleEditor.View<R>>() {
+    private lateinit var _result: ReactiveVariable<R>
 
     override val result: ReactiveValue<R> get() = _result
+
+    fun setInitialResult(value: R) {
+        _result = reactiveVariable(value)
+    }
 
     fun setResult(result: R) {
         _result.set(result)

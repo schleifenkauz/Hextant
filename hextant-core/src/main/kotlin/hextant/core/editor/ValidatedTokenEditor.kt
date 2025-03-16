@@ -53,8 +53,7 @@ abstract class ValidatedTokenEditor<R : Any>() : AbstractEditor<R, ValidatedToke
     @Transient
     private val commitChange = event<String>()
 
-    override fun initialize(context: Context) {
-        super.initialize(context)
+    override fun doInitialize() {
         _intermediateResult = reactiveVariable(tryCompile(text.now))
         _result = reactiveVariable(tryCompile(text.now) ?: defaultResult())
     }

@@ -4,14 +4,13 @@
 
 package hextant.expr
 
-import hextant.context.Context
 import hextant.core.Editor
 import hextant.expr.editor.ExprExpander
 import hextant.project.ProjectType
 import hextant.test.showTestProject
 
 object ExpanderDemo : ProjectType {
-    override fun createProject(context: Context): Editor<*> = ExprExpander()
+    override fun createProject(): Editor<*> = ExprExpander()
 
     @JvmStatic
     fun main(args: Array<String>) {

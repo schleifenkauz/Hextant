@@ -10,7 +10,6 @@ import hextant.core.EditorView
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
 import hextant.serial.PropertyAccessor
-import kotlinx.serialization.Serializable
 import reaktive.value.ReactiveValue
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
@@ -20,7 +19,6 @@ import kotlin.reflect.full.memberProperties
 /**
  * Base class for editors that are composed of multiple sub-editors.
  */
-@Serializable
 abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
     private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
 
@@ -61,13 +59,17 @@ abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
     protected fun <E : Editor<*>> child(
         editor: E, context: Context = this.context
     ): PropertyDelegateProvider<CompoundEditor<*>, ReadOnlyProperty<Any?, E>> =
-        PropertyDelegateProvider { thisRef, property ->
+        PropertyDelegateProvider { _, property ->
             editor.initialize(context)
-            val acc = PropertyAccessor(property.name)
-            editor.locate(this, acc)
-            thisRef.addChild(editor)
+            addChild(property.name, editor)
             ReadOnlyProperty { _, _ -> editor }
         }
+
+    protected fun addChild(name: String, editor: Editor<*>) {
+        val acc = PropertyAccessor(name)
+        editor.locate(this, acc)
+        addChild(editor)
+    }
 
     override fun supportsCopyPaste(): Boolean = getChildren().all { e -> e.supportsCopyPaste() }
 

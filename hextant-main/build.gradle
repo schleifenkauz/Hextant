@@ -10,6 +10,7 @@ javafx {
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
     api 'org.jetbrains.kotlin:kotlin-reflect'
     api project(":hextant-cli")
     compileOnly project(":hextant-core")

@@ -16,7 +16,8 @@ import kotlinx.serialization.json.JsonObject
 @Serializable
 class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var controlArguments: JsonElement) {
     @Transient
-    private lateinit var control: EditorControl<*>
+    lateinit var control: EditorControl<*>
+        private set
 
     constructor(editor: E, context: Context) : this(editor, JsonObject(emptyMap())) {
         initialize(context)
@@ -36,7 +37,7 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
         controlArguments = control.exportJsonArgumentTree()
     }
 
-    fun clone(context: Context): EditorRoot<E> {
+    fun clone(context: Context = editor.context): EditorRoot<E> {
         val editorCopy = editor.copyFor(context)
         val controlCopy = context.createControl(editorCopy)
         val argumentTree = control.exportJsonArgumentTree()
@@ -45,8 +46,9 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
     }
 
     companion object {
-        fun <E : Editor<*>> create(editor: E): EditorRoot<E> {
-            val control = editor.context.createControl(editor)
+        fun <E : Editor<*>> create(editor: E, context: Context): EditorRoot<E> {
+            editor.initialize(context)
+            val control = context.createControl(editor)
             return EditorRoot(editor, control)
         }
     }

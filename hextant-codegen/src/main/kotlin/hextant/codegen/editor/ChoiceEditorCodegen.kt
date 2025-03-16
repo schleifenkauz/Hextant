@@ -13,19 +13,36 @@ internal object ChoiceEditorCodegen : EditorClassGen<Choice, Element>() {
 
     override fun process(element: Element, annotation: Choice) {
         val nodeType = nodeType(element)
+        val resultType = nodeType.simpleName.t
         val choicesFunc = choicesFunc(element)
         val qn = extractQualifiedEditorClassName(annotation, element)
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
-        classModifiers(annotation.serializable).kotlinClass(simpleName)
-            .extends(type("SimpleChoiceEditor", nodeType.simpleName.toString()))
-            .implementEditorOfSuperType(annotation, nodeType.simpleName.toString())
+        classModifiers(annotation.serializable, "$simpleName.Serializer::class").kotlinClass(simpleName)
+            .primaryConstructor()
+            .extends(type("SimpleChoiceEditor", resultType))
+            .implementEditorOfSuperType(annotation, resultType)
             .body {
                 +constructor(
-                    "default" of nodeType.simpleName.toString() default annotation.defaultValue.e
-                ).body {
-                    +"setInitial(default)"
+                    "initialValue" of nodeType.simpleName.toString()
+                ).delegate().body {
+                    +"selectInitial(initialValue)"
                 }
                 +override.`fun`("choices") returns choicesFunc.e
+                if (annotation.serializable) {
+                    importSerializationPackages()
+                    addSerializerObject(simpleName) {
+                        overrideDescriptor(simpleName) {
+                            +call("element", typeArguments = listOf(resultType), lit("selected"))
+                        }
+                        overrideDeserialize {
+                            +`val`("selected") of resultType initializedWith decodeElement(0)
+                            +call(simpleName, "selected".e)
+                        }
+                        overrideSerialize(simpleName) {
+                            +encodeElement(0, "value.result.get()".e)
+                        }
+                    }
+                }
             }
             .asFile {
                 `package`(pkg)
@@ -45,7 +62,7 @@ internal object ChoiceEditorCodegen : EditorClassGen<Choice, Element>() {
     }
 
     private fun choicesFunc(element: Element) = when (element) {
-        is TypeElement -> "${element.simpleName}.values().asList()"
+        is TypeElement -> "${element.simpleName}.entries"
         is ExecutableElement -> "${element.simpleName}()"
         else -> throw ProcessingException("annotation @Choice applied to invalid element $element")
     }

@@ -18,7 +18,7 @@ annotation class Token(
     val classLocation: String = DEFAULT,
     val nodeType: KClass<*> = None::class,
     val register: Boolean = true,
-    val serializable: Boolean = false
+    val serializable: Boolean = true
 )
 
 @Retention(SOURCE)
@@ -27,7 +27,7 @@ annotation class Compound(
     val classLocation: String = DEFAULT,
     val nodeType: KClass<*> = None::class,
     val register: Boolean = true,
-    val serializable: Boolean = false
+    val serializable: Boolean = true
 )
 
 @Retention(SOURCE)
@@ -55,10 +55,9 @@ annotation class Expandable(
 @Retention(SOURCE)
 @Target(CLASS)
 annotation class Choice(
-    val defaultValue: String,
     val classLocation: String = DEFAULT,
     val nodeType: KClass<*> = None::class,
-    val serializable: Boolean = false
+    val serializable: Boolean = true
 )
 
 @Retention(SOURCE)
@@ -71,7 +70,7 @@ annotation class ListEditor(
     val classLocation: String = DEFAULT,
     val editorCls: KClass<*> = None::class,
     val childContext: String = "context",
-    val serializable: Boolean = false
+    val serializable: Boolean = true
 )
 
 @Retention(SOURCE)

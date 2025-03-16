@@ -1,14 +1,14 @@
 package hextant.core.editor
 
-interface ChoiceSource<C : Any> {
+import reaktive.value.ReactiveString
+
+interface ChoiceSource<C> {
     /**
      * Select the given [choice]
      */
     fun select(choice: C)
 
-    fun toString(choice: C): String
-
-    fun fromString(str: String): C?
+    fun toString(choice: C): ReactiveString
 
     fun choices(): List<C>
 }

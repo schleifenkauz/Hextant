@@ -40,7 +40,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     @Transient
     private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
 
-    private val state: ReactiveVariable<State<E>> = reactiveVariable(initial)
+    private lateinit var state: ReactiveVariable<State<E>>
 
     /**
      * A [ReactiveValue] holding the current text of the editor or `null` if it is expanded
@@ -65,9 +65,8 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
 
     final override val result: ReactiveValue<R> get() = _result
 
-    override fun initialize(context: Context) {
-        super.initialize(context)
-        _result =  state.flatMap { s ->
+    override fun doInitialize() {
+        _result = state.flatMap { s ->
             when (s) {
                 is Text -> reactiveValue(tryCompile(s.text))
                 is Expanded -> s.content.result
@@ -76,11 +75,11 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     }
 
     fun setInitialContent(editor: E) {
-        state.now = Expanded(editor)
+        state = reactiveVariable(Expanded(editor))
     }
 
     fun setInitialText(text: String) {
-        state.now = Text(text)
+        state = reactiveVariable(Text(text))
     }
 
     /**

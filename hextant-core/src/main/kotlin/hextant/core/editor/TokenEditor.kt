@@ -5,7 +5,6 @@
 package hextant.core.editor
 
 import hextant.completion.Completion
-import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.view.ListEditorControl
 import hextant.core.view.TokenEditorView
@@ -13,6 +12,7 @@ import hextant.serial.IndexAccessor
 import hextant.undo.AbstractEdit
 import hextant.undo.Edit
 import hextant.undo.UndoManager
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import reaktive.value.*
 import kotlin.reflect.full.memberFunctions
@@ -23,7 +23,10 @@ import kotlin.reflect.jvm.jvmErasure
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
+@Serializable
 abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>(), TokenType<R> {
+    private lateinit var _text: ReactiveVariable<String>
+
     @Transient
     private val resultType = this::class.memberFunctions.first { f -> f.name == "compile" }.returnType
 
@@ -31,8 +34,6 @@ abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>
     private lateinit var _result: ReactiveVariable<R>
 
     final override val result: ReactiveValue<R> get() = _result
-
-    private var _text = reactiveVariable("")
 
     /**
      * A [ReactiveValue] holding the current textual content of this editor
@@ -44,12 +45,11 @@ abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>
     }
 
     fun setInitialText(text: String) {
-        _text.now = text
+        _text = reactiveVariable(text)
     }
 
-    override fun initialize(context: Context) {
-        super.initialize(context)
-        _result.now = compile(text.now)
+    override fun doInitialize() {
+        _result = reactiveVariable(compile(text.now))
     }
 
     override fun supportsCopyPaste(): Boolean = true

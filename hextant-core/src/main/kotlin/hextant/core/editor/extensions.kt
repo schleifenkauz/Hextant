@@ -75,7 +75,9 @@ fun Editor<*>.pasteFromClipboard(): Boolean {
 /**
  * Return an editor that transforms the [Editor.result] of this editor with the given function.
  */
-fun <T, R> Editor<T>.map(f: (T) -> R): Editor<R> = TransformedEditor(this, f)
+inline fun <T, R> Editor<T>.map(crossinline f: (T) -> R): Editor<R> = object : TransformedEditor<T, R>(this@map) {
+    override fun transform(result: T): R = f(result)
+}
 
 inline fun <reified P : Editor<*>> Editor<*>.getParent(): P? {
     var e = this
@@ -83,4 +85,11 @@ inline fun <reified P : Editor<*>> Editor<*>.getParent(): P? {
         if (e is P) return e
         e = e.parent ?: return null
     }
+}
+
+fun <E: Editor<*>> E.initialized(context: Context) = also { e -> e.initialize(context) }
+
+fun <R> Editor<*>.makeUndoableEdit(description: String, edit: () -> R): R {
+    //TODO
+    return edit()
 }

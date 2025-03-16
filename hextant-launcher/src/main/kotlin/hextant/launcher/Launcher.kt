@@ -16,8 +16,8 @@ import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
 import java.io.File
 
-class Launcher(context: Context) : AbstractEditor<Unit, EditorView>() {
-    init {
+class Launcher : AbstractEditor<Unit, EditorView>() {
+    override fun doInitialize() {
         context[Launcher] = this
     }
 
@@ -62,8 +62,8 @@ class Launcher(context: Context) : AbstractEditor<Unit, EditorView>() {
 
     @ProvideProjectType("Launcher")
     companion object : ProjectType, PublicProperty<Launcher> by property("launcher") {
-        override fun createProject(context: Context): Editor<*> {
-            return Launcher(context)
+        override fun createProject(): Editor<*> {
+            return Launcher()
         }
     }
 }

@@ -31,8 +31,8 @@ internal object ProjectTypeCollector :
                 val (pkg, simpleName) = splitPackageAndSimpleName(clazz)
                 internal.kotlinObject(simpleName).implements("hextant.project.ProjectType").body {
                     val (p, n) = splitPkgAndName(element)
-                    +override.`fun`("createProject", "context" of "hextant.context.Context")
-                        .returns(call("$p.$n", get("context")))
+                    +override.`fun`("createProject")
+                        .returns(call("$p.$n"))
                 }.asFile {
                     `package`(pkg)
                 }.saveToSourceRoot(generatedDir)

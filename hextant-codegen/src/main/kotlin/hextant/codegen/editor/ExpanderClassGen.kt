@@ -6,6 +6,7 @@ package hextant.codegen.editor
 
 import hextant.codegen.Expandable
 import hextant.codegen.asTypeElement
+import hextant.codegen.contextualSerialization
 import hextant.codegen.editor.EditorResolution.Companion.register
 import hextant.codegen.splitPackageAndSimpleName
 import kotlinx.metadata.isNullable
@@ -33,13 +34,14 @@ internal object ExpanderClassGen : EditorClassGen<Expandable, TypeElement>() {
         val name = element.simpleName.toString()
         val qn = extractQualifiedEditorClassName(annotation, element, classNameSuffix = "Expander")
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
-        val (editorType, _) = getEditorInterface(element.toString(), "*")
+        val (editorType, _) = getEditorInterface(element.toString(), star)
         val delegator = getTypeMirror(annotation::delegator).asTypeElement()
         val nullableResult = hasDelegatorNullableResultType(delegator)
+        val resultType = type(name).nullable(nullableResult).contextualSerialization(annotation.serializable)
         classModifiers(annotation.serializable).kotlinClass(simpleName)
             .primaryConstructor()
-            .extends(type("Expander", type(name).nullable(nullableResult), editorType))
-            .implementEditorOfSuperType(annotation, name)
+            .extends(type("Expander", resultType, editorType))
+            .implementEditorOfSuperType(annotation, resultType)
             .body {
                 `val`("config") initializedWith (delegator.simpleName.e call "getDelegate")
                 +constructor("editor" of editorType).body {

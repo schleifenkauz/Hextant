@@ -39,11 +39,7 @@ dependencies {
 
     api 'org.jetbrains.kotlin:kotlin-stdlib-common'
     api 'org.jetbrains.kotlin:kotlin-reflect'
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:$kotlinx_coroutines_version") {
-        exclude group: 'org.openjfx'
-    }
-    api "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
+    api "org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0"
 
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")

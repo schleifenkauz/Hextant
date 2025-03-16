@@ -12,6 +12,7 @@ import krobot.api.*
 import krobot.ast.CanImplement
 import krobot.ast.ClassDefinition
 import krobot.ast.Type
+import krobot.ast.TypeProjection
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
 import javax.lang.model.element.TypeElement
@@ -39,11 +40,11 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
 
     protected fun <C : ClassDefinition<CanImplement>> C.implementEditorOfSuperType(
         annotation: Annotation,
-        simpleName: String
+        resultType: Type
     ): C = apply {
         val supertype = getTypeMirror(annotation::nodeType).toString()
         if (supertype != None::class.qualifiedName) {
-            val (t, delegated) = getEditorInterface(supertype, simpleName)
+            val (t, delegated) = getEditorInterface(supertype, resultType)
             implements(t)
             for (iface in delegated) {
                 implements(type(iface.toString()), iface.e call "delegate()")
@@ -71,7 +72,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
         return false
     }
 
-    protected fun getEditorInterface(type: String, concreteType: String): Pair<Type, List<TypeMirror>> {
+    protected fun getEditorInterface(type: String, concreteType: TypeProjection): Pair<Type, List<TypeMirror>> {
         val el = processingEnv.elementUtils.getTypeElement(type)
         val generated = el.getAnnotation<NodeType>()
         val linked = el.getAnnotation<EditorInterface>()
@@ -82,6 +83,7 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
                 val editorQN = extractQualifiedEditorClassName(generated, el)
                 type(editorQN, concreteType) to emptyList()
             }
+
             linked != null -> {
                 val t = getTypeMirror(linked::clz)
                 val delegated = try {
@@ -93,13 +95,18 @@ internal abstract class EditorClassGen<A : Annotation, E : Element> : Annotation
                 }
                 type(t.toString(), concreteType) to delegated
             }
+
             else -> fail("impossible")
         }
     }
 
-    protected fun classModifiers(serializable: Boolean) =
-        if (serializable) `@`("kotlinx.serialization.Serializable(with=hextant.serial.SnapshotAware.Serializer::class)")
-        else noModifiers
+    protected fun classModifiers(serializable: Boolean, serializer: String? = null) =
+        if (serializable) {
+            val arguments = if (serializer == null) "" else "($serializer)"
+            modifiers.`@`("kotlinx.serialization.Serializable$arguments")
+        } else {
+            noModifiers
+        }
 
     private fun editorResolution(editorClass: () -> KClass<*>): EditorResolution {
         val element = getTypeMirror(editorClass).asTypeElement()

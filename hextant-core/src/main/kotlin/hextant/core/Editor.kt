@@ -8,14 +8,13 @@ import hextant.context.Context
 import hextant.core.editor.Expander
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
-import kotlinx.serialization.Polymorphic
 import reaktive.value.ReactiveValue
 
 /**
  * An editor for results of type [R]
  */
-@Polymorphic
 interface Editor<out R> {
+    val isInitialized: Boolean
     /**
      * A [reaktive.value.ReactiveValue] holding the result of compiling the content of the editor
      */
@@ -67,7 +66,7 @@ interface Editor<out R> {
      */
     fun paste(editor: Editor<*>): Boolean
 
-    fun implCopy(): Editor<R>
+    fun implCopy(): Editor<R> = throw UnsupportedOperationException("Copying ${javaClass.name} is not implemented")
 
     /**
      * Returns `true` only if this [Editor] supports copy/paste in principle.

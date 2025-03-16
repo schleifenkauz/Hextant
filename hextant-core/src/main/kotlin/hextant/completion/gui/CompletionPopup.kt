@@ -22,9 +22,6 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.text.TextFlow
 import javafx.stage.Popup
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.actor
 import reaktive.event.event
 
 /**
@@ -38,21 +35,6 @@ internal class CompletionPopup<Ctx, T : Any>(
     private val root = VBox()
     private var input = ""
     private val choose = event<Completion<T>>()
-
-    @OptIn(DelicateCoroutinesApi::class, ObsoleteCoroutinesApi::class)
-    private val updater = GlobalScope.actor<String>(Dispatchers.Main, capacity = Channel.CONFLATED) {
-        for (input in channel) {
-            val completions = context.executeSafely("getting completions", emptyList()) {
-                withContext(Dispatchers.Default) {
-                    completer().completions(ctx, input)
-                }
-            }
-            root.children.setAll(completions.map { c -> createCompletionItem(c) })
-            valid = true
-            if (completions.isNotEmpty() && ownerNode.isFocused) super.show()
-            else hide()
-        }
-    }
 
     /**
      * Emits events when a completion was chosen by the user.
@@ -70,12 +52,20 @@ internal class CompletionPopup<Ctx, T : Any>(
      */
     override fun show() {
         if (!valid) {
-            GlobalScope.launch(Dispatchers.Main) {
-                updater.send(input)
-            }
+            updateItems()
         } else if (root.children.isNotEmpty() && ownerNode.isFocused) {
             super.show()
         }
+    }
+
+    private fun updateItems() {
+        val completions = context.executeSafely("getting completions", emptyList()) {
+            completer().completions(ctx, input)
+        }
+        root.children.setAll(completions.map { c -> createCompletionItem(c) })
+        valid = true
+        if (completions.isNotEmpty() && ownerNode.isFocused) super.show()
+        else hide()
     }
 
     /**
@@ -84,7 +74,7 @@ internal class CompletionPopup<Ctx, T : Any>(
     fun updateInput(text: String) {
         input = text
         valid = false
-        if (isShowing) GlobalScope.launch { updater.send(text) }
+        if (isShowing) updateItems()
     }
 
     private fun createCompletionItem(completion: Completion<T>): Node {

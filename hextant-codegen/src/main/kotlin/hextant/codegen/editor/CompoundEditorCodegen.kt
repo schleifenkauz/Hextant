@@ -30,30 +30,65 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
         val parameters = function.parameters.map { p ->
             val ann = p.getAnnotation<Component>()
             val editorCls = getEditorClassName(p.asType(), ann)
-            val ctx = ann?.childContext ?: "context"
-            "val ${p.simpleName}" of editorCls default call(editorCls, get(ctx))
+            `val` parameter ("${p.simpleName}") of type(editorCls) default call(editorCls)
         }
         val componentNames = function.parameters.map { p -> p.simpleName.toString() }
-        classModifiers(annotation.serializable).kotlinClass(simpleName)
+        classModifiers(annotation.serializable, "$simpleName.Serializer::class").kotlinClass(simpleName)
             .primaryConstructor(parameters)
-            .extends(type("CompoundEditor", resultType), "context".e)
-            .implementEditorOfSuperType(annotation, result)
+            .extends(type("CompoundEditor", resultType.contextualSerialization(annotation.serializable)))
+            .implementEditorOfSuperType(annotation, resultType.contextualSerialization(annotation.serializable))
             .body {
+                final.override.lateinit.`var`("result").of(type("ReactiveValue", resultType)).accessors {
+                    private.set
+                }
+                override.`fun`("initialize", "context" of "Context").body {
+                    +"super.initialize(context)"
+                    "result" assign call("composeResult", closure {
+                        +call(functionName, componentNames.map { component -> get(component) select "now" })
+                    })
+                }
                 +override.`fun`(
                     "locate",
-                    "parent" of "Editor<*>?",
-                    "accessor" of "EditorAccessor",
-                    "expander" of "Expander<*, *>?"
+                    "parent" of "hextant.core.Editor<*>?",
+                    "accessor" of "hextant.serial.EditorAccessor",
+                    "expander" of "hextant.core.editor.Expander<*, *>?"
                 ).body {
                     +"super.locate(parent, accessor, expander)"
                     for (component in componentNames) {
-                        +"${component}.locate(parent = this, PropertyAccessor(\"${component}\"))"
+                        +"${component}.locate(parent = this, hextant.serial.PropertyAccessor(\"${component}\"))"
                     }
                 }
-                override.`val`("result").of(type("ReactiveValue", resultType))
-                    .initializedWith(call("composeResult", closure {
-                        +call(functionName, componentNames.map { component -> get(component) select "now" })
-                    }))
+                if (annotation.serializable) {
+                    importSerializationPackages()
+                    addSerializerObject(simpleName) {
+                        overrideDescriptor(simpleName) {
+                            for (param in parameters) {
+                                +call("element", typeArguments = listOf(param.type!!), lit(param.name))
+                            }
+                        }
+                        overrideSerialize(simpleName) {
+                            for ((idx, param) in parameters.withIndex()) {
+                                +encodeElement(idx, "value.${param.name}".e)
+                            }
+                        }
+                        overrideDeserialize {
+                            for (param in parameters) {
+                                +lateinit.`var`(param.name).of(param.type!!)
+                            }
+                            +`while`("true".e) {
+                                +`val`("index") initializedWith call("decodeElementIndex", "descriptor".e)
+                                +`when`("index".e) {
+                                    for ((idx, param) in parameters.withIndex()) {
+                                        equalTo(lit(idx)) then {
+                                            param.name assign decodeElement(idx)
+                                        }
+                                    }
+                                }
+                            }
+                            +call(simpleName, parameters.map { p -> p.name.e })
+                        }
+                    }
+                }
             }
             .asFile {
                 `package`(pkg)
@@ -75,3 +110,4 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
         else -> fail("Illegal annotation target for @Compound: $element")
     }
 }
+

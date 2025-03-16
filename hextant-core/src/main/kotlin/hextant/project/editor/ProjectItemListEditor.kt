@@ -7,10 +7,13 @@ package hextant.project.editor
 import hextant.core.editor.ListEditor
 import hextant.project.ProjectItem
 import hextant.project.view.EditorPane
+import kotlinx.serialization.Transient
 import reaktive.Observer
 
-internal class ProjectItemListEditor<T>() : ListEditor<ProjectItem<T>?, ProjectItemEditor<T, *>>() {
+class ProjectItemListEditor<T> : ListEditor<ProjectItem<T>?, ProjectItemEditor<T, *>>() {
+    @Transient
     private var commitChangeObserver: Observer? = null
+    @Transient
     private var abortChangeObserver: Observer? = null
 
     override fun createEditor(): ProjectItemEditor<T, *> = FileEditor.newInstance(context)

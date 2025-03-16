@@ -97,7 +97,7 @@ class Project private constructor(
             applyPhase(Enable, infos, context, project = null)
             val instance = getProjectTypeInstance(context[classLoader], projectType.clazz)
             instance.initializeContext(context)
-            val root = instance.createProject(context)
+            val root = instance.createProject()
             applyPhase(Enable, infos, context, root)
             applyPhase(Initialize, infos, context, root)
             val view = context.createControl(root)
@@ -112,7 +112,7 @@ class Project private constructor(
             return if (root.exists()) {
                 readEditorFromJson(root)
             } else {
-                type.createProject(context)
+                type.createProject()
             }
         }
 

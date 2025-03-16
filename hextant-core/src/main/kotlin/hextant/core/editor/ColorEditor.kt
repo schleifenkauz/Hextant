@@ -8,6 +8,7 @@ import hextant.codegen.ProvideFeature
 import hextant.codegen.RegisterEditor
 import hextant.core.view.TokenEditorView
 import javafx.scene.paint.Color
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.lang.reflect.Modifier
 import java.util.*
@@ -18,7 +19,7 @@ import java.util.*
 @ProvideFeature
 @RegisterEditor
 @Serializable
-class ColorEditor() : TokenEditor<Color, TokenEditorView>() {
+class ColorEditor() : TokenEditor<@Contextual Color, TokenEditorView>() {
     constructor(color: Color) : this() {
         setInitialText(toString(color) ?: "<???>")
     }

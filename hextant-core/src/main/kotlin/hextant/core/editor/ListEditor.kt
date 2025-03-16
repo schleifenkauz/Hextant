@@ -15,6 +15,8 @@ import hextant.serial.IndexAccessor
 import hextant.serial.InvalidAccessorException
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import reaktive.list.MutableReactiveList
 import reaktive.list.ReactiveList
@@ -27,8 +29,9 @@ import reaktive.value.binding.binding
  * An editor for multiple child editors of type [E] whose result type is [R]
  */
 @ProvideFeature
-abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditorView>() {
-    private val _editors: MutableReactiveList<E> = reactiveList()
+@Serializable
+abstract class ListEditor<R, E : Editor<@Contextual R>> : AbstractEditor<@Contextual List<R>, ListEditorView>() {
+    private lateinit var _editors: MutableReactiveList<E>
 
     @Transient
     private val editorClass = javaClass.getMethod("createEditor").returnType.kotlin
@@ -57,8 +60,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     final override lateinit var result: ReactiveValue<List<R>>
         private set
 
-    override fun initialize(context: Context) {
-        super.initialize(context)
+    override fun doInitialize() {
         results = editors.map { it.result }.values()
         result = binding(results) { results.now.toList() }
     }
@@ -71,8 +73,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     }
 
     fun setInitialEditors(vararg editors: E) {
-        _editors.now.clear()
-        _editors.now.addAll(editors)
+        _editors = reactiveList(*editors)
     }
 
     override fun getChildren(): Collection<Editor<*>> = editors.now

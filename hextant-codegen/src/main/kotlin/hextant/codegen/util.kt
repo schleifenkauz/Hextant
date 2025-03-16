@@ -5,10 +5,7 @@
 package hextant.codegen
 
 import hextant.codegen.aspects.JavaToKotlinTypeTranslator
-import krobot.api.invariant
-import krobot.api.lowerBound
-import krobot.api.of
-import krobot.api.type
+import krobot.api.*
 import krobot.ast.Parameter
 import krobot.ast.Type
 import krobot.ast.TypeParameter
@@ -187,3 +184,13 @@ internal fun TypeElement.isSubclassOf(type: String): Boolean {
 
 internal fun AnnotationMirror.getValue(element: String) =
     elementValues.entries.find { (el) -> el.simpleName.toString() == element }?.value
+
+internal fun Type.contextualSerialization(serializable: Boolean): Type =
+    if (!serializable || true) this
+    else annotated(`@`("kotlinx.serialization.Contextual"))
+
+internal fun KotlinRobot.importSerializationPackages() {
+    import("kotlinx.serialization.encoding.*")
+    import("kotlinx.serialization.*")
+    import("kotlinx.serialization.descriptors.*")
+}

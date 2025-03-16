@@ -4,24 +4,20 @@
 
 package hextant.core.editor
 
-import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.view.ChoiceEditorView
 import hextant.serial.ChoiceEditorContent
 import hextant.serial.EditorAccessor
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import reaktive.value.ReactiveValue
-import reaktive.value.ReactiveVariable
+import reaktive.value.*
 import reaktive.value.binding.flatMap
-import reaktive.value.now
-import reaktive.value.reactiveVariable
 
 /**
  * An [Editor] which supports choosing different items of type [C]
  */
 @Serializable
-abstract class ChoiceEditor<C : Any, R, E : Editor<R>> private constructor() :
+abstract class ChoiceEditor<C : Any, R, E : Editor<R>> :
     AbstractEditor<R, ChoiceEditorView<C, E>>(), ChoiceSource<C> {
     private lateinit var _selected: ReactiveVariable<C>
     private lateinit var _content: ReactiveVariable<E>
@@ -30,17 +26,18 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>> private constructor() :
     val content: ReactiveValue<E> get() = _content
 
     @Transient
-    override val result: ReactiveValue<R> = _content.flatMap { it.result }
+    final override lateinit var result: ReactiveValue<R>
+        private set
 
-    fun setInitialChoice(choice: C) {
+    fun selectInitial(choice: C) {
         _selected = reactiveVariable(choice)
         _content = reactiveVariable(createEditor(choice))
     }
 
-    override fun initialize(context: Context) {
-        super.initialize(context)
+    override fun doInitialize() {
         content.now.initialize(context)
         content.now.locate(parent = this, ChoiceEditorContent)
+        result = _content.flatMap { it.result }
     }
 
     /**
@@ -63,9 +60,7 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>> private constructor() :
         editor.locate(parent = this, ChoiceEditorContent)
     }
 
-    override fun toString(choice: C): String = choice.toString()
-
-    override fun fromString(str: String): C? = null
+    override fun toString(choice: C): ReactiveString = reactiveValue(choice.toString())
 
     protected abstract fun createEditor(choice: C): E
 

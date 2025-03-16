@@ -19,5 +19,5 @@ interface ProjectType {
     /**
      * Create the root editor for a new project.
      */
-    fun createProject(context: Context): Editor<*>
+    fun createProject(): Editor<*>
 }

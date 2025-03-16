@@ -21,6 +21,7 @@ import hextant.core.view.ChoiceEditorControl.Layout.Vertical
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
+import reaktive.value.fx.asObservableValue
 import reaktive.value.now
 
 /**
@@ -48,7 +49,8 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
     }
 
     override fun selected(choice: C, content: E) {
-        button.text = editor.toString(choice)
+        if (button.textProperty().isBound) button.textProperty().unbind()
+        button.textProperty().bind(editor.toString(choice).asObservableValue())
         wrapped = if (content !is SimpleEditor<*>) {
             context.createControl(editor.content.now).withStyleClass("choice-editor-content")
         } else null

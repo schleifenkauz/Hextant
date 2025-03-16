@@ -9,46 +9,45 @@ import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 
 /**
  * Basic implementation for [Editor]s.
  */
-@Serializable
 abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
-    @Transient
+    final override var isInitialized: Boolean = false
+        private set
+
     final override lateinit var context: Context
         private set
 
-    @Transient
     final override var parent: Editor<*>? = null
         private set
 
-    @Transient
     final override lateinit var accessor: EditorAccessor
         private set
 
-    @Transient
     final override var expander: Expander<*, *>? = null
         private set
 
-    @Transient
     private val children = mutableListOf<Editor<*>>()
 
-    @Transient
     val viewManager: ListenerManager<@UnsafeVariance V> = ListenerManager.createWeakListenerManager()
 
     override fun getChildren(): Collection<Editor<*>> = children
 
-    override fun initialize(context: Context) {
+    final override fun initialize(context: Context) {
+        if (isInitialized) throw IllegalStateException("Already initialized")
         this.context = context
         for (child in children) {
             child.initialize(context)
         }
+        doInitialize()
+        isInitialized = true
     }
+
+    protected open fun doInitialize() {}
 
     override fun locate(parent: Editor<*>?, accessor: EditorAccessor, expander: Expander<*, *>?) {
         this.parent = parent

@@ -115,7 +115,7 @@ internal object ImplementationCollector :
         val aspect = processingEnv.elementUtils.getTypeElement("hextant.context.EditorFactory")
         val (pkg, simpleName) = splitPackageAndSimpleName(clazz)
         generateSingleMethodImplementation(
-            aspect, "createEditor", emptyList(), listOf("context" to type("hextant.context.Context")),
+            aspect, "createEditor", emptyList(), emptyList(),
             resultType.toString(), resultType.simpleName.toString(), type(resultType.toString()),
             pkg!!, simpleName
         )

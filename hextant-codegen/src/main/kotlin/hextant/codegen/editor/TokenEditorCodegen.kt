@@ -84,19 +84,19 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
     override fun process(element: Element, annotation: Token) {
         val qn = extractQualifiedEditorClassName(annotation, element)
         val input = getInput(element)
-        val resultType = input.getResultType()
+        val tokenType = input.getResultType()
         val resultNullable = input.isResultNullable() || isNodeKindNullable(annotation)
         val imports = input.getImports()
         val functionName = input.getFunctionName()
         val (pkg, simpleName) = splitPackageAndSimpleName(qn)
-        val result = resultType.simpleName.toString()
-        val resultT = type(result).nullable(resultNullable)
-        classModifiers(annotation.serializable).kotlinClass(simpleName)
+        val result = tokenType.simpleName.toString()
+        val resultType = type(result).nullable(resultNullable)
+        classModifiers(annotation.serializable, "$simpleName.Serializer::class").kotlinClass(simpleName)
             .primaryConstructor()
             .extends(
-                type("TokenEditor", resultT, type("hextant.core.view.TokenEditorView"))
+                type("TokenEditor", resultType, type("hextant.core.view.TokenEditorView"))
             )
-            .implementEditorOfSuperType(annotation, result)
+            .implementEditorOfSuperType(annotation, resultType)
             .body {
                 +constructor("text" of "String")
                     .delegate()
@@ -107,6 +107,20 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
                     .delegate("value.toString()".e)
                 +override.`fun`("compile", "token" of "String")
                     .returns(call(functionName, "token".e))
+                if (annotation.serializable) {
+                    addSerializerObject(simpleName) {
+                        overrideDescriptor(simpleName) {
+                            +"element<String>(\"text\")"
+                        }
+                        overrideDeserialize {
+                            +`val`("text") of "String" initializedWith "decodeStringElement(descriptor, 0)".e
+                            +call(simpleName, "text".e)
+                        }
+                        overrideSerialize(simpleName) {
+                            +"encodeStringElement(descriptor, 0, value.text.get())"
+                        }
+                    }
+                }
             }
             .asFile {
                 `package`(pkg)
@@ -114,8 +128,10 @@ internal object TokenEditorCodegen : EditorClassGen<Token, Element>() {
                 import("hextant.core.editor.*")
                 import("hextant.core.view.*")
                 for (fqName in imports) import(fqName)
+                if (annotation.serializable) importSerializationPackages()
+
             }.saveToSourceRoot(generatedDir)
-        generatedEditor(resultType, "$pkg.$simpleName")
+        generatedEditor(tokenType, "$pkg.$simpleName")
     }
 
 }

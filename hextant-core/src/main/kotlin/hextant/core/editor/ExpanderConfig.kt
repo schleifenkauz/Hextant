@@ -117,7 +117,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     fun <T : Any> registerInterceptor(cls: KClass<out T>, interceptor: (item: T, ctx: Context) -> E?) {
         val list = typeSafeInterceptors.getOrPut(cls) { LinkedList() }
         @Suppress("UNCHECKED_CAST")
-        list.addFirst(interceptor as ((Any, Context) -> E?)?)
+        list.addFirst(interceptor as ((Any, Context) -> E?))
     }
 
     /**

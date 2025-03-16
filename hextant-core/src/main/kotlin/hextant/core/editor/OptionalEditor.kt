@@ -7,6 +7,7 @@ import hextant.serial.EditorAccessor
 import hextant.serial.OptionalEditorContent
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import reaktive.value.ReactiveValue
 import reaktive.value.binding.flatMap
@@ -14,6 +15,7 @@ import reaktive.value.now
 import reaktive.value.reactiveValue
 import reaktive.value.reactiveVariable
 
+@Serializable
 abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEditorView>() {
     protected abstract val default: R
 
@@ -29,8 +31,7 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
     final override lateinit var result: ReactiveValue<R>
         private set
 
-    override fun initialize(context: Context) {
-        super.initialize(context)
+    override fun doInitialize() {
         result = _editor.flatMap { it?.result ?: reactiveValue(default) }
     }
 

@@ -4,14 +4,13 @@
 
 package hextant.expr
 
-import hextant.context.Context
 import hextant.core.Editor
 import hextant.expr.editor.OperatorApplicationEditor
 import hextant.project.ProjectType
 import hextant.test.showTestProject
 
 object CompoundEditorDemo : ProjectType {
-    override fun createProject(context: Context): Editor<*> = OperatorApplicationEditor()
+    override fun createProject(): Editor<*> = OperatorApplicationEditor()
 
     @JvmStatic
     fun main(args: Array<String>) {

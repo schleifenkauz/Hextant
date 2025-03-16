@@ -9,8 +9,11 @@ import hextant.core.editor.ExpanderConfig
 import hextant.expr.Expr
 import hextant.expr.IntLiteral
 import hextant.expr.Operator.*
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
-class ExprExpander : ConfiguredExpander<Expr?, ExprEditor<Expr>>(), ExprEditor<Expr> {
+@Serializable
+class ExprExpander : ConfiguredExpander<@Contextual Expr?, @Contextual ExprEditor<Expr>>(), ExprEditor<@Contextual Expr> {
     init {
         configure(config)
     }
