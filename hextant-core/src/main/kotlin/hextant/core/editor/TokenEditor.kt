@@ -9,11 +9,12 @@ import hextant.core.Editor
 import hextant.core.view.ListEditorControl
 import hextant.core.view.TokenEditorView
 import hextant.serial.IndexAccessor
+import hextant.serial.string
 import hextant.undo.AbstractEdit
 import hextant.undo.Edit
 import hextant.undo.UndoManager
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 import reaktive.value.*
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.safeCast
@@ -23,15 +24,12 @@ import kotlin.reflect.jvm.jvmErasure
  * A token editor transforms text to tokens.
  * When setting the text it is automatically compiled to a token.
  */
-@Serializable
 abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>(), TokenType<R> {
     private lateinit var _text: ReactiveVariable<String>
 
     //TODO this is really ugly, do we really need this?
-    @Transient
     private val resultType = this::class.memberFunctions.first { f -> f.name == "compile" }.returnType
 
-    @Transient
     private lateinit var _result: ReactiveVariable<R>
 
     final override val result: ReactiveValue<R> get() = _result
@@ -106,6 +104,12 @@ abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>
         val res = resultType.jvmErasure.safeCast(completion.item) as R?
             ?: compile(completion.completionText)
         _result.set(res)
+    }
+
+    override fun serialize(): JsonElement = JsonPrimitive(text.now)
+
+    override fun deserialize(element: JsonElement) {
+        setInitialText(element.string)
     }
 
     private class TextEdit(

@@ -5,14 +5,12 @@
 package hextant.serial
 
 import bundles.bundlesSerializersModule
-import hextant.context.Context
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
@@ -26,7 +24,7 @@ internal inline fun safeIO(action: () -> Unit) {
     }
 }
 
-internal val JsonElement.string
+val JsonElement.string
     get(): String {
         val prim = jsonPrimitive
         require(prim.isString) { "$prim is not a string" }

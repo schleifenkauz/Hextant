@@ -13,7 +13,6 @@ import kotlinx.serialization.Transient
 import reaktive.value.ReactiveValue
 
 @ProvideFeature
-@Serializable
 class SumEditor : CompoundEditor<@Contextual Sum?>(), ExprEditor<Sum> {
     val expressions by child(ExprListEditor())
 

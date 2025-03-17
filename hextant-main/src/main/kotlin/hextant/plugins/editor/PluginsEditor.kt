@@ -14,6 +14,7 @@ import hextant.plugins.view.PluginsEditorView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonElement
 import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
 
@@ -85,6 +86,14 @@ internal class PluginsEditor(
     }
 
     private fun String.matches(searchText: String) = startsWith(searchText)
+
+    override fun serialize(): JsonElement {
+        TODO("Not yet implemented")
+    }
+
+    override fun deserialize(element: JsonElement) {
+        TODO("Not yet implemented")
+    }
 
     companion object {
         private const val LIMIT = 20

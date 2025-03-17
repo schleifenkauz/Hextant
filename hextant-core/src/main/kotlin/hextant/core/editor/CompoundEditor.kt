@@ -10,6 +10,9 @@ import hextant.core.EditorView
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
 import hextant.serial.PropertyAccessor
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
 import reaktive.value.ReactiveValue
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
@@ -94,5 +97,20 @@ abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
             }
         }
         return false
+    }
+
+    override fun serialize(): JsonElement = buildJsonObject {
+        for (child in getChildren()) {
+            val property = child.accessor as? PropertyAccessor ?: continue
+            put(property.propertyName, child.serialize())
+        }
+    }
+
+    override fun deserialize(element: JsonElement) {
+        for (child in getChildren()) {
+            val property = child.accessor as? PropertyAccessor ?: continue
+            val childElement = element.jsonObject.getValue(property.propertyName)
+            child.deserialize(childElement)
+        }
     }
 }

@@ -2,16 +2,15 @@ package hextant.core.editor
 
 import hextant.context.withoutUndo
 import hextant.core.view.SimpleChoiceEditorView
+import hextant.serial.JsonSerializer
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JsonElement
 import reaktive.Observer
 import reaktive.value.*
 
-@Serializable
-abstract class SimpleChoiceEditor<C> : AbstractEditor<C, SimpleChoiceEditorView<C>>(), ChoiceSource<C> {
-    @Transient
+abstract class SimpleChoiceEditor<C> : AbstractEditor<C, SimpleChoiceEditorView<C>>(), ChoiceSource<C>,
+    JsonSerializer<C> {
     private val syncedVariables = mutableMapOf<ReactiveVariable<C>, Observer>()
 
     private lateinit var _selected: ReactiveVariable<C>
@@ -61,6 +60,12 @@ abstract class SimpleChoiceEditor<C> : AbstractEditor<C, SimpleChoiceEditorView<
     override fun viewAdded(view: SimpleChoiceEditorView<C>) {
         view.selected(_selected.now)
     }
+
+    override fun deserialize(element: JsonElement) {
+        selectInitial(fromJson(element))
+    }
+
+    override fun serialize(): JsonElement = toJson(result.now)
 
     private class Edit<T>(
         private val selector: SimpleChoiceEditor<T>,

@@ -7,11 +7,10 @@ package hextant.core.editor
 import hextant.context.Context
 import hextant.core.Editor
 import hextant.serial.EditorAccessor
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import reaktive.value.ReactiveValue
 import reaktive.value.binding.map
 
-@Serializable
 abstract class TransformedEditor<T, R>(internal val source: Editor<T>) : Editor<R> {
     protected abstract fun transform(result: T): R
 
@@ -51,4 +50,12 @@ abstract class TransformedEditor<T, R>(internal val source: Editor<T>) : Editor<
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> = source.getSubEditor(accessor)
+
+    override fun serialize(): JsonElement = source.serialize()
+
+    override fun serialize(typeTag: Boolean): JsonElement = source.serialize(typeTag)
+
+    override fun deserialize(element: JsonElement) {
+        source.deserialize(element)
+    }
 }

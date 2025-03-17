@@ -21,9 +21,13 @@ internal object ChoiceEditorCodegen : EditorClassGen<Choice, Element>() {
             .primaryConstructor()
             .extends(type("SimpleChoiceEditor", resultType))
             .implementEditorOfSuperType(annotation, resultType)
+            .implements(
+                "JsonSerializer<${nodeType.simpleName}>",
+                by = "KJsonSerializer(kotlinx.serialization.serializer<${nodeType.simpleName}>())".e
+            )
             .body {
                 +constructor(
-                    "initialValue" of nodeType.simpleName.toString()
+                    "initialValue" of resultType
                 ).delegate().body {
                     +"selectInitial(initialValue)"
                 }
@@ -48,6 +52,7 @@ internal object ChoiceEditorCodegen : EditorClassGen<Choice, Element>() {
                 `package`(pkg)
                 import("hextant.core.editor.*")
                 import("hextant.context.*")
+                import("hextant.serial.*")
                 import(nodeType)
                 import(processingEnv.fqName(element))
             }

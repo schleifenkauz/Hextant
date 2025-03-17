@@ -9,6 +9,7 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import kotlinx.serialization.serializer
@@ -34,7 +35,7 @@ val Editor<*>.root: Editor<*>
 @OptIn(ExperimentalSerializationApi::class)
 fun Editor<*>.saveAsJson(file: File) {
     val stream = file.outputStream().buffered()
-    json.encodeToStream(serializer<Editor<*>>(), this, stream)
+    json.encodeToStream(serialize(typeTag = true), stream)
     stream.close()
 }
 
@@ -44,7 +45,7 @@ fun Editor<*>.saveAsJson(file: File) {
 @OptIn(ExperimentalSerializationApi::class)
 fun readEditorFromJson(file: File): Editor<*> {
     val stream = file.inputStream().buffered()
-    val editor = json.decodeFromStream<Editor<*>>(stream)
+    val editor = Editor.deserializeWithTypeTag(json.decodeFromStream<JsonElement>(stream))
     stream.close()
     return editor
 }

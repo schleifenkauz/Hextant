@@ -12,7 +12,6 @@ import hextant.expr.Operator.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
-@Serializable
 class ExprExpander : ConfiguredExpander<@Contextual Expr?, @Contextual ExprEditor<Expr>>(), ExprEditor<@Contextual Expr> {
     init {
         configure(config)

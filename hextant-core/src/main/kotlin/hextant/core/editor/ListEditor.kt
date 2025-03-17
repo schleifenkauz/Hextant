@@ -18,28 +18,26 @@ import hextant.serial.IndexAccessor
 import hextant.serial.InvalidAccessorException
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import reaktive.list.MutableReactiveList
 import reaktive.list.ReactiveList
 import reaktive.list.binding.values
 import reaktive.list.toReactiveList
 import reaktive.value.ReactiveValue
 import reaktive.value.binding.binding
+import kotlin.reflect.KClass
 
 /**
  * An editor for multiple child editors of type [E] whose result type is [R]
  */
 @ProvideFeature
-@Serializable
-abstract class ListEditor<R, E : Editor<@Contextual R>> : AbstractEditor<@Contextual List<R>, ListEditorView>() {
+abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditorView>() {
     private lateinit var _editors: MutableReactiveList<E>
 
-    @Transient
     private val editorClass = javaClass.getMethod("createEditor").returnType.kotlin
 
-    @Transient
     private var mayBeEmpty = true
 
     private fun mayRemove() = mayBeEmpty || editors.now.size > 1
@@ -323,6 +321,20 @@ abstract class ListEditor<R, E : Editor<@Contextual R>> : AbstractEditor<@Contex
     }
 
     private fun emptyNow(): Boolean = editors.now.isEmpty()
+
+    override fun serialize(): JsonElement {
+        val typeTag = fixedEditorClass() == null
+        return JsonArray(editors.now.map { e -> e.serialize(typeTag = typeTag) })
+    }
+
+    override fun deserialize(element: JsonElement) {
+        element as JsonArray
+        val klass = fixedEditorClass()
+        val editors = element.map { json -> Editor.deserialize(json, klass) as E }
+        _editors = editors.toReactiveList()
+    }
+
+    protected open fun fixedEditorClass(): KClass<E>? = null
 
     private class AddEdit<E : Editor<*>>(
         private val editor: ListEditor<*, E>,

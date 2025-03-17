@@ -8,10 +8,12 @@ import hextant.completion.Completion
 import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.core.view.ValidatedTokenEditorView
+import hextant.serial.string
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 import reaktive.event.event
 import reaktive.event.unitEvent
 import reaktive.value.*
@@ -21,7 +23,6 @@ import reaktive.value.*
  * In the editable state setting the text is allowed, but the change is not immediately reflected in the [result].
  * One can commit or abort a change to get in the not editable state again and call [beginChange] to make the editor editable.
  */
-@Serializable
 abstract class ValidatedTokenEditor<R : Any>() : AbstractEditor<R, ValidatedTokenEditorView>(), TokenType<R?> {
     private lateinit var _text: ReactiveVariable<String>
 
@@ -210,6 +211,12 @@ abstract class ValidatedTokenEditor<R : Any>() : AbstractEditor<R, ValidatedToke
     override fun viewAdded(view: ValidatedTokenEditorView) {
         view.setEditable(editable.now)
         view.displayText(_text.now)
+    }
+
+    override fun serialize(): JsonElement = JsonPrimitive(text.now)
+
+    override fun deserialize(element: JsonElement) {
+        setInitialText(element.string)
     }
 
     private class CommitEdit<R : Any>(

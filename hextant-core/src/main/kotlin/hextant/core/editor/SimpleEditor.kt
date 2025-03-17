@@ -1,14 +1,14 @@
 package hextant.core.editor
 
 import hextant.core.Editor
-import kotlinx.serialization.Serializable
+import hextant.serial.JsonSerializer
+import kotlinx.serialization.json.JsonElement
 import reaktive.value.ReactiveValue
 import reaktive.value.ReactiveVariable
 import reaktive.value.now
 import reaktive.value.reactiveVariable
 
-@Serializable
-open class SimpleEditor<R : Any> : AbstractEditor<R, SimpleEditor.View<R>>() {
+abstract class SimpleEditor<R : Any> : AbstractEditor<R, SimpleEditor.View<R>>(), JsonSerializer<R> {
     private lateinit var _result: ReactiveVariable<R>
 
     override val result: ReactiveValue<R> get() = _result
@@ -32,5 +32,11 @@ open class SimpleEditor<R : Any> : AbstractEditor<R, SimpleEditor.View<R>>() {
 
     interface View<R : Any> {
         fun displayResult(result: R)
+    }
+
+    override fun serialize(): JsonElement = toJson(result.now)
+
+    override fun deserialize(element: JsonElement) {
+        setInitialResult(fromJson(element))
     }
 }

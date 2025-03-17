@@ -6,12 +6,12 @@ import hextant.serial.EditorAccessor
 import hextant.serial.OptionalEditorContent
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import reaktive.value.*
 import reaktive.value.binding.flatMap
+import kotlin.reflect.KClass
 
-@Serializable
 abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEditorView>() {
     protected abstract val default: R
 
@@ -27,16 +27,11 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
         _editor = reactiveVariable(null)
     }
 
-    @Transient
     final override lateinit var result: ReactiveValue<R>
         private set
 
     override fun doInitialize() {
         result = _editor.flatMap { it?.result ?: reactiveValue(default) }
-    }
-
-    constructor(initialContent: E?) : this() {
-        if (initialContent != null) setContent(initialContent)
     }
 
     fun reset() {
@@ -76,10 +71,29 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
         notifyViews { display(content) }
     }
 
+    fun setInitialContent(content: E?) {
+        _editor = reactiveVariable(content)
+    }
+
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> = when (accessor) {
         OptionalEditorContent -> content.now ?: super.getSubEditor(accessor)
         else -> super.getSubEditor(accessor)
     }
+
+    override fun serialize(): JsonElement =
+        content.now?.serialize(typeTag = fixedContentClass() == null) ?: JsonNull
+
+    override fun deserialize(element: JsonElement) {
+        if (element == JsonNull) {
+            setInitialContent(null)
+            return
+        }
+        val klass = fixedContentClass()
+        val editor = Editor.deserialize(element, klass)
+        setInitialContent(editor as E)
+    }
+
+    protected open fun fixedContentClass(): KClass<E>? = null
 
     private class Expand(private val ref: OptionalEditor<*, *>) : AbstractEdit() {
         override fun doRedo() {

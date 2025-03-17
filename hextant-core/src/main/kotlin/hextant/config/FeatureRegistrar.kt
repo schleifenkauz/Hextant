@@ -110,7 +110,6 @@ internal class FeatureRegistrar(private val context: Context) {
         Default, Enabled, Disabled
     }
 
-    @Serializable
     private class StringActivationMap(private val map: MutableMap<String, FeatureActivation> = mutableMapOf()) :
         MutableMap<String, FeatureActivation> by map
 

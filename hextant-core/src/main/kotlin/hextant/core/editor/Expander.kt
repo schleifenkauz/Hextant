@@ -12,14 +12,14 @@ import hextant.core.editor.Expander.State.Expanded
 import hextant.core.editor.Expander.State.Text
 import hextant.core.view.ExpanderView
 import hextant.core.view.ListEditorControl
-import hextant.serial.EditorAccessor
-import hextant.serial.ExpanderContent
-import hextant.serial.IndexAccessor
-import hextant.serial.InvalidAccessorException
+import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import reaktive.value.*
 import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
@@ -32,7 +32,6 @@ import kotlin.reflect.jvm.jvmErasure
  * They allow the user to type in some text and then *expand* this text into a new editor,
  * which is then substituted for the typed in text.
  */
-@Serializable
 abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(), TokenType<R> {
     @Transient
     private val editorClass = this::class.memberFunctions.first { it.name == "expand" }.returnType.jvmErasure
@@ -301,12 +300,33 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         }
     }
 
-    @Serializable
+    override fun serialize(): JsonElement = when (val state = state.now) {
+        is Expanded<*> -> buildJsonObject {
+            val content = state.content!! as Editor<*>
+            put("type", JsonPrimitive(content.javaClass.canonicalName))
+            put("content", state.content.serialize())
+        }
+
+        is Text -> JsonPrimitive(state.text)
+    }
+
+    override fun deserialize(element: JsonElement) {
+        when (element) {
+            is JsonObject -> {
+                val type = element.getValue("type").string
+                val editor = Class.forName(type).newInstance() as E
+                val content = element.getValue("content")
+                editor.deserialize(content)
+                setInitialContent(editor)
+            }
+
+            else -> setInitialText(element.string)
+        }
+    }
+
     private sealed class State<out E> {
-        @Serializable
         class Text(val text: String) : State<Nothing>()
 
-        @Serializable
         class Expanded<out E>(val content: E) : State<E>()
     }
 

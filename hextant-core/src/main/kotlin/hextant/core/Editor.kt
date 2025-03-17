@@ -8,13 +8,25 @@ import hextant.context.Context
 import hextant.core.editor.Expander
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.serialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import reaktive.value.ReactiveValue
+import kotlin.reflect.KClass
 
 /**
  * An editor for results of type [R]
  */
+@Serializable(with = Editor.Serializer::class)
 interface Editor<out R> {
     val isInitialized: Boolean
+
     /**
      * A [reaktive.value.ReactiveValue] holding the result of compiling the content of the editor
      */
@@ -78,4 +90,47 @@ interface Editor<out R> {
      * The default implementation returns `false`.
      */
     fun supportsCopyPaste(): Boolean = false
+
+    fun serialize(): JsonElement
+
+    fun serialize(typeTag: Boolean): JsonElement
+
+    fun deserialize(element: JsonElement)
+
+    companion object {
+        inline fun <reified E : Editor<*>> deserialize(json: JsonElement): E {
+            val klass = E::class
+            return deserialize(json, klass) as E
+        }
+
+        fun deserialize(json: JsonElement, klass: KClass<*>?): Editor<*> {
+            if (klass == null) return deserializeWithTypeTag(json)
+            val editor = klass.java.newInstance() as Editor<*>
+            if (json is JsonObject && "_type" in json) error("Unexpected type tag in $json")
+            editor.deserialize(json)
+            return editor
+        }
+
+        fun deserializeWithTypeTag(json: JsonElement): Editor<*> {
+            if (json !is JsonObject) error("No type tag found on $json")
+            val type = json["_type"]?.jsonPrimitive?.content ?: error("No type tag found on $json")
+            val editor = Class.forName(type).newInstance() as Editor<*>
+            editor.deserialize(json["_content"] ?: json)
+            return editor
+        }
+    }
+
+    object Serializer : KSerializer<Editor<*>> {
+        override val descriptor: SerialDescriptor
+            get() = serialDescriptor<JsonElement>()
+
+        override fun serialize(encoder: Encoder, value: Editor<*>) {
+            encoder.encodeSerializableValue(kotlinx.serialization.serializer(), value.serialize())
+        }
+
+        override fun deserialize(decoder: Decoder): Editor<*> {
+            val json: JsonElement = decoder.decodeSerializableValue(kotlinx.serialization.serializer())
+            return deserialize(json) as Editor<*>
+        }
+    }
 }

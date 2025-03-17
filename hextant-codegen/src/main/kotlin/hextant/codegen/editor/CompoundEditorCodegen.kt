@@ -41,8 +41,7 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
                 final.override.lateinit.`var`("result").of(type("ReactiveValue", resultType)).accessors {
                     private.set
                 }
-                override.`fun`("initialize", "context" of "Context").body {
-                    +"super.initialize(context)"
+                +override.`fun`("doInitialize").body {
                     "result" assign call("composeResult", closure {
                         +call(functionName, componentNames.map { component -> get(component) select "now" })
                     })

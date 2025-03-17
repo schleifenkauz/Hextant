@@ -11,7 +11,6 @@ import kotlinx.serialization.Serializable
 /**
  * A [TokenEditor] that accepts every string.
  */
-@Serializable
 class SimpleStringEditor : TokenEditor<@Contextual String, TokenEditorView>() {
     override fun compile(token: String): String = token
 }

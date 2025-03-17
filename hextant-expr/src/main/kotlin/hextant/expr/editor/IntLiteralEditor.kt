@@ -15,10 +15,8 @@ import hextant.core.editor.TokenEditor
 import hextant.core.view.TokenEditorView
 import hextant.expr.IntLiteral
 import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 
 @ProvideFeature
-@Serializable
 class IntLiteralEditor @ProvideImplementation(EditorFactory::class) constructor() :
     TokenEditor<@Contextual IntLiteral?, TokenEditorView>(), ExprEditor<IntLiteral> {
     constructor(v: IntLiteral) : this() {

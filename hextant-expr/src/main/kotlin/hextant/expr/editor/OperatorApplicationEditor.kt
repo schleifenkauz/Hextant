@@ -14,7 +14,6 @@ import kotlinx.serialization.Transient
 import reaktive.value.ReactiveValue
 
 @ProvideFeature
-@Serializable
 class OperatorApplicationEditor() : CompoundEditor<@Contextual OperatorApplication?>(), ExprEditor<OperatorApplication> {
     val operator by child(OperatorEditor())
     val operand1 by child(ExprExpander())

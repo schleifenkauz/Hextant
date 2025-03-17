@@ -10,7 +10,6 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @ProvideFeature
-@Serializable
 class OperatorEditor @ProvideImplementation(EditorFactory::class) constructor() :
     TokenEditor<@Contextual Operator?, TokenEditorView>() {
     constructor(operator: Operator) : this() {

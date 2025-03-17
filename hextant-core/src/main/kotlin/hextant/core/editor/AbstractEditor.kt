@@ -9,7 +9,7 @@ import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlinx.serialization.serializer
 
 /**
@@ -103,5 +103,26 @@ abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
     fun addView(view: V) {
         viewManager.addListener(view)
         viewAdded(view)
+    }
+
+    override fun serialize(typeTag: Boolean): JsonElement {
+        val json = serialize()
+        if (!typeTag) return json
+        val type = JsonPrimitive(javaClass.canonicalName)
+        if (json is JsonObject) {
+            val typeTag = "_type" to type
+            return JsonObject(json + typeTag)
+        } else return buildJsonObject {
+            put("_type", type)
+            put("_content", json)
+        }
+    }
+
+    override fun serialize(): JsonElement {
+        throw UnsupportedOperationException("Cannot serialize $this")
+    }
+
+    override fun deserialize(element: JsonElement) {
+        throw UnsupportedOperationException("Cannot serialize $this")
     }
 }

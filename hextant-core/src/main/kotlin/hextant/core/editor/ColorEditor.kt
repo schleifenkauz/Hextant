@@ -18,8 +18,7 @@ import java.util.*
  */
 @ProvideFeature
 @RegisterEditor
-@Serializable
-class ColorEditor() : TokenEditor<@Contextual Color, TokenEditorView>() {
+class ColorEditor() : TokenEditor<Color, TokenEditorView>() {
     constructor(color: Color) : this() {
         setInitialText(toString(color) ?: "<???>")
     }

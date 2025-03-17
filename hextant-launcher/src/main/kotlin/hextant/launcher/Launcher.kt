@@ -6,12 +6,12 @@ import bundles.set
 import hextant.cli.CLI
 import hextant.cli.HextantDirectory
 import hextant.codegen.ProvideProjectType
-import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.EditorView
 import hextant.core.editor.AbstractEditor
 import hextant.plugins.LocatedProjectType
 import hextant.project.ProjectType
+import kotlinx.serialization.json.JsonElement
 import reaktive.value.ReactiveValue
 import reaktive.value.reactiveValue
 import java.io.File
@@ -59,6 +59,14 @@ class Launcher : AbstractEditor<Unit, EditorView>() {
     }
 
     override val result: ReactiveValue<Unit> = reactiveValue(Unit)
+
+    override fun serialize(): JsonElement {
+        TODO("Not yet implemented")
+    }
+
+    override fun deserialize(element: JsonElement) {
+        TODO("Not yet implemented")
+    }
 
     @ProvideProjectType("Launcher")
     companion object : ProjectType, PublicProperty<Launcher> by property("launcher") {

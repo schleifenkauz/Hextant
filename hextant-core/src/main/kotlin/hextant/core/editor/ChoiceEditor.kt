@@ -8,17 +8,22 @@ import hextant.core.Editor
 import hextant.core.view.ChoiceEditorView
 import hextant.serial.ChoiceEditorContent
 import hextant.serial.EditorAccessor
+import hextant.serial.JsonSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
 import reaktive.value.*
 import reaktive.value.binding.flatMap
+import kotlin.reflect.KClass
 
 /**
  * An [Editor] which supports choosing different items of type [C]
  */
 @Serializable
 abstract class ChoiceEditor<C : Any, R, E : Editor<R>> :
-    AbstractEditor<R, ChoiceEditorView<C, E>>(), ChoiceSource<C> {
+    AbstractEditor<R, ChoiceEditorView<C, E>>(), ChoiceSource<C>, JsonSerializer<C> {
     private lateinit var _selected: ReactiveVariable<C>
     private lateinit var _content: ReactiveVariable<E>
 
@@ -73,5 +78,22 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>> :
             return content.now
         }
         return super.getSubEditor(accessor)
+    }
+
+    protected open fun fixedEditorClass(option: C): KClass<*>? = null
+
+    override fun serialize(): JsonElement = buildJsonObject {
+        put("option", toJson(selected.now))
+        val typeTag = fixedEditorClass(selected.now) == null
+        put("editor", content.now.serialize(typeTag))
+    }
+
+    override fun deserialize(element: JsonElement) {
+        val option = fromJson(element.jsonObject.getValue("option"))
+        val editorElement = element.jsonObject.getValue("editor")
+        val klass = fixedEditorClass(option)
+        val editor = Editor.deserialize(editorElement, klass)
+        _selected = reactiveVariable(option)
+        _content = reactiveVariable(editor as E)
     }
 }
