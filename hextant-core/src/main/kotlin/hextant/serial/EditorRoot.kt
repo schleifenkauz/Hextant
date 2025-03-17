@@ -47,6 +47,7 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
 
     companion object {
         fun <E : Editor<*>> create(editor: E, context: Context): EditorRoot<E> {
+            editor.setupDefaultState()
             editor.initialize(context)
             val control = context.createControl(editor)
             return EditorRoot(editor, control)

@@ -1,6 +1,5 @@
 package hextant.core.editor
 
-import hextant.context.Context
 import hextant.core.Editor
 import hextant.core.view.OptionalEditorView
 import hextant.serial.EditorAccessor
@@ -9,23 +8,24 @@ import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import reaktive.value.ReactiveValue
+import reaktive.value.*
 import reaktive.value.binding.flatMap
-import reaktive.value.now
-import reaktive.value.reactiveValue
-import reaktive.value.reactiveVariable
 
 @Serializable
 abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEditorView>() {
     protected abstract val default: R
 
-    private val _editor = reactiveVariable<E?>(null)
+    private lateinit var _editor: ReactiveVariable<E?>
 
     val content: ReactiveValue<E?> get() = _editor
 
     val isExpanded get() = content.now != null
 
     protected abstract fun createEditor(): E
+
+    override fun setupDefaultState() {
+        _editor = reactiveVariable(null)
+    }
 
     @Transient
     final override lateinit var result: ReactiveValue<R>

@@ -5,7 +5,6 @@
 package hextant.core.editor
 
 import hextant.completion.Completion
-import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.core.view.ValidatedTokenEditorView
@@ -41,7 +40,10 @@ abstract class ValidatedTokenEditor<R : Any>() : AbstractEditor<R, ValidatedToke
     fun setInitialText(initialText: String) {
         oldText = initialText
         _text = reactiveVariable(initialText)
-        _editable.set(true)
+    }
+
+    override fun setupDefaultState() {
+        setInitialText("")
     }
 
     @Transient

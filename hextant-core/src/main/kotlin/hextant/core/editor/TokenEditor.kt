@@ -27,6 +27,7 @@ import kotlin.reflect.jvm.jvmErasure
 abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>(), TokenType<R> {
     private lateinit var _text: ReactiveVariable<String>
 
+    //TODO this is really ugly, do we really need this?
     @Transient
     private val resultType = this::class.memberFunctions.first { f -> f.name == "compile" }.returnType
 
@@ -42,6 +43,10 @@ abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>
 
     override fun viewAdded(view: V) {
         view.displayText(text.now)
+    }
+
+    override fun setupDefaultState() {
+        setInitialText("")
     }
 
     fun setInitialText(text: String) {

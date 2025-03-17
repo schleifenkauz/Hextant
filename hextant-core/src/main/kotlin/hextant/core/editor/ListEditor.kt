@@ -6,8 +6,11 @@ package hextant.core.editor
 
 import hextant.codegen.ProvideFeature
 import hextant.command.meta.ProvideCommand
-import hextant.context.*
+import hextant.context.Clipboard
 import hextant.context.ClipboardContent.MultipleEditors
+import hextant.context.Context
+import hextant.context.executeSafely
+import hextant.context.withoutUndo
 import hextant.core.Editor
 import hextant.core.view.ListEditorView
 import hextant.serial.EditorAccessor
@@ -21,7 +24,7 @@ import kotlinx.serialization.Transient
 import reaktive.list.MutableReactiveList
 import reaktive.list.ReactiveList
 import reaktive.list.binding.values
-import reaktive.list.reactiveList
+import reaktive.list.toReactiveList
 import reaktive.value.ReactiveValue
 import reaktive.value.binding.binding
 
@@ -72,8 +75,16 @@ abstract class ListEditor<R, E : Editor<@Contextual R>> : AbstractEditor<@Contex
         }
     }
 
+    fun setInitialEditors(editors: List<E>) {
+        _editors = editors.toReactiveList()
+    }
+
     fun setInitialEditors(vararg editors: E) {
-        _editors = reactiveList(*editors)
+        setInitialEditors(editors.toList())
+    }
+
+    override fun setupDefaultState() {
+        setInitialEditors(emptyList<E>())
     }
 
     override fun getChildren(): Collection<Editor<*>> = editors.now

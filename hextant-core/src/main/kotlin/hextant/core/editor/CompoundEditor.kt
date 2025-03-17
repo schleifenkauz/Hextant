@@ -32,6 +32,12 @@ abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
         crossinline compose: ResultComposer.() -> R
     ): ReactiveValue<R> = composeResult(getChildren(), default, compose)
 
+    override fun setupDefaultState() {
+        for (editor in getChildren()) {
+            editor.setupDefaultState()
+        }
+    }
+
     /**
      * Returns the result that this token editor should have if it one of its components has an invalid result.
      *

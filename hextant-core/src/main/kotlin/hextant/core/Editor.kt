@@ -46,6 +46,11 @@ interface Editor<out R> {
     fun getChildren(): Collection<Editor<*>>
 
     /**
+     * Is called when a new editor is created to initialize its variables to their default values.
+     * */
+    fun setupDefaultState() {}
+
+    /**
      * Initialize this editor in the given [context]
      */
     fun initialize(context: Context)

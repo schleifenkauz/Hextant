@@ -82,6 +82,10 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         state = reactiveVariable(Text(text))
     }
 
+    override fun setupDefaultState() {
+        setInitialText("")
+    }
+
     /**
      * Return the editor that should be wrapped if the expander
      * is expanded with the given [text] or `null` if the text is not valid.

@@ -29,6 +29,10 @@ abstract class TransformedEditor<T, R>(internal val source: Editor<T>) : Editor<
         result = source.result.map(::transform)
     }
 
+    override fun setupDefaultState() {
+        source.setupDefaultState()
+    }
+
     override val parent: Editor<*>?
         get() = source.parent
 

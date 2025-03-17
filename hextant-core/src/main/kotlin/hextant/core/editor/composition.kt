@@ -16,7 +16,7 @@ import reaktive.value.now
  */
 class ResultComposer @PublishedApi internal constructor(private val compound: Editor<*>) {
     private fun Editor<*>.checkParent() {
-        require(parent == compound) { "Illegal attempt to get result of $this which is not a child of $compound" }
+        require(this in compound.getChildren()) { "Illegal attempt to get result of $this which is not a child of $compound" }
     }
 
     /**

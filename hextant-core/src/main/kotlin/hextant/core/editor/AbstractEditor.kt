@@ -40,7 +40,7 @@ abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
     final override fun initialize(context: Context) {
         if (isInitialized) throw IllegalStateException("Already initialized")
         this.context = context
-        for (child in children) {
+        for (child in getChildren()) {
             child.initialize(context)
         }
         doInitialize()
