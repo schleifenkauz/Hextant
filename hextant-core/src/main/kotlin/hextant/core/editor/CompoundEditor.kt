@@ -25,9 +25,11 @@ import kotlin.reflect.full.memberProperties
 abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
     private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
 
+    private val components = mutableListOf<Component>()
+
     /**
      * Composes a result from the component editor results of this compound editor using the [compose] block.
-     * The result is updated every time one of the [children] of this [CompoundEditor] changes its result
+     * The result is updated every time one of the [getChildren] of this [CompoundEditor] changes its result
      * and if any of the component results is incomplete the compound result will be set to the specified [default].
      */
     inline fun composeResult(
@@ -38,6 +40,15 @@ abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
     override fun setupDefaultState() {
         for (editor in getChildren()) {
             editor.setupDefaultState()
+        }
+    }
+
+    final override fun getChildren(): Collection<Editor<*>> = components.map { c -> c.editor }
+
+    override fun doInitialize() {
+        for ((editor, name, ctxFunc) in components) {
+            val ctx = ctxFunc(context)
+            editor.initialize(ctx, parent = this, PropertyAccessor(name))
         }
     }
 
@@ -66,18 +77,15 @@ abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
      * Make the given [editor] a child of this [CompoundEditor].
      */
     protected fun <E : Editor<*>> child(
-        editor: E, context: Context = this.context
+        editor: E, contextFunc: (Context) -> Context = { it }
     ): PropertyDelegateProvider<CompoundEditor<*>, ReadOnlyProperty<Any?, E>> =
         PropertyDelegateProvider { _, property ->
-            editor.initialize(context)
-            addChild(property.name, editor)
+            addComponent(property.name, editor, contextFunc)
             ReadOnlyProperty { _, _ -> editor }
         }
 
-    protected fun addChild(name: String, editor: Editor<*>) {
-        val acc = PropertyAccessor(name)
-        editor.locate(this, acc)
-        addChild(editor)
+    protected fun addComponent(name: String, editor: Editor<*>, contextFunc: (Context) -> Context = {it}) {
+        components.add(Component(editor, name, contextFunc))
     }
 
     override fun supportsCopyPaste(): Boolean = getChildren().all { e -> e.supportsCopyPaste() }
@@ -100,17 +108,21 @@ abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
     }
 
     override fun serialize(): JsonElement = buildJsonObject {
-        for (child in getChildren()) {
-            val property = child.accessor as? PropertyAccessor ?: continue
-            put(property.propertyName, child.serialize())
+        for ((editor, name, _) in components) {
+            put(name, editor.serialize())
         }
     }
 
     override fun deserialize(element: JsonElement) {
-        for (child in getChildren()) {
-            val property = child.accessor as? PropertyAccessor ?: continue
-            val childElement = element.jsonObject.getValue(property.propertyName)
-            child.deserialize(childElement)
+        for ((editor, name, _) in components) {
+            val childElement = element.jsonObject.getValue(name)
+            editor.deserialize(childElement)
         }
     }
+
+    private data class Component(
+        val editor: Editor<*>,
+        val propertyName: String,
+        val contextFunc: (Context) -> Context = { it }
+    )
 }

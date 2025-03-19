@@ -40,8 +40,7 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>> :
     }
 
     override fun doInitialize() {
-        content.now.initialize(context)
-        content.now.locate(parent = this, ChoiceEditorContent)
+        content.now.initialize(context, parent = this, ChoiceEditorContent)
         result = _content.flatMap { it.result }
     }
 
@@ -60,9 +59,9 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>> :
     }
 
     private fun doSelect(choice: C, editor: E) {
+        editor.initialize(context, parent = this, ChoiceEditorContent)
         _selected.set(choice)
         _content.set(editor)
-        editor.locate(parent = this, ChoiceEditorContent)
     }
 
     override fun toString(choice: C): ReactiveString = reactiveValue(choice.toString())

@@ -23,7 +23,7 @@ abstract class TransformedEditor<T, R>(internal val source: Editor<T>) : Editor<
     override val context: Context
         get() = source.context
 
-    override fun initialize(context: Context) {
+    override fun initialize(context: Context, parent: Editor<*>?, accessor: EditorAccessor, expander: Expander<*, *>?) {
         source.initialize(context)
         result = source.result.map(::transform)
     }
@@ -44,10 +44,6 @@ abstract class TransformedEditor<T, R>(internal val source: Editor<T>) : Editor<
     override fun getChildren(): Collection<Editor<*>> = source.getChildren()
 
     override fun paste(editor: Editor<*>): Boolean = source.paste(editor)
-
-    override fun locate(parent: Editor<*>?, accessor: EditorAccessor, expander: Expander<*, *>?) {
-        source.locate(parent, accessor)
-    }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> = source.getSubEditor(accessor)
 

@@ -61,15 +61,13 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     final override lateinit var result: ReactiveValue<List<R>>
         private set
 
+    override fun getChildren(): Collection<Editor<*>> = editors.now
+
     override fun doInitialize() {
         results = editors.map { it.result }.values()
         result = binding(results) { results.now.toList() }
-    }
-
-    override fun locate(parent: Editor<*>?, accessor: EditorAccessor, expander: Expander<*, *>?) {
-        super.locate(parent, accessor, expander)
-        for ((i, editor) in editors.now.withIndex()) {
-            editor.locate(parent = this, IndexAccessor(i))
+        for ((idx, editor) in getChildren().withIndex()) {
+            editor.initialize(childContext(), parent = this, IndexAccessor(idx))
         }
     }
 
@@ -84,8 +82,6 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     override fun setupDefaultState() {
         setInitialEditors(emptyList<E>())
     }
-
-    override fun getChildren(): Collection<Editor<*>> = editors.now
 
     /**
      * Create a new Editor for results of type [E], or null if no new editor should be created
@@ -290,9 +286,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
      */
     private fun doAddAt(index: Int, editor: E) {
         val emptyBefore = emptyNow()
-        editor.initialize(childContext())
-        editor.locate(parent = this, IndexAccessor(index))
-        addChild(editor)
+        editor.initialize(childContext(), parent = this, IndexAccessor(index))
         _editors.now.add(index, editor)
         updateIndicesFrom(index + 1)
         notifyViews {

@@ -41,21 +41,16 @@ internal object CompoundEditorCodegen : EditorClassGen<Compound, Element>() {
                 final.override.lateinit.`var`("result").of(type("ReactiveValue", resultType)).accessors {
                     private.set
                 }
+                init {
+                    for (p in parameters) {
+                        +"addComponent"(lit(p.name), p.name.e)
+                    }
+                }
                 +override.`fun`("doInitialize").body {
+                    +"super.doInitialize()"
                     "result" assign call("composeResult", closure {
                         +call(functionName, componentNames.map { component -> get(component) select "now" })
                     })
-                }
-                +override.`fun`(
-                    "locate",
-                    "parent" of "hextant.core.Editor<*>?",
-                    "accessor" of "hextant.serial.EditorAccessor",
-                    "expander" of "hextant.core.editor.Expander<*, *>?"
-                ).body {
-                    +"super.locate(parent, accessor, expander)"
-                    for (component in componentNames) {
-                        +"${component}.locate(parent = this, hextant.serial.PropertyAccessor(\"${component}\"))"
-                    }
                 }
                 if (annotation.serializable) {
                     importSerializationPackages()

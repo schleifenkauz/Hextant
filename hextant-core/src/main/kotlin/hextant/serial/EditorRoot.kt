@@ -36,7 +36,7 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
     }
 
     fun initialize(context: Context) {
-        editor.initialize(context)
+        editor.initialize(context, parent = null, accessor = Root)
         control = context.createControl(editor)
         control.importJsonArgumentTree(controlArguments)
     }
@@ -50,8 +50,7 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
     }
 
     object Serializer : KSerializer<EditorRoot<*>> {
-        override val descriptor: SerialDescriptor
-            get() = buildClassSerialDescriptor("EditorRoot") {
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("EditorRoot") {
                 element<JsonElement>("editor")
                 element<JsonElement>("controlArguments")
             }
@@ -74,6 +73,7 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
                 when (decodeElementIndex(descriptor)) {
                     0 -> editorJson = decodeSerializableElement(descriptor, 0, kotlinx.serialization.serializer())
                     1 -> controlArguments = decodeSerializableElement(descriptor, 0, kotlinx.serialization.serializer())
+                    else -> break
                 }
             }
             val editor = Editor.deserializeWithTypeTag(editorJson)
@@ -84,9 +84,9 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
     companion object {
         fun <E : Editor<*>> create(editor: E, context: Context): EditorRoot<E> {
             editor.setupDefaultState()
-            editor.initialize(context)
-            val control = context.createControl(editor)
-            return EditorRoot(editor, control)
+            val root = EditorRoot(editor, JsonObject(emptyMap()))
+            root.initialize(context)
+            return root
         }
     }
 }

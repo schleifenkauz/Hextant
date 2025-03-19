@@ -74,6 +74,8 @@ class CommandLine private constructor(val source: CommandSource) :
      */
     fun availableCommands(): Collection<Command<*, *>> = source.availableCommands()
 
+    override fun getChildren(): Collection<Editor<*>> = arguments.orEmpty()
+
     /**
      * Expand this [CommandLine] by searching for an applicable command with the current [commandName] and instantiating
      * the editors needed for the command arguments.
@@ -95,9 +97,7 @@ class CommandLine private constructor(val source: CommandSource) :
             val editor =
                 if (p.editWith != null) p.editWith.createEditor()
                 else context.createEditor(p.type)
-            editor.initialize(context)
-            editor.locate(this, PropertyAccessor(p.name))
-            addChild(editor)
+            editor.initialize(context, parent = this, PropertyAccessor(p.name))
             editor
         }
         bindResult(command, editors.map { it.result })

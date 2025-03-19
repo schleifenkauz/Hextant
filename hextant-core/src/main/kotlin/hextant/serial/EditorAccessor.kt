@@ -47,3 +47,7 @@ object ChoiceEditorContent : EditorAccessor() {
 object OptionalEditorContent : EditorAccessor() {
     override fun toString(): String = ".optionalContent"
 }
+
+object Root: EditorAccessor() {
+    override fun toString(): String = "root"
+}

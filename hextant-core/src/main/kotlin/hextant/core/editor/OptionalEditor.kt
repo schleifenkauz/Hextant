@@ -65,8 +65,7 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
     }
 
     private fun setContent(content: E) {
-        content.initialize(context)
-        content.locate(content, OptionalEditorContent)
+        content.initialize(context, parent = this, OptionalEditorContent)
         _editor.set(content)
         notifyViews { display(content) }
     }

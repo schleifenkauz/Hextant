@@ -246,8 +246,8 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
      * If the given [editor] doesn't have the right [context] it is copied.
      */
     fun expand(editor: E) {
+        editor.initialize(context, parent = this.parent, ExpanderContent, expander = this)
         state.set(Expanded(editor))
-        editor.locate(parent, ExpanderContent, this)
         notifyViews { expanded(editor) }
         onExpansion(editor)
     }

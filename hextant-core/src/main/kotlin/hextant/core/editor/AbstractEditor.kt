@@ -31,29 +31,26 @@ abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
     final override var expander: Expander<*, *>? = null
         private set
 
-    private val children = mutableListOf<Editor<*>>()
-
     val viewManager: ListenerManager<@UnsafeVariance V> = ListenerManager.createWeakListenerManager()
 
-    override fun getChildren(): Collection<Editor<*>> = children
+    override fun getChildren(): Collection<Editor<*>> = emptyList()
 
-    final override fun initialize(context: Context) {
+    final override fun initialize(
+        context: Context,
+        parent: Editor<*>?,
+        accessor: EditorAccessor,
+        expander: Expander<*, *>?,
+    ) {
         if (isInitialized) throw IllegalStateException("Already initialized")
         this.context = context
-        for (child in getChildren()) {
-            child.initialize(context)
-        }
+        this.parent = parent
+        this.accessor = accessor
+        this.expander = expander
         doInitialize()
         isInitialized = true
     }
 
     protected open fun doInitialize() {}
-
-    override fun locate(parent: Editor<*>?, accessor: EditorAccessor, expander: Expander<*, *>?) {
-        this.parent = parent
-        this.accessor = accessor
-        this.expander = expander
-    }
 
     override fun implCopy(): Editor<R> {
         val serializer = serializer<Editor<R>>()
@@ -66,29 +63,6 @@ abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
     }
 
     override fun paste(editor: Editor<*>): Boolean = false
-
-    /**
-     * Makes the [editor] a child of this editor and just returns it
-     */
-    protected fun <E : Editor<*>> addChild(editor: E): E {
-        children.add(editor)
-        return editor
-    }
-
-    /**
-     * Removes the given [editor] from the [children].
-     * @throws IllegalStateException if [editor] is not a child of this editor.
-     */
-    protected fun <E : Editor<*>> removeChild(editor: E) {
-        if (!children.remove(editor)) throw IllegalStateException("$editor is not a child of $this")
-    }
-
-    /**
-     * Make all the given editors children of this editor
-     */
-    protected fun children(vararg children: Editor<*>) {
-        for (c in children) addChild(c)
-    }
 
     fun notifyViews(action: (@UnsafeVariance V).() -> Unit) {
         viewManager.notifyListeners {

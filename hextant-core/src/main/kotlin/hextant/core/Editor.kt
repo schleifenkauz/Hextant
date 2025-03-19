@@ -8,6 +8,7 @@ import hextant.context.Context
 import hextant.core.editor.Expander
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
+import hextant.serial.Root
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -65,12 +66,12 @@ interface Editor<out R> {
     /**
      * Initialize this editor in the given [context]
      */
-    fun initialize(context: Context)
-
-    /**
-     * Locate this editor in the editor tree.
-     */
-    fun locate(parent: Editor<*>?, accessor: EditorAccessor, expander: Expander<*, *>? = null)
+    fun initialize(
+        context: Context,
+        parent: Editor<*>? = null,
+        accessor: EditorAccessor = Root,
+        expander: Expander<*, *>? = null
+    )
 
     /**
      * Return the child denoted by the given [accessor] or throw a [InvalidAccessorException] if there is no such child
@@ -121,8 +122,7 @@ interface Editor<out R> {
     }
 
     object Serializer : KSerializer<Editor<*>> {
-        override val descriptor: SerialDescriptor
-            get() = serialDescriptor<JsonElement>()
+        override val descriptor: SerialDescriptor = serialDescriptor<JsonElement>()
 
         override fun serialize(encoder: Encoder, value: Editor<*>) {
             encoder.encodeSerializableValue(kotlinx.serialization.serializer(), value.serialize())
