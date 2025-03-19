@@ -31,6 +31,10 @@ internal object ChoiceEditorCodegen : EditorClassGen<Choice, Element>() {
                 ).delegate().body {
                     +"selectInitial(initialValue)"
                 }
+                +override.`fun`("setupDefaultState").body {
+                    val default = annotation.initialValue.takeIf { it != DEFAULT } ?: "$choicesFunc[0]"
+                    +"selectInitial"(default.e)
+                }
                 +override.`fun`("choices") returns choicesFunc.e
                 if (annotation.serializable) {
                     importSerializationPackages()

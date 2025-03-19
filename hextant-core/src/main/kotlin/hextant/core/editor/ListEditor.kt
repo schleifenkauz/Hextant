@@ -64,11 +64,11 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     override fun getChildren(): Collection<Editor<*>> = editors.now
 
     override fun doInitialize() {
-        results = editors.map { it.result }.values()
-        result = binding(results) { results.now.toList() }
         for ((idx, editor) in getChildren().withIndex()) {
             editor.initialize(childContext(), parent = this, IndexAccessor(idx))
         }
+        results = editors.map { it.result }.values()
+        result = binding(results) { results.now.toList() }
     }
 
     fun setInitialEditors(editors: List<E>) {

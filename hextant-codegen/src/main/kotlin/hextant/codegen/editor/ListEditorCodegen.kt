@@ -26,7 +26,11 @@ internal object ListEditorCodegen : EditorClassGen<ListEditor, TypeElement>() {
                     .body {
                         +"setInitialEditors(*editors)"
                     }
-                +override.`fun`("createEditor") returns call(editorClsName)
+                +override.`fun`("createEditor") returns call(editorClsName).call("defaultState")
+                if (annotation.childContext != "context") {
+                    +override.`fun`("childContext") returns annotation.childContext.e
+                }
+                +override.`fun`("fixedEditorClass") returns "$editorClsName::class".e
                 if (annotation.serializable) {
                     val editorsList = type("List", editorClsName)
                     addSerializerObject(simpleName) {
@@ -46,8 +50,8 @@ internal object ListEditorCodegen : EditorClassGen<ListEditor, TypeElement>() {
             .asFile {
                 `package`(pkg)
                 import(element.toString())
-                import("hextant.core.editor.ListEditor")
                 import(editorClsName)
+                import("hextant.core.editor.*")
                 import("hextant.context.*")
                 if (annotation.serializable) importSerializationPackages()
             }.saveToSourceRoot(generatedDir)

@@ -9,7 +9,7 @@ import bundles.publicProperty
 import bundles.set
 import fxutils.registerShortcuts
 import fxutils.runFXWithTimeout
-import fxutils.show
+import fxutils.showBelow
 import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
@@ -50,13 +50,13 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     init {
         with(textField) {
             registerShortcuts {
-                on("Ctrl + Space") { popup.show(root) }
+                on("Ctrl + Space") { popup.showBelow(root) }
                 on("Enter") { expander.expand() }
             }
             textObserver = userUpdatedText.observe { _, new ->
                 expander.setText(new)
                 popup.updateInput(new)
-                popup.show(root)
+                popup.showBelow(root)
             }
             if (expander.text.now == "") styleClass.add("empty-text")
             textEmptyObserver = expander.text.observe { _, old, new ->
@@ -75,7 +75,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     override fun displayText(text: String) {
         if (text != textField.text) {
             textField.text = text
-            if (scene != null) popup.show(root)
+            if (scene != null) popup.showBelow(root)
         }
     }
 

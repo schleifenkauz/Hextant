@@ -50,6 +50,9 @@ internal object ExpanderClassGen : EditorClassGen<Expandable, TypeElement>() {
                 +constructor("text" of "String").body {
                     +"setInitialText(text)"
                 }
+                if (annotation.childContext != "context") {
+                    +override.`fun`("childContext") returns annotation.childContext.e
+                }
                 +override.`fun`("expand", "text" of "String")
                     .returns("config".e.call("expand", "text".e, annotation.childContext.e))
                 +override.`fun`("expand", "completion" of "Any")

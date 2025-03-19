@@ -27,6 +27,8 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
     lateinit var control: EditorControl<*>
         private set
 
+    constructor(editor: E): this(editor, JsonObject(emptyMap()))
+
     constructor(editor: E, context: Context) : this(editor, JsonObject(emptyMap())) {
         initialize(context)
     }
@@ -82,7 +84,7 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
     }
 
     companion object {
-        fun <E : Editor<*>> create(editor: E, context: Context): EditorRoot<E> {
+        fun <E : Editor<*>> initialize(editor: E, context: Context): EditorRoot<E> {
             editor.setupDefaultState()
             val root = EditorRoot(editor, JsonObject(emptyMap()))
             root.initialize(context)

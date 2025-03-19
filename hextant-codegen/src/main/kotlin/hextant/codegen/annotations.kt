@@ -55,6 +55,7 @@ annotation class Expandable(
 @Retention(SOURCE)
 @Target(CLASS)
 annotation class Choice(
+    val initialValue: String = DEFAULT,
     val classLocation: String = DEFAULT,
     val nodeType: KClass<*> = None::class,
     val serializable: Boolean = false

@@ -15,7 +15,6 @@ import hextant.core.view.ListEditorControl
 import hextant.serial.*
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -33,10 +32,8 @@ import kotlin.reflect.jvm.jvmErasure
  * which is then substituted for the typed in text.
  */
 abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(), TokenType<R> {
-    @Transient
     private val editorClass = this::class.memberFunctions.first { it.name == "expand" }.returnType.jvmErasure
 
-    @Transient
     private val resultType = this::class.memberFunctions.first { it.name == "defaultResult" }.returnType
 
     private lateinit var state: ReactiveVariable<State<E>>
@@ -44,27 +41,30 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     /**
      * A [ReactiveValue] holding the current text of the editor or `null` if it is expanded
      */
-    @Transient
-    val text: ReactiveValue<String?> = state.map { (it as? Text)?.text }
+    lateinit var text: ReactiveValue<String?>
+        private set
 
     /**
      * A [ReactiveValue] holding the currently wrapped editor or `null` if the expander is not expanded
      */
-    @Transient
-    val editor: ReactiveValue<E?> = state.map { (it as? Expanded)?.content }
+    lateinit var editor: ReactiveValue<E?>
+        private set
 
     /**
      * @return `true` only if the expander is expanded
      */
-    @Transient
-    val isExpanded: ReactiveBoolean = state.map { it is Expanded }
+    lateinit var isExpanded: ReactiveBoolean
+        private set
 
-    @Transient
     private lateinit var _result: ReactiveValue<R>
 
     final override val result: ReactiveValue<R> get() = _result
 
     override fun doInitialize() {
+        text = state.map { (it as? Text)?.text }
+        editor = state.map { (it as? Expanded)?.content }
+        isExpanded = state.map { it is Expanded }
+        editor.now?.initialize(context, parent = parent, ExpanderContent, expander = this)
         _result = state.flatMap { s ->
             when (s) {
                 is Text -> reactiveValue(tryCompile(s.text))

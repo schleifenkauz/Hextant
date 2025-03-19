@@ -93,3 +93,5 @@ fun <R> Editor<*>.makeUndoableEdit(description: String, edit: () -> R): R {
     //TODO
     return edit()
 }
+
+fun <E: Editor<*>> E.defaultState() = also { e -> e.setupDefaultState() }

@@ -7,7 +7,7 @@ package hextant.core.view
 import bundles.Bundle
 import bundles.publicProperty
 import fxutils.registerShortcut
-import fxutils.show
+import fxutils.showBelow
 import fxutils.smartSetText
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
@@ -35,7 +35,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
     private val textObserver = textField.userUpdatedText.observe(this) { _, new ->
         editor.setText(new)
         popup.updateInput(new)
-        popup.show(root)
+        popup.showBelow(root)
     }
 
     private val textEmptyObserver: Observer
@@ -58,7 +58,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
 
     private fun registerShortcut() {
         registerShortcut(KeyCodeCombination(SPACE, KeyCombination.CONTROL_DOWN)) {
-            popup.show(root)
+            popup.showBelow(root)
         }
     }
 
@@ -67,7 +67,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
     final override fun displayText(newText: String) {
         if (root.text != newText) {
             root.smartSetText(newText)
-            if (scene != null) popup.show(root)
+            if (scene != null) popup.showBelow(root)
         }
     }
 
