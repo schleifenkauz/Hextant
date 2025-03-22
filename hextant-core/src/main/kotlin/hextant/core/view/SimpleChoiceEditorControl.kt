@@ -13,8 +13,6 @@ open class SimpleChoiceEditorControl<C>(
     val editor: SimpleChoiceEditor<C>,
     arguments: Bundle
 ) : SimpleChoiceEditorView<C>, EditorControl<Button>(editor, arguments) {
-    private val listView by lazy { ChoiceEditorListView(editor) }
-
     init {
         editor.addView(this)
     }
@@ -22,7 +20,7 @@ open class SimpleChoiceEditorControl<C>(
     override fun createDefaultRoot() = button { showChoicePopup() }
 
     protected open fun showChoicePopup() {
-        listView.showPopup(anchorNode = this, initialOption = editor.result.now) { option ->
+        ChoiceEditorListView(editor).showPopup(anchorNode = this, initialOption = editor.result.now) { option ->
             editor.select(option)
         }
     }

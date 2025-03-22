@@ -9,7 +9,7 @@ interface ListenerManager<L : Any> {
     /**
      * Execute the given [action] on all views
      */
-    fun notifyListeners(action: (L).() -> Unit)
+    fun notifyListeners(action: L.() -> Unit)
 
     /**
      * Add the specified [listener] to this editor, such that it will be notified when the editor is modified

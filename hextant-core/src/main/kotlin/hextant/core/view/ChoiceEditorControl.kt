@@ -31,9 +31,8 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
     val editor: ChoiceEditor<C, *, E>,
     arguments: Bundle
 ) : ChoiceEditorView<C, E>, WrappingEditorControl<Pane>(editor, arguments) {
-    private val listView = ChoiceEditorListView(editor)
     private val button = button {
-        listView.showPopup(anchorNode = this, initialOption = editor.selected.now) { option ->
+        ChoiceEditorListView<C>(editor).showPopup(anchorNode = this, initialOption = editor.selected.now) { option ->
             editor.select(option)
         }
     }

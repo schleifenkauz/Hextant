@@ -29,7 +29,7 @@ abstract class SimpleChoiceEditor<C> : AbstractEditor<C, SimpleChoiceEditorView<
         if (choice == old) return
         _selected.set(choice)
         for (variable in syncedVariables.keys) {
-            variable.now
+            variable.now = choice
         }
         context[UndoManager].record(Edit(this, old, choice))
         notifyViews { selected(choice) }
