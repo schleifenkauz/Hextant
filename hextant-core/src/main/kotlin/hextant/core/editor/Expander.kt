@@ -302,9 +302,16 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
 
     override fun serialize(): JsonElement = when (val state = state.now) {
         is Expanded<*> -> buildJsonObject {
-            val content = state.content!! as Editor<*>
-            put("type", JsonPrimitive(content.javaClass.canonicalName))
-            put("content", state.content.serialize())
+            val editor = state.content as Editor<*>
+            put("_contentType", JsonPrimitive(editor.javaClass.canonicalName))
+            val content = state.content.serialize(typeTag = false)
+            if (content is JsonObject) {
+                for ((key, value) in content) {
+                    put(key, value)
+                }
+            } else {
+                put("_content", state.content.serialize(typeTag = false))
+            }
         }
 
         is Text -> JsonPrimitive(state.text)
@@ -313,10 +320,10 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     override fun deserialize(element: JsonElement) {
         when (element) {
             is JsonObject -> {
-                val type = element.getValue("type").string
+                val type = element.getValue("_contentType").string
                 val editor = Class.forName(type).newInstance() as E
-                val content = element.getValue("content")
-                editor.deserialize(content)
+                if ("_content" in element) editor.deserialize(element.getValue("_content"))
+                else editor.deserialize(element)
                 setInitialContent(editor)
             }
 
