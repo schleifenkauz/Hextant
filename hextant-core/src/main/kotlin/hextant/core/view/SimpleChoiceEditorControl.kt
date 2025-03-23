@@ -9,7 +9,7 @@ import javafx.scene.control.Button
 import reaktive.value.fx.asObservableValue
 import reaktive.value.now
 
-open class SimpleChoiceEditorControl<C>(
+open class SimpleChoiceEditorControl<C : Any>(
     val editor: SimpleChoiceEditor<C>,
     arguments: Bundle
 ) : SimpleChoiceEditorView<C>, EditorControl<Button>(editor, arguments) {
@@ -20,9 +20,8 @@ open class SimpleChoiceEditorControl<C>(
     override fun createDefaultRoot() = button { showChoicePopup() }
 
     protected open fun showChoicePopup() {
-        ChoiceEditorListView(editor).showPopup(anchorNode = this, initialOption = editor.result.now) { option ->
-            editor.select(option)
-        }
+        val choice = ChoiceEditorListView(editor).showPopup(anchorNode = this, initialOption = editor.result.now)
+        if (choice != null) editor.select(choice)
     }
 
     override fun selected(choice: C) {

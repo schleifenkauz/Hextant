@@ -35,10 +35,9 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
 
     val button = button {
         if (canChoose) {
-            ChoiceEditorListView<C>(editor).showPopup(
-                anchorNode = this, initialOption = editor.selected.now,
-                onConfirm = editor::select
-            )
+            val choice = ChoiceEditorListView<C>(editor)
+                .showPopup(anchorNode = this, initialOption = editor.selected.now)
+            if (choice != null) editor.select(choice)
         }
     }
 

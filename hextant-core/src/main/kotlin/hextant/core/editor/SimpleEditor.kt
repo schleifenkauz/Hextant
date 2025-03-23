@@ -18,6 +18,7 @@ abstract class SimpleEditor<R : Any> : AbstractEditor<R, SimpleEditor.View<R>>()
     }
 
     fun setResult(result: R) {
+        if (this.result.now == result) return
         _result.set(result)
         notifyViews { displayResult(result) }
     }

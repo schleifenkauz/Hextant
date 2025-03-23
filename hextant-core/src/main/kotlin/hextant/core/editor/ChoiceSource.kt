@@ -2,7 +2,7 @@ package hextant.core.editor
 
 import reaktive.value.ReactiveString
 
-interface ChoiceSource<C> {
+interface ChoiceSource<C: Any> {
     /**
      * Select the given [choice]
      */

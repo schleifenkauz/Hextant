@@ -9,7 +9,7 @@ import kotlinx.serialization.json.JsonElement
 import reaktive.Observer
 import reaktive.value.*
 
-abstract class SimpleChoiceEditor<C> : AbstractEditor<C, SimpleChoiceEditorView<C>>(), ChoiceSource<C>,
+abstract class SimpleChoiceEditor<C : Any> : AbstractEditor<C, SimpleChoiceEditorView<C>>(), ChoiceSource<C>,
     JsonSerializer<C> {
     private val syncedVariables = mutableMapOf<ReactiveVariable<C>, Observer>()
 
@@ -67,7 +67,7 @@ abstract class SimpleChoiceEditor<C> : AbstractEditor<C, SimpleChoiceEditorView<
 
     override fun serialize(): JsonElement = toJson(result.now)
 
-    private class Edit<T>(
+    private class Edit<T : Any>(
         private val selector: SimpleChoiceEditor<T>,
         private val old: T,
         private val new: T
