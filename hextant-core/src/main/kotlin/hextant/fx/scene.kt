@@ -4,11 +4,11 @@
 
 package hextant.fx
 
-import fxutils.show
 import hextant.context.Context
 import hextant.core.view.EditorControl
 import javafx.scene.Scene
 import javafx.scene.input.ContextMenuEvent
+import javafx.scene.layout.Region
 
 /**
  * Initializes this scene with the given [context] by registering top level shortcuts and applying registered stylesheets.
@@ -17,8 +17,11 @@ fun Scene.initHextantScene(context: Context, applyStyle: Boolean = true) {
     registerNavigationShortcuts()
     registerCopyPasteShortcuts(context)
     addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED) { ev ->
-        focusedEditorControl?.let {
-            it.commandsPopup.show(root)
+        val node = ev.target as? Region ?: return@addEventFilter
+        val editorControl = editorControlInParentChain(node)
+        if (editorControl != null) {
+            val p = node.localToScreen(0.0, node.height)
+            editorControl.commandsPopup.show(node, p.x, p.y)
             ev.consume()
         }
     }

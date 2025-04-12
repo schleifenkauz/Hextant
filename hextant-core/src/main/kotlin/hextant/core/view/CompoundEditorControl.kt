@@ -85,10 +85,15 @@ abstract class CompoundEditorControl(
             val control =
                 if (cached && editor in cachedViews) cachedViews.getValue(editor)
                 else editor.context.createControl(editor, args)
+            return view(editor, control, cached)
+        }
+
+        fun <C : EditorControl<*>> view(editor: Editor<*>, control: C, cached: Boolean = true): C {
             if (cached) cachedViews[editor] = control
             if (firstEditorChild == null) firstEditorChild = control
             root.children.add(control)
             editorChildren.add(control)
+            return control
             return control
         }
 

@@ -22,7 +22,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
 @Serializable(with = EditorRoot.Serializer::class)
-class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var controlArguments: JsonElement) {
+class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var controlArguments: JsonObject) {
     @Transient
     lateinit var control: EditorControl<*>
         private set
@@ -40,6 +40,7 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
     fun initialize(context: Context) {
         editor.initialize(context, parent = null, accessor = Root)
         control = context.createControl(editor)
+        control.initializeControl()
         control.importJsonArgumentTree(controlArguments)
     }
 
@@ -70,11 +71,11 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
 
         override fun deserialize(decoder: Decoder): EditorRoot<*> = decoder.decodeStructure(descriptor) {
             lateinit var editorJson: JsonElement
-            lateinit var controlArguments: JsonElement
+            lateinit var controlArguments: JsonObject
             while (true) {
                 when (decodeElementIndex(descriptor)) {
                     0 -> editorJson = decodeSerializableElement(descriptor, 0, kotlinx.serialization.serializer())
-                    1 -> controlArguments = decodeSerializableElement(descriptor, 0, kotlinx.serialization.serializer())
+                    1 -> controlArguments = decodeSerializableElement(descriptor, 1, kotlinx.serialization.serializer())
                     else -> break
                 }
             }

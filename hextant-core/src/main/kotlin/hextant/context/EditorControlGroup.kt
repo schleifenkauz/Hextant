@@ -12,7 +12,6 @@ import hextant.core.view.EditorControl
 import hextant.generated.createControl
 import hextant.plugins.Aspects
 import kollektion.DoubleWeakHashMap
-import kotlin.collections.set
 
 /**
  * An [EditorControlGroup] is a [ViewGroup] of [EditorControl]s
@@ -31,6 +30,10 @@ class EditorControlGroup : ViewGroup<EditorControl<*>> {
             return control
         }
         throw NoSuchElementException("No view factory registered for $editor")
+    }
+
+    fun setControlFor(editor: Editor<*>, control: EditorControl<*>) {
+        views[editor] = control
     }
 
     override fun hasViewFor(editor: Editor<*>): Boolean = views.containsKey(editor)

@@ -2,10 +2,13 @@
  *@author Nikolaus Knop
  */
 
+@file:OptIn(InternalSerializationApi::class)
+
 package hextant.core.view
 
 import bundles.Bundle
 import bundles.Property
+import bundles.Public
 import fxutils.PseudoClasses
 import fxutils.registerShortcuts
 import fxutils.setRoot
@@ -24,20 +27,23 @@ import hextant.fx.InspectionPopup
 import hextant.fx.handleCommands
 import hextant.fx.isShiftDown
 import hextant.inspect.Inspections
+import hextant.serial.json
 import javafx.application.Platform
 import javafx.css.PseudoClass
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.serializer
 import reaktive.Observer
 import reaktive.addListener
 import reaktive.observe
 import reaktive.value.ReactiveValue
 import reaktive.value.now
 import reaktive.value.reactiveVariable
-import kotlin.collections.set
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -58,7 +64,7 @@ abstract class EditorControl<R : Node>(
     private val inspections = context[Inspections]
 
     private val inspectionPopup = InspectionPopup(context, target)
-    internal val commandsPopup = CommandsPopup(context, target)
+    internal val commandsPopup = CommandsPopup(context, this, target) //TODO Does this need to be a property?
 
     private val hasError = inspections.hasError(target)
     private val hasWarning = inspections.hasWarning(target)
@@ -401,9 +407,46 @@ abstract class EditorControl<R : Node>(
         }
     }
 
-    fun exportJsonArgumentTree(): JsonElement = buildJsonObject {} //TODO
+    fun exportJsonArgumentTree(): JsonObject = buildJsonObject {
+        for ((key, value) in changedArguments) {
+            val serializer = value::class.serializer() as KSerializer<Any>
+            put(key.name, json.encodeToJsonElement(serializer, value))
+        }
+        for (child in editorChildren()) {
+            val accessor = child.target.accessor
+            if (accessor == null) {
+                System.err.println("Child ${child.target} of $target has no accessor")
+                continue
+            }
+            val args = child.exportJsonArgumentTree()
+            if (args.isEmpty()) continue
+            val field = accessor.toString()
+            put(field, args)
+        }
+    }
 
-    fun importJsonArgumentTree(tree: JsonElement){
-        //TODO
+
+    fun importJsonArgumentTree(tree: JsonObject) {
+        for ((property, initialValue) in arguments.entries.toList()) {
+            if (property.name in tree) {
+                val serializer = initialValue::class.serializer() as KSerializer<Any>
+                val value = json.decodeFromJsonElement(serializer, tree[property.name]!!)
+                @Suppress("UNCHECKED_CAST")
+                arguments[Public, property as Property<Any, Public>] = value
+            }
+        }
+        for (child in editorChildren()) {
+            val accessor = child.target.accessor
+            if (accessor == null) {
+                System.err.println("Child ${child.target} of $target has no accessor")
+                continue
+            }
+            val subTree = tree[accessor.toString()] ?: continue
+            if (subTree !is JsonObject) {
+                System.err.println("Invalid sub tree for child $accessor of $target: $subTree")
+                continue
+            }
+            child.importJsonArgumentTree(subTree)
+        }
     }
 }
