@@ -24,17 +24,6 @@ import javafx.stage.Stage
 import reaktive.value.now
 
 /**
- * Add the editor control for the given [editor] to this compound view.
- * The [config] block is used to initialize properties of the [hextant.core.EditorView.arguments] bundle.
- */
-fun Layout.view(
-    editor: Editor<*>,
-    bundle: Bundle = createBundle(),
-    cached: Boolean = true,
-    config: Bundle.() -> Unit
-) = view(editor, bundle.apply(config), cached)
-
-/**
  * Gets input from the user by showing the given [editor] in a [Dialog] to him.
  *
  * If the user cancels the dialog `null` is returned.

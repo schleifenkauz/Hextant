@@ -9,8 +9,10 @@ import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.serial.EditorAccessor
 import hextant.serial.InvalidAccessorException
-import kotlinx.serialization.json.*
-import kotlinx.serialization.serializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 
 /**
  * Basic implementation for [Editor]s.
@@ -53,11 +55,11 @@ abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
     protected open fun doInitialize() {}
 
     override fun implCopy(): Editor<R> {
-        val serializer = serializer<Editor<R>>()
-        val json = Json.encodeToString(serializer, this)
-        return Json.decodeFromString(serializer, json)
+        val json = this.serialize(typeTag = true)
+        @Suppress("UNCHECKED_CAST")
+        val deserialized = Editor.deserializeWithTypeTag(json) as Editor<R>
+        return deserialized
     }
-
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
         throw InvalidAccessorException(accessor)
     }

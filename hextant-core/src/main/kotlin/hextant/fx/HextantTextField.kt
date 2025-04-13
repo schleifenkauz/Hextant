@@ -5,23 +5,17 @@
 package hextant.fx
 
 import fxutils.runFXWithTimeout
-import hextant.core.view.ListEditorControl
-import hextant.core.view.ListEditorControl.Companion.ADD_WITH_COMMA
 import hextant.fx.InputMethod.REGULAR
 import hextant.fx.InputMethod.VIM
-import javafx.scene.Node
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
 import javafx.scene.control.skin.TextFieldSkin
-import javafx.scene.input.InputMethodEvent
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyEvent
-import javafx.scene.layout.Region
 import javafx.scene.text.Font
 import javafx.scene.text.Text
 import reaktive.event.event
-import kotlin.concurrent.thread
 
 /**
  * A Text field that adds the "hextant-text" style class and does automatically resize its width
@@ -37,6 +31,22 @@ open class HextantTextField(
             if (isAutoSize) updateWidth(text)
             else prefWidth = USE_COMPUTED_SIZE
         }
+
+    private var onCut: () -> Unit = { super.cut() }
+    private var onCopy: () -> Unit = { super.copy() }
+    private var onPaste: () -> Unit = { super.paste() }
+
+    fun setOnCut(callback: () -> Unit) {
+        onCut = callback
+    }
+
+    fun setOnCopy(callback: () -> Unit) {
+        onCopy = callback
+    }
+
+    fun setOnPaste(callback: () -> Unit) {
+        onPaste = callback
+    }
 
     override fun createDefaultSkin(): Skin<*> = HextantTextFieldSkin()
 
@@ -57,6 +67,18 @@ open class HextantTextField(
             field = value
             isEditable = value != VIM || (isEditable && isFocused)
         }
+
+    override fun paste() {
+        onPaste()
+    }
+
+    override fun copy() {
+        onCopy()
+    }
+
+    override fun cut() {
+        onCut()
+    }
 
     private inner class HextantTextFieldSkin : TextFieldSkin(this) {
         override fun replaceText(start: Int, end: Int, txt: String?) {

@@ -3,6 +3,7 @@
  */
 
 @file:OptIn(InternalSerializationApi::class)
+@file:Suppress("UNCHECKED_CAST")
 
 package hextant.core.view
 
@@ -76,12 +77,12 @@ abstract class EditorControl<R : Node>(
         handleProblem(hasError.now, isWarn)
     }
 
-    internal var editorParent: EditorControl<*>? = null
+    var editorParent: EditorControl<*>? = null
         private set
 
     private val editorChildren = mutableListOf<EditorControl<*>>()
 
-    internal val changedArguments = mutableMapOf<Property<*, *>, Any>()
+    private val changedArguments = mutableMapOf<Property<*, *>, Any>()
     private val propertyChangeHandler = context[Properties.propertyChangeHandler]
     private val propertyObserver: Observer
 
@@ -136,8 +137,10 @@ abstract class EditorControl<R : Node>(
         }
         propertyObserver = arguments.changed.observe(this) { _, change ->
             val new = change.newValue ?: change.property.default!!
-            if (change.newValue != null) changedArguments[change.property] = change.newValue!!
-            else changedArguments.remove(change.property)
+            if (!relayoutPending) {
+                if (change.newValue != null) changedArguments[change.property] = change.newValue!!
+                else changedArguments.remove(change.property)
+            }
             @Suppress("UNCHECKED_CAST")
             val property = change.property as Property<Any, *>
             propertyChangeHandler.valueChanged(this, property, new)
@@ -152,6 +155,9 @@ abstract class EditorControl<R : Node>(
 
     internal fun initializeControl() {
         if (_root == null) root = createDefaultRoot()
+        for (child in editorChildren) {
+            child.initializeControl()
+        }
     }
 
     /**
@@ -334,7 +340,7 @@ abstract class EditorControl<R : Node>(
         description = "Copy the editor to the clipboard",
         defaultShortcut = "Ctrl?+C"
     )
-    private fun copy(): Boolean = target.copyToClipboard()
+    protected fun copy(): Boolean = target.copyToClipboard()
 
     @ProvideCommand(
         name = "Paste",
@@ -343,7 +349,7 @@ abstract class EditorControl<R : Node>(
         description = "Paste the recently copied content",
         defaultShortcut = "Ctrl?+Shift?+V"
     )
-    private fun paste(): Boolean = target.pasteFromClipboard()
+    protected fun paste(): Boolean = target.pasteFromClipboard()
 
     @ProvideCommand(
         name = "Show Inspections",
@@ -379,7 +385,7 @@ abstract class EditorControl<R : Node>(
     )
     private fun extendSelection() {
         val parent = editorParent ?: return
-        parent.requestFocus()
+        parent.select()
         if (isSelected.now) toggleSelection()
         parent.lastExtendingChild = this
     }
@@ -409,7 +415,8 @@ abstract class EditorControl<R : Node>(
 
     fun exportJsonArgumentTree(): JsonObject = buildJsonObject {
         for ((key, value) in changedArguments) {
-            val serializer = value::class.serializer() as KSerializer<Any>
+            val type = key.propertyType ?: error("No type for $key")
+            val serializer = serializer(type) as KSerializer<Any>
             put(key.name, json.encodeToJsonElement(serializer, value))
         }
         for (child in editorChildren()) {
@@ -427,11 +434,11 @@ abstract class EditorControl<R : Node>(
 
 
     fun importJsonArgumentTree(tree: JsonObject) {
-        for ((property, initialValue) in arguments.entries.toList()) {
+        for ((property, _) in arguments.entries.toList()) {
             if (property.name in tree) {
-                val serializer = initialValue::class.serializer() as KSerializer<Any>
+                val type = property.propertyType ?: error("No type for $property")
+                val serializer = serializer(type) as KSerializer<Any>
                 val value = json.decodeFromJsonElement(serializer, tree[property.name]!!)
-                @Suppress("UNCHECKED_CAST")
                 arguments[Public, property as Property<Any, Public>] = value
             }
         }
@@ -448,5 +455,13 @@ abstract class EditorControl<R : Node>(
             }
             child.importJsonArgumentTree(subTree)
         }
+    }
+
+    private var relayoutPending = false
+
+    fun relayout(function: () -> Unit) {
+        relayoutPending = true
+        function()
+        relayoutPending = false
     }
 }

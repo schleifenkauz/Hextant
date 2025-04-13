@@ -53,6 +53,9 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
                 on("Ctrl + Space") { popup.showBelow(root) }
                 on("Enter") { expander.expand() }
             }
+            textField.setOnPaste {
+                this@ExpanderControl.paste()
+            }
             textObserver = userUpdatedText.observe { _, new ->
                 expander.setText(new)
                 popup.updateInput(new)

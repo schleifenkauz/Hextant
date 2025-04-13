@@ -287,6 +287,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         }
 
         editorClass.isInstance(editor) && accepts(editor as E) -> {
+            expand(editor as E)
             true
         }
 

@@ -69,7 +69,7 @@ fun <E : Editor<*>> E.replaceWith(other: E) {
 fun Editor<*>.pasteFromClipboard(): Boolean {
     val content = context[Clipboard].get()
     if (content !is OneEditor) return false
-    return context.executeSafely("pasting", false) { paste(content.content) }
+    return context.executeSafely("pasting", false) { paste(content.content.snapshot()) }
 }
 
 /**

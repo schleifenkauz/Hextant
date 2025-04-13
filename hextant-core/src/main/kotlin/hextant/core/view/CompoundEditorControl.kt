@@ -8,6 +8,7 @@ import bundles.Bundle
 import bundles.Property
 import bundles.createBundle
 import fxutils.Glyphs
+import fxutils.styleClass
 import hextant.context.createControl
 import hextant.core.Editor
 import javafx.geometry.Pos
@@ -52,11 +53,13 @@ abstract class CompoundEditorControl(
         firstChildToFocus?.receiveFocus()
     }
 
-    protected fun triggerLayoutOnChange(reactive: Reactive) {
-        val obs = reactive.observe {
-            root = createDefaultRoot()
+    protected fun triggerLayoutOnChange(vararg reactives: Reactive) {
+        for (reactive in reactives) {
+            val obs = reactive.observe {
+                root = createDefaultRoot()
+            }
+            observers.add(obs)
         }
-        observers.add(obs)
     }
 
     fun vertical(block: Vertical.() -> Unit) = Vertical(cachedViews, mutableListOf()).apply(block)
@@ -88,12 +91,31 @@ abstract class CompoundEditorControl(
             return view(editor, control, cached)
         }
 
+        /**
+         * Add the editor control for the given [editor] to this compound view.
+         * The [config] block is used to initialize properties of the [hextant.core.EditorView.arguments] bundle.
+         */
+        fun Layout.view(
+            editor: Editor<*>,
+            cached: Boolean = true,
+            config: Bundle.() -> Unit
+        ): EditorControl<*> {
+            if (cached && editor in cachedViews) {
+                val view = cachedViews.getValue(editor)
+                view.relayout {
+                    view.arguments.config()
+                }
+                return view(editor, view, true)
+            }
+            val view = editor.context.createControl(editor, createBundle().apply(config))
+            return view(editor, view, cached)
+        }
+
         fun <C : EditorControl<*>> view(editor: Editor<*>, control: C, cached: Boolean = true): C {
             if (cached) cachedViews[editor] = control
             if (firstEditorChild == null) firstEditorChild = control
             root.children.add(control)
             editorChildren.add(control)
-            return control
             return control
         }
 
@@ -116,6 +138,12 @@ abstract class CompoundEditorControl(
             val l = fxutils.keyword(name)
             root.children.add(l)
             return l
+        }
+
+        fun text(text: String): Label {
+            val lbl = Label(text).styleClass("hextant-text")
+            root.children.add(lbl)
+            return lbl
         }
 
         /**
@@ -251,5 +279,11 @@ abstract class CompoundEditorControl(
 
             override fun build(): Layout = buildLayout()
         }
+
+        inline fun vertical(buildLayout: Vertical.() -> Unit) =
+            Vertical(mutableMapOf(), mutableListOf()).apply(buildLayout).root
+
+        inline fun horizontal(buildLayout: Horizontal.() -> Unit) =
+            Horizontal(mutableMapOf(), mutableListOf()).apply(buildLayout).root
     }
 }

@@ -35,7 +35,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
     private val textObserver = textField.userUpdatedText.observe(this) { _, new ->
         editor.setText(new)
         popup.updateInput(new)
-        popup.showBelow(root)
+        if (root.scene != null) popup.showBelow(root)
     }
 
     private val textEmptyObserver: Observer

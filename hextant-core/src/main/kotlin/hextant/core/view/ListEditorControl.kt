@@ -12,12 +12,15 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.ListEditor
 import javafx.scene.Node
-import javafx.scene.control.*
+import javafx.scene.control.Button
+import javafx.scene.control.Control
+import javafx.scene.control.Label
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
+import kotlinx.serialization.Serializable
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 
@@ -44,23 +47,21 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     var cellFactory: () -> Cell<*> by arguments.property(CELL_FACTORY)
 
     private var items = orientation.createLayout()
+        set(value) {
+            field = value
+            //if (editor.editors.now.isNotEmpty()) root = value
+        }
 
     private fun orientationChanged(new: Orientation) {
         items = new.createLayout()
-        addChildren()
-    }
-
-    private fun addChildren() {
-        for (c in cells) {
-            items.children.add(c)
-        }
+        items.children.addAll(cells)
+        if (editor.editors.now.isNotEmpty()) root = items
     }
 
     private fun cellFactoryChanged() {
         cells.clear()
         cells.addAll(cells(editor.editors.now))
-        items.children.clear()
-        addChildren()
+        items.children.setAll(cells)
     }
 
     override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
@@ -101,6 +102,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
 
     override fun added(editor: Editor<*>, idx: Int) {
         val view = context.createControl(editor) { provideChildArguments() }
+        view.initializeControl()
         val c = getCell(idx, view)
         cells.drop(idx).forEach { cell -> cell.index += 1 }
         cells.add(idx, c)
@@ -140,7 +142,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     override fun removed(idx: Int) {
         items.children.removeAt(idx)
         cells.removeAt(idx)
-        cells.drop(idx).forEach { c -> c.index = c.index - 1 }
+        cells.drop(idx).forEach { c -> c.index -= 1 }
         if (idx == 0 && cells.size > 0) cells[0].requestFocus()
         else if (idx != 0) cells[idx - 1].requestFocus()
         removeChild(idx)
@@ -164,6 +166,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     /**
      * Decides whether items are displayed horizontally or vertically in a [ListEditorControl]
      */
+    @Serializable
     sealed class Orientation {
         internal abstract fun createLayout(): Pane
 
@@ -174,8 +177,9 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         /**
          * Indicates a horizontal display of items.
          */
-        object Horizontal : Orientation() {
-            override fun createLayout(): Pane = HBox()
+        @Serializable
+        data object Horizontal : Orientation() {
+            override fun createLayout(): Pane = HBox().also { it.centerChildren() }
 
             override val nextCombination = "Right".shortcut
 
@@ -185,7 +189,8 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         /**
          * Indicates a vertical display of items.
          */
-        object Vertical : Orientation() {
+        @Serializable
+        data object Vertical : Orientation() {
             override fun createLayout(): Pane = VBox()
 
             override val nextCombination = "Down".shortcut
@@ -231,7 +236,6 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
                 setRoot(value)
             }
 
-        @Suppress("KDocMissingDocumentation")
         override fun requestFocus() {
             item?.receiveFocus()
         }
@@ -319,7 +323,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         constructor(text: String) : this(Label(text))
 
         init {
-            root = HBox(Region(), Region()).withStyleClass("separator-cell")
+            root = HBox(Region(), Region()).centerChildren()
         }
 
         override fun updateIndex(idx: Int) {
