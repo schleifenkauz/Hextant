@@ -9,6 +9,8 @@ import hextant.context.ClipboardContent.OneEditor
 import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.core.Editor
+import hextant.serial.PropertyAccessor
+import kotlin.reflect.KProperty1
 
 /**
  * Return an [ExpanderDelegate] that transforms expanded editors with the given function.
@@ -95,3 +97,7 @@ fun <R> Editor<*>.makeUndoableEdit(description: String, edit: () -> R): R {
 }
 
 fun <E: Editor<*>> E.defaultState() = also { e -> e.setupDefaultState() }
+
+inline fun <reified P: Editor<*>, E: Editor<*>> Editor<*>.isSubEditor(property: KProperty1<P, E>): Boolean {
+    return parent is P && accessor == PropertyAccessor(property.name)
+}
