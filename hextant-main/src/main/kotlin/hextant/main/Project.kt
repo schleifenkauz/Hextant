@@ -19,7 +19,7 @@ import hextant.plugins.PluginBuilder.Phase.*
 import hextant.plugins.editor.PluginsEditor
 import hextant.serial.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import java.io.File
 import kotlin.reflect.full.companionObjectInstance
 
@@ -120,7 +120,7 @@ class Project private constructor(
             val view = context.createControl(root)
             val display = path.resolve(DISPLAY)
             if (display.exists()) {
-                val argumentTree = display.readJson<JsonElement>()
+                val argumentTree = display.readJson<JsonObject>()
                 view.importJsonArgumentTree(argumentTree)
             }
             return view

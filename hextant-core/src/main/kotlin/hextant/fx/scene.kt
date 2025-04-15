@@ -5,6 +5,9 @@
 package hextant.fx
 
 import fxutils.registerShortcuts
+import hextant.command.Command
+import hextant.command.Commands
+import hextant.command.line.CommandListView
 import hextant.context.Context
 import hextant.core.view.EditorControl
 import javafx.event.Event
@@ -32,11 +35,23 @@ fun Scene.initHextantScene(context: Context, applyStyle: Boolean = true) {
 }
 
 private fun showCommandsPopup(node: Region, ev: Event) {
-    val editorControl = editorControlInParentChain(node)
-    if (editorControl != null) {
+    val control = editorControlInParentChain(node)
+    if (control != null) {
         val p = node.localToScreen(0.0, node.height)
-        editorControl.commandsPopup.show(node, p.x, p.y)
+        val context = control.context
+        val target  = control.target
+        val onEditor = context[Commands].applicableOn(target)
+        val onControl = context[Commands].applicableOn(control)
+        val commands: List<Command<*, *>> = (onEditor + onControl).filter { cmd -> cmd.parameters.isEmpty() }
+        if (commands.isEmpty()) return
         ev.consume()
+        val list = CommandListView("Choose command", commands)
+        val command = list.showPopup(p, owner = node.scene.window) ?: return
+        command as Command<Any, *>
+        when (command) {
+            in onEditor -> command.execute(target, emptyList())
+            in onControl -> command.execute(control, emptyList())
+        }
     }
 }
 
