@@ -9,6 +9,8 @@
   - how to apply to appropriate control
 - extractor commands (replace parent with one of its children)
 - shortcuts to move list objects up and down
+- take into account the expander/content relationship when querying applicable commands
+  - does a simple delegation expander->content, content->expander suffice?
 
 ### Fixes
 

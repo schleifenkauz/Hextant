@@ -44,7 +44,7 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
 
     private val obs = popup.completionChosen.observe(this) { _, c ->
         editor.complete(c)
-        scene.selectNext()
+        scene.selectNext(travelToLeaf = true)
     }
 
     init {

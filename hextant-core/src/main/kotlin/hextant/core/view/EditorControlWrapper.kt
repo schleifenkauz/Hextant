@@ -31,14 +31,6 @@ class EditorControlWrapper(
         view.setEditorParent(parent)
     }
 
-    override fun setNext(nxt: EditorControl<*>?) {
-        view.setNext(nxt)
-    }
-
-    override fun setPrevious(prev: EditorControl<*>?) {
-        view.setPrevious(prev)
-    }
-
     override fun focus() {
         view.focus()
     }

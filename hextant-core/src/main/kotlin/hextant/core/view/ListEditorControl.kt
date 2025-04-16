@@ -46,28 +46,24 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
      */
     var cellFactory: () -> Cell<*> by arguments.property(CELL_FACTORY)
 
-    private var items = orientation.createLayout()
+    private val cells = mutableListOf<Cell<*>>()
+
+    private var layout = orientation.createLayout()
         set(value) {
             field = value
-            //if (editor.editors.now.isNotEmpty()) root = value
+            if (editor.editors.now.isNotEmpty()) root = value
         }
 
     private fun orientationChanged(new: Orientation) {
-        items = new.createLayout()
-        items.children.addAll(cells)
-        if (editor.editors.now.isNotEmpty()) root = items
+        layout = new.createLayout()
+        layout.children.addAll(cells)
     }
 
     private fun cellFactoryChanged() {
         cells.clear()
-        cells.addAll(cells(editor.editors.now))
-        items.children.setAll(cells)
+        cells.addAll(editorChildren().mapIndexed { idx, control -> getCell(idx, control) })
+        layout.children.setAll(cells)
     }
-
-    private val cells = mutableListOf<Cell<*>>()
-
-    private fun cells(items: List<Editor<*>>) =
-        items.mapIndexedTo(mutableListOf()) { idx, e -> getCell(idx, context.createControl(e)) }
 
     init {
         initEmptyDisplay()
@@ -88,7 +84,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         }
     }
 
-    override fun createDefaultRoot(): Pane = items
+    override fun createDefaultRoot(): Pane = layout
 
     /**
      * This method may be overwritten to pass arguments to children of this list editor view
@@ -101,9 +97,9 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         val c = getCell(idx, view)
         cells.drop(idx).forEach { cell -> cell.index += 1 }
         cells.add(idx, c)
-        items.children.add(idx, c)
+        layout.children.add(idx, c)
         addChild(view, idx)
-        c.requestFocus()
+        if (scene != null) c.requestFocus()
     }
 
     private fun getCell(idx: Int, control: EditorControl<*>): Cell<*> {
@@ -135,7 +131,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     }
 
     override fun removed(idx: Int) {
-        items.children.removeAt(idx)
+        layout.children.removeAt(idx)
         cells.removeAt(idx)
         cells.drop(idx).forEach { c -> c.index -= 1 }
         if (idx == 0 && cells.size > 0) cells[0].requestFocus()
@@ -144,13 +140,13 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     }
 
     override fun empty() {
-        items.children.clear()
+        layout.children.clear()
         cells.clear()
-        root = emptyDisplay ?: items
+        root = emptyDisplay ?: layout
     }
 
     override fun notEmpty() {
-        root = items
+        root = layout
     }
 
     override fun receiveFocus() {

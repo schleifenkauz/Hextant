@@ -89,15 +89,25 @@ abstract class EditorControl<R : Node>(
      */
     open fun editorChildren(): List<EditorControl<*>> = editorChildren
 
-    internal var next: EditorControl<*>? = null
-        private set
+    private fun indexInParent(siblings: List<EditorControl<*>>) =
+        if (this in siblings) siblings.indexOf(this)
+        else if (parent in siblings) siblings.indexOf(parent)
+        else {
+            System.err.println("Can't find $this in parent's children")
+            null
+        }
 
-    internal fun next(): EditorControl<*>? = next ?: editorParent?.next()
+    internal fun next(): EditorControl<*>? {
+        val siblings = editorParent?.editorChildren() ?: return null
+        val idx = indexInParent(siblings) ?: return null
+        return if (idx < siblings.lastIndex) siblings[idx + 1] else editorParent?.next()
+    }
 
-    internal var previous: EditorControl<*>? = null
-        private set
-
-    internal fun previous(): EditorControl<*>? = previous ?: editorParent?.previous()
+    internal fun previous(): EditorControl<*>? {
+        val siblings = editorParent?.editorChildren() ?: return null
+        val idx = indexInParent(siblings) ?: return null
+        return if (idx > 0) siblings[idx - 1] else editorParent?.previous()
+    }
 
     private var manuallySelecting = false
 
@@ -120,7 +130,7 @@ abstract class EditorControl<R : Node>(
             root.isFocusTraversable = true
             root.focusedProperty().addListener(this) { focused ->
                 if (focused && !manuallySelecting) {
-                    if (isShiftDown) doToggleSelection()
+                    if (isShiftDown) doToggleSelection() //TODO: how to do this in a less ugly way?
                     else doSelect()
                 }
             }
@@ -184,14 +194,6 @@ abstract class EditorControl<R : Node>(
         editorParent = parent
     }
 
-    internal open fun setNext(nxt: EditorControl<*>?) {
-        next = nxt
-    }
-
-    internal open fun setPrevious(prev: EditorControl<*>?) {
-        previous = prev
-    }
-
     /**
      * Defines the list of children of this [EditorControl].
      * For all children their parent is set to this [EditorControl].
@@ -201,29 +203,15 @@ abstract class EditorControl<R : Node>(
         editorChildren.clear()
         if (children.isEmpty()) return
         editorChildren.addAll(children)
-        children.forEach {
-            it.setEditorParent(this)
-        }
-        children.zipWithNext { previous, next ->
-            previous.setNext(next)
-            next.setPrevious(previous)
-        }
-        children.first().setPrevious(null)
-        children.last().setNext(null)
+        children.forEach { ch -> ch.setEditorParent(this) }
     }
 
     /**
      * Make the given [EditorControl] a child of this editor control.
      */
     protected open fun addChild(child: EditorControl<*>, idx: Int) {
-        val prev = editorChildren.getOrNull(idx - 1)
-        val next = editorChildren.getOrNull(idx)
-        prev?.setNext(child)
-        next?.setPrevious(child)
-        child.setNext(next)
-        child.setPrevious(prev)
-        child.setEditorParent(this)
         editorChildren.add(idx, child)
+        child.setEditorParent(this)
     }
 
     private fun clearChildren() {
@@ -234,10 +222,6 @@ abstract class EditorControl<R : Node>(
      * Remove the editor child at the given [index]
      */
     protected open fun removeChild(index: Int) {
-        val prev = editorChildren.getOrNull(index - 1)
-        val next = editorChildren.getOrNull(index + 1)
-        prev?.setNext(next)
-        next?.setPrevious(prev)
         editorChildren.removeAt(index)
     }
 
@@ -447,5 +431,6 @@ abstract class EditorControl<R : Node>(
 
     private data class ArgumentHandler(
         val property: Property<*, *>,
-        val handler: (Any) -> Unit)
+        val handler: (Any) -> Unit
+    )
 }
