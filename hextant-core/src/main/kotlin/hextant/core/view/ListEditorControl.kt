@@ -64,13 +64,6 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         items.children.setAll(cells)
     }
 
-    override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
-        when (property) {
-            ORIENTATION -> orientationChanged(value as Orientation)
-            CELL_FACTORY -> cellFactoryChanged()
-        }
-    }
-
     private val cells = mutableListOf<Cell<*>>()
 
     private fun cells(items: List<Editor<*>>) =
@@ -79,6 +72,8 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     init {
         initEmptyDisplay()
         editor.addView(this)
+        addArgumentHandler(ORIENTATION, ::orientationChanged)
+        addArgumentHandler(CELL_FACTORY) { cellFactoryChanged() }
     }
 
     private fun initEmptyDisplay() {

@@ -14,8 +14,6 @@ import fxutils.PseudoClasses
 import fxutils.registerShortcuts
 import fxutils.setRoot
 import fxutils.show
-import hextant.command.Command.Type.SingleReceiver
-import hextant.command.meta.ProvideCommand
 import hextant.context.Context
 import hextant.context.Properties
 import hextant.context.SelectionDistributor
@@ -129,6 +127,8 @@ abstract class EditorControl<R : Node>(
             setRoot(newRoot)
         }
 
+    internal val argumentHandlers = mutableMapOf<Property<*, *>, MutableList<(Any) -> Unit>>()
+
     init {
         styleClass.add("editor-control")
         for ((p, v) in arguments.entries) {
@@ -144,6 +144,7 @@ abstract class EditorControl<R : Node>(
             @Suppress("UNCHECKED_CAST")
             val property = change.property as Property<Any, *>
             propertyChangeHandler.valueChanged(this, property, new)
+            argumentHandlers[property]?.forEach { handler -> handler.invoke(new) }
             argumentChanged(property, new)
         }
         sceneProperty().addListener(this) { sc ->
@@ -160,10 +161,24 @@ abstract class EditorControl<R : Node>(
         }
     }
 
+    open fun supportedParameters(): Collection<Property<*, *>> = argumentHandlers.keys
+
     /**
      * Is called when one of the display [arguments] changed.
      */
-    open fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {}
+    internal open fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {}
+
+    fun <T : Any> addArgumentHandler(property: Property<T, *>, handler: (T) -> Unit) {
+        argumentHandlers.getOrPut(property, ::mutableListOf).add(handler as (Any) -> Unit)
+    }
+
+    fun supportArguments(vararg properties: Property<*, *>) {
+        for (property in properties) {
+            if (property !in supportedParameters()) {
+                argumentHandlers[property] = mutableListOf()
+            }
+        }
+    }
 
     internal open fun setEditorParent(parent: EditorControl<*>?) {
         editorParent = parent
@@ -333,57 +348,22 @@ abstract class EditorControl<R : Node>(
         }
     }
 
-    @ProvideCommand(
-        name = "Copy",
-        shortName = "copy",
-        type = SingleReceiver,
-        description = "Copy the editor to the clipboard",
-        defaultShortcut = "Ctrl?+C"
-    )
     protected fun copy(): Boolean = target.copyToClipboard()
 
-    @ProvideCommand(
-        name = "Paste",
-        shortName = "paste",
-        type = SingleReceiver,
-        description = "Paste the recently copied content",
-        defaultShortcut = "Ctrl?+Shift?+V"
-    )
     protected fun paste(): Boolean = target.pasteFromClipboard()
 
-    @ProvideCommand(
-        name = "Show Inspections",
-        shortName = "inspect",
-        defaultShortcut = "Alt+Enter",
-        description = "Shows the inspection popup",
-        type = SingleReceiver
-    )
     private fun showInspections(): Boolean {
         inspectionPopup.show(root)
         return inspectionPopup.isShowing
     }
 
-    @ProvideCommand(
-        name = "Shrink Selection",
-        shortName = "shrink",
-        description = "Focuses the last focused child editor",
-        defaultShortcut = "Ctrl+L",
-        type = SingleReceiver
-    )
-    private fun shrinkSelection() {
+    fun shrinkSelection() {
         val childToSelect = lastExtendingChild ?: editorChildren().firstOrNull() ?: return
         childToSelect.requestFocus()
         if (isSelected.now) toggleSelection()
     }
 
-    @ProvideCommand(
-        name = "Extend Selection",
-        shortName = "extend",
-        description = "Focuses the parent editor",
-        defaultShortcut = "Ctrl+M",
-        type = SingleReceiver
-    )
-    private fun extendSelection() {
+    fun extendSelection() {
         val parent = editorParent ?: return
         parent.select()
         if (isSelected.now) toggleSelection()
@@ -434,7 +414,7 @@ abstract class EditorControl<R : Node>(
 
 
     fun importJsonArgumentTree(tree: JsonObject) {
-        for ((property, _) in arguments.entries.toList()) {
+        for (property in supportedParameters()) {
             if (property.name in tree) {
                 val type = property.propertyType ?: error("No type for $property")
                 val serializer = serializer(type) as KSerializer<Any>
@@ -464,4 +444,8 @@ abstract class EditorControl<R : Node>(
         function()
         relayoutPending = false
     }
+
+    private data class ArgumentHandler(
+        val property: Property<*, *>,
+        val handler: (Any) -> Unit)
 }

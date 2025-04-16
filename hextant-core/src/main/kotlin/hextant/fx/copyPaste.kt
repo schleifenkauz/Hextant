@@ -8,6 +8,8 @@ import hextant.context.Context
 import hextant.context.SelectionDistributor
 import hextant.context.executeSafely
 import hextant.core.Editor
+import hextant.core.editor.copyToClipboard
+import hextant.core.editor.pasteFromClipboard
 import hextant.core.editor.snapshot
 import javafx.scene.Scene
 
@@ -26,6 +28,16 @@ private fun copyManyToClipboard(context: Context) {
 
 internal fun Scene.registerCopyPasteShortcuts(context: Context) {
     registerShortcuts {
+        on("Ctrl+C") { ev ->
+            val selected = context[SelectionDistributor].selectedTargets.now.singleOrNull() ?: return@on
+            if (selected !is Editor<*>) return@on
+            if (selected.copyToClipboard()) ev.consume()
+        }
+        on("Ctrl+V") { ev ->
+            val selected = context[SelectionDistributor].selectedTargets.now.singleOrNull() ?: return@on
+            if (selected !is Editor<*>) return@on
+            if (selected.pasteFromClipboard()) ev.consume()
+        }
         on(COPY_MANY) {
             copyManyToClipboard(context)
         }

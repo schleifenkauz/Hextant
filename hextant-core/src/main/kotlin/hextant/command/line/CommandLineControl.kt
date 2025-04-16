@@ -76,17 +76,12 @@ class CommandLineControl @ProvideImplementation(ControlFactory::class) construct
             popup.updateInput(txt)
             popup.show(commandName)
         }
+        addArgumentHandler(HISTORY_ITEMS, ::setHistoryItems)
         cl.addView(this)
     }
 
     override fun displayCommandName(name: String) {
         commandName.smartSetText(name)
-    }
-
-    override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
-        when (property) {
-            HISTORY_ITEMS -> setHistoryItems(value as Int)
-        }
     }
 
     private fun setHistoryItems(count: Int) {

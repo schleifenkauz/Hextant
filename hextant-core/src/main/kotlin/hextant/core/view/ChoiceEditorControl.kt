@@ -5,7 +5,6 @@
 package hextant.core.view
 
 import bundles.Bundle
-import bundles.Property
 import bundles.publicProperty
 import fxutils.button
 import fxutils.children
@@ -43,11 +42,8 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
 
     init {
         editor.addView(this)
-    }
-
-    override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
-        when (property) {
-            LAYOUT -> root = createDefaultRoot()
+        addArgumentHandler(LAYOUT) {
+            root = createDefaultRoot()
         }
     }
 

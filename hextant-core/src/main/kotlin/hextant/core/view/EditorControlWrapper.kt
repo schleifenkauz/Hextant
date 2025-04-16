@@ -20,7 +20,10 @@ class EditorControlWrapper(
         setChildren(view)
     }
 
+    override fun supportedParameters(): Collection<Property<*, *>> = view.supportedParameters()
+
     override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
+        view.argumentHandlers[property]?.forEach { handler -> handler.invoke(value) }
         view.argumentChanged(property, value)
     }
 

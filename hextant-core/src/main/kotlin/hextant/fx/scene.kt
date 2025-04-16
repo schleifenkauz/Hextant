@@ -22,36 +22,48 @@ fun Scene.initHextantScene(context: Context, applyStyle: Boolean = true) {
     registerNavigationShortcuts()
     registerCopyPasteShortcuts(context)
     addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED) { ev ->
-        val node = ev.target as? Region ?: return@addEventFilter
-        showCommandsPopup(node, ev)
+        val control = ev.getTargetEditorControl() ?: return@addEventFilter
+        showCommandsPopup(control, ev)
     }
     registerShortcuts {
         on("Alt+Enter") { ev ->
-            val node = ev.target as? Region ?: return@on
-            showCommandsPopup(node, ev)
+            val control = ev.getTargetEditorControl() ?: return@on
+            showCommandsPopup(control, ev)
+        }
+        on("Ctrl+L") { ev ->
+            val control = ev.getTargetEditorControl() ?: return@on
+            control.shrinkSelection()
+            ev.consume()
+        }
+        on("Ctrl+M") { ev ->
+            val control = ev.getTargetEditorControl() ?: return@on
+            control.extendSelection()
+            ev.consume()
         }
     }
     if (applyStyle) context[Stylesheets].manage(this)
 }
 
-private fun showCommandsPopup(node: Region, ev: Event) {
-    val control = editorControlInParentChain(node)
-    if (control != null) {
-        val p = node.localToScreen(0.0, node.height)
-        val context = control.context
-        val target  = control.target
-        val onEditor = context[Commands].applicableOn(target)
-        val onControl = context[Commands].applicableOn(control)
-        val commands: List<Command<*, *>> = (onEditor + onControl).filter { cmd -> cmd.parameters.isEmpty() }
-        if (commands.isEmpty()) return
-        ev.consume()
-        val list = CommandListView("Choose command", commands)
-        val command = list.showPopup(p, owner = node.scene.window) ?: return
-        command as Command<Any, *>
-        when (command) {
-            in onEditor -> command.execute(target, emptyList())
-            in onControl -> command.execute(control, emptyList())
-        }
+private fun Event.getTargetEditorControl(): EditorControl<*>? {
+    val node = target as? Region ?: return null
+    return editorControlInParentChain(node)
+}
+
+private fun showCommandsPopup(control: EditorControl<*>, ev: Event) {
+    val p = control.localToScreen(0.0, control.height)
+    val context = control.context
+    val target  = control.target
+    val onEditor = context[Commands].applicableOn(target)
+    val onControl = context[Commands].applicableOn(control)
+    val commands: List<Command<*, *>> = (onEditor + onControl).filter { cmd -> cmd.parameters.isEmpty() }
+    if (commands.isEmpty()) return
+    ev.consume()
+    val list = CommandListView("Choose command", commands)
+    val command = list.showPopup(p, owner = control.scene.window) ?: return
+    command as Command<Any, *>
+    when (command) {
+        in onEditor -> command.execute(target, emptyList())
+        in onControl -> command.execute(control, emptyList())
     }
 }
 
