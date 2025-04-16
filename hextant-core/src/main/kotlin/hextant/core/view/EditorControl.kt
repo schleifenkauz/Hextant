@@ -23,8 +23,8 @@ import hextant.core.editor.copyToClipboard
 import hextant.core.editor.pasteFromClipboard
 import hextant.fx.CommandsPopup
 import hextant.fx.InspectionPopup
+import hextant.fx.ShiftKeyTracker
 import hextant.fx.handleCommands
-import hextant.fx.isShiftDown
 import hextant.inspect.Inspections
 import hextant.serial.json
 import javafx.application.Platform
@@ -130,7 +130,7 @@ abstract class EditorControl<R : Node>(
             root.isFocusTraversable = true
             root.focusedProperty().addListener(this) { focused ->
                 if (focused && !manuallySelecting) {
-                    if (isShiftDown) doToggleSelection() //TODO: how to do this in a less ugly way?
+                    if (ShiftKeyTracker.isShiftDown) doToggleSelection()
                     else doSelect()
                 }
             }

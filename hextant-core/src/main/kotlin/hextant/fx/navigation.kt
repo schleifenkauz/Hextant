@@ -4,7 +4,6 @@ import fxutils.shortcut
 import hextant.core.view.EditorControl
 import javafx.scene.Node
 import javafx.scene.Scene
-import javafx.scene.input.KeyCode.SHIFT
 import javafx.scene.input.KeyCode.TAB
 import javafx.scene.input.KeyEvent
 
@@ -39,23 +38,8 @@ internal fun Scene.selectPrevious(travelToLeaf: Boolean): Boolean {
 internal fun editorControlInParentChain(node: Node) =
     generateSequence(node) { it.parent }.firstOrNull { it is EditorControl<*> } as EditorControl<*>?
 
-internal var isShiftDown = false; private set //TODO this is soo bad
-
-private fun Scene.listenForShift() {
-    addEventFilter(KeyEvent.KEY_PRESSED) {
-        if (it.code == SHIFT) {
-            isShiftDown = true
-        }
-    }
-    addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
-        if (ev.code == SHIFT) {
-            isShiftDown = false
-        }
-    }
-}
-
 internal fun Scene.registerNavigationShortcuts() {
-    listenForShift()
+    ShiftKeyTracker.start()
     addEventFilter(KeyEvent.ANY) { ev ->
         if (ev.code == TAB) {
             ev.consume()
