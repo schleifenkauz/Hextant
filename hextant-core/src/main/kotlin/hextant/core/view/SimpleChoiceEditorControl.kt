@@ -2,10 +2,12 @@ package hextant.core.view
 
 import bundles.Bundle
 import fxutils.button
+import fxutils.escapeUnderscores
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.editor.SimpleChoiceEditor
 import javafx.scene.control.Button
+import reaktive.value.binding.map
 import reaktive.value.fx.asObservableValue
 import reaktive.value.now
 
@@ -28,7 +30,7 @@ open class SimpleChoiceEditorControl<C : Any>(
 
     override fun selected(choice: C) {
         if (root.textProperty().isBound) root.textProperty().unbind()
-        root.textProperty().bind(editor.toString(choice).asObservableValue())
+        root.textProperty().bind(editor.toString(choice).map { txt -> txt.escapeUnderscores() }.asObservableValue())
     }
 
     @ProvideImplementation(ControlFactory::class)
