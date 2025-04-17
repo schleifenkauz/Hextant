@@ -16,9 +16,9 @@ import kotlin.reflect.KProperty1
  * Return an [ExpanderDelegate] that transforms expanded editors with the given function.
  */
 fun <E : Editor<*>, R : Editor<*>> ExpanderDelegate<E>.map(f: (E) -> R) = object : ExpanderDelegate<R> {
-    override fun expand(text: String, context: Context): R? = this@map.expand(text, context)?.let(f)
+    override fun expand(text: String, expander: Expander<*, *>): R? = this@map.expand(text, expander)?.let(f)
 
-    override fun expand(item: Any, context: Context): R? = this@map.expand(item, context)?.let(f)
+    override fun expand(item: Any, expander: Expander<*, *>): R? = this@map.expand(item, expander)?.let(f)
 }
 
 /**

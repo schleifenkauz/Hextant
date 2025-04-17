@@ -7,7 +7,6 @@ package hextant.core.editor
 import hextant.completion.Completer
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
-import hextant.context.Context
 import hextant.core.Editor
 import java.util.*
 import kotlin.reflect.KClass
@@ -17,77 +16,58 @@ import kotlin.reflect.KClass
  */
 class ExpanderConfig<E : Editor<*>> private constructor(
     private val fallback: ExpanderDelegate<E>?,
-    private val constant: MutableMap<String, (Context) -> E?>,
-    private val interceptors: LinkedList<(String, Context) -> E?>,
-    private val typeSafeInterceptors: MutableMap<KClass<*>, LinkedList<(Any, Context) -> E?>>
+    private val options: MutableList<ExpansionOption<E>>
 ) : ExpanderDelegate<E> {
-    constructor(fallback: ExpanderDelegate<E>? = null) : this(fallback, mutableMapOf(), LinkedList(), mutableMapOf())
+    constructor(fallback: ExpanderDelegate<E>? = null) : this(fallback, mutableListOf())
 
     /**
      * @return a [Completer] which uses the registered choices and the given [strategy]
      */
-    fun completer(strategy: CompletionStrategy): Completer<Any, String> =
-        object : ConfiguredCompleter<Any, String>(strategy) {
-            override fun completionPool(context: Any): Collection<String> = keys()
+    fun completer(strategy: CompletionStrategy): Completer<Expander<*, *>, String> =
+        object : ConfiguredCompleter<Expander<*, *>, String>(strategy) {
+            override fun completionPool(context: Expander<*, *>): Collection<String> = keys(context)
         }
 
-    private fun keys(): Set<String> =
-        if (fallback is ExpanderConfig<*>) constant.keys + fallback.keys() else constant.keys
+    private fun keys(context: Expander<*, *>): Set<String> {
+        val myKeys = options
+            .filterIsInstance<ExpansionOption.Constant<*>>()
+            .filter { it.condition(context) }
+            .flatMapTo(mutableSetOf()) { it.keywords }
+        return if (fallback is ExpanderConfig<*>) myKeys + fallback.keys(context) else myKeys
+    }
 
     /**
      * Return an [ExpanderConfig] which uses the given [ExpanderDelegate] as a fallback option when expanding editors.
      */
     fun withFallback(fallback: ExpanderDelegate<E>?) =
-        ExpanderConfig(fallback, constant, interceptors, typeSafeInterceptors)
-
-    /**
-     * Return an [ExpanderConfig] that uses the given transformation function to make editors of type [F] from editors of type [E].
-     */
-    fun <F : Editor<*>> transform(f: (E) -> F): ExpanderConfig<F> {
-        val fb = if (fallback is ExpanderConfig) fallback.transform(f) else fallback?.map(f)
-        val constant = constant.mapValuesTo(mutableMapOf()) { (_, fct) -> { ctx: Context -> fct(ctx)?.let(f) } }
-        val interceptors = interceptors.mapTo(LinkedList()) { fct ->
-            { text: String, ctx: Context -> fct(text, ctx)?.let(f) }
-        }
-        val typeSafeInterceptors = typeSafeInterceptors.mapValuesTo(mutableMapOf()) { (_, lst) ->
-            lst.mapTo(LinkedList()) { fct ->
-                { item: Any, ctx: Context -> fct(item, ctx)?.let(f) }
-            }
-        }
-        return ExpanderConfig(fb, constant, interceptors, typeSafeInterceptors)
-    }
+        ExpanderConfig(fallback, options)
 
     /**
      * If the given [key] is expanded an editor is returned using [create].
-     * * Previous invocation with the same [key] are overridden.
-     * @see unregisterKey
      */
-    fun registerKey(key: String, create: (ctx: Context) -> E?) {
-        constant[key] = create
+    fun registerKey(key: String, condition: (Expander<*, *>) -> Boolean, create: (expander: Expander<*, *>) -> E?) {
+        options.add(0, ExpansionOption.Constant(setOf(key), condition, create))
     }
 
     /**
      * Same as [registerKey] but registers the same editor factory for multiple keys.
      */
-    fun registerKeys(key: String, vararg more: String, create: (ctx: Context) -> E?) {
-        registerKey(key, create)
-        for (k in more) registerKey(k, create)
+    fun registerKeys(
+        key: String, vararg more: String, condition: (Expander<*, *>) -> Boolean,
+        create: (expander: Expander<*, *>) -> E?
+    ) {
+        options.add(0, ExpansionOption.Constant(setOf(key) + more, condition, create))
     }
 
     /**
      * Alias for [registerKey].
      */
-    infix fun String.expand(create: (ctx: Context) -> E?) {
-        registerKey(this, create = create)
+    fun String.expand(condition: (Expander<*, *>) -> Boolean, create: (expander: Expander<*, *>) -> E?) {
+        registerKey(this, condition, create)
     }
 
-    /**
-     * Unregisters the given [key] so that subsequent invocations of [expand]
-     * will not use the previously registered factory.
-     * @see registerKey
-     */
-    fun unregisterKey(key: String) {
-        checkNotNull(constant.remove(key)) { "No factory for key '$key' registered" }
+    infix fun String.expand(create: (expander: Expander<*, *>) -> E?) {
+        registerKey(this, { true }, create)
     }
 
     /**
@@ -95,16 +75,19 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      *
      * Interceptors the have been registered **last** are tried **first**
      */
-    fun registerInterceptor(interceptor: (text: String, ctx: Context) -> E?) {
-        interceptors.addFirst(interceptor)
+    fun registerInterceptor(interceptor: (text: String, expander: Expander<*, *>) -> E?) {
+        options.add(ExpansionOption.TextInterceptor(interceptor))
     }
 
     /**
      * Registers an interceptor that tries to to compile its given text with the given [tokenType].
      */
-    fun <T : Any> registerTokenInterceptor(tokenType: TokenType<T?>, factory: (ctx: Context, token: T) -> E) {
-        registerInterceptor { text: String, ctx: Context ->
-            tokenType.compile(text)?.let { t -> factory(ctx, t) }
+    fun <T : Any> registerTokenInterceptor(
+        tokenType: TokenType<T?>,
+        factory: (expander: Expander<*, *>, token: T) -> E
+    ) {
+        registerInterceptor { text: String, expander: Expander<*, *> ->
+            tokenType.compile(text)?.let { t -> factory(expander, t) }
         }
     }
 
@@ -114,10 +97,9 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      *
      * Interceptors the have been registered **last** are tried **first**
      */
-    fun <T : Any> registerInterceptor(cls: KClass<out T>, interceptor: (item: T, ctx: Context) -> E?) {
-        val list = typeSafeInterceptors.getOrPut(cls) { LinkedList() }
+    fun <T : Any> registerInterceptor(cls: KClass<out T>, interceptor: (item: T, expander: Expander<*, *>) -> E?) {
         @Suppress("UNCHECKED_CAST")
-        list.addFirst(interceptor as ((Any, Context) -> E?))
+        options.add(ExpansionOption.CompletionInterceptor(cls, interceptor as (Expander<*, *>, Any) -> E?))
     }
 
     /**
@@ -127,7 +109,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      * Interceptors the have been registered **last** are tried **first**
      */
     @JvmName("registerTypesafeInterceptor")
-    inline fun <reified T : Any> registerInterceptor(noinline interceptor: (item: T, ctx: Context) -> E?) {
+    inline fun <reified T : Any> registerInterceptor(noinline interceptor: (item: T, expander: Expander<*, *>) -> E?) {
         registerInterceptor(T::class, interceptor)
     }
 
@@ -135,25 +117,31 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      * Expand the given [text] in the given [context] using the registered interceptors.
      * If no interceptor matches `null` is returned
      */
-    override fun expand(text: String, context: Context): E? {
-        val constant = constant[text]
-        if (constant != null) constant(context)?.let { editor -> return editor }
-        for (i in interceptors) {
-            val e = i(text, context)
-            if (e != null) return e
+    override fun expand(text: String, expander: Expander<*, *>): E? {
+        for (opt in options) {
+            if (opt is ExpansionOption.Constant) {
+                if (opt.keywords.contains(text) && opt.condition(expander)) {
+                    val editor = opt.factory(expander)
+                    if (editor != null) return editor
+                }
+            }
+            else if (opt is ExpansionOption.TextInterceptor) {
+                val editor = opt.factory(text, expander)
+                if (editor != null) return editor
+            }
         }
-        if (fallback != null) return fallback.expand(text, context)
+        if (fallback != null) return fallback.expand(text, expander)
         return null
     }
 
-    override fun expand(item: Any, context: Context): E? {
-        val cls = item::class
-        val interceptors = typeSafeInterceptors[cls] ?: return null
-        for (i in interceptors) {
-            val e = i(item, context)
-            if (e != null) return e
+    override fun expand(item: Any, expander: Expander<*, *>): E? {
+        for (opt in options) {
+            if (opt is ExpansionOption.CompletionInterceptor && opt.cls.isInstance(item)) {
+                val editor = opt.factory(expander, item)
+                if (editor != null) return editor
+            }
         }
-        if (fallback != null) return fallback.expand(item, context)
+        if (fallback != null) return fallback.expand(item, expander)
         return null
     }
 
@@ -166,17 +154,25 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      * Copies all the constant factories and interceptors from the given [config] to this one.
      */
     fun alsoUse(config: ExpanderConfig<E>) {
-        constant.putAll(config.constant)
-        interceptors.addAll(config.interceptors)
-        for ((cls, interceptors) in config.typeSafeInterceptors) {
-            typeSafeInterceptors.getOrPut(cls) { LinkedList() }.addAll(interceptors)
-        }
+        options.addAll(config.options)
     }
 
     /**
      * Return an [ExpanderConfig] which first tries the given [config] and then uses this configuration as a fallback option.
      */
     fun extendWith(config: ExpanderConfig<E>) = config.withFallback(this)
+
+    private sealed interface ExpansionOption<E : Editor<*>> {
+        data class Constant<E : Editor<*>>(
+            val keywords: Set<String>,
+            val condition: (Expander<*, *>) -> Boolean,
+            val factory: (Expander<*, *>) -> E?
+        ) : ExpansionOption<E>
+
+        data class TextInterceptor<E : Editor<*>>(val factory: (String, Expander<*, *>) -> E?) : ExpansionOption<E>
+        data class CompletionInterceptor<E : Editor<*>>(val cls: KClass<*>, val factory: (Expander<*, *>, Any) -> E?) :
+            ExpansionOption<E>
+    }
 
     companion object {
         operator fun <E : Editor<*>> invoke(

@@ -22,9 +22,9 @@ abstract class ConfiguredExpander<R, E : Editor<R>> : Expander<R, E>() {
         this.tokenType = tokenType
     }
 
-    override fun expand(text: String): E? = config.expand(text, expansionContext())
+    override fun expand(text: String): E? = config.expand(text, this)
 
-    override fun expand(completion: Any): E? = config.expand(completion, expansionContext())
+    override fun expand(completion: Any): E? = config.expand(completion, this)
 
     override fun compile(token: String): R = tokenType.compile(token) ?: defaultResult()
 }

@@ -4,7 +4,6 @@
 
 package hextant.core.editor
 
-import hextant.context.Context
 import hextant.core.Editor
 
 /**
@@ -14,10 +13,10 @@ interface ExpanderDelegate<out E : Editor<*>> {
     /**
      * Expand the given [text] using the specified [context].
      */
-    fun expand(text: String, context: Context): E?
+    fun expand(text: String, expander: Expander<*, *>): E?
 
     /**
      * Expand the given completion-[item] using the specified [context].
      */
-    fun expand(item: Any, context: Context): E?
+    fun expand(item: Any, expander: Expander<*, *>): E?
 }

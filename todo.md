@@ -13,6 +13,8 @@
 - select multiple consecutive editors with ctrl+shift + arrow key
 - take into account the expander/content relationship when querying applicable commands
   - does a simple delegation expander->content, content->expander suffice?
+- flexible mode for `ListEditorControl`, where user can add and remove "line breaks"
+- make completion popups sleeker
 
 ### Fixes
 
