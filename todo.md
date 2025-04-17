@@ -7,8 +7,10 @@
 - command to update editor result before using it
 - store control arguments in clipboard
   - how to apply to appropriate control
+  - or store control config in `Editor.viewConfig`...
 - extractor commands (replace parent with one of its children)
-- shortcuts to move list objects up and down
+- shortcuts to move list objects up and down (right and left)
+- select multiple consecutive editors with ctrl+shift + arrow key
 - take into account the expander/content relationship when querying applicable commands
   - does a simple delegation expander->content, content->expander suffice?
 

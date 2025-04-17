@@ -15,6 +15,8 @@ open class SimpleChoiceEditorControl<C : Any>(
 ) : SimpleChoiceEditorView<C>, EditorControl<Button>(editor, arguments) {
     init {
         editor.addView(this)
+        //TODO how can we have this behave better?
+        //root.focusedProperty().addListener { _, _, focused -> if (focused) showChoicePopup() }
     }
 
     override fun createDefaultRoot() = button { showChoicePopup() }

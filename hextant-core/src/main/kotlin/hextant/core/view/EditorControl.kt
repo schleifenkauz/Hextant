@@ -26,6 +26,8 @@ import hextant.fx.InspectionPopup
 import hextant.fx.ShiftKeyTracker
 import hextant.fx.handleCommands
 import hextant.inspect.Inspections
+import hextant.serial.EditorAccessor
+import hextant.serial.PropertyAccessor
 import hextant.serial.json
 import javafx.application.Platform
 import javafx.css.PseudoClass
@@ -43,6 +45,7 @@ import reaktive.observe
 import reaktive.value.ReactiveValue
 import reaktive.value.now
 import reaktive.value.reactiveVariable
+import kotlin.reflect.KProperty
 
 /**
  * An [EditorView] represented as a [javafx.scene.control.Control]
@@ -231,6 +234,13 @@ abstract class EditorControl<R : Node>(
     protected fun setChildren(vararg children: EditorControl<*>) {
         setChildren(children.asList())
     }
+
+    fun getChild(accessor: EditorAccessor): EditorControl<*>? {
+        val editor = target.getSubEditor(accessor)
+        return editorChildren().find { it.target == editor }
+    }
+
+    fun getChild(property: KProperty<*>) = getChild(PropertyAccessor(property.name))
 
     /**
      * Creates the default root for this control
