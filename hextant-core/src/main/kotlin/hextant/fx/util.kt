@@ -1,7 +1,5 @@
 package hextant.fx
 
-import bundles.Bundle
-import bundles.createBundle
 import fxutils.KeyEventHandlerBody
 import fxutils.registerShortcuts
 import fxutils.runFXWithTimeout
@@ -12,7 +10,6 @@ import hextant.context.Context
 import hextant.context.EditorControlGroup
 import hextant.context.createControl
 import hextant.core.Editor
-import hextant.core.view.CompoundEditorControl.Layout
 import hextant.core.view.EditorControl
 import javafx.scene.Node
 import javafx.scene.Parent
@@ -67,11 +64,11 @@ fun KeyEventHandlerBody<*>.handleCommands(target: Any, context: Context, command
         val shortcut = command.shortcut
         if (shortcut != null) {
             on(shortcut, consume = false) { ev ->
-                commandLine.expand(command)
                 if (command.parameters.isEmpty()) {
-                    val result = commandLine.execute(byShortcut = true)
+                    val result = command.execute(target, emptyList())
                     if (result != false) ev.consume()
                 } else {
+                    commandLine.expand(command)
                     context[EditorControlGroup].getViewOf(commandLine).receiveFocus()
                     ev.consume()
                 }
