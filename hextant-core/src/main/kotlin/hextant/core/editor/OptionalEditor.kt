@@ -39,9 +39,9 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
             System.err.println("Warning: $this is already reset")
             return
         }
-        val contentRef = content.now!!
+        val contentSnap = content.now!!.snapshot()
         doReset()
-        context[UndoManager].record(Reset(this, contentRef))
+        context[UndoManager].record(Reset(this, contentSnap))
     }
 
     fun expand() {

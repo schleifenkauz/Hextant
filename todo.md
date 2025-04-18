@@ -9,14 +9,16 @@
   - how to apply to appropriate control
   - or store control config in `Editor.viewConfig`...
 - extractor commands (replace parent with one of its children)
-- shortcuts to move list objects up and down (right and left)
 - select multiple consecutive editors with ctrl+shift + arrow key
 - take into account the expander/content relationship when querying applicable commands
   - does a simple delegation expander->content, content->expander suffice?
 - flexible mode for `ListEditorControl`, where user can add and remove "line breaks"
-- make completion popups sleeker
+- register control factories in plugin initializer instead of annotations
 
 ### Fixes
 
 - add cut command (Ctrl+X)
 - the ListEditor result is faulty
+- record edits when updating control arguments
+- shortcuts to move list objects up and down (right and left)
+- make completion popups sleeker

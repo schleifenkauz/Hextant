@@ -152,7 +152,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
      */
     fun pasteMany(idx: Int, editors: List<E>, undoable: Boolean = true) {
         if (undoable) {
-            val edit = PasteManyEdit(this, idx, editors)
+            val edit = PasteManyEdit(this, idx, editors.map { e -> e.snapshot() })
             context[UndoManager].record(edit)
         }
         if (editors.any { !editorClass.isInstance(it) }) return
@@ -190,7 +190,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     fun addAt(index: Int): E? {
         val editor = tryCreateEditor() ?: return null
         if (context[UndoManager].isActive) {
-            val edit = AddEdit(this, index, editor)
+            val edit = AddEdit(this, index, editor.snapshot())
             context[UndoManager].record(edit)
         }
         doAddAt(index, editor)
@@ -207,7 +207,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
      */
     fun addAt(index: Int, editor: E) {
         if (context[UndoManager].isActive) {
-            val edit = AddEdit(this, index, editor)
+            val edit = AddEdit(this, index, editor.snapshot())
             context[UndoManager].record(edit)
         }
         doAddAt(index, editor)
@@ -240,7 +240,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         if (emptyNow()) notifyViews { empty() }
         context.executeSafely("removing editor", Unit) { editorRemoved(old, index) }
         if (context[UndoManager].isActive) {
-            val edit = RemoveEdit(this, index, old)
+            val edit = RemoveEdit(this, index, old.snapshot())
             context[UndoManager].record(edit)
         }
     }

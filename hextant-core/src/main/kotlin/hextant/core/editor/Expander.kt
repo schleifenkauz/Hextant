@@ -180,9 +180,9 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         val undo = context[UndoManager]
         if (!undo.isActive) action()
         else {
-            val before = state.now
+            val before = state.now.snapshot()
             action()
-            val after = state.now
+            val after = state.now.snapshot()
             val edit = StateTransition(this, before, after, description)
             undo.record(edit)
         }
@@ -332,10 +332,15 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         }
     }
 
-    private sealed class State<out E> {
+    private sealed class State<out E: Editor<*>> {
+        fun snapshot(): State<E> = when (this) {
+            is Text -> this
+            is Expanded -> Expanded(content.snapshot())
+        }
+
         class Text(val text: String) : State<Nothing>()
 
-        class Expanded<out E>(val content: E) : State<E>()
+        class Expanded<out E : Editor<*>>(val content: E) : State<E>()
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
