@@ -303,7 +303,7 @@ abstract class EditorControl<R : Node>(
     /**
      * Toggle the selection of this [EditorControl] and request focus if it is selected afterwards
      */
-    fun toggleSelection() {
+    override fun toggleSelection() {
         if (doToggleSelection()) {
             justFocus()
         }
@@ -358,7 +358,10 @@ abstract class EditorControl<R : Node>(
     }
 
     fun extendSelection() {
-        val parent = editorParent ?: return
+        var parent = editorParent ?: return
+        while (parent is ListEditorControl && parent.editorChildren().size == 1) {
+            parent = parent.editorParent ?: return
+        }
         parent.select()
         if (isSelected.now) toggleSelection()
         parent.lastExtendingChild = this

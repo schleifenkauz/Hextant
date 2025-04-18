@@ -31,11 +31,12 @@ interface EditorView {
      * */
     fun select()
 
+    fun toggleSelection()
+
     /**
      * Focus this [EditorView]
      */
     fun focus()
-
     /**
      * Change the state of the specified [pseudoClass].
      */

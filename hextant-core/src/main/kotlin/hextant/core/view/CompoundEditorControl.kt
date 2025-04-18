@@ -9,6 +9,7 @@ import bundles.Property
 import bundles.createBundle
 import fxutils.Glyphs
 import fxutils.styleClass
+import hextant.context.SelectionDistributor
 import hextant.context.createControl
 import hextant.core.Editor
 import javafx.geometry.Pos
@@ -46,7 +47,9 @@ abstract class CompoundEditorControl(
     }
 
     override fun <T : Any> argumentChanged(property: Property<T, *>, value: T) {
+        context[SelectionDistributor].saveSelectionState()
         root = createDefaultRoot()
+        context[SelectionDistributor].restoreSelectionState()
     }
 
     override fun receiveFocus() {

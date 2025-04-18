@@ -12,6 +12,7 @@ import reaktive.set.reactiveSet
 import reaktive.value.ReactiveValue
 import reaktive.value.ReactiveVariable
 import reaktive.value.binding.map
+import reaktive.value.now
 import reaktive.value.reactiveVariable
 
 /**
@@ -51,11 +52,17 @@ interface SelectionDistributor {
      */
     fun select(view: EditorView): Boolean
 
+    fun saveSelectionState()
+
+    fun restoreSelectionState()
+
     private class Impl : SelectionDistributor {
         override val focusedView: ReactiveVariable<EditorView?> = reactiveVariable(null)
         override val focusedTarget: ReactiveValue<Any?> = focusedView.map { it?.target }
         override val selectedViews = reactiveSet<EditorView>()
         override val selectedTargets: ReactiveSet<Any> = selectedViews.map { it.target }
+
+        private var savedSelectionState: SelectionState? = null
 
         override fun toggleSelection(view: EditorView): Boolean {
             if (selectedViews.now.add(view)) {
@@ -69,9 +76,7 @@ interface SelectionDistributor {
             return true
         }
 
-        private fun removeSelection(
-            view: EditorView
-        ) {
+        private fun removeSelection(view: EditorView) {
             if (selectedViews.now.remove(view)) {
                 view.deselect()
             }
@@ -100,6 +105,21 @@ interface SelectionDistributor {
             selectedViews.now.forEach { v -> if (v != view) v.deselect() }
             selectedViews.now.retainAll(setOf(view))
         }
+
+        override fun saveSelectionState() {
+            savedSelectionState = SelectionState(selectedViews.now, focusedView.now)
+        }
+
+        override fun restoreSelectionState() {
+            val (views, focused) = savedSelectionState ?: return
+            clearSelection()
+            for (view in views) {
+                if (view != focused) view.toggleSelection()
+            }
+            focused?.select()
+        }
+
+        private data class SelectionState(val selectedViews: Set<EditorView>, val focusedView: EditorView?)
     }
 
     companion object : PublicProperty<SelectionDistributor> by publicProperty("Selection Distributor") {
