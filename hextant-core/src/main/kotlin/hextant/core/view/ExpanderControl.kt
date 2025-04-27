@@ -19,7 +19,6 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.Expander
 import hextant.fx.HextantTextField
-import hextant.fx.InputMethod
 import hextant.fx.ResultStyleClasses
 import javafx.scene.Node
 import reaktive.Observer
@@ -36,7 +35,7 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
             this(expander, args.also { it[COMPLETER] = completer })
 
 
-    private val textField = HextantTextField(initialInputMethod = context[InputMethod])
+    private val textField = HextantTextField()
 
     private val popup = CompletionPopup(context, expander) { arguments[COMPLETER] }
 
@@ -95,7 +94,6 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
     }
 
     final override fun expanded(editor: Editor<*>) {
-        if (root is EditorControl<*>) removeChild(0)
         val v = context.createControl(editor)
         v.registerShortcuts { on("Ctrl? + R") { expander.reset() } }
         wrapped = v

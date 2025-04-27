@@ -13,11 +13,12 @@
   - does a simple delegation expander->content, content->expander suffice?
 - flexible mode for `ListEditorControl`, where user can add and remove "line breaks"
 - register control factories in plugin initializer instead of annotations
+- look into the JavaFX `TextField`-API - maybe the `HextantTextField` could be smarter
 
 ### Fixes
 
 - add cut command (Ctrl+X)
-- the ListEditor result is faulty
+- the ListEditor result is sometimes faulty
 - record edits when updating control arguments
 - shortcuts to move list objects up and down (right and left)
 - make completion popups sleeker

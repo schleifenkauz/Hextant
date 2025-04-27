@@ -23,7 +23,6 @@ import hextant.core.editor.copyToClipboard
 import hextant.core.editor.pasteFromClipboard
 import hextant.fx.CommandsPopup
 import hextant.fx.InspectionPopup
-import hextant.fx.ShiftKeyTracker
 import hextant.fx.handleCommands
 import hextant.inspect.Inspections
 import hextant.serial.EditorAccessor
@@ -130,8 +129,9 @@ abstract class EditorControl<R : Node>(
         protected set(newRoot) {
             _root = newRoot
             root.isFocusTraversable = true
-            root.addEventHandler(MouseEvent.MOUSE_CLICKED) {
-                if (ShiftKeyTracker.isShiftDown) toggleSelection()
+            root.isMouseTransparent = false
+            root.addEventHandler(MouseEvent.MOUSE_CLICKED) { ev ->
+                if (ev.isShiftDown) toggleSelection()
                 else select()
             }
             setRoot(newRoot)

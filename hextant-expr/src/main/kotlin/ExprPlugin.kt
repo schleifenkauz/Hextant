@@ -112,7 +112,7 @@ object ExprPlugin : PluginInitializer({
             }
             fixingBy {
                 val expander = inspected.expander as ExprExpander
-                expander.expand(inspected.operand1)
+                expander.expand(inspected.operand1, "Shorten expression")
             }
         }
     }

@@ -14,7 +14,6 @@ import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
 import hextant.core.editor.TokenEditor
 import hextant.fx.HextantTextField
-import hextant.fx.InputMethod
 import hextant.fx.selectNext
 import javafx.scene.input.KeyCode.SPACE
 import javafx.scene.input.KeyCodeCombination
@@ -30,7 +29,7 @@ import reaktive.value.now
  */
 abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundle) :
     EditorControl<HextantTextField>(editor, args), TokenEditorView {
-    private val textField = HextantTextField(initialInputMethod = context[InputMethod])
+    private val textField = HextantTextField()
 
     private val textObserver = textField.userUpdatedText.observe(this) { _, new ->
         editor.setText(new)

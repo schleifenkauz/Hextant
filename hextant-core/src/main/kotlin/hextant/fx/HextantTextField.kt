@@ -5,13 +5,11 @@
 package hextant.fx
 
 import fxutils.runFXWithTimeout
-import hextant.fx.InputMethod.REGULAR
-import hextant.fx.InputMethod.VIM
+import fxutils.shortcut
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
 import javafx.scene.control.skin.TextFieldSkin
 import javafx.scene.input.KeyCode.*
-import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyEvent
 import javafx.scene.text.Font
 import javafx.scene.text.Text
@@ -22,7 +20,6 @@ import reaktive.event.event
  */
 open class HextantTextField(
     text: String? = "",
-    initialInputMethod: InputMethod = REGULAR,
     autoSize: Boolean = true
 ) : TextField(text) {
     var isAutoSize: Boolean = autoSize
@@ -31,6 +28,8 @@ open class HextantTextField(
             if (isAutoSize) updateWidth(text)
             else prefWidth = USE_COMPUTED_SIZE
         }
+
+    private var fixSelection = false
 
     private var onCut: () -> Unit = { super.cut() }
     private var onCopy: () -> Unit = { super.copy() }
@@ -57,17 +56,6 @@ open class HextantTextField(
      */
     val userUpdatedText = userUpdatesText.stream
 
-    /**
-     * The [InputMethod] of this [HextantTextField]
-     *
-     * If it is [InputMethod.VIM] than the text field is uneditable by default.
-     */
-    var inputMethod = initialInputMethod
-        internal set(value) {
-            field = value
-            isEditable = value != VIM || (isEditable && isFocused)
-        }
-
     override fun paste() {
         onPaste()
     }
@@ -84,7 +72,16 @@ open class HextantTextField(
         //shortcut Ctrl+RIGHT is needed for ListEditorControl
     }
 
+    override fun selectRange(p0: Int, p1: Int) {
+        if (fixSelection) {
+            println("SELECTRANGE on TextField with text=$text")
+            return
+        }
+        super.selectRange(p0, p1)
+    }
+
     override fun home() {
+        println("HOME on TextField with text=$text")
         //shortcut Ctrl+LEFT is needed for ListEditorControl
     }
 
@@ -126,23 +123,13 @@ open class HextantTextField(
 
     init {
         styleClass.add(STYLE_CLASS)
-        focusedProperty().addListener { _, _, focused ->
-            if (!focused && inputMethod == VIM) {
-                isEditable = false
+        addEventFilter(KeyEvent.ANY) { ev ->
+            if ("Ctrl+Left".shortcut.matches(ev) || "Ctrl+Right".shortcut.matches(ev)) {
+                fixSelection = ev.eventType == KeyEvent.KEY_PRESSED
             }
         }
         addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
             when {
-                INPUT_MODE.match(ev) && inputMethod == VIM && !isEditable -> {
-                    isEditable = true
-                    ev.consume()
-                }
-
-                COMMAND_MODE.match(ev) && inputMethod == VIM && isEditable -> {
-                    isEditable = false
-                    ev.consume()
-                }
-
                 isEditable && shouldConsume(ev) -> {
                     ev.consume()
                 }
@@ -151,11 +138,6 @@ open class HextantTextField(
         sceneProperty().addListener { _ ->
             runFXWithTimeout(100) { autoSize() }
         }
-    }
-
-    override fun requestFocus() {
-        super.requestFocus()
-        positionCaret(text.length)
     }
 
     private fun autoSize() {
@@ -186,9 +168,5 @@ open class HextantTextField(
         }
 
         private val controlKeys = setOf(ENTER, ESCAPE, TAB, INSERT, DELETE)
-
-        private val INPUT_MODE = KeyCodeCombination(I)
-
-        private val COMMAND_MODE = KeyCodeCombination(ESCAPE)
     }
 }

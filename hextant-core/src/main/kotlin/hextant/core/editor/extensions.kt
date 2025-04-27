@@ -59,9 +59,9 @@ fun Editor<*>.copyToClipboard(): Boolean {
  * Replaces this editor by the [other] one by setting the editor of its [Editor.expander] to the [other] editor.
  */
 @Suppress("UNCHECKED_CAST")
-fun <E : Editor<*>> E.replaceWith(other: E) {
+fun <E : Editor<*>> E.replaceWith(other: E, editDescription: String) {
     val ex = expander as Expander<*, E>
-    ex.expand(other)
+    ex.expand(other, editDescription)
 }
 
 /**
@@ -90,11 +90,6 @@ inline fun <reified P : Editor<*>> Editor<*>.getParent(): P? {
 }
 
 fun <E: Editor<*>> E.initialized(context: Context) = also { e -> e.initialize(context) }
-
-fun <R> Editor<*>.makeUndoableEdit(description: String, edit: () -> R): R {
-    //TODO
-    return edit()
-}
 
 fun <E: Editor<*>> E.defaultState() = also { e -> e.setupDefaultState() }
 

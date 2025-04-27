@@ -17,7 +17,6 @@ import hextant.context.Properties.globalCommandLine
 import hextant.context.Properties.localCommandLine
 import hextant.context.Properties.logger
 import hextant.context.Properties.propertyChangeHandler
-import hextant.fx.InputMethod
 import hextant.fx.ResultStyleClasses
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
@@ -66,7 +65,6 @@ object HextantCore : PluginInitializer({
         set(EditorControlGroup, EditorControlGroup())
         set(UndoManager, UndoManager.newInstance())
         set(Clipboard, SimpleClipboard())
-        set(InputMethod, InputMethod.REGULAR)
         set(Internal, localCommandLine, CommandLine.create(this, ContextCommandSource(this, Targets, Expanders, Views)))
         set(Internal, globalCommandLine, CommandLine.create(this, SingleCommandSource(this, this)))
     }

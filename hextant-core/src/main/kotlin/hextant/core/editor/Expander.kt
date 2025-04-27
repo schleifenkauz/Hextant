@@ -112,9 +112,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     }
 
     protected fun autoExpandTo(editor: E): Boolean {
-        executeEdit("AutoExpand") {
-            expand(editor)
-        }
+        expand(editor, "AutoExpand")
         return true
     }
 
@@ -211,9 +209,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         val text = forceText()
         val editor = tryExpand(text)
         if (editor != null) {
-            executeEdit("Expand") {
-                expand(editor)
-            }
+            expand(editor, editDescription = "Expand")
         }
     }
 
@@ -233,7 +229,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     private fun complete(item: Any, text: String) {
         forceText()
         val editor = tryExpand(item) ?: tryExpand(text)
-        if (editor != null) expand(editor)
+        if (editor != null) expand(editor, "Complete")
         else {
             state.set(Text(text))
             notifyViews { displayText(text) }
@@ -245,9 +241,11 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
      *
      * If the given [editor] doesn't have the right [context] it is copied.
      */
-    fun expand(editor: E) {
+    fun expand(editor: E, editDescription: String = "Expand") {
         editor.initialize(context, parent = this.parent, ExpanderContent, expander = this)
-        state.set(Expanded(editor))
+        executeEdit(editDescription) {
+            state.set(Expanded(editor))
+        }
         notifyViews { expanded(editor) }
         onExpansion(editor)
     }
@@ -272,7 +270,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
                 setText(state.text)
             }
 
-            is Expanded -> expand(state.content)
+            is Expanded -> expand(state.content, editDescription = "Reconstruct")
         }
     }
 
@@ -287,7 +285,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         }
 
         editorClass.isInstance(editor) && accepts(editor as E) -> {
-            expand(editor as E)
+            expand(editor, "Paste")
             true
         }
 
@@ -303,7 +301,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
 
     override fun serialize(): JsonElement = when (val state = state.now) {
         is Expanded<*> -> buildJsonObject {
-            val editor = state.content as Editor<*>
+            val editor = state.content
             put("_contentType", JsonPrimitive(editor.javaClass.canonicalName))
             val content = state.content.serialize(typeTag = false)
             if (content is JsonObject) {
@@ -332,7 +330,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         }
     }
 
-    private sealed class State<out E: Editor<*>> {
+    private sealed class State<out E : Editor<*>> {
         fun snapshot(): State<E> = when (this) {
             is Text -> this
             is Expanded -> Expanded(content.snapshot())
