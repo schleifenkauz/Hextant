@@ -28,7 +28,6 @@ import hextant.inspect.Inspections
 import hextant.serial.EditorAccessor
 import hextant.serial.PropertyAccessor
 import hextant.serial.json
-import javafx.application.Platform
 import javafx.css.PseudoClass
 import javafx.scene.Node
 import javafx.scene.control.Control
@@ -225,6 +224,12 @@ abstract class EditorControl<R : Node>(
         editorChildren.removeAt(index)
     }
 
+    protected fun swapChildren(i: Int, j: Int) {
+        val tmp = editorChildren[i]
+        editorChildren[i] = editorChildren[j]
+        editorChildren[j] = tmp
+    }
+
     /**
      * Delegates to [setChildren]
      */
@@ -255,19 +260,16 @@ abstract class EditorControl<R : Node>(
     }
 
     override fun focus() {
-        Platform.runLater {
-            root.requestFocus()
-            selection.focus(this)
-        }
+        requestFocus()
     }
 
     /**
      * Is called when this control should receive focus.
      * This method can delegate the focus to some child node as well.
-     * The default implementation just calls [focus].
+     * The default implementation just calls [select].
      */
     open fun receiveFocus() {
-        focus()
+        select()
     }
 
     /**
@@ -277,43 +279,23 @@ abstract class EditorControl<R : Node>(
         root.requestFocus()
     }
 
-    private fun doSelect(): Boolean {
-        val selected = selection.select(this)
-        setSelected(selected)
-        return selected
-    }
-
     /**
      * Select this editor control and request focus.
      */
     override fun select() {
-        if (doSelect()) {
-            root.requestFocus()
-        }
-    }
-
-    private fun doToggleSelection(): Boolean {
-        val selected = selection.toggleSelection(this)
-        setSelected(selected)
-        return selected
+        selection.select(this)
     }
 
     /**
      * Toggle the selection of this [EditorControl] and request focus if it is selected afterwards
      */
     override fun toggleSelection() {
-        if (doToggleSelection()) {
-            root.requestFocus()
-        }
+        selection.toggleSelection(this)
     }
 
-    override fun deselect() {
-        setSelected(false)
-    }
-
-    private fun setSelected(selected: Boolean) {
-        _isSelected.set(selected)
-        root.pseudoClassStateChanged(PseudoClasses.SELECTED, selected)
+    override fun displaySelected(status: Boolean) {
+        _isSelected.set(status)
+        root.pseudoClassStateChanged(PseudoClasses.SELECTED, status)
     }
 
     override fun changePseudoClassState(pseudoClass: PseudoClass, active: Boolean) {

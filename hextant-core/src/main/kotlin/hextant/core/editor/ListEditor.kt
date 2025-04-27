@@ -5,12 +5,10 @@
 package hextant.core.editor
 
 import hextant.codegen.ProvideFeature
-import hextant.command.meta.ProvideCommand
 import hextant.context.Clipboard
 import hextant.context.ClipboardContent.MultipleEditors
 import hextant.context.Context
 import hextant.context.executeSafely
-import hextant.context.withoutUndo
 import hextant.core.Editor
 import hextant.core.view.ListEditorView
 import hextant.serial.EditorAccessor
@@ -18,15 +16,16 @@ import hextant.serial.IndexAccessor
 import hextant.serial.InvalidAccessorException
 import hextant.undo.AbstractEdit
 import hextant.undo.UndoManager
-import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import reaktive.Observer
 import reaktive.list.MutableReactiveList
 import reaktive.list.ReactiveList
-import reaktive.list.binding.values
 import reaktive.list.toReactiveList
 import reaktive.value.ReactiveValue
-import reaktive.value.binding.binding
+import reaktive.value.ReactiveVariable
+import reaktive.value.now
+import reaktive.value.reactiveVariable
 import kotlin.reflect.KClass
 
 /**
@@ -35,7 +34,8 @@ import kotlin.reflect.KClass
 @ProvideFeature
 abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditorView>() {
     private lateinit var _editors: MutableReactiveList<E>
-
+    private lateinit var _result: ReactiveVariable<List<R>>
+    private val resultObservers = mutableListOf<Observer>()
     private val editorClass = javaClass.getMethod("createEditor").returnType.kotlin
 
     private var mayBeEmpty = true
@@ -47,19 +47,8 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
      */
     val editors: ReactiveList<E> get() = _editors
 
-    /**
-     * All results of the child editors, the results always stay valid and fire changes when
-     * * a new editor is added
-     * * an editor is removed
-     * * the result of a child editor changes
-     */
-    @Transient
-    lateinit var results: ReactiveList<R>
-        private set
-
-    @Transient
-    final override lateinit var result: ReactiveValue<List<R>>
-        private set
+    final override val result: ReactiveValue<List<R>>
+        get() = _result
 
     override fun getChildren(): Collection<Editor<*>> = editors.now
 
@@ -67,9 +56,15 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         for ((idx, editor) in getChildren().withIndex()) {
             editor.initialize(childContext(), parent = this, IndexAccessor(idx))
         }
-        results = editors.map { it.result }.values()
-        result = binding(results) { results.now.toList() }
+        _result = reactiveVariable(computeResultList())
+        for (editor in editors.now) {
+            resultObservers.add(editor.result.observe { _ ->
+                _result.now = computeResultList()
+            })
+        }
     }
+
+    private fun computeResultList() = editors.now.map { editor -> editor.result.now }
 
     fun setInitialEditors(editors: List<E>) {
         _editors = editors.toReactiveList()
@@ -105,26 +100,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         for ((i, e) in editors.withIndex()) {
             doAddAt(i, e)
         }
-        return true
-    }
-
-    /**
-     * Adds or removes children such that this list editor has exactly [size] children.
-     */
-    fun resize(size: Int): Boolean {
-        context.withoutUndo {
-            if (!mayBeEmpty && size == 0) return false
-            val old = editors.now.size
-            when {
-                old > size -> repeat(size - old) { i ->
-                    doAddAt(old + i, tryCreateEditor() ?: error("createEditor() returned null"))
-                }
-
-                old < size -> for (i in size downTo old) {
-                    removeAt(i)
-                }
-            }
-        }
+        _result.now = computeResultList()
         return true
     }
 
@@ -139,10 +115,15 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
             context[UndoManager].record(edit)
         }
         doClear()
+        _result.now = emptyList()
     }
 
     private fun doClear() {
-        for (e in editors.now) context.executeSafely("clearing editors", Unit) { editorRemoved(e, 0) }
+        for (e in editors.now) {
+            context.executeSafely("clearing editors", Unit) { editorRemoved(e, 0) }
+        }
+        resultObservers.forEach { obs -> obs.kill() }
+        resultObservers.clear()
         _editors.now.clear()
         notifyViews { empty() }
     }
@@ -159,6 +140,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         for ((i, e) in editors.withIndex()) {
             doAddAt(idx + i, e)
         }
+        _result.now = computeResultList()
     }
 
     /**
@@ -194,12 +176,8 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
             context[UndoManager].record(edit)
         }
         doAddAt(index, editor)
+        _result.now = computeResultList()
         return editor
-    }
-
-    @ProvideCommand(name = "Add editor", shortName = "add")
-    private fun doAddAt(index: Int) {
-        addAt(index)
     }
 
     /**
@@ -211,6 +189,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
             context[UndoManager].record(edit)
         }
         doAddAt(index, editor)
+        _result.now = computeResultList()
     }
 
     /**
@@ -218,6 +197,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
      */
     fun addLast(editor: E) {
         addAt(editors.now.size, editor)
+        _result.now = computeResultList()
     }
 
     /**
@@ -235,6 +215,8 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     fun removeAt(index: Int) {
         if (!mayRemove()) return
         val old = _editors.now.removeAt(index)
+        val observer = resultObservers.removeAt(index)
+        observer.kill()
         updateIndicesFrom(index)
         notifyViews { removed(index) }
         if (emptyNow()) notifyViews { empty() }
@@ -243,11 +225,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
             val edit = RemoveEdit(this, index, old.snapshot())
             context[UndoManager].record(edit)
         }
-    }
-
-    @ProvideCommand(name = "Remove editor", shortName = "remove")
-    private fun doRemove(index: Int) {
-        removeAt(index)
+        _result.now = computeResultList()
     }
 
     /**
@@ -261,6 +239,9 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     fun swap(i: Int, j: Int) {
         if (i == j) return
         if (i !in editors.now.indices || j !in editors.now.indices) return
+        val tmpObs = resultObservers[i]
+        resultObservers[i] = resultObservers[j]
+        resultObservers[j] = tmpObs
         val e = editors.now[i]
         val f = editors.now[j]
         _editors.now[i] = f
@@ -269,6 +250,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         f.setAccessor(IndexAccessor(i))
         context[UndoManager].record(SwapEdit(this, i, j))
         notifyViews { swapped(i, j) }
+        _result.now = computeResultList()
     }
 
     /**
@@ -301,6 +283,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         val emptyBefore = emptyNow()
         editor.initialize(childContext(), parent = this, IndexAccessor(index))
         _editors.now.add(index, editor)
+        resultObservers.add(index, editor.result.observe { _ -> _result.now = computeResultList() })
         updateIndicesFrom(index + 1)
         notifyViews {
             if (emptyBefore) notEmpty()

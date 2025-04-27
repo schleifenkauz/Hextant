@@ -24,7 +24,7 @@ interface EditorView {
     /**
      * Visually deselect this [EditorView]
      */
-    fun deselect()
+    fun displaySelected(status: Boolean)
 
     /**
      * Select this [EditorView]

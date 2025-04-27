@@ -7,6 +7,7 @@ package hextant.context
 import bundles.PublicProperty
 import bundles.publicProperty
 import hextant.core.EditorView
+import hextant.core.editor.allChildren
 import hextant.core.view.EditorControl
 import javafx.scene.control.IndexRange
 import javafx.scene.control.TextField
@@ -47,15 +48,15 @@ interface SelectionDistributor {
      * If the view was selected before and there are other selected views than it is deselected.
      * If it is not selected currently it is selected in addition to the other selected views.
      */
-    fun toggleSelection(view: EditorView): Boolean
+    fun toggleSelection(view: EditorView)
 
     /**
      * Select the given [view].
      * Causes the view to be the only selected view of this distributor.
      */
-    fun select(view: EditorView): Boolean
+    fun select(view: EditorView)
 
-    fun focus(ctrl: EditorView)
+    fun focus(view: EditorView)
 
     fun saveSelectionState()
     fun restoreSelectionState()
@@ -68,52 +69,60 @@ interface SelectionDistributor {
 
         private var savedSelectionState: SelectionState? = null
 
-        override fun toggleSelection(view: EditorView): Boolean {
+        override fun toggleSelection(view: EditorView) {
             if (view !in selectedViews.now) {
                 selectedViews.now.add(view)
-                focusedView.set(view)
-                return true
+                view.displaySelected(true)
+                setFocus(view)
+                for (v in selectedViews.now.toList()) {
+                    if (v.target.allChildren.contains(view.target)) {
+                        deselect(v)
+                    }
+                }
             } else {
-                removeSelection(view)
-                return false
+                deselect(view)
             }
         }
 
-        private fun removeSelection(view: EditorView) {
-            if (selectedViews.now.remove(view)) {
-                view.deselect()
-            }
+        private fun deselect(v: EditorView) {
+            selectedViews.now.remove(v)
+            v.displaySelected(false)
         }
 
-        override fun select(view: EditorView): Boolean {
-            focusedView.set(view)
+        override fun select(view: EditorView) {
+            setFocus(view)
             val views = selectedViews.now
             val alreadySelected = view in views
-            if (views.size == 1 && alreadySelected) return true
+            if (views.size == 1 && alreadySelected) return
             else if (alreadySelected) {
                 removeAllExcept(view)
             } else {
+                view.displaySelected(true)
                 clearSelection()
                 selectedViews.now.add(view)
             }
-            return true
         }
 
-        override fun focus(ctrl: EditorView) {
-            if (ctrl !in selectedViews.now) {
-                select(ctrl)
+        override fun focus(view: EditorView) {
+            if (view !in selectedViews.now) {
+                select(view)
             } else {
-                focusedView.set(ctrl)
+                setFocus(view)
             }
         }
 
+        private fun setFocus(view: EditorView) {
+            focusedView.set(view)
+            view.focus()
+        }
+
         private fun clearSelection() {
-            selectedViews.now.forEach { it.deselect() }
+            selectedViews.now.forEach { it.displaySelected(false) }
             selectedViews.now.clear()
         }
 
         private fun removeAllExcept(view: EditorView) {
-            selectedViews.now.forEach { v -> if (v != view) v.deselect() }
+            selectedViews.now.forEach { v -> if (v != view) v.displaySelected(false) }
             selectedViews.now.retainAll(setOf(view))
         }
 

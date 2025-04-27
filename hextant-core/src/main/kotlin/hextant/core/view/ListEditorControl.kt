@@ -75,6 +75,18 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         editor.addView(this)
         addArgumentHandler(ORIENTATION, ::orientationChanged)
         addArgumentHandler(CELL_FACTORY) { cellFactoryChanged() }
+        registerShortcuts {
+            on("Ctrl+DELETE") { removeSelected() }
+        }
+    }
+
+    private fun removeSelected() {
+        val selected = getSelectedChildren()
+        for (child in selected) {
+            @Suppress("UNCHECKED_CAST")
+            editor as ListEditor<*, Editor<*>>
+            editor.remove(child.target)
+        }
     }
 
     private fun initEmptyDisplay() {
@@ -119,7 +131,6 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         registerShortcuts {
             on(ADD_ITEM_AFTER) { editor.addAt(index + 1) }
             on(ADD_ITEM_BEFORE) { editor.addAt(index) }
-            on(REMOVE_ITEM) { editor.removeAt(index) }
             on(PASTE_MANY) { editor.pasteManyFromClipboard(index) }
             if (cells.size > index + 1) on(orientation.nextCombination) { cells[index + 1].requestLayout() }
             if (cells.size > index + 1) on(orientation.previousCombination) { cells[index - 1].requestLayout() }
@@ -161,6 +172,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     }
 
     override fun swapped(i: Int, j: Int) {
+        swapChildren(i, j)
         val tmp = cells[i]
         cells[i] = cells[j]
         cells[j] = tmp
@@ -174,21 +186,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
     }
 
     private fun extendListSelection(index: Int, delta: Int) {
-        val selector = context[SelectionDistributor]
-        val selectedViews = selector.selectedViews.now.filterIsInstance<EditorControl<*>>().toMutableList()
-        val itr = selectedViews.listIterator()
-        for (v in itr) {
-            if (v !in editorChildren()) {
-                val parent = v.editorParent
-                selector.toggleSelection(v)
-                if (parent is WrappingEditorControl<*> && parent in editorChildren()) {
-                    itr.set(parent)
-                    selector.toggleSelection(parent)
-                } else {
-                    itr.remove()
-                }
-            }
-        }
+        val selectedViews = getSelectedChildren()
         selectedViews.sortBy { v -> editorChildren().indexOf(v) }
         val sourceView = editorChildren()[index]
         if (selectedViews.isEmpty()) {
@@ -199,6 +197,7 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
             editorChildren().getOrNull(index + delta)?.toggleSelection()
             return
         }
+        val selector = context[SelectionDistributor]
         when (sourceView) {
             selectedViews.last() -> {
                 var i = index
@@ -244,6 +243,25 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
 
             else -> sourceView.select()
         }
+    }
+
+    private fun getSelectedChildren(): MutableList<EditorControl<*>> {
+        val selector = context[SelectionDistributor]
+        val selectedViews = selector.selectedViews.now.filterIsInstance<EditorControl<*>>().toMutableList()
+        val itr = selectedViews.listIterator()
+        for (v in itr) {
+            if (v !in editorChildren()) {
+                val parent = v.editorParent
+                selector.toggleSelection(v)
+                if (parent is WrappingEditorControl<*> && parent in editorChildren()) {
+                    itr.set(parent)
+                    selector.toggleSelection(parent)
+                } else {
+                    itr.remove()
+                }
+            }
+        }
+        return selectedViews
     }
 
     override fun empty() {

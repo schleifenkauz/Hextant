@@ -45,7 +45,10 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     /**
      * If the given [key] is expanded an editor is returned using [create].
      */
-    fun registerKey(key: String, condition: (Expander<*, *>) -> Boolean, create: (expander: Expander<*, *>) -> E?) {
+    fun registerKey(
+        key: String, condition: (Expander<*, *>) -> Boolean = { true },
+        create: (expander: Expander<*, *>) -> E?
+    ) {
         options.add(0, ExpansionOption.Constant(setOf(key), condition, create))
     }
 
@@ -53,7 +56,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      * Same as [registerKey] but registers the same editor factory for multiple keys.
      */
     fun registerKeys(
-        key: String, vararg more: String, condition: (Expander<*, *>) -> Boolean,
+        key: String, vararg more: String, condition: (Expander<*, *>) -> Boolean = { true },
         create: (expander: Expander<*, *>) -> E?
     ) {
         options.add(0, ExpansionOption.Constant(setOf(key) + more, condition, create))
@@ -124,8 +127,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
                     val editor = opt.factory(expander)
                     if (editor != null) return editor
                 }
-            }
-            else if (opt is ExpansionOption.TextInterceptor) {
+            } else if (opt is ExpansionOption.TextInterceptor) {
                 val editor = opt.factory(text, expander)
                 if (editor != null) return editor
             }

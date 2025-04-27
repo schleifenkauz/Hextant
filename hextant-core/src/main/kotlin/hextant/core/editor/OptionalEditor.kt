@@ -61,7 +61,7 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
     private fun doExpand() {
         val editor = createEditor()
         setContent(editor)
-        notifyViews { focus() }
+        notifyViews { select() }
     }
 
     private fun setContent(content: E) {

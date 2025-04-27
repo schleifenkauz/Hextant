@@ -43,8 +43,8 @@ class EditorControlWrapper(
         view.requestFocus()
     }
 
-    override fun deselect() {
-        view.deselect()
+    override fun displaySelected(status: Boolean) {
+        view.displaySelected(status)
     }
 
     override fun createDefaultRoot(): EditorControl<*> = view
