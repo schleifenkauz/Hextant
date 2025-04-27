@@ -3,4 +3,17 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="19" />
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="hextant.hextant-core" options="-proc:none" />
+      <module name="hextant.hextant-core.main" options="-proc:none" />
+      <module name="hextant.hextant-core.test" options="-proc:none" />
+      <module name="hextant.hextant-launcher" options="-proc:none" />
+      <module name="hextant.hextant-launcher.main" options="-proc:none" />
+      <module name="hextant.hextant-launcher.test" options="-proc:none" />
+      <module name="hextant.hextant-main" options="-proc:none" />
+      <module name="hextant.hextant-main.main" options="-proc:none" />
+      <module name="hextant.hextant-main.test" options="-proc:none" />
+    </option>
+  </component>
 </project>

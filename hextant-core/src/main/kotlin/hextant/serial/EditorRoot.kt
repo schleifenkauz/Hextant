@@ -5,7 +5,7 @@ package hextant.serial
 import hextant.context.Context
 import hextant.context.createControl
 import hextant.core.Editor
-import hextant.core.editor.copyFor
+import hextant.core.editor.snapshot
 import hextant.core.view.EditorControl
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -45,11 +45,15 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
     }
 
     fun clone(context: Context = editor.context): EditorRoot<E> {
-        val editorCopy = editor.copyFor(context)
-        val controlCopy = context.createControl(editorCopy)
+        val clone = clone()
+        clone.initialize(context)
+        return clone
+    }
+
+    fun clone(): EditorRoot<E> {
+        val editorCopy = editor.snapshot()
         val argumentTree = control.exportJsonArgumentTree()
-        controlCopy.importJsonArgumentTree(argumentTree)
-        return EditorRoot(editorCopy, controlCopy)
+        return EditorRoot(editorCopy, argumentTree)
     }
 
     object Serializer : KSerializer<EditorRoot<*>> {

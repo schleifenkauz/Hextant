@@ -80,6 +80,22 @@ open class HextantTextField(
         onCut()
     }
 
+    override fun end() {
+        //shortcut Ctrl+RIGHT is needed for ListEditorControl
+    }
+
+    override fun home() {
+        //shortcut Ctrl+LEFT is needed for ListEditorControl
+    }
+
+    override fun selectEnd() {
+        //shortcut Ctrl+Shift+RIGHT is needed for ListEditorControl
+    }
+
+    override fun selectHome() {
+        //shortcut Ctrl+Shift+LEFT is needed for ListEditorControl
+    }
+
     private inner class HextantTextFieldSkin : TextFieldSkin(this) {
         override fun replaceText(start: Int, end: Int, txt: String?) {
             super.replaceText(start, end, txt)

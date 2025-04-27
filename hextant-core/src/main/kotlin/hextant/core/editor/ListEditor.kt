@@ -258,6 +258,19 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         removeAt(idx)
     }
 
+    fun swap(i: Int, j: Int) {
+        if (i == j) return
+        if (i !in editors.now.indices || j !in editors.now.indices) return
+        val e = editors.now[i]
+        val f = editors.now[j]
+        _editors.now[i] = f
+        _editors.now[j] = e
+        e.setAccessor(IndexAccessor(j))
+        f.setAccessor(IndexAccessor(i))
+        context[UndoManager].record(SwapEdit(this, i, j))
+        notifyViews { swapped(i, j) }
+    }
+
     /**
      * Ensures that this list of editors is not empty now and will never be.
      * Repeated calls have no effect.
@@ -363,6 +376,23 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
 
         override val actionDescription: String
             get() = "Remove element"
+    }
+
+    private class SwapEdit<E : Editor<*>>(
+        private val editor: ListEditor<*, E>,
+        private val index1: Int,
+        private val index2: Int,
+    ) : AbstractEdit() {
+        override val actionDescription: String
+            get() = "Swap"
+
+        override fun doUndo() {
+            editor.swap(index1, index2)
+        }
+
+        override fun doRedo() {
+            editor.swap(index1, index2)
+        }
     }
 
     private class ClearEdit<E : Editor<*>>(

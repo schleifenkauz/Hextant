@@ -8,6 +8,7 @@ import bundles.*
 import fxutils.*
 import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
+import hextant.context.SelectionDistributor
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.ListEditor
@@ -16,6 +17,10 @@ import javafx.scene.control.Button
 import javafx.scene.control.Control
 import javafx.scene.control.Label
 import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination.CONTROL_DOWN
+import javafx.scene.input.KeyCombination.SHIFT_DOWN
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
@@ -119,6 +124,22 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
             if (cells.size > index + 1) on(orientation.nextCombination) { cells[index + 1].requestLayout() }
             if (cells.size > index + 1) on(orientation.previousCombination) { cells[index - 1].requestLayout() }
         }
+        addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
+            val prevKey = if (arguments[ORIENTATION] == Orientation.Horizontal) KeyCode.LEFT else KeyCode.UP
+            val nextKey = if (arguments[ORIENTATION] == Orientation.Vertical) KeyCode.DOWN else KeyCode.RIGHT
+            when {
+                KeyCodeCombination(prevKey, CONTROL_DOWN).match(ev) -> editor.swap(index, index - 1)
+                KeyCodeCombination(nextKey, CONTROL_DOWN).match(ev) -> editor.swap(index, index + 1)
+                KeyCodeCombination(prevKey, CONTROL_DOWN, SHIFT_DOWN).match(ev) ->
+                    extendListSelection(index, -1)
+
+                KeyCodeCombination(nextKey, CONTROL_DOWN, SHIFT_DOWN).match(ev) ->
+                    extendListSelection(index, +1)
+
+                else -> return@addEventHandler
+            }
+            ev.consume()
+        }
         /*addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
             if (arguments[ADD_WITH_COMMA] && shortcut(KeyCode.COMMA).matches(ev)) {
                 editor.addAt(index + 1)
@@ -134,15 +155,103 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         layout.children.removeAt(idx)
         cells.removeAt(idx)
         cells.drop(idx).forEach { c -> c.index -= 1 }
-        if (idx == 0 && cells.size > 0) cells[0].requestFocus()
+        if (idx == 0 && cells.isNotEmpty()) cells[0].requestFocus()
         else if (idx != 0) cells[idx - 1].requestFocus()
         removeChild(idx)
     }
 
+    override fun swapped(i: Int, j: Int) {
+        val tmp = cells[i]
+        cells[i] = cells[j]
+        cells[j] = tmp
+        cells[i].index = i
+        cells[j].index = j
+        context[SelectionDistributor].saveSelectionState()
+        layout.children[j] = Region() //avoid duplicate children
+        layout.children[i] = cells[i]
+        layout.children[j] = cells[j]
+        context[SelectionDistributor].restoreSelectionState()
+    }
+
+    private fun extendListSelection(index: Int, delta: Int) {
+        val selector = context[SelectionDistributor]
+        val selectedViews = selector.selectedViews.now.filterIsInstance<EditorControl<*>>().toMutableList()
+        val itr = selectedViews.listIterator()
+        for (v in itr) {
+            if (v !in editorChildren()) {
+                val parent = v.editorParent
+                selector.toggleSelection(v)
+                if (parent is WrappingEditorControl<*> && parent in editorChildren()) {
+                    itr.set(parent)
+                    selector.toggleSelection(parent)
+                } else {
+                    itr.remove()
+                }
+            }
+        }
+        selectedViews.sortBy { v -> editorChildren().indexOf(v) }
+        val sourceView = editorChildren()[index]
+        if (selectedViews.isEmpty()) {
+            sourceView.select()
+            return
+        }
+        if (selectedViews == listOf(sourceView)) {
+            editorChildren().getOrNull(index + delta)?.toggleSelection()
+            return
+        }
+        when (sourceView) {
+            selectedViews.last() -> {
+                var i = index
+                for (v in selectedViews.dropLast(1).reversed()) { //.reversed() copies, so no concurrent modification
+                    val j = editorChildren().indexOf(v)
+                    if (j != i - 1) {
+                        selectedViews.remove(v)
+                        i = Int.MAX_VALUE
+                    }
+                }
+                when (delta) {
+                    -1 -> {
+                        selector.toggleSelection(sourceView)
+                        editorChildren().getOrNull(index - 1)?.focus()
+                    }
+
+                    1 -> {
+                        editorChildren().getOrNull(index + 1)?.toggleSelection()
+                    }
+                }
+            }
+
+            selectedViews.first() -> {
+                var i = index
+                for (v in selectedViews.drop(1)) {
+                    val j = editorChildren().indexOf(v)
+                    if (j != i + 1) {
+                        selectedViews.remove(v)
+                        i = Int.MIN_VALUE
+                    }
+                }
+                when (delta) {
+                    1 -> {
+                        selector.toggleSelection(sourceView)
+                        editorChildren().getOrNull(index + 1)?.focus()
+                    }
+
+                    -1 -> {
+                        editorChildren().getOrNull(index - 1)?.toggleSelection()
+                    }
+                }
+            }
+
+            else -> sourceView.select()
+        }
+    }
+
     override fun empty() {
+        val focused = root.isFocusWithin
         layout.children.clear()
         cells.clear()
         root = emptyDisplay ?: layout
+        if (focused) requestFocus()
     }
 
     override fun notEmpty() {

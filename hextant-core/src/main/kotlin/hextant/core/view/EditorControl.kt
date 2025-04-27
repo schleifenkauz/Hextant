@@ -34,6 +34,7 @@ import javafx.css.PseudoClass
 import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
+import javafx.scene.input.MouseEvent
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.JsonObject
@@ -112,8 +113,6 @@ abstract class EditorControl<R : Node>(
         return if (idx > 0) siblings[idx - 1] else editorParent?.previous()
     }
 
-    private var manuallySelecting = false
-
     private val _isSelected = reactiveVariable(false)
 
     /**
@@ -131,11 +130,9 @@ abstract class EditorControl<R : Node>(
         protected set(newRoot) {
             _root = newRoot
             root.isFocusTraversable = true
-            root.focusedProperty().addListener(this) { focused ->
-                if (focused && !manuallySelecting) {
-                    if (ShiftKeyTracker.isShiftDown) doToggleSelection()
-                    else doSelect()
-                }
+            root.addEventHandler(MouseEvent.MOUSE_CLICKED) {
+                if (ShiftKeyTracker.isShiftDown) toggleSelection()
+                else select()
             }
             setRoot(newRoot)
         }
@@ -260,6 +257,7 @@ abstract class EditorControl<R : Node>(
     override fun focus() {
         Platform.runLater {
             root.requestFocus()
+            selection.focus(this)
         }
     }
 
@@ -290,7 +288,7 @@ abstract class EditorControl<R : Node>(
      */
     override fun select() {
         if (doSelect()) {
-            justFocus()
+            root.requestFocus()
         }
     }
 
@@ -305,17 +303,8 @@ abstract class EditorControl<R : Node>(
      */
     override fun toggleSelection() {
         if (doToggleSelection()) {
-            justFocus()
+            root.requestFocus()
         }
-    }
-
-    /**
-     * Just focus this [EditorControl] without selecting.
-     */
-    fun justFocus() {
-        manuallySelecting = true
-        root.requestFocus()
-        manuallySelecting = false
     }
 
     override fun deselect() {
@@ -353,13 +342,13 @@ abstract class EditorControl<R : Node>(
 
     fun shrinkSelection() {
         val childToSelect = lastExtendingChild ?: editorChildren().firstOrNull() ?: return
-        childToSelect.requestFocus()
+        childToSelect.select()
         if (isSelected.now) toggleSelection()
     }
 
     fun extendSelection() {
         var parent = editorParent ?: return
-        while (parent is ListEditorControl && parent.editorChildren().size == 1) {
+        while (parent is WrappingEditorControl || (parent is ListEditorControl && parent.editorChildren().size == 1)) {
             parent = parent.editorParent ?: return
         }
         parent.select()
@@ -441,9 +430,4 @@ abstract class EditorControl<R : Node>(
         function()
         relayoutPending = false
     }
-
-    private data class ArgumentHandler(
-        val property: Property<*, *>,
-        val handler: (Any) -> Unit
-    )
 }

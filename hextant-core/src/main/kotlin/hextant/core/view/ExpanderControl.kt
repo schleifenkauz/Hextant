@@ -101,7 +101,9 @@ open class ExpanderControl @ProvideImplementation(ControlFactory::class) constru
         wrapped = v
         root = v
         v.initializeControl()
-        v.receiveFocus()
+        if (scene != null) {
+            v.receiveFocus()
+        }
         onExpansion(editor, v)
     }
 

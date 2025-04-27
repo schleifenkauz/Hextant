@@ -9,7 +9,6 @@
   - how to apply to appropriate control
   - or store control config in `Editor.viewConfig`...
 - extractor commands (replace parent with one of its children)
-- select multiple consecutive editors with ctrl+shift + arrow key
 - take into account the expander/content relationship when querying applicable commands
   - does a simple delegation expander->content, content->expander suffice?
 - flexible mode for `ListEditorControl`, where user can add and remove "line breaks"

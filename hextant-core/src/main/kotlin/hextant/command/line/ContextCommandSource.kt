@@ -16,6 +16,7 @@ import reaktive.collection.binding.all
 import reaktive.collection.binding.anyR
 import reaktive.list.reactive
 import reaktive.set.ReactiveSet
+import reaktive.set.asSet
 import reaktive.set.binding.mapNotNull
 import reaktive.set.unmodifiableReactiveSet
 import reaktive.value.ReactiveBoolean
@@ -51,9 +52,9 @@ class ContextCommandSource(
     private val focusedReceivers = receiverTypes.map { t -> focusedReceiver(t) }
 
     private fun selectedReceivers(type: CommandReceiverType): ReactiveSet<Any> = when (type) {
-        Views     -> distributor.selectedViews
-        Targets   -> distributor.selectedTargets
-        Expanders -> distributor.selectedTargets.mapNotNull { t -> (t as? Editor<*>)?.expander }
+        Views     -> distributor.selectedViews.asSet()
+        Targets   -> distributor.selectedTargets.asSet()
+        Expanders -> distributor.selectedTargets.asSet().mapNotNull { t -> (t as? Editor<*>)?.expander }
         Global -> unmodifiableReactiveSet(setOf(context))
     }
 

@@ -17,11 +17,12 @@ interface ListEditorView : EditorView {
      */
     fun removed(idx: Int)
 
+    fun swapped(i: Int, j: Int)
+
     /**
      * Is called when the associated list editor was previously not empty and is empty (has no child editors) now.
      */
     fun empty()
-
     /**
      * Is called when the associated list editor was previously empty [had no child editors] but is not empty now.
      */

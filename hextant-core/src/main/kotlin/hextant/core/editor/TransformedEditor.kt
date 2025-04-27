@@ -47,6 +47,10 @@ abstract class TransformedEditor<T, R>(internal val source: Editor<T>) : Editor<
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> = source.getSubEditor(accessor)
 
+    override fun setAccessor(accessor: EditorAccessor) {
+        source.setAccessor(accessor)
+    }
+
     override fun serialize(): JsonElement = source.serialize()
 
     override fun serialize(typeTag: Boolean): JsonElement = source.serialize(typeTag)

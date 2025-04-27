@@ -52,6 +52,10 @@ abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
         isInitialized = true
     }
 
+    override fun setAccessor(accessor: EditorAccessor) {
+        this.accessor = accessor
+    }
+
     protected open fun doInitialize() {}
 
     override fun implCopy(): Editor<R> {

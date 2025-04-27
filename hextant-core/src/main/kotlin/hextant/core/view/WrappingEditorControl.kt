@@ -10,12 +10,11 @@ abstract class WrappingEditorControl<R : Node>(
     protected var wrapped: EditorControl<*>? = null
         set(value) {
             field = value
-            value?.setEditorParent(editorParent)
+            value?.setEditorParent(this)
         }
 
     override fun setEditorParent(parent: EditorControl<*>?) {
         super.setEditorParent(parent)
-        wrapped?.setEditorParent(parent)
     }
 
     override fun editorChildren(): List<EditorControl<*>> = wrapped?.let { listOf(it) } ?: emptyList()

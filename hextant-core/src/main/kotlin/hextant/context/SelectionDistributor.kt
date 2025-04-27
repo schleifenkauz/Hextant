@@ -7,8 +7,11 @@ package hextant.context
 import bundles.PublicProperty
 import bundles.publicProperty
 import hextant.core.EditorView
-import reaktive.set.ReactiveSet
-import reaktive.set.reactiveSet
+import hextant.core.view.EditorControl
+import javafx.scene.control.IndexRange
+import javafx.scene.control.TextField
+import reaktive.list.ReactiveList
+import reaktive.list.reactiveList
 import reaktive.value.ReactiveValue
 import reaktive.value.ReactiveVariable
 import reaktive.value.binding.map
@@ -22,12 +25,12 @@ interface SelectionDistributor {
     /**
      * All the targets which are selected
      */
-    val selectedTargets: ReactiveSet<Any>
+    val selectedTargets: ReactiveList<Any>
 
     /**
      * All the views which are selected
      */
-    val selectedViews: ReactiveSet<EditorView>
+    val selectedViews: ReactiveList<EditorView>
 
     /**
      * The target that was selected most recently
@@ -52,28 +55,28 @@ interface SelectionDistributor {
      */
     fun select(view: EditorView): Boolean
 
-    fun saveSelectionState()
+    fun focus(ctrl: EditorView)
 
+    fun saveSelectionState()
     fun restoreSelectionState()
 
     private class Impl : SelectionDistributor {
         override val focusedView: ReactiveVariable<EditorView?> = reactiveVariable(null)
         override val focusedTarget: ReactiveValue<Any?> = focusedView.map { it?.target }
-        override val selectedViews = reactiveSet<EditorView>()
-        override val selectedTargets: ReactiveSet<Any> = selectedViews.map { it.target }
+        override val selectedViews = reactiveList<EditorView>()
+        override val selectedTargets: ReactiveList<Any> = selectedViews.map { it.target }
 
         private var savedSelectionState: SelectionState? = null
 
         override fun toggleSelection(view: EditorView): Boolean {
-            if (selectedViews.now.add(view)) {
+            if (view !in selectedViews.now) {
+                selectedViews.now.add(view)
                 focusedView.set(view)
                 return true
-            }
-            if (selectedTargets.now.size > 1) {
+            } else {
                 removeSelection(view)
                 return false
             }
-            return true
         }
 
         private fun removeSelection(view: EditorView) {
@@ -96,6 +99,14 @@ interface SelectionDistributor {
             return true
         }
 
+        override fun focus(ctrl: EditorView) {
+            if (ctrl !in selectedViews.now) {
+                select(ctrl)
+            } else {
+                focusedView.set(ctrl)
+            }
+        }
+
         private fun clearSelection() {
             selectedViews.now.forEach { it.deselect() }
             selectedViews.now.clear()
@@ -107,26 +118,58 @@ interface SelectionDistributor {
         }
 
         override fun saveSelectionState() {
-            savedSelectionState = SelectionState(selectedViews.now, focusedView.now)
+            val focusedView = focusedView.now
+            val state = focusedView?.let(ViewState::get)
+            savedSelectionState = SelectionState(selectedViews.now, focusedView, state)
         }
 
         override fun restoreSelectionState() {
-            val (views, focused) = savedSelectionState ?: return
+            val (views, focused, state) = savedSelectionState ?: return
             clearSelection()
             for (view in views) {
                 if (view != focused) view.toggleSelection()
             }
-            focused?.select()
+            if (focused != null) {
+                focused.select()
+                state?.restore(focused)
+            }
         }
 
-        private data class SelectionState(val selectedViews: Set<EditorView>, val focusedView: EditorView?)
+        private data class SelectionState(
+            val selectedViews: List<EditorView>, val focusedView: EditorView?,
+            val focusedViewState: ViewState?
+        )
+
+        private interface ViewState {
+            fun restore(view: EditorView)
+
+            data class TextFieldSelection(val range: IndexRange) : ViewState {
+                override fun restore(view: EditorView) {
+                    val root = (view as? EditorControl<*>)?.root as? TextField
+                    if (root == null) {
+                        System.err.println("Could not restore text field selection")
+                        return
+                    }
+                    root.selectRange(range.start, range.end)
+                }
+            }
+
+            companion object {
+                fun get(view: EditorView): ViewState? {
+                    if (view !is EditorControl<*>) return null
+                    return when (val root = view.root) {
+                        is TextField -> TextFieldSelection(root.selection)
+                        else -> null
+                    }
+                }
+            }
+        }
     }
 
     companion object : PublicProperty<SelectionDistributor> by publicProperty("Selection Distributor") {
         /**
          * Return a new [SelectionDistributor]
          */
-        fun newInstance(): SelectionDistributor =
-            Impl()
+        fun newInstance(): SelectionDistributor = Impl()
     }
 }

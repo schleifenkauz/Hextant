@@ -78,6 +78,8 @@ interface Editor<out R> {
      */
     fun getSubEditor(accessor: EditorAccessor): Editor<*>
 
+    fun setAccessor(accessor: EditorAccessor)
+
     /**
      * Paste the given [editor] into this [Editor] if it is supported.
      * @return `true` only if pasting the given [editor] was successful.
