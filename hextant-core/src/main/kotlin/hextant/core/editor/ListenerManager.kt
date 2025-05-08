@@ -2,11 +2,6 @@ package hextant.core.editor
 
 interface ListenerManager<L : Any> {
     /**
-     * @return a sequence of all views registered to this editor
-     */
-    val listeners: Sequence<L>
-
-    /**
      * Execute the given [action] on all views
      */
     fun notifyListeners(action: L.() -> Unit)
