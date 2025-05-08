@@ -4,6 +4,8 @@
 
 package hextant.core.editor
 
+import fxutils.undo.AbstractEdit
+import fxutils.undo.UndoManager
 import hextant.completion.Completion
 import hextant.context.Context
 import hextant.context.executeSafely
@@ -13,8 +15,6 @@ import hextant.core.editor.Expander.State.Text
 import hextant.core.view.ExpanderView
 import hextant.core.view.ListEditorControl
 import hextant.serial.*
-import fxutils.undo.AbstractEdit
-import fxutils.undo.UndoManager
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -99,7 +99,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         if (text.endsWith(",") && parent is ListEditor<*, *>) {
             val listEditor = parent as ListEditor<*, *>
             val (index) = accessor as IndexAccessor
-            val addWithComma = listEditor.viewManager.listeners.any { v ->
+            val addWithComma = listEditor.viewManager.listeners().any { v ->
                 v is ListEditorControl && v.arguments[ListEditorControl.ADD_WITH_COMMA]
             }
             if (addWithComma) {

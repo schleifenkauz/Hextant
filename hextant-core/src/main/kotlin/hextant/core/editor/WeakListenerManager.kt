@@ -3,32 +3,20 @@ package hextant.core.editor
 import java.lang.ref.WeakReference
 
 internal class WeakListenerManager<V: Any> : ListenerManager<V> {
-    private val mutableViews = mutableListOf<WeakReference<V>>()
     /**
      * @return a sequence of all views registered to this editor
      */
-    override val listeners: Sequence<@UnsafeVariance V>
-        get() {
-            val itr = mutableViews.iterator()
-            tailrec fun next(): V? =
-                if (!itr.hasNext()) null
-                else {
-                    val nxt = itr.next()
-                    if (nxt.get() != null) nxt.get()
-                    else {
-                        itr.remove()
-                        next()
-                    }
-                }
-            return generateSequence { next() }
-        }
+    private val listeners = mutableListOf<WeakReference<V>>()
+
+    override fun listeners() = listeners.mapNotNull { ref -> ref.get() }
 
     /**
      * Execute the given [action] on all views
      */
     override fun notifyListeners(action: (@UnsafeVariance V).() -> Unit) {
         try {
-            listeners.forEach(action)
+            listeners.removeIf { ref -> ref.get() == null }
+            listeners.mapNotNull { ref -> ref.get() }.forEach(action)
         } catch (e: Throwable) {
             println("Exception while updating views")
             e.printStackTrace()
@@ -42,13 +30,13 @@ internal class WeakListenerManager<V: Any> : ListenerManager<V> {
      * * Adding a view to an editor will not prevent the view from being garbage collected
      */
     override fun addListener(listener: V) {
-        if (listener in listeners) {
+        if (listeners.any { ref -> ref.get() == listener }) {
             throw IllegalArgumentException("View already added: $listener")
         }
-        mutableViews.add(WeakReference(listener))
+        listeners.add(WeakReference(listener))
     }
 
     override fun removeListener(view: V) {
-        mutableViews.removeIf { ref -> ref.get() == view }
+        listeners.removeIf { ref -> ref.get() == view }
     }
 }
