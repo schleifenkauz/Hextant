@@ -6,7 +6,7 @@ import hextant.core.view.ExpanderView
 import hextant.expr.IntLiteral
 import hextant.expr.editor.IntLiteralEditor
 import hextant.test.*
-import hextant.undo.UndoManager
+import fxutils.undo.UndoManager
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.Pending.No
 import org.jetbrains.spek.api.dsl.describe

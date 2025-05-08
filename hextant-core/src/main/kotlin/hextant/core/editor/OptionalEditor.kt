@@ -4,8 +4,8 @@ import hextant.core.Editor
 import hextant.core.view.OptionalEditorView
 import hextant.serial.EditorAccessor
 import hextant.serial.OptionalEditorContent
-import hextant.undo.AbstractEdit
-import hextant.undo.UndoManager
+import fxutils.undo.AbstractEdit
+import fxutils.undo.UndoManager
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import reaktive.value.*

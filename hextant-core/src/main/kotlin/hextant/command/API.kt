@@ -5,8 +5,8 @@
 package hextant.command
 
 import hextant.command.Command.ParameterBuilder
+import hextant.context.compoundEdit
 import hextant.core.Editor
-import hextant.undo.compoundEdit
 import kotlin.reflect.KClass
 
 

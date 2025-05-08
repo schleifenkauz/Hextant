@@ -13,8 +13,8 @@ import hextant.core.editor.Expander.State.Text
 import hextant.core.view.ExpanderView
 import hextant.core.view.ListEditorControl
 import hextant.serial.*
-import hextant.undo.AbstractEdit
-import hextant.undo.UndoManager
+import fxutils.undo.AbstractEdit
+import fxutils.undo.UndoManager
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive

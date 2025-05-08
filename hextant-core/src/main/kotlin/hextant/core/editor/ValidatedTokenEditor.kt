@@ -9,8 +9,8 @@ import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.core.view.ValidatedTokenEditorView
 import hextant.serial.string
-import hextant.undo.AbstractEdit
-import hextant.undo.UndoManager
+import fxutils.undo.AbstractEdit
+import fxutils.undo.UndoManager
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive

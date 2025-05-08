@@ -14,8 +14,8 @@ import hextant.core.view.ListEditorView
 import hextant.serial.EditorAccessor
 import hextant.serial.IndexAccessor
 import hextant.serial.InvalidAccessorException
-import hextant.undo.AbstractEdit
-import hextant.undo.UndoManager
+import fxutils.undo.AbstractEdit
+import fxutils.undo.UndoManager
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import reaktive.Observer

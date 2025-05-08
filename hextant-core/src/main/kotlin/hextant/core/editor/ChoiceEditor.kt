@@ -35,8 +35,15 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>> :
         private set
 
     fun selectInitial(choice: C) {
+        check(!isInitialized) { "Already initialized" }
         _selected = reactiveVariable(choice)
         _content = reactiveVariable(createEditor(choice))
+    }
+
+    fun selectInitial(choice: C, editor: E) {
+        check(!isInitialized) { "Already initialized" }
+        _selected = reactiveVariable(choice)
+        _content = reactiveVariable(editor)
     }
 
     override fun doInitialize() {
@@ -48,12 +55,20 @@ abstract class ChoiceEditor<C : Any, R, E : Editor<R>> :
      * Select the given [choice]
      */
     override fun select(choice: C) {
+        if (!isInitialized) {
+            selectInitial(choice)
+            return
+        }
         if (choice == selected.now) return
         val editor = createEditor(choice)
         select(choice, editor)
     }
 
     fun select(choice: C, editor: E) {
+        if (!isInitialized) {
+            selectInitial(choice, editor)
+            return
+        }
         doSelect(choice, editor)
         notifyViews { selected(choice, editor) }
     }

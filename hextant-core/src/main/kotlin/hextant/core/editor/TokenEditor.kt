@@ -10,9 +10,9 @@ import hextant.core.view.ListEditorControl
 import hextant.core.view.TokenEditorView
 import hextant.serial.IndexAccessor
 import hextant.serial.string
-import hextant.undo.AbstractEdit
-import hextant.undo.Edit
-import hextant.undo.UndoManager
+import fxutils.undo.AbstractEdit
+import fxutils.undo.Edit
+import fxutils.undo.UndoManager
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import reaktive.value.*
@@ -48,6 +48,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>
     }
 
     fun setInitialText(text: String) {
+        check(!isInitialized) { "Already initialized" }
         _text = reactiveVariable(text)
     }
 

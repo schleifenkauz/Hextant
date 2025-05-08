@@ -114,7 +114,18 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         val c = getCell(idx, view)
         cells.drop(idx).forEach { cell -> cell.index += 1 }
         cells.add(idx, c)
-        layout.children.add(idx, c)
+        if (orientation is Orientation.Flexible) {
+            val lines = getLines()
+            var lineIdx = 0
+            var i = 0
+            while (i < idx) {
+                i += lines[i].children.size
+                lineIdx++
+            }
+
+        } else {
+            layout.children.add(idx, c)
+        }
         addChild(view, idx)
         if (scene != null) c.requestFocus()
     }
@@ -123,52 +134,69 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         return cellFactory().apply {
             item = control
             index = idx
-            initEventHandlers()
+            initEventHandlers(this)
         }
     }
 
-    private fun Cell<*>.initEventHandlers() {
-        registerShortcuts {
-            on(ADD_ITEM_AFTER) { editor.addAt(index + 1) }
-            on(ADD_ITEM_BEFORE) { editor.addAt(index) }
-            on(PASTE_MANY) { editor.pasteManyFromClipboard(index) }
-            if (cells.size > index + 1) on(orientation.nextCombination) { cells[index + 1].requestLayout() }
-            if (cells.size > index + 1) on(orientation.previousCombination) { cells[index - 1].requestLayout() }
+    private fun initEventHandlers(cell: Cell<*>) {
+        cell.registerShortcuts {
+            this.on(ADD_ITEM_AFTER) { editor.addAt(cell.index + 1) }
+            this.on(ADD_ITEM_BEFORE) { editor.addAt(cell.index) }
+            this.on(PASTE_MANY) { editor.pasteManyFromClipboard(cell.index) }
+            if (orientation is Orientation.Flexible) {
+                this.on("Shift+Enter") {
+                    setLineBreak(cell, true)
+                }
+                this.on("Shift+BACKSPACE") {
+                    setLineBreak(cell, false)
+                }
+            }
         }
-        addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
-            val prevKey = if (arguments[ORIENTATION] == Orientation.Horizontal) KeyCode.LEFT else KeyCode.UP
-            val nextKey = if (arguments[ORIENTATION] == Orientation.Vertical) KeyCode.DOWN else KeyCode.RIGHT
+        cell.addEventHandler(KeyEvent.KEY_PRESSED) { ev ->
+            val prevKey = when (this.arguments[ORIENTATION]) {
+                Orientation.Horizontal, is Orientation.Flexible -> KeyCode.LEFT
+                Orientation.Vertical -> KeyCode.UP
+            }
+            val nextKey = when (this.arguments[ORIENTATION]) {
+                Orientation.Vertical -> KeyCode.DOWN
+                Orientation.Horizontal, is Orientation.Flexible -> KeyCode.RIGHT
+            }
             when {
-                KeyCodeCombination(prevKey, CONTROL_DOWN).match(ev) -> editor.swap(index, index - 1)
-                KeyCodeCombination(nextKey, CONTROL_DOWN).match(ev) -> editor.swap(index, index + 1)
+                KeyCodeCombination(prevKey, CONTROL_DOWN).match(ev) -> this.editor.swap(cell.index, cell.index - 1)
+                KeyCodeCombination(nextKey, CONTROL_DOWN).match(ev) -> this.editor.swap(cell.index, cell.index + 1)
                 KeyCodeCombination(prevKey, CONTROL_DOWN, SHIFT_DOWN).match(ev) ->
-                    extendListSelection(index, -1)
+                    this.extendListSelection(cell.index, -1)
 
                 KeyCodeCombination(nextKey, CONTROL_DOWN, SHIFT_DOWN).match(ev) ->
-                    extendListSelection(index, +1)
+                    this.extendListSelection(cell.index, +1)
 
                 else -> return@addEventHandler
             }
             ev.consume()
         }
-        /*addEventFilter(KeyEvent.KEY_RELEASED) { ev ->
-            if (arguments[ADD_WITH_COMMA] && shortcut(KeyCode.COMMA).matches(ev)) {
-                editor.addAt(index + 1)
-                ev.consume()
-            }
-        }*/
-        addEditorButton?.setOnAction {
-            editor.addAt(index + 1)
+        cell.addEditorButton?.setOnAction {
+            editor.addAt(cell.index + 1)
         }
     }
 
     override fun removed(idx: Int) {
-        layout.children.removeAt(idx)
-        cells.removeAt(idx)
+        val cell = cells.removeAt(idx)
         cells.drop(idx).forEach { c -> c.index -= 1 }
+        removeChild(idx)
+        val orientation = orientation
+        if (orientation is Orientation.Flexible) {
+            val lines = getLines()
+            val line = lines.find { line -> cell in line.children }!!
+            line.children.remove(cell)
+            if (line.children.isEmpty()) {
+                layout.children.remove(line)
+            }
+        } else {
+            layout.children.removeAt(idx)
+
+        }
         if (idx == 0 && cells.isNotEmpty()) cells[0].requestFocus()
         else if (idx != 0) cells[idx - 1].requestFocus()
-        removeChild(idx)
     }
 
     override fun swapped(i: Int, j: Int) {
@@ -184,6 +212,37 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
         layout.children[j] = cells[j]
         context[SelectionDistributor].restoreSelectionState()
     }
+
+    private fun setLineBreak(cell: Cell<*>, lineBreak: Boolean) {
+        val data = orientation as Orientation.Flexible
+        data.lineBreaks[cell.index] = lineBreak
+        val lines = getLines()
+        val line = lines.find { line -> cell in line.children }
+        if (line == null) {
+            System.err.println("Line for cell at index ${cell.index} not found")
+            return
+        }
+        val lineIdx = layout.children.indexOf(line)
+        val idxInLine = line.children.indexOf(cell)
+        if (lineBreak) {
+            if (cell == line.children.last()) {
+                editor.addAt(cell.index + 1)
+            }
+            val childrenBefore = line.children.take(idxInLine + 1).toTypedArray()
+            val childrenAfter = line.children.drop(idxInLine + 1).toTypedArray()
+            layout.children.removeAt(lineIdx)
+            val splitLines = listOf(HBox(*childrenBefore), HBox(*childrenAfter))
+            layout.children.addAll(lineIdx, splitLines)
+        } else {
+            if (lineIdx == 0) return
+            if (idxInLine != 0) return //necessary?
+            val lineBefore = lines[lineIdx - 1]
+            layout.children.remove(line)
+            lineBefore.children.addAll(line.children)
+        }
+    }
+
+    private fun getLines() = layout.children.map { line -> line as HBox }
 
     private fun extendListSelection(index: Int, delta: Int) {
         val selectedViews = getSelectedChildren()
@@ -286,35 +345,16 @@ open class ListEditorControl @ProvideImplementation(ControlFactory::class) const
      */
     @Serializable
     sealed class Orientation {
-        internal abstract fun createLayout(): Pane
 
-        internal abstract val nextCombination: Shortcut
-
-        internal abstract val previousCombination: Shortcut
-
-        /**
-         * Indicates a horizontal display of items.
-         */
-        @Serializable
-        data object Horizontal : Orientation() {
-            override fun createLayout(): Pane = HBox().also { it.centerChildren() }
-
-            override val nextCombination = "Right".shortcut
-
-            override val previousCombination = "Left".shortcut
+        internal fun createLayout(): Pane = when (this) {
+            Horizontal -> HBox()
+            Vertical -> VBox()
+            is Flexible -> VBox()
         }
 
-        /**
-         * Indicates a vertical display of items.
-         */
-        @Serializable
-        data object Vertical : Orientation() {
-            override fun createLayout(): Pane = VBox()
-
-            override val nextCombination = "Down".shortcut
-
-            override val previousCombination = "Up".shortcut
-        }
+        data object Horizontal : Orientation()
+        data object Vertical : Orientation()
+        data class Flexible(val lineBreaks: MutableList<Boolean>) : Orientation()
     }
 
     /**

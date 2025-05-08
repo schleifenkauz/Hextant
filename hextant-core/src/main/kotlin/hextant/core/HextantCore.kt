@@ -21,7 +21,7 @@ import hextant.fx.ResultStyleClasses
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugins.*
-import hextant.undo.UndoManager
+import fxutils.undo.UndoManager
 import reaktive.value.binding.flatMap
 import reaktive.value.now
 import reaktive.value.reactiveValue

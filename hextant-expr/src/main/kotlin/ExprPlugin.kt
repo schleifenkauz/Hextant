@@ -16,7 +16,7 @@ import hextant.expr.view.Style
 import hextant.fx.WindowSize
 import hextant.plugins.*
 import hextant.plugins.PluginBuilder.Phase.Initialize
-import hextant.undo.compoundEdit
+import fxutils.undo.compoundEdit
 import javafx.scene.paint.Color
 import reaktive.value.binding.and
 import reaktive.value.binding.impl.notNull

@@ -15,8 +15,8 @@ import hextant.expr.editor.IntLiteralEditor
 import hextant.expr.view.createControl
 import hextant.test.shouldBe
 import hextant.test.testingContext
-import hextant.undo.NoUndoManager
-import hextant.undo.UndoManager
+import fxutils.undo.NoUndoManager
+import fxutils.undo.UndoManager
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import reaktive.getValue

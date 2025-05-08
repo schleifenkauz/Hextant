@@ -10,7 +10,7 @@ import com.nhaarman.mockitokotlin2.never
 import hextant.core.view.TokenEditorView
 import hextant.expr.editor.IntLiteralEditor
 import hextant.test.*
-import hextant.undo.UndoManager
+import fxutils.undo.UndoManager
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.Pending.No
 import org.jetbrains.spek.api.dsl.given

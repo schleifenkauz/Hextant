@@ -9,7 +9,7 @@ import hextant.context.SelectionDistributor
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugins.Aspects
-import hextant.undo.UndoManager
+import fxutils.undo.UndoManager
 import java.util.logging.Logger
 
 fun testingContext() = Context.create {

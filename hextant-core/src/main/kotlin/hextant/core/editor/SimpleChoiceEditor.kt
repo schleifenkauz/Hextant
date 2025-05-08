@@ -3,8 +3,8 @@ package hextant.core.editor
 import hextant.context.withoutUndo
 import hextant.core.view.SimpleChoiceEditorView
 import hextant.serial.JsonSerializer
-import hextant.undo.AbstractEdit
-import hextant.undo.UndoManager
+import fxutils.undo.AbstractEdit
+import fxutils.undo.UndoManager
 import kotlinx.serialization.json.JsonElement
 import reaktive.Observer
 import reaktive.value.*

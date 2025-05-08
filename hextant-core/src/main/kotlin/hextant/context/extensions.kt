@@ -1,12 +1,13 @@
 package hextant.context
 
 import bundles.*
+import fxutils.undo.UndoManager
+import fxutils.undo.compoundEdit
+import fxutils.undo.withoutUndo
 import hextant.core.Editor
 import hextant.core.view.EditorControl
 import hextant.generated.createEditor
 import hextant.plugins.Aspects
-import hextant.undo.UndoManager
-import hextant.undo.withoutUndo
 import java.util.logging.Level
 import kotlin.reflect.KClass
 
@@ -83,3 +84,6 @@ inline fun <E : Editor<*>> E.withoutUndo(action: E.() -> Unit): E {
     context.withoutUndo { action() }
     return this
 }
+
+inline fun <T> Context.compoundEdit(description: String, actions: () -> T) =
+    get(UndoManager).compoundEdit(description, actions)
