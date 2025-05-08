@@ -4,15 +4,15 @@
 
 package hextant.core.editor
 
+import fxutils.undo.AbstractEdit
+import fxutils.undo.Edit
+import fxutils.undo.UndoManager
 import hextant.completion.Completion
 import hextant.core.Editor
 import hextant.core.view.ListEditorControl
 import hextant.core.view.TokenEditorView
 import hextant.serial.IndexAccessor
 import hextant.serial.string
-import fxutils.undo.AbstractEdit
-import fxutils.undo.Edit
-import fxutils.undo.UndoManager
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import reaktive.value.*
@@ -74,7 +74,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>
         if (newText.endsWith(",")) {
             val listEditor = parent as ListEditor<*, *>
             val (index) = accessor as IndexAccessor
-            val addWithComma = listEditor.viewManager.listeners.any { v ->
+            val addWithComma = listEditor.viewManager.listeners().any { v ->
                 v is ListEditorControl && v.arguments[ListEditorControl.ADD_WITH_COMMA]
             }
             if (addWithComma) {
