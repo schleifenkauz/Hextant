@@ -26,7 +26,7 @@ private fun copyManyToClipboard(context: Context) {
     context[Clipboard].copy(MultipleEditors(snapshots))
 }
 
-internal fun Scene.registerCopyPasteShortcuts(context: Context) {
+fun Scene.registerCopyPasteShortcuts(context: Context) {
     registerShortcuts {
         on("Ctrl+C") { ev ->
             val selected = context[SelectionDistributor].selectedTargets.now.singleOrNull() ?: return@on
