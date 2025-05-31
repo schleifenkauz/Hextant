@@ -10,7 +10,6 @@ import hextant.core.view.EditorControl
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
@@ -23,9 +22,20 @@ import kotlinx.serialization.json.JsonObject
 
 @Serializable(with = EditorRoot.Serializer::class)
 class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var controlArguments: JsonObject) {
-    @Transient
-    lateinit var control: EditorControl<*>
-        private set
+    private var cachedControl: EditorControl<*>? = null
+
+    val control
+        get(): EditorControl<*> = when {
+            cachedControl != null -> cachedControl!!
+            !editor.isInitialized -> error("Cannot get control when EditorRoot is not initialized")
+            else -> {
+                val control = editor.context.createControl(editor)
+                control.initializeControl()
+                control.importJsonArgumentTree(controlArguments)
+                cachedControl = control
+                control
+            }
+        }
 
     constructor(editor: E): this(editor, JsonObject(emptyMap()))
 
@@ -34,14 +44,12 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
     }
 
     constructor(editor: E, control: EditorControl<*>) : this(editor, control.exportJsonArgumentTree()) {
-        this.control = control
+        this.cachedControl = control
     }
 
     fun initialize(context: Context) {
         editor.initialize(context, parent = null, accessor = Root)
-        control = context.createControl(editor)
-        control.initializeControl()
-        control.importJsonArgumentTree(controlArguments)
+
     }
 
     fun clone(context: Context = editor.context): EditorRoot<E> {
