@@ -77,7 +77,7 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
             )
             encodeSerializableElement(
                 descriptor, 1, kotlinx.serialization.serializer(),
-                value.control.exportJsonArgumentTree()
+                value.cachedControl?.exportJsonArgumentTree() ?: value.controlArguments
             )
         }
 
