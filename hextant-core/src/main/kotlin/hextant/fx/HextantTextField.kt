@@ -4,15 +4,15 @@
 
 package hextant.fx
 
+import fxutils.autoSize
 import fxutils.runFXWithTimeout
 import fxutils.shortcut
+import fxutils.updateWidth
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
 import javafx.scene.control.skin.TextFieldSkin
 import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent
-import javafx.scene.text.Font
-import javafx.scene.text.Text
 import reaktive.event.event
 
 /**
@@ -25,7 +25,7 @@ open class HextantTextField(
     var isAutoSize: Boolean = autoSize
         set(value) {
             field = value
-            if (isAutoSize) updateWidth(text)
+            if (value) updateWidth()
             else prefWidth = USE_COMPUTED_SIZE
         }
 
@@ -109,18 +109,6 @@ open class HextantTextField(
         }
     }
 
-    private object TextUtils {
-        private val helper: Text = Text().apply {
-            wrappingWidth = 0.0
-        }
-
-        fun computeTextWidth(font: Font, text: String): Double {
-            helper.text = text
-            helper.font = font
-            return helper.prefWidth(-1.0)
-        }
-    }
-
     init {
         styleClass.add(STYLE_CLASS)
         addEventFilter(KeyEvent.ANY) { ev ->
@@ -136,25 +124,8 @@ open class HextantTextField(
             }
         }
         sceneProperty().addListener { _ ->
-            runFXWithTimeout(100) { autoSize() }
+            runFXWithTimeout(100) { autoSize(::isAutoSize) }
         }
-    }
-
-    private fun autoSize() {
-        textProperty().addListener { _, _, new ->
-            if (isAutoSize) updateWidth(new)
-        }
-        if (isAutoSize) updateWidth(text)
-    }
-
-    private fun updateWidth(text: String) {
-        val textWidth = TextUtils.computeTextWidth(font, text) + 2.0
-        prefWidth = 0.0
-        minWidth = 0.0
-        maxWidth = 0.0
-        prefWidth = textWidth.coerceAtLeast(10.0)
-        maxWidth = prefWidth
-        minWidth = prefWidth
     }
 
     companion object {
