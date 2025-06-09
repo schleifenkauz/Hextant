@@ -178,7 +178,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         val undo = context[UndoManager]
         if (!undo.isActive) action()
         else {
-            val before = state.now.snapshot()
+            val before = state.now.snapshot() //TODO Can we avoid copying here?
             action()
             val after = state.now.snapshot()
             val edit = StateTransition(this, before, after, description)

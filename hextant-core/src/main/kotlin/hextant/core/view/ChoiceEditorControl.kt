@@ -32,9 +32,9 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
 ) : ChoiceEditorView<C, E>, WrappingEditorControl<Pane>(editor, arguments) {
     var canChoose = true
 
-    val button = button {
+    val button = button(style = "selector-button") {
         if (canChoose) {
-            val choice = ChoiceEditorListView<C>(editor)
+            val choice = ChoiceEditorListView(editor)
                 .showPopup(anchorNode = this, initialOption = editor.selected.now)
             if (choice != null) editor.select(choice)
         }

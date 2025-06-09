@@ -21,7 +21,7 @@ open class SimpleChoiceEditorControl<C : Any>(
         //root.focusedProperty().addListener { _, _, focused -> if (focused) showChoicePopup() }
     }
 
-    override fun createDefaultRoot() = button { showChoicePopup() }
+    override fun createDefaultRoot() = button(style = "selector-button") { showChoicePopup() }
 
     protected open fun showChoicePopup() {
         val choice = ChoiceEditorListView(editor).showPopup(anchorNode = this, initialOption = editor.result.now)
