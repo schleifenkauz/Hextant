@@ -46,7 +46,7 @@ interface Editor<out R> {
     /**
      * @return the location of this editor relative its parent
      */
-    val accessor: EditorAccessor?
+    val accessor: EditorAccessor
 
     /**
      * The Expander that expanded this editor

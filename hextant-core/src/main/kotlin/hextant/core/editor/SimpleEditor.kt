@@ -3,7 +3,7 @@ package hextant.core.editor
 import fxutils.undo.UndoManager
 import fxutils.undo.VariableEdit
 import hextant.core.Editor
-import hextant.serial.JsonSerializer
+import hextant.serial.*
 import kotlinx.serialization.json.JsonElement
 import reaktive.value.ReactiveValue
 import reaktive.value.ReactiveVariable
@@ -25,9 +25,18 @@ abstract class SimpleEditor<R : Any> : AbstractEditor<R, SimpleEditor.View<R>>()
         if (this.result.now == result) return
         val oldResult = _result.now
         _result.set(result)
-        val updateDescription = customUpdateDescription ?: "Update $accessor"
+        val updateDescription = customUpdateDescription ?: "Update ${accessor.getDescription()}"
         context[UndoManager].record(VariableEdit(_result, oldResult, updateDescription))
         notifyViews { displayResult(result) }
+    }
+
+    private fun EditorAccessor.getDescription(): String = when (this) {
+        ExpanderContent -> expander!!.accessor.getDescription()
+        is IndexAccessor -> "Item"
+        OptionalEditorContent -> "Optional Item"
+        ChoiceEditorContent -> parent!!.accessor.getDescription()
+        is PropertyAccessor -> propertyName
+        Root -> "?"
     }
 
     override fun paste(editor: Editor<*>): Boolean {

@@ -35,7 +35,7 @@ abstract class TransformedEditor<T, R>(internal val source: Editor<T>) : Editor<
     override val parent: Editor<*>?
         get() = source.parent
 
-    override val accessor: EditorAccessor?
+    override val accessor: EditorAccessor
         get() = source.accessor
 
     override val expander: Expander<*, *>?
