@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalSerializationApi::class)
-
 package hextant.serial
 
 import hextant.context.Context
@@ -7,7 +5,6 @@ import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.snapshot
 import hextant.core.view.EditorControl
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -83,7 +80,7 @@ class EditorRoot<E : Editor<*>> private constructor(val editor: E, private var c
 
         override fun deserialize(decoder: Decoder): EditorRoot<*> = decoder.decodeStructure(descriptor) {
             lateinit var editorJson: JsonElement
-            lateinit var controlArguments: JsonObject
+            var controlArguments = JsonObject(emptyMap())
             while (true) {
                 when (decodeElementIndex(descriptor)) {
                     0 -> editorJson = decodeSerializableElement(descriptor, 0, kotlinx.serialization.serializer())
