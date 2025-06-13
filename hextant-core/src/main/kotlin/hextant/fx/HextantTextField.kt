@@ -5,9 +5,7 @@
 package hextant.fx
 
 import fxutils.autoSize
-import fxutils.runFXWithTimeout
 import fxutils.shortcut
-import fxutils.updateWidth
 import javafx.scene.control.Skin
 import javafx.scene.control.TextField
 import javafx.scene.control.skin.TextFieldSkin
@@ -23,11 +21,6 @@ open class HextantTextField(
     autoSize: Boolean = true
 ) : TextField(text) {
     var isAutoSize: Boolean = autoSize
-        set(value) {
-            field = value
-            if (value) updateWidth()
-            else prefWidth = USE_COMPUTED_SIZE
-        }
 
     private var fixSelection = false
 
@@ -123,9 +116,7 @@ open class HextantTextField(
                 }
             }
         }
-        sceneProperty().addListener { _ ->
-            runFXWithTimeout(100) { autoSize(::isAutoSize) }
-        }
+        autoSize(::isAutoSize)
     }
 
     companion object {
