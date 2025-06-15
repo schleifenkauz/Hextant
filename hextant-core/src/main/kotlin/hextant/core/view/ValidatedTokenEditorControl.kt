@@ -10,19 +10,17 @@ import fxutils.never
 import fxutils.registerShortcuts
 import fxutils.show
 import fxutils.smartSetText
-import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
 import hextant.context.Context
-import hextant.context.ControlFactory
 import hextant.core.editor.ValidatedTokenEditor
-import hextant.fx.*
+import hextant.fx.HextantTextField
 
 /**
  * Displays a [ValidatedTokenEditor] as a [HextantTextField].
  */
-open class ValidatedTokenEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+open class ValidatedTokenEditorControl (
     private val editor: ValidatedTokenEditor<*>, arguments: Bundle
 ) : EditorControl<HextantTextField>(editor, arguments), ValidatedTokenEditorView {
     private val popup = CompletionPopup.forContext(context) { arguments[COMPLETER] }

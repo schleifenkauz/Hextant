@@ -14,6 +14,7 @@ import hextant.config.FeatureRegistrar
 import hextant.config.PropertyRegistrar
 import hextant.config.Settings
 import hextant.context.Context
+import hextant.context.ControlFactory
 import hextant.context.EditorFactory
 import hextant.context.Properties.propertyChangeHandler
 import hextant.context.createEditor
@@ -30,11 +31,20 @@ import hextant.serial.readJson
 import hextant.serial.writeJson
 import kotlinx.serialization.serializer
 import reaktive.Observer
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
+
+inline fun <reified A: Any, reified F> PluginBuilder.registerImplementation(implementation: A) {
+    on(Initialize) { ctx ->
+        ctx[Aspects].implement(A::class, F::class, implementation)
+    }
+}
+
+inline fun <reified E : Editor<*>> PluginBuilder.registerControlFactory(factory: ControlFactory<E>) {
+    registerImplementation<ControlFactory<*>, E>(factory)
+}
 
 /**
  * Registers the given [command].

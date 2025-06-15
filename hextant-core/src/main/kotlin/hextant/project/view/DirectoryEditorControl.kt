@@ -7,8 +7,6 @@ package hextant.project.view
 import bundles.Bundle
 import fxutils.Glyphs
 import fxutils.fontSize
-import hextant.codegen.ProvideImplementation
-import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.view.EditorControl
 import hextant.project.editor.DirectoryEditor
@@ -19,7 +17,7 @@ import org.controlsfx.glyphfont.FontAwesome.Glyph.FOLDER
 /**
  * Displays a [DirectoryEditor] as horizontal combination of the folder glyph and the name of the directory.
  */
-class DirectoryEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+class DirectoryEditorControl (
     editor: DirectoryEditor<*>,
     arguments: Bundle
 ) : EditorControl<HBox>(editor, arguments) {

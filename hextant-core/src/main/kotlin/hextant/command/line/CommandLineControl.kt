@@ -5,14 +5,11 @@
 package hextant.command.line
 
 import bundles.Bundle
-import bundles.Property
 import bundles.publicProperty
 import fxutils.*
-import hextant.codegen.ProvideImplementation
 import hextant.command.Command
 import hextant.command.line.CommandLine.HistoryItem
 import hextant.completion.gui.CompletionPopup
-import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
@@ -30,7 +27,7 @@ import reaktive.observe
 /**
  * A JavaFX implementation of the [CommandLineView]
  */
-class CommandLineControl @ProvideImplementation(ControlFactory::class) constructor(
+class CommandLineControl (
     private val cl: CommandLine, args: Bundle
 ) : CommandLineView, EditorControl<Pane>(cl, args) {
     private val history = VBox().withStyleClass("command-history")

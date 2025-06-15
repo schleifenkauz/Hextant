@@ -3,7 +3,6 @@ package hextant.core.view
 import bundles.Bundle
 import fxutils.button
 import fxutils.escapeUnderscores
-import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.core.editor.SimpleChoiceEditor
 import javafx.scene.control.Button
@@ -33,7 +32,6 @@ open class SimpleChoiceEditorControl<C : Any>(
         root.textProperty().bind(editor.toString(choice).map { txt -> txt.escapeUnderscores() }.asObservableValue())
     }
 
-    @ProvideImplementation(ControlFactory::class)
     companion object : ControlFactory<SimpleChoiceEditor<*>> {
         override fun createControl(editor: SimpleChoiceEditor<*>, arguments: Bundle): EditorControl<*> =
             SimpleChoiceEditorControl(editor, arguments)

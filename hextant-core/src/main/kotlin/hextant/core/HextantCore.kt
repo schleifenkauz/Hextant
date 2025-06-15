@@ -2,26 +2,28 @@ package hextant.core
 
 import bundles.PropertyChangeHandler
 import bundles.set
+import fxutils.undo.UndoManager
 import hextant.command.Commands
 import hextant.command.line.CommandLine
+import hextant.command.line.CommandLineControl
 import hextant.command.line.CommandReceiverType.*
 import hextant.command.line.ContextCommandSource
 import hextant.command.line.SingleCommandSource
-import hextant.config.FeatureRegistrar
-import hextant.config.PropertyRegistrar
-import hextant.config.disable
-import hextant.config.enable
+import hextant.config.*
 import hextant.context.*
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.globalCommandLine
 import hextant.context.Properties.localCommandLine
 import hextant.context.Properties.logger
 import hextant.context.Properties.propertyChangeHandler
+import hextant.core.editor.TransformedEditor
+import hextant.core.view.*
 import hextant.fx.ResultStyleClasses
 import hextant.fx.Stylesheets
 import hextant.inspect.Inspections
 import hextant.plugins.*
-import fxutils.undo.UndoManager
+import hextant.project.view.DirectoryEditorControl
+import hextant.project.view.FileEditorControl
 import reaktive.value.binding.flatMap
 import reaktive.value.now
 import reaktive.value.reactiveValue
@@ -31,6 +33,25 @@ import java.util.logging.Logger
  * The core plugin registers basic editors, views and commands.
  */
 object HextantCore : PluginInitializer({
+    registerControlFactory(ChoiceEditorControl)
+    registerControlFactory(SimpleChoiceEditorControl)
+    registerControlFactory(::ColorEditorControl)
+    registerControlFactory(::CommandLineControl)
+    registerControlFactory(::ExpanderControl)
+    registerControlFactory(::ListEditorControl)
+    registerControlFactory(::OptionalEditorControl)
+    registerControlFactory(::TokenEditorControl)
+    registerControlFactory(::ValidatedTokenEditorControl)
+    registerControlFactory(::SimpleStringEditorControl)
+
+    registerControlFactory(::FeatureIdEditorControl)
+    registerControlFactory(::FileEditorControl)
+    registerControlFactory(::DirectoryEditorControl)
+
+    registerControlFactory<TransformedEditor<*, *>> { editor, arguments ->
+        editor.context.createControl(editor, arguments)
+    }
+
     /*persistentProperty(Internal, Settings)*/
     stylesheet("hextant/core/style.css")
     registerCommand(enable)

@@ -6,8 +6,6 @@ package hextant.core.view
 
 import bundles.*
 import fxutils.*
-import hextant.codegen.ProvideImplementation
-import hextant.context.ControlFactory
 import hextant.context.SelectionDistributor
 import hextant.context.createControl
 import hextant.core.Editor
@@ -32,7 +30,7 @@ import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 /**
  * Objects of this class are used to display [ListEditor]s.
  */
-open class ListEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+open class ListEditorControl (
     private val editor: ListEditor<*, *>, args: Bundle
 ) : ListEditorView, EditorControl<Node>(editor, args) {
     constructor(editor: ListEditor<*, *>, args: Bundle, orientation: Orientation) : this(editor, args.apply {

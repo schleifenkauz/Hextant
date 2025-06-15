@@ -8,8 +8,6 @@ import bundles.Bundle
 import fxutils.Glyphs
 import fxutils.fontSize
 import fxutils.onAction
-import hextant.codegen.ProvideImplementation
-import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.view.EditorControl
@@ -23,7 +21,7 @@ import reaktive.observe
 import reaktive.value.binding.orElse
 import reaktive.value.now
 
-internal class FileEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+internal class FileEditorControl (
     private val editor: FileEditor<*>, arguments: Bundle
 ) : EditorControl<HBox>(editor, arguments) {
     private val iconProvider = context[IconProvider.property<Editor<*>>()]

@@ -9,7 +9,6 @@ import bundles.publicProperty
 import fxutils.button
 import fxutils.children
 import fxutils.withStyleClass
-import hextant.codegen.ProvideImplementation
 import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
@@ -69,7 +68,6 @@ open class ChoiceEditorControl<C : Any, E : Editor<*>>(
         Horizontal, Vertical
     }
 
-    @ProvideImplementation(ControlFactory::class)
     companion object : ControlFactory<ChoiceEditor<*, *, *>> {
         val LAYOUT = publicProperty("LAYOUT", Horizontal)
 

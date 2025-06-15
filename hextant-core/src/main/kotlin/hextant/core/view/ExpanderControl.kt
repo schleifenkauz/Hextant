@@ -10,11 +10,9 @@ import bundles.set
 import fxutils.registerShortcuts
 import fxutils.runFXWithTimeout
 import fxutils.showBelow
-import hextant.codegen.ProvideImplementation
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
-import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
 import hextant.core.editor.Expander
@@ -27,7 +25,7 @@ import reaktive.value.now
 /**
  * JavaFX implementation of a [ExpanderView]
  */
-open class ExpanderControl @ProvideImplementation(ControlFactory::class) constructor(
+open class ExpanderControl (
     private val expander: Expander<*, *>,
     args: Bundle
 ) : ExpanderView, WrappingEditorControl<Node>(expander, args) {

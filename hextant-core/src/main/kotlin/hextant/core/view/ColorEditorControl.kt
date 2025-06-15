@@ -5,13 +5,11 @@
 package hextant.core.view
 
 import bundles.Bundle
-import hextant.codegen.ProvideImplementation
-import hextant.context.ControlFactory
 import hextant.core.editor.ColorEditor
 import reaktive.value.binding.map
 import reaktive.value.fx.asObservableValue
 
-internal class ColorEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+internal class ColorEditorControl (
     editor: ColorEditor,
     arguments: Bundle
 ) : TokenEditorControl(editor, arguments) {

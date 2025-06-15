@@ -6,15 +6,13 @@ import bundles.publicProperty
 import fxutils.Glyphs
 import fxutils.registerShortcuts
 import fxutils.withStyleClass
-import hextant.codegen.ProvideImplementation
-import hextant.context.ControlFactory
 import hextant.context.createControl
 import hextant.core.Editor
 import javafx.scene.Node
 import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 import reaktive.value.now
 
-class OptionalEditorControl @ProvideImplementation(ControlFactory::class) constructor(
+class OptionalEditorControl(
     private val editor: hextant.core.editor.OptionalEditor<*, *>,
     arguments: Bundle = createBundle()
 ) : WrappingEditorControl<Node>(editor, arguments), OptionalEditorView {

@@ -4,17 +4,26 @@ import hextant.cli.HextantDirectory
 import hextant.command.Command.Type.SingleReceiver
 import hextant.context.Context
 import hextant.context.createControl
+import hextant.core.view.TokenEditorControl
 import hextant.fx.showStage
-import hextant.plugins.PluginInfo
-import hextant.plugins.PluginInitializer
-import hextant.plugins.PluginManager
+import hextant.plugins.*
 import hextant.plugins.editor.DisabledPluginInfoEditor
 import hextant.plugins.editor.EnabledPluginInfoEditor
 import hextant.plugins.editor.PluginsEditor
-import hextant.plugins.registerCommand
+import hextant.plugins.view.DisabledPluginInfoCompleter
+import hextant.plugins.view.EnabledPluginInfoCompleter
 import hextant.plugins.view.PluginsEditorView
 
 object HextantMain : PluginInitializer({
+    registerControlFactory { editor: EnabledPluginInfoEditor, arguments ->
+        TokenEditorControl(editor, arguments, EnabledPluginInfoCompleter)
+    }
+
+    registerControlFactory { editor: DisabledPluginInfoEditor, arguments ->
+        TokenEditorControl(editor, arguments, DisabledPluginInfoCompleter(editor.types))
+    }
+
+
     registerCommand<Context, Unit> {
         name = "Save Project"
         shortName = "save"
