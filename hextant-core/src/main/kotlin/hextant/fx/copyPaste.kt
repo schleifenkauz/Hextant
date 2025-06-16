@@ -15,8 +15,9 @@ import javafx.scene.Scene
 
 private val COPY_MANY = "Ctrl + Shift + C".shortcut
 
-private fun copyManyToClipboard(context: Context) {
-    val selected = context[SelectionDistributor].selectedTargets.now
+private fun Scene.copyManyToClipboard(context: Context) {
+    val control = focusedEditorControl ?: return
+    val selected = control.context[SelectionDistributor].selectedTargets.now
     if (selected.any { it !is Editor<*> }) return
     val snapshots = selected.map {
         context.executeSafely("copying", null) {
@@ -29,12 +30,14 @@ private fun copyManyToClipboard(context: Context) {
 fun Scene.registerCopyPasteShortcuts(context: Context) {
     registerShortcuts {
         on("Ctrl+C") { ev ->
-            val selected = context[SelectionDistributor].selectedTargets.now.singleOrNull() ?: return@on
+            val control = focusedEditorControl ?: return@on
+            val selected = control.context[SelectionDistributor].selectedTargets.now.singleOrNull() ?: return@on
             if (selected !is Editor<*>) return@on
             if (selected.copyToClipboard()) ev.consume()
         }
         on("Ctrl+V") { ev ->
-            val selected = context[SelectionDistributor].selectedTargets.now.singleOrNull() ?: return@on
+            val control = editorControlInParentChain(focusOwner) ?: return@on
+            val selected = control.context[SelectionDistributor].selectedTargets.now.singleOrNull() ?: return@on
             if (selected !is Editor<*>) return@on
             if (selected.pasteFromClipboard()) ev.consume()
         }

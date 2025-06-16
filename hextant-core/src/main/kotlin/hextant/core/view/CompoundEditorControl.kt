@@ -172,6 +172,20 @@ abstract class CompoundEditorControl(
             return node
         }
 
+        inline fun horizontal(
+            spacing: Double = 0.0,
+            alignment: Pos = Pos.CENTER_LEFT,
+            build: Horizontal.() -> Unit
+        ): Horizontal {
+            val horizontal = Horizontal(cachedViews, editorChildren).apply(build)
+            if (horizontal.firstEditorChild != null && this.firstEditorChild == null)
+                this.firstEditorChild = horizontal.firstEditorChild
+            horizontal.root.spacing = spacing
+            horizontal.root.alignment = alignment
+            root.children.add(horizontal.root)
+            return horizontal
+        }
+
         /**
          * Add the given [Glyph] to this compound control and return it.
          */
@@ -206,20 +220,6 @@ abstract class CompoundEditorControl(
          */
         fun line(spacing: Double = 0.0, alignment: Pos = Pos.CENTER_LEFT, build: Horizontal.() -> Unit): Horizontal =
             horizontal(spacing, alignment, build)
-
-        inline fun horizontal(
-            spacing: Double = 0.0,
-            alignment: Pos = Pos.CENTER_LEFT,
-            build: Horizontal.() -> Unit
-        ): Horizontal {
-            val horizontal = Horizontal(cachedViews, editorChildren).apply(build)
-            if (horizontal.firstEditorChild != null && this.firstEditorChild == null)
-                this.firstEditorChild = horizontal.firstEditorChild
-            horizontal.root.spacing = spacing
-            horizontal.root.alignment = alignment
-            root.children.add(horizontal.root)
-            return horizontal
-        }
 
         /**
          * Create a [Vertical] box configured with [build] and add it together with some leading space to this box.
