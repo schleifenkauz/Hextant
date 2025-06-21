@@ -21,7 +21,6 @@ import hextant.core.Editor
 import hextant.core.EditorView
 import hextant.core.editor.copyToClipboard
 import hextant.core.editor.pasteFromClipboard
-import hextant.fx.CommandsPopup
 import hextant.fx.InspectionPopup
 import hextant.fx.handleCommands
 import hextant.inspect.Inspections
@@ -63,9 +62,6 @@ abstract class EditorControl<R : Node>(
     private val selection = context[SelectionDistributor]
 
     private val inspections = context[Inspections]
-
-    private val inspectionPopup = InspectionPopup(context, target)
-    internal val commandsPopup = CommandsPopup(context, this, target) //TODO Does this need to be a property?
 
     private val hasError = inspections.hasError(target)
     private val hasWarning = inspections.hasWarning(target)
@@ -318,6 +314,7 @@ abstract class EditorControl<R : Node>(
     protected fun paste(): Boolean = target.pasteFromClipboard()
 
     private fun showInspections(): Boolean {
+        val inspectionPopup = InspectionPopup(context, target)
         inspectionPopup.show(root)
         return inspectionPopup.isShowing
     }
