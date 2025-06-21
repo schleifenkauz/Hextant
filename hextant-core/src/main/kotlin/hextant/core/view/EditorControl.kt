@@ -264,7 +264,7 @@ abstract class EditorControl<R : Node>(
      * This method can delegate the focus to some child node as well.
      * The default implementation just calls [select].
      */
-    open fun receiveFocus() {
+    override fun receiveFocus() {
         select()
     }
 

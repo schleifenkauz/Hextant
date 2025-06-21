@@ -33,6 +33,8 @@ interface EditorView {
 
     fun toggleSelection()
 
+    fun receiveFocus()
+
     /**
      * Focus this [EditorView]
      */
