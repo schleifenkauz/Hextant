@@ -1,10 +1,12 @@
 package hextant.core.editor
 
-import hextant.context.withoutUndo
-import hextant.core.view.SimpleChoiceEditorView
-import hextant.serial.JsonSerializer
 import fxutils.undo.AbstractEdit
 import fxutils.undo.UndoManager
+import hextant.context.withoutUndo
+import hextant.core.view.SimpleChoiceEditorView
+import hextant.serial.EditorReference
+import hextant.serial.JsonSerializer
+import hextant.serial.reference
 import kotlinx.serialization.json.JsonElement
 import reaktive.Observer
 import reaktive.value.*
@@ -31,7 +33,7 @@ abstract class SimpleChoiceEditor<C : Any> : AbstractEditor<C, SimpleChoiceEdito
         for (variable in syncedVariables.keys) {
             variable.now = choice
         }
-        context[UndoManager].record(Edit(this, old, choice))
+        context[UndoManager].record(Edit(reference(), old, choice))
         notifyViews { selected(choice) }
     }
 
@@ -68,7 +70,7 @@ abstract class SimpleChoiceEditor<C : Any> : AbstractEditor<C, SimpleChoiceEdito
     override fun serialize(): JsonElement = toJson(result.now)
 
     private class Edit<T : Any>(
-        private val selector: SimpleChoiceEditor<T>,
+        private val selector: EditorReference<SimpleChoiceEditor<T>>,
         private val old: T,
         private val new: T
     ) : AbstractEdit() {
@@ -76,11 +78,11 @@ abstract class SimpleChoiceEditor<C : Any> : AbstractEditor<C, SimpleChoiceEdito
             get() = "Select"
 
         override fun doUndo() {
-            selector.select(old)
+            selector.get().select(old)
         }
 
         override fun doRedo() {
-            selector.select(new)
+            selector.get().select(new)
         }
     }
 }

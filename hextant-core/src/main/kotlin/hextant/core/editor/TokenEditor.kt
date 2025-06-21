@@ -11,7 +11,9 @@ import hextant.completion.Completion
 import hextant.core.Editor
 import hextant.core.view.ListEditorControl
 import hextant.core.view.TokenEditorView
+import hextant.serial.EditorReference
 import hextant.serial.IndexAccessor
+import hextant.serial.reference
 import hextant.serial.string
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
@@ -84,7 +86,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>
             }
         }
         if (context[UndoManager].isActive) {
-            val edit = TextEdit(this, text.now, newText)
+            val edit = TextEdit(reference(), text.now, newText)
             context[UndoManager].record(edit)
         }
         _text.now = newText
@@ -97,7 +99,7 @@ abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>
      */
     fun complete(completion: Completion<*>) {
         val t = completion.completionText
-        val edit = TextEdit(this, text.now, t)
+        val edit = TextEdit(reference(), text.now, t)
         context[UndoManager].record(edit)
         _text.now = t
         notifyViews { displayText(t) }
@@ -114,16 +116,16 @@ abstract class TokenEditor<out R, in V : TokenEditorView> : AbstractEditor<R, V>
     }
 
     private class TextEdit(
-        private val editor: TokenEditor<*, *>,
+        private val editor: EditorReference<TokenEditor<*, *>>,
         private val old: String,
         private val new: String
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.setText(new)
+            editor.get().setText(new)
         }
 
         override fun doUndo() {
-            editor.setText(old)
+            editor.get().setText(old)
         }
 
         override val actionDescription: String

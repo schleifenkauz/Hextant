@@ -1,18 +1,20 @@
 package hextant.core.editor
 
+import fxutils.undo.AbstractEdit
+import fxutils.undo.UndoManager
 import hextant.core.Editor
 import hextant.core.view.OptionalEditorView
 import hextant.serial.EditorAccessor
+import hextant.serial.EditorReference
 import hextant.serial.OptionalEditorContent
-import fxutils.undo.AbstractEdit
-import fxutils.undo.UndoManager
+import hextant.serial.reference
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import reaktive.value.*
 import reaktive.value.binding.flatMap
 import kotlin.reflect.KClass
 
-abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEditorView>() {
+abstract class OptionalEditor<R, E : Editor<R>> : AbstractEditor<R, OptionalEditorView>() {
     protected abstract val default: R
 
     private lateinit var _editor: ReactiveVariable<E?>
@@ -41,7 +43,7 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
         }
         val contentSnap = content.now!!.snapshot()
         doReset()
-        context[UndoManager].record(Reset(this, contentSnap))
+        context[UndoManager].record(Reset(reference(), contentSnap))
     }
 
     fun expand() {
@@ -50,7 +52,7 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
             return
         }
         doExpand()
-        context[UndoManager].record(Expand(this))
+        context[UndoManager].record(Expand(reference()))
     }
 
     private fun doReset() {
@@ -94,13 +96,13 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
 
     protected open fun fixedContentClass(): KClass<E>? = null
 
-    private class Expand(private val ref: OptionalEditor<*, *>) : AbstractEdit() {
+    private class Expand(private val ref: EditorReference<OptionalEditor<*, *>>) : AbstractEdit() {
         override fun doRedo() {
-            ref.doExpand()
+            ref.get().doExpand()
         }
 
         override fun doUndo() {
-            ref.doReset()
+            ref.get().doReset()
         }
 
         override val actionDescription: String
@@ -108,15 +110,15 @@ abstract class OptionalEditor<R, E : Editor<R>>() : AbstractEditor<R, OptionalEd
     }
 
     private class Reset<E : Editor<*>>(
-        private val ref: OptionalEditor<*, E>,
+        private val ref: EditorReference<OptionalEditor<*, E>>,
         private val content: E
     ) : AbstractEdit() {
         override fun doRedo() {
-            ref.doReset()
+            ref.get().doReset()
         }
 
         override fun doUndo() {
-            ref.setContent(content)
+            ref.get().setContent(content)
         }
 
         override val actionDescription: String

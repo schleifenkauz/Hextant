@@ -125,7 +125,7 @@ open class ListEditorControl (
             layout.children.add(idx, c)
         }
         addChild(view, idx)
-        if (scene != null) c.requestFocus()
+        if (scene != null) c.item!!.receiveFocus()
     }
 
     private fun getCell(idx: Int, control: EditorControl<*>): Cell<*> {
@@ -334,8 +334,11 @@ open class ListEditorControl (
     }
 
     override fun receiveFocus() {
-        val firstChild = cells.firstOrNull() ?: emptyDisplay
-        firstChild?.requestFocus()
+        if (cells.isNotEmpty()) {
+            cells.first().item!!.receiveFocus()
+        } else {
+            emptyDisplay?.requestFocus()
+        }
     }
 
     /**

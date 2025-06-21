@@ -51,8 +51,4 @@ class CommandLineBasedLauncherView @ProvideImplementation(ControlFactory::class)
     override fun receiveFocus() {
         commandLine.receiveFocus()
     }
-
-    override fun requestFocus() {
-        receiveFocus()
-    }
 }

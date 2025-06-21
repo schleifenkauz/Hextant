@@ -25,7 +25,7 @@ class OptionalEditorControl(
             editor.expand()
         }
         registerShortcuts {
-            on("Ctrl?+R") {
+            on("Ctrl+R") {
                 editor.reset()
             }
         }

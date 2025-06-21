@@ -27,6 +27,17 @@ val Editor<*>.root: Editor<*>
         return cur
     }
 
+fun <E: Editor<*>> E.reference(): EditorReference<E> {
+    var cur: Editor<*> = this
+    val accessorChain = mutableListOf<EditorAccessor>()
+    while (cur.expander != null || cur.parent != null) {
+        accessorChain.add(cur.accessor)
+        cur = cur.expander ?: cur.parent!!
+    }
+    accessorChain.reverse()
+    return EditorReference(cur, AccessorChain(accessorChain))
+}
+
 
 /**
  * Encodes this [Editor] as JSON, and then writes it to the given [file],

@@ -260,7 +260,7 @@ abstract class EditorControl<R : Node>(
     }
 
     override fun focus() {
-        requestFocus()
+        root.requestFocus()
     }
 
     /**
@@ -276,7 +276,7 @@ abstract class EditorControl<R : Node>(
      * Delegates to the [EditorControl.root]
      */
     override fun requestFocus() {
-        root.requestFocus()
+        focus()
     }
 
     /**
@@ -369,10 +369,6 @@ abstract class EditorControl<R : Node>(
         }
         for (child in editorChildren()) {
             val accessor = child.target.accessor
-            if (accessor == null) {
-                System.err.println("Child ${child.target} of $target has no accessor")
-                continue
-            }
             val args = child.exportJsonArgumentTree()
             if (args.isEmpty()) continue
             val field = accessor.toString()
@@ -392,10 +388,6 @@ abstract class EditorControl<R : Node>(
         }
         for (child in editorChildren()) {
             val accessor = child.target.accessor
-            if (accessor == null) {
-                System.err.println("Child ${child.target} of $target has no accessor")
-                continue
-            }
             val subTree = tree[accessor.toString()] ?: continue
             if (subTree !is JsonObject) {
                 System.err.println("Invalid sub tree for child $accessor of $target: $subTree")

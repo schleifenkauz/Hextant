@@ -81,7 +81,7 @@ open class ExpanderControl (
 
     override fun receiveFocus() {
         if (wrapped != null) wrapped!!.receiveFocus()
-        else textField.requestFocus()
+        else select()
     }
 
     override fun reset() {
@@ -93,7 +93,7 @@ open class ExpanderControl (
 
     final override fun expanded(editor: Editor<*>) {
         val v = context.createControl(editor)
-        v.registerShortcuts { on("Ctrl? + R") { expander.reset() } }
+        v.registerShortcuts { on("Ctrl + R") { expander.reset() } }
         wrapped = v
         root = v
         v.initializeControl()

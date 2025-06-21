@@ -4,6 +4,8 @@
 
 package hextant.core.editor
 
+import fxutils.undo.AbstractEdit
+import fxutils.undo.UndoManager
 import hextant.codegen.ProvideFeature
 import hextant.context.Clipboard
 import hextant.context.ClipboardContent.MultipleEditors
@@ -11,11 +13,7 @@ import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.core.view.ListEditorView
-import hextant.serial.EditorAccessor
-import hextant.serial.IndexAccessor
-import hextant.serial.InvalidAccessorException
-import fxutils.undo.AbstractEdit
-import fxutils.undo.UndoManager
+import hextant.serial.*
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import reaktive.Observer
@@ -111,7 +109,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         if (!mayBeEmpty) return
         if (undoable) {
             val snapshots = editors.now.map { e -> e.snapshot() }
-            val edit = ClearEdit(this, snapshots)
+            val edit = ClearEdit(reference(), snapshots)
             context[UndoManager].record(edit)
         }
         doClear()
@@ -133,7 +131,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
      */
     fun pasteMany(idx: Int, editors: List<E>, undoable: Boolean = true) {
         if (undoable) {
-            val edit = PasteManyEdit(this, idx, editors.map { e -> e.snapshot() })
+            val edit = PasteManyEdit(reference(), idx, editors.map { e -> e.snapshot() })
             context[UndoManager].record(edit)
         }
         if (editors.any { !editorClass.isInstance(it) }) return
@@ -172,7 +170,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     fun addAt(index: Int): E? {
         val editor = tryCreateEditor() ?: return null
         if (context[UndoManager].isActive) {
-            val edit = AddEdit(this, index, editor.snapshot())
+            val edit = AddEdit(reference(), index, editor.snapshot())
             context[UndoManager].record(edit)
         }
         doAddAt(index, editor)
@@ -185,7 +183,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
      */
     fun addAt(index: Int, editor: E) {
         if (context[UndoManager].isActive) {
-            val edit = AddEdit(this, index, editor.snapshot())
+            val edit = AddEdit(reference(), index, editor.snapshot())
             context[UndoManager].record(edit)
         }
         doAddAt(index, editor)
@@ -222,7 +220,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         if (emptyNow()) notifyViews { empty() }
         context.executeSafely("removing editor", Unit) { editorRemoved(old, index) }
         if (context[UndoManager].isActive) {
-            val edit = RemoveEdit(this, index, old.snapshot())
+            val edit = RemoveEdit(reference(), index, old.snapshot())
             context[UndoManager].record(edit)
         }
         _result.now = computeResultList()
@@ -248,7 +246,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         _editors.now[j] = e
         e.setAccessor(IndexAccessor(j))
         f.setAccessor(IndexAccessor(i))
-        context[UndoManager].record(SwapEdit(this, i, j))
+        context[UndoManager].record(SwapEdit(reference(), i, j))
         notifyViews { swapped(i, j) }
         _result.now = computeResultList()
     }
@@ -327,16 +325,16 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     protected open fun fixedEditorClass(): KClass<E>? = null
 
     private class AddEdit<E : Editor<*>>(
-        private val editor: ListEditor<*, E>,
+        private val editor: EditorReference<ListEditor<*, E>>,
         private val index: Int,
         private val added: E
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.addAt(index, added)
+            editor.get().addAt(index, added)
         }
 
         override fun doUndo() {
-            editor.removeAt(index)
+            editor.get().removeAt(index)
         }
 
         override val actionDescription: String
@@ -344,17 +342,17 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     }
 
     private class RemoveEdit<E : Editor<*>>(
-        private val editor: ListEditor<*, E>,
+        private val editor: EditorReference<ListEditor<*, E>>,
         private val index: Int,
         private val removed: E
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.removeAt(index)
+            editor.get().removeAt(index)
         }
 
         override fun doUndo() {
             val e = editor
-            e.addAt(index, removed)
+            e.get().addAt(index, removed)
         }
 
         override val actionDescription: String
@@ -362,7 +360,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     }
 
     private class SwapEdit<E : Editor<*>>(
-        private val editor: ListEditor<*, E>,
+        private val editor: EditorReference<ListEditor<*, E>>,
         private val index1: Int,
         private val index2: Int,
     ) : AbstractEdit() {
@@ -370,24 +368,24 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
             get() = "Swap"
 
         override fun doUndo() {
-            editor.swap(index1, index2)
+            editor.get().swap(index1, index2)
         }
 
         override fun doRedo() {
-            editor.swap(index1, index2)
+            editor.get().swap(index1, index2)
         }
     }
 
     private class ClearEdit<E : Editor<*>>(
-        private val editor: ListEditor<*, E>,
+        private val editor: EditorReference<ListEditor<*, E>>,
         private val removed: List<E>
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.clear()
+            editor.get().clear()
         }
 
         override fun doUndo() {
-            editor.pasteMany(0, removed, undoable = false)
+            editor.get().pasteMany(0, removed, undoable = false)
         }
 
         override val actionDescription: String
@@ -395,17 +393,17 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     }
 
     private class PasteManyEdit<E : Editor<*>>(
-        private val editor: ListEditor<*, E>,
+        private val editor: EditorReference<ListEditor<*, E>>,
         private val index: Int,
         private val pasted: List<E>
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.pasteMany(index, pasted, undoable = false)
+            editor.get().pasteMany(index, pasted, undoable = false)
         }
 
         override fun doUndo() {
             repeat(pasted.size) {
-                editor.removeAt(index)
+                editor.get().removeAt(index)
             }
         }
 

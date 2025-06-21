@@ -70,10 +70,6 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         }
     }
 
-    override fun receiveFocus() {
-        textField.requestFocus()
-    }
-
     companion object {
         /**
          * This property controls the completer of the token editor control

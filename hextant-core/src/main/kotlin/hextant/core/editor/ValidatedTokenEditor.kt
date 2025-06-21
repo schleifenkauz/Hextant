@@ -4,13 +4,15 @@
 
 package hextant.core.editor
 
+import fxutils.undo.AbstractEdit
+import fxutils.undo.UndoManager
 import hextant.completion.Completion
 import hextant.context.executeSafely
 import hextant.core.Editor
 import hextant.core.view.ValidatedTokenEditorView
+import hextant.serial.EditorReference
+import hextant.serial.reference
 import hextant.serial.string
-import fxutils.undo.AbstractEdit
-import fxutils.undo.UndoManager
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
@@ -23,7 +25,7 @@ import reaktive.value.*
  * In the editable state setting the text is allowed, but the change is not immediately reflected in the [result].
  * One can commit or abort a change to get in the not editable state again and call [beginChange] to make the editor editable.
  */
-abstract class ValidatedTokenEditor<R : Any>() : AbstractEditor<R, ValidatedTokenEditorView>(), TokenType<R?> {
+abstract class ValidatedTokenEditor<R : Any> : AbstractEditor<R, ValidatedTokenEditorView>(), TokenType<R?> {
     private lateinit var _text: ReactiveVariable<String>
 
     @Transient
@@ -186,7 +188,7 @@ abstract class ValidatedTokenEditor<R : Any>() : AbstractEditor<R, ValidatedToke
 
     private fun recordEdit(t: String, res: R) {
         val oldResult = result.now
-        val edit = CommitEdit(this, oldText, oldResult, t, res)
+        val edit = CommitEdit(reference(), oldText, oldResult, t, res)
         context[UndoManager].record(edit)
     }
 
@@ -220,16 +222,16 @@ abstract class ValidatedTokenEditor<R : Any>() : AbstractEditor<R, ValidatedToke
     }
 
     private class CommitEdit<R : Any>(
-        private val editor: ValidatedTokenEditor<R>,
+        private val editor: EditorReference<ValidatedTokenEditor<R>>,
         private val old: String, private val oldResult: R,
         private val new: String, private val newResult: R
     ) : AbstractEdit() {
         override fun doUndo() {
-            editor.setTextAndCommit(old, oldResult)
+            editor.get().setTextAndCommit(old, oldResult)
         }
 
         override fun doRedo() {
-            editor.setTextAndCommit(new, newResult)
+            editor.get().setTextAndCommit(new, newResult)
         }
 
         override val actionDescription: String

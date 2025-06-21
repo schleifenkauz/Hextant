@@ -178,10 +178,10 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         val undo = context[UndoManager]
         if (!undo.isActive) action()
         else {
-            val before = state.now.snapshot() //TODO Can we avoid copying here?
+            val before = state.now.snapshot()
             action()
             val after = state.now.snapshot()
-            val edit = StateTransition(this, before, after, description)
+            val edit = StateTransition(reference(), before, after, description)
             undo.record(edit)
         }
     }
@@ -347,16 +347,16 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     }
 
     private class StateTransition<E : Editor<*>>(
-        val editor: Expander<*, E>,
+        val editor: EditorReference<Expander<*, E>>,
         val before: State<E>, val after: State<E>,
         override val actionDescription: String
     ) : AbstractEdit() {
         override fun doUndo() {
-            editor.reconstructState(before)
+            editor.get().reconstructState(before)
         }
 
         override fun doRedo() {
-            editor.reconstructState(after)
+            editor.get().reconstructState(after)
         }
     }
 
