@@ -68,7 +68,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         _result = state.flatMap { s ->
             when (s) {
                 is Text -> reactiveValue(tryCompile(s.text))
-                is Expanded -> s.content.result
+                is Expanded -> s.content.result.flatMap(this::transform)
             }
         }
     }
@@ -124,6 +124,8 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     protected open fun expand(completion: Any): E? = null
 
     override fun compile(token: String): R = defaultResult()
+
+    protected open fun transform(result: @UnsafeVariance R): ReactiveValue<R> = reactiveValue(result)
 
     /**
      * Can be overwritten by extending classes to be notified when [expand] was successfully called

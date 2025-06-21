@@ -33,7 +33,7 @@ open class ExpanderControl (
             this(expander, args.also { it[COMPLETER] = completer })
 
 
-    private val textField = HextantTextField()
+    val textField = HextantTextField()
 
     private val popup = CompletionPopup(context, expander) { arguments[COMPLETER] }
 

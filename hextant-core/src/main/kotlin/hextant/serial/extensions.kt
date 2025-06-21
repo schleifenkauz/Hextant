@@ -38,6 +38,18 @@ fun <E: Editor<*>> E.reference(): EditorReference<E> {
     return EditorReference(cur, AccessorChain(accessorChain))
 }
 
+fun Editor<*>.parentChain(): Sequence<Editor<*>> = sequence {
+    var cur = this@parentChain
+    while (true) {
+        cur = when {
+            cur.expander != null -> cur.expander!!
+            cur.parent != null -> cur.parent!!
+            else -> break
+        }
+        yield(cur)
+    }
+}
+
 
 /**
  * Encodes this [Editor] as JSON, and then writes it to the given [file],
