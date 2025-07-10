@@ -88,8 +88,9 @@ open class ListEditorControl (
     }
 
     private fun initEmptyDisplay() {
-        emptyDisplay?.setOnMouseClicked {
+        emptyDisplay?.setOnMouseClicked { ev ->
             editor.addAt(0)
+            ev.consume()
         }
         registerShortcuts {
             on(PASTE_MANY) { editor.pasteManyFromClipboard(0) }

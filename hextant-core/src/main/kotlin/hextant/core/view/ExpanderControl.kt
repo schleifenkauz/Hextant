@@ -25,7 +25,7 @@ import reaktive.value.now
 /**
  * JavaFX implementation of a [ExpanderView]
  */
-open class ExpanderControl (
+open class ExpanderControl(
     private val expander: Expander<*, *>,
     args: Bundle
 ) : ExpanderView, WrappingEditorControl<Node>(expander, args) {
@@ -50,9 +50,7 @@ open class ExpanderControl (
                 on("Ctrl + Space") { popup.showBelow(root) }
                 on("Enter") { expander.expand() }
             }
-            textField.setOnPaste {
-                this@ExpanderControl.paste()
-            }
+            textField.setOnPaste {}
             textObserver = userUpdatedText.observe { _, new ->
                 expander.setText(new)
                 popup.updateInput(new)
@@ -93,7 +91,12 @@ open class ExpanderControl (
 
     final override fun expanded(editor: Editor<*>) {
         val v = context.createControl(editor)
-        v.registerShortcuts { on("Ctrl + R") { expander.reset() } }
+        v.registerShortcuts {
+            on("Ctrl + R") {
+                expander.reset()
+                select()
+            }
+        }
         wrapped = v
         root = v
         v.initializeControl()

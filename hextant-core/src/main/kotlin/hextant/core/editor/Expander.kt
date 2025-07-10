@@ -19,8 +19,8 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import reaktive.Observer
 import reaktive.value.*
-import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.safeCast
@@ -56,7 +56,10 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     lateinit var isExpanded: ReactiveBoolean
         private set
 
-    private lateinit var _result: ReactiveValue<R>
+    private lateinit var _result: ReactiveVariable<R>
+
+    private lateinit var stateObserver: Observer
+    private var resultBinder: Observer? = null
 
     final override val result: ReactiveValue<R> get() = _result
 
@@ -65,10 +68,21 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
         editor = state.map { (it as? Expanded)?.content }
         isExpanded = state.map { it is Expanded }
         editor.now?.initialize(context, parent = parent, ExpanderContent, expander = this)
-        _result = state.flatMap { s ->
+        val initialResult = when (val s = state.now) {
+            is Text -> tryCompile(s.text)
+            is Expanded -> s.content.result.now
+        }
+        _result = reactiveVariable(initialResult)
+        stateObserver = state.forEach { s ->
+            resultBinder?.kill()
+            resultBinder = null
             when (s) {
-                is Text -> reactiveValue(tryCompile(s.text))
-                is Expanded -> s.content.result.flatMap(this::transform)
+                is Text -> _result.set(tryCompile(s.text))
+                is Expanded -> {
+                    resultBinder = s.content.result.forEach { r ->
+                        _result.set(r)
+                    }
+                }
             }
         }
     }
