@@ -59,9 +59,9 @@ abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
     protected open fun doInitialize() {}
 
     override fun implCopy(): Editor<R> {
-        val json = this.serialize(typeTag = true)
+        val json = this.serialize(typeTag = false)
         @Suppress("UNCHECKED_CAST")
-        val deserialized = Editor.deserializeWithTypeTag(json) as Editor<R>
+        val deserialized = Editor.deserialize(json, this::class) as Editor<R>
         return deserialized
     }
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
@@ -89,10 +89,9 @@ abstract class AbstractEditor<out R, in V : Any> : Editor<R> {
         val json = serialize()
         if (!typeTag) return json
         val type = JsonPrimitive(javaClass.canonicalName)
-        if (json is JsonObject) {
-            val typeTag = "_type" to type
-            return JsonObject(json + typeTag)
-        } else return buildJsonObject {
+        return if (json is JsonObject) {
+            JsonObject(json + ("_type" to type))
+        } else buildJsonObject {
             put("_type", type)
             put("_content", json)
         }

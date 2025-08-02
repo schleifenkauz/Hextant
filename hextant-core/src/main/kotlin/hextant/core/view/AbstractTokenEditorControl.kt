@@ -70,6 +70,11 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         }
     }
 
+    override fun selectAndMoveCaretToEnd() {
+        select()
+        textField.positionCaret(textField.text.length)
+    }
+
     companion object {
         /**
          * This property controls the completer of the token editor control

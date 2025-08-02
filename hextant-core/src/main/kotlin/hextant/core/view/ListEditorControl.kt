@@ -30,7 +30,7 @@ import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
 /**
  * Objects of this class are used to display [ListEditor]s.
  */
-open class ListEditorControl (
+open class ListEditorControl(
     private val editor: ListEditor<*, *>, args: Bundle
 ) : ListEditorView, EditorControl<Node>(editor, args) {
     constructor(editor: ListEditor<*, *>, args: Bundle, orientation: Orientation) : this(editor, args.apply {
@@ -90,6 +90,12 @@ open class ListEditorControl (
     private fun initEmptyDisplay() {
         emptyDisplay?.setOnMouseClicked { ev ->
             editor.addAt(0)
+            ev.consume()
+        }
+        emptyDisplay?.addEventHandler(KeyEvent.KEY_TYPED) { ev ->
+            if (Alt in ev.modifiers || Ctrl in ev.modifiers || Meta in ev.modifiers) return@addEventHandler
+            if (ev.character[0].code < 32) return@addEventHandler
+            editor.typedCharacterOnEmptyList(ev.character)
             ev.consume()
         }
         registerShortcuts {

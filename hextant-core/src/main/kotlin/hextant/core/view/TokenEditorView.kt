@@ -14,4 +14,5 @@ interface TokenEditorView : EditorView {
      * Called when the text of the associated token editor changed
      */
     fun displayText(newText: String)
+    fun selectAndMoveCaretToEnd()
 }

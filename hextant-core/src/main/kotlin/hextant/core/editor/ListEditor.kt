@@ -25,6 +25,7 @@ import reaktive.value.ReactiveVariable
 import reaktive.value.now
 import reaktive.value.reactiveVariable
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * An editor for multiple child editors of type [E] whose result type is [R]
@@ -249,6 +250,30 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         context[UndoManager].record(SwapEdit(reference(), i, j))
         notifyViews { swapped(i, j) }
         _result.now = computeResultList()
+    }
+
+    fun typedCharacterOnEmptyList(character: String) {
+        if (_editors.now.isNotEmpty()) {
+            throw IllegalStateException("ListEditor is not empty.")
+        }
+        val editorClass = fixedEditorClass() ?: editorClass
+        when {
+            editorClass.isSubclassOf(Expander::class) -> {
+                val e = tryCreateEditor() ?: error("createEditor() returned null")
+                val exp = e as Expander<*, *>
+                exp.setInitialText(character)
+                addLast(e)
+                e.notifyViews { selectAndMoveCaretToEnd() }
+            }
+
+            editorClass.isSubclassOf(TokenEditor::class) -> {
+                val e = tryCreateEditor() ?: error("createEditor() returned null")
+                val te = e as TokenEditor<*, *>
+                te.setInitialText(character)
+                addLast(e)
+                e.notifyViews { selectAndMoveCaretToEnd() }
+            }
+        }
     }
 
     /**

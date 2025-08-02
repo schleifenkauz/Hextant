@@ -26,4 +26,6 @@ interface ExpanderView : EditorView {
      * Is called when the associated expanders text was set to the given new text
      */
     fun displayText(text: String)
+
+    fun selectAndMoveCaretToEnd()
 }

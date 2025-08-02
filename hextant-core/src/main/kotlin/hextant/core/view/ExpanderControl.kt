@@ -82,6 +82,11 @@ open class ExpanderControl(
         else select()
     }
 
+    override fun selectAndMoveCaretToEnd() {
+        select()
+        textField.positionCaret(textField.text.length)
+    }
+
     override fun reset() {
         wrapped = null
         root = textField
