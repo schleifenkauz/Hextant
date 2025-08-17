@@ -39,7 +39,7 @@ internal fun editorControlInParentChain(node: Node) =
     generateSequence(node) { it.parent }.firstOrNull { it is EditorControl<*> } as EditorControl<*>?
 
 internal fun Scene.registerNavigationShortcuts() {
-    ShiftKeyTracker.start()
+    ModifierKeyTracker.start()
     addEventFilter(KeyEvent.ANY) { ev ->
         if (ev.code == TAB) {
             ev.consume()
