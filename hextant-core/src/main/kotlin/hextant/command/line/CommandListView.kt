@@ -1,6 +1,6 @@
 package hextant.command.line
 
-import fxutils.prompt.SimpleSearchableListView
+import fxutils.prompt.SimpleSelectorPrompt
 import fxutils.styleClass
 import hextant.command.Command
 import javafx.scene.control.Label
@@ -11,7 +11,7 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignF
 
 class CommandListView(
     title: String, commands: List<Command<*, *>>
-) : SimpleSearchableListView<Command<*, *>>(commands, title) {
+) : SimpleSelectorPrompt<Command<*, *>>(commands, title) {
     override fun displayText(option: Command<*, *>): String = option.name
 
     override fun createCell(option: Command<*, *>): Region {

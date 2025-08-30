@@ -23,7 +23,7 @@ open class SimpleChoiceEditorControl<C : Any>(
     override fun createDefaultRoot() = button(style = "selector-button") { showChoicePopup() }
 
     protected open fun showChoicePopup() {
-        val choice = ChoiceEditorListView(editor).showPopup(anchorNode = this, initialOption = editor.result.now)
+        val choice = ChoiceEditorSelectorPrompt(editor).showPopup(anchorNode = this, initialOption = editor.result.now)
         if (choice != null) editor.select(choice)
     }
 
