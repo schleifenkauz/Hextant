@@ -91,7 +91,8 @@ class Commands private constructor() {
                     DelegatedCommand(it, delegation, c) as Command<R, *>
                 }
             }
-        return forClass(cls).filter { it.isApplicableOn(receiver) } + delegated
+        val commands = forClass(cls).filter { it.isApplicableOn(receiver) } + delegated
+        return commands.distinct()
     }
 
     /**

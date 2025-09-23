@@ -1,5 +1,6 @@
 package hextant.command.line
 
+import fxutils.infiniteSpace
 import fxutils.prompt.SimpleSelectorPrompt
 import fxutils.styleClass
 import hextant.command.Command
@@ -16,8 +17,11 @@ class CommandListView(
 
     override fun createCell(option: Command<*, *>): Region {
         //TODO display more infos (different icon based on command target)
-        val label = Label(option.name, FontIcon(MaterialDesignF.FLASH_CIRCLE)).styleClass("option-label")
-        return HBox(label)
+        val nameLabel = Label(option.name, FontIcon(MaterialDesignF.FLASH_CIRCLE)).styleClass("option-label")
+        val space = infiniteSpace()
+        space.minWidth = 20.0
+        val shortcutLabel = Label(option.shortcut?.toString()).styleClass("shortcut-label")
+        return HBox(nameLabel, space, shortcutLabel)
     }
 
     override fun extractText(option: Command<*, *>): String = option.name
