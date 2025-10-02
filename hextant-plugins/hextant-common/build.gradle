@@ -19,7 +19,7 @@ afterEvaluate {
 dependencies {
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
     compileOnly "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version"
-    implementation 'org.slf4j:slf4j-simple:1.6.4'
+    implementation 'org.slf4j:slf4j-simple:2.0.17'
     compileOnly 'org.jetbrains.kotlin:kotlin-reflect'
     compileOnly "de.schleifenkauz:kollektion:1.0-SNAPSHOT"
 }

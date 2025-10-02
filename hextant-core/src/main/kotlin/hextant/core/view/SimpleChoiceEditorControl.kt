@@ -1,8 +1,8 @@
 package hextant.core.view
 
 import bundles.Bundle
-import fxutils.button
 import fxutils.escapeUnderscores
+import fxutils.selectorButton
 import hextant.context.ControlFactory
 import hextant.core.editor.SimpleChoiceEditor
 import javafx.scene.control.Button
@@ -20,7 +20,7 @@ open class SimpleChoiceEditorControl<C : Any>(
         //root.focusedProperty().addListener { _, _, focused -> if (focused) showChoicePopup() }
     }
 
-    override fun createDefaultRoot() = button(style = "selector-button") { showChoicePopup() }
+    override fun createDefaultRoot() = selectorButton { showChoicePopup() }
 
     protected open fun showChoicePopup() {
         val choice = ChoiceEditorSelectorPrompt(editor).showPopup(anchorNode = this, initialOption = editor.result.now)
