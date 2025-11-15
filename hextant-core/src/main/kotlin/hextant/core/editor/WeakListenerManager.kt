@@ -16,7 +16,9 @@ internal class WeakListenerManager<V: Any> : ListenerManager<V> {
     override fun notifyListeners(action: (@UnsafeVariance V).() -> Unit) {
         try {
             listeners.removeIf { ref -> ref.get() == null }
-            listeners.mapNotNull { ref -> ref.get() }.forEach(action)
+            for (listener in listeners) {
+                listener.get()?.action()
+            }
         } catch (e: Throwable) {
             println("Exception while updating views")
             e.printStackTrace()
