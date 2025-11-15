@@ -1,3 +1,7 @@
 .hextant-text.int-literal {
     -fx-text-fill: orange;
 }
+
+.expression-root {
+    -fx-background-color: black;
+}

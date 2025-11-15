@@ -1,10 +1,6 @@
 package hextant.launcher.view
 
 import bundles.Bundle
-import fxutils.add
-import fxutils.hbox
-import fxutils.label
-import fxutils.vbox
 import hextant.codegen.ProvideImplementation
 import hextant.command.line.CommandLine
 import hextant.command.line.CommandLineControl.Companion.HISTORY_ITEMS
@@ -16,7 +12,9 @@ import hextant.core.view.EditorControl
 import hextant.launcher.HextantLauncher
 import hextant.launcher.Launcher
 import javafx.geometry.Pos
+import javafx.scene.control.Label
 import javafx.scene.layout.HBox
+import javafx.scene.layout.VBox
 import javafx.scene.text.Font
 import reaktive.value.fx.asObservableValue
 
@@ -26,20 +24,20 @@ class CommandLineBasedLauncherView @ProvideImplementation(ControlFactory::class)
 ) : LauncherView, EditorControl<HBox>(editor, parameters) {
     private val commandLine = createCommandLine()
 
-    override fun createDefaultRoot(): HBox = hbox {
+    override fun createDefaultRoot(): HBox = HBox().apply {
         setPrefSize(600.0, 600.0)
         alignment = Pos.CENTER
-        add(vbox()) {
+        children.add(VBox().apply {
             setPrefSize(400.0, 400.0)
             alignment = Pos.CENTER
             spacing = 30.0
-            add(label()) {
+            children.add(Label().apply {
                 val header = context[Settings].getReactive(HextantLauncher.Header)
                 textProperty().bind(header.asObservableValue())
                 font = Font(24.0)
-            }
-            add(commandLine)
-        }
+            })
+            children.add(commandLine)
+        })
     }
 
     private fun createCommandLine(): EditorControl<*> {

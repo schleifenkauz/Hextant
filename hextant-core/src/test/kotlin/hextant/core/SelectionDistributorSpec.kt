@@ -21,10 +21,7 @@ internal object SelectionDistributorSpec : Spek({
         }
         val view1 = mockView<EditorView>(mockEditor())
         on("selecting an editor when no other is selected") {
-            val selected = sut.select(view1)
-            it("should return true") {
-                selected shouldBe `true`
-            }
+            sut.select(view1)
             it("should add selection to the view") {
                 sut.selectedViews.now shouldBe equalTo(setOf(view1))
             }
@@ -34,10 +31,7 @@ internal object SelectionDistributorSpec : Spek({
         }
         val view2 = mockView<EditorView>(mockEditor())
         on("selecting another editor") {
-            val selected = sut.select(view2)
-            it("should return true") {
-                selected shouldBe `true`
-            }
+            sut.select(view2)
             it("should deselect the old editor and select the new one") {
                 sut.selectedTargets.now shouldBe equalTo(setOf(view2.target))
             }
@@ -45,14 +39,11 @@ internal object SelectionDistributorSpec : Spek({
                 sut.selectedViews.now shouldBe equalTo(setOf(view2))
             }
             it("should deselect the old editor") {
-                verify(view1).deselect()
+                verify(view1).displaySelected(false)
             }
         }
         on("toggling selection for the old triple") {
-            val selected = sut.toggleSelection(view1)
-            it("should return true") {
-                selected shouldBe `true`
-            }
+            sut.toggleSelection(view1)
             it("should select the new editor") {
                 sut.selectedTargets.now shouldBe equalTo(setOf(view1.target, view2.target))
             }
@@ -61,10 +52,7 @@ internal object SelectionDistributorSpec : Spek({
             }
         }
         on("toggling selection for the second triple") {
-            val selected = sut.toggleSelection(view2)
-            it("should return false") {
-                selected shouldBe `false`
-            }
+            sut.toggleSelection(view2)
             it("should deselect the second editor") {
                 sut.selectedTargets.now shouldBe equalTo(setOf(view1.target))
             }
@@ -72,14 +60,11 @@ internal object SelectionDistributorSpec : Spek({
                 sut.selectedViews.now shouldBe equalTo(setOf(view1))
             }
             it("should call the second deselect") {
-                verify(view2).deselect()
+                verify(view2).displaySelected(false)
             }
         }
         on("selecting the first editor") {
-            val selected = sut.select(view1)
-            it("should return true") {
-                selected shouldBe `true`
-            }
+            sut.select(view1)
             it("should do nothing else") {
                 sut.selectedViews.now shouldBe equalTo(setOf(view1))
                 sut.selectedTargets.now shouldBe equalTo(setOf(view1.target))

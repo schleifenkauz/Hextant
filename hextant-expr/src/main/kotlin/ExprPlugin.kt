@@ -8,13 +8,18 @@ import hextant.command.executingCompoundEdit
 import hextant.context.EditorControlGroup
 import hextant.context.compoundEdit
 import hextant.core.editor.ColorEditor
+import hextant.core.editor.copyFor
+import hextant.core.editor.snapshot
 import hextant.core.view.AbstractTokenEditorControl
 import hextant.core.view.TokenEditorControl
 import hextant.expr.IntLiteral
 import hextant.expr.Operator
 import hextant.expr.Operator.Plus
 import hextant.expr.editor.*
+import hextant.expr.view.OperatorApplicationEditorControl
 import hextant.expr.view.Style
+import hextant.expr.view.SumEditorControl
+import hextant.expr.view.registerControlFactories
 import hextant.fx.WindowSize
 import hextant.plugins.*
 import hextant.plugins.PluginBuilder.Phase.Initialize
@@ -25,6 +30,8 @@ import reaktive.value.binding.map
 import reaktive.value.now
 
 object ExprPlugin : PluginInitializer({
+    registerControlFactories()
+
     registerCommand<ExprEditor<*>, Int> {
         name = "Evaluate Expression"
         shortName = "eval"
@@ -78,7 +85,7 @@ object ExprPlugin : PluginInitializer({
         }
         executingCompoundEdit { editor, _ ->
             val parentExpander = editor.parent!!.expander as ExprExpander
-            parentExpander.expand(editor)
+            parentExpander.expand(editor.snapshot())
         }
     }
     registerInspection<IntLiteralEditor> {

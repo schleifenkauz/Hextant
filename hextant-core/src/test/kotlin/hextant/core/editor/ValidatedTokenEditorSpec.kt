@@ -13,6 +13,7 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import reaktive.and
 import reaktive.event.EventStream
 import reaktive.value.now
 

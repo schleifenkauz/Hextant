@@ -1,16 +1,18 @@
 //apply plugin: 'kotlin-kapt'
 apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'application'
 
 dependencies {
-    compileOnly project(":hextant-core")
-    compileOnly project(":hextant-codegen")
-    //kapt project(":hextant-codegen")
+    implementation project(":hextant-core")
     testImplementation project(':hextant-test')
 }
 
-//kapt {
-//    annotationProcessors("hextant.codegen.MainProcessor")
-//    useBuildCache = true
-//    correctErrorTypes = true
-//}
+application {
+    mainClassName = 'hextant.expr.ExprApp'
+}
+
+javafx {
+    version = property('javafx_version')
+    modules = ['javafx.controls']
+}

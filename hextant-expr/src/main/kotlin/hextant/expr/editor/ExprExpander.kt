@@ -10,7 +10,6 @@ import hextant.expr.Expr
 import hextant.expr.IntLiteral
 import hextant.expr.Operator.*
 import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 
 class ExprExpander : ConfiguredExpander<@Contextual Expr?, @Contextual ExprEditor<Expr>>(), ExprEditor<@Contextual Expr> {
     init {
@@ -26,7 +25,7 @@ class ExprExpander : ConfiguredExpander<@Contextual Expr?, @Contextual ExprEdito
             registerKey("-") { OperatorApplicationEditor(Minus) }
             registerKey("*") { OperatorApplicationEditor(Times) }
             registerKey("/") { OperatorApplicationEditor(Div) }
-            registerKey("sum") { context -> SumEditor() }
+            registerKey("sum") { _ -> SumEditor() }
             registerInterceptor { text, _ ->
                 val int = text.toIntOrNull()
                 if (int != null) IntLiteralEditor(IntLiteral(int))

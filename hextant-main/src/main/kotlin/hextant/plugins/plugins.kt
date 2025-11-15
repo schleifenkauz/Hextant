@@ -1,20 +1,20 @@
 package hextant.plugins
 
+import hextant.cli.HextantDirectory
+import hextant.cli.HextantDirectory.PLUGIN_CACHE
+import hextant.cli.fail
 import hextant.context.Context
 import hextant.context.Properties.classLoader
 import hextant.context.Properties.marketplace
 import hextant.core.Editor
-import hextant.cli.HextantDirectory
-import hextant.cli.HextantDirectory.PLUGIN_CACHE
-import hextant.cli.fail
 import hextant.main.Project
 import hextant.plugins.PluginBuilder.Phase.*
 import javafx.application.Application
 import kollektion.graph.topologicalSort
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import reaktive.Observer
+import reaktive.and
 
 internal enum class PluginSource {
     Classpath, ProjectInfo;

@@ -13,6 +13,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
     api 'org.jetbrains.kotlin:kotlin-reflect'
     api project(":hextant-cli")
+    implementation "de.schleifenkauz:fx-utils:1.0-SNAPSHOT"
     compileOnly project(":hextant-core")
     api project(":hextant-codegen")
     kapt project(":hextant-codegen")

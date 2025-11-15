@@ -12,11 +12,14 @@ import hextant.context.EditorControlGroup
 import hextant.context.createControl
 import hextant.expr.editor.ExprExpander
 import hextant.expr.editor.IntLiteralEditor
-import hextant.expr.view.createControl
 import hextant.test.shouldBe
 import hextant.test.testingContext
 import fxutils.undo.NoUndoManager
 import fxutils.undo.UndoManager
+import hextant.completion.CompletionStrategy
+import hextant.completion.CompoundCompleter
+import hextant.core.editor.Expander
+import hextant.core.view.ExpanderControl
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import reaktive.getValue
@@ -78,7 +81,10 @@ class InspectionMemoryLeakTest {
         ctx[UndoManager] = NoUndoManager
         val exp = ExprExpander()
         exp.initialize(ctx)
-        val view = createControl(exp, createBundle())
+        val c = CompoundCompleter<Expander<*, *>, Any>()
+        c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
+        val view =     //    c.addCompleter(SpecialNumbers)
+            ExpanderControl(exp, createBundle(), c)
         exp.setText("1")
         exp.expand()
         val e by WeakReference(exp.editor.now!!)
