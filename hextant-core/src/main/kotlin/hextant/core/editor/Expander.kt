@@ -21,6 +21,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import reaktive.Observer
 import reaktive.value.*
+import reaktive.value.binding.flatMap
 import reaktive.value.binding.map
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.safeCast
@@ -56,7 +57,8 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
     lateinit var isExpanded: ReactiveBoolean
         private set
 
-    private lateinit var _result: ReactiveVariable<R>
+    protected lateinit var _result: ReactiveVariable<@UnsafeVariance R>
+        private set
 
     private lateinit var stateObserver: Observer
     private var resultBinder: Observer? = null
@@ -80,7 +82,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
                 is Text -> _result.set(tryCompile(s.text))
                 is Expanded -> {
                     resultBinder = s.content.result.forEach { r ->
-                        _result.set(r)
+                        _result.set(transform(r))
                     }
                 }
             }
@@ -139,7 +141,7 @@ abstract class Expander<out R, E : Editor<R>> : AbstractEditor<R, ExpanderView>(
 
     override fun compile(token: String): R = defaultResult()
 
-    protected open fun transform(result: @UnsafeVariance R): ReactiveValue<R> = reactiveValue(result)
+    protected open fun transform(result: @UnsafeVariance R): R = result
 
     /**
      * Can be overwritten by extending classes to be notified when [expand] was successfully called
