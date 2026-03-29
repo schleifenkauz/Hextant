@@ -20,6 +20,6 @@ sealed class CompletionResult {
      */
     data class Match(
         val matchedRegions: List<IntRange>,
-        val similarity: Int
+        val similarity: Double
     ) : CompletionResult()
 }

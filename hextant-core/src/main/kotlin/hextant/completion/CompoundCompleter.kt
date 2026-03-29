@@ -6,6 +6,7 @@ package hextant.completion
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.joinAll
 
 /**
  * A [Completer] that is composed of multiple sub-completers and builds the union of all completions
@@ -36,7 +37,7 @@ open class CompoundCompleter<Ctx, T : Any>(setup: CompoundCompleter<Ctx, T>.() -
                 collectCompletions(context, input, subCollector)
             }
         }
-        collectors.map { it.get() }.awaitAll()
+        collectors.joinAll()
         collector.finished()
     }
 }

@@ -6,10 +6,13 @@
 
 package hextant.completion.gui
 
-import bundles.Bundle
-import fxutils.fixWidth
+import fxutils.alwaysHGrow
+import fxutils.centerChildren
+import fxutils.hspace
+import fxutils.infiniteSpace
 import fxutils.onAction
 import fxutils.style
+import fxutils.styleClass
 import hextant.completion.Completer
 import hextant.completion.Completion
 import hextant.completion.CompletionCollector
@@ -19,28 +22,34 @@ import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.control.Tooltip
-import javafx.scene.layout.BorderPane
+import javafx.scene.control.Tooltip.install
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
+import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
+import javafx.scene.text.Text
 import javafx.scene.text.TextFlow
 import javafx.stage.Popup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.kordamp.ikonli.Ikon
 import org.kordamp.ikonli.javafx.FontIcon
+import org.kordamp.ikonli.materialdesign2.MaterialDesignC
+import org.kordamp.ikonli.materialdesign2.MaterialDesignS
 import reaktive.event.event
 
 /**
  * A [Popup] that displays completion items.
  */
 internal class CompletionPopup<Ctx>(
-    private val context: Context,
+    context: Context,
     private val ctx: Ctx,
     private val completer: () -> Completer<Ctx>,
     private val maxItems: () -> Int
 ) : HextantPopup(context) {
-    private val root = VBox()
+    private val layout = VBox() styleClass "completion-list"
     private var input = ""
     private val choose = event<Completion<*>>()
 
@@ -51,8 +60,7 @@ internal class CompletionPopup<Ctx>(
     private var valid = false
 
     init {
-        scene.root = root
-        root.styleClass.add("completions")
+        scene.root = StackPane(layout)
     }
 
     /**
@@ -61,28 +69,45 @@ internal class CompletionPopup<Ctx>(
     override fun show() {
         if (!valid) {
             updateItems()
-        } else if (root.children.isNotEmpty() && ownerNode.isFocused) {
+        }
+        if (layout.children.isNotEmpty() && ownerNode.isFocused) {
             super.show()
         }
     }
 
     private fun updateItems() {
+        if (input.isEmpty()) {
+            layout.children.clear()
+            valid = true
+            if (isShowing) hide()
+            return
+        }
         CoroutineScope(Dispatchers.Default).launch {
             val collector = CompletionCollector.limit(maxItems())
             with(completer()) {
                 try {
                     collectCompletions(ctx, input, collector)
                 } catch (e: Exception) {
+                    e.printStackTrace()
+                    return@launch
                 }
             }
-            collector.get().await()
+            collector.join()
             val completions = collector.getCompletions()
             Platform.runLater {
-                val nodes = completions.map { c -> createCompletionItem(c) }
-                root.children.setAll(nodes)
+                layout.children.clear()
+                for ((index, completion) in completions.withIndex()) {
+                    val cell = createCompletionCell(completion, index)
+                    layout.children.add(cell)
+                }
                 valid = true
-                if (completions.isNotEmpty() && ownerNode.isFocused) super.show()
-                else hide()
+                if (isShowing) {
+                    if (completions.isEmpty()) {
+                        hide()
+                    } else {
+                        layout.children[0].requestFocus()
+                    }
+                }
             }
         }
     }
@@ -96,60 +121,59 @@ internal class CompletionPopup<Ctx>(
         if (isShowing) updateItems()
     }
 
-    private fun createCompletionItem(completion: Completion<*>): Node {
-        val container = BorderPane()
-        val left = HBox(5.0)
-        addIcon(completion.icon, left)
-        addCompletionText(completion, left)
-        container.left = left
-        addInfo(container, completion.infoText)
-        installTooltip(container, completion.tooltipText)
-        configureItem(container)
+    private fun selectItem(index: Int) {
+        val wrapped = index.mod(layout.children.size)
+        layout.children[wrapped].requestFocus()
+    }
+
+    private fun createCompletionCell(completion: Completion<*>, index: Int): Node {
+        val container = HBox().styleClass("option-cell", "completion")
+        val iconCode = completion.icon ?: MaterialDesignC.CIRCLE_MEDIUM
+        container.children.add(FontIcon(iconCode) styleClass "completion-icon")
+        container.children.add(hspace(5.0))
+        val flow = makeCompletionTextFlow(completion)
+        container.children.add(flow)
+        val space = infiniteSpace()
+        space.minWidth = 20.0
+        container.children.add(space)
+        if (completion.infoText != null) {
+            container.children.add(Label(completion.infoText) styleClass "completion-info")
+        }
+        if (completion.tooltipText != null) {
+            install(container, Tooltip(completion.tooltipText))
+        }
         container.onAction {
             choose.fire(completion)
             hide()
         }
+        container.addEventHandler(KeyEvent.KEY_PRESSED) { ev ->
+            when (ev.code) {
+                KeyCode.UP -> selectItem(index - 1)
+                KeyCode.DOWN -> selectItem(index + 1)
+                else -> return@addEventHandler
+            }
+            ev.consume()
+        }
         return container
     }
 
-    private fun addCompletionText(completion: Completion<*>, left: HBox) {
+    private fun makeCompletionTextFlow(completion: Completion<*>): TextFlow {
         val flow = TextFlow()
-        val labels = completion.completionText.map { Label(it.toString()) }
-        for (region in completion.match) {
-            for (i in region) {
-                labels[i].style = "-fx-text-fill: #3657FF"
+        val ln = completion.completionText.length
+
+        @Suppress("EmptyRange")
+        val regions = listOf(0 until 0) + completion.match + listOf(ln until ln)
+        for ((r1, r2) in regions.zipWithNext()) {
+            if (!(r1.isEmpty())) {
+                val matchedText = completion.completionText.substring(r1)
+                flow.children.add(Text(matchedText).styleClass("completion-text", "matched-text"))
+            }
+            val unmatchedText = completion.completionText.substring(r1.last + 1, r2.first)
+            if (unmatchedText.isNotEmpty()) {
+                flow.children.add(Text(unmatchedText) styleClass ("completion-text"))
             }
         }
-        flow.children.addAll(labels)
-        left.children.addAll(flow)
-    }
-
-    private fun configureItem(container: BorderPane) {
-        container.isFocusTraversable = true
-        container.styleClass.add("completion")
-        container.fixWidth(FIXED_COMPLETION_ITEM_WIDTH)
-    }
-
-    private fun addIcon(icon: Ikon?, left: HBox) {
-        if (icon != null) {
-            left.children.add(FontIcon(icon) style "completion-icon")
-        }
-    }
-
-    private fun addInfo(container: BorderPane, infoText: String?) {
-        if (infoText != null) {
-            container.right = Label(infoText)
-        }
-    }
-
-    private fun installTooltip(container: BorderPane, tooltipText: String?) {
-        if (tooltipText != null) {
-            Tooltip.install(container, Tooltip(tooltipText))
-        }
-    }
-
-    companion object {
-        private const val FIXED_COMPLETION_ITEM_WIDTH = 500.0
+        return flow.centerChildren()
     }
 }
 

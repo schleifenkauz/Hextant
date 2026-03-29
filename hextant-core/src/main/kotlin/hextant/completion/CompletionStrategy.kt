@@ -4,6 +4,7 @@ package hextant.completion
 
 import hextant.completion.CompletionResult.Match
 import hextant.completion.CompletionResult.NoMatch
+import hextant.completion.CompletionStrategy.Companion.separators
 
 /**
  * A completion strategy
@@ -14,8 +15,9 @@ interface CompletionStrategy {
      */
     fun match(input: String, completion: String): CompletionResult
 
-    private object Simple : CompletionStrategy {
+    private class Simple(private val charEquality: (Char, Char) -> Boolean) : CompletionStrategy {
         override fun match(input: String, completion: String): CompletionResult {
+            if (completion.isEmpty() || input.isEmpty()) return NoMatch
             //if (now == completion) return NoMatch
             var completionRegionStart = 0
             var completionIdx = -1
@@ -27,7 +29,7 @@ interface CompletionStrategy {
                     if (completionIdx >= completion.length) return NoMatch //No associated character found in completion
                     val c = completion[completionIdx]
                     //Next character in input
-                    if (c == n) break@inner
+                    if (charEquality(c, n)) break@inner
                     if (completionRegionStart < completionIdx) { //Have there been characters associated
                         matchedRegions.add(completionRegionStart until completionIdx)
                     }
@@ -36,8 +38,9 @@ interface CompletionStrategy {
                 }
             }
             matchedRegions.add(completionRegionStart..completionIdx)
-            val similarity = matchedRegions.sumOf { region -> region.count() }
-            return Match(matchedRegions, similarity)
+            val similarity = matchedRegions.sumOf { region -> region.count() }.toDouble() / completion.length
+            val startBonus = matchedRegions.firstOrNull()?.count() ?: 0
+            return Match(matchedRegions, similarity + startBonus)
         }
     }
 
@@ -46,6 +49,7 @@ interface CompletionStrategy {
         private val charEquality: (Char, Char) -> Boolean
     ) : CompletionStrategy {
         override fun match(input: String, completion: String): CompletionResult {
+            if (completion.isEmpty() || input.isEmpty()) return NoMatch
             if (input == completion) return NoMatch
             var completionRegionStart = 0
             var completionIdx = -1
@@ -75,7 +79,7 @@ interface CompletionStrategy {
                 }
             }
             matchedRegions.add(completionRegionStart..completionIdx)
-            val similarity = matchedRegions.sumOf { region -> region.count() }
+            val similarity = matchedRegions.sumOf { region -> region.count() }.toDouble() / completion.length
             return Match(matchedRegions, similarity)
         }
     }
@@ -89,7 +93,9 @@ interface CompletionStrategy {
         /**
          * A simple completion strategy the doesn't respect whitespace or capital letters
          */
-        val simple: CompletionStrategy = Simple
+        val simple: CompletionStrategy = Simple(Char::equals)
+
+        val ignoreCase: CompletionStrategy = Simple(equalityIgnoreCase)
 
         /**
          * The camelcase completion strategy

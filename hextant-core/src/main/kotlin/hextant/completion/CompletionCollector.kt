@@ -1,35 +1,36 @@
 package hextant.completion
 
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.CompletableJob
+import kotlinx.coroutines.Job
 import java.util.*
 
 class CompletionCollector private constructor(
     private val limit: Int,
-    private val queue: PriorityQueue<Completion<*>> = PriorityQueue<Completion<*>>()
-) {
-    private val job = CompletableDeferred<Unit>()
-
+    private val queue: PriorityQueue<Completion<*>>,
+    private val job: CompletableJob = Job()
+): Job by job {
     fun finished() {
-        job.complete(Unit)
+        job.complete()
     }
 
-    fun offerCompletion(similarity: Int, completion: () -> Completion<*>) {
+    fun offerCompletion(similarity: Double, completion: () -> Completion<*>) {
+        if (similarity <= 0) return
         if (queue.size < limit || queue.peek()!!.similarity < similarity) {
-            queue.add(completion())
+            queue.offer(completion())
             if (queue.size > limit) {
                 queue.poll()
             }
         }
     }
 
-    fun getCompletions() = queue.reversed()
-
-    fun get(): Deferred<Unit> = job
+    fun getCompletions() = queue.sortedByDescending(Completion<*>::similarity) //seems to be necessary for some reason...
 
     fun subCollector() = CompletionCollector(limit, queue)
 
     companion object {
-        fun limit(maxItems: Int) = CompletionCollector(maxItems)
+        fun limit(maxItems: Int): CompletionCollector {
+            val queue = PriorityQueue(compareBy(Completion<*>::similarity))
+            return CompletionCollector(maxItems, queue)
+        }
     }
 }

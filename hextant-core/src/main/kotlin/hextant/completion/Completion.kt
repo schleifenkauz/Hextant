@@ -22,12 +22,14 @@ class Completion<out T : Any>(
     val inputText: String,
     val completionText: String,
     val match: List<IntRange>,
-    val similarity: Int,
+    val similarity: Double,
     val tooltipText: String?,
     val infoText: String?,
     val icon: Ikon?,
     val source: Completer<*>
 ) {
+    override fun toString(): String = "Completion [$inputText -> $completionText], similarity: $similarity"
+
     /**
      * A Builder for [Completion]s
      * @constructor
@@ -41,7 +43,7 @@ class Completion<out T : Any>(
         val inputText: String,
         val completionText: String,
         val match: List<IntRange>,
-        val similarity: Int,
+        val similarity: Double,
         private val source: Completer<*>
     ) {
         /**

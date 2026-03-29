@@ -8,7 +8,6 @@ import hextant.completion.Completer
 import hextant.completion.CompletionStrategy
 import hextant.completion.ConfiguredCompleter
 import hextant.core.Editor
-import java.util.*
 import kotlin.reflect.KClass
 
 /**
@@ -102,7 +101,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
      */
     fun <T : Any> registerInterceptor(cls: KClass<out T>, interceptor: (item: T, expander: Expander<*, *>) -> E?) {
         @Suppress("UNCHECKED_CAST")
-        options.add(ExpansionOption.CompletionInterceptor(cls, interceptor as (Expander<*, *>, Any) -> E?))
+        options.add(ExpansionOption.CompletionInterceptor(cls, interceptor as (Any, Expander<*, *>) -> E?))
     }
 
     /**
@@ -139,7 +138,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     override fun expand(item: Any, expander: Expander<*, *>): E? {
         for (opt in options) {
             if (opt is ExpansionOption.CompletionInterceptor && opt.cls.isInstance(item)) {
-                val editor = opt.factory(expander, item)
+                val editor = opt.factory(item, expander)
                 if (editor != null) return editor
             }
         }
@@ -171,9 +170,14 @@ class ExpanderConfig<E : Editor<*>> private constructor(
             val factory: (Expander<*, *>) -> E?
         ) : ExpansionOption<E>
 
-        data class TextInterceptor<E : Editor<*>>(val factory: (String, Expander<*, *>) -> E?) : ExpansionOption<E>
-        data class CompletionInterceptor<E : Editor<*>>(val cls: KClass<*>, val factory: (Expander<*, *>, Any) -> E?) :
-            ExpansionOption<E>
+        data class TextInterceptor<E : Editor<*>>(
+            val factory: (String, Expander<*, *>) -> E?
+        ) : ExpansionOption<E>
+
+        data class CompletionInterceptor<E : Editor<*>>(
+            val cls: KClass<*>,
+            val factory: (item: Any, Expander<*, *>) -> E?
+        ) : ExpansionOption<E>
     }
 
     companion object {

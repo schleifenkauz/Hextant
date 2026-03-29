@@ -10,6 +10,7 @@ import bundles.set
 import fxutils.registerShortcuts
 import fxutils.runFXWithTimeout
 import fxutils.showBelow
+import fxutils.smartSetText
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
@@ -76,8 +77,7 @@ open class ExpanderControl(
 
     override fun displayText(text: String) {
         if (text != textField.text) {
-            textField.text = text
-            if (scene != null) popup.showBelow(root)
+            textField.smartSetText(text)
         }
     }
 
