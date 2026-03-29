@@ -4,6 +4,8 @@
 
 package hextant.completion
 
+import org.kordamp.ikonli.Ikon
+
 /**
  * A completion of type [T]
  * @constructor
@@ -13,16 +15,18 @@ package hextant.completion
  * @property match A list of index ranges that represent matches between the [inputText] and the [completionText]
  * @property tooltipText The text that is displayed, when the user hovers the completion item
  * @property infoText Additional information on the completion item, or `null` if there is no additional info
- * @property icon An image resource that points to 16x16 icon that should is display
+ * @property icon An [Ikon] that should be displayed next to the completion info, or `null` if there is no icon.
  */
 class Completion<out T : Any>(
     val item: T,
     val inputText: String,
     val completionText: String,
     val match: List<IntRange>,
+    val similarity: Int,
     val tooltipText: String?,
     val infoText: String?,
-    val icon: String?
+    val icon: Ikon?,
+    val source: Completer<*>
 ) {
     /**
      * A Builder for [Completion]s
@@ -36,7 +40,9 @@ class Completion<out T : Any>(
         val completion: T,
         val inputText: String,
         val completionText: String,
-        val match: List<IntRange>
+        val match: List<IntRange>,
+        val similarity: Int,
+        private val source: Completer<*>
     ) {
         /**
          * The text that is displayed, when the user hovers the completion item, defaults to `null`
@@ -53,11 +59,14 @@ class Completion<out T : Any>(
         var infoText: String? = null
 
         /**
-         * An image resource that points to 16x16 icon that should is display, defaults to `null`
+         * An [Ikon] that should be displayed next to the completion info. `null by default.
          */
-        var icon: String? = null
+        var icon: Ikon? = null
 
         internal fun build(): Completion<T> =
-            Completion(completion, inputText, completionText, match, tooltipText, infoText, icon)
+            Completion(
+                completion, inputText, completionText, match, similarity,
+                tooltipText, infoText, icon, source
+            )
     }
 }

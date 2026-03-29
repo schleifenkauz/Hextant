@@ -18,5 +18,8 @@ sealed class CompletionResult {
      * @constructor
      * @property matchedRegions the index ranges of the matched regions
      */
-    data class Match(val matchedRegions: List<IntRange>) : CompletionResult()
+    data class Match(
+        val matchedRegions: List<IntRange>,
+        val similarity: Int
+    ) : CompletionResult()
 }

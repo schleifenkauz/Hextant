@@ -13,8 +13,8 @@ import fxutils.smartSetText
 import hextant.completion.Completer
 import hextant.completion.NoCompleter
 import hextant.completion.gui.CompletionPopup
-import hextant.context.Context
 import hextant.core.editor.ValidatedTokenEditor
+import hextant.core.view.ExpanderControl.Companion.MAX_COMPLETION_ITEMS
 import hextant.fx.HextantTextField
 
 /**
@@ -23,7 +23,11 @@ import hextant.fx.HextantTextField
 open class ValidatedTokenEditorControl (
     private val editor: ValidatedTokenEditor<*>, arguments: Bundle
 ) : EditorControl<HextantTextField>(editor, arguments), ValidatedTokenEditorView {
-    private val popup = CompletionPopup.forContext(context) { arguments[COMPLETER] }
+    private val popup = CompletionPopup(
+        context, editor,
+        maxItems = { arguments[MAX_COMPLETION_ITEMS] },
+        completer = { arguments[COMPLETER] }
+    )
 
     private val textObserver = root.userUpdatedText.observe { _, new ->
         editor.setText(new)
@@ -80,6 +84,6 @@ open class ValidatedTokenEditorControl (
         /**
          * Completer used by the [ValidatedTokenEditorControl]
          */
-        val COMPLETER = publicProperty<Completer<Context, *>>("completer", default = NoCompleter)
+        val COMPLETER = publicProperty<Completer<ValidatedTokenEditor<*>>>("completer", default = NoCompleter)
     }
 }

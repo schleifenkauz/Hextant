@@ -20,7 +20,7 @@ open class TokenEditorControl (
     constructor(
         editor: TokenEditor<*, TokenEditorView>,
         args: Bundle,
-        completer: Completer<TokenEditor<*, *>, Any> = NoCompleter,
+        completer: Completer<TokenEditor<*, *>> = NoCompleter,
         styleClass: String? = null
     ) : this(editor, args.also { it[COMPLETER] = completer }) {
         if (styleClass != null) root.styleClass.add(styleClass)

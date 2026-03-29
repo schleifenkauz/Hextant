@@ -31,7 +31,7 @@ open class TokenTypeConfig<R> private constructor(
     /**
      * @return a [Completer] which uses the registered choices and the given [strategy]
      */
-    fun completer(strategy: CompletionStrategy): Completer<Any, String> =
+    fun completer(strategy: CompletionStrategy): Completer<Any> =
         object : ConfiguredCompleter<Any, String>(strategy) {
             override fun completionPool(context: Any): Collection<String> = keys()
         }

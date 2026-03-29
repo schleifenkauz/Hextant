@@ -23,7 +23,7 @@ class ExpanderConfig<E : Editor<*>> private constructor(
     /**
      * @return a [Completer] which uses the registered choices and the given [strategy]
      */
-    fun completer(strategy: CompletionStrategy): Completer<Expander<*, *>, String> =
+    fun completer(strategy: CompletionStrategy): Completer<Expander<*, *>> =
         object : ConfiguredCompleter<Expander<*, *>, String>(strategy) {
             override fun completionPool(context: Expander<*, *>): Collection<String> = keys(context)
         }

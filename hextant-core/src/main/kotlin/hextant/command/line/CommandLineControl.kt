@@ -27,7 +27,7 @@ import reaktive.observe
 /**
  * A JavaFX implementation of the [CommandLineView]
  */
-class CommandLineControl (
+class CommandLineControl(
     private val cl: CommandLine, args: Bundle
 ) : CommandLineView, EditorControl<Pane>(cl, args) {
     private val history = VBox().withStyleClass("command-history")
@@ -39,7 +39,7 @@ class CommandLineControl (
     private val commandName = HextantTextField().withStyleClass("command-name")
     private val current = HBox(5.0, commandName).withStyleClass("command-input")
 
-    private val popup = CompletionPopup(context, cl) { CommandCompleter }
+    private val popup = CompletionPopup(context, cl, { CommandCompleter }, maxItems = { 10 })
 
     private val completionObserver: Observer
     private val textObserver: Observer
@@ -65,8 +65,10 @@ class CommandLineControl (
             }
         }
         completionObserver = popup.completionChosen.observe { _, completion ->
-            cl.setCommandName(completion.completionText)
-            cl.expand(completion.item)
+            if (completion.item is Command<*, *>) {
+                cl.setCommandName(completion.completionText)
+                cl.expand(completion.item)
+            }
         }
         textObserver = commandName.userUpdatedText.observe(this) { _, txt ->
             cl.setCommandName(txt)

@@ -29,13 +29,17 @@ open class ExpanderControl(
     private val expander: Expander<*, *>,
     args: Bundle
 ) : ExpanderView, WrappingEditorControl<Node>(expander, args) {
-    constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<Expander<*, *>, Any>) :
+    constructor(expander: Expander<*, *>, args: Bundle, completer: Completer<Expander<*, *>>) :
             this(expander, args.also { it[COMPLETER] = completer })
 
 
     val textField = HextantTextField()
 
-    private val popup = CompletionPopup(context, expander) { arguments[COMPLETER] }
+    private val popup = CompletionPopup(
+        context, expander,
+        maxItems = { arguments[MAX_COMPLETION_ITEMS] },
+        completer = { arguments[COMPLETER] }
+    )
 
     private val textObserver: Observer
     private val completionObserver: Observer
@@ -121,6 +125,8 @@ open class ExpanderControl(
         /**
          * This property controls the completer of the expander control
          */
-        val COMPLETER = publicProperty<Completer<Expander<*, *>, Any>>("expander.completer", default = NoCompleter)
+        val COMPLETER = publicProperty<Completer<Expander<*, *>>>("expander.completer", default = NoCompleter)
+
+        val MAX_COMPLETION_ITEMS = publicProperty("max completion items", 10)
     }
 }

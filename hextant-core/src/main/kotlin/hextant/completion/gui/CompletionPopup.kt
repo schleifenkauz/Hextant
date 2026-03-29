@@ -6,14 +6,16 @@
 
 package hextant.completion.gui
 
+import bundles.Bundle
 import fxutils.fixWidth
 import fxutils.onAction
+import fxutils.style
 import hextant.completion.Completer
 import hextant.completion.Completion
+import hextant.completion.CompletionCollector
 import hextant.context.Context
-import hextant.context.executeSafely
 import hextant.fx.HextantPopup
-import hextant.fx.IconManager
+import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.control.Tooltip
@@ -22,19 +24,25 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.text.TextFlow
 import javafx.stage.Popup
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.javafx.FontIcon
 import reaktive.event.event
 
 /**
  * A [Popup] that displays completion items.
  */
-internal class CompletionPopup<Ctx, T : Any>(
+internal class CompletionPopup<Ctx>(
     private val context: Context,
     private val ctx: Ctx,
-    private val completer: () -> Completer<Ctx, T>
+    private val completer: () -> Completer<Ctx>,
+    private val maxItems: () -> Int
 ) : HextantPopup(context) {
     private val root = VBox()
     private var input = ""
-    private val choose = event<Completion<T>>()
+    private val choose = event<Completion<*>>()
 
     /**
      * Emits events when a completion was chosen by the user.
@@ -59,13 +67,24 @@ internal class CompletionPopup<Ctx, T : Any>(
     }
 
     private fun updateItems() {
-        val completions = context.executeSafely("getting completions", emptyList()) {
-            completer().completions(ctx, input)
+        CoroutineScope(Dispatchers.Default).launch {
+            val collector = CompletionCollector.limit(maxItems())
+            with(completer()) {
+                try {
+                    collectCompletions(ctx, input, collector)
+                } catch (e: Exception) {
+                }
+            }
+            collector.get().await()
+            val completions = collector.getCompletions()
+            Platform.runLater {
+                val nodes = completions.map { c -> createCompletionItem(c) }
+                root.children.setAll(nodes)
+                valid = true
+                if (completions.isNotEmpty() && ownerNode.isFocused) super.show()
+                else hide()
+            }
         }
-        root.children.setAll(completions.map { c -> createCompletionItem(c) })
-        valid = true
-        if (completions.isNotEmpty() && ownerNode.isFocused) super.show()
-        else hide()
     }
 
     /**
@@ -77,7 +96,7 @@ internal class CompletionPopup<Ctx, T : Any>(
         if (isShowing) updateItems()
     }
 
-    private fun createCompletionItem(completion: Completion<T>): Node {
+    private fun createCompletionItem(completion: Completion<*>): Node {
         val container = BorderPane()
         val left = HBox(5.0)
         addIcon(completion.icon, left)
@@ -93,7 +112,7 @@ internal class CompletionPopup<Ctx, T : Any>(
         return container
     }
 
-    private fun addCompletionText(completion: Completion<T>, left: HBox) {
+    private fun addCompletionText(completion: Completion<*>, left: HBox) {
         val flow = TextFlow()
         val labels = completion.completionText.map { Label(it.toString()) }
         for (region in completion.match) {
@@ -111,10 +130,9 @@ internal class CompletionPopup<Ctx, T : Any>(
         container.fixWidth(FIXED_COMPLETION_ITEM_WIDTH)
     }
 
-    private fun addIcon(icon: String?, left: HBox) {
+    private fun addIcon(icon: Ikon?, left: HBox) {
         if (icon != null) {
-            val view = context[IconManager].viewIcon(icon)
-            left.children.add(view)
+            left.children.add(FontIcon(icon) style "completion-icon")
         }
     }
 
@@ -132,12 +150,6 @@ internal class CompletionPopup<Ctx, T : Any>(
 
     companion object {
         private const val FIXED_COMPLETION_ITEM_WIDTH = 500.0
-
-        /**
-         * Return a new [CompletionPopup] which uses the given [completer] with the specified [context].
-         */
-        fun <T : Any> forContext(context: Context, completer: () -> Completer<Context, T>) =
-            CompletionPopup(context, context, completer)
     }
 }
 

@@ -4,12 +4,14 @@
 
 package hextant.completion
 
+import kotlinx.coroutines.CoroutineScope
+
 /**
  * Used to get [Completion]s
  */
-interface Completer<in Ctx, out T : Any> {
+interface Completer<in Ctx> {
     /**
      * @return the possible completions for [input]
      */
-    fun completions(context: Ctx, input: String): Collection<Completion<T>>
+    suspend fun CoroutineScope.collectCompletions(context: Ctx, input: String, collector: CompletionCollector)
 }

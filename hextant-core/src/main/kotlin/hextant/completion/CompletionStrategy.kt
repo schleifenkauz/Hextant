@@ -1,3 +1,5 @@
+@file:Suppress("EmptyRange")
+
 package hextant.completion
 
 import hextant.completion.CompletionResult.Match
@@ -34,7 +36,8 @@ interface CompletionStrategy {
                 }
             }
             matchedRegions.add(completionRegionStart..completionIdx)
-            return Match(matchedRegions)
+            val similarity = matchedRegions.sumOf { region -> region.count() }
+            return Match(matchedRegions, similarity)
         }
     }
 
@@ -72,7 +75,8 @@ interface CompletionStrategy {
                 }
             }
             matchedRegions.add(completionRegionStart..completionIdx)
-            return Match(matchedRegions)
+            val similarity = matchedRegions.sumOf { region -> region.count() }
+            return Match(matchedRegions, similarity)
         }
     }
 
@@ -90,7 +94,7 @@ interface CompletionStrategy {
         /**
          * The camelcase completion strategy
          */
-        val camelCase: CompletionStrategy = Words(Char::isUpperCase, equalityIgnoreCase)
+        val camelCase: CompletionStrategy = Words(isSeparator = Char::isUpperCase, equalityIgnoreCase)
 
         /**
          * A completion strategy that separated words by the given [separators] and then matches them
@@ -98,7 +102,7 @@ interface CompletionStrategy {
         fun separators(
             separators: Set<Char>,
             charEquality: (Char, Char) -> Boolean = Char::equals
-        ): CompletionStrategy = Words(separators::contains, charEquality)
+        ): CompletionStrategy = Words(isSeparator = separators::contains, charEquality)
 
         /**
          * Vararg function for [CompletionStrategy.separators]
@@ -106,8 +110,7 @@ interface CompletionStrategy {
         fun separators(
             vararg separators: Char,
             charEquality: (Char, Char) -> Boolean = Char::equals
-        ): CompletionStrategy =
-            separators(separators.toSet(), charEquality)
+        ): CompletionStrategy = separators(separators.toSet(), charEquality)
 
         /**
          * A separation completion strategy separating with a underscore ('_')

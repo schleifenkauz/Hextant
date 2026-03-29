@@ -4,10 +4,12 @@
 
 package hextant.completion
 
+import kotlinx.coroutines.CoroutineScope
+
 /**
  * A completer that uses a specific completion [strategy] to get completions from a completion pool.
  */
-abstract class ConfiguredCompleter<in Ctx, T : Any>(private val strategy: CompletionStrategy) : Completer<Ctx, T> {
+abstract class ConfiguredCompleter<in Ctx, T : Any>(private val strategy: CompletionStrategy) : Completer<Ctx> {
     /**
      * Return a collection of possible completions in the given [context].
      */
@@ -23,17 +25,25 @@ abstract class ConfiguredCompleter<in Ctx, T : Any>(private val strategy: Comple
      */
     protected open fun Completion.Builder<T>.configure(context: Ctx) {}
 
-    final override fun completions(context: Ctx, input: String): Collection<Completion<T>> {
-        val completions = mutableListOf<Completion<T>>()
+    final override suspend fun CoroutineScope.collectCompletions(
+        context: Ctx, input: String,
+        collector: CompletionCollector
+    ) {
         for (completion in completionPool(context)) {
             val text = extractText(context, completion) ?: continue
             val result = strategy.match(input, text)
             if (result !is CompletionResult.Match) continue
-            val builder = Completion.Builder(completion, input, text, result.matchedRegions)
-            builder.configure(context)
-            completions.add(builder.build())
+            collector.offerCompletion(result.similarity) {
+                val builder = Completion.Builder(
+                    completion, input, text,
+                    result.matchedRegions, result.similarity,
+                    source = this@ConfiguredCompleter
+                )
+                builder.configure(context)
+                builder.build()
+            }
         }
-        return completions
+        collector.finished()
     }
 
     companion object {

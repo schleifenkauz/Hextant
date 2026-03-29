@@ -39,7 +39,11 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
 
     private val textEmptyObserver: Observer
 
-    private val popup = CompletionPopup(context, editor) { arguments[COMPLETER] }
+    private val popup = CompletionPopup(
+        context, editor,
+        maxItems = { arguments[MAX_COMPLETION_ITEMS] },
+        completer = { arguments[COMPLETER] }
+    )
 
     private val obs = popup.completionChosen.observe(this) { _, c ->
         editor.complete(c)
@@ -79,6 +83,8 @@ abstract class AbstractTokenEditorControl(editor: TokenEditor<*, *>, args: Bundl
         /**
          * This property controls the completer of the token editor control
          */
-        val COMPLETER = publicProperty<Completer<TokenEditor<*, *>, Any>>("token.completer", NoCompleter)
+        val COMPLETER = publicProperty<Completer<TokenEditor<*, *>>>("token.completer", NoCompleter)
+
+        val MAX_COMPLETION_ITEMS = publicProperty("max completion items", 10)
     }
 }
