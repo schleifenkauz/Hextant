@@ -157,7 +157,7 @@ open class ListEditorControl(
                 }
             }
         }
-        cell.addEventHandler(KeyEvent.KEY_PRESSED) { ev ->
+        cell.addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
             val prevKey = when (this.arguments[ORIENTATION]) {
                 Orientation.Horizontal, is Orientation.Flexible -> KeyCode.LEFT
                 Orientation.Vertical -> KeyCode.UP
