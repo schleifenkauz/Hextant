@@ -13,6 +13,7 @@ import kollektion.ClassDAG
 import kollektion.Counter
 import kollektion.MultiMap
 import reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveInt
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.superclasses
@@ -121,10 +122,14 @@ class Inspections private constructor() {
      */
     fun hasError(obj: Any): ReactiveBoolean = getManagerFor(obj).hasError
 
+    fun errorCount(obj: Any): ReactiveInt = getManagerFor(obj).errorCount()
+
     /**
      * Return a [ReactiveBoolean] that holds `true` only if any inspections report a warning on the given object.
      */
     fun hasWarning(obj: Any): ReactiveBoolean = getManagerFor(obj).hasWarning
+
+    fun warningCount(obj: Any): ReactiveInt = getManagerFor(obj).warningCount()
 
     /**
      * Return a collection containing all registered completions.

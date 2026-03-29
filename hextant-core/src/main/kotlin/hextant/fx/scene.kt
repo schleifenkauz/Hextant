@@ -10,6 +10,7 @@ import hextant.command.Commands
 import hextant.command.line.CommandListView
 import hextant.context.Context
 import hextant.core.view.EditorControl
+import hextant.inspect.Inspections
 import javafx.event.Event
 import javafx.scene.Scene
 import javafx.scene.input.ContextMenuEvent
@@ -28,7 +29,12 @@ fun Scene.initHextantScene(context: Context, applyStyle: Boolean = true) {
     registerShortcuts {
         on("Alt+Enter") { ev ->
             val control = ev.getTargetEditorControl() ?: return@on
-            showCommandsPopup(control, ev)
+            val problems = context[Inspections].getProblems(control.target)
+            if (problems.isNotEmpty()) {
+                control.showInspections()
+            } else {
+                showCommandsPopup(control, ev)
+            }
         }
         on("Ctrl+L") { ev ->
             val control = ev.getTargetEditorControl() ?: return@on

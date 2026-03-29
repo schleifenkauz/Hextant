@@ -7,6 +7,7 @@ package hextant.inspect
 import hextant.inspect.Problem.Severity
 import reaktive.Observer
 import reaktive.value.ReactiveBoolean
+import reaktive.value.ReactiveInt
 import reaktive.value.binding.notEqualTo
 import reaktive.value.now
 import reaktive.value.reactiveVariable
@@ -49,12 +50,14 @@ internal class InspectionManager {
     private fun changeCount(type: Severity, delta: Int) {
         when (type) {
             Severity.Warning -> warningCount.set(warningCount.now + delta)
-            Severity.Error -> errorCount.set(warningCount.now + delta)
+            Severity.Error -> errorCount.set(errorCount.now + delta)
         }
     }
 
     val hasError = errorCount.notEqualTo(0)
+    fun errorCount(): ReactiveInt = errorCount
     val hasWarning = warningCount.notEqualTo(0)
+    fun warningCount(): ReactiveInt = warningCount
 
     fun problems(): Set<Problem<*>> = reportingInspections.mapTo(mutableSetOf()) { it.run { getProblem() } }
 

@@ -63,14 +63,14 @@ abstract class EditorControl<R : Node>(
 
     private val inspections = context[Inspections]
 
-    private val hasError = inspections.hasError(target)
-    private val hasWarning = inspections.hasWarning(target)
+    private val errorCount = inspections.errorCount(target)
+    private val warningCount = inspections.warningCount(target)
 
-    private val errorObserver = hasError.observe(this) { _, _, isError ->
-        handleProblem(isError, hasWarning.now)
+    private val errorsObserver = errorCount.observe(this) { _, _, errors ->
+        problemCountUpdate(errors, warningCount.now)
     }
-    private val warningObserver = hasWarning.observe(this) { _, _, isWarn ->
-        handleProblem(hasError.now, isWarn)
+    private val warningsObserver = warningCount.observe(this) { _, _, warnings ->
+        problemCountUpdate(errorCount.now, warnings)
     }
 
     var editorParent: EditorControl<*>? = null
@@ -153,7 +153,7 @@ abstract class EditorControl<R : Node>(
             argumentChanged(property, new)
         }
         sceneProperty().addListener(this) { sc ->
-            if (sc != null) handleProblem(hasError.now, hasWarning.now)
+            if (sc != null) problemCountUpdate(errorCount.now, warningCount.now)
         }
         isFocusTraversable = false
         initShortcuts()
@@ -313,7 +313,7 @@ abstract class EditorControl<R : Node>(
 
     protected fun paste(): Boolean = target.pasteFromClipboard()
 
-    private fun showInspections(): Boolean {
+    fun showInspections(): Boolean {
         val inspectionPopup = InspectionPopup(context, target)
         inspectionPopup.show(root)
         return inspectionPopup.isShowing
@@ -335,27 +335,15 @@ abstract class EditorControl<R : Node>(
         parent.lastExtendingChild = this
     }
 
-    private fun addStyleCls(name: String) {
-        if (name !in styleClass) styleClass.add(name)
-    }
-
-    private fun handleProblem(error: Boolean, warn: Boolean) {
-        when {
-            error -> {
-                addStyleCls("error")
-                styleClass.remove("warning")
-            }
-
-            warn -> {
-                addStyleCls("warning")
-                styleClass.remove("error")
-            }
-
-            else -> {
-                styleClass.remove("warning")
-                styleClass.remove("error")
-            }
-        }
+    private fun problemCountUpdate(errors: Int, warnings: Int) {
+        val error = errors > 0
+        val warn = errors <= 0 && warnings > 0
+        if (error && "error" !in styleClass) {
+            styleClass.add("error")
+        } else if (!error) styleClass.remove("error")
+        if (warn && "warning" !in styleClass) {
+            styleClass.add("warning")
+        } else if (!warn) styleClass.remove("warning")
     }
 
     fun exportJsonArgumentTree(): JsonObject = buildJsonObject {
