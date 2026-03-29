@@ -16,6 +16,7 @@ import kotlinx.serialization.json.jsonObject
 import reaktive.value.ReactiveValue
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty0
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.memberProperties
 
@@ -86,6 +87,10 @@ abstract class CompoundEditor<R> : AbstractEditor<R, EditorView>() {
 
     protected fun addComponent(name: String, editor: Editor<*>, contextFunc: (Context) -> Context = {it}) {
         components.add(Component(editor, name, contextFunc))
+    }
+
+    protected fun addComponent(property: KProperty0<Editor<*>>, contextFunc: (Context) -> Context = { it}) {
+        addComponent(property.name, property.get(), contextFunc)
     }
 
     override fun supportsCopyPaste(): Boolean = getChildren().all { e -> e.supportsCopyPaste() }
