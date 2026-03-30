@@ -6,12 +6,10 @@
 
 package hextant.completion.gui
 
-import fxutils.alwaysHGrow
 import fxutils.centerChildren
 import fxutils.hspace
 import fxutils.infiniteSpace
 import fxutils.onAction
-import fxutils.style
 import fxutils.styleClass
 import hextant.completion.Completer
 import hextant.completion.Completion
@@ -28,7 +26,6 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
-import javafx.scene.paint.Color
 import javafx.scene.text.Text
 import javafx.scene.text.TextFlow
 import javafx.stage.Popup
@@ -37,7 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC
-import org.kordamp.ikonli.materialdesign2.MaterialDesignS
 import reaktive.event.event
 
 /**

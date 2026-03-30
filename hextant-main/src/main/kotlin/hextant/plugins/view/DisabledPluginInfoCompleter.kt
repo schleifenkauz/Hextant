@@ -10,22 +10,19 @@ import hextant.core.Editor
 import hextant.plugins.PluginInfo
 import hextant.plugins.PluginManager
 import hextant.plugins.PluginProperty
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.*
 
 internal class DisabledPluginInfoCompleter(private val types: Set<PluginInfo.Type>) : Completer<Editor<*>> {
-    override suspend fun CoroutineScope.collectCompletions(
+    override suspend fun collectCompletions(
         context: Editor<*>, input: String,
         collector: CompletionCollector
-    ) {
+    ) = withContext(Dispatchers.Default) {
         val ctx = context.context
         val excluded = ctx[PluginManager].enabledPlugins().mapTo(mutableSetOf()) { it.id }
         val completions = ctx[marketplace].getPlugins(input, 10, types, excluded)
-        val jobs = mutableListOf<Deferred<Unit>>()
+        val jobs = mutableListOf<Job>()
         for (id in completions) {
-            val job = async {
+            val job = launch {
                 val info = ctx[marketplace].get(PluginProperty.info, id)!!
                 val match = CompletionStrategy.simple.match(input, info.id)
                 if (match is Match) {
@@ -45,7 +42,7 @@ internal class DisabledPluginInfoCompleter(private val types: Set<PluginInfo.Typ
             }
             jobs.add(job)
         }
-        jobs.awaitAll()
+        jobs.joinAll()
         collector.finished()
     }
 }

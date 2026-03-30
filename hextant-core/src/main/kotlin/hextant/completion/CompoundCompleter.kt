@@ -4,8 +4,6 @@
 
 package hextant.completion
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.joinAll
 
 /**
@@ -25,7 +23,7 @@ open class CompoundCompleter<Ctx, T : Any>(setup: CompoundCompleter<Ctx, T>.() -
         completers.add(completer)
     }
 
-    override suspend fun CoroutineScope.collectCompletions(
+    override suspend fun collectCompletions(
         context: Ctx, input: String,
         collector: CompletionCollector
     ) {

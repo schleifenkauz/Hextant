@@ -4,8 +4,6 @@
 
 package hextant.completion
 
-import kotlinx.coroutines.CoroutineScope
-
 /**
  * A completer that uses a specific completion [strategy] to get completions from a completion pool.
  */
@@ -25,7 +23,7 @@ abstract class ConfiguredCompleter<in Ctx, T : Any>(private val strategy: Comple
      */
     protected open fun Completion.Builder<T>.configure(context: Ctx) {}
 
-    final override suspend fun CoroutineScope.collectCompletions(
+    final override suspend fun collectCompletions(
         context: Ctx, input: String,
         collector: CompletionCollector
     ) {
