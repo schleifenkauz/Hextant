@@ -218,8 +218,6 @@ VBox.completion-list {
 }
 
 .option-cell.completion {
-    -fx-background-radius: 2px;
-    -fx-background-color: transparent;
     -fx-alignment: center-left;
 }
 
