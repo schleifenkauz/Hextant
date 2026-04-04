@@ -4,22 +4,12 @@ apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'maven-publish'
 apply plugin: 'org.jetbrains.dokka'
 
-version '1.1-SNAPSHOT'
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-            artifact kotlinSourcesJar
-        }
-    }
-}
+version '1.0-SNAPSHOT'
 
 kapt {
     useBuildCache = true
     annotationProcessors("hextant.codegen.MainProcessor")
 }
-
 
 javafx {
     version = property('javafx_version')
@@ -29,7 +19,6 @@ javafx {
 
 dependencies {
     api "de.schleifenkauz:reaktive:1.0-SNAPSHOT"
-    api "de.schleifenkauz:bundles:1.0-SNAPSHOT"
     api "de.schleifenkauz:kollektion:1.0-SNAPSHOT"
     api "de.schleifenkauz:fx-utils:1.0-SNAPSHOT"
 
@@ -51,4 +40,25 @@ dependencies {
 
     testImplementation project(":hextant-expr")
     testImplementation project(":hextant-test")
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact kotlinSourcesJar
+        }
+    }
+
+
+    repositories {
+        maven {
+            name = "sonatypeSnapshots"
+            url = uri("https://central.sonatype.com/repository/maven-snapshots")
+            credentials {
+                username = findProperty("sonatypeUsername")
+                password = findProperty("sonatypePassword")
+            }
+        }
+    }
 }

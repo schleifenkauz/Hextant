@@ -32,7 +32,6 @@ class IntLiteralEditor @ProvideImplementation(EditorFactory::class) constructor(
         override fun Builder<String>.configure(context: Context) {
             tooltipText = "666 is the number of satan"
             infoText = "Cool number"
-            icon = "hextant/core/icon/warning.png"
         }
     }
 }

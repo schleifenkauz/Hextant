@@ -33,7 +33,7 @@ fun PluginBuilder.registerControlFactories() {
         }
     }
     registerControlFactory { e: ExprExpander, args: Bundle ->
-        val c = CompoundCompleter<Expander<*, *>, Any>()
+        val c = CompoundCompleter<Expander<*, *>, Any>({})
         c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
         //    c.addCompleter(SpecialNumbers)
         ExpanderControl(e, args, c)

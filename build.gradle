@@ -1,8 +1,4 @@
 buildscript {
-    repositories {
-        mavenCentral()
-        mavenLocal()
-    }
     dependencies {
         classpath 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.17'
     }
@@ -38,7 +34,9 @@ tasks.register('initialSetup') {
 subprojects {
     repositories {
         mavenCentral()
-        mavenLocal()
+        maven {
+            url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+        }
     }
 
     apply plugin: 'kotlin'

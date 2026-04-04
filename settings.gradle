@@ -11,3 +11,16 @@ include 'hextant-plugin-plugin'
 include 'hextant-main'
 include 'hextant-cli'
 include 'hextant-expr'
+
+if (file("../kollektion").exists()) {
+    includeBuild("../kollektion")
+}
+if (file("../reaktive").exists()) {
+    includeBuild("../reaktive")
+}
+if (file("../fx-utils").exists()) {
+    includeBuild("../fx-utils")
+}
+if (file("../krobot").exists()) {
+    includeBuild("../krobot")
+}

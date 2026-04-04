@@ -81,7 +81,7 @@ class InspectionMemoryLeakTest {
         ctx[UndoManager] = NoUndoManager
         val exp = ExprExpander()
         exp.initialize(ctx)
-        val c = CompoundCompleter<Expander<*, *>, Any>()
+        val c = CompoundCompleter<Expander<*, *>, Any> {}
         c.addCompleter(ExprExpander.config.completer(CompletionStrategy.simple))
         val view =     //    c.addCompleter(SpecialNumbers)
             ExpanderControl(exp, createBundle(), c)

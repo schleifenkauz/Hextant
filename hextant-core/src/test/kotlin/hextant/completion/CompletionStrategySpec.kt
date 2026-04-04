@@ -31,13 +31,13 @@ internal object CompletionStrategySpec : Spek({
     describe("simple") {
         val s = CompletionStrategy.simple
         val testData = listOf(
-            "abc" to "aaabbbccc" to Match(listOf(0..0, 3..3, 6..6)),
+            "abc" to "aaabbbccc" to Match(listOf(0..0, 3..3, 6..6), similarity = 0.0),
             "abz" to "aaabbbccc" to NoMatch,
-            "h" to "hello world" to Match(listOf(0..0)),
+            "h" to "hello world" to Match(listOf(0..0),  similarity = 0.0),
             "z" to "hello world" to NoMatch,
-            "w" to "hello world" to Match(listOf(6..6)),
-            "public" to "public" to Match(listOf(0..5)),
-            "publi" to "public" to Match(listOf(0..4)),
+            "w" to "hello world" to Match(listOf(6..6),  similarity = 0.0),
+            "public" to "public" to Match(listOf(0..5),  similarity = 0.0),
+            "publi" to "public" to Match(listOf(0..4),  similarity = 0.0),
             "public void" to "public" to NoMatch
         )
         test(testData, s)
@@ -46,11 +46,11 @@ internal object CompletionStrategySpec : Spek({
         val s = CompletionStrategy.underscore
         val testData = listOf(
             "abc" to "a_b_c" to NoMatch,
-            "ab_d" to "abc_def" to Match(listOf(0..1, 3..4)),
+            "ab_d" to "abc_def" to Match(listOf(0..1, 3..4),  similarity = 0.0),
             "ü" to "abc_def" to NoMatch,
-            "___" to "abc_def_ghi_jkl" to Match(listOf(3..3, 7..7, 11..11)),
-            "_" to "abc_def" to Match(listOf(3..3)),
-            "_def_" to "abc_def_ghi" to Match(listOf(3..7)),
+            "___" to "abc_def_ghi_jkl" to Match(listOf(3..3, 7..7, 11..11),  similarity = 0.0),
+            "_" to "abc_def" to Match(listOf(3..3),  similarity = 0.0),
+            "_def_" to "abc_def_ghi" to Match(listOf(3..7),  similarity = 0.0),
             "_" to "abc" to NoMatch
         )
         test(testData, s)
