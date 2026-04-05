@@ -42,7 +42,7 @@ subprojects {
     apply plugin: 'kotlin'
 
     kotlin {
-        jvmToolchain(19)
+        jvmToolchain(Integer.parseInt(findProperty("jdk_version") as String))
     }
 
     compileKotlin {
