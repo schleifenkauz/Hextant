@@ -108,7 +108,7 @@ interface Editor<out R> {
 
         fun deserialize(json: JsonElement, klass: KClass<*>?): Editor<*> {
             if (klass == null) return deserializeWithTypeTag(json)
-            val editor = klass.java.newInstance() as Editor<*>
+            val editor = klass.java.getDeclaredConstructor().newInstance() as Editor<*>
             if (json is JsonObject && "_type" in json) error("Unexpected type tag in $json")
             editor.deserialize(json)
             return editor
@@ -118,7 +118,12 @@ interface Editor<out R> {
             if (json !is JsonObject) error("No type tag found on $json")
             val type = json["_type"]?.jsonPrimitive?.content ?: error("No type tag found on $json")
             val editor = Class.forName(type).newInstance() as Editor<*>
-            editor.deserialize(json["_content"] ?: json)
+            val body = when {
+                "_contentType" in json -> json
+                "_content" in json -> json.getValue("_content")
+                else -> json
+            }
+            editor.deserialize(body)
             return editor
         }
     }
