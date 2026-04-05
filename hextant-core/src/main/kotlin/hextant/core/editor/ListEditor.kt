@@ -8,7 +8,7 @@ import fxutils.undo.AbstractEdit
 import fxutils.undo.UndoManager
 import hextant.codegen.ProvideFeature
 import hextant.context.Clipboard
-import hextant.context.ClipboardContent.MultipleEditors
+import hextant.context.ClipboardContent
 import hextant.context.Context
 import hextant.context.executeSafely
 import hextant.core.Editor
@@ -130,12 +130,12 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     /**
      * Insert all the given [editors] at the specified [idx] into this [ListEditor].
      */
-    fun pasteMany(idx: Int, editors: List<E>, undoable: Boolean = true) {
+    fun pasteItems(idx: Int, editors: List<E>, undoable: Boolean = true) {
+        if (editors.any { !editorClass.isInstance(it) }) return
         if (undoable) {
             val edit = PasteManyEdit(reference(), idx, editors.map { e -> e.snapshot() })
             context[UndoManager].record(edit)
         }
-        if (editors.any { !editorClass.isInstance(it) }) return
         for ((i, e) in editors.withIndex()) {
             doAddAt(idx + i, e)
         }
@@ -145,12 +145,22 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
     /**
      * Inserts all the editors currently copied with at the specified [idx] into this [ListEditor].
      */
-    fun pasteManyFromClipboard(idx: Int) {
-        val content = context[Clipboard].get()
-        if (content !is MultipleEditors) return
-        if (!content.editors.all { e -> editorClass.isInstance(e) }) return
-        @Suppress("UNCHECKED_CAST")
-        pasteMany(idx, content.editors as List<E>)
+    fun pasteItemsFromClipboard(idx: Int) {
+        when (val content = context[Clipboard].get()) {
+            is ClipboardContent.OneEditor -> {
+                if (!editorClass.isInstance(content.content)) return
+                @Suppress("UNCHECKED_CAST")
+                pasteItems(idx, listOf(content.content as E))
+            }
+
+            is ClipboardContent.MultipleEditors -> {
+                if (!content.editors.all { e -> editorClass.isInstance(e) }) return
+                @Suppress("UNCHECKED_CAST")
+                pasteItems(idx, content.editors as List<E>)
+            }
+
+            else -> return
+        }
     }
 
     override fun getSubEditor(accessor: EditorAccessor): Editor<*> {
@@ -410,7 +420,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         }
 
         override fun doUndo() {
-            editor.get().pasteMany(0, removed, undoable = false)
+            editor.get().pasteItems(0, removed, undoable = false)
         }
 
         override val actionDescription: String
@@ -423,7 +433,7 @@ abstract class ListEditor<R, E : Editor<R>> : AbstractEditor<List<R>, ListEditor
         private val pasted: List<E>
     ) : AbstractEdit() {
         override fun doRedo() {
-            editor.get().pasteMany(index, pasted, undoable = false)
+            editor.get().pasteItems(index, pasted, undoable = false)
         }
 
         override fun doUndo() {

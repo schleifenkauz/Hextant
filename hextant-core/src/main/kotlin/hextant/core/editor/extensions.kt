@@ -96,3 +96,7 @@ fun <E: Editor<*>> E.defaultState() = also { e -> e.setupDefaultState() }
 inline fun <reified P: Editor<*>, E: Editor<*>> Editor<*>.isSubEditor(property: KProperty1<P, E>): Boolean {
     return parent is P && accessor == PropertyAccessor(property.name)
 }
+
+inline fun <reified L> ListenerManager<out Any>.notifyListeners(crossinline block: L.() -> Unit) {
+    notifyListeners { if (this is L) block() }
+}

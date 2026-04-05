@@ -99,9 +99,10 @@ open class ListEditorControl(
             ev.consume()
         }
         registerShortcuts {
-            on(PASTE_MANY) { editor.pasteManyFromClipboard(0) }
+            on(PASTE_MANY) { editor.pasteItemsFromClipboard(0) }
         }
         emptyDisplay?.registerShortcuts {
+            on("Ctrl+V") { editor.pasteItemsFromClipboard(0) }
             on(ADD_ITEM_AFTER) { editor.addAt(0) }
         }
     }
@@ -147,7 +148,7 @@ open class ListEditorControl(
         cell.registerShortcuts {
             this.on(ADD_ITEM_AFTER) { editor.addAt(cell.index + 1) }
             this.on(ADD_ITEM_BEFORE) { editor.addAt(cell.index) }
-            this.on(PASTE_MANY) { editor.pasteManyFromClipboard(cell.index) }
+            this.on(PASTE_MANY) { editor.pasteItemsFromClipboard(cell.index) }
             if (orientation is Orientation.Flexible) {
                 this.on("Shift+Enter") {
                     setLineBreak(cell, true)
