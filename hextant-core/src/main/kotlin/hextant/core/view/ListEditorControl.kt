@@ -6,6 +6,7 @@ package hextant.core.view
 
 import bundles.*
 import fxutils.*
+import fxutils.actions.button
 import hextant.context.SelectionDistributor
 import hextant.context.createControl
 import hextant.core.Editor
@@ -25,7 +26,7 @@ import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import kotlinx.serialization.Serializable
 import org.controlsfx.glyphfont.FontAwesome
-import org.controlsfx.glyphfont.FontAwesome.Glyph.PLUS
+import org.kordamp.ikonli.materialdesign2.MaterialDesignP
 
 /**
  * Objects of this class are used to display [ListEditor]s.
@@ -74,6 +75,7 @@ open class ListEditorControl(
         addArgumentHandler(ORIENTATION, ::orientationChanged)
         addArgumentHandler(CELL_FACTORY) { cellFactoryChanged() }
         registerShortcuts {
+            on(PASTE_MANY) { editor.pasteItemsFromClipboard(0) }
             on("Ctrl+DELETE") { removeSelected() }
         }
     }
@@ -88,6 +90,7 @@ open class ListEditorControl(
     }
 
     private fun initEmptyDisplay() {
+        emptyDisplay?.isFocusTraversable = true
         emptyDisplay?.setOnMouseClicked { ev ->
             editor.addAt(0)
             ev.consume()
@@ -97,9 +100,6 @@ open class ListEditorControl(
             if (ev.character[0].code < 32) return@addEventHandler
             editor.typedCharacterOnEmptyList(ev.character)
             ev.consume()
-        }
-        registerShortcuts {
-            on(PASTE_MANY) { editor.pasteItemsFromClipboard(0) }
         }
         emptyDisplay?.registerShortcuts {
             on("Ctrl+V") { editor.pasteItemsFromClipboard(0) }
@@ -187,6 +187,7 @@ open class ListEditorControl(
 
     override fun removed(idx: Int) {
         val cell = cells.removeAt(idx)
+        val wasFocused = cell.isFocusWithin
         cells.drop(idx).forEach { c -> c.index -= 1 }
         removeChild(idx)
         val orientation = orientation
@@ -199,10 +200,17 @@ open class ListEditorControl(
             }
         } else {
             layout.children.removeAt(idx)
-
         }
-        if (idx == 0 && cells.isNotEmpty()) cells[0].requestFocus()
-        else if (idx != 0) cells[idx - 1].requestFocus()
+        runAfterLayout {
+            if (wasFocused) {
+                if (cells.isNotEmpty()) {
+                    val nextFocusIdx = (idx - 1).coerceAtLeast(0)
+                    cells[nextFocusIdx].requestFocus()
+                } else {
+                    emptyDisplay?.requestFocus()
+                }
+            }
+        }
     }
 
     override fun swapped(i: Int, j: Int) {
@@ -333,7 +341,7 @@ open class ListEditorControl(
         val focused = root.isFocusWithin
         layout.children.clear()
         cells.clear()
-        root = emptyDisplay ?: layout
+        root = emptyDisplay?.let(Node::centered) ?: layout
         if (focused) requestFocus()
     }
 
@@ -550,7 +558,7 @@ open class ListEditorControl(
          * The [Node] that is displayed when no items are in the [ListEditor]
          */
         val EMPTY_DISPLAY = publicProperty<() -> Node?>("empty display") {
-            Glyphs.create(PLUS).withStyleClass("standard-empty-display")
+            MaterialDesignP.PLUS.button("Add item", "small-icon-button") styleClass "standard-empty-display"
         }
 
         val ADD_WITH_COMMA = publicProperty<Boolean>("Add with comma", false)

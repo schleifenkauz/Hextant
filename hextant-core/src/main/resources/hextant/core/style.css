@@ -194,18 +194,19 @@
 }
 
 .standard-empty-display {
-    -fx-padding: 3px;
-    -fx-text-fill: transparent;
-    -fx-background-color: transparent;
+    -fx-padding: 0px;
+    -fx-background-radius: 2px;
+}
+
+.standard-empty-display FontIcon {
+    -fx-icon-color: transparent;
+}
+
+.standard-empty-display:hover FontIcon, .standard-empty-display:focused FontIcon {
+    -fx-icon-color: green;
 }
 
 .standard-empty-display:hover {
-    -fx-text-fill: white;
-    -fx-background-color: #303030;
-}
-
-.standard-empty-display:focused {
-    -fx-text-fill: white;
     -fx-background-color: #303030;
 }
 
