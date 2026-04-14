@@ -90,20 +90,21 @@ open class ListEditorControl(
     }
 
     private fun initEmptyDisplay() {
-        emptyDisplay?.isFocusTraversable = true
         emptyDisplay?.setOnMouseClicked { ev ->
             editor.addAt(0)
             ev.consume()
         }
-        emptyDisplay?.addEventHandler(KeyEvent.KEY_TYPED) { ev ->
-            if (Alt in ev.modifiers || Ctrl in ev.modifiers || Meta in ev.modifiers) return@addEventHandler
-            if (ev.character[0].code < 32) return@addEventHandler
-            editor.typedCharacterOnEmptyList(ev.character)
-            ev.consume()
-        }
-        emptyDisplay?.registerShortcuts {
-            on("Ctrl+V") { editor.pasteItemsFromClipboard(0) }
-            on(ADD_ITEM_AFTER) { editor.addAt(0) }
+        addEventHandler(KeyEvent.KEY_RELEASED) { ev ->
+            if (editor.editors.now.isEmpty()) {
+                when {
+                    "Ctrl+V".shortcut.matches(ev) -> editor.pasteItemsFromClipboard(0)
+                    ADD_ITEM_AFTER.matches(ev) -> editor.addAt(0)
+                    Alt in ev.modifiers || Ctrl in ev.modifiers || Meta in ev.modifiers -> return@addEventHandler
+                    ev.character[0].code >= 32 -> editor.typedCharacterOnEmptyList(ev.character)
+                    else -> return@addEventHandler
+                }
+                ev.consume()
+            }
         }
     }
 
