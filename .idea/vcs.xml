@@ -9,5 +9,6 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../fx-utils" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../kollektion" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../krobot" vcs="Git" />
   </component>
 </project>
